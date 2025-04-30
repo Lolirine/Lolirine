@@ -1,0 +1,20 @@
+.zone {
+  display: grid;
+  grid-template-columns: repeat(10, 60px);
+  gap: 6px;
+  margin: 20px auto;
+  max-width: 800px;
+}
+.box {
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.libre { background: #b6fcb6; }
+.occupe { background: #ffc7c2; }
+.maintenance { background: #d0e2ff; }
+.nettoyage { background: #fff4c2; }
