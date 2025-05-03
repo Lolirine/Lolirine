@@ -1,0 +1,45 @@
+<odoo>
+    <record id="view_trajet_intervention_form" model="ir.ui.view">
+        <field name="name">trajet.intervention.form</field>
+        <field name="model">trajet.intervention</field>
+        <field name="arch" type="xml">
+            <form string="Trajet d'intervention">
+                <sheet>
+                    <group>
+                        <field name="date_trajet"/>
+                        <field name="conducteur_id"/>
+                        <field name="client_id"/>
+                        <field name="box_id"/>
+                        <field name="motif"/>
+                        <field name="distance_km"/>
+                        <field name="notes"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_trajet_intervention_tree" model="ir.ui.view">
+        <field name="name">trajet.intervention.tree</field>
+        <field name="model">trajet.intervention</field>
+        <field name="arch" type="xml">
+            <tree string="Trajets d'intervention">
+                <field name="date_trajet"/>
+                <field name="conducteur_id"/>
+                <field name="client_id"/>
+                <field name="box_id"/>
+                <field name="motif"/>
+                <field name="distance_km"/>
+            </tree>
+        </field>
+    </record>
+
+    <menuitem id="menu_trajet_root" name="Trajets" sequence="20"/>
+    <menuitem id="menu_trajet_intervention" name="Trajets interventions" parent="menu_trajet_root" action="action_trajet_intervention"/>
+
+    <record id="action_trajet_intervention" model="ir.actions.act_window">
+        <field name="name">Trajets d'intervention</field>
+        <field name="res_model">trajet.intervention</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>
