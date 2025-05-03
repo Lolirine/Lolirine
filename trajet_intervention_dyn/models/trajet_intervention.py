@@ -67,14 +67,14 @@ class TrajetIntervention(models.Model):
             'view_mode': 'tree,form',
         })
 
-        parent_menu = menu_model.create({
-            'name': 'Trajets',
-            'sequence': 10,
-        })
+        try:
+            website_menu = self.env['ir.ui.menu'].create({'name': 'Interventions', 'sequence': 1})
+        except ValueError:
+            website_menu = menu_model.create({'name': 'Site Web (Fallback)', 'sequence': 90})
 
         menu_model.create({
             'name': 'Trajets interventions',
-            'parent_id': parent_menu.id,
+            'parent_id': website_menu.id,
             'action': 'ir.actions.act_window,%d' % action.id,
         })
 

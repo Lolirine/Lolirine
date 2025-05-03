@@ -1,10 +1,10 @@
 {
-    "name": "Trajets Interventions (Dynamique)",
+    "name": "Interventions - Trajets",
     "version": "1.0",
     "category": "Garde-Meubles",
-    "summary": "Trajets avec vues générées dynamiquement (pas de XML)",
+    "summary": "Gestion des trajets d'intervention",
     "author": "Erin",
     "depends": ["base"],
     "installable": true,
-    "application": false
+    "application": true
 }
