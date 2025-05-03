@@ -1,0 +1,5 @@
+<odoo>
+    <menuitem id="box_management_menu_root" name="Garde-meubles" sequence="5"/>
+    <menuitem id="box_management_menu_reservation" name="Réservations" parent="box_management_menu_root" action="box_reservation_action" sequence="10"/>
+    <menuitem id="box_management_menu_maintenance" name="Maintenance" parent="box_management_menu_root" action="box_maintenance_action" sequence="20"/>
+</odoo>
