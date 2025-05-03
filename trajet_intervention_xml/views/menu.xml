@@ -1,0 +1,5 @@
+<odoo>
+    <menuitem id="menu_trajet_root" name="Interventions" sequence="1"/>
+    <menuitem id="menu_trajet_intervention" name="Trajets interventions"
+              parent="menu_trajet_root" action="action_trajet_intervention"/>
+</odoo>
