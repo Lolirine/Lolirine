@@ -1,0 +1,31 @@
+<odoo>
+    <record id="view_trajet_min_tree" model="ir.ui.view">
+        <field name="name">trajet.intervention.tree</field>
+        <field name="model">trajet.intervention</field>
+        <field name="arch" type="xml">
+            <tree string="Trajets">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_trajet_min_form" model="ir.ui.view">
+        <field name="name">trajet.intervention.form</field>
+        <field name="model">trajet.intervention</field>
+        <field name="arch" type="xml">
+            <form string="Trajet">
+                <sheet>
+                    <field name="name"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_trajet_min" model="ir.actions.act_window">
+        <field name="name">Trajets (test)</field>
+        <field name="res_model">trajet.intervention</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_root_min" name="Interventions (Test)" sequence="1" action="action_trajet_min"/>
+</odoo>
