@@ -1,0 +1,2 @@
+id,name,model_id:ref,group_id:ref,perm_read,perm_write,perm_create,perm_unlink
+access_box_storage_map,access_box_storage_map,model_box_storage_map,base.group_user,1,1,1,1

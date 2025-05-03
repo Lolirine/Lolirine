@@ -1,0 +1,13 @@
+<odoo>
+    <record id="view_box_storage_map_tree" model="ir.ui.view">
+        <field name="name">box.storage.map.tree</field>
+        <field name="model">box.storage.map</field>
+        <field name="arch" type="xml">
+            <tree string="Boxes Map">
+                <field name="name"/>
+                <field name="position_x"/>
+                <field name="position_y"/>
+            </tree>
+        </field>
+    </record>
+</odoo>
