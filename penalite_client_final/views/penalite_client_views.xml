@@ -1,0 +1,61 @@
+<odoo>
+    <record id="view_penalite_client_form" model="ir.ui.view">
+        <field name="name">penalite.client.form</field>
+        <field name="model">penalite.client</field>
+        <field name="arch" type="xml">
+            <form string="Pénalité Client">
+                <group>
+                    <field name="partner_id"/>
+                    <field name="montant"/>
+                    <field name="motif"/>
+                    <field name="date"/>
+                    <field name="statut"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_penalite_client_tree" model="ir.ui.view">
+        <field name="name">penalite.client.tree</field>
+        <field name="model">penalite.client</field>
+        <field name="arch" type="xml">
+            <tree string="Pénalités Client">
+                <field name="partner_id"/>
+                <field name="montant"/>
+                <field name="motif"/>
+                <field name="date"/>
+                <field name="statut"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_penalite_client" model="ir.actions.act_window">
+        <field name="name">Pénalités Client</field>
+        <field name="res_model">penalite.client</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_penalite_root" name="Pénalités"/>
+    <menuitem id="menu_penalite_client" name="Pénalités Client" parent="menu_penalite_root" action="action_penalite_client"/>
+
+    <!-- HÉRITAGE CORRECT DU FORMULAIRE CLIENT -->
+    <record id="view_res_partner_form_inherit_penalite" model="ir.ui.view">
+        <field name="name">res.partner.form.penalite.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Pénalités">
+                    <field name="penalite_ids">
+                        <tree editable="bottom">
+                            <field name="motif"/>
+                            <field name="montant"/>
+                            <field name="date"/>
+                            <field name="statut"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
