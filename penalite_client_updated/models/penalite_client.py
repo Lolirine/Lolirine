@@ -2,7 +2,7 @@ from odoo import models, fields, api
 from datetime import date
 
 class PenaliteClient(models.Model):
-    _name = "penalite.client"
+    _name = "penalite_client"
     _description = "Pénalité Client"
     _order = "date desc"
 
