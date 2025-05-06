@@ -1,0 +1,7 @@
+<odoo>
+    <record id="model_fraispenalite_penalite" model="ir.model">
+        <field name="name">fraispenalite.penalite</field>
+        <field name="model">fraispenalite.penalite</field>
+        <field name="state">manual</field>
+    </record>
+</odoo>
