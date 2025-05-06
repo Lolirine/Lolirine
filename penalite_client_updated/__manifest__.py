@@ -6,7 +6,7 @@
     "category": "Custom",
     "depends": ["base", "sale_subscription", "account"],
     "data": [
-        "security/ir.model.access.csv",
+        "security/ir_model_access_csv",
         "views/penalite_client_views.xml"
     ],
     "installable": True,
