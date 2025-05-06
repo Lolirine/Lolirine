@@ -14,9 +14,9 @@ class PenaliteClient(models.Model):
 
     @api.model
     def create_penalite_for_canceled_subscriptions(self):
-        subs = self.env['sale.subscription'].search([
-            ('stage_id.category', '=', 'closed'),
-            ('date_end', '<', fields.Date.today())
+        subs = self.env['sale_subscription'].search([
+            ('stage_id_category', '=', 'closed'),
+            ('date_end', '<', fields_Date_today())
         ])
         for sub in subs:
             if not self.search([('partner_id', '=', sub.partner_id.id), ('motif', '=', 'Annulation tardive')]):
@@ -24,5 +24,5 @@ class PenaliteClient(models.Model):
                     'partner_id': sub.partner_id.id,
                     'montant': 50.0,
                     'motif': 'Annulation tardive',
-                    'date': fields.Date.today(),
+                    'date': fields_Date_today(),
                 })
