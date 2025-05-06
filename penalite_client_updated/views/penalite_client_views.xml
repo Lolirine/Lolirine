@@ -1,7 +1,7 @@
 <odoo>
     <record id="view_penalite_client_form" model="ir.ui.view">
-        <field name="name">penalite.client.form</field>
-        <field name="model">penalite.client</field>
+        <field name="name">penalite_client_form</field>
+        <field name="model">penalite_client</field>
         <field name="arch" type="xml">
             <form string="Pénalité Client">
                 <group>
@@ -16,8 +16,8 @@
     </record>
 
     <record id="view_penalite_client_tree" model="ir.ui.view">
-        <field name="name">penalite.client.tree</field>
-        <field name="model">penalite.client</field>
+        <field name="name">penalite_client_tree</field>
+        <field name="model">penalite_client</field>
         <field name="arch" type="xml">
             <tree string="Pénalités Client">
                 <field name="partner_id"/>
@@ -31,7 +31,7 @@
 
     <record id="action_penalite_client" model="ir.actions.act_window">
         <field name="name">Pénalités Client</field>
-        <field name="res_model">penalite.client</field>
+        <field name="res_model">penalite_client</field>
         <field name="view_mode">tree,form</field>
     </record>
 
@@ -39,8 +39,8 @@
     <menuitem id="menu_penalite_client" name="Pénalités Client" parent="menu_penalite_root" action="action_penalite_client"/>
 
     <record id="view_res_partner_form_inherit_penalite" model="ir.ui.view">
-        <field name="name">res.partner.form.penalite.inherit</field>
-        <field name="model">res.partner</field>
+        <field name="name">res_partner_form_penalite_inherit</field>
+        <field name="model">res_partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <notebook position="inside">
