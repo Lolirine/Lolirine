@@ -6,7 +6,7 @@ class PenaliteClient(models.Model):
     _description = "Pénalité Client"
     _order = "date desc"
 
-    partner_id = fields.Many2one('res.partner', string="Client", required=True)
+    partner_id = fields.Many2one('res_partner', string="Client", required=True)
     montant = fields.Float(string="Montant", required=True)
     motif = fields.Char(string="Motif", required=True)
     date = fields.Date(string="Date", default=fields.Date.today)
@@ -14,7 +14,7 @@ class PenaliteClient(models.Model):
 
     @api.model
     def create_penalite_for_canceled_subscriptions(self):
-        subs = self.env['sale.subscription'].search([
+        subs = self.env['sale_subscription'].search([
             ('stage_id.category', '=', 'closed'),
             ('date_end', '<', fields.Date.today())
         ])
