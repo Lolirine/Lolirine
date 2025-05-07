@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Menu principal -->
+    <menuitem id="menu_gardemeubles_root" name="Garde-Meubles" sequence="10"/>
+
+    <!-- Sous-menu Pénalités -->
+    <menuitem id="menu_penalite_root" name="Pénalités" parent="menu_gardemeubles_root" sequence="20"/>
+
+    <!-- Action fenêtre -->
+    <record id="action_penalite_client" model="ir.actions.act_window">
+        <field name="name">Pénalités</field>
+        <field name="res_model">penalite.client</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p>Gérez ici les pénalités appliquées à vos clients.</p>
+        </field>
+    </record>
+
+    <!-- Lier action au menu -->
+    <menuitem id="menu_penalite_client" name="Liste des pénalités"
+              parent="menu_penalite_root" action="action_penalite_client" sequence="10"/>
+
+    <!-- Vue liste -->
+    <record id="view_penalite_client_tree" model="ir.ui.view">
+        <field name="name">penalite.client.tree</field>
+        <field name="model">penalite.client</field>
+        <field name="arch" type="xml">
+            <tree string="Pénalités">
+                <field name="name"/>
+                <field name="motif"/>
+                <field name="montant"/>
+                <field name="date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vue formulaire -->
+    <record id="view_penalite_client_form" model="ir.ui.view">
+        <field name="name">penalite.client.form</field>
+        <field name="model">penalite.client</field>
+        <field name="arch" type="xml">
+            <form string="Pénalité client">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="motif"/>
+                        <field name="montant"/>
+                        <field name="date"/>
+                        <field name="partner_id"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
