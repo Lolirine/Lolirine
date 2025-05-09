@@ -1,0 +1,17 @@
+.svg-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: auto;
+    overflow-x: auto;
+    overflow-y: auto;
+    padding: 2rem;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.svg-container svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 1000px;
+}
