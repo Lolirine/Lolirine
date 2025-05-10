@@ -1,0 +1,59 @@
+<odoo>
+  <template id="plan_lolirine_snippet" name="Plan Boxes Lolirine">
+    <section class="s_block_custom" style="overflow-x:auto; overflow-y:auto;">
+      <div class="container svg-container">
+        <h2 class="text-center mb-4">Plan du site – Lolirine</h2>
+        <div class="legend-buttons">
+          <button class="red" data-filter="red">Occupé</button>
+          <button class="green" data-filter="green">Disponible</button>
+          <button class="yellow" data-filter="yellow">Nettoyage</button>
+          <button class="brown" data-filter="brown">Maintenance</button>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 200">
+  <a xlink:href="/shop/product/box-1022-42" target="_blank">
+    <g data-status="red">
+      <rect x="50" y="50" width="60" height="40" fill="#e74c3c" />
+      <text x="55" y="75" font-size="12" fill="white">1022</text>
+    </g>
+  </a>
+  <a xlink:href="/shop/product/box-1023-43" target="_blank">
+    <g data-status="green">
+      <rect x="130" y="50" width="60" height="40" fill="#2ecc71" />
+      <text x="135" y="75" font-size="12" fill="white">1023</text>
+    </g>
+  </a>
+  <a xlink:href="/shop/product/box-1024-44" target="_blank">
+    <g data-status="yellow">
+      <rect x="210" y="50" width="60" height="40" fill="#f1c40f" />
+      <text x="215" y="75" font-size="12" fill="black">1024</text>
+    </g>
+  </a>
+  <a xlink:href="/shop/product/box-1025-45" target="_blank">
+    <g data-status="brown">
+      <rect x="290" y="50" width="60" height="40" fill="#8e5b3f" />
+      <text x="295" y="75" font-size="12" fill="white">1025</text>
+    </g>
+  </a>
+  <a xlink:href="/shop/product/box-1026-46" target="_blank">
+    <g data-status="green">
+      <rect x="370" y="50" width="60" height="40" fill="#2ecc71" />
+      <text x="375" y="75" font-size="12" fill="white">1026</text>
+    </g>
+  </a>
+  <a xlink:href="/shop/product/box-1027-47" target="_blank">
+    <g data-status="red">
+      <rect x="450" y="50" width="60" height="40" fill="#e74c3c" />
+      <text x="455" y="75" font-size="12" fill="white">1027</text>
+    </g>
+  </a>
+  <a xlink:href="/shop/product/box-1028-48" target="_blank">
+    <g data-status="yellow">
+      <rect x="530" y="50" width="60" height="40" fill="#f1c40f" />
+      <text x="535" y="75" font-size="12" fill="black">1028</text>
+    </g>
+  </a>
+</svg>
+      </div>
+    </section>
+  </template>
+</odoo>
