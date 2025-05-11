@@ -1,0 +1,10 @@
+<odoo>
+  <record id="action_visite_box" model="ir.actions.act_window">
+    <field name="name">Visites de box</field>
+    <field name="res_model">visite.box</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <menuitem id="menu_visite_root" name="Garde-meubles" sequence="10"/>
+  <menuitem id="menu_visite_box" name="Visites de Box" parent="menu_visite_root" action="action_visite_box" sequence="20"/>
+</odoo>
