@@ -1,0 +1,38 @@
+<odoo>
+  <record id="view_visite_box_form" model="ir.ui.view">
+    <field name="name">visite.box.form</field>
+    <field name="model">visite.box</field>
+    <field name="arch" type="xml">
+      <form string="Visite de box">
+        <sheet>
+          <group>
+            <field name="name"/>
+            <field name="email"/>
+            <field name="phone"/>
+            <field name="date_visite"/>
+            <field name="type_box"/>
+            <field name="state" readonly="1"/>
+            <field name="signature" widget="signature"/>
+          </group>
+        </sheet>
+        <footer>
+          <button string="Confirmer" type="object" name="action_confirm" class="btn-primary" states="draft"/>
+          <button string="Marquer comme réalisée" type="object" name="action_done" class="btn-success" states="confirmed"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_visite_box_tree" model="ir.ui.view">
+    <field name="name">visite.box.tree</field>
+    <field name="model">visite.box</field>
+    <field name="arch" type="xml">
+      <tree string="Visites de box">
+        <field name="name"/>
+        <field name="date_visite"/>
+        <field name="type_box"/>
+        <field name="state"/>
+      </tree>
+    </field>
+  </record>
+</odoo>
