@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue Kanban -->
+    <record id="view_storage_box_kanban" model="ir.ui.view">
+        <field name="name">storage.box.kanban</field>
+        <field name="model">storage.box</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="color"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title"><field name="name"/></strong>
+                                </div>
+                            </div>
+                            <ul>
+                                <li t-if="record.product_id.value"><field name="product_id"/> (<field name="product_qty"/>)</li>
+                                <li t-else=""><em>Vide</em></li>
+                            </ul>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Vue Formulaire -->
+    <record id="view_storage_box_form" model="ir.ui.view">
+        <field name="name">storage.box.form</field>
+        <field name="model">storage.box</field>
+        <field name="arch" type="xml">
+            <form string="Boîte de Stockage">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Ex: RACK-A-01"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="state" widget="statusbar" statusbar_visible="available,occupied,reserved"/>
+                            <field name="color" widget="color_picker"/>
+                        </group>
+                        <group>
+                            <field name="product_id" domain="[('type', '=', 'product')]"/>
+                            <field name="product_qty" attrs="{'invisible': [('product_id', '=', False)]}"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue Liste -->
+    <record id="view_storage_box_tree" model="ir.ui.view">
+        <field name="name">storage.box.tree</field>
+        <field name="model">storage.box</field>
+        <field name="arch" type="xml">
+            <tree string="Boîtes de Stockage">
+                <field name="name"/>
+                <field name="state"/>
+                <field name="product_id"/>
+                <field name="product_qty"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_storage_box" model="ir.actions.act_window">
+        <field name="name">Gestion des Boîtes</field>
+        <field name="res_model">storage.box</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre première boîte de stockage !
+            </p>
+        </field>
+    </record>
+
+    <!-- Menus -->
+    <menuitem id="menu_storage_root" name="Gestion du Stockage" sequence="10"/>
+    <menuitem id="menu_storage_box" name="Boîtes de Stockage" parent="menu_storage_root" action="action_storage_box" sequence="10"/>
+</odoo>
