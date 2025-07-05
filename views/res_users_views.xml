@@ -1,1 +1,16 @@
-
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_users_form_api_key" model="ir.ui.view">
+        <field name="name">res.users.form.api.key</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='preferences']" position="inside">
+                <group string="Intégration API">
+                    <field name="api_key" readonly="1"/>
+                    <button name="_generate_api_key" type="object" string="Générer une nouvelle clé API" class="btn-primary"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
