@@ -1,17 +1,31 @@
 # -*- coding: utf-8 -*-
-import uuid
-from odoo import models, fields, api
+from odoo import models, fields
 
-class ResUsers(models.Model):
-    _inherit = 'res.users'
+class StorageBox(models.Model):
+    _name = 'storage.box'
+    _description = 'Boîte de Stockage'
+    _order = 'name'
 
-    api_key = fields.Char(string="Clé d'API", copy=False, readonly=True)
+    name = fields.Char(string="Nom de la boîte", required=True, help="Identifiant unique de la boîte, ex: A-01-01")
+    
+    state = fields.Selection([
+        ('available', 'Disponible'),
+        ('occupied', 'Occupé'),
+        ('maintenance', 'En maintenance'),
+        ('reserved', 'Réservé'),
+    ], string="État", default='available', required=True, copy=False)
 
-    def _generate_api_key(self):
-        self.ensure_one()
-        # Génère une clé unique et sécurisée
-        self.api_key = str(uuid.uuid4())
+    # Le champ 'color' est un index de couleur standard dans Odoo
+    color = fields.Integer(string='Index de couleur')
 
-    @api.model
-    def _get_user_from_api_key(self, api_key):
-        return self.sudo().search([('api_key', '=', api_key)], limit=1)
+    product_id = fields.Many2one(
+        'product.product', 
+        string="Produit associé", 
+        help="Le produit actuellement dans cette boîte.",
+        copy=False
+    )
+    product_qty = fields.Float(string="Quantité", copy=False)
+
+    _sql_constraints = [
+        ('name_uniq', 'unique (name)', "Le nom de la boîte doit être unique !"),
+    ]
