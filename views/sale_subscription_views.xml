@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_subscription_form_inherit_bail" model="ir.ui.view">
+            <field name="name">sale.subscription.form.inherit.bail</field>
+            <field name="model">sale.subscription</field>
+            <field name="inherit_id" ref="sale_subscription.sale_subscription_view_form"/>
+            <field name="arch" type="xml">
+                <header>
+                    <button name="%(contrat_bail_abonnement.action_report_contrat_bail)d"
+                            string="Imprimer le Contrat de Bail"
+                            type="action"
+                            class="oe_highlight"
+                            />
+                </header>
+            </field>
+        </record>
+    </data>
+</odoo>
