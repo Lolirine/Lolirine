@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Rapport de Contrat de Bail sur Abonnement",
-    'summary': "Ajoute un rapport de contrat de bail pour les abonnements d'espaces de stockage.",
-    'description': "Ce module intègre un rapport de contrat de bail au module Abonnement d'Odoo.",
+    'summary': """
+        Ajoute un rapport de contrat de bail pour les abonnements d'espaces de stockage.""",
+    'description': """
+        Ce module intègre un rapport de contrat de bail au module Abonnement d'Odoo.
+    """,
     'author': "Votre Nom",
     'website': "https://www.votre-site.com",
     'category': 'Sales/Subscription',
