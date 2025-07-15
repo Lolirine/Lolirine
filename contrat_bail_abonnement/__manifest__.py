@@ -9,12 +9,13 @@
     'author': "Votre Nom",
     'website': "https://www.votre-site.com",
     'category': 'Sales/Subscription',
-    'version': '1.0',
+    'version': '1.1', # J'ai incrémenté la version
     'depends': ['sale_subscription'],
     'data': [
         'report/report_contrat_bail.xml',
         'report/template_contrat_bail.xml',
-        'views/sale_subscription_views.xml',
+        # LA LIGNE SUIVANTE A ÉTÉ SUPPRIMÉE :
+        # 'views/sale_subscription_views.xml',
     ],
     'installable': True,
     'application': False,
