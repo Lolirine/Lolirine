@@ -1,1 +1,1 @@
-
+#suppression contenu manifest
