@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    
     <template id="block_rented_product_add_to_cart" inherit_id="website_sale.product_add_to_cart">
         
         <!--
-            Cette partie cible le formulaire d'ajout au panier.
+            Cette première partie cible le formulaire d'ajout au panier.
             On ajoute une condition t-if pour qu'il ne s'affiche
             QUE SI l'étiquette 'Loué' n'est PAS dans les étiquettes du produit.
         -->
@@ -12,7 +13,7 @@
         </xpath>
 
         <!--
-            Cette partie vient se placer à l'intérieur de la section des détails du produit.
+            Cette deuxième partie vient se placer à l'intérieur de la section des détails du produit.
             Elle affiche un message d'alerte à la place du bouton,
             mais SEULEMENT SI le produit A l'étiquette 'Loué'.
         -->
@@ -26,4 +27,5 @@
         </xpath>
 
     </template>
+    
 </odoo>
