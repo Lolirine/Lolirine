@@ -3,20 +3,10 @@
     
     <template id="block_rented_product_add_to_cart" inherit_id="website_sale.product_add_to_cart">
         
-        <!--
-            Cette première partie cible le formulaire d'ajout au panier.
-            On ajoute une condition t-if pour qu'il ne s'affiche
-            QUE SI l'étiquette 'Loué' n'est PAS dans les étiquettes du produit.
-        -->
         <xpath expr="//div[@id='product_details']//a[@id='add_to_cart']/.." position="attributes">
             <attribute name="t-if">'Loué' not in product.product_tag_ids.mapped('name')</attribute>
         </xpath>
 
-        <!--
-            Cette deuxième partie vient se placer à l'intérieur de la section des détails du produit.
-            Elle affiche un message d'alerte à la place du bouton,
-            mais SEULEMENT SI le produit A l'étiquette 'Loué'.
-        -->
         <xpath expr="//div[@id='product_details']" position="inside">
             <div t-if="'Loué' in product.product_tag_ids.mapped('name')" class="alert alert-warning mt-3" role="alert">
                 <p class="mb-0">
