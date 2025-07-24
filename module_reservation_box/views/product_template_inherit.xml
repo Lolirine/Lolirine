@@ -1,0 +1,11 @@
+<odoo>
+  <template id="button_reserver_box" inherit_id="website_sale.product">
+    <xpath expr="//div[contains(@class, 'product_price')]//div[contains(@class, 'btn-group')]" position="inside">
+      <t t-if="product.product_variant_id.x_disponible">
+        <a t-attf-href="/formulaire-location?box_id={{ product.id }}" class="btn btn-secondary mt-2 ms-2">
+          Réserver ce box
+        </a>
+      </t>
+    </xpath>
+  </template>
+</odoo>
