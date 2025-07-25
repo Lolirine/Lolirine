@@ -1,8 +1,0 @@
-<odoo>
-  <record id="field_product_product_x_disponible" model="ir.model.fields">
-    <field name="name">x_disponible</field>
-    <field name="model">product.product</field>
-    <field name="field_description">Disponible</field>
-    <field name="ttype">boolean</field>
-  </record>
-</odoo>
