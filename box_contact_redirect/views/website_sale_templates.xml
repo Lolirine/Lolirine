@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Personnalisation du bouton d'achat pour les box -->
+        <template id="product_add_to_cart_inherit_box" inherit_id="website_sale.product" name="Box Contact Button">
+            <xpath expr="//div[@id='product_detail']//form[@action='/shop/cart/update']" position="replace">
+                <t t-if="product.box_require_contact and product.box_is_available">
+                    <!-- Bouton de contact pour les box disponibles nécessitant un contact -->
+                    <div class="js_product js_main_product mt-3">
+                        <a t-attf-href="/contactus?box_name={{ product.name }}&amp;box_id={{ product.id }}" 
+                           class="btn btn-primary btn-lg btn-block a-submit">
+                            <i class="fa fa-envelope"/> Nous contacter pour ce box
+                        </a>
+                        <p class="text-muted mt-2">
+                            <i class="fa fa-info-circle"/> Ce box est disponible. Contactez-nous pour finaliser votre réservation.
+                        </p>
+                    </div>
+                </t>
+                <t t-else="">
+                    <!-- Comportement normal pour les autres produits -->
+                    <form t-if="product._is_add_to_cart_possible()" 
+                          action="/shop/cart/update" 
+                          method="POST" 
+                          class="js_product js_main_product mt-3">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" class="product_id" name="product_id" t-att-value="product.id"/>
+                        <input type="hidden" class="product_template_id" name="product_template_id" t-att-value="product.product_tmpl_id.id"/>
+                        
+                        <div class="js_product_change">
+                            <t t-if="product.product_variant_ids">
+                                <div t-if="len(product.product_variant_ids) &gt; 1" class="mb-3">
+                                    <t t-call="website_sale.variants"/>
+                                </div>
+                            </t>
+                            
+                            <div class="product_quantity mb-3">
+                                <label class="control-label">Quantité</label>
+                                <div class="css_quantity input-group oe_website_spinner">
+                                    <span class="input-group-prepend">
+                                        <a href="#" class="btn btn-secondary js_add_cart_json" aria-label="Retirer un" title="Retirer un">
+                                            <i class="fa fa-minus"></i>
+                                        </a>
+                                    </span>
+                                    <input type="text" class="form-control quantity" name="add_qty" value="1"/>
+                                    <span class="input-group-append">
+                                        <a href="#" class="btn btn-secondary js_add_cart_json float_left" aria-label="Ajouter un" title="Ajouter un">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="add_to_cart_wrap" class="mt-3">
+                            <a id="add_to_cart" class="btn btn-primary btn-lg btn-block a-submit" href="#">
+                                <i class="fa fa-shopping-cart"/> Ajouter au panier
+                            </a>
+                        </div>
+                    </form>
+                </t>
+            </xpath>
+        </template>
+
+        <!-- Template pour la vue liste/grille des produits -->
+        <template id="products_item_inherit_box" inherit_id="website_sale.products_item" name="Box Contact Button Grid">
+            <xpath expr="//form[hasclass('js_add_cart_json')]" position="replace">
+                <t t-if="product.box_require_contact and product.box_is_available">
+                    <a t-attf-href="/contactus?box_name={{ product.name }}&amp;box_id={{ product.id }}" 
+                       class="btn btn-primary btn-block a-submit">
+                        <i class="fa fa-envelope"/> Nous contacter
+                    </a>
+                </t>
+                <t t-else="">
+                    <form action="/shop/cart/update" method="post" class="js_add_cart_json d-none d-md-inline-block">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="product_id" t-att-value="product.product_variant_id.id"/>
+                        <button type="submit" class="btn btn-primary btn-block a-submit">
+                            <i class="fa fa-shopping-cart"/> Ajouter au panier
+                        </button>
+                    </form>
+                </t>
+            </xpath>
+        </template>
+    </data>
+</odoo>
