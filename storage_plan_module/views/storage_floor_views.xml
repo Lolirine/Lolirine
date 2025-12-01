@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue liste des étages -->
+    <record id="view_storage_floor_tree" model="ir.ui.view">
+        <field name="name">storage.floor.tree</field>
+        <field name="model">storage.floor</field>
+        <field name="arch" type="xml">
+            <tree string="Étages">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="box_count"/>
+                <field name="available_box_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vue formulaire des étages -->
+    <record id="view_storage_floor_form" model="ir.ui.view">
+        <field name="name">storage.floor.form</field>
+        <field name="model">storage.floor</field>
+        <field name="arch" type="xml">
+            <form string="Étage">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                            <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="box_count"/>
+                            <field name="available_box_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Boxes">
+                            <field name="box_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="volume"/>
+                                    <field name="surface"/>
+                                    <field name="price_monthly"/>
+                                    <field name="status"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action pour les étages -->
+    <record id="action_storage_floor" model="ir.actions.act_window">
+        <field name="name">Étages</field>
+        <field name="res_model">storage.floor</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>
