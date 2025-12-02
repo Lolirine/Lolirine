@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="storage_plan_page" name="Plan Interactif Garde-Meubles">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container-fluid mt-4">
+                    <div class="row">
+                        <div class="col-12 text-center mb-4">
+                            <h1>Plan Interactif du Garde-Meubles</h1>
+                            <p class="lead">Cliquez sur un box pour voir ses détails et le réserver</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Plan des boxes -->
+                        <div class="col-lg-9">
+                            <div id="storage-plans-container">
+                                <t t-foreach="floors" t-as="floor">
+                                    <div class="floor-plan-wrapper mb-4" t-att-data-floor-id="floor['id']">
+                                        <h3 class="text-center mb-3">
+                                            <t t-esc="floor['name']"/>
+                                            <small class="text-muted">
+                                                (<t t-esc="floor['available_count']"/> / <t t-esc="floor['box_count']"/> disponibles)
+                                            </small>
+                                        </h3>
+                                        
+                                        <div class="floor-plan" t-att-data-floor-code="floor['code']">
+                                            <t t-foreach="floor['boxes']" t-as="box">
+                                                <div class="storage-box" 
+                                                     t-att-data-box-id="box['id']"
+                                                     t-att-data-status="box['status']"
+                                                     t-attf-style="background-color: #{box['status_color']}; 
+                                                                   grid-row: #{box['grid_row'] or 'auto'}; 
+                                                                   grid-column: #{box['grid_col'] or 'auto'};">
+                                                    <div class="box-number">
+                                                        <t t-esc="box['name']"/>
+                                                    </div>
+                                                    <div class="box-surface">
+                                                        <t t-esc="box['surface']"/> m²
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Légende -->
+                        <div class="col-lg-3">
+                            <div class="card sticky-top" style="top: 20px;">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Légende des couleurs</h5>
+                                </div>
+                                <div class="card-body">
+                                    <t t-foreach="status_legend" t-as="status">
+                                        <div class="legend-item mb-2">
+                                            <span class="legend-color" 
+                                                  t-attf-style="background-color: #{status['color']};"></span>
+                                            <span class="legend-label">
+                                                <t t-esc="status['label']"/>
+                                            </span>
+                                        </div>
+                                    </t>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="btn btn-primary btn-sm w-100" id="general-inquiry-btn">
+                                        Demande générale
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal détails du box -->
+                <div class="modal fade" id="boxDetailsModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="boxDetailsModalTitle">Détails du Box</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&#215;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <!-- Visualisation 3D du box -->
+                                    <div class="col-md-6">
+                                        <div id="box-3d-container" class="text-center">
+                                            <canvas id="box-3d-canvas" width="400" height="400"></canvas>
+                                            <p class="text-muted small mt-2">Cliquez et glissez pour faire pivoter le box.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Informations du box -->
+                                    <div class="col-md-6">
+                                        <div id="box-details-content">
+                                            <dl class="row">
+                                                <dt class="col-sm-5">Box N°:</dt>
+                                                <dd class="col-sm-7" id="detail-box-name"></dd>
+
+                                                <dt class="col-sm-5">Largeur:</dt>
+                                                <dd class="col-sm-7" id="detail-width"></dd>
+
+                                                <dt class="col-sm-5">Profondeur:</dt>
+                                                <dd class="col-sm-7" id="detail-depth"></dd>
+
+                                                <dt class="col-sm-5">Hauteur:</dt>
+                                                <dd class="col-sm-7" id="detail-height"></dd>
+
+                                                <dt class="col-sm-5">Volume:</dt>
+                                                <dd class="col-sm-7" id="detail-volume"></dd>
+
+                                                <dt class="col-sm-5">Prix:</dt>
+                                                <dd class="col-sm-7" id="detail-price"></dd>
+
+                                                <dt class="col-sm-5">Statut:</dt>
+                                                <dd class="col-sm-7">
+                                                    <span class="badge" id="detail-status"></span>
+                                                </dd>
+                                            </dl>
+
+                                            <div class="mt-4">
+                                                <button class="btn btn-secondary btn-block" id="btn-appointment">
+                                                    Prendre rendez-vous
+                                                </button>
+                                                <button class="btn btn-danger btn-block" id="btn-reserve">
+                                                    Réserver ce box maintenant
+                                                </button>
+                                            </div>
+
+                                            <div class="mt-3">
+                                                <small class="text-muted">
+                                                    Frais de dossier uniques : <span id="detail-registration-fee"></span><br/>
+                                                    Caution : <span id="detail-deposit"></span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal formulaire de réservation -->
+                <div class="modal fade" id="reservationFormModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="reservationFormModalTitle">Réserver le box</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&#215;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="reservation-form">
+                                    <input type="hidden" id="selected-box-id" name="box_id"/>
+                                    <input type="hidden" id="reservation-type" name="reservation_type"/>
+
+                                    <div class="form-group">
+                                        <label for="customer-name">Nom complet *</label>
+                                        <input type="text" class="form-control" id="customer-name" 
+                                               name="customer_name" required="required"/>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="customer-email">Email *</label>
+                                        <input type="email" class="form-control" id="customer-email" 
+                                               name="customer_email" required="required"/>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="customer-phone">Téléphone *</label>
+                                        <input type="tel" class="form-control" id="customer-phone" 
+                                               name="customer_phone" required="required"/>
+                                    </div>
+
+                                    <div class="form-group" id="appointment-date-group" style="display: none;">
+                                        <label for="appointment-date">Date de rendez-vous souhaitée</label>
+                                        <input type="datetime-local" class="form-control" id="appointment-date" 
+                                               name="appointment_date"/>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="customer-notes">Notes / Commentaires</label>
+                                        <textarea class="form-control" id="customer-notes" 
+                                                  name="notes" rows="3"></textarea>
+                                    </div>
+
+                                    <div class="alert alert-info">
+                                        <small>
+                                            En soumettant ce formulaire, vous acceptez d'être contacté 
+                                            pour finaliser votre réservation.
+                                        </small>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                                <button type="button" class="btn btn-primary" id="submit-reservation">Envoyer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
