@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="storage_plan_page" name="Plan Interactif Garde-Meubles">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container-fluid mt-4">
+                    <div class="row">
+                        <div class="col-12 text-center mb-4">
+                            <h1>Plan Interactif du Garde-Meubles</h1>
+                            <p class="lead">Cliquez sur un box pour voir ses détails et le réserver</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Plan des boxes -->
+                        <div class="col-lg-9">
+                            <div id="storage-plans-container">
+                                <t t-foreach="floors" t-as="floor">
+                                    <div class="floor-plan-wrapper mb-4" t-att-data-floor-id="floor['id']">
+                                        <h3 class="text-center mb-3">
+                                            <t t-esc="floor['name']"/>
+                                            <small class="text-muted">
+                                                (<t t-esc="floor['available_count']"/> / <t t-esc="floor['box_count']"/> disponibles)
+                                            </small>
+                                        </h3>
+                                        
+                                        <div class="floor-plan" t-att-data-floor-code="floor['code']">
+                                            <t t-foreach="floor['boxes']" t-as="box">
+                                                <div class="storage-box" 
+                                                     t-att-data-box-id="box['id']"
+                                                     t-att-data-status="box['status']"
+                                                     t-attf-style="background-color: #{box['status_color']}; 
+                                                                   grid-row: #{box['grid_row'] or 'auto'}; 
+                                                                   grid-column: #{box['grid_col'] or 'auto'};">
+                                                    <div class="box-number">
+                                                        <t t-esc="box['name']"/>
+                                                    </div>
+                                                    <div class="box-surface">
+                                                        <t t-esc="box['surface']"/> m²
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Légende -->
+                        <div class="col-lg-3">
+                            <div class="card sticky-top" style="top: 20px;">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Légende des couleurs</h5>
+                                </div>
+                                <div class="card-body">
+                                    <t t-foreach="status_legend" t-as="status">
+                                        <div class="legend-item mb-2">
+                                            <span class="legend-color" 
+                                                  t-attf-style="background-color: #{status['color']};"></span>
+                                            <span class="legend-label">
+                                                <t t-esc="status['label']"/>
+                                            </span>
+                                        </div>
+                                    </t>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="/contactus" class="btn btn-primary btn-sm w-100" id="general-inquiry-btn">
+                                        Demande générale
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal détails du box -->
+                <div class="modal fade" id="boxDetailsModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="boxDetailsModalTitle">Détails du Box</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <!-- Visualisation 3D du box -->
+                                    <div class="col-md-6">
+                                        <div id="box-3d-container" class="text-center">
+                                            <canvas id="box-3d-canvas" width="400" height="400"></canvas>
+                                        </div>
+                                    </div>
+
+                                    <!-- Informations du box -->
+                                    <div class="col-md-6">
+                                        <div id="box-details-content">
+                                            <dl class="row">
+                                                <dt class="col-sm-5">Box N°:</dt>
+                                                <dd class="col-sm-7" id="detail-box-name"></dd>
+
+                                                <dt class="col-sm-5">Largeur:</dt>
+                                                <dd class="col-sm-7" id="detail-width"></dd>
+
+                                                <dt class="col-sm-5">Profondeur:</dt>
+                                                <dd class="col-sm-7" id="detail-depth"></dd>
+
+                                                <dt class="col-sm-5">Hauteur:</dt>
+                                                <dd class="col-sm-7" id="detail-height"></dd>
+
+                                                <dt class="col-sm-5">Volume:</dt>
+                                                <dd class="col-sm-7" id="detail-volume"></dd>
+
+                                                <dt class="col-sm-5">Prix:</dt>
+                                                <dd class="col-sm-7" id="detail-price"></dd>
+
+                                                <dt class="col-sm-5">Statut:</dt>
+                                                <dd class="col-sm-7">
+                                                    <span class="badge" id="detail-status"></span>
+                                                </dd>
+                                            </dl>
+
+                                            <!-- MODIFICATION DES LIENS : 
+                                                 Pour modifier ces liens, éditez ce fichier dans Odoo.sh
+                                                 Remplacez l'URL entre guillemets après href=
+                                                 Exemples :
+                                                 - WhatsApp : href="https://wa.me/3250123456"
+                                                 - Email : href="mailto:contact@lolirine.be"
+                                                 - Téléphone : href="tel:+3250123456"
+                                                 - Formulaire : href="https://forms.google.com/..."
+                                            -->
+                                            <div class="mt-4" style="display: flex; flex-direction: column; gap: 10px;">
+                                                <a href="/contactus" 
+                                                   class="btn btn-outline-secondary w-100" 
+                                                   style="text-decoration: none;">
+                                                    Prendre rendez-vous
+                                                </a>
+                                                <a href="/contactus" 
+                                                   class="btn btn-danger w-100" 
+                                                   style="text-decoration: none;">
+                                                    Réserver ce box maintenant
+                                                </a>
+                                            </div>
+
+                                            <div class="mt-3">
+                                                <small class="text-muted">
+                                                    Frais de dossier uniques : <span id="detail-registration-fee"></span><br/>
+                                                    Caution : <span id="detail-deposit"></span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
