@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu principal -->
+    <menuitem id="menu_storage_plan_root" 
+              name="Garde-Meubles" 
+              web_icon="storage_plan_module,static/description/icon.png" 
+              sequence="10"/>
+
+    <!-- Menu Boxes -->
+    <menuitem id="menu_storage_boxes" 
+              name="Boxes" 
+              parent="menu_storage_plan_root" 
+              sequence="10"/>
+    
+    <menuitem id="menu_storage_box_list" 
+              name="Tous les boxes" 
+              parent="menu_storage_boxes" 
+              action="action_storage_box" 
+              sequence="10"/>
+    
+    <menuitem id="menu_storage_floor_list" 
+              name="Étages" 
+              parent="menu_storage_boxes" 
+              action="action_storage_floor" 
+              sequence="20"/>
+
+    <!-- Menu Réservations -->
+    <menuitem id="menu_reservations" 
+              name="Réservations" 
+              parent="menu_storage_plan_root" 
+              sequence="20"/>
+    
+    <menuitem id="menu_box_reservation_list" 
+              name="Toutes les réservations" 
+              parent="menu_reservations" 
+              action="action_box_reservation" 
+              sequence="10"/>
+
+    <!-- Menu Configuration -->
+    <menuitem id="menu_storage_configuration" 
+              name="Configuration" 
+              parent="menu_storage_plan_root" 
+              sequence="100" 
+              groups="base.group_system"/>
+    
+    <menuitem id="menu_storage_status_colors" 
+              name="Couleurs des statuts" 
+              parent="menu_storage_configuration" 
+              action="action_storage_status_color" 
+              sequence="10"/>
+</odoo>
