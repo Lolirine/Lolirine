@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue liste des couleurs -->
+    <record id="view_storage_status_color_tree" model="ir.ui.view">
+        <field name="name">storage.status.color.tree</field>
+        <field name="model">storage.status.color</field>
+        <field name="arch" type="xml">
+            <list string="Couleurs des statuts" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="status_key"/>
+                <field name="name"/>
+                <field name="color" placeholder="#RRGGBB"/>
+                <field name="show_in_legend"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue formulaire des couleurs -->
+    <record id="view_storage_status_color_form" model="ir.ui.view">
+        <field name="name">storage.status.color.form</field>
+        <field name="model">storage.status.color</field>
+        <field name="arch" type="xml">
+            <form string="Couleur du statut">
+                <sheet>
+                    <group>
+                        <group string="Identification">
+                            <field name="status_key"/>
+                            <field name="name" placeholder="Ex: Disponible, Libre, À louer..."/>
+                            <field name="sequence"/>
+                        </group>
+                        <group string="Apparence">
+                            <field name="color" placeholder="#RRGGBB (ex: #90EE90)"/>
+                            <field name="show_in_legend"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Couleurs suggérées">
+                        <div class="text-muted">
+                            <p><strong>Exemples de codes couleur :</strong></p>
+                            <ul>
+                                <li>Vert clair : #90EE90</li>
+                                <li>Rose : #FFB6C1</li>
+                                <li>Jaune : #FFFF99</li>
+                                <li>Bleu clair : #87CEEB</li>
+                                <li>Orange clair : #FFE4B5</li>
+                                <li>Lavande : #E6E6FA</li>
+                                <li>Gris clair : #D3D3D3</li>
+                                <li>Rouge : #FF6B6B</li>
+                                <li>Bleu : #4ECDC4</li>
+                                <li>Violet : #9B59B6</li>
+                            </ul>
+                            <p>Utilisez un sélecteur de couleur en ligne pour trouver d'autres codes : <a href="https://htmlcolorcodes.com/" target="_blank">htmlcolorcodes.com</a></p>
+                        </div>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action pour les couleurs -->
+    <record id="action_storage_status_color" model="ir.actions.act_window">
+        <field name="name">Couleurs des statuts</field>
+        <field name="res_model">storage.status.color</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configurez les couleurs des statuts
+            </p>
+            <p>
+                Définissez les couleurs pour chaque statut de box et personnalisez la légende du plan interactif.
+                <br/>
+                Utilisez des codes couleur hexadécimaux (ex: #90EE90 pour vert clair).
+            </p>
+        </field>
+    </record>
+</odoo>
