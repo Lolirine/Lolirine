@@ -1,0 +1,16 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_km_trajet_base,km.trajet.base,model_km_trajet,base.group_user,1,1,1,1
+access_km_trajet_user,km.trajet.user,model_km_trajet,group_km_expense_user,1,1,1,1
+access_km_trajet_manager,km.trajet.manager,model_km_trajet,group_km_expense_manager,1,1,1,1
+access_km_trajet_categorie_base,km.trajet.categorie.base,model_km_trajet_categorie,base.group_user,1,0,0,0
+access_km_trajet_categorie_user,km.trajet.categorie.user,model_km_trajet_categorie,group_km_expense_user,1,0,0,0
+access_km_trajet_categorie_manager,km.trajet.categorie.manager,model_km_trajet_categorie,group_km_expense_manager,1,1,1,1
+access_km_expense_base,km.expense.base,model_km_expense,base.group_user,1,1,1,1
+access_km_expense_user,km.expense.user,model_km_expense,group_km_expense_user,1,1,1,1
+access_km_expense_manager,km.expense.manager,model_km_expense,group_km_expense_manager,1,1,1,1
+access_km_bareme_base,km.bareme.base,model_km_bareme,base.group_user,1,0,0,0
+access_km_bareme_user,km.bareme.user,model_km_bareme,group_km_expense_user,1,0,0,0
+access_km_bareme_manager,km.bareme.manager,model_km_bareme,group_km_expense_manager,1,1,1,1
+access_km_vehicule_personnel_base,km.vehicule.personnel.base,model_km_vehicule_personnel,base.group_user,1,1,1,1
+access_km_vehicule_personnel_user,km.vehicule.personnel.user,model_km_vehicule_personnel,group_km_expense_user,1,1,1,1
+access_km_vehicule_personnel_manager,km.vehicule.personnel.manager,model_km_vehicule_personnel,group_km_expense_manager,1,1,1,1
