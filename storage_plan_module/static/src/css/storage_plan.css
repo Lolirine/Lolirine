@@ -1,0 +1,396 @@
+/* Plan interactif du garde-meubles */
+
+.floor-plan-wrapper {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.floor-plan {
+    display: flex;
+    gap: 0; /* Pas de gap, on utilise un élément central */
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    min-height: 400px;
+    position: relative;
+    justify-content: space-between;
+}
+
+/* Allée centrale visible */
+.floor-plan::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 80px; /* Largeur du couloir */
+    transform: translateX(-50%);
+    background: linear-gradient(to right, 
+        #e9ecef 0%, 
+        #f8f9fa 20%, 
+        #ffffff 50%, 
+        #f8f9fa 80%, 
+        #e9ecef 100%);
+    border-left: 2px dashed #dee2e6;
+    border-right: 2px dashed #dee2e6;
+    z-index: 0;
+}
+
+/* Nom des allées */
+.floor-plan .aisle-name {
+    position: absolute;
+    top: 10px;
+    font-weight: bold;
+    font-size: 13px;
+    color: #495057;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 4px 8px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    z-index: 2;
+}
+
+.floor-plan .aisle-name.left {
+    left: 20px;
+}
+
+.floor-plan .aisle-name.right {
+    right: 20px;
+}
+
+/* Allée gauche et droite */
+.floor-plan .aisle-left,
+.floor-plan .aisle-right {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    flex: 1;
+    max-width: calc(50% - 50px); /* 50px = moitié du couloir + espace */
+    z-index: 1;
+}
+
+/* Layout pour le rez-de-chaussée - Supprimer les anciennes règles */
+.floor-plan[data-floor-code="RDC"] {
+    /* Pas de grille, on utilise flex */
+}
+
+/* Layout pour le premier étage - Supprimer les anciennes règles */
+.floor-plan[data-floor-code="R1"] {
+    /* Pas de grille, on utilise flex */
+}
+
+.storage-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 110px;
+    position: relative;
+}
+
+.storage-box .box-number {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 2px;
+}
+
+.storage-box .box-volume {
+    font-weight: bold;
+    font-size: 16px;
+    color: #000;
+    background: rgba(255,255,255,0.8);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: 2px 0;
+}
+
+.storage-box .box-surface {
+    font-size: 11px;
+    color: #555;
+}
+
+.storage-box .box-date-available {
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-top: 5px;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    animation: blink-availability 1.5s ease-in-out infinite;
+}
+
+@keyframes blink-availability {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
+    }
+}
+
+.storage-box:hover .box-date-available {
+    animation: none;
+    opacity: 1;
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #c0392b, #a93226);
+}
+
+.storage-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-color: #333;
+    z-index: 10;
+}
+
+.storage-box[data-status="disponible"] {
+    border-color: #28a745;
+}
+
+.storage-box[data-status="occupe"] {
+    border-color: #dc3545;
+}
+
+.storage-box[data-status="maintenance"] {
+    border-color: #ffc107;
+}
+
+.storage-box[data-status="reserve"] {
+    border-color: #fd7e14;
+}
+
+.box-number {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.box-surface {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Légende */
+.legend-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.legend-color {
+    display: inline-block;
+    width: 30px;
+    height: 20px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    margin-right: 10px;
+}
+
+.legend-label {
+    font-size: 14px;
+}
+
+/* Modal détails */
+#box-3d-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#box-3d-canvas {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+}
+
+#box-details-content dl {
+    margin-bottom: 0;
+}
+
+#box-details-content dt {
+    font-weight: 600;
+    color: #666;
+}
+
+#box-details-content dd {
+    color: #333;
+}
+
+#detail-status {
+    padding: 5px 15px;
+    font-size: 14px;
+}
+
+#detail-status.badge-success {
+    background-color: #28a745;
+}
+
+#detail-status.badge-danger {
+    background-color: #dc3545;
+}
+
+#detail-status.badge-warning {
+    background-color: #ffc107;
+    color: #333;
+}
+
+#detail-status.badge-info {
+    background-color: #17a2b8;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .floor-plan {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .floor-plan {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .storage-box {
+        min-height: 70px;
+        padding: 8px;
+    }
+    
+    .box-number {
+        font-size: 12px;
+    }
+    
+    .box-surface {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 576px) {
+    .floor-plan {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animations */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+.storage-box[data-status="disponible"]:hover {
+    animation: pulse 1.5s infinite;
+}
+
+/* Loading spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Buttons dans la modal */
+#box-details-content .mt-4 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px !important;
+}
+
+#box-details-content .mt-4 button {
+    margin: 0 !important;
+}
+
+/* Forcer les boutons à ne pas se chevaucher */
+.modal-body .btn {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.modal-body .btn:last-child {
+    margin-bottom: 0;
+}
+
+}
+
+body.editor_enable .storage-box.o_dirty {
+    pointer-events: auto;
+}
+
+/* Boutons de la modal non cliquables en mode édition */
+body.editor_enable #btn-appointment,
+body.editor_enable #btn-reserve {
+    pointer-events: none;
+}
+.box-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1000;
+    white-space: nowrap;
+}
+
+/* Zones spéciales (WC, TECH, etc.) */
+.storage-box.special-zone {
+    background: repeating-linear-gradient(
+        45deg,
+        #f0f0f0,
+        #f0f0f0 10px,
+        #e0e0e0 10px,
+        #e0e0e0 20px
+    );
+    cursor: default;
+    border-color: #999;
+}
+
+.storage-box.special-zone:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Boutons désactivés */
+a.btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
