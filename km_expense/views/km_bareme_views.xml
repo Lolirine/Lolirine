@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== BAREME VIEWS ==================== -->
+
+    <!-- Form View -->
+    <record id="km_bareme_view_form" model="ir.ui.view">
+        <field name="name">km.bareme.form</field>
+        <field name="model">km.bareme</field>
+        <field name="arch" type="xml">
+            <form string="Barème Kilométrique">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Classification">
+                            <field name="type_vehicule"/>
+                            <field name="puissance_fiscale"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Période de validité">
+                            <field name="date_debut"/>
+                            <field name="date_fin"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="Barème kilométrique">
+                        <group>
+                            <field name="taux_jusqu_5000"/>
+                            <field name="taux_5001_20000"/>
+                            <field name="majoration_5001_20000"/>
+                            <field name="taux_au_dela_20000"/>
+                        </group>
+                        <group>
+                            <div class="alert alert-info" role="alert">
+                                <strong>Calcul de l'indemnité :</strong>
+                                <ul class="mb-0">
+                                    <li>0 à 5000 km : distance × taux 0-5000</li>
+                                    <li>5001 à 20000 km : (distance × taux 5001-20000) + majoration</li>
+                                    <li>Au-delà de 20000 km : distance × taux &gt;20000</li>
+                                </ul>
+                            </div>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Notes sur ce barème..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="km_bareme_view_tree" model="ir.ui.view">
+        <field name="name">km.bareme.tree</field>
+        <field name="model">km.bareme</field>
+        <field name="arch" type="xml">
+            <tree string="Barèmes Kilométriques"
+                  decoration-muted="not active">
+                <field name="name"/>
+                <field name="type_vehicule"/>
+                <field name="puissance_fiscale"/>
+                <field name="date_debut"/>
+                <field name="date_fin"/>
+                <field name="taux_jusqu_5000"/>
+                <field name="taux_5001_20000"/>
+                <field name="taux_au_dela_20000"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="km_bareme_view_search" model="ir.ui.view">
+        <field name="name">km.bareme.search</field>
+        <field name="model">km.bareme</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Barèmes">
+                <field name="name"/>
+                <field name="puissance_fiscale"/>
+                <field name="type_vehicule"/>
+                <separator/>
+                <filter name="actif" string="Actifs" domain="[('active', '=', True)]"/>
+                <filter name="voiture" string="Voitures" domain="[('type_vehicule', '=', 'voiture')]"/>
+                <filter name="moto" string="Motos" domain="[('type_vehicule', '=', 'moto')]"/>
+                <filter name="velo" string="Vélos" domain="[('type_vehicule', '=', 'velo')]"/>
+                <separator/>
+                <filter name="archived" string="Archivés" domain="[('active', '=', False)]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_type" string="Type" context="{'group_by': 'type_vehicule'}"/>
+                    <filter name="group_puissance" string="Puissance" context="{'group_by': 'puissance_fiscale'}"/>
+                    <filter name="group_annee" string="Année" context="{'group_by': 'date_debut:year'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="km_bareme_action" model="ir.actions.act_window">
+        <field name="name">Barèmes Kilométriques</field>
+        <field name="res_model">km.bareme</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_actif': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configurez les barèmes kilométriques
+            </p>
+            <p>
+                Définissez les taux d'indemnisation par puissance fiscale et type de véhicule
+                selon la législation en vigueur.
+            </p>
+        </field>
+    </record>
+
+</odoo>

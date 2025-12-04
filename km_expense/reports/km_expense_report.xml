@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Rapport de feuille IK -->
+    <record id="km_expense_report_action" model="ir.actions.report">
+        <field name="name">Feuille d'Indemnités Kilométriques</field>
+        <field name="model">km.expense</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">km_expense.report_km_expense</field>
+        <field name="report_file">km_expense.report_km_expense</field>
+        <field name="binding_model_id" ref="model_km_expense"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Rapport de trajets -->
+    <record id="km_trajet_report_action" model="ir.actions.report">
+        <field name="name">Récapitulatif des Trajets</field>
+        <field name="model">km.trajet</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">km_expense.report_km_trajet</field>
+        <field name="report_file">km_expense.report_km_trajet</field>
+        <field name="binding_model_id" ref="model_km_trajet"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Paperformat pour les rapports -->
+    <record id="km_expense_paperformat" model="report.paperformat">
+        <field name="name">Format A4 Paysage IK</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">30</field>
+        <field name="margin_bottom">25</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">25</field>
+        <field name="dpi">90</field>
+    </record>
+
+</odoo>
