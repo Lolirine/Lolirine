@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vue de configuration pour les paramètres du module -->
+    <record id="res_config_settings_view_form_km_expense" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.km_expense</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Indemnités Kilométriques" string="Indemnités Kilométriques" name="km_expense" logo="/km_expense/static/description/icon.png">
+                    <block title="API Google Maps" name="google_api_settings">
+                        <setting id="km_expense_api_settings" string="Configuration API" help="Configurez l'API Google pour l'autocomplétion d'adresses et le calcul de distances">
+                            <div class="content-group">
+                                <div class="row mt-2">
+                                    <label for="km_expense_api_provider" class="col-lg-3"/>
+                                    <field name="km_expense_api_provider"/>
+                                </div>
+                                <div class="row mt-2">
+                                    <label for="km_expense_api_key" class="col-lg-3"/>
+                                    <field name="km_expense_api_key" placeholder="AIza..." password="True"/>
+                                </div>
+                            </div>
+                            <div class="alert alert-info mt-3" role="alert">
+                                <h5><i class="fa fa-info-circle"/> Configuration Google Cloud</h5>
+                                <ol class="mb-0">
+                                    <li>Créez un projet sur <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a></li>
+                                    <li>Activez les APIs suivantes :
+                                        <ul>
+                                            <li><strong>Distance Matrix API</strong> (calcul des distances)</li>
+                                            <li><strong>Places API</strong> (autocomplétion d'adresses)</li>
+                                            <li><strong>Geocoding API</strong> (conversion adresses/coordonnées)</li>
+                                        </ul>
+                                    </li>
+                                    <li>Créez une clé API dans "Identifiants"</li>
+                                    <li>Collez la clé ci-dessus</li>
+                                </ol>
+                                <p class="mt-2 mb-0"><strong>Note:</strong> Ces APIs sont payantes après le quota gratuit mensuel (200$ de crédit/mois).</p>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
