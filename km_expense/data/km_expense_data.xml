@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Séquence pour les trajets -->
+        <record id="seq_km_trajet" model="ir.sequence">
+            <field name="name">Trajet Kilométrique</field>
+            <field name="code">km.trajet</field>
+            <field name="prefix">TRJ/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Catégories de trajets par défaut -->
+        <record id="categorie_client" model="km.trajet.categorie">
+            <field name="name">Visite Client</field>
+            <field name="code">CLIENT</field>
+            <field name="sequence">10</field>
+            <field name="color">10</field>
+            <field name="description">Déplacement pour rencontrer un client</field>
+        </record>
+
+        <record id="categorie_prospect" model="km.trajet.categorie">
+            <field name="name">Visite Prospect</field>
+            <field name="code">PROSPECT</field>
+            <field name="sequence">20</field>
+            <field name="color">3</field>
+            <field name="description">Déplacement pour rencontrer un prospect</field>
+        </record>
+
+        <record id="categorie_fournisseur" model="km.trajet.categorie">
+            <field name="name">Visite Fournisseur</field>
+            <field name="code">FOURNISSEUR</field>
+            <field name="sequence">30</field>
+            <field name="color">4</field>
+            <field name="description">Déplacement chez un fournisseur</field>
+        </record>
+
+        <record id="categorie_formation" model="km.trajet.categorie">
+            <field name="name">Formation</field>
+            <field name="code">FORMATION</field>
+            <field name="sequence">40</field>
+            <field name="color">5</field>
+            <field name="description">Déplacement pour une formation</field>
+        </record>
+
+        <record id="categorie_reunion" model="km.trajet.categorie">
+            <field name="name">Réunion</field>
+            <field name="code">REUNION</field>
+            <field name="sequence">50</field>
+            <field name="color">6</field>
+            <field name="description">Déplacement pour une réunion professionnelle</field>
+        </record>
+
+        <record id="categorie_administratif" model="km.trajet.categorie">
+            <field name="name">Administratif</field>
+            <field name="code">ADMIN</field>
+            <field name="sequence">60</field>
+            <field name="color">7</field>
+            <field name="description">Déplacement administratif (banque, notaire, etc.)</field>
+        </record>
+
+        <record id="categorie_chantier" model="km.trajet.categorie">
+            <field name="name">Chantier</field>
+            <field name="code">CHANTIER</field>
+            <field name="sequence">70</field>
+            <field name="color">1</field>
+            <field name="description">Déplacement sur un chantier</field>
+        </record>
+
+        <record id="categorie_livraison" model="km.trajet.categorie">
+            <field name="name">Livraison</field>
+            <field name="code">LIVRAISON</field>
+            <field name="sequence">80</field>
+            <field name="color">2</field>
+            <field name="description">Livraison de marchandises</field>
+        </record>
+
+        <record id="categorie_autre" model="km.trajet.categorie">
+            <field name="name">Autre</field>
+            <field name="code">AUTRE</field>
+            <field name="sequence">100</field>
+            <field name="color">8</field>
+            <field name="description">Autre type de déplacement professionnel</field>
+        </record>
+
+        <!-- Produit pour les notes de frais -->
+        <record id="product_indemnite_km" model="product.product">
+            <field name="name">Indemnité Kilométrique</field>
+            <field name="default_code">IK</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="uom_id" ref="uom.product_uom_km"/>
+            <field name="uom_po_id" ref="uom.product_uom_km"/>
+            <field name="can_be_expensed" eval="True"/>
+            <field name="list_price">0.0</field>
+            <field name="standard_price">0.0</field>
+            <field name="description">Indemnité kilométrique pour déplacements professionnels</field>
+        </record>
+
+        <!-- 
+        Configuration API Google :
+        La clé API doit être configurée via Configuration > Paramètres > Indemnités Kilométriques
+        ou dans Paramètres > Technique > Paramètres système :
+        - km_expense.distance_api_key = VOTRE_CLE_API_GOOGLE
+        - km_expense.distance_api_provider = google (ou openroute)
+        -->
+
+    </data>
+</odoo>
