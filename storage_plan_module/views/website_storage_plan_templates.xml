@@ -2,127 +2,288 @@
 <odoo>
     <template id="storage_plan_page" name="Plan Interactif Garde-Meubles">
         <t t-call="website.layout">
-            <div id="wrap">
+            <div id="wrap" class="storage-plan-wrapper">
                 <!-- Section éditable avant le plan -->
                 <div class="oe_structure" id="storage_plan_header">
-                    <!-- Ajoutez vos blocs ici en mode édition -->
                 </div>
 
-                <!-- Contenu principal (non éditable) -->
-                <div class="container-fluid mt-4">
-                    <div class="row">
-                        <div class="col-12 text-center mb-4">
-                            <h1 class="o_default_snippet_text">Plan Interactif du Garde-Meubles</h1>
-                            <p class="lead o_default_snippet_text">Cliquez sur un box pour voir ses détails et le réserver</p>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <!-- Plan des boxes -->
-                        <div class="col-lg-9">
-                            <div id="storage-plans-container">
-                                <t t-foreach="floors" t-as="floor">
-                                    <div class="floor-plan-wrapper mb-4" t-att-data-floor-id="floor['id']">
-                                        <h3 class="text-center mb-3">
-                                            <t t-esc="floor['name']"/>
-                                            <small class="text-muted">
-                                                (<t t-esc="floor['available_count']"/> / <t t-esc="floor['box_count']"/> disponibles)
-                                            </small>
-                                        </h3>
+                <!-- Contenu principal -->
+                <div class="container-fluid storage-plan-container">
+                    <div class="main-layout">
+                        <!-- Colonne des plans (RDC + Étage) -->
+                        <div class="plans-section">
+                            <div class="floors-row">
+                                <!-- REZ-DE-CHAUSSÉE -->
+                                <div class="floor-container" id="floor-rdc">
+                                    <div class="floor-title">Rez-de-chaussée</div>
+                                    <div class="floor-grid rdc-grid">
+                                        <!-- Zone CNC1 -->
+                                        <div class="zone-cnc cnc1">CNC1</div>
                                         
-                                        <div class="floor-plan" t-att-data-floor-code="floor['code']">
-                                            <!-- Nom allée gauche -->
-                                            <div class="aisle-name left">
-                                                <t t-esc="floor.get('aisle_left_name', 'Allée gauche')"/>
-                                            </div>
-                                            
-                                            <!-- Nom allée droite -->
-                                            <div class="aisle-name right">
-                                                <t t-esc="floor.get('aisle_right_name', 'Allée droite')"/>
-                                            </div>
-                                            
-                                            <!-- Allée gauche -->
-                                            <div class="aisle-left">
-                                                <t t-foreach="floor['boxes']" t-as="box">
-                                                    <t t-if="box.get('aisle', 'left') == 'left'">
-                                                        <div class="storage-box" 
-                                                             t-att-data-box-id="box['id']"
-                                                             t-att-data-status="box['status']"
-                                                             t-att-data-aisle="box.get('aisle', 'left')"
-                                                             t-attf-style="background-color: #{box['status_color']};">
-                                                            <div class="box-number">
-                                                                <t t-esc="box['name']"/>
-                                                            </div>
-                                                            <div class="box-volume">
-                                                                <t t-esc="box['volume']"/> m³
-                                                            </div>
-                                                            <div class="box-surface">
-                                                                <t t-esc="box['surface']"/> m²
-                                                            </div>
-                                                            <t t-if="box['status'] != 'disponible' and box.get('date_available')">
-                                                                <div class="box-date-available">
-                                                                    Dispo: <t t-esc="box['date_available']"/>
+                                        <!-- Zone BUR -->
+                                        <div class="zone-special zone-bur">BUR</div>
+                                        
+                                        <!-- Colonne 1G01-1G08 -->
+                                        <div class="boxes-column col-1g">
+                                            <t t-foreach="floors" t-as="floor">
+                                                <t t-if="floor['code'] == 'RDC'">
+                                                    <t t-set="col_1g_boxes" t-value="['1G08', '1G07', '1G06', '1G05', '1G04', '1G03', '1G02', '1G01']"/>
+                                                    <t t-foreach="col_1g_boxes" t-as="box_name">
+                                                        <t t-foreach="floor['boxes']" t-as="box">
+                                                            <t t-if="box['name'] == box_name">
+                                                                <div class="storage-box" 
+                                                                     t-att-data-box-id="box['id']"
+                                                                     t-att-data-box-name="box['name']"
+                                                                     t-att-data-status="box['status']"
+                                                                     t-attf-style="background-color: #{box['status_color']};">
+                                                                    <div class="box-number"><t t-esc="box['name']"/></div>
+                                                                    <div class="box-volume"><t t-esc="box['volume']"/> m³</div>
+                                                                    <t t-if="box['status'] != 'disponible' and box.get('date_available')">
+                                                                        <div class="box-date-available">Dispo: <t t-esc="box['date_available']"/></div>
+                                                                    </t>
                                                                 </div>
                                                             </t>
-                                                        </div>
+                                                        </t>
                                                     </t>
                                                 </t>
-                                            </div>
-                                            
-                                            <!-- Allée droite -->
-                                            <div class="aisle-right">
-                                                <t t-foreach="floor['boxes']" t-as="box">
-                                                    <t t-if="box.get('aisle', 'left') == 'right'">
-                                                        <div class="storage-box" 
-                                                             t-att-data-box-id="box['id']"
-                                                             t-att-data-status="box['status']"
-                                                             t-att-data-aisle="box.get('aisle', 'left')"
-                                                             t-attf-style="background-color: #{box['status_color']};">
-                                                            <div class="box-number">
-                                                                <t t-esc="box['name']"/>
-                                                            </div>
-                                                            <div class="box-volume">
-                                                                <t t-esc="box['volume']"/> m³
-                                                            </div>
-                                                            <div class="box-surface">
-                                                                <t t-esc="box['surface']"/> m²
-                                                            </div>
-                                                            <t t-if="box['status'] != 'disponible' and box.get('date_available')">
-                                                                <div class="box-date-available">
-                                                                    Dispo: <t t-esc="box['date_available']"/>
+                                            </t>
+                                        </div>
+                                        
+                                        <!-- Colonne centrale 1G09-1G14 -->
+                                        <div class="boxes-column col-1g-center">
+                                            <t t-foreach="floors" t-as="floor">
+                                                <t t-if="floor['code'] == 'RDC'">
+                                                    <t t-set="col_1gc_boxes" t-value="['1G09', '1G10', '1G11', '1G12', '1G13', '1G14']"/>
+                                                    <t t-foreach="col_1gc_boxes" t-as="box_name">
+                                                        <t t-foreach="floor['boxes']" t-as="box">
+                                                            <t t-if="box['name'] == box_name">
+                                                                <div class="storage-box" 
+                                                                     t-att-data-box-id="box['id']"
+                                                                     t-att-data-box-name="box['name']"
+                                                                     t-att-data-status="box['status']"
+                                                                     t-attf-style="background-color: #{box['status_color']};">
+                                                                    <div class="box-number"><t t-esc="box['name']"/></div>
+                                                                    <div class="box-volume"><t t-esc="box['volume']"/> m³</div>
+                                                                    <t t-if="box['status'] != 'disponible' and box.get('date_available')">
+                                                                        <div class="box-date-available">Dispo: <t t-esc="box['date_available']"/></div>
+                                                                    </t>
                                                                 </div>
                                                             </t>
-                                                        </div>
+                                                        </t>
                                                     </t>
                                                 </t>
-                                            </div>
+                                            </t>
+                                        </div>
+                                        
+                                        <!-- Colonne 1D15-1D23 + 1D35 -->
+                                        <div class="boxes-column col-1d-left">
+                                            <t t-foreach="floors" t-as="floor">
+                                                <t t-if="floor['code'] == 'RDC'">
+                                                    <t t-set="col_1dl_boxes" t-value="['1D23', '1D22', '1D21', '1D20', '1D19', '1D18', '1D17', '1D16', '1D15', '1D35']"/>
+                                                    <t t-foreach="col_1dl_boxes" t-as="box_name">
+                                                        <t t-foreach="floor['boxes']" t-as="box">
+                                                            <t t-if="box['name'] == box_name">
+                                                                <div class="storage-box" 
+                                                                     t-att-data-box-id="box['id']"
+                                                                     t-att-data-box-name="box['name']"
+                                                                     t-att-data-status="box['status']"
+                                                                     t-attf-style="background-color: #{box['status_color']};">
+                                                                    <div class="box-number"><t t-esc="box['name']"/></div>
+                                                                    <div class="box-volume"><t t-esc="box['volume']"/> m³</div>
+                                                                    <t t-if="box['status'] != 'disponible' and box.get('date_available')">
+                                                                        <div class="box-date-available">Dispo: <t t-esc="box['date_available']"/></div>
+                                                                    </t>
+                                                                </div>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </div>
+                                        
+                                        <!-- Zone SDS -->
+                                        <div class="zone-special zone-sds">SDS</div>
+                                        
+                                        <!-- Colonne 1D24-1D34 -->
+                                        <div class="boxes-column col-1d-right">
+                                            <t t-foreach="floors" t-as="floor">
+                                                <t t-if="floor['code'] == 'RDC'">
+                                                    <t t-set="col_1dr_boxes" t-value="['1D24', '1D25', '1D26', '1D27', '1D28', '1D29', '1D30', '1D31', '1D32', '1D33', '1D34']"/>
+                                                    <t t-foreach="col_1dr_boxes" t-as="box_name">
+                                                        <t t-foreach="floor['boxes']" t-as="box">
+                                                            <t t-if="box['name'] == box_name">
+                                                                <div class="storage-box" 
+                                                                     t-att-data-box-id="box['id']"
+                                                                     t-att-data-box-name="box['name']"
+                                                                     t-att-data-status="box['status']"
+                                                                     t-attf-style="background-color: #{box['status_color']};">
+                                                                    <div class="box-number"><t t-esc="box['name']"/></div>
+                                                                    <div class="box-volume"><t t-esc="box['volume']"/> m³</div>
+                                                                    <t t-if="box['status'] != 'disponible' and box.get('date_available')">
+                                                                        <div class="box-date-available">Dispo: <t t-esc="box['date_available']"/></div>
+                                                                    </t>
+                                                                </div>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </div>
+                                        
+                                        <!-- Zones WC et TECH -->
+                                        <div class="zone-special zone-wc">WC</div>
+                                        <div class="zone-special zone-tech">TECH</div>
+                                    </div>
+                                </div>
+
+                                <!-- PREMIER ÉTAGE -->
+                                <div class="floor-container" id="floor-r1">
+                                    <div class="floor-title">Premier étage</div>
+                                    <div class="floor-grid r1-grid">
+                                        <!-- Zone CNC2 -->
+                                        <div class="zone-cnc cnc2">CNC2</div>
+                                        
+                                        <!-- Colonne 2G35-2G43 + 2G75 -->
+                                        <div class="boxes-column col-2g-left">
+                                            <t t-foreach="floors" t-as="floor">
+                                                <t t-if="floor['code'] == 'R1' or floor['code'] == 'R+1' or floor['code'] == 'ETG1'">
+                                                    <t t-set="col_2gl_boxes" t-value="['2G43', '2G42', '2G41', '2G40', '2G39', '2G38', '2G37', '2G36', '2G35', '2G75']"/>
+                                                    <t t-foreach="col_2gl_boxes" t-as="box_name">
+                                                        <t t-foreach="floor['boxes']" t-as="box">
+                                                            <t t-if="box['name'] == box_name">
+                                                                <div class="storage-box" 
+                                                                     t-att-data-box-id="box['id']"
+                                                                     t-att-data-box-name="box['name']"
+                                                                     t-att-data-status="box['status']"
+                                                                     t-attf-style="background-color: #{box['status_color']};">
+                                                                    <div class="box-number"><t t-esc="box['name']"/></div>
+                                                                    <div class="box-volume"><t t-esc="box['volume']"/> m³</div>
+                                                                    <t t-if="box['status'] != 'disponible' and box.get('date_available')">
+                                                                        <div class="box-date-available">Dispo: <t t-esc="box['date_available']"/></div>
+                                                                    </t>
+                                                                </div>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </div>
+                                        
+                                        <!-- Colonne 2G44-2G51 -->
+                                        <div class="boxes-column col-2g-right">
+                                            <t t-foreach="floors" t-as="floor">
+                                                <t t-if="floor['code'] == 'R1' or floor['code'] == 'R+1' or floor['code'] == 'ETG1'">
+                                                    <t t-set="col_2gr_boxes" t-value="['2G44', '2G45', '2G46', '2G47', '2G48', '2G49', '2G50', '2G51']"/>
+                                                    <t t-foreach="col_2gr_boxes" t-as="box_name">
+                                                        <t t-foreach="floor['boxes']" t-as="box">
+                                                            <t t-if="box['name'] == box_name">
+                                                                <div class="storage-box" 
+                                                                     t-att-data-box-id="box['id']"
+                                                                     t-att-data-box-name="box['name']"
+                                                                     t-att-data-status="box['status']"
+                                                                     t-attf-style="background-color: #{box['status_color']};">
+                                                                    <div class="box-number"><t t-esc="box['name']"/></div>
+                                                                    <div class="box-volume"><t t-esc="box['volume']"/> m³</div>
+                                                                    <t t-if="box['status'] != 'disponible' and box.get('date_available')">
+                                                                        <div class="box-date-available">Dispo: <t t-esc="box['date_available']"/></div>
+                                                                    </t>
+                                                                </div>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </div>
+                                        
+                                        <!-- Colonne 2D52-2D61 -->
+                                        <div class="boxes-column col-2d-left">
+                                            <t t-foreach="floors" t-as="floor">
+                                                <t t-if="floor['code'] == 'R1' or floor['code'] == 'R+1' or floor['code'] == 'ETG1'">
+                                                    <t t-set="col_2dl_boxes" t-value="['2D61', '2D60', '2D59', '2D58', '2D57', '2D56', '2D55', '2D54', '2D53', '2D52', '2D51']"/>
+                                                    <t t-foreach="col_2dl_boxes" t-as="box_name">
+                                                        <t t-foreach="floor['boxes']" t-as="box">
+                                                            <t t-if="box['name'] == box_name">
+                                                                <div class="storage-box" 
+                                                                     t-att-data-box-id="box['id']"
+                                                                     t-att-data-box-name="box['name']"
+                                                                     t-att-data-status="box['status']"
+                                                                     t-attf-style="background-color: #{box['status_color']};">
+                                                                    <div class="box-number"><t t-esc="box['name']"/></div>
+                                                                    <div class="box-volume"><t t-esc="box['volume']"/> m³</div>
+                                                                    <t t-if="box['status'] != 'disponible' and box.get('date_available')">
+                                                                        <div class="box-date-available">Dispo: <t t-esc="box['date_available']"/></div>
+                                                                    </t>
+                                                                </div>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </div>
+                                        
+                                        <!-- Colonne 2D62-2D74 -->
+                                        <div class="boxes-column col-2d-right">
+                                            <t t-foreach="floors" t-as="floor">
+                                                <t t-if="floor['code'] == 'R1' or floor['code'] == 'R+1' or floor['code'] == 'ETG1'">
+                                                    <t t-set="col_2dr_boxes" t-value="['2D62', '2D63', '2D64', '2D65', '2D66', '2D67', '2D68', '2D69', '2D70', '2D71', '2D72', '2D73', '2D74']"/>
+                                                    <t t-foreach="col_2dr_boxes" t-as="box_name">
+                                                        <t t-foreach="floor['boxes']" t-as="box">
+                                                            <t t-if="box['name'] == box_name">
+                                                                <div class="storage-box" 
+                                                                     t-att-data-box-id="box['id']"
+                                                                     t-att-data-box-name="box['name']"
+                                                                     t-att-data-status="box['status']"
+                                                                     t-attf-style="background-color: #{box['status_color']};">
+                                                                    <div class="box-number"><t t-esc="box['name']"/></div>
+                                                                    <div class="box-volume"><t t-esc="box['volume']"/> m³</div>
+                                                                    <t t-if="box['status'] != 'disponible' and box.get('date_available')">
+                                                                        <div class="box-date-available">Dispo: <t t-esc="box['date_available']"/></div>
+                                                                    </t>
+                                                                </div>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
                                         </div>
                                     </div>
-                                </t>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Légende -->
-                        <div class="col-lg-3">
-                            <div class="card sticky-top" style="top: 20px;">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Légende des couleurs</h5>
+                        <!-- Colonne de droite (Exemple + Légende) -->
+                        <div class="sidebar-section">
+                            <div class="sidebar-content">
+                                <!-- Exemple de box -->
+                                <div class="example-box-card">
+                                    <div class="example-title">Exemple de box</div>
+                                    <div class="example-box-demo">
+                                        <div class="demo-id">ID du Box</div>
+                                        <div class="demo-volume">Volume (m³)</div>
+                                    </div>
                                 </div>
-                                <div class="card-body">
-                                    <t t-foreach="status_legend" t-as="status">
-                                        <div class="legend-item mb-2">
-                                            <span class="legend-color" 
-                                                  t-attf-style="background-color: #{status['color']};"></span>
-                                            <span class="legend-label">
-                                                <t t-esc="status['label']"/>
-                                            </span>
-                                        </div>
-                                    </t>
-                                </div>
-                                <div class="card-footer">
-                                    <a href="/contactus" class="btn btn-primary btn-sm w-100" id="general-inquiry-btn">
+                                
+                                <!-- Légende des couleurs -->
+                                <div class="legend-card">
+                                    <div class="legend-title">Légende des couleurs</div>
+                                    <div class="legend-items">
+                                        <t t-foreach="status_legend" t-as="status">
+                                            <div class="legend-item">
+                                                <span class="legend-color" t-attf-style="background-color: #{status['color']};"></span>
+                                                <span class="legend-label"><t t-esc="status['label']"/></span>
+                                            </div>
+                                        </t>
+                                    </div>
+                                    
+                                    <!-- Bouton demande générale -->
+                                    <a href="/contactus" class="btn-demande-generale" id="general-inquiry-btn">
                                         Demande générale
                                     </a>
+                                </div>
+                                
+                                <!-- Image chariot -->
+                                <div class="forklift-image">
+                                    <img src="/storage_plan_module/static/src/img/forklift.png" alt="Chariot élévateur"/>
                                 </div>
                             </div>
                         </div>
@@ -141,53 +302,35 @@
                             </div>
                             <div class="modal-body">
                                 <div class="row">
-                                    <!-- Visualisation 3D du box -->
                                     <div class="col-md-6">
                                         <div id="box-3d-container" class="text-center">
                                             <canvas id="box-3d-canvas" width="400" height="400"></canvas>
                                         </div>
                                     </div>
-
-                                    <!-- Informations du box -->
                                     <div class="col-md-6">
                                         <div id="box-details-content">
                                             <dl class="row">
                                                 <dt class="col-sm-5">Box N°:</dt>
                                                 <dd class="col-sm-7" id="detail-box-name"></dd>
-
                                                 <dt class="col-sm-5">Largeur:</dt>
                                                 <dd class="col-sm-7" id="detail-width"></dd>
-
                                                 <dt class="col-sm-5">Profondeur:</dt>
                                                 <dd class="col-sm-7" id="detail-depth"></dd>
-
                                                 <dt class="col-sm-5">Hauteur:</dt>
                                                 <dd class="col-sm-7" id="detail-height"></dd>
-
                                                 <dt class="col-sm-5">Volume:</dt>
                                                 <dd class="col-sm-7" id="detail-volume"></dd>
-
                                                 <dt class="col-sm-5">Prix:</dt>
                                                 <dd class="col-sm-7" id="detail-price"></dd>
-
                                                 <dt class="col-sm-5">Statut:</dt>
-                                                <dd class="col-sm-7">
-                                                    <span class="badge" id="detail-status"></span>
-                                                </dd>
-                                                
+                                                <dd class="col-sm-7"><span class="badge" id="detail-status"></span></dd>
                                                 <dt class="col-sm-5" id="detail-date-available-label" style="display: none;">Disponible le:</dt>
                                                 <dd class="col-sm-7" id="detail-date-available" style="display: none;"></dd>
                                             </dl>
-
                                             <div class="mt-4">
-                                                <a href="/contactus" class="btn btn-secondary w-100 mb-2" id="btn-appointment" target="_blank">
-                                                    Prendre rendez-vous
-                                                </a>
-                                                <a href="/contactus" class="btn btn-danger w-100" id="btn-reserve" target="_blank">
-                                                    Réserver ce box maintenant
-                                                </a>
+                                                <a href="/contactus" class="btn btn-secondary w-100 mb-2" id="btn-appointment" target="_blank">Prendre rendez-vous</a>
+                                                <a href="/contactus" class="btn btn-danger w-100" id="btn-reserve" target="_blank">Réserver ce box maintenant</a>
                                             </div>
-
                                             <div class="mt-3">
                                                 <small class="text-muted">
                                                     Frais de dossier uniques : <span id="detail-registration-fee"></span><br/>
@@ -204,7 +347,6 @@
 
                 <!-- Section éditable après le plan -->
                 <div class="oe_structure" id="storage_plan_footer">
-                    <!-- Ajoutez vos blocs ici en mode édition -->
                 </div>
             </div>
         </t>

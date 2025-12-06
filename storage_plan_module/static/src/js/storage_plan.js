@@ -6,7 +6,7 @@
     'use strict';
 
     $(document).ready(function() {
-        console.log('Storage Plan JS loaded v1.0.24');
+        console.log('Storage Plan JS loaded v1.0.25');
         initializeStoragePlan();
     });
 

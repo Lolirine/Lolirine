@@ -1,132 +1,290 @@
-/* Plan interactif du garde-meubles */
+/**
+ * Plan Interactif Garde-Meubles - CSS
+ * Version 1.0.25 - Layout fidèle à la capture
+ */
 
-.floor-plan-wrapper {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+/* ============================================
+   CONTENEUR PRINCIPAL
+   ============================================ */
+.storage-plan-wrapper {
+    background: linear-gradient(135deg, #d4a574 0%, #c9a67a 50%, #e8d4b8 100%);
+    min-height: 100vh;
+    padding: 15px;
 }
 
-.floor-plan {
+.storage-plan-container {
+    padding: 10px;
+}
+
+.main-layout {
     display: flex;
-    gap: 0; /* Pas de gap, on utilise un élément central */
-    padding: 20px;
-    background: #ffffff;
-    border-radius: 8px;
-    min-height: 400px;
-    position: relative;
-    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-/* Allée centrale visible */
-.floor-plan::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 80px; /* Largeur du couloir */
-    transform: translateX(-50%);
-    background: linear-gradient(to right, 
-        #e9ecef 0%, 
-        #f8f9fa 20%, 
-        #ffffff 50%, 
-        #f8f9fa 80%, 
-        #e9ecef 100%);
-    border-left: 2px dashed #dee2e6;
-    border-right: 2px dashed #dee2e6;
-    z-index: 0;
-}
-
-/* Nom des allées */
-.floor-plan .aisle-name {
-    position: absolute;
-    top: 10px;
-    font-weight: bold;
-    font-size: 13px;
-    color: #495057;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 4px 8px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    z-index: 2;
-}
-
-.floor-plan .aisle-name.left {
-    left: 20px;
-}
-
-.floor-plan .aisle-name.right {
-    right: 20px;
-}
-
-/* Allée gauche et droite */
-.floor-plan .aisle-left,
-.floor-plan .aisle-right {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 8px;
+.plans-section {
     flex: 1;
-    max-width: calc(50% - 50px); /* 50px = moitié du couloir + espace */
-    z-index: 1;
+    min-width: 0;
 }
 
-/* Layout pour le rez-de-chaussée - Supprimer les anciennes règles */
-.floor-plan[data-floor-code="RDC"] {
-    /* Pas de grille, on utilise flex */
+.sidebar-section {
+    width: 280px;
+    flex-shrink: 0;
 }
 
-/* Layout pour le premier étage - Supprimer les anciennes règles */
-.floor-plan[data-floor-code="R1"] {
-    /* Pas de grille, on utilise flex */
+/* ============================================
+   RANGÉE DES ÉTAGES (CÔTE À CÔTE)
+   ============================================ */
+.floors-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
+.floor-container {
+    flex: 1;
+    min-width: 400px;
+    background: rgba(102, 153, 153, 0.85);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.floor-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    margin-bottom: 15px;
+    padding: 8px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 6px;
+}
+
+/* ============================================
+   GRILLE DU RDC
+   ============================================ */
+.rdc-grid {
+    display: grid;
+    grid-template-columns: 120px 70px 70px 70px 70px 70px;
+    grid-template-rows: repeat(12, auto);
+    gap: 4px;
+    position: relative;
+}
+
+/* Zone CNC1 */
+.zone-cnc.cnc1 {
+    grid-column: 1;
+    grid-row: 1 / 8;
+    background: #a0a0a0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: #333;
+    min-height: 280px;
+}
+
+/* Zone BUR */
+.zone-bur {
+    grid-column: 1;
+    grid-row: 9 / 11;
+    background: #d0d0d0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Zone SDS */
+.zone-sds {
+    grid-column: 5;
+    grid-row: 1;
+    background: #d0d0d0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    color: #333;
+    min-height: 35px;
+}
+
+/* Zone WC */
+.zone-wc {
+    grid-column: 5;
+    grid-row: 11;
+    background: #d0d0d0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    color: #333;
+    min-height: 35px;
+}
+
+/* Zone TECH */
+.zone-tech {
+    grid-column: 5;
+    grid-row: 12;
+    background: #d0d0d0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    color: #333;
+    min-height: 35px;
+}
+
+/* Colonnes de boxes RDC */
+.col-1g {
+    grid-column: 2;
+    grid-row: 1 / 11;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 3px;
+}
+
+.col-1g-center {
+    grid-column: 3;
+    grid-row: 3 / 11;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.col-1d-left {
+    grid-column: 4;
+    grid-row: 1 / 12;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.col-1d-right {
+    grid-column: 5 / 7;
+    grid-row: 2 / 12;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+/* ============================================
+   GRILLE DU PREMIER ÉTAGE
+   ============================================ */
+.r1-grid {
+    display: grid;
+    grid-template-columns: 120px 70px 70px 70px 70px;
+    grid-template-rows: repeat(12, auto);
+    gap: 4px;
+    position: relative;
+}
+
+/* Zone CNC2 */
+.zone-cnc.cnc2 {
+    grid-column: 1;
+    grid-row: 1 / 7;
+    background: #a0a0a0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: #333;
+    min-height: 240px;
+}
+
+/* Colonnes de boxes Premier Étage */
+.col-2g-left {
+    grid-column: 2;
+    grid-row: 1 / 12;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.col-2g-right {
+    grid-column: 3;
+    grid-row: 3 / 12;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.col-2d-left {
+    grid-column: 4;
+    grid-row: 1 / 12;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.col-2d-right {
+    grid-column: 5;
+    grid-row: 1 / 14;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+/* ============================================
+   BOXES
+   ============================================ */
 .storage-box {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 8px;
-    border: 2px solid #ddd;
-    border-radius: 6px;
+    padding: 4px 2px;
+    border: 1px solid rgba(0,0,0,0.2);
+    border-radius: 4px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    min-height: 110px;
+    transition: all 0.2s ease;
+    min-height: 45px;
     position: relative;
+}
+
+.storage-box:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    border-color: #333;
 }
 
 .storage-box .box-number {
     font-weight: bold;
-    font-size: 14px;
+    font-size: 11px;
     color: #333;
-    margin-bottom: 2px;
+    line-height: 1.1;
 }
 
 .storage-box .box-volume {
-    font-weight: bold;
-    font-size: 16px;
-    color: #000;
-    background: rgba(255,255,255,0.8);
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin: 2px 0;
-}
-
-.storage-box .box-surface {
-    font-size: 11px;
-    color: #555;
+    font-size: 10px;
+    color: #333;
+    line-height: 1.1;
 }
 
 .storage-box .box-date-available {
-    font-size: 12px;
+    font-size: 8px;
     font-weight: bold;
     color: #fff;
     background: linear-gradient(135deg, #e74c3c, #c0392b);
-    padding: 4px 8px;
-    border-radius: 4px;
-    margin-top: 5px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    margin-top: 2px;
     white-space: nowrap;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     animation: blink-availability 1.5s ease-in-out infinite;
 }
 
@@ -134,263 +292,274 @@
     0%, 100% {
         opacity: 1;
         transform: scale(1);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
     50% {
         opacity: 0.7;
         transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
     }
 }
 
 .storage-box:hover .box-date-available {
     animation: none;
-    opacity: 1;
-    transform: scale(1.1);
-    background: linear-gradient(135deg, #c0392b, #a93226);
 }
 
-.storage-box:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    border-color: #333;
-    z-index: 10;
+/* ============================================
+   SIDEBAR (DROITE)
+   ============================================ */
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.storage-box[data-status="disponible"] {
-    border-color: #28a745;
+/* Exemple de box */
+.example-box-card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.storage-box[data-status="occupe"] {
-    border-color: #dc3545;
-}
-
-.storage-box[data-status="maintenance"] {
-    border-color: #ffc107;
-}
-
-.storage-box[data-status="reserve"] {
-    border-color: #fd7e14;
-}
-
-.box-number {
+.example-title {
+    text-align: center;
     font-weight: bold;
     font-size: 14px;
     color: #333;
-    margin-bottom: 4px;
+    margin-bottom: 10px;
 }
 
-.box-surface {
-    font-size: 12px;
-    color: #666;
+.example-box-demo {
+    background: #87CEEB;
+    border: 2px solid #5ba3c0;
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
 }
 
-/* Légende */
+.demo-id {
+    font-weight: bold;
+    font-size: 13px;
+    color: #333;
+}
+
+.demo-volume {
+    font-size: 11px;
+    color: #555;
+}
+
+/* Légende des couleurs */
+.legend-card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.legend-title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    font-style: italic;
+    color: #c0392b;
+    margin-bottom: 12px;
+}
+
+.legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .legend-item {
     display: flex;
     align-items: center;
-    padding: 5px 0;
+    gap: 10px;
 }
 
 .legend-color {
-    display: inline-block;
-    width: 30px;
-    height: 20px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    margin-right: 10px;
+    width: 35px;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.2);
+    flex-shrink: 0;
 }
 
 .legend-label {
-    font-size: 14px;
+    font-size: 13px;
+    color: #333;
 }
 
-/* Modal détails */
+/* Bouton demande générale */
+.btn-demande-generale {
+    display: block;
+    text-align: center;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
+}
+
+.btn-demande-generale:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    color: #fff;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+}
+
+/* Image chariot élévateur */
+.forklift-image {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.forklift-image img {
+    max-width: 200px;
+    border-radius: 50%;
+    border: 4px solid #f39c12;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+#boxDetailsModal .modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#boxDetailsModal .modal-header {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+}
+
+#boxDetailsModal .modal-header .close {
+    color: white;
+    opacity: 1;
+}
+
+#boxDetailsModal .modal-body {
+    padding: 25px;
+}
+
 #box-3d-container {
     background: #f8f9fa;
-    padding: 20px;
     border-radius: 8px;
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    padding: 15px;
 }
 
 #box-3d-canvas {
     max-width: 100%;
     height: auto;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: white;
 }
 
-#box-details-content dl {
-    margin-bottom: 0;
-}
-
-#box-details-content dt {
+#box-details-content dl dt {
     font-weight: 600;
-    color: #666;
+    color: #555;
 }
 
-#box-details-content dd {
+#box-details-content dl dd {
     color: #333;
 }
 
-#detail-status {
-    padding: 5px 15px;
-    font-size: 14px;
+.badge-success { background-color: #27ae60; color: white; }
+.badge-danger { background-color: #e74c3c; color: white; }
+.badge-warning { background-color: #f39c12; color: white; }
+.badge-info { background-color: #3498db; color: white; }
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1400px) {
+    .main-layout {
+        flex-direction: column;
+    }
+    
+    .sidebar-section {
+        width: 100%;
+    }
+    
+    .sidebar-content {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+    
+    .example-box-card,
+    .legend-card {
+        flex: 1;
+        min-width: 250px;
+        max-width: 350px;
+    }
+    
+    .forklift-image {
+        display: none;
+    }
 }
 
-#detail-status.badge-success {
-    background-color: #28a745;
-}
-
-#detail-status.badge-danger {
-    background-color: #dc3545;
-}
-
-#detail-status.badge-warning {
-    background-color: #ffc107;
-    color: #333;
-}
-
-#detail-status.badge-info {
-    background-color: #17a2b8;
-}
-
-/* Responsive */
 @media (max-width: 992px) {
-    .floor-plan {
-        grid-template-columns: repeat(3, 1fr);
+    .floors-row {
+        flex-direction: column;
+    }
+    
+    .floor-container {
+        min-width: 100%;
+        overflow-x: auto;
+    }
+    
+    .rdc-grid,
+    .r1-grid {
+        min-width: 450px;
     }
 }
 
 @media (max-width: 768px) {
-    .floor-plan {
-        grid-template-columns: repeat(2, 1fr);
+    .storage-plan-wrapper {
+        padding: 10px;
+    }
+    
+    .floor-title {
+        font-size: 18px;
     }
     
     .storage-box {
-        min-height: 70px;
-        padding: 8px;
+        min-height: 40px;
+        padding: 3px;
     }
     
-    .box-number {
-        font-size: 12px;
+    .storage-box .box-number {
+        font-size: 10px;
     }
     
-    .box-surface {
-        font-size: 11px;
+    .storage-box .box-volume {
+        font-size: 9px;
     }
 }
 
-@media (max-width: 576px) {
-    .floor-plan {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Animations */
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
-    }
-}
-
-.storage-box[data-status="disponible"]:hover {
-    animation: pulse 1.5s infinite;
-}
-
-/* Loading spinner */
-.loading-spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* Buttons dans la modal */
-#box-details-content .mt-4 {
+/* ============================================
+   ZONES SPÉCIALES - STYLES ADDITIONNELS
+   ============================================ */
+.zone-special {
+    background: #d0d0d0;
+    border-radius: 6px;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px !important;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #333;
+    border: 1px solid rgba(0,0,0,0.1);
 }
 
-#box-details-content .mt-4 button {
-    margin: 0 !important;
-}
-
-/* Forcer les boutons à ne pas se chevaucher */
-.modal-body .btn {
-    display: block;
-    margin-bottom: 10px;
-}
-
-.modal-body .btn:last-child {
-    margin-bottom: 0;
-}
-
-}
-
-body.editor_enable .storage-box.o_dirty {
-    pointer-events: auto;
-}
-
-/* Boutons de la modal non cliquables en mode édition */
-body.editor_enable #btn-appointment,
-body.editor_enable #btn-reserve {
-    pointer-events: none;
-}
-.box-tooltip {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    pointer-events: none;
-    z-index: 1000;
-    white-space: nowrap;
-}
-
-/* Zones spéciales (WC, TECH, etc.) */
-.storage-box.special-zone {
-    background: repeating-linear-gradient(
-        45deg,
-        #f0f0f0,
-        #f0f0f0 10px,
-        #e0e0e0 10px,
-        #e0e0e0 20px
-    );
-    cursor: default;
-    border-color: #999;
-}
-
-.storage-box.special-zone:hover {
-    transform: none;
-    box-shadow: none;
-}
-
-/* Boutons désactivés */
-a.btn.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.zone-cnc {
+    background: linear-gradient(135deg, #bdc3c7, #95a5a6);
+    font-size: 20px;
+    letter-spacing: 1px;
 }
