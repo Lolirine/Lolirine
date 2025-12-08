@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Sequence -->
+    <record id="seq_visite_box" model="ir.sequence">
+        <field name="name">Visite Sequence</field>
+        <field name="code">visite.box</field>
+        <field name="prefix">VIS/%(year)s/</field>
+        <field name="padding">5</field>
+    </record>
+
+    <!-- Form View -->
+    <record id="visite_box_view_form" model="ir.ui.view">
+        <field name="name">visite.box.form</field>
+        <field name="model">visite.box</field>
+        <field name="arch" type="xml">
+            <form string="Visite">
+                <header>
+                    <button name="action_schedule" string="Planifier" type="object" 
+                            states="draft" class="btn-primary"/>
+                    <button name="action_done" string="Terminer" type="object" 
+                            states="scheduled" class="btn-primary"/>
+                    <button name="action_cancel" string="Annuler" type="object" 
+                            states="draft,scheduled"/>
+                    <button name="action_draft" string="Remettre en brouillon" type="object" 
+                            states="cancelled"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="partner_id"/>
+                            <field name="date_visite"/>
+                        </group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="state"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="visite_box_view_tree" model="ir.ui.view">
+        <field name="name">visite.box.tree</field>
+        <field name="model">visite.box</field>
+        <field name="arch" type="xml">
+            <tree string="Visites">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date_visite"/>
+                <field name="user_id"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_visite_box" model="ir.actions.act_window">
+        <field name="name">Visites</field>
+        <field name="res_model">visite.box</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_visite_root"
+              name="Visites"
+              sequence="50"/>
+
+    <menuitem id="menu_visite_box"
+              name="Visites"
+              parent="menu_visite_root"
+              action="action_visite_box"
+              sequence="10"/>
+
+</odoo>
