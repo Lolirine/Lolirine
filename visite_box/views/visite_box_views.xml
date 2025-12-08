@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue formulaire principale -->
+    <record id="visite_box_view_form" model="ir.ui.view">
+        <field name="name">visite.box.view.form</field>
+        <field name="model">visite.box</field>
+        <field name="arch" type="xml">
+            <form string="Visite">
+                <header>
+                    <button name="action_schedule" string="Planifier" type="object" 
+                            class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_confirm" string="Confirmer" type="object" 
+                            class="oe_highlight" invisible="state != 'scheduled'"/>
+                    <button name="action_start" string="Démarrer" type="object" 
+                            class="oe_highlight" invisible="state != 'confirmed'"/>
+                    <button name="action_done" string="Terminer" type="object" 
+                            class="oe_highlight" invisible="state != 'in_progress'"/>
+                    <button name="action_convert_to_quotation" string="Convertir en devis" type="object" 
+                            class="oe_highlight" invisible="state not in ('done', 'in_progress')"/>
+                    <button name="action_send_reminder" string="Envoyer rappel" type="object" 
+                            invisible="state not in ('scheduled', 'confirmed')"/>
+                    <button name="action_send_sms_reminder" string="📱 SMS" type="object" 
+                            invisible="state not in ('scheduled', 'confirmed')"/>
+                    <button name="action_sign" string="Faire signer" type="object" 
+                            invisible="state not in ('in_progress', 'done')"/>
+                    <button name="action_cancel" string="Annuler" type="object" 
+                            invisible="state in ('cancelled', 'converted')"/>
+                    <button name="action_reset_draft" string="Remettre en brouillon" type="object" 
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="draft,scheduled,confirmed,in_progress,done,converted"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_quotation" type="object" class="oe_stat_button" 
+                                icon="fa-file-text-o" invisible="not sale_order_id">
+                            <span class="o_stat_text">Devis</span>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Annulée" bg_color="bg-danger" 
+                            invisible="state != 'cancelled'"/>
+                    <widget name="web_ribbon" title="Convertie" bg_color="bg-success" 
+                            invisible="state != 'converted'"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Client">
+                            <field name="partner_id" widget="res_partner_many2one"/>
+                            <field name="partner_phone" widget="phone"/>
+                            <field name="partner_mobile" widget="phone"/>
+                            <field name="partner_email" widget="email"/>
+                        </group>
+                        <group string="Planification">
+                            <field name="date_visite"/>
+                            <field name="duree_visite"/>
+                            <field name="creneau_id"/>
+                            <field name="user_id"/>
+                            <field name="priority" widget="priority"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Besoins client" name="besoins">
+                            <group>
+                                <group>
+                                    <field name="type_stockage"/>
+                                    <field name="volume_estime"/>
+                                    <field name="surface_estimee"/>
+                                    <field name="duree_prevue"/>
+                                </group>
+                                <group>
+                                    <field name="acces_frequence"/>
+                                    <field name="objets_sensibles"/>
+                                    <field name="objets_sensibles_detail" 
+                                           invisible="not objets_sensibles"/>
+                                </group>
+                            </group>
+                            <separator string="Description du besoin"/>
+                            <field name="besoin_description" placeholder="Décrivez le besoin du client..."/>
+                        </page>
+                        <page string="Box" name="box">
+                            <group>
+                                <group>
+                                    <field name="box_ids" widget="many2many_tags" 
+                                           options="{'color_field': 'state'}"/>
+                                </group>
+                                <group>
+                                    <field name="box_selected_id"/>
+                                </group>
+                            </group>
+                            <field name="box_ids" mode="tree">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="surface"/>
+                                    <field name="prix_mensuel"/>
+                                    <field name="etage"/>
+                                    <field name="state" widget="badge" 
+                                           decoration-success="state == 'available'"
+                                           decoration-warning="state == 'reserved'"
+                                           decoration-danger="state == 'occupied'"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Check-list" name="checklist">
+                            <field name="checklist_progress" widget="progressbar"/>
+                            <field name="checklist_ids">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="is_required"/>
+                                    <field name="is_done" widget="boolean_toggle"/>
+                                    <field name="notes"/>
+                                    <field name="done_by" readonly="1"/>
+                                    <field name="done_date" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Objections" name="objections">
+                            <group>
+                                <field name="objection_ids" widget="many2many_tags"/>
+                            </group>
+                            <field name="objection_notes" placeholder="Notes sur les objections et réponses apportées..."/>
+                        </page>
+                        <page string="Signature" name="signature">
+                            <group>
+                                <group>
+                                    <field name="consent_rgpd"/>
+                                    <field name="consent_marketing"/>
+                                </group>
+                                <group>
+                                    <field name="signature_date" readonly="1"/>
+                                </group>
+                            </group>
+                            <separator string="Signature du client"/>
+                            <field name="signature" widget="signature"/>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <group>
+                                <field name="notes_internes" placeholder="Notes internes (non visibles par le client)..."/>
+                            </group>
+                            <group>
+                                <field name="notes_client" placeholder="Notes pour le client..."/>
+                            </group>
+                        </page>
+                        <page string="Origine" name="source">
+                            <group>
+                                <group>
+                                    <field name="source_id"/>
+                                    <field name="medium_id"/>
+                                    <field name="campaign_id"/>
+                                </group>
+                                <group>
+                                    <field name="confirmation_envoyee" readonly="1"/>
+                                    <field name="rappel_envoye" readonly="1"/>
+                                    <field name="calendar_event_id" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue formulaire signature (popup tablette) -->
+    <record id="visite_box_view_form_signature" model="ir.ui.view">
+        <field name="name">visite.box.view.form.signature</field>
+        <field name="model">visite.box</field>
+        <field name="arch" type="xml">
+            <form string="Signature">
+                <sheet>
+                    <group>
+                        <div class="alert alert-info" role="alert">
+                            <p><strong>Fiche de visite</strong></p>
+                            <p>Client: <field name="partner_id" readonly="1" class="oe_inline"/></p>
+                            <p>Date: <field name="date_visite" readonly="1" class="oe_inline"/></p>
+                        </div>
+                    </group>
+                    <group>
+                        <field name="consent_rgpd"/>
+                        <label for="consent_rgpd"/>
+                        <span>J'autorise le traitement de mes données personnelles conformément au RGPD.</span>
+                    </group>
+                    <group>
+                        <field name="consent_marketing"/>
+                        <label for="consent_marketing"/>
+                        <span>J'accepte de recevoir des communications commerciales.</span>
+                    </group>
+                    <separator string="Signature"/>
+                    <field name="signature" widget="signature"/>
+                </sheet>
+                <footer>
+                    <button name="action_save_signature" string="Valider la signature" type="object" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue liste -->
+    <record id="visite_box_view_tree" model="ir.ui.view">
+        <field name="name">visite.box.view.tree</field>
+        <field name="model">visite.box</field>
+        <field name="arch" type="xml">
+            <tree string="Visites" decoration-muted="state == 'cancelled'" 
+                  decoration-success="state == 'converted'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date_visite"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="box_selected_id"/>
+                <field name="volume_estime"/>
+                <field name="checklist_progress" widget="progressbar"/>
+                <field name="state" widget="badge" 
+                       decoration-info="state == 'draft'"
+                       decoration-primary="state == 'scheduled'"
+                       decoration-warning="state == 'confirmed'"
+                       decoration-success="state in ('done', 'converted')"
+                       decoration-danger="state == 'cancelled'"/>
+                <field name="priority" widget="priority" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vue Kanban -->
+    <record id="visite_box_view_kanban" model="ir.ui.view">
+        <field name="name">visite.box.view.kanban</field>
+        <field name="model">visite.box</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date_visite"/>
+                <field name="user_id"/>
+                <field name="state"/>
+                <field name="priority"/>
+                <field name="kanban_state"/>
+                <field name="checklist_progress"/>
+                <field name="signature"/>
+                <progressbar field="kanban_state" colors='{"blocked": "danger", "normal": "warning", "done": "success"}'/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="partner_id"/>
+                                        </strong>
+                                    </div>
+                                    <field name="priority" widget="priority"/>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <field name="name" class="text-muted"/>
+                                    <div class="mt-2">
+                                        <i class="fa fa-calendar"/> <field name="date_visite" widget="date"/>
+                                    </div>
+                                    <div class="mt-1">
+                                        <field name="checklist_progress" widget="progressbar" 
+                                               title="Progression check-list"/>
+                                    </div>
+                                    <div class="mt-1" t-if="record.signature.raw_value">
+                                        <span class="badge text-bg-success">
+                                            <i class="fa fa-check"/> Signé
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="activity_ids" widget="kanban_activity"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="user_id" widget="many2one_avatar_user"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Vue calendrier -->
+    <record id="visite_box_view_calendar" model="ir.ui.view">
+        <field name="name">visite.box.view.calendar</field>
+        <field name="model">visite.box</field>
+        <field name="arch" type="xml">
+            <calendar string="Visites" date_start="date_visite" date_stop="date_visite_fin" 
+                      color="user_id" mode="week" quick_add="False">
+                <field name="partner_id"/>
+                <field name="state"/>
+                <field name="user_id" filters="1" avatar_field="image_128"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Vue recherche -->
+    <record id="visite_box_view_search" model="ir.ui.view">
+        <field name="name">visite.box.view.search</field>
+        <field name="model">visite.box</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher une visite">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <filter string="Mes visites" name="my_visits" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="Brouillon" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Planifiées" name="scheduled" domain="[('state', '=', 'scheduled')]"/>
+                <filter string="Confirmées" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter string="En cours" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Terminées" name="done" domain="[('state', '=', 'done')]"/>
+                <filter string="Converties" name="converted" domain="[('state', '=', 'converted')]"/>
+                <separator/>
+                <filter string="Aujourd'hui" name="today" 
+                        domain="[('date_visite', '>=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                                 ('date_visite', '&lt;', datetime.datetime.combine(context_today() + relativedelta(days=1), datetime.time(0,0,0)))]"/>
+                <filter string="Cette semaine" name="this_week" 
+                        domain="[('date_visite', '>=', (context_today() - relativedelta(weekday=0))),
+                                 ('date_visite', '&lt;', (context_today() + relativedelta(weeks=1, weekday=0)))]"/>
+                <separator/>
+                <filter string="Non signées" name="unsigned" domain="[('signature', '=', False)]"/>
+                <filter string="Signées" name="signed" domain="[('signature', '!=', False)]"/>
+                <separator/>
+                <filter string="Archivées" name="inactive" domain="[('state', '=', 'cancelled')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Commercial" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Client" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date_visite:day'}"/>
+                    <filter string="Type stockage" name="group_type" context="{'group_by': 'type_stockage'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action principale -->
+    <record id="visite_box_action" model="ir.actions.act_window">
+        <field name="name">Visites</field>
+        <field name="res_model">visite.box</field>
+        <field name="view_mode">kanban,tree,form,calendar</field>
+        <field name="search_view_id" ref="visite_box_view_search"/>
+        <field name="context">{'search_default_my_visits': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer une nouvelle visite
+            </p>
+            <p>
+                Planifiez des visites avec vos prospects et suivez leur parcours jusqu'à la signature du contrat.
+            </p>
+        </field>
+    </record>
+</odoo>

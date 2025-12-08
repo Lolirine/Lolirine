@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Modèle de check-list par défaut -->
+        <record id="checklist_template_default" model="visite.checklist.template">
+            <field name="name">Check-list standard</field>
+            <field name="sequence">1</field>
+            <field name="is_default" eval="True"/>
+        </record>
+
+        <!-- Éléments de la check-list - Accueil -->
+        <record id="checklist_item_accueil_1" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Accueillir le client et se présenter</field>
+            <field name="sequence">10</field>
+            <field name="category">accueil</field>
+            <field name="is_required" eval="True"/>
+        </record>
+
+        <record id="checklist_item_accueil_2" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Vérifier l'identité du client</field>
+            <field name="sequence">20</field>
+            <field name="category">accueil</field>
+        </record>
+
+        <record id="checklist_item_accueil_3" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Offrir une boisson</field>
+            <field name="sequence">30</field>
+            <field name="category">accueil</field>
+        </record>
+
+        <!-- Éléments - Analyse du besoin -->
+        <record id="checklist_item_besoin_1" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Comprendre le contexte (déménagement, travaux, etc.)</field>
+            <field name="sequence">40</field>
+            <field name="category">besoin</field>
+            <field name="is_required" eval="True"/>
+        </record>
+
+        <record id="checklist_item_besoin_2" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Estimer le volume à stocker</field>
+            <field name="sequence">50</field>
+            <field name="category">besoin</field>
+            <field name="is_required" eval="True"/>
+            <field name="help_text">Utiliser le calculateur de volume ou poser des questions sur le mobilier</field>
+        </record>
+
+        <record id="checklist_item_besoin_3" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Identifier la durée de stockage prévue</field>
+            <field name="sequence">60</field>
+            <field name="category">besoin</field>
+            <field name="is_required" eval="True"/>
+        </record>
+
+        <record id="checklist_item_besoin_4" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Demander les contraintes d'accès (fréquence, horaires)</field>
+            <field name="sequence">70</field>
+            <field name="category">besoin</field>
+        </record>
+
+        <record id="checklist_item_besoin_5" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Identifier les objets sensibles ou de valeur</field>
+            <field name="sequence">80</field>
+            <field name="category">besoin</field>
+        </record>
+
+        <!-- Éléments - Visite des lieux -->
+        <record id="checklist_item_visite_1" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Montrer les différentes tailles de box</field>
+            <field name="sequence">90</field>
+            <field name="category">visite</field>
+            <field name="is_required" eval="True"/>
+        </record>
+
+        <record id="checklist_item_visite_2" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Présenter la box recommandée</field>
+            <field name="sequence">100</field>
+            <field name="category">visite</field>
+            <field name="is_required" eval="True"/>
+        </record>
+
+        <record id="checklist_item_visite_3" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Montrer le système de sécurité (alarme, vidéo)</field>
+            <field name="sequence">110</field>
+            <field name="category">visite</field>
+        </record>
+
+        <record id="checklist_item_visite_4" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Expliquer le système d'accès (badge, code)</field>
+            <field name="sequence">120</field>
+            <field name="category">visite</field>
+        </record>
+
+        <record id="checklist_item_visite_5" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Montrer les équipements disponibles (chariots, etc.)</field>
+            <field name="sequence">130</field>
+            <field name="category">visite</field>
+        </record>
+
+        <!-- Éléments - Explications -->
+        <record id="checklist_item_explication_1" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Présenter les tarifs et conditions</field>
+            <field name="sequence">140</field>
+            <field name="category">explication</field>
+            <field name="is_required" eval="True"/>
+        </record>
+
+        <record id="checklist_item_explication_2" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Expliquer l'assurance et les garanties</field>
+            <field name="sequence">150</field>
+            <field name="category">explication</field>
+            <field name="is_required" eval="True"/>
+        </record>
+
+        <record id="checklist_item_explication_3" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Mentionner les règles de stockage (interdictions)</field>
+            <field name="sequence">160</field>
+            <field name="category">explication</field>
+        </record>
+
+        <record id="checklist_item_explication_4" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Expliquer les modalités de résiliation</field>
+            <field name="sequence">170</field>
+            <field name="category">explication</field>
+        </record>
+
+        <!-- Éléments - Closing -->
+        <record id="checklist_item_closing_1" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Répondre aux questions du client</field>
+            <field name="sequence">180</field>
+            <field name="category">closing</field>
+            <field name="is_required" eval="True"/>
+        </record>
+
+        <record id="checklist_item_closing_2" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Proposer une réservation immédiate</field>
+            <field name="sequence">190</field>
+            <field name="category">closing</field>
+        </record>
+
+        <record id="checklist_item_closing_3" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Faire signer la fiche de visite</field>
+            <field name="sequence">200</field>
+            <field name="category">closing</field>
+        </record>
+
+        <record id="checklist_item_closing_4" model="visite.checklist.template.item">
+            <field name="template_id" ref="checklist_template_default"/>
+            <field name="name">Planifier un suivi si pas de décision</field>
+            <field name="sequence">210</field>
+            <field name="category">closing</field>
+        </record>
+
+        <!-- Objections fréquentes -->
+        <record id="objection_prix" model="visite.objection">
+            <field name="name">C'est trop cher</field>
+            <field name="sequence">10</field>
+            <field name="reponse_suggeree">Comparez le coût d'un déménagement ou d'un loyer plus grand. Le stockage est souvent plus économique. Nous proposons aussi des promotions sur les engagements longs.</field>
+        </record>
+
+        <record id="objection_taille" model="visite.objection">
+            <field name="name">Je ne sais pas quelle taille prendre</field>
+            <field name="sequence">20</field>
+            <field name="reponse_suggeree">Nous pouvons vous aider à estimer. En cas de doute, mieux vaut prendre légèrement plus grand. Vous pourrez toujours changer de box plus tard.</field>
+        </record>
+
+        <record id="objection_securite" model="visite.objection">
+            <field name="name">Est-ce vraiment sécurisé ?</field>
+            <field name="sequence">30</field>
+            <field name="reponse_suggeree">Nous disposons d'un système de vidéosurveillance 24/7, d'alarmes individuelles, et d'un accès par badge personnel. Chaque entrée est enregistrée.</field>
+        </record>
+
+        <record id="objection_humidite" model="visite.objection">
+            <field name="name">Il y a de l'humidité ?</field>
+            <field name="sequence">40</field>
+            <field name="reponse_suggeree">Nos box sont ventilées et au sec. Pour les objets très sensibles, nous recommandons l'utilisation d'absorbeurs d'humidité.</field>
+        </record>
+
+        <record id="objection_acces" model="visite.objection">
+            <field name="name">Je peux venir quand je veux ?</field>
+            <field name="sequence">50</field>
+            <field name="reponse_suggeree">Vous avez accès à votre box selon les horaires d'ouverture du site. Des options d'accès 24h/24 peuvent être disponibles selon les formules.</field>
+        </record>
+
+        <record id="objection_assurance" model="visite.objection">
+            <field name="name">Et si mes affaires sont endommagées ?</field>
+            <field name="sequence">60</field>
+            <field name="reponse_suggeree">Une assurance est incluse dans votre contrat. Vous pouvez également souscrire une assurance complémentaire pour les objets de valeur.</field>
+        </record>
+
+        <record id="objection_engagement" model="visite.objection">
+            <field name="name">Je ne veux pas m'engager longtemps</field>
+            <field name="sequence">70</field>
+            <field name="reponse_suggeree">Nos contrats sont flexibles avec un préavis court. Vous n'êtes pas engagé sur une durée minimale contraignante.</field>
+        </record>
+    </data>
+</odoo>

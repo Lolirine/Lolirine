@@ -1,0 +1,63 @@
+/* Styles pour le module Visites & Parcours Client */
+
+/* Kanban card styling */
+.o_visite_kanban .o_kanban_record {
+    margin-bottom: 8px;
+}
+
+/* Progress bar for checklist */
+.o_visite_checklist_progress .progress {
+    height: 20px;
+    border-radius: 10px;
+}
+
+/* Signature widget styling */
+.o_visite_signature .o_signature {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    min-height: 150px;
+}
+
+/* Stage pipeline colors */
+.o_visite_stage_new { background-color: #17a2b8 !important; }
+.o_visite_stage_qualified { background-color: #28a745 !important; }
+.o_visite_stage_scheduled { background-color: #ffc107 !important; }
+.o_visite_stage_visited { background-color: #fd7e14 !important; }
+.o_visite_stage_won { background-color: #28a745 !important; }
+.o_visite_stage_lost { background-color: #dc3545 !important; }
+
+/* Storage box card */
+.o_storage_box_card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.o_storage_box_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Checklist items */
+.o_visite_checklist_item.completed {
+    background-color: #d4edda;
+}
+
+.o_visite_checklist_item.required {
+    border-left: 3px solid #dc3545;
+}
+
+/* Calendar event styling */
+.o_visite_calendar_event {
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .o_visite_form .o_group {
+        flex-direction: column;
+    }
+    
+    .o_visite_signature .o_signature {
+        min-height: 100px;
+    }
+}

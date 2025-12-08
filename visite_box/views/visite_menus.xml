@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Menu principal -->
+    <menuitem id="menu_visite_box_root"
+              name="Visites &amp; Parcours"
+              sequence="25"
+              web_icon="visite_box,static/description/icon.png"/>
+    
+    <!-- Sous-menu Visites -->
+    <menuitem id="menu_visite_box_visites"
+              name="Visites"
+              parent="menu_visite_box_root"
+              sequence="10"/>
+    
+    <menuitem id="menu_visite_box_all"
+              name="Toutes les visites"
+              parent="menu_visite_box_visites"
+              action="action_visite_box"
+              sequence="10"/>
+    
+    <menuitem id="menu_visite_box_today"
+              name="Visites du jour"
+              parent="menu_visite_box_visites"
+              action="action_visite_box_today"
+              sequence="20"/>
+    
+    <!-- Sous-menu Box -->
+    <menuitem id="menu_visite_box_storage"
+              name="Box de stockage"
+              parent="menu_visite_box_root"
+              sequence="20"/>
+    
+    <menuitem id="menu_storage_box_all"
+              name="Toutes les box"
+              parent="menu_visite_box_storage"
+              action="action_storage_box"
+              sequence="10"/>
+    
+    <menuitem id="menu_storage_box_available"
+              name="Box disponibles"
+              parent="menu_visite_box_storage"
+              action="action_storage_box_available"
+              sequence="20"/>
+    
+    <!-- Sous-menu Configuration -->
+    <menuitem id="menu_visite_box_config"
+              name="Configuration"
+              parent="menu_visite_box_root"
+              sequence="100"
+              groups="group_visite_manager"/>
+    
+    <menuitem id="menu_visite_stages"
+              name="Étapes du pipeline"
+              parent="menu_visite_box_config"
+              action="action_visite_stage"
+              sequence="10"/>
+    
+    <menuitem id="menu_visite_checklist_templates"
+              name="Templates de checklist"
+              parent="menu_visite_box_config"
+              action="action_visite_checklist_template"
+              sequence="20"/>
+    
+</odoo>
