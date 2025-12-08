@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Couleurs par défaut des statuts (index Odoo 0-11) -->
+        <record id="status_color_disponible" model="storage.status.color">
+            <field name="name">Disponible</field>
+            <field name="status_key">disponible</field>
+            <field name="color">10</field><!-- Vert -->
+            <field name="sequence">10</field>
+            <field name="show_in_legend">True</field>
+        </record>
+        
+        <record id="status_color_occupe" model="storage.status.color">
+            <field name="name">Occupé</field>
+            <field name="status_key">occupe</field>
+            <field name="color">1</field><!-- Rouge -->
+            <field name="sequence">20</field>
+            <field name="show_in_legend">True</field>
+        </record>
+        
+        <record id="status_color_maintenance" model="storage.status.color">
+            <field name="name">Maintenance</field>
+            <field name="status_key">maintenance</field>
+            <field name="color">3</field><!-- Jaune -->
+            <field name="sequence">30</field>
+            <field name="show_in_legend">True</field>
+        </record>
+        
+        <record id="status_color_nettoyage" model="storage.status.color">
+            <field name="name">Nettoyage</field>
+            <field name="status_key">nettoyage</field>
+            <field name="color">4</field><!-- Bleu clair -->
+            <field name="sequence">40</field>
+            <field name="show_in_legend">True</field>
+        </record>
+        
+        <record id="status_color_reserve" model="storage.status.color">
+            <field name="name">Réservé</field>
+            <field name="status_key">reserve</field>
+            <field name="color">2</field><!-- Orange -->
+            <field name="sequence">50</field>
+            <field name="show_in_legend">True</field>
+        </record>
+        
+        <record id="status_color_bientot_dispo" model="storage.status.color">
+            <field name="name">Bientôt dispo.</field>
+            <field name="status_key">bientot_dispo</field>
+            <field name="color">11</field><!-- Violet -->
+            <field name="sequence">60</field>
+            <field name="show_in_legend">True</field>
+        </record>
+        
+        <record id="status_color_inspection" model="storage.status.color">
+            <field name="name">En inspection</field>
+            <field name="status_key">inspection</field>
+            <field name="color">7</field><!-- Bleu moyen -->
+            <field name="sequence">70</field>
+            <field name="show_in_legend">True</field>
+        </record>
+        
+        <record id="status_color_technique" model="storage.status.color">
+            <field name="name">Technique</field>
+            <field name="status_key">technique</field>
+            <field name="color">8</field><!-- Bleu foncé -->
+            <field name="sequence">80</field>
+            <field name="show_in_legend">True</field>
+        </record>
+    </data>
+</odoo>
