@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu principal -->
+    <menuitem id="visite_box_menu_root"
+              name="Visites &amp; Parcours"
+              web_icon="visite_box,static/description/icon.png"
+              sequence="25"
+              groups="visite_box.group_visite_user"/>
+
+    <!-- Sous-menu Visites -->
+    <menuitem id="visite_box_menu_visites"
+              name="Visites"
+              parent="visite_box_menu_root"
+              sequence="10"/>
+
+    <menuitem id="visite_box_menu_visites_all"
+              name="Toutes les visites"
+              parent="visite_box_menu_visites"
+              action="visite_box_action"
+              sequence="10"/>
+
+    <menuitem id="visite_box_menu_visites_today"
+              name="Aujourd'hui"
+              parent="visite_box_menu_visites"
+              action="visite_box_action"
+              sequence="20"/>
+
+    <!-- Sous-menu Box -->
+    <menuitem id="visite_box_menu_boxes"
+              name="Box"
+              parent="visite_box_menu_root"
+              sequence="20"/>
+
+    <menuitem id="visite_box_menu_boxes_all"
+              name="Toutes les box"
+              parent="visite_box_menu_boxes"
+              action="storage_box_action"
+              sequence="10"/>
+
+    <!-- Sous-menu Configuration -->
+    <menuitem id="visite_box_menu_configuration"
+              name="Configuration"
+              parent="visite_box_menu_root"
+              sequence="100"
+              groups="visite_box.group_visite_manager"/>
+
+    <menuitem id="visite_box_menu_creneaux"
+              name="Créneaux horaires"
+              parent="visite_box_menu_configuration"
+              action="visite_creneau_action"
+              sequence="10"/>
+
+    <menuitem id="visite_box_menu_checklist_templates"
+              name="Modèles de check-list"
+              parent="visite_box_menu_configuration"
+              action="visite_checklist_template_action"
+              sequence="20"/>
+
+    <menuitem id="visite_box_menu_objections"
+              name="Objections fréquentes"
+              parent="visite_box_menu_configuration"
+              action="visite_objection_action"
+              sequence="30"/>
+
+    <!-- Sous-menu Rapports -->
+    <menuitem id="visite_box_menu_reports"
+              name="Rapports"
+              parent="visite_box_menu_root"
+              sequence="90"
+              groups="visite_box.group_visite_manager"/>
+</odoo>
