@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_visite_box_user,visite.box.user,model_visite_box,base.group_user,1,1,1,1
