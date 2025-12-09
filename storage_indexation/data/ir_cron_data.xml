@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- CRON: Récupération mensuelle de l'indice santé -->
+        <record id="ir_cron_fetch_health_index" model="ir.cron">
+            <field name="name">Indexation: Récupérer l'indice santé mensuel</field>
+            <field name="model_id" ref="storage_indexation.model_storage_price_index"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_fetch_health_index()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">months</field>
+            <field name="doall" eval="False"/>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- CRON: Vérification des indexations en attente -->
+        <record id="ir_cron_check_pending_indexations" model="ir.cron">
+            <field name="name">Indexation: Vérifier les indexations en attente</field>
+            <field name="model_id" ref="storage_indexation.model_storage_indexation"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_pending_indexations()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">weeks</field>
+            <field name="doall" eval="False"/>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

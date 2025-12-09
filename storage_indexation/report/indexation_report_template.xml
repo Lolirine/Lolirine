@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Template: Avis d'indexation individuel -->
+    <template id="report_indexation_notice">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            .indexation-header { 
+                                background-color: #f8f9fa; 
+                                padding: 20px; 
+                                margin-bottom: 20px; 
+                                border-radius: 5px;
+                            }
+                            .indexation-title { 
+                                color: #495057; 
+                                font-size: 24px; 
+                                font-weight: bold;
+                                margin-bottom: 10px;
+                            }
+                            .info-table { 
+                                width: 100%; 
+                                margin: 20px 0; 
+                            }
+                            .info-table td { 
+                                padding: 8px 12px; 
+                                border-bottom: 1px solid #dee2e6; 
+                            }
+                            .info-table .label { 
+                                font-weight: bold; 
+                                width: 40%; 
+                                background-color: #f8f9fa;
+                            }
+                            .price-box {
+                                background-color: #e3f2fd;
+                                padding: 20px;
+                                border-radius: 5px;
+                                margin: 20px 0;
+                            }
+                            .price-row {
+                                display: flex;
+                                justify-content: space-between;
+                                padding: 10px 0;
+                                border-bottom: 1px solid #90caf9;
+                            }
+                            .price-row:last-child {
+                                border-bottom: none;
+                            }
+                            .new-price {
+                                font-size: 20px;
+                                font-weight: bold;
+                                color: #1565c0;
+                            }
+                            .formula-box {
+                                background-color: #fff3e0;
+                                padding: 15px;
+                                border-radius: 5px;
+                                margin: 20px 0;
+                                font-style: italic;
+                            }
+                            .signature-area {
+                                margin-top: 50px;
+                                padding-top: 20px;
+                                border-top: 1px solid #dee2e6;
+                            }
+                        </style>
+
+                        <!-- En-tête -->
+                        <div class="indexation-header">
+                            <div class="indexation-title">AVIS D'INDEXATION</div>
+                            <div>
+                                <strong>Référence:</strong> <t t-esc="doc.indexation_id.name"/>
+                            </div>
+                            <div>
+                                <strong>Date:</strong> <t t-esc="doc.indexation_id.date" t-options='{"widget": "date"}'/>
+                            </div>
+                        </div>
+
+                        <!-- Destinataire -->
+                        <div style="margin-bottom: 30px;">
+                            <strong>À l'attention de:</strong><br/>
+                            <t t-esc="doc.partner_id.name"/><br/>
+                            <t t-if="doc.partner_id.street"><t t-esc="doc.partner_id.street"/><br/></t>
+                            <t t-if="doc.partner_id.street2"><t t-esc="doc.partner_id.street2"/><br/></t>
+                            <t t-if="doc.partner_id.zip"><t t-esc="doc.partner_id.zip"/> </t>
+                            <t t-if="doc.partner_id.city"><t t-esc="doc.partner_id.city"/></t>
+                        </div>
+
+                        <!-- Corps de la lettre -->
+                        <p>Madame, Monsieur <t t-esc="doc.partner_id.name"/>,</p>
+
+                        <p>
+                            Conformément aux conditions générales de votre contrat de stockage et à la législation 
+                            en vigueur concernant l'indexation des loyers, nous vous informons de l'adaptation 
+                            annuelle du montant de votre location.
+                        </p>
+
+                        <!-- Informations du contrat -->
+                        <h4>Informations du contrat</h4>
+                        <table class="info-table">
+                            <tr>
+                                <td class="label">Contrat</td>
+                                <td><t t-esc="doc.subscription_id.name"/></td>
+                            </tr>
+                            <tr>
+                                <td class="label">Unité de stockage</td>
+                                <td><t t-esc="doc.product_id.name"/></td>
+                            </tr>
+                            <tr>
+                                <td class="label">Indice de base</td>
+                                <td>
+                                    <t t-esc="doc.base_index_id.name"/> 
+                                    (<t t-esc="'%.2f' % doc.base_index_value"/>)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label">Nouvel indice</td>
+                                <td>
+                                    <t t-esc="doc.indexation_id.new_index_id.name"/> 
+                                    (<t t-esc="'%.2f' % doc.new_index_value"/>)
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Modification du loyer -->
+                        <h4>Modification du loyer</h4>
+                        <div class="price-box">
+                            <div class="price-row">
+                                <span><strong>Loyer actuel:</strong></span>
+                                <span><t t-esc="'%.2f' % doc.old_price"/> €/mois</span>
+                            </div>
+                            <div class="price-row">
+                                <span><strong>Nouveau loyer:</strong></span>
+                                <span class="new-price"><t t-esc="'%.2f' % doc.new_price"/> €/mois</span>
+                            </div>
+                            <div class="price-row">
+                                <span><em>Augmentation:</em></span>
+                                <span>
+                                    <t t-esc="'%.2f' % doc.price_increase"/> € 
+                                    (+<t t-esc="'%.2f' % doc.increase_percentage"/>%)
+                                </span>
+                            </div>
+                        </div>
+
+                        <p>
+                            <strong>Date d'application:</strong> 
+                            <t t-esc="doc.indexation_id.date" t-options='{"widget": "date"}'/>
+                        </p>
+
+                        <!-- Formule d'indexation -->
+                        <div class="formula-box">
+                            <strong>Formule d'indexation belge:</strong><br/>
+                            Nouveau loyer = Loyer de base × (Nouvel indice / Indice de base)<br/>
+                            <t t-esc="'%.2f' % doc.new_price"/> = <t t-esc="'%.2f' % doc.old_price"/> × 
+                            (<t t-esc="'%.2f' % doc.new_index_value"/> / <t t-esc="'%.2f' % doc.base_index_value"/>)
+                        </div>
+
+                        <p>
+                            Cette indexation est conforme à la législation belge et aux termes de votre contrat.
+                            Pour toute question concernant cette indexation, n'hésitez pas à nous contacter.
+                        </p>
+
+                        <p>
+                            Nous vous remercions de votre confiance et restons à votre disposition.
+                        </p>
+
+                        <!-- Signature -->
+                        <div class="signature-area">
+                            <p>Cordialement,</p>
+                            <br/><br/>
+                            <p><strong><t t-esc="doc.indexation_id.company_id.name"/></strong></p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Template: Résumé d'indexation -->
+    <template id="report_indexation_summary">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            .summary-header {
+                                background-color: #495057;
+                                color: white;
+                                padding: 20px;
+                                margin-bottom: 20px;
+                            }
+                            .summary-title {
+                                font-size: 24px;
+                                font-weight: bold;
+                            }
+                            .stats-grid {
+                                display: flex;
+                                flex-wrap: wrap;
+                                margin: 20px 0;
+                            }
+                            .stat-box {
+                                flex: 1;
+                                min-width: 150px;
+                                background-color: #f8f9fa;
+                                padding: 15px;
+                                margin: 5px;
+                                border-radius: 5px;
+                                text-align: center;
+                            }
+                            .stat-value {
+                                font-size: 24px;
+                                font-weight: bold;
+                                color: #495057;
+                            }
+                            .stat-label {
+                                font-size: 12px;
+                                color: #6c757d;
+                            }
+                            .lines-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin: 20px 0;
+                                font-size: 11px;
+                            }
+                            .lines-table th {
+                                background-color: #495057;
+                                color: white;
+                                padding: 10px 8px;
+                                text-align: left;
+                            }
+                            .lines-table td {
+                                padding: 8px;
+                                border-bottom: 1px solid #dee2e6;
+                            }
+                            .lines-table tr:nth-child(even) {
+                                background-color: #f8f9fa;
+                            }
+                            .total-row {
+                                font-weight: bold;
+                                background-color: #e3f2fd !important;
+                            }
+                            .text-right { text-align: right; }
+                            .text-success { color: #28a745; }
+                        </style>
+
+                        <!-- En-tête -->
+                        <div class="summary-header">
+                            <div class="summary-title">RÉSUMÉ D'INDEXATION</div>
+                            <div><t t-esc="doc.name"/></div>
+                        </div>
+
+                        <!-- Informations générales -->
+                        <table class="info-table" style="width: 100%; margin-bottom: 20px;">
+                            <tr>
+                                <td style="width: 25%;"><strong>Date d'indexation:</strong></td>
+                                <td><t t-esc="doc.date" t-options='{"widget": "date"}'/></td>
+                                <td style="width: 25%;"><strong>Type d'indice:</strong></td>
+                                <td><t t-esc="dict(doc._fields['index_type'].selection).get(doc.index_type)"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Indice de base:</strong></td>
+                                <td><t t-esc="doc.base_index_id.name"/> (<t t-esc="'%.2f' % doc.base_index_id.value"/>)</td>
+                                <td><strong>Nouvel indice:</strong></td>
+                                <td><t t-esc="doc.new_index_id.name"/> (<t t-esc="'%.2f' % doc.new_index_id.value"/>)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Taux d'indexation:</strong></td>
+                                <td colspan="3"><t t-esc="'%.4f' % doc.indexation_rate"/>%</td>
+                            </tr>
+                        </table>
+
+                        <!-- Statistiques -->
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-value"><t t-esc="doc.subscription_count"/></div>
+                                <div class="stat-label">Abonnements</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value"><t t-esc="'%.2f' % doc.total_old_amount"/> €</div>
+                                <div class="stat-label">Montant actuel</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value"><t t-esc="'%.2f' % doc.total_new_amount"/> €</div>
+                                <div class="stat-label">Nouveau montant</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value text-success">+<t t-esc="'%.2f' % doc.total_increase"/> €</div>
+                                <div class="stat-label">Augmentation</div>
+                            </div>
+                        </div>
+
+                        <!-- Liste des lignes -->
+                        <h4>Détail par client</h4>
+                        <table class="lines-table">
+                            <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Contrat</th>
+                                    <th>Unité</th>
+                                    <th class="text-right">Prix actuel</th>
+                                    <th class="text-right">Nouveau prix</th>
+                                    <th class="text-right">Augmentation</th>
+                                    <th class="text-right">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc.line_ids" t-as="line">
+                                    <tr>
+                                        <td><t t-esc="line.partner_id.name"/></td>
+                                        <td><t t-esc="line.subscription_id.name"/></td>
+                                        <td><t t-esc="line.product_id.name"/></td>
+                                        <td class="text-right"><t t-esc="'%.2f' % line.old_price"/> €</td>
+                                        <td class="text-right"><t t-esc="'%.2f' % line.new_price"/> €</td>
+                                        <td class="text-right"><t t-esc="'%.2f' % line.price_increase"/> €</td>
+                                        <td class="text-right"><t t-esc="'%.2f' % line.increase_percentage"/>%</td>
+                                    </tr>
+                                </t>
+                                <tr class="total-row">
+                                    <td colspan="3"><strong>TOTAL</strong></td>
+                                    <td class="text-right"><strong><t t-esc="'%.2f' % doc.total_old_amount"/> €</strong></td>
+                                    <td class="text-right"><strong><t t-esc="'%.2f' % doc.total_new_amount"/> €</strong></td>
+                                    <td class="text-right"><strong><t t-esc="'%.2f' % doc.total_increase"/> €</strong></td>
+                                    <td class="text-right">
+                                        <strong>
+                                            <t t-if="doc.total_old_amount">
+                                                <t t-esc="'%.2f' % (doc.total_increase / doc.total_old_amount * 100)"/>%
+                                            </t>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Pied de page -->
+                        <div style="margin-top: 30px; font-size: 10px; color: #6c757d;">
+                            <p>
+                                Document généré le <t t-esc="datetime.datetime.now().strftime('%d/%m/%Y à %H:%M')"/>
+                                par <t t-esc="doc.company_id.name"/>
+                            </p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
