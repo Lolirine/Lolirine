@@ -1,0 +1,485 @@
+/**
+ * Calculateur de Volume - CSS
+ * Plan Interactif Garde-Meubles v1.0.58
+ */
+
+/* ============================================
+   SECTION PRINCIPALE
+   ============================================ */
+.volume-calculator-section {
+    background: #fff;
+    padding: 60px 20px;
+    margin-top: 40px;
+}
+
+.volume-calculator-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.calculator-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.calculator-header h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.calculator-header p {
+    font-size: 18px;
+    color: #7f8c8d;
+}
+
+/* ============================================
+   LAYOUT PRINCIPAL
+   ============================================ */
+.calculator-layout {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.calculator-main {
+    flex: 1;
+}
+
+.calculator-sidebar {
+    width: 350px;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   ONGLETS CATÉGORIES
+   ============================================ */
+.category-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.category-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #495057;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+}
+
+.category-tab:hover {
+    background: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.category-tab.active {
+    background: linear-gradient(135deg, #1565C0, #1976D2);
+    border-color: #1565C0;
+    color: #fff;
+}
+
+.category-tab:focus {
+    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.3);
+}
+
+.category-tab i {
+    font-size: 16px;
+}
+
+/* ============================================
+   GRILLE DE MEUBLES
+   ============================================ */
+.furniture-category-panel {
+    display: none;
+}
+
+.furniture-category-panel.active {
+    display: block;
+}
+
+.furniture-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.furniture-item {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.furniture-item:hover {
+    border-color: #1565C0;
+    box-shadow: 0 4px 15px rgba(21, 101, 192, 0.15);
+    transform: translateY(-2px);
+}
+
+.furniture-item.has-items {
+    border-color: #4CAF50;
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+}
+
+.furniture-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.furniture-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.furniture-btn-minus,
+.furniture-btn-plus {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.furniture-btn-minus {
+    background: #ffcdd2;
+    color: #c62828;
+}
+
+.furniture-btn-minus:hover {
+    background: #ef9a9a;
+    transform: scale(1.1);
+}
+
+.furniture-btn-plus {
+    background: #c8e6c9;
+    color: #2e7d32;
+}
+
+.furniture-btn-plus:hover {
+    background: #a5d6a7;
+    transform: scale(1.1);
+}
+
+.furniture-qty {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2c3e50;
+    min-width: 30px;
+}
+
+/* ============================================
+   SIDEBAR - RÉSULTAT
+   ============================================ */
+.volume-result-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    border: 2px solid #e9ecef;
+}
+
+.volume-result-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.volume-result-value {
+    text-align: center;
+}
+
+.total-volume-value {
+    font-size: 48px;
+    font-weight: 800;
+    color: #1565C0;
+}
+
+.total-volume-unit {
+    font-size: 24px;
+    color: #7f8c8d;
+}
+
+/* Recommendation */
+.recommendation-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    border: 2px solid #e9ecef;
+}
+
+.recommendation-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.recommendation-content {
+    min-height: 100px;
+}
+
+.best-recommendation h5 {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 10px;
+}
+
+.recommended-box-card {
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    border: 2px solid #1565C0;
+}
+
+.recommended-box-card .box-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1565C0;
+    margin-bottom: 8px;
+}
+
+.recommended-box-card .box-details {
+    font-size: 14px;
+    color: #5c6bc0;
+    margin-bottom: 5px;
+}
+
+.recommended-box-card .box-vol {
+    font-weight: 700;
+    color: #c0392b;
+    text-decoration: underline;
+}
+
+.recommended-box-card .box-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2e7d32;
+    margin-top: 8px;
+}
+
+.recommended-box-card .box-margin {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.other-boxes h6 {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 8px;
+}
+
+.other-box-item {
+    font-size: 13px;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+    color: #555;
+}
+
+.other-box-item:last-child {
+    border-bottom: none;
+}
+
+/* ============================================
+   VISUALISATION 3D
+   ============================================ */
+.visualization-3d-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border: 2px solid #e9ecef;
+}
+
+.visualization-3d-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.canvas-container {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+
+#volume-3d-canvas {
+    width: 100%;
+    height: 350px;
+    display: block;
+}
+
+.visualization-3d-hint {
+    text-align: center;
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 10px;
+}
+
+/* ============================================
+   BOUTONS D'ACTION
+   ============================================ */
+.calculator-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-reset-calculator {
+    flex: 1;
+    padding: 12px 20px;
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.btn-reset-calculator:hover {
+    background: #e9ecef;
+}
+
+.btn-view-boxes {
+    flex: 2;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #1565C0, #1976D2);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.btn-view-boxes:hover {
+    background: linear-gradient(135deg, #0d47a1, #1565C0);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   NOTE IMPORTANTE
+   ============================================ */
+.calculator-note {
+    margin-top: 40px;
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    border-left: 4px solid #1565C0;
+    border-radius: 0 10px 10px 0;
+    padding: 20px 25px;
+}
+
+.calculator-note h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1565C0;
+    margin-bottom: 10px;
+}
+
+.calculator-note ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #37474f;
+}
+
+.calculator-note li {
+    margin-bottom: 5px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1200px) {
+    .calculator-layout {
+        flex-direction: column;
+    }
+    
+    .calculator-sidebar {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .visualization-3d-card {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .calculator-sidebar {
+        grid-template-columns: 1fr;
+    }
+    
+    .visualization-3d-card {
+        grid-column: span 1;
+    }
+    
+    .furniture-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .category-tabs {
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 10px;
+    }
+    
+    .category-tab {
+        white-space: nowrap;
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .furniture-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .total-volume-value {
+        font-size: 36px;
+    }
+}
