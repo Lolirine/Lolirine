@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_storage_price_index_user,storage.price.index.user,model_storage_price_index,group_storage_indexation_user,1,0,0,0
+access_storage_price_index_manager,storage.price.index.manager,model_storage_price_index,group_storage_indexation_manager,1,1,1,1
+access_storage_indexation_user,storage.indexation.user,model_storage_indexation,group_storage_indexation_user,1,0,0,0
+access_storage_indexation_manager,storage.indexation.manager,model_storage_indexation,group_storage_indexation_manager,1,1,1,1
+access_storage_indexation_line_user,storage.indexation.line.user,model_storage_indexation_line,group_storage_indexation_user,1,0,0,0
+access_storage_indexation_line_manager,storage.indexation.line.manager,model_storage_indexation_line,group_storage_indexation_manager,1,1,1,1
+access_storage_indexation_wizard,storage.indexation.wizard,model_storage_indexation_wizard,group_storage_indexation_manager,1,1,1,1
