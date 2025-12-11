@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit res.partner form view -->
+    <record id="res_partner_view_form_inherit_act365" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.act365</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Add ACT365 smart button -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_act365_subscriptions" 
+                        type="object" 
+                        class="oe_stat_button" 
+                        icon="fa-key"
+                        invisible="act365_subscription_count == 0">
+                    <field name="act365_subscription_count" widget="statinfo" string="Accès"/>
+                </button>
+            </xpath>
+            
+            <!-- Add ACT365 fields in a new group after main info -->
+            <xpath expr="//page[@name='internal_notes']" position="before">
+                <page string="Accès Garde-Meubles" name="act365_access">
+                    <group>
+                        <group string="Code d'accès ACT365">
+                            <field name="act365_access_code"/>
+                            <button name="action_copy_access_code" 
+                                    type="object" 
+                                    string="📋 Afficher le code"
+                                    class="btn-secondary"
+                                    invisible="not act365_access_code"/>
+                        </group>
+                        <group string="Informations techniques">
+                            <field name="act365_cardholder_ids" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Abonnements avec accès" invisible="act365_subscription_count == 0">
+                        <field name="act365_subscription_ids" nolabel="1" readonly="1">
+                            <tree>
+                                <field name="name"/>
+                                <field name="act365_access_code"/>
+                                <field name="act365_enabled"/>
+                                <field name="subscription_state"/>
+                            </tree>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add ACT365 code to partner tree view -->
+    <record id="res_partner_view_tree_inherit_act365" model="ir.ui.view">
+        <field name="name">res.partner.tree.inherit.act365</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='email']" position="after">
+                <field name="act365_access_code" optional="hide" string="Code accès"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Search filter for partners with ACT365 code -->
+    <record id="res_partner_view_search_inherit_act365" model="ir.ui.view">
+        <field name="name">res.partner.search.inherit.act365</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='inactive']" position="after">
+                <separator/>
+                <filter name="has_act365_code" string="Avec code ACT365" 
+                        domain="[('act365_access_code', '!=', False)]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

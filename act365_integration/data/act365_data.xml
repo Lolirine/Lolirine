@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Default system parameters -->
+        <record id="config_act365_api_url" model="ir.config_parameter">
+            <field name="key">act365.api_url</field>
+            <field name="value">https://api.act365.eu</field>
+        </record>
+        
+        <record id="config_act365_pin_length" model="ir.config_parameter">
+            <field name="key">act365.pin_length</field>
+            <field name="value">4</field>
+        </record>
+        
+        <record id="config_act365_auto_sync" model="ir.config_parameter">
+            <field name="key">act365.auto_sync</field>
+            <field name="value">True</field>
+        </record>
+        
+        <record id="config_act365_enable_on_confirm" model="ir.config_parameter">
+            <field name="key">act365.enable_on_confirm</field>
+            <field name="value">True</field>
+        </record>
+        
+        <record id="config_act365_disable_on_close" model="ir.config_parameter">
+            <field name="key">act365.disable_on_close</field>
+            <field name="value">True</field>
+        </record>
+        
+    </data>
+</odoo>

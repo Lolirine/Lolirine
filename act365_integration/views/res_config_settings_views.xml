@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit res.config.settings view -->
+    <record id="res_config_settings_view_form_act365" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.act365</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="ACT365" string="ACT365" name="act365_integration" groups="base.group_system">
+                    <block title="Configuration API ACT365" name="act365_api_settings">
+                        <setting string="Connexion API" help="Configurez les paramètres de connexion à l'API ACT365">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="act365_api_url" class="col-3 col-lg-3 o_light_label"/>
+                                    <field name="act365_api_url" class="col-9 col-lg-6"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="act365_api_key" class="col-3 col-lg-3 o_light_label"/>
+                                    <field name="act365_api_key" class="col-9 col-lg-6" password="True"/>
+                                </div>
+                                <div class="row mt16">
+                                    <div class="col-3 col-lg-3"/>
+                                    <div class="col-9 col-lg-6">
+                                        <button name="action_test_act365_connection" 
+                                                type="object" 
+                                                string="🔌 Tester la connexion"
+                                                class="btn-secondary"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+                        
+                        <setting string="Groupes de cardholders" help="Gérez les groupes ACT365 pour définir les accès">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="act365_default_group_id" class="col-3 col-lg-3 o_light_label"/>
+                                    <field name="act365_default_group_id" class="col-9 col-lg-6"/>
+                                </div>
+                                <div class="row mt16">
+                                    <div class="col-3 col-lg-3"/>
+                                    <div class="col-9 col-lg-6">
+                                        <button name="action_sync_act365_groups" 
+                                                type="object" 
+                                                string="🔄 Synchroniser les groupes"
+                                                class="btn-secondary me-2"/>
+                                        <button name="action_open_act365_groups" 
+                                                type="object" 
+                                                string="📋 Voir les groupes"
+                                                class="btn-secondary"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    
+                    <block title="Options de code PIN" name="act365_pin_settings">
+                        <setting string="Génération du PIN" help="Configurez la génération automatique des codes PIN">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="act365_pin_length" class="col-3 col-lg-3 o_light_label"/>
+                                    <field name="act365_pin_length" class="col-9 col-lg-2"/>
+                                    <span class="text-muted ms-2">chiffres</span>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    
+                    <block title="Automatisation" name="act365_automation_settings">
+                        <setting string="Synchronisation automatique" help="Synchroniser automatiquement avec ACT365">
+                            <field name="act365_auto_sync"/>
+                        </setting>
+                        
+                        <setting string="Activer à la confirmation" help="Activer automatiquement l'accès lors de la confirmation de l'abonnement">
+                            <field name="act365_enable_on_confirm"/>
+                        </setting>
+                        
+                        <setting string="Désactiver à la clôture" help="Désactiver automatiquement l'accès lors de la résiliation de l'abonnement">
+                            <field name="act365_disable_on_close"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ACT365 Cardholder Group Tree View -->
+    <record id="view_act365_cardholder_group_tree" model="ir.ui.view">
+        <field name="name">act365.cardholder.group.tree</field>
+        <field name="model">act365.cardholder.group</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="act365_id"/>
+                <field name="is_default"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ACT365 Cardholder Group Form View -->
+    <record id="view_act365_cardholder_group_form" model="ir.ui.view">
+        <field name="name">act365.cardholder.group.form</field>
+        <field name="model">act365.cardholder.group</field>
+        <field name="arch" type="xml">
+            <form string="Groupe ACT365">
+                <header>
+                    <button name="set_as_default" 
+                            type="object" 
+                            string="Définir par défaut"
+                            invisible="is_default"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nom du groupe"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="act365_id"/>
+                            <field name="is_default"/>
+                        </group>
+                        <group>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Description">
+                        <field name="description" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for ACT365 Groups -->
+    <record id="action_act365_cardholder_groups" model="ir.actions.act_window">
+        <field name="name">Groupes ACT365</field>
+        <field name="res_model">act365.cardholder.group</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun groupe ACT365 configuré
+            </p>
+            <p>
+                Cliquez sur "Synchroniser les groupes" dans les paramètres ACT365 
+                pour récupérer les groupes depuis votre compte ACT365.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu entries -->
+    <menuitem id="menu_act365_root"
+              name="ACT365"
+              parent="sale_subscription.menu_sale_subscription_root"
+              sequence="50"/>
+    
+    <menuitem id="menu_act365_groups"
+              name="Groupes d'accès"
+              parent="menu_act365_root"
+              action="action_act365_cardholder_groups"
+              sequence="10"/>
+
+</odoo>
