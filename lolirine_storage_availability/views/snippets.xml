@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- SNIPPET : Box de Stockage - Badge + Bouton  -->
+    <!-- ============================================ -->
+    
+    <!-- Définition du snippet -->
+    <template id="s_storage_box_info" name="Storage Box Info">
+        <section class="s_storage_box_info pt-3 pb-3">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <!-- Badge de statut -->
+                        <t t-if="product and product.is_storage_box">
+                            <t t-set="show_badge" t-value="request.env['ir.config_parameter'].sudo().get_param('lolirine_storage.show_status_badge', 'False') == 'True'"/>
+                            <div t-if="show_badge" class="storage-status-badge mb-3 text-center">
+                                <span t-if="product.storage_status == 'available'" 
+                                      class="badge text-bg-success fs-6 px-3 py-2">
+                                    <i class="fa fa-check-circle me-1"/> Disponible
+                                </span>
+                                <span t-elif="product.storage_status == 'rented'" 
+                                      class="badge text-bg-danger fs-6 px-3 py-2">
+                                    <i class="fa fa-lock me-1"/> Loué
+                                </span>
+                                <span t-elif="product.storage_status == 'reserved'" 
+                                      class="badge text-bg-warning fs-6 px-3 py-2">
+                                    <i class="fa fa-clock-o me-1"/> Réservé
+                                </span>
+                                <span t-elif="product.storage_status == 'maintenance'" 
+                                      class="badge text-bg-secondary fs-6 px-3 py-2">
+                                    <i class="fa fa-wrench me-1"/> En maintenance
+                                </span>
+                            </div>
+                            
+                            <!-- Bouton rendez-vous -->
+                            <t t-if="product.show_appointment_button">
+                                <div class="storage-appointment-button text-center">
+                                    <a t-att-href="product.appointment_url" 
+                                       class="btn btn-primary btn-lg px-5 py-3">
+                                        <i class="fa fa-calendar me-2"/>
+                                        <t t-esc="product.appointment_button_label"/>
+                                    </a>
+                                    <p class="text-muted small mt-2">
+                                        <i class="fa fa-info-circle me-1"/>
+                                        Prenez rendez-vous pour visiter ce box de stockage
+                                    </p>
+                                </div>
+                            </t>
+                        </t>
+                        
+                        <!-- Message si pas un box de stockage (visible uniquement en mode édition) -->
+                        <div t-else="" class="alert alert-info text-center o_not_editable" 
+                             contenteditable="false">
+                            <i class="fa fa-info-circle me-2"/>
+                            Ce snippet affichera les informations du box de stockage 
+                            (badge de statut + bouton rendez-vous) sur les pages produit 
+                            configurées comme "Box de stockage".
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- Enregistrement du snippet dans la bibliothèque -->
+    <template id="snippets" inherit_id="website.snippets" name="Storage Box Snippets">
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <t t-snippet="lolirine_storage_availability.s_storage_box_info"
+               t-thumbnail="/lolirine_storage_availability/static/description/icon.png"
+               string="Box de Stockage"/>
+        </xpath>
+    </template>
+
+    <!-- ============================================ -->
+    <!-- SNIPPET : Badge seul                        -->
+    <!-- ============================================ -->
+    
+    <template id="s_storage_badge_only" name="Storage Badge Only">
+        <section class="s_storage_badge_only py-2">
+            <div class="container">
+                <t t-if="product and product.is_storage_box">
+                    <t t-set="show_badge" t-value="request.env['ir.config_parameter'].sudo().get_param('lolirine_storage.show_status_badge', 'False') == 'True'"/>
+                    <div t-if="show_badge" class="storage-status-badge">
+                        <span t-if="product.storage_status == 'available'" 
+                              class="badge text-bg-success">
+                            <i class="fa fa-check-circle me-1"/> Disponible
+                        </span>
+                        <span t-elif="product.storage_status == 'rented'" 
+                              class="badge text-bg-danger">
+                            <i class="fa fa-lock me-1"/> Loué
+                        </span>
+                        <span t-elif="product.storage_status == 'reserved'" 
+                              class="badge text-bg-warning">
+                            <i class="fa fa-clock-o me-1"/> Réservé
+                        </span>
+                        <span t-elif="product.storage_status == 'maintenance'" 
+                              class="badge text-bg-secondary">
+                            <i class="fa fa-wrench me-1"/> En maintenance
+                        </span>
+                    </div>
+                </t>
+                <div t-else="" class="alert alert-secondary small o_not_editable py-1 px-2" 
+                     contenteditable="false">
+                    <i class="fa fa-tag me-1"/> Badge statut box
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="snippets_badge" inherit_id="website.snippets" name="Storage Badge Snippet">
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <t t-snippet="lolirine_storage_availability.s_storage_badge_only"
+               t-thumbnail="/lolirine_storage_availability/static/description/icon.png"
+               string="Badge Statut Box"/>
+        </xpath>
+    </template>
+
+    <!-- ============================================ -->
+    <!-- SNIPPET : Bouton RDV seul                   -->
+    <!-- ============================================ -->
+    
+    <template id="s_storage_appointment_only" name="Storage Appointment Only">
+        <section class="s_storage_appointment_only py-2">
+            <div class="container">
+                <t t-if="product and product.is_storage_box and product.show_appointment_button">
+                    <div class="storage-appointment-button">
+                        <a t-att-href="product.appointment_url" 
+                           class="btn btn-primary btn-lg w-100">
+                            <i class="fa fa-calendar me-2"/>
+                            <t t-esc="product.appointment_button_label"/>
+                        </a>
+                    </div>
+                </t>
+                <div t-else="" class="alert alert-secondary small o_not_editable py-1 px-2" 
+                     contenteditable="false">
+                    <i class="fa fa-calendar me-1"/> Bouton Rendez-vous
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="snippets_appointment" inherit_id="website.snippets" name="Storage Appointment Snippet">
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <t t-snippet="lolirine_storage_availability.s_storage_appointment_only"
+               t-thumbnail="/lolirine_storage_availability/static/description/icon.png"
+               string="Bouton RDV Box"/>
+        </xpath>
+    </template>
+
+</odoo>
