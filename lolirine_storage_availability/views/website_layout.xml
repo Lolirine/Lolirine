@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 
+    Ce template injecte les données du box de stockage dans la page
+    via un élément script JSON que le JavaScript peut lire
+    -->
+    <template id="storage_box_data_inject" name="Storage Box Data Inject" inherit_id="website.layout">
+        <xpath expr="//head" position="inside">
+            <t t-if="storage_box_data">
+                <script type="application/json" id="storage_box_data">
+                    <t t-out="storage_box_data"/>
+                </script>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>
