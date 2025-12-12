@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extension du formulaire produit -->
+    <record id="product_template_form_view_storage" model="ir.ui.view">
+        <field name="name">product.template.form.storage.availability</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <!-- Ajout de la barre de statut en haut du formulaire pour les box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <field name="is_storage_box" invisible="1"/>
+                <button class="oe_stat_button" type="object" name="action_view_appointments"
+                        icon="fa-calendar" invisible="not is_storage_box">
+                    <span class="o_stat_text">Rendez-vous</span>
+                </button>
+            </xpath>
+
+            <!-- Ajout d'un onglet "Box de Stockage" -->
+            <xpath expr="//page[@name='sales']" position="after">
+                <page string="Box de Stockage" name="storage_box" 
+                      invisible="not is_storage_box">
+                    <!-- Barre de statut visuelle -->
+                    <group>
+                        <field name="storage_status" widget="statusbar" 
+                               statusbar_visible="available,reserved,rented,maintenance"/>
+                    </group>
+                    <group>
+                        <group string="Statut du Box">
+                            <field name="storage_status" widget="radio"/>
+                        </group>
+                        <group string="Bouton Rendez-vous">
+                            <field name="storage_appointment_override" widget="radio"/>
+                            <field name="storage_appointment_type_id" 
+                                   options="{'no_create': True}"
+                                   invisible="storage_appointment_override == 'hide'"/>
+                            <field name="storage_button_text" 
+                                   placeholder="Contactez-nous"
+                                   invisible="storage_appointment_override == 'hide'"/>
+                        </group>
+                    </group>
+                    <group string="Aperçu e-commerce" invisible="not show_appointment_button">
+                        <div class="alert alert-info" role="alert">
+                            <strong>
+                                <i class="fa fa-eye"/> Aperçu :
+                            </strong>
+                            Le bouton "<field name="appointment_button_label" readonly="1" class="d-inline"/>" 
+                            sera affiché et redirigera vers : <field name="appointment_url" readonly="1" class="d-inline"/>
+                        </div>
+                    </group>
+                </page>
+            </xpath>
+            
+            <!-- Ajout du checkbox "Box de stockage" dans l'onglet général -->
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="is_storage_box"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vue liste des produits avec colonne statut -->
+    <record id="product_template_tree_view_storage" model="ir.ui.view">
+        <field name="name">product.template.tree.storage.availability</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="is_storage_box" optional="hide"/>
+                <field name="storage_status" optional="show" 
+                       widget="badge"
+                       decoration-success="storage_status == 'available'"
+                       decoration-danger="storage_status == 'rented'"
+                       decoration-warning="storage_status == 'reserved'"
+                       decoration-muted="storage_status == 'maintenance'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Filtre de recherche pour les box de stockage -->
+    <record id="product_template_search_view_storage" model="ir.ui.view">
+        <field name="name">product.template.search.storage.availability</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <xpath expr="//search/filter[1]" position="before">
+                <filter string="Box de stockage" name="storage_box" 
+                        domain="[('is_storage_box', '=', True)]"/>
+                <filter string="Box disponibles" name="storage_available" 
+                        domain="[('is_storage_box', '=', True), ('storage_status', '=', 'available')]"/>
+                <filter string="Box loués" name="storage_rented" 
+                        domain="[('is_storage_box', '=', True), ('storage_status', '=', 'rented')]"/>
+                <filter string="Box réservés" name="storage_reserved" 
+                        domain="[('is_storage_box', '=', True), ('storage_status', '=', 'reserved')]"/>
+                <filter string="Box en maintenance" name="storage_maintenance" 
+                        domain="[('is_storage_box', '=', True), ('storage_status', '=', 'maintenance')]"/>
+                <separator/>
+            </xpath>
+            <xpath expr="//search/group[1]" position="inside">
+                <filter string="Statut du box" name="group_storage_status" 
+                        context="{'group_by': 'storage_status'}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
