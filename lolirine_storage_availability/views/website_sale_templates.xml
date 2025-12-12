@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Template pour le badge de statut sur la page produit -->
+    <template id="storage_status_badge" name="Storage Status Badge">
+        <t t-if="product.is_storage_box">
+            <t t-set="show_badge" t-value="request.env['ir.config_parameter'].sudo().get_param('lolirine_storage.show_status_badge', 'False') == 'True'"/>
+            <div t-if="show_badge" class="storage-status-badge mb-2">
+                <span t-if="product.storage_status == 'available'" 
+                      class="badge text-bg-success">
+                    <i class="fa fa-check-circle"/> Disponible
+                </span>
+                <span t-elif="product.storage_status == 'rented'" 
+                      class="badge text-bg-danger">
+                    <i class="fa fa-lock"/> Loué
+                </span>
+                <span t-elif="product.storage_status == 'reserved'" 
+                      class="badge text-bg-warning">
+                    <i class="fa fa-clock-o"/> Réservé
+                </span>
+                <span t-elif="product.storage_status == 'maintenance'" 
+                      class="badge text-bg-secondary">
+                    <i class="fa fa-wrench"/> En maintenance
+                </span>
+            </div>
+        </t>
+    </template>
+
+    <!-- Template pour le bouton rendez-vous -->
+    <template id="storage_appointment_button" name="Storage Appointment Button">
+        <t t-if="product.show_appointment_button">
+            <div class="storage-appointment-button my-3">
+                <a t-att-href="product.appointment_url" 
+                   class="btn btn-primary btn-lg w-100">
+                    <i class="fa fa-calendar me-2"/>
+                    <t t-esc="product.appointment_button_label"/>
+                </a>
+                <p class="text-muted small mt-2 text-center">
+                    <i class="fa fa-info-circle"/>
+                    Prenez rendez-vous pour visiter ce box de stockage
+                </p>
+            </div>
+        </t>
+    </template>
+
+    <!-- Injection dans la page produit e-commerce -->
+    <template id="product_storage_availability" 
+              inherit_id="website_sale.product" 
+              name="Storage Availability on Product Page"
+              priority="50">
+        
+        <!-- Ajout du badge de statut après le nom du produit -->
+        <xpath expr="//h1[@t-field='product.name']" position="after">
+            <t t-call="lolirine_storage_availability.storage_status_badge"/>
+        </xpath>
+        
+        <!-- Ajout du bouton rendez-vous après le prix -->
+        <xpath expr="//div[hasclass('product_price')]" position="after">
+            <t t-call="lolirine_storage_availability.storage_appointment_button"/>
+        </xpath>
+        
+    </template>
+
+    <!-- Masquer le bouton "Ajouter au panier" pour les box de stockage disponibles avec RDV -->
+    <template id="product_hide_cart_for_storage" 
+              inherit_id="website_sale.product" 
+              name="Hide Cart Button for Storage Boxes"
+              priority="51">
+        <xpath expr="//a[@id='add_to_cart']" position="attributes">
+            <attribute name="t-attf-class">
+                btn btn-primary btn-lg js_check_product a-submit flex-grow-1
+                #{' d-none' if product.show_appointment_button else ''}
+            </attribute>
+        </xpath>
+    </template>
+
+    <!-- Badge de statut sur la liste des produits (shop) -->
+    <template id="products_list_storage_badge"
+              inherit_id="website_sale.products_item"
+              name="Storage Badge on Product List"
+              priority="50">
+        <xpath expr="//div[hasclass('o_wsale_product_information')]" position="inside">
+            <t t-if="product.is_storage_box">
+                <t t-set="show_badge" t-value="request.env['ir.config_parameter'].sudo().get_param('lolirine_storage.show_status_badge', 'False') == 'True'"/>
+                <div t-if="show_badge" class="storage-list-badge mt-1">
+                    <span t-if="product.storage_status == 'available'" 
+                          class="badge text-bg-success small">
+                        Disponible
+                    </span>
+                    <span t-elif="product.storage_status == 'rented'" 
+                          class="badge text-bg-danger small">
+                        Loué
+                    </span>
+                    <span t-elif="product.storage_status == 'reserved'" 
+                          class="badge text-bg-warning small">
+                        Réservé
+                    </span>
+                    <span t-elif="product.storage_status == 'maintenance'" 
+                          class="badge text-bg-secondary small">
+                        En maintenance
+                    </span>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>
