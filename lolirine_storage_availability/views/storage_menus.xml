@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Action pour afficher les box de stockage -->
+    <record id="action_storage_box_list" model="ir.actions.act_window">
+        <field name="name">Box de Stockage</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="domain">[('is_storage_box', '=', True)]</field>
+        <field name="context">{'default_is_storage_box': True, 'search_default_storage_box': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre premier box de stockage
+            </p>
+            <p>
+                Gérez vos box de stockage, leur disponibilité et les rendez-vous clients.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu racine de l'application (apparaît sur le tableau de bord) -->
+    <menuitem id="menu_storage_root"
+              name="Box de Stockage"
+              action="action_storage_box_list"
+              web_icon="lolirine_storage_availability,static/description/icon.png"
+              sequence="100"/>
+
+    <!-- Sous-menu : Tous les box -->
+    <menuitem id="menu_storage_all"
+              name="Tous les Box"
+              parent="menu_storage_root"
+              action="action_storage_box_list"
+              sequence="10"/>
+
+    <!-- Action pour les box disponibles -->
+    <record id="action_storage_box_available" model="ir.actions.act_window">
+        <field name="name">Box Disponibles</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="domain">[('is_storage_box', '=', True), ('storage_status', '=', 'available')]</field>
+        <field name="context">{'default_is_storage_box': True, 'default_storage_status': 'available'}</field>
+    </record>
+
+    <!-- Sous-menu : Box disponibles -->
+    <menuitem id="menu_storage_available"
+              name="Disponibles"
+              parent="menu_storage_root"
+              action="action_storage_box_available"
+              sequence="20"/>
+
+    <!-- Action pour les box loués -->
+    <record id="action_storage_box_rented" model="ir.actions.act_window">
+        <field name="name">Box Loués</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="domain">[('is_storage_box', '=', True), ('storage_status', '=', 'rented')]</field>
+        <field name="context">{'default_is_storage_box': True, 'default_storage_status': 'rented'}</field>
+    </record>
+
+    <!-- Sous-menu : Box loués -->
+    <menuitem id="menu_storage_rented"
+              name="Loués"
+              parent="menu_storage_root"
+              action="action_storage_box_rented"
+              sequence="30"/>
+
+    <!-- Séparateur pour la configuration -->
+    <menuitem id="menu_storage_config"
+              name="Configuration"
+              parent="menu_storage_root"
+              sequence="100"
+              groups="base.group_system"/>
+
+</odoo>
