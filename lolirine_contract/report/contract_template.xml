@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="report_contract_document">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="doc">
+            <t t-call="lolirine_contract.report_contract_content"/>
+        </t>
+    </t>
+</template>
+<template id="report_contract_content">
+    <t t-set="company" t-value="doc.company_id or res_company"/>
+    <div class="page" style="font-family: Arial, sans-serif; font-size: 11pt;">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 80px;" alt="Logo"/>
+            <t t-if="not company.logo">
+                <h2 style="color: #c41e3a; font-size: 28pt; margin: 0;">
+                    <span style="font-family: Times New Roman, serif;">lolirine</span>
+                    <span style="font-size: 10pt; vertical-align: super;">SPRL</span>
+                </h2>
+                <p style="color: #c41e3a; margin: 0; font-style: italic;">Garde-meubles</p>
+            </t>
+        </div>
+        <p style="text-align: center; margin-bottom: 15px;">Le present contrat est conclu sur deux pages entre:</p>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+                <td style="width: 45%; border: 1px solid #ccc; padding: 10px; vertical-align: top; background-color: #f9f9f9;">
+                    <strong style="color: #c41e3a;">Le Bailleur (Srl Lolirine)</strong>
+                </td>
+                <td style="width: 10%; text-align: center; vertical-align: middle; border: none;">Et,</td>
+                <td style="width: 45%; border: 1px solid #ccc; padding: 10px; vertical-align: top; background-color: #f9f9f9;">
+                    <strong style="color: #c41e3a;">Le Preneur (Client)</strong>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ccc; padding: 10px; vertical-align: top;">
+                    <strong>Srl Lolirine</strong><br/>
+                    Rue Bois D'Esneux 110<br/>
+                    B - 5021 Boninne<br/><br/>
+                    GSM: 0498/52.11.31 - GSM: 0497/44.41.46<br/>
+                    Mail: gardemeublelolirine@gmail.com
+                </td>
+                <td style="border: none;"></td>
+                <td style="border: 1px solid #ccc; padding: 10px; vertical-align: top;">
+                    <strong><t t-esc="doc.partner_id.name"/></strong><br/>
+                    <t t-if="doc.partner_id.street"><t t-esc="doc.partner_id.street"/><br/></t>
+                    <t t-if="doc.partner_id.street2"><t t-esc="doc.partner_id.street2"/><br/></t>
+                    B - <t t-esc="doc.partner_id.zip"/> <t t-esc="doc.partner_id.city"/><br/><br/>
+                    <t t-if="doc.partner_id.phone or doc.partner_id.mobile">
+                        GSM : <t t-esc="doc.partner_id.mobile or doc.partner_id.phone"/><br/>
+                    </t>
+                    <t t-if="doc.partner_id.email">
+                        Mail : <t t-esc="doc.partner_id.email"/>
+                    </t>
+                </td>
+            </tr>
+        </table>
+        <h2 style="text-align: center; margin: 20px 0; font-size: 14pt;">
+            Bail n<![CDATA[°]]><t t-esc="doc.name"/> de location d'un emplacement garde-meubles
+        </h2>
+        <table style="width: 100%; margin-bottom: 20px;">
+            <tr>
+                <td style="width: 50%;">
+                    <strong>CODE D'ACCES :</strong> <t t-esc="doc.contract_access_code or '________________'"/>
+                </td>
+                <td style="width: 50%; text-align: right;">
+                    <strong>CODE GERBEUR :</strong> <t t-esc="doc.contract_forklift_code or '________________'"/>
+                </td>
+            </tr>
+        </table>
+        <div style="background-color: #f5f5f5; padding: 8px; margin: 15px 0 10px 0; border-left: 3px solid #c41e3a;">
+            <strong style="color: #c41e3a;">1. Objet du Contrat</strong>
+        </div>
+        <p>Le present contrat a pour objet la location d'un emplacement de garde-meubles designe comme suit :</p>
+        <p>
+            <strong>Localisation :</strong> Rue de la Dreve Boninnas 2, B-5021 BONINNE<br/>
+            <t t-foreach="doc.order_line" t-as="line">
+                <t t-if="line.product_id">
+                    <strong>Box n<![CDATA[°]]> :</strong> <span style="color: #c41e3a;"><t t-esc="line.product_id.name"/></span><br/>
+                </t>
+            </t>
+        </p>
+        <div style="background-color: #f5f5f5; padding: 8px; margin: 15px 0 10px 0; border-left: 3px solid #c41e3a;">
+            <strong style="color: #c41e3a;">2. Duree et renouvellement</strong>
+        </div>
+        <p>
+            Le present bail est consenti moyennant un loyer principal de 
+            <strong><t t-esc="'%.2f' % doc.contract_monthly_rent"/> EUR</strong>, 
+            exigible au domicile du bailleur le 5 de chaque mois.
+        </p>
+        <div style="background-color: #f5f5f5; padding: 8px; margin: 15px 0 10px 0; border-left: 3px solid #c41e3a;">
+            <strong style="color: #c41e3a;">3. Paiement du loyer</strong>
+        </div>
+        <p>
+            Le loyer de <strong><t t-esc="'%.2f' % doc.contract_monthly_rent"/> EUR</strong> est payable le 5 de chaque mois.
+        </p>
+        <div style="background-color: #f5f5f5; padding: 8px; margin: 15px 0 10px 0; border-left: 3px solid #c41e3a;">
+            <strong style="color: #c41e3a;">4. Provisions et charges</strong>
+        </div>
+        <p>
+            Les charges (Frais de dossier unique) sont fixees forfaitairement a 
+            <strong><t t-esc="'%.2f' % doc.contract_dossier_fees if doc.contract_dossier_fees else '15'"/> EUR</strong>.
+        </p>
+        <div style="background-color: #f5f5f5; padding: 8px; margin: 15px 0 10px 0; border-left: 3px solid #c41e3a;">
+            <strong style="color: #c41e3a;">5. Depot de garantie</strong>
+        </div>
+        <p>
+            A la signature des presentes, le preneur verse au bailleur l'equivalent de deux mois de loyer 
+            <strong><t t-esc="'%.2f' % doc.contract_deposit_amount"/> euros</strong> a titre de depot de garantie.
+            Cette somme est a verser au compte <strong>SRL LOLIRINE - Caution BE30 7320 8038 9611</strong>.
+        </p>
+        <div style="background-color: #f5f5f5; padding: 8px; margin: 15px 0 10px 0; border-left: 3px solid #c41e3a;">
+            <strong style="color: #c41e3a;">6. Retard de paiement - Frais de rappel</strong>
+        </div>
+        <p>
+            En cas de non-paiement a l'echeance convenue, un montant forfaitaire de 20 euros sera automatiquement 
+            applique a titre de frais de rappel.
+        </p>
+        <div style="page-break-before: always;"></div>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 60px;" alt="Logo"/>
+        </div>
+        <div style="background-color: #f5f5f5; padding: 8px; margin: 15px 0 10px 0; border-left: 3px solid #c41e3a;">
+            <strong style="color: #c41e3a;">7. Code d'acces et securisation du box</strong>
+        </div>
+        <p>Un code d'acces personnel et unique est attribue au client lors de la signature du contrat. Ce code est strictement confidentiel.</p>
+        <div style="background-color: #f5f5f5; padding: 8px; margin: 15px 0 10px 0; border-left: 3px solid #c41e3a;">
+            <strong style="color: #c41e3a;">8. Materiel de transport et de levage</strong>
+        </div>
+        <p>La societe met a disposition du materiel de transport et de levage a titre gracieux.</p>
+        <div style="background-color: #f5f5f5; padding: 8px; margin: 15px 0 10px 0; border-left: 3px solid #c41e3a;">
+            <strong style="color: #c41e3a;">9. Conditions generales</strong>
+        </div>
+        <p>Le locataire reconnait avoir pris connaissance des presentes conditions generales et en accepte l'integralite des termes.</p>
+        <div style="background-color: #f5f5f5; padding: 8px; margin: 15px 0 10px 0; border-left: 3px solid #c41e3a;">
+            <strong style="color: #c41e3a;">10. Signatures</strong>
+        </div>
+        <p style="margin-top: 30px;">
+            Fait en double exemplaire a <t t-esc="doc.contract_signature_location or 'Boninne'"/>, 
+            le <t t-if="doc.contract_signature_date"><t t-esc="doc.contract_signature_date.strftime('%d / %m / %Y')"/></t><t t-else="">___/___/______</t>
+        </p>
+        <p>
+            Depot des effets, le <t t-if="doc.contract_deposit_date"><t t-esc="doc.contract_deposit_date.strftime('%d / %m / %Y')"/></t><t t-else="">___/___/______</t>
+        </p>
+        <table style="width: 100%; margin-top: 50px;">
+            <tr>
+                <td style="width: 50%; text-align: center;">
+                    <strong>Le Bailleur</strong>
+                    <br/><br/><br/><br/>
+                    ______________________
+                </td>
+                <td style="width: 50%; text-align: center;">
+                    <strong>Le Preneur</strong>
+                    <br/><br/><br/><br/>
+                    ______________________
+                </td>
+            </tr>
+        </table>
+    </div>
+</template>
+</odoo>
