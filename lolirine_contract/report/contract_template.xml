@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_contract_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="lolirine_contract.report_contract_content"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_contract_content">
+        <t t-set="company" t-value="doc.company_id or res_company"/>
+        
+        <!-- PAGE 1 -->
+        <div class="page" style="font-family: Arial, sans-serif; font-size: 10pt; line-height: 1.4;">
+            
+            <!-- EN-TETE LOGO -->
+            <div style="text-align: center; margin-bottom: 15px;">
+                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 70px;" alt="Logo"/>
+                <t t-if="not company.logo">
+                    <h2 style="color: #c41e3a; font-size: 24pt; margin: 0;">lolirine <span style="font-size: 10pt;">SPRL</span></h2>
+                </t>
+                <p style="color: #c41e3a; margin: 0; font-style: italic;">Garde-meubles</p>
+            </div>
+
+            <p style="text-align: center; margin-bottom: 10px;">Le present contrat est conclu sur deux pages entre:</p>
+
+            <!-- TABLEAU BAILLEUR / PRENEUR -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                <tr>
+                    <td style="width: 44%; border: 1px solid #ccc; padding: 8px; background-color: #f9f9f9;">
+                        <strong style="color: #c41e3a;">Le Bailleur (Srl Lolirine)</strong>
+                    </td>
+                    <td style="width: 12%; text-align: center; vertical-align: middle;"></td>
+                    <td style="width: 44%; border: 1px solid #ccc; padding: 8px; background-color: #f9f9f9;">
+                        <strong style="color: #c41e3a;">Le Preneur (Client)</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ccc; padding: 8px; vertical-align: top;">
+                        <strong>Srl Lolirine</strong><br/>
+                        Rue Bois D'Esneux 110<br/>
+                        B - 5021 Boninne<br/><br/>
+                        GSM: 0498/52.11.31 - GSM: 0497/44.41.46<br/>
+                        Mail: gardemeublelolirine@gmail.com
+                    </td>
+                    <td style="text-align: center; vertical-align: middle;">Et,</td>
+                    <td style="border: 1px solid #ccc; padding: 8px; vertical-align: top;">
+                        <strong><t t-esc="doc.partner_id.name"/></strong><br/>
+                        <t t-if="doc.partner_id.street"><t t-esc="doc.partner_id.street"/><br/></t>
+                        <t t-if="doc.partner_id.street2"><t t-esc="doc.partner_id.street2"/><br/></t>
+                        B - <t t-esc="doc.partner_id.zip"/> <t t-esc="doc.partner_id.city"/><br/><br/>
+                        <t t-if="doc.partner_id.mobile or doc.partner_id.phone">
+                            GSM : <t t-esc="doc.partner_id.mobile or doc.partner_id.phone"/><br/>
+                        </t>
+                        <t t-if="doc.partner_id.email">
+                            Mail : <t t-esc="doc.partner_id.email"/>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- TITRE BAIL -->
+            <h2 style="text-align: center; margin: 15px 0; font-size: 13pt;">
+                Bail n°<t t-esc="doc.name"/> de location d'un emplacement garde-meubles
+            </h2>
+
+            <!-- CODES ACCES -->
+            <table style="width: 100%; margin-bottom: 15px;">
+                <tr>
+                    <td style="width: 50%;">
+                        <strong>CODE D'ACCES :</strong> <t t-esc="doc.contract_access_code or ''"/>
+                    </td>
+                    <td style="width: 50%; text-align: right;">
+                        <strong>CODE GERBEUR :</strong> <t t-esc="doc.contract_forklift_code or ''"/>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- 1. OBJET DU CONTRAT -->
+            <div style="background-color: #f5f5f5; padding: 6px 10px; margin: 10px 0 8px 0; border-left: 3px solid #c41e3a;">
+                <strong style="color: #c41e3a;">1. Objet du Contrat</strong>
+            </div>
+            <p style="margin: 5px 0;">Le present contrat a pour objet la location d'un emplacement de garde-meubles designe comme suit :</p>
+            <p style="margin: 5px 0;">
+                <strong>Localisation :</strong> Rue de la Dreve Boninnas 2, B-5021 BONINNE<br/>
+                <t t-foreach="doc.order_line" t-as="line">
+                    <t t-if="line.product_id and line.product_id.recurring_invoice">
+                        <strong>Box n° :</strong> <span style="color: #c41e3a;"><t t-esc="line.product_id.name"/></span><br/>
+                    </t>
+                </t>
+            </p>
+
+            <!-- 2. DUREE ET RENOUVELLEMENT -->
+            <div style="background-color: #f5f5f5; padding: 6px 10px; margin: 10px 0 8px 0; border-left: 3px solid #c41e3a;">
+                <strong style="color: #c41e3a;">2. Duree et renouvellement</strong>
+            </div>
+            <p style="margin: 5px 0; text-align: justify;">
+                Le present bail est consenti moyennant un loyer principal de <strong><t t-esc="'%.2f' % doc.contract_monthly_rent"/> EUR</strong>, 
+                exigible au domicile du bailleur le 5 de chaque mois. Le paiement du premier loyer au prorata du nombre de jour 
+                du mois en cours sera honore le 5 du mois qui suit la location. Le loyer peut etre revise par le bailleur, 
+                chaque annee a la date anniversaire, en fonction de la variation de l'indice des prix a la consommation.
+            </p>
+
+            <!-- 3. PAIEMENT DU LOYER -->
+            <div style="background-color: #f5f5f5; padding: 6px 10px; margin: 10px 0 8px 0; border-left: 3px solid #c41e3a;">
+                <strong style="color: #c41e3a;">3. Paiement du loyer</strong>
+            </div>
+            <p style="margin: 5px 0;">
+                Le loyer de <strong><t t-esc="'%.2f' % doc.contract_monthly_rent"/> EUR</strong> est payable le 5 de chaque mois. 
+                Une revision annuelle du loyer est possible en fonction de l'indice a la consommation.
+            </p>
+
+            <!-- 4. PROVISIONS ET CHARGES -->
+            <div style="background-color: #f5f5f5; padding: 6px 10px; margin: 10px 0 8px 0; border-left: 3px solid #c41e3a;">
+                <strong style="color: #c41e3a;">4. Provisions et charges</strong>
+            </div>
+            <p style="margin: 5px 0; text-align: justify;">
+                Les charges (Frais de dossier unique) sont fixees forfaitairement a <strong>15 EUR</strong> et les autres provisions, 
+                si mentionnees dans les conditions generales sont revisables chaque annee.
+            </p>
+
+            <!-- 5. DEPOT DE GARANTIE -->
+            <div style="background-color: #f5f5f5; padding: 6px 10px; margin: 10px 0 8px 0; border-left: 3px solid #c41e3a;">
+                <strong style="color: #c41e3a;">5. Depot de garantie</strong>
+            </div>
+            <p style="margin: 5px 0; text-align: justify;">
+                A la signature des presentes, le preneur verse au bailleur l'equivalent de deux mois de loyer 
+                <strong><t t-esc="'%.2f' % doc.contract_deposit_amount"/> euros</strong> a titre de depot de garantie et de caution 
+                pour les equipements d'acces au local garde-meubles. Cette somme est a verser au compte 
+                <strong>SRL LOLIRINE - Caution BE30 7320 8038 9611</strong>.
+            </p>
+
+            <!-- 6. RETARD DE PAIEMENT -->
+            <div style="background-color: #f5f5f5; padding: 6px 10px; margin: 10px 0 8px 0; border-left: 3px solid #c41e3a;">
+                <strong style="color: #c41e3a;">6. Retard de paiement - Frais de rappel</strong>
+            </div>
+            <p style="margin: 5px 0; text-align: justify;">
+                En cas de non-paiement a l'echeance convenue, un montant forfaitaire de 20 euros sera automatiquement 
+                applique a titre de frais de rappel. Ce montant sera du de plein droit, sans qu'aucun rappel ne soit 
+                necessaire, et viendra s'ajouter au solde impaye.
+            </p>
+
+            <!-- NUMERO PAGE 1 -->
+            <div style="text-align: center; margin-top: 20px; font-size: 9pt;">1</div>
+
+            <!-- SAUT DE PAGE -->
+            <div style="page-break-before: always;"></div>
+
+            <!-- PAGE 2 - LOGO -->
+            <div style="text-align: center; margin-bottom: 15px;">
+                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 50px;" alt="Logo"/>
+            </div>
+
+            <!-- 7. CODE D'ACCES ET SECURISATION -->
+            <div style="background-color: #f5f5f5; padding: 6px 10px; margin: 10px 0 8px 0; border-left: 3px solid #c41e3a;">
+                <strong style="color: #c41e3a;">7. Code d'acces et securisation du box</strong>
+            </div>
+            <p style="margin: 5px 0; text-align: justify;">
+                Un code d'acces personnel et unique est attribue au client lors de la signature du contrat. Ce code est 
+                strictement confidentiel et place sous la seule responsabilite du client.
+            </p>
+            <p style="margin: 5px 0; text-align: justify;">
+                Tout partage ou transfert de ce code a un tiers, pour quelque raison que ce soit, engage la responsabilite 
+                du client en cas de dommages, pertes ou intrusions.
+            </p>
+            <p style="margin: 5px 0; text-align: justify;">
+                Le client est egalement tenu de fermer systematiquement son box a l'aide d'un cadenas personnel, la societe 
+                ne fournissant pas de dispositif de fermeture.
+            </p>
+            <p style="margin: 5px 0; text-align: justify;">
+                En cas de negligence, la societe decline toute responsabilite pour les eventuels vols ou degradations.
+            </p>
+
+            <!-- 8. MATERIEL DE TRANSPORT -->
+            <div style="background-color: #f5f5f5; padding: 6px 10px; margin: 10px 0 8px 0; border-left: 3px solid #c41e3a;">
+                <strong style="color: #c41e3a;">8. Materiel de transport et de levage</strong>
+            </div>
+            <p style="margin: 5px 0; text-align: justify;">
+                La societe met a disposition, sur le site du garde-meubles, du materiel de transport et de levage 
+                (chariots, diables, plateaux roulants, etc.) afin de faciliter le deplacement des biens.
+            </p>
+            <p style="margin: 5px 0; text-align: justify;">
+                Le client reconnait que ce materiel est mis a disposition a titre gracieux et temporaire, et s'engage 
+                a l'utiliser avec soin. En cas de mauvaise utilisation ou de dommages causes au materiel ou a des tiers, 
+                la responsabilite de la societe ne pourra en aucun cas etre engagee.
+            </p>
+            <p style="margin: 5px 0; text-align: justify;">
+                Le client prend egalement bonne note que tout enlevement du materiel hors du site est strictement 
+                interdit et passible d'une amende severe.
+            </p>
+            <p style="margin: 5px 0;">
+                Le materiel utilise doit imperativement etre remis a sa place apres usage.
+            </p>
+
+            <!-- 9. CONDITIONS GENERALES -->
+            <div style="background-color: #f5f5f5; padding: 6px 10px; margin: 10px 0 8px 0; border-left: 3px solid #c41e3a;">
+                <strong style="color: #c41e3a;">9. Conditions generales</strong>
+            </div>
+            <p style="margin: 5px 0; text-align: justify;">
+                Le locataire reconnait avoir pris connaissance des presentes conditions generales (cfr. site internet) 
+                et en accepte l'integralite des termes.
+            </p>
+            <p style="margin: 5px 0; text-align: justify;">
+                Le locataire s'engage a prevenir le bailleur exclusivement par mail au minimum 15 jours avant la date 
+                prevue de liberation de son box. A defaut, des frais de prolongation pourront etre appliques selon les 
+                modalites prevues au contrat.
+            </p>
+            <p style="margin: 5px 0; text-align: justify;">
+                Le locataire est seul responsable de l'assurance des biens stockes dans le box. Il reconnait que le 
+                bailleur ne couvre ni les pertes, ni les vols, ni les degradations pouvant survenir sur le contenu entrepose.
+            </p>
+            <p style="margin: 5px 0; text-align: justify;">
+                Le locataire reconnait egalement avoir eu acces aux informations detaillees relatives au fonctionnement 
+                du garde-meubles via le site internet et les conditions generales et en accepte les modalites.
+            </p>
+
+            <!-- 10. SIGNATURES -->
+            <div style="background-color: #f5f5f5; padding: 6px 10px; margin: 10px 0 8px 0; border-left: 3px solid #c41e3a;">
+                <strong style="color: #c41e3a;">10. Signatures</strong>
+            </div>
+            
+            <p style="margin-top: 25px;">
+                Fait en double exemplaire a <t t-esc="doc.contract_signature_location or 'Boninne'"/>, 
+                le <t t-if="doc.contract_signature_date"><t t-esc="doc.contract_signature_date.strftime('%d / %m / %Y')"/></t><t t-else="">___ / ___ / ______</t>
+            </p>
+            <p>
+                Depot des effets, le <t t-if="doc.contract_deposit_date"><t t-esc="doc.contract_deposit_date.strftime('%d / %m / %Y')"/></t><t t-else="">___ / ___ / ______</t>
+            </p>
+
+            <!-- ZONE SIGNATURES -->
+            <table style="width: 100%; margin-top: 40px;">
+                <tr>
+                    <td style="width: 50%; text-align: center;">
+                        <strong>Le Bailleur</strong>
+                        <br/><br/><br/><br/>
+                        ______________________
+                    </td>
+                    <td style="width: 50%; text-align: center;">
+                        <strong>Le Preneur</strong>
+                        <br/><br/><br/><br/>
+                        ______________________
+                    </td>
+                </tr>
+            </table>
+
+            <!-- NUMERO PAGE 2 -->
+            <div style="text-align: center; margin-top: 30px; font-size: 9pt;">2</div>
+
+        </div>
+    </template>
+
+</odoo>
