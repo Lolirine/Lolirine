@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<odoo>
+<record id="email_template_contract" model="mail.template">
+    <field name="name">Contrat de Garde-Meubles</field>
+    <field name="model_id" ref="sale.model_sale_order"/>
+    <field name="email_from">gardemeublelolirine@gmail.com</field>
+    <field name="email_to">{{ object.partner_id.email }}</field>
+    <field name="subject">Envoi de votre contrat de garde-meubles</field>
+    <field name="body_html" type="html"><![CDATA[
+<div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
+    <p>Bonjour <t t-out="object.partner_id.name or ''"/>,</p>
+    <p>Veuillez trouver en piece jointe votre contrat de garde-meubles relatif a la location de votre box au sein de notre site Lolirine.</p>
+    <p>Ce document reprend l'ensemble des conditions applicables a votre location (references du contrat, caracteristiques de la box, modalites financieres, duree, conditions d'acces et de resiliation, etc.). Nous vous invitons a en prendre connaissance attentivement et a nous le retourner dument signe, selon les modalites indiquees dans le contrat ou dans le message de signature electronique.</p>
+    <p>Pour rappel, votre contrat ne sera pleinement effectif qu'apres reception de la version signee et, le cas echeant, du paiement des premiers frais mentionnes.</p>
+    <p>Pour toute question concernant le contenu du contrat, vos dates d'entree/sortie, l'acces a votre box ou toute autre information pratique, vous pouvez nous contacter a l'adresse suivante : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a> ou par telephone au 0497/44 41 46.</p>
+    <p>Nous vous remercions de votre confiance et restons a votre disposition.</p>
+    <p>Cordialement,</p>
+    <p style="margin-top: 20px;">
+        <strong>Lolirine Garde-Meubles</strong><br/>
+        Feron Rodney<br/>
+        Tel. : 0497/44 41 46<br/>
+        Email : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a>
+    </p>
+</div>
+]]></field>
+    <field name="report_template_ids" eval="[(4, ref('lolirine_contract.action_report_contract'))]"/>
+    <field name="auto_delete" eval="False"/>
+</record>
+</odoo>

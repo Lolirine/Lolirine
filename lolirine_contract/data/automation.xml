@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<odoo>
+<record id="action_server_send_contract" model="ir.actions.server">
+    <field name="name">Envoyer le contrat par email</field>
+    <field name="model_id" ref="sale.model_sale_order"/>
+    <field name="binding_model_id" ref="sale.model_sale_order"/>
+    <field name="binding_view_types">form</field>
+    <field name="state">code</field>
+    <field name="code">
+for record in records:
+    template = env.ref('lolirine_contract.email_template_contract', raise_if_not_found=False)
+    if template:
+        template.send_mail(record.id, force_send=True)
+    </field>
+</record>
+</odoo>
