@@ -1,0 +1,217 @@
+/* Lolirine Storage Availability - E-commerce Styles */
+
+/* ============================================ */
+/* MASQUER LE BOUTON PANIER POUR LES BOX       */
+/* ============================================ */
+
+/* Masquage TRÈS AGRESSIF via classe sur le body */
+body.lolirine-storage-box form[action*="cart"],
+body.lolirine-storage-box form.js_add_cart_json,
+body.lolirine-storage-box form.o_wsale_product_page_form,
+body.lolirine-storage-box #add_to_cart,
+body.lolirine-storage-box button#add_to_cart,
+body.lolirine-storage-box a#add_to_cart,
+body.lolirine-storage-box [name="add_to_cart"],
+body.lolirine-storage-box .js_check_product,
+body.lolirine-storage-box .css_quantity,
+body.lolirine-storage-box .js_quantity,
+body.lolirine-storage-box .quantity,
+body.lolirine-storage-box .o_wsale_product_btn,
+body.lolirine-storage-box .a-submit,
+body.lolirine-storage-box a.a-submit,
+body.lolirine-storage-box .oe_product_cart,
+body.lolirine-storage-box .js_add_cart_json,
+body.lolirine-storage-box .o_product_page_add_to_cart,
+body.lolirine-storage-box #product_detail form:not(#lolirine_storage_buttons),
+body.lolirine-storage-box .js_main_product form,
+body.lolirine-storage-box input[name="add_qty"],
+body.lolirine-storage-box .input-group.js_quantity,
+body.lolirine-storage-box .btn-primary[type="submit"]:not(#lolirine_storage_buttons *) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+    pointer-events: none !important;
+}
+
+/* S'assurer que nos boutons sont visibles */
+#lolirine_storage_buttons {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    width: auto !important;
+    position: relative !important;
+    left: auto !important;
+}
+
+#lolirine_storage_buttons a,
+#lolirine_storage_buttons button {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* ============================================ */
+/* BADGE DE STATUT                             */
+/* ============================================ */
+
+.storage-status-badge .badge {
+    font-size: 1rem;
+    padding: 0.6em 1.2em;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.storage-status-badge .badge i {
+    margin-right: 0.4em;
+}
+
+/* Animation pour le badge disponible */
+@keyframes pulse-available {
+    0% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.5);
+    }
+    70% {
+        box-shadow: 0 0 0 12px rgba(25, 135, 84, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+    }
+}
+
+.storage-status-badge .badge.text-bg-success {
+    animation: pulse-available 2s infinite;
+}
+
+/* ============================================ */
+/* BOUTON RENDEZ-VOUS (DISPONIBLE)             */
+/* ============================================ */
+
+.storage-appointment-button .btn {
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 1rem 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.storage-appointment-button .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.storage-appointment-button .btn:active {
+    transform: translateY(-1px);
+}
+
+.storage-appointment-button .btn i {
+    font-size: 1.2em;
+}
+
+.storage-appointment-button p {
+    margin-bottom: 0;
+}
+
+/* ============================================ */
+/* BOUTON DEMANDE GÉNÉRALE (NON DISPONIBLE)    */
+/* ============================================ */
+
+.storage-general-inquiry-button .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 1rem 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.storage-general-inquiry-button .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.storage-general-inquiry-button .btn i {
+    font-size: 1.1em;
+}
+
+.storage-general-inquiry-button p {
+    margin-bottom: 0;
+}
+
+/* ============================================ */
+/* SNIPPETS SECTIONS                           */
+/* ============================================ */
+
+.s_storage_box_buttons,
+.s_storage_badge_only,
+.s_storage_appointment_only,
+.s_storage_general_inquiry_only {
+    background: transparent;
+}
+
+/* Message d'aide en mode édition */
+.s_storage_box_buttons .alert,
+.s_storage_badge_only .alert,
+.s_storage_appointment_only .alert,
+.s_storage_general_inquiry_only .alert {
+    border-style: dashed;
+    opacity: 0.8;
+}
+
+/* ============================================ */
+/* RESPONSIVE                                  */
+/* ============================================ */
+
+@media (max-width: 768px) {
+    .storage-appointment-button .btn,
+    .storage-general-inquiry-button .btn {
+        padding: 0.85rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .storage-status-badge .badge {
+        font-size: 0.9rem;
+        padding: 0.5em 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .storage-appointment-button .btn,
+    .storage-general-inquiry-button .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* ============================================ */
+/* INTÉGRATION PAGE PRODUIT                    */
+/* ============================================ */
+
+/* Style quand snippet est dans la page produit */
+#product_detail .s_storage_box_buttons,
+#product_detail .s_storage_badge_only {
+    margin-top: 1rem;
+}
+
+/* Améliorer l'apparence sur fond clair */
+.oe_website_sale .storage-status-badge {
+    margin-bottom: 1.5rem;
+}
+
+.oe_website_sale .storage-appointment-button,
+.oe_website_sale .storage-general-inquiry-button {
+    margin-top: 1rem;
+}

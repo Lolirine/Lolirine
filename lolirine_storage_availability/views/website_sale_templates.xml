@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 
+    PAS DE TEMPLATE QWeb qui hérite - on utilise uniquement JavaScript + API
+    Les templates ci-dessous sont des templates standalone pour référence
+    -->
+
+    <template id="storage_status_badge" name="Storage Status Badge">
+        <t t-if="product and product.is_storage_box">
+            <div class="storage-status-badge mb-2">
+                <span t-if="product.storage_status == 'available'" 
+                      class="badge text-bg-success">
+                    <i class="fa fa-check-circle"/> Disponible
+                </span>
+                <span t-elif="product.storage_status == 'rented'" 
+                      class="badge text-bg-danger">
+                    <i class="fa fa-lock"/> Loué
+                </span>
+                <span t-elif="product.storage_status == 'reserved'" 
+                      class="badge text-bg-warning">
+                    <i class="fa fa-clock-o"/> Réservé
+                </span>
+                <span t-elif="product.storage_status == 'maintenance'" 
+                      class="badge text-bg-secondary">
+                    <i class="fa fa-wrench"/> En maintenance
+                </span>
+            </div>
+        </t>
+    </template>
+
+</odoo>
