@@ -1,0 +1,25 @@
+{
+    'name': 'Lolirine Contrat Garde-Meubles',
+    'version': '18.0.1.0.0',
+    'category': 'Sales/Subscriptions',
+    'summary': 'Generation de contrats PDF pour garde-meubles',
+    'author': 'Lolirine SPRL',
+    'website': 'https://www.lolirine.be',
+    'license': 'LGPL-3',
+    'depends': [
+        'sale_subscription',
+        'sale_management',
+        'mail',
+    ],
+    'data': [
+        'security/ir.model.access.csv',
+        'report/contract_report.xml',
+        'report/contract_template.xml',
+        'data/mail_template.xml',
+        'data/automation.xml',
+        'views/sale_order_views.xml',
+    ],
+    'installable': True,
+    'application': False,
+    'auto_install': False,
+}
