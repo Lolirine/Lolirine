@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Rubans/Étiquettes pour les statuts des box de stockage -->
+        
+        <record id="ribbon_storage_available" model="product.ribbon">
+            <field name="name">Disponible</field>
+            <field name="bg_color">#28a745</field>
+            <field name="text_color">#ffffff</field>
+        </record>
+
+        <record id="ribbon_storage_rented" model="product.ribbon">
+            <field name="name">Loué</field>
+            <field name="bg_color">#dc3545</field>
+            <field name="text_color">#ffffff</field>
+        </record>
+
+        <record id="ribbon_storage_reserved" model="product.ribbon">
+            <field name="name">Réservé</field>
+            <field name="bg_color">#ffc107</field>
+            <field name="text_color">#000000</field>
+        </record>
+
+        <record id="ribbon_storage_maintenance" model="product.ribbon">
+            <field name="name">En maintenance</field>
+            <field name="bg_color">#6c757d</field>
+            <field name="text_color">#ffffff</field>
+        </record>
+
+    </data>
+</odoo>
