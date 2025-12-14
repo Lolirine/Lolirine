@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_lolirine_quotation_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="article" style="font-family: Arial, sans-serif; font-size: 11pt; padding: 10px 20px;">
+                    <meta charset="UTF-8"/>
+                    
+                    <!-- En-tête avec logo et coordonnées -->
+                    <table style="width: 100%; margin-bottom: 15px;">
+                        <tr>
+                            <td style="width: 50%; vertical-align: top;">
+                                <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 80px; max-width: 200px;" alt="Logo"/>
+                            </td>
+                            <td style="width: 50%; vertical-align: top; text-align: right;">
+                                <table style="margin-left: auto; border: 1px solid #ccc; font-size: 10pt;">
+                                    <tr><td style="text-align: right; padding: 2px 5px;"><strong>Lolirine Garde-Meubles</strong></td></tr>
+                                    <tr><td style="text-align: right; padding: 2px 5px;">Rue Bois d'Esneux 110, 5021 Boninne</td></tr>
+                                    <tr><td style="text-align: right; padding: 2px 5px;">Tél: +32 497 44 41 46 - +32 498 52 11 31</td></tr>
+                                    <tr><td style="text-align: right; padding: 2px 5px;">E-mail: gardemeublelolirine@gmail.com</td></tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <!-- Informations client et devis -->
+                    <table style="width: 100%; margin-bottom: 15px;">
+                        <tr>
+                            <td style="width: 55%; vertical-align: top;">
+                                <table style="border: 1px solid #ccc;">
+                                    <tr>
+                                        <td style="padding: 5px; vertical-align: top; width: 50px;"><strong>Client:</strong></td>
+                                        <td style="padding: 5px;">
+                                            <strong><t t-esc="o.partner_id.name"/></strong><br/>
+                                            <t t-if="o.partner_id.street"><t t-esc="o.partner_id.street"/>, </t>
+                                            <t t-if="o.partner_id.city"><t t-esc="o.partner_id.city"/>,</t><br/>
+                                            <t t-if="o.partner_id.country_id"><t t-esc="o.partner_id.country_id.name"/></t>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td style="width: 45%; vertical-align: top;">
+                                <table style="margin-left: auto; border: 1px solid #ccc;">
+                                    <tr>
+                                        <td style="padding: 5px; text-align: right;">Date du devis:</td>
+                                        <td style="padding: 5px; text-align: right;"><strong><t t-esc="o.date_order" t-options="{'widget': 'date'}"/></strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px; text-align: right;">Devis N°:</td>
+                                        <td style="padding: 5px; text-align: right;"><strong><t t-esc="o.name"/></strong></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <!-- Objet -->
+                    <h2 style="color: #c0392b; font-size: 14pt; margin: 10px 0 15px 0;">
+                        Objet : Offre de prix pour la location d'un box de stockage
+                    </h2>
+                    
+                    <!-- Tableau des lignes -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                        <thead>
+                            <tr style="background-color: #c0392b; color: white;">
+                                <th style="padding: 8px; text-align: left; width: 50%;">Désignation</th>
+                                <th style="padding: 8px; text-align: center; width: 10%;">Qté</th>
+                                <th style="padding: 8px; text-align: right; width: 20%;">Prix unit. HTVA</th>
+                                <th style="padding: 8px; text-align: right; width: 20%;">Total HTVA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.order_line" t-as="line">
+                                <tr style="border-bottom: 1px solid #eee;">
+                                    <td style="padding: 8px;"><t t-esc="line.name"/></td>
+                                    <td style="padding: 8px; text-align: center;"><t t-esc="int(line.product_uom_qty)"/></td>
+                                    <td style="padding: 8px; text-align: right;"><t t-esc="'%.2f' % line.price_unit"/> €</td>
+                                    <td style="padding: 8px; text-align: right;"><t t-esc="'%.2f' % line.price_subtotal"/> €</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    
+                    <!-- Totaux -->
+                    <table style="width: 220px; margin-left: auto; margin-bottom: 20px;">
+                        <tr>
+                            <td style="padding: 3px; text-align: right;">Total HTVA:</td>
+                            <td style="padding: 3px; text-align: right; width: 80px;"><t t-esc="'%.2f' % o.amount_untaxed"/> €</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 3px; text-align: right;">TVA (21%):</td>
+                            <td style="padding: 3px; text-align: right;"><t t-esc="'%.2f' % o.amount_tax"/> €</td>
+                        </tr>
+                        <tr style="font-weight: bold; font-size: 12pt;">
+                            <td style="padding: 5px 3px; text-align: right;">Total TVAC:</td>
+                            <td style="padding: 5px 3px; text-align: right;"><t t-esc="'%.2f' % o.amount_total"/> €</td>
+                        </tr>
+                    </table>
+                    
+                    <!-- Conditions -->
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="font-size: 11pt; margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 3px;">Conditions et validité de l'offre</h3>
+                        <div style="font-size: 8pt; line-height: 1.4;">
+                            <p style="margin: 1px 0;">Durée minimale : 1 mois.</p>
+                            <p style="margin: 1px 0;">Caution : 2 mois de loyer, à verser avant l'entrée dans les lieux.</p>
+                            <p style="margin: 1px 0;">Frais de dossier : 15 €, non remboursables.</p>
+                            <p style="margin: 1px 0;">Paiement : à terme échu (le paiement intervient en fin de période de location).</p>
+                            <p style="margin: 1px 0;">Préavis de départ : le client doit prévenir 15 jours avant la fin de la période en cours.</p>
+                            <p style="margin: 1px 0;">Assurance : le locataire doit souscrire sa propre assurance couvrant le contenu entreposé et les risques liés à l'occupation du box.</p>
+                            <p style="margin: 1px 0;">Accès et usage : l'espace loué est strictement réservé au stockage de biens licites et non dangereux.</p>
+                            <p style="margin: 1px 0;">Montant indiqué : tous les montants sont TVAC (toutes taxes comprises).</p>
+                            <p style="margin: 1px 0;">Renouvellement : tacite de mois en mois sauf préavis respecté.</p>
+                            <p style="margin: 1px 0;">Restitution : le box doit être vidé et rendu propre à la fin de la location.</p>
+                            <p style="margin: 1px 0;">Validité du devis : 30 jours à compter de sa date d'émission.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Signature -->
+                    <div style="margin-top: 20px;">
+                        <p style="margin-bottom: 3px;">Pour accord, le client:</p>
+                        <div style="border-bottom: 1px solid #333; width: 200px; height: 30px;"></div>
+                        <p style="margin-top: 15px; margin-bottom: 3px;">Date:</p>
+                        <div style="border-bottom: 1px solid #333; width: 200px; height: 20px;"></div>
+                    </div>
+                    
+                </div>
+                <p style="page-break-after: always;"/>
+            </t>
+        </t>
+    </template>
+</odoo>
