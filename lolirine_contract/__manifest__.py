@@ -1,0 +1,21 @@
+{
+    "name": "Lolirine Contrat Garde-Meubles",
+    "version": "18.0.1.2.0",
+    "category": "Sales/Subscriptions",
+    "summary": "Generation de contrats/devis PDF et gestion carte identite",
+    "author": "Lolirine SPRL",
+    "license": "LGPL-3",
+    "depends": ["sale_subscription", "mail", "contacts", "portal", "website"],
+    "data": [
+        "security/ir.model.access.csv",
+        "report/contract_report.xml",
+        "report/contract_template.xml",
+        "report/quotation_template.xml",
+        "data/mail_template.xml",
+        "views/res_partner_views.xml",
+        "views/sale_order_views.xml",
+        "views/portal_templates.xml",
+    ],
+    "installable": True,
+    "application": True,
+}
