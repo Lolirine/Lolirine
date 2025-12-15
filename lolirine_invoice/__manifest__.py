@@ -1,0 +1,32 @@
+{
+    "name": "Lolirine Gestion Factures",
+    "version": "18.0.1.0.0",
+    "category": "Accounting/Invoicing",
+    "summary": "Gestion avancee des factures avec apercu, confirmation et envoi",
+    "description": """
+        Module de gestion des factures pour Lolirine Garde-Meubles
+        
+        Fonctionnalites:
+        - Apercu de la facture sans telechargement
+        - Confirmation de facture brouillon en facture definitive
+        - Envoi par email avec template personnalise
+        - Envoi via Peppol (si configure)
+        - Interface simplifiee pour la gestion des factures
+    """,
+    "author": "Lolirine SPRL",
+    "license": "LGPL-3",
+    "depends": ["account", "sale_subscription", "mail"],
+    "data": [
+        "security/ir.model.access.csv",
+        "data/mail_template.xml",
+        "wizard/invoice_send_wizard_views.xml",
+        "views/account_move_views.xml",
+        "views/menu_views.xml",
+    ],
+    "assets": {
+        "web.assets_backend": [],
+    },
+    "installable": True,
+    "application": True,
+    "icon": "/lolirine_invoice/static/description/icon.png",
+}
