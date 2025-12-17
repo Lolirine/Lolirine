@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Les comptes de charge sont déjà définis dans le plan comptable belge -->
+        <!-- Ce fichier peut être utilisé pour des configurations par défaut -->
+        
+        <!-- Exemple: Compte de charge par défaut pour les achats divers -->
+        <!-- Les comptes 60xxxx sont généralement utilisés pour les achats -->
+        <!-- 604000 - Achats de marchandises -->
+        <!-- 611000 - Entretien et réparations -->
+        <!-- 612000 - Fournitures -->
+        <!-- etc. -->
+    </data>
+</odoo>
