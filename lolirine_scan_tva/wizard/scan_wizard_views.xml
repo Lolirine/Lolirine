@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Wizard Scan Rapide -->
+    <record id="view_scan_tva_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.scan.tva.wizard.form</field>
+        <field name="model">lolirine.scan.tva.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Nouveau Scan">
+                <group>
+                    <field name="document" filename="document_filename" widget="binary"/>
+                    <field name="document_filename" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_create_scan" string="Scanner et Extraire" type="object" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <record id="action_scan_tva_wizard" model="ir.actions.act_window">
+        <field name="name">Nouveau scan</field>
+        <field name="res_model">lolirine.scan.tva.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Wizard Extraction Manuelle -->
+    <record id="view_scan_tva_manual_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.scan.tva.manual.wizard.form</field>
+        <field name="model">lolirine.scan.tva.manual.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Extraction Manuelle">
+                <group>
+                    <group string="Fournisseur">
+                        <field name="scan_id" invisible="1"/>
+                        <field name="supplier_vat"/>
+                        <field name="supplier_name"/>
+                        <field name="supplier_address"/>
+                        <field name="supplier_zip"/>
+                        <field name="supplier_city"/>
+                    </group>
+                    <group string="Facture">
+                        <field name="invoice_number"/>
+                        <field name="invoice_date"/>
+                        <field name="vat_rate"/>
+                        <field name="amount_untaxed"/>
+                        <field name="amount_tax"/>
+                        <field name="amount_total"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_apply" string="Appliquer" type="object" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <record id="action_scan_tva_manual_wizard" model="ir.actions.act_window">
+        <field name="name">Extraction manuelle</field>
+        <field name="res_model">lolirine.scan.tva.manual.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
