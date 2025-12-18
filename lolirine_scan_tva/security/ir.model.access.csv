@@ -1,8 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_scan_tva_user,lolirine.scan.tva.user,model_lolirine_scan_tva,group_scan_tva_user,1,1,1,0
-access_scan_tva_manager,lolirine.scan.tva.manager,model_lolirine_scan_tva,group_scan_tva_manager,1,1,1,1
-access_scan_tva_wizard_user,lolirine.scan.tva.wizard.user,model_lolirine_scan_tva_wizard,group_scan_tva_user,1,1,1,1
-access_scan_tva_manual_wizard_user,lolirine.scan.tva.manual.wizard.user,model_lolirine_scan_tva_manual_wizard,group_scan_tva_user,1,1,1,1
-access_scan_tva_accountant,lolirine.scan.tva.accountant,model_lolirine_scan_tva,account.group_account_invoice,1,1,1,1
-access_scan_tva_wizard_accountant,lolirine.scan.tva.wizard.accountant,model_lolirine_scan_tva_wizard,account.group_account_invoice,1,1,1,1
-access_scan_tva_manual_wizard_accountant,lolirine.scan.tva.manual.wizard.accountant,model_lolirine_scan_tva_manual_wizard,account.group_account_invoice,1,1,1,1
