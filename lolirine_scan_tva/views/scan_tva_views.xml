@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue Formulaire -->
+    <record id="view_scan_tva_form" model="ir.ui.view">
+        <field name="name">lolirine.scan.tva.form</field>
+        <field name="model">lolirine.scan.tva</field>
+        <field name="arch" type="xml">
+            <form string="Scan TVA">
+                <header>
+                    <button name="action_scan_ocr" string="Extraction manuelle" type="object" 
+                            class="btn-secondary" invisible="state != 'scanned'"/>
+                    <button name="%(action_scan_tva_manual_wizard)d" string="Extraction manuelle" type="action"
+                            class="btn-secondary" invisible="state not in ['scanned', 'extracted']"/>
+                    <button name="action_validate" string="Valider" type="object" 
+                            class="btn-primary" invisible="state != 'extracted'"/>
+                    <button name="%(action_scan_tva_manual_wizard)d" string="Remettre en brouillon" type="action"
+                            class="btn-secondary" invisible="state != 'extracted'"/>
+                    <button name="action_create_invoice" string="Creer la facture" type="object"
+                            class="btn-primary" invisible="state != 'validated'"/>
+                    <button name="action_reset_draft" string="Remettre en brouillon" type="object"
+                            class="btn-secondary" invisible="state == 'draft'"/>
+                    <button name="action_archive" string="Archiver" type="object"
+                            class="btn-secondary" invisible="state != 'invoiced'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,scanned,extracted,validated,invoiced"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Document">
+                            <field name="document" filename="document_filename" widget="binary"/>
+                            <field name="document_filename" invisible="1"/>
+                            <field name="document_type"/>
+                        </group>
+                        <group string="Apercu">
+                            <field name="document" widget="image" class="oe_avatar" 
+                                   invisible="document_type != 'image'" options="{'size': [300, 300]}"/>
+                            <span invisible="document_type != 'pdf'">Apercu PDF non disponible</span>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Informations extraites" name="info">
+                            <group>
+                                <group string="Fournisseur">
+                                    <field name="supplier_vat"/>
+                                    <field name="supplier_id"/>
+                                    <field name="supplier_name"/>
+                                    <field name="supplier_address"/>
+                                    <field name="supplier_zip"/>
+                                    <field name="supplier_city"/>
+                                    <field name="supplier_country_id"/>
+                                </group>
+                                <group string="Facture">
+                                    <field name="invoice_number"/>
+                                    <field name="invoice_date"/>
+                                    <field name="vat_rate"/>
+                                    <field name="amount_untaxed"/>
+                                    <field name="amount_tax"/>
+                                    <field name="amount_total"/>
+                                </group>
+                            </group>
+                            <group string="Comptabilite">
+                                <field name="expense_account_id"/>
+                                <field name="responsible_id"/>
+                                <field name="invoice_id" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="Texte OCR" name="ocr">
+                            <field name="ocr_text" readonly="1"/>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="message_follower_ids" groups="base.group_user"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue Liste -->
+    <record id="view_scan_tva_list" model="ir.ui.view">
+        <field name="name">lolirine.scan.tva.list</field>
+        <field name="model">lolirine.scan.tva</field>
+        <field name="arch" type="xml">
+            <list string="Scans TVA" decoration-info="state == 'draft'" 
+                  decoration-warning="state == 'scanned'" decoration-success="state == 'invoiced'">
+                <field name="name"/>
+                <field name="document_filename"/>
+                <field name="supplier_vat"/>
+                <field name="supplier_id"/>
+                <field name="invoice_date"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="state" widget="badge" 
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state in ['scanned', 'extracted']"
+                       decoration-success="state in ['validated', 'invoiced']"/>
+                <field name="responsible_id" widget="many2one_avatar_user"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue Kanban -->
+    <record id="view_scan_tva_kanban" model="ir.ui.view">
+        <field name="name">lolirine.scan.tva.kanban</field>
+        <field name="model">lolirine.scan.tva</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="supplier_id"/>
+                <field name="supplier_vat"/>
+                <field name="amount_total"/>
+                <field name="state"/>
+                <field name="document"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_image">
+                                <img t-if="record.document.raw_value" 
+                                     t-att-src="'data:image/png;base64,' + record.document.raw_value" 
+                                     alt="Document" class="o_image_64_contain"/>
+                                <span t-else="" class="fa fa-file-pdf-o fa-3x text-muted"/>
+                            </div>
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+                                <div t-if="record.supplier_id.value">
+                                    <field name="supplier_id"/>
+                                </div>
+                                <div t-elif="record.supplier_vat.value">
+                                    <field name="supplier_vat"/>
+                                </div>
+                                <div class="text-primary">
+                                    <field name="amount_total" widget="monetary"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Vue Recherche -->
+    <record id="view_scan_tva_search" model="ir.ui.view">
+        <field name="name">lolirine.scan.tva.search</field>
+        <field name="model">lolirine.scan.tva</field>
+        <field name="arch" type="xml">
+            <search string="Recherche Scans TVA">
+                <field name="name"/>
+                <field name="supplier_vat"/>
+                <field name="supplier_id"/>
+                <field name="supplier_name"/>
+                <field name="invoice_number"/>
+                <separator/>
+                <filter name="filter_draft" string="Brouillon" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_to_process" string="A traiter" domain="[('state', 'in', ['scanned', 'extracted'])]"/>
+                <filter name="filter_validated" string="Valides" domain="[('state', '=', 'validated')]"/>
+                <filter name="filter_invoiced" string="Factures" domain="[('state', '=', 'invoiced')]"/>
+                <separator/>
+                <filter name="filter_my" string="Mes scans" domain="[('responsible_id', '=', uid)]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_state" string="Etat" context="{'group_by': 'state'}"/>
+                    <filter name="group_supplier" string="Fournisseur" context="{'group_by': 'supplier_id'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'invoice_date:month'}"/>
+                    <filter name="group_responsible" string="Responsable" context="{'group_by': 'responsible_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action principale -->
+    <record id="action_scan_tva" model="ir.actions.act_window">
+        <field name="name">Tous les scans</field>
+        <field name="res_model">lolirine.scan.tva</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_scan_tva_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun scan TVA
+            </p>
+            <p>
+                Cliquez sur "Nouveau scan" pour scanner un ticket ou une facture fournisseur.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action A traiter -->
+    <record id="action_scan_tva_to_process" model="ir.actions.act_window">
+        <field name="name">A traiter</field>
+        <field name="res_model">lolirine.scan.tva</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_scan_tva_search"/>
+        <field name="domain">[('state', 'in', ['scanned', 'extracted', 'validated'])]</field>
+        <field name="context">{'search_default_filter_to_process': 1}</field>
+    </record>
+
+    <!-- Action Factures creees -->
+    <record id="action_scan_tva_invoiced" model="ir.actions.act_window">
+        <field name="name">Factures creees</field>
+        <field name="res_model">lolirine.scan.tva</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_scan_tva_search"/>
+        <field name="domain">[('state', '=', 'invoiced')]</field>
+    </record>
+</odoo>
