@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="km_expense_generate_wizard_view_form" model="ir.ui.view">
+        <field name="name">km.expense.generate.wizard.form</field>
+        <field name="model">km.expense.generate.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Générer une Feuille IK">
+                <group>
+                    <field name="employee_id"/>
+                    <field name="periode" widget="radio"/>
+                </group>
+                <group invisible="periode != 'personnalise'">
+                    <field name="date_debut"/>
+                    <field name="date_fin"/>
+                </group>
+                <group string="Aperçu" invisible="periode == 'personnalise'">
+                    <field name="date_debut" readonly="1"/>
+                    <field name="date_fin" readonly="1"/>
+                </group>
+                <group string="Trajets à inclure">
+                    <div class="alert alert-info" role="alert">
+                        <div class="row">
+                            <div class="col-4 text-center">
+                                <strong><field name="nombre_trajets" readonly="1"/></strong>
+                                <br/>trajets
+                            </div>
+                            <div class="col-4 text-center">
+                                <strong><field name="total_km" readonly="1"/></strong>
+                                <br/>kilomètres
+                            </div>
+                            <div class="col-4 text-center">
+                                <strong><field name="total_indemnites" readonly="1" widget="monetary"/></strong>
+                                <br/>d'indemnités
+                            </div>
+                        </div>
+                    </div>
+                </group>
+                <footer>
+                    <button name="action_generer" string="Générer la Feuille" type="object" 
+                            class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="km_expense_generate_wizard_action" model="ir.actions.act_window">
+        <field name="name">Générer une Feuille IK</field>
+        <field name="res_model">km.expense.generate.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="km_expense_menu_generer_feuille"
+              name="Générer une Feuille"
+              parent="km_expense_menu_feuilles"
+              action="km_expense_generate_wizard_action"
+              sequence="5"/>
+
+</odoo>

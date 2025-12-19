@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- WIZARD: Comptabilisation des IK -->
+    <!-- ============================================ -->
+    
+    <record id="km_comptabilisation_wizard_form" model="ir.ui.view">
+        <field name="name">km.comptabilisation.wizard.form</field>
+        <field name="model">km.comptabilisation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Comptabilisation des indemnités kilométriques">
+                <group>
+                    <group string="Période">
+                        <field name="type_periode" widget="radio" options="{'horizontal': true}"/>
+                        <field name="mois" invisible="type_periode != 'mois'"/>
+                        <field name="trimestre" invisible="type_periode != 'trimestre'"/>
+                        <field name="annee"/>
+                        <field name="date_debut" invisible="type_periode != 'personnalise'"/>
+                        <field name="date_fin" invisible="type_periode != 'personnalise'"/>
+                    </group>
+                    <group string="Filtres">
+                        <field name="employee_ids" widget="many2many_tags" 
+                               placeholder="Tous les employés"/>
+                        <field name="inclure_valides_seulement"/>
+                    </group>
+                </group>
+                
+                <group string="Configuration comptable">
+                    <group>
+                        <field name="journal_id" options="{'no_create': True}"/>
+                        <field name="regrouper_par_employe"/>
+                    </group>
+                    <group>
+                        <field name="compte_charge_id" options="{'no_create': True}"/>
+                        <field name="compte_dette_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+                
+                <group string="Aperçu">
+                    <group>
+                        <div class="alert alert-info" role="alert">
+                            <div class="row">
+                                <div class="col-4 text-center">
+                                    <h3 class="mb-0"><field name="nombre_trajets" nolabel="1"/></h3>
+                                    <small>Trajets</small>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <h3 class="mb-0"><field name="distance_totale" nolabel="1"/> km</h3>
+                                    <small>Distance</small>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <h3 class="mb-0 text-success"><field name="montant_total" nolabel="1" widget="monetary"/> €</h3>
+                                    <small>Montant total</small>
+                                </div>
+                            </div>
+                        </div>
+                    </group>
+                </group>
+                
+                <footer>
+                    <button name="action_comptabiliser" string="Comptabiliser" 
+                            type="object" class="btn-primary"
+                            invisible="nombre_trajets == 0"
+                            confirm="Êtes-vous sûr de vouloir créer les écritures comptables pour ces trajets ?"/>
+                    <button name="action_apercu" string="Voir les trajets" 
+                            type="object" class="btn-secondary"
+                            invisible="nombre_trajets == 0"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action pour ouvrir le wizard -->
+    <record id="action_km_comptabilisation_wizard" model="ir.actions.act_window">
+        <field name="name">Comptabiliser les indemnités</field>
+        <field name="res_model">km.comptabilisation.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+
+</odoo>
