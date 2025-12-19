@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Template du rapport Feuille IK -->
+    <template id="report_km_expense">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 class="text-center">
+                            Feuille d'Indemnités Kilométriques
+                        </h2>
+                        <h4 class="text-center text-muted">
+                            <t t-esc="doc.name"/>
+                        </h4>
+
+                        <div class="row mt-4 mb-4">
+                            <div class="col-6">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>Employé :</strong></td>
+                                        <td><t t-esc="doc.employee_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Période :</strong></td>
+                                        <td>
+                                            Du <t t-esc="doc.date_debut" t-options='{"widget": "date"}'/>
+                                            au <t t-esc="doc.date_fin" t-options='{"widget": "date"}'/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Statut :</strong></td>
+                                        <td><t t-esc="dict(doc._fields['state'].selection).get(doc.state)"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>Société :</strong></td>
+                                        <td><t t-esc="doc.company_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Date d'édition :</strong></td>
+                                        <td><t t-esc="context_today().strftime('%d/%m/%Y')"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <h5>Détail des Trajets</h5>
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Départ</th>
+                                    <th>Arrivée</th>
+                                    <th>Catégorie</th>
+                                    <th class="text-right">Distance (km)</th>
+                                    <th class="text-right">Taux (€/km)</th>
+                                    <th class="text-right">Montant (€)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc.trajet_ids.filtered(lambda t: t.state in ('valide', 'rembourse'))" t-as="trajet">
+                                    <tr>
+                                        <td><t t-esc="trajet.date" t-options='{"widget": "date"}'/></td>
+                                        <td><t t-esc="trajet.lieu_depart"/></td>
+                                        <td><t t-esc="trajet.lieu_arrivee"/></td>
+                                        <td><t t-esc="trajet.categorie_id.name"/></td>
+                                        <td class="text-right"><t t-esc="'%.1f' % trajet.distance"/></td>
+                                        <td class="text-right"><t t-esc="'%.4f' % trajet.taux_km"/></td>
+                                        <td class="text-right"><t t-esc="'%.2f' % trajet.montant_indemnite"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr class="font-weight-bold">
+                                    <td colspan="4" class="text-right">TOTAL</td>
+                                    <td class="text-right"><t t-esc="'%.1f' % doc.total_km"/></td>
+                                    <td></td>
+                                    <td class="text-right"><t t-esc="'%.2f' % doc.total_indemnites"/> €</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <h6>Cumul Annuel</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td>Kilomètres cumulés :</td>
+                                        <td class="text-right"><t t-esc="'%.1f' % doc.cumul_km_annee"/> km</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Indemnités cumulées :</td>
+                                        <td class="text-right"><t t-esc="'%.2f' % doc.cumul_indemnites_annee"/> €</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-6">
+                                <div class="mt-5 text-center">
+                                    <p>Signature de l'employé</p>
+                                    <br/><br/>
+                                    <p>_________________________</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <t t-if="doc.notes">
+                            <div class="mt-4">
+                                <h6>Notes</h6>
+                                <p><t t-esc="doc.notes"/></p>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Template du rapport Trajet -->
+    <template id="report_km_trajet">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2 class="text-center">
+                        Récapitulatif des Trajets Professionnels
+                    </h2>
+
+                    <div class="row mt-4 mb-4">
+                        <div class="col-12">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Date d'édition :</strong></td>
+                                    <td><t t-esc="context_today().strftime('%d/%m/%Y')"/></td>
+                                    <td><strong>Nombre de trajets :</strong></td>
+                                    <td><t t-esc="len(docs)"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <table class="table table-sm table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Réf.</th>
+                                <th>Date</th>
+                                <th>Employé</th>
+                                <th>Départ</th>
+                                <th>Arrivée</th>
+                                <th>Motif</th>
+                                <th class="text-right">KM</th>
+                                <th class="text-right">Montant</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="total_km" t-value="0"/>
+                            <t t-set="total_montant" t-value="0"/>
+                            <t t-foreach="docs" t-as="trajet">
+                                <t t-set="total_km" t-value="total_km + trajet.distance"/>
+                                <t t-set="total_montant" t-value="total_montant + trajet.montant_indemnite"/>
+                                <tr>
+                                    <td><t t-esc="trajet.name"/></td>
+                                    <td><t t-esc="trajet.date" t-options='{"widget": "date"}'/></td>
+                                    <td><t t-esc="trajet.employee_id.name"/></td>
+                                    <td><t t-esc="trajet.lieu_depart[:20]"/>...</td>
+                                    <td><t t-esc="trajet.lieu_arrivee[:20]"/>...</td>
+                                    <td><t t-esc="trajet.motif[:30] if trajet.motif else ''"/>...</td>
+                                    <td class="text-right"><t t-esc="'%.1f' % trajet.distance"/></td>
+                                    <td class="text-right"><t t-esc="'%.2f' % trajet.montant_indemnite"/></td>
+                                    <td><t t-esc="dict(trajet._fields['state'].selection).get(trajet.state)"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr class="font-weight-bold">
+                                <td colspan="6" class="text-right">TOTAL</td>
+                                <td class="text-right"><t t-esc="'%.1f' % total_km"/> km</td>
+                                <td class="text-right"><t t-esc="'%.2f' % total_montant"/> €</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

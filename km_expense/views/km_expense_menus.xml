@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action pour ouvrir le wizard trajet client -->
+    <record id="action_km_trajet_from_event_wizard" model="ir.actions.act_window">
+        <field name="name">Créer un trajet client</field>
+        <field name="res_model">km.trajet.from.event.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{
+            'default_event_type': 'visite_box',
+        }</field>
+    </record>
+
+    <!-- Menu principal -->
+    <menuitem id="km_expense_menu_root"
+              name="Indemnités KM"
+              web_icon="km_expense,static/description/icon.png"
+              sequence="45"/>
+
+    <!-- Menu Trajets -->
+    <menuitem id="km_expense_menu_trajets"
+              name="Trajets"
+              parent="km_expense_menu_root"
+              sequence="10"/>
+
+    <menuitem id="km_expense_menu_mes_trajets"
+              name="Mes Trajets"
+              parent="km_expense_menu_trajets"
+              action="km_trajet_action"
+              sequence="10"/>
+
+    <menuitem id="km_expense_menu_nouveau_trajet"
+              name="Nouveau Trajet"
+              parent="km_expense_menu_trajets"
+              action="km_trajet_action"
+              sequence="20"/>
+
+    <menuitem id="km_expense_menu_trajets_a_valider"
+              name="Trajets à Valider"
+              parent="km_expense_menu_trajets"
+              action="km_trajet_action_a_valider"
+              groups="km_expense.group_km_expense_manager"
+              sequence="30"/>
+
+    <menuitem id="km_expense_menu_trajet_client"
+              name="Trajet Client (Visite/Signature)"
+              parent="km_expense_menu_trajets"
+              action="action_km_trajet_from_event_wizard"
+              sequence="25"/>
+
+    <!-- Menu Feuilles IK -->
+    <menuitem id="km_expense_menu_feuilles"
+              name="Feuilles IK"
+              parent="km_expense_menu_root"
+              sequence="20"/>
+
+    <menuitem id="km_expense_menu_mes_feuilles"
+              name="Mes Feuilles"
+              parent="km_expense_menu_feuilles"
+              action="km_expense_action"
+              sequence="10"/>
+
+    <menuitem id="km_expense_menu_feuilles_a_approuver"
+              name="À Approuver"
+              parent="km_expense_menu_feuilles"
+              action="km_expense_action_a_approuver"
+              groups="km_expense.group_km_expense_manager"
+              sequence="20"/>
+
+    <!-- Menu Véhicules -->
+    <menuitem id="km_expense_menu_vehicules"
+              name="Véhicules"
+              parent="km_expense_menu_root"
+              sequence="30"/>
+
+    <menuitem id="km_expense_menu_mes_vehicules"
+              name="Mes Véhicules Personnels"
+              parent="km_expense_menu_vehicules"
+              action="km_vehicule_personnel_action"
+              sequence="10"/>
+
+    <!-- Menu Rapports -->
+    <menuitem id="km_expense_menu_rapports"
+              name="Rapports"
+              parent="km_expense_menu_root"
+              sequence="40"/>
+
+    <menuitem id="km_expense_menu_analyse_trajets"
+              name="Analyse des Trajets"
+              parent="km_expense_menu_rapports"
+              action="km_trajet_action"
+              sequence="10"/>
+
+    <!-- Menu Configuration - Accessible à tous les utilisateurs -->
+    <menuitem id="km_expense_menu_configuration"
+              name="Configuration"
+              parent="km_expense_menu_root"
+              sequence="100"/>
+
+    <menuitem id="km_expense_menu_baremes"
+              name="Barèmes Kilométriques"
+              parent="km_expense_menu_configuration"
+              action="km_bareme_action"
+              sequence="10"/>
+
+    <menuitem id="km_expense_menu_categories"
+              name="Catégories de Trajets"
+              parent="km_expense_menu_configuration"
+              action="km_trajet_categorie_action"
+              sequence="20"/>
+
+    <menuitem id="km_expense_menu_destinations"
+              name="Destinations Prédéfinies"
+              parent="km_expense_menu_configuration"
+              action="km_destination_action"
+              sequence="30"/>
+
+    <menuitem id="km_expense_menu_lieux_depart"
+              name="Lieux de Départ"
+              parent="km_expense_menu_configuration"
+              action="km_lieu_depart_action"
+              sequence="40"/>
+
+    <menuitem id="km_expense_menu_parametres"
+              name="Paramètres API"
+              parent="km_expense_menu_configuration"
+              action="action_km_expense_config_settings"
+              sequence="50"/>
+
+</odoo>
