@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- Extension de la fiche partenaire -->
+    <!-- ============================================ -->
+    
+    <record id="res_partner_view_form_km_expense" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.km_expense</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Indemnités KM" name="km_expense">
+                    <group>
+                        <group string="Trajets automatiques">
+                            <field name="km_trajet_auto"/>
+                            <field name="km_trajet_type" 
+                                   attrs="{'invisible': [('km_trajet_auto', '=', False)]}"/>
+                            <field name="km_aller_retour" 
+                                   attrs="{'invisible': [('km_trajet_auto', '=', False)]}"/>
+                        </group>
+                        <group string="Configuration" 
+                               attrs="{'invisible': [('km_trajet_auto', '=', False)]}">
+                            <field name="km_destination_id" 
+                                   options="{'no_create': True}"
+                                   context="{'default_partner_id': id, 'default_name': name}"/>
+                            <field name="km_categorie_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert" 
+                         attrs="{'invisible': [('km_trajet_auto', '=', False)]}">
+                        <p><i class="fa fa-info-circle"/> <strong>Création automatique de trajets</strong></p>
+                        <p>Lorsqu'une facture avec ce partenaire sera validée, un trajet kilométrique sera automatiquement créé en brouillon.</p>
+                        <ul>
+                            <li>Le trajet sera créé avec la date de la facture</li>
+                            <li>La destination prédéfinie sera utilisée si configurée</li>
+                            <li>Le trajet sera en statut "Brouillon" pour vérification</li>
+                        </ul>
+                    </div>
+                    <group string="Historique des trajets" 
+                           attrs="{'invisible': [('km_trajet_auto', '=', False)]}">
+                        <button name="action_view_km_trajets" 
+                                string="Voir les trajets de ce partenaire" 
+                                type="object"
+                                class="btn-secondary"
+                                icon="fa-road"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vue liste des partenaires avec colonne trajet auto -->
+    <record id="res_partner_view_tree_km_expense" model="ir.ui.view">
+        <field name="name">res.partner.tree.inherit.km_expense</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='email']" position="after">
+                <field name="km_trajet_auto" string="Trajet auto" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vue recherche partenaires -->
+    <record id="res_partner_view_search_km_expense" model="ir.ui.view">
+        <field name="name">res.partner.search.inherit.km_expense</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='supplier']" position="after">
+                <separator/>
+                <filter name="km_trajet_auto" string="Trajet auto activé"
+                        domain="[('km_trajet_auto', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- Extension de la vue facture -->
+    <!-- ============================================ -->
+    
+    <record id="account_move_view_form_km_expense_auto" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.km_expense.auto</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <!-- Ajouter l'option dans l'onglet "Autres informations" -->
+            <xpath expr="//page[@id='other_tab']//group[@id='other_info_group' or @name='other_info']" position="inside">
+                <group string="Indemnités KM" 
+                       attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund', 'out_invoice', 'out_refund'])]}">
+                    <field name="km_skip_auto_trajet"/>
+                    <field name="km_trajet_auto_created" readonly="1" 
+                           attrs="{'invisible': [('km_trajet_auto_created', '=', False)]}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- Action et menu pour configurer les partenaires -->
+    <!-- ============================================ -->
+    
+    <record id="action_partners_km_trajet_auto" model="ir.actions.act_window">
+        <field name="name">Partenaires avec trajet auto</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('km_trajet_auto', '=', True)]</field>
+        <field name="context">{'default_km_trajet_auto': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun partenaire avec trajet automatique configuré
+            </p>
+            <p>
+                Activez la création automatique de trajets sur les fiches fournisseurs/clients
+                pour générer automatiquement un trajet kilométrique lors de la validation des factures.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu dans Configuration -->
+    <menuitem id="km_expense_menu_partenaires_auto"
+              name="Partenaires trajet auto"
+              parent="km_expense.km_expense_menu_configuration"
+              action="action_partners_km_trajet_auto"
+              sequence="60"/>
+
+</odoo>
