@@ -139,7 +139,6 @@ class StorageBox(models.Model):
             'date_available': date_available_str,
         }
     
-    @api.returns('self', lambda value: value.id)
     @api.model
     def get_export_data(self):
         """Retourne les données pour l'export XLSX"""
