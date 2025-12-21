@@ -75,7 +75,7 @@
                 <filter string="Personnalisé" name="filter_custom" domain="[('index_type', '=', 'custom')]"/>
                 <separator/>
                 <filter string="Cette année" name="filter_this_year" domain="[('year', '=', ((context_today()).year))]"/>
-                <group expand="0" string="Grouper par">
+                <group string="Grouper par">
                     <filter string="Type" name="group_type" context="{'group_by': 'index_type'}"/>
                     <filter string="Année" name="group_year" context="{'group_by': 'year'}"/>
                     <filter string="Source" name="group_source" context="{'group_by': 'source'}"/>

@@ -163,7 +163,7 @@
                 <separator/>
                 <filter string="Rez-de-chaussée" name="ground_floor" domain="[('floor_id.code', '=', 'RDC')]"/>
                 <filter string="Premier étage" name="first_floor" domain="[('floor_id.code', '=', 'R1')]"/>
-                <group expand="0" string="Grouper par">
+                <group string="Grouper par">
                     <filter string="Étage" name="group_floor" context="{'group_by': 'floor_id'}"/>
                     <filter string="Statut" name="group_status" context="{'group_by': 'status'}"/>
                     <filter string="Date disponibilité" name="group_date_available" context="{'group_by': 'date_available'}"/>

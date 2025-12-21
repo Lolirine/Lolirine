@@ -112,7 +112,7 @@
                 <filter name="mes_vehicules" string="Mes véhicules"
                         domain="[('employee_id.user_id', '=', uid)]"/>
                 <separator/>
-                <group expand="0" string="Grouper par">
+                <group string="Grouper par">
                     <filter name="group_employee" string="Propriétaire" context="{'group_by': 'employee_id'}"/>
                     <filter name="group_puissance" string="Puissance" context="{'group_by': 'puissance_fiscale'}"/>
                     <filter name="group_type" string="Type" context="{'group_by': 'type_vehicule'}"/>

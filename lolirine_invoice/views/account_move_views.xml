@@ -154,7 +154,7 @@
                 <filter string="Ce mois" name="this_month" domain="[('invoice_date', '>=', (context_today() - relativedelta(day=1)).strftime('%Y-%m-%d')), ('invoice_date', '&lt;', (context_today() + relativedelta(months=1, day=1)).strftime('%Y-%m-%d'))]"/>
                 <filter string="Mois dernier" name="last_month" domain="[('invoice_date', '>=', (context_today() - relativedelta(months=1, day=1)).strftime('%Y-%m-%d')), ('invoice_date', '&lt;', (context_today() - relativedelta(day=1)).strftime('%Y-%m-%d'))]"/>
                 <separator/>
-                <group expand="0" string="Grouper par">
+                <group string="Grouper par">
                     <filter string="Client" name="partner" context="{'group_by': 'partner_id'}"/>
                     <filter string="Etat" name="state" context="{'group_by': 'state'}"/>
                     <filter string="Statut paiement" name="payment_state" context="{'group_by': 'payment_state'}"/>

@@ -178,7 +178,7 @@
                 <filter string="Cette année" name="filter_this_year" 
                         domain="[('date', '&gt;=', (context_today().replace(month=1, day=1).strftime('%Y-%m-%d'))),
                                  ('date', '&lt;=', (context_today().replace(month=12, day=31).strftime('%Y-%m-%d')))]"/>
-                <group expand="0" string="Grouper par">
+                <group string="Grouper par">
                     <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Type d'indice" name="group_type" context="{'group_by': 'index_type'}"/>
                     <filter string="Date" name="group_date" context="{'group_by': 'date:month'}"/>

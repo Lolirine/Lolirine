@@ -204,7 +204,7 @@
                 <separator/>
                 <filter string="Ce mois" name="this_month" domain="[('create_date', '>=', (context_today() - relativedelta(day=1)).strftime('%Y-%m-%d'))]"/>
                 <separator/>
-                <group expand="0" string="Grouper par">
+                <group string="Grouper par">
                     <filter string="Etat" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Fournisseur" name="group_partner" context="{'group_by': 'partner_id'}"/>
                     <filter string="Mois" name="group_month" context="{'group_by': 'create_date:month'}"/>

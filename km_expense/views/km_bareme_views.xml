@@ -84,7 +84,7 @@
                 <separator/>
                 <filter name="archived" string="Archivés" domain="[('active', '=', False)]"/>
                 <separator/>
-                <group expand="0" string="Grouper par">
+                <group string="Grouper par">
                     <filter name="group_trimestre" string="Trimestre" context="{'group_by': 'trimestre'}"/>
                     <filter name="group_annee" string="Année" context="{'group_by': 'annee'}"/>
                     <filter name="group_type" string="Type de véhicule" context="{'group_by': 'type_vehicule'}"/>

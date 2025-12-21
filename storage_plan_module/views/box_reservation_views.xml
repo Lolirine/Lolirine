@@ -106,7 +106,7 @@
                 <filter string="Aujourd'hui" name="today" 
                         domain="[('reservation_date', '&gt;=', datetime.datetime.now().replace(hour=0, minute=0, second=0)), 
                                  ('reservation_date', '&lt;=', datetime.datetime.now().replace(hour=23, minute=59, second=59))]"/>
-                <group expand="0" string="Grouper par">
+                <group string="Grouper par">
                     <filter string="Box" name="group_box" context="{'group_by': 'box_id'}"/>
                     <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Type" name="group_type" context="{'group_by': 'reservation_type'}"/>

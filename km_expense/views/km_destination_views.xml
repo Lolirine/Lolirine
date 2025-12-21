@@ -141,7 +141,7 @@
                 <filter name="administratif" string="Administratif"
                         domain="[('type_destination', '=', 'administratif')]"/>
                 <separator/>
-                <group expand="0" string="Grouper par">
+                <group string="Grouper par">
                     <filter name="group_type" string="Type" context="{'group_by': 'type_destination'}"/>
                     <filter name="group_ville" string="Ville" context="{'group_by': 'ville'}"/>
                 </group>

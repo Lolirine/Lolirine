@@ -208,7 +208,7 @@
                 <filter name="paye" string="Payés"
                         domain="[('state', '=', 'paye')]"/>
                 <separator/>
-                <group expand="0" string="Grouper par">
+                <group string="Grouper par">
                     <filter name="group_employee" string="Employé" context="{'group_by': 'employee_id'}"/>
                     <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
                     <filter name="group_date" string="Mois" context="{'group_by': 'date_debut:month'}"/>
