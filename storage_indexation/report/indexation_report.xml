@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Rapport: Avis d'indexation individuel (pour un client) -->
+    <record id="action_report_indexation_notice" model="ir.actions.report">
+        <field name="name">Avis d'indexation</field>
+        <field name="model">storage.indexation.line</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">storage_indexation.report_indexation_notice</field>
+        <field name="report_file">storage_indexation.report_indexation_notice</field>
+        <field name="print_report_name">'Avis_Indexation_%s_%s' % (object.partner_id.name, object.indexation_id.name)</field>
+        <field name="binding_model_id" ref="storage_indexation.model_storage_indexation_line"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Rapport: Résumé d'indexation (toutes les lignes) -->
+    <record id="action_report_indexation_summary" model="ir.actions.report">
+        <field name="name">Résumé d'indexation</field>
+        <field name="model">storage.indexation</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">storage_indexation.report_indexation_summary</field>
+        <field name="report_file">storage_indexation.report_indexation_summary</field>
+        <field name="print_report_name">'Resume_Indexation_%s' % (object.name)</field>
+        <field name="binding_model_id" ref="storage_indexation.model_storage_indexation"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

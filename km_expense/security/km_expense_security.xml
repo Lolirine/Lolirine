@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Catégorie du module -->
+    <record id="module_category_km_expense" model="ir.module.category">
+        <field name="name">Indemnités Kilométriques</field>
+        <field name="description">Gestion des indemnités kilométriques</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Groupe Utilisateur -->
+    <record id="group_km_expense_user" model="res.groups">
+        <field name="name">Utilisateur</field>
+        <field name="category_id" ref="module_category_km_expense"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">L'utilisateur peut créer et gérer ses propres trajets.</field>
+    </record>
+
+    <!-- Groupe Manager -->
+    <record id="group_km_expense_manager" model="res.groups">
+        <field name="name">Gestionnaire</field>
+        <field name="category_id" ref="module_category_km_expense"/>
+        <field name="implied_ids" eval="[(4, ref('group_km_expense_user'))]"/>
+        <field name="comment">Le gestionnaire peut valider les trajets et configurer les barèmes.</field>
+    </record>
+
+    <!-- Règles d'enregistrement -->
+    
+    <!-- Trajets : l'utilisateur voit ses propres trajets -->
+    <record id="km_trajet_rule_user" model="ir.rule">
+        <field name="name">Trajets: utilisateur voit ses trajets</field>
+        <field name="model_id" ref="model_km_trajet"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_km_expense_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Trajets : le manager voit tous les trajets -->
+    <record id="km_trajet_rule_manager" model="ir.rule">
+        <field name="name">Trajets: manager voit tout</field>
+        <field name="model_id" ref="model_km_trajet"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_km_expense_manager'))]"/>
+    </record>
+
+    <!-- Véhicules personnels : l'utilisateur voit ses véhicules -->
+    <record id="km_vehicule_personnel_rule_user" model="ir.rule">
+        <field name="name">Véhicules personnels: utilisateur</field>
+        <field name="model_id" ref="model_km_vehicule_personnel"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_km_expense_user'))]"/>
+    </record>
+
+    <!-- Véhicules personnels : le manager voit tout -->
+    <record id="km_vehicule_personnel_rule_manager" model="ir.rule">
+        <field name="name">Véhicules personnels: manager voit tout</field>
+        <field name="model_id" ref="model_km_vehicule_personnel"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_km_expense_manager'))]"/>
+    </record>
+
+    <!-- Feuilles IK : l'utilisateur voit ses feuilles -->
+    <record id="km_expense_rule_user" model="ir.rule">
+        <field name="name">Feuilles IK: utilisateur</field>
+        <field name="model_id" ref="model_km_expense"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_km_expense_user'))]"/>
+    </record>
+
+    <!-- Feuilles IK : le manager voit tout -->
+    <record id="km_expense_rule_manager" model="ir.rule">
+        <field name="name">Feuilles IK: manager voit tout</field>
+        <field name="model_id" ref="model_km_expense"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_km_expense_manager'))]"/>
+    </record>
+
+    <!-- Règle multi-société -->
+    <record id="km_trajet_company_rule" model="ir.rule">
+        <field name="name">Trajets: règle société</field>
+        <field name="model_id" ref="model_km_trajet"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="km_expense_company_rule" model="ir.rule">
+        <field name="name">Feuilles IK: règle société</field>
+        <field name="model_id" ref="model_km_expense"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="km_bareme_company_rule" model="ir.rule">
+        <field name="name">Barèmes: règle société</field>
+        <field name="model_id" ref="model_km_bareme"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>
