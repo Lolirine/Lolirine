@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Storage Availability',
-    'version': '18.0.1.0.0',
+    'version': '19.0.1.0.0',
     'category': 'Website/Website',
     'summary': 'Gestion de la disponibilité des box de stockage avec bouton rendez-vous',
     'description': """

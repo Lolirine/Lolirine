@@ -458,7 +458,7 @@ class KmTrajet(models.Model):
             self.distance = self.distance_aller
         
         # Si on change le barème, mettre à jour le taux
-        if self.bareme_id and not self._context.get('skip_taux_update'):
+        if self.bareme_id and not self.env.context.get('skip_taux_update'):
             self.taux_km = self.bareme_id.taux_jusqu_5000
         
         # Calculer le montant (distance × taux)

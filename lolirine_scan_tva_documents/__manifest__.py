@@ -1,6 +1,6 @@
 {
     "name": "Lolirine Scan TVA - Documents Integration",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Accounting/Accounting",
     "summary": "Intégration du module Scan TVA avec l'application Documents",
     "description": """

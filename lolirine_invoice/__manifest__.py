@@ -1,6 +1,6 @@
 {
     "name": "Lolirine Gestion Factures",
-    "version": "18.0.1.4.0",
+    "version": "19.0.1.4.0",
     "category": "Accounting/Invoicing",
     "summary": "Gestion avancee des factures avec apercu, envoi email et Peppol automatique",
     "description": """

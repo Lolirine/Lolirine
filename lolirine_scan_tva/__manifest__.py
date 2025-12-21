@@ -1,6 +1,6 @@
 {
     "name": "Lolirine Scan TVA",
-    "version": "18.0.1.1.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting/Accounting",
     "summary": "Scan et extraction automatique des souches TVA fournisseurs",
     "description": """

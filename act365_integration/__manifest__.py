@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'ACT365 Integration - Contrôle d\'Accès',
-    'version': '18.0.1.0.0',
+    'version': '19.0.1.0.0',
     'category': 'Services/Access Control',
     'summary': 'Intégration ACT365 pour la gestion des codes d\'accès garde-meubles',
     'description': """

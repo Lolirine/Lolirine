@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Storage Indexation',
-    'version': '18.0.1.0.0',
+    'version': '19.0.1.0.0',
     'category': 'Services/Storage',
     'summary': 'Indexation automatique des prix de garde-meubles basée sur l\'indice santé belge',
     'description': """
