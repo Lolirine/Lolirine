@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue list pour les lignes du wizard -->
+    <record id="lolirine_quotation_wizard_line_list" model="ir.ui.view">
+        <field name="name">lolirine.quotation.wizard.line.list</field>
+        <field name="model">lolirine.quotation.wizard.line</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="product_id"/>
+                <field name="quantity"/>
+                <field name="price_unit"/>
+                <field name="subtotal" sum="Total"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue formulaire du wizard -->
+    <record id="lolirine_quotation_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.quotation.wizard.form</field>
+        <field name="model">lolirine.quotation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Creer un devis">
+                <group>
+                    <field name="partner_id" placeholder="Optionnel - Laissez vide pour un devis general"/>
+                    <field name="currency_id" invisible="1"/>
+                </group>
+                
+                <separator string="Produits"/>
+                <field name="line_ids" widget="one2many"/>
+                
+                <group class="oe_subtotal_footer">
+                    <field name="amount_untaxed" widget="monetary"/>
+                    <field name="amount_tax" widget="monetary"/>
+                    <field name="amount_total" widget="monetary" class="oe_subtotal_footer_separator"/>
+                </group>
+                
+                <footer>
+                    <button name="action_print_quotation" string="Imprimer le devis" type="object" class="btn-primary" icon="fa-print"/>
+                    <button name="action_create_and_send" string="Creer et envoyer par email" type="object" class="btn-secondary" icon="fa-envelope" invisible="not partner_id"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Action pour ouvrir le wizard depuis product.template -->
+    <record id="action_lolirine_quotation_wizard" model="ir.actions.act_window">
+        <field name="name">Creer un devis Lolirine</field>
+        <field name="res_model">lolirine.quotation.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_view_types">form</field>
+    </record>
+    
+    <!-- Action aussi sur product.product -->
+    <record id="action_lolirine_quotation_wizard_product" model="ir.actions.act_window">
+        <field name="name">Creer un devis Lolirine</field>
+        <field name="res_model">lolirine.quotation.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="product.model_product_product"/>
+        <field name="binding_view_types">form</field>
+    </record>
+</odoo>
