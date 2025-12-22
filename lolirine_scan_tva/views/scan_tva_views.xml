@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue formulaire -->
+    <record id="view_lolirine_scan_tva_form" model="ir.ui.view">
+        <field name="name">lolirine.scan.tva.form</field>
+        <field name="model">lolirine.scan.tva</field>
+        <field name="arch" type="xml">
+            <form string="Scan TVA">
+                <header>
+                    <button name="action_scan" string="Scanner" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_process" string="Traiter" type="object" class="btn-primary" invisible="state != 'scanned'"/>
+                    <button name="action_create_invoice" string="Creer facture" type="object" class="btn-primary" invisible="state != 'processed'"/>
+                    <button name="action_cancel" string="Annuler" type="object" invisible="state in ('cancelled', 'invoice_created')"/>
+                    <button name="action_reset_draft" string="Remettre en brouillon" type="object" invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,scanned,processed,invoice_created"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Document">
+                            <field name="document" filename="document_filename"/>
+                            <field name="document_filename" invisible="1"/>
+                        </group>
+                        <group string="Fournisseur">
+                            <field name="supplier_vat"/>
+                            <field name="supplier_name"/>
+                            <field name="supplier_address"/>
+                            <field name="partner_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Facture">
+                            <field name="invoice_number"/>
+                            <field name="invoice_date"/>
+                        </group>
+                        <group string="Montants">
+                            <field name="amount_untaxed"/>
+                            <field name="amount_tax"/>
+                            <field name="amount_total"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="invoice_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="notes" placeholder="Notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue liste -->
+    <record id="view_lolirine_scan_tva_list" model="ir.ui.view">
+        <field name="name">lolirine.scan.tva.list</field>
+        <field name="model">lolirine.scan.tva</field>
+        <field name="arch" type="xml">
+            <list string="Scans TVA">
+                <field name="name"/>
+                <field name="supplier_name"/>
+                <field name="supplier_vat"/>
+                <field name="invoice_number"/>
+                <field name="invoice_date"/>
+                <field name="amount_total"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_lolirine_scan_tva" model="ir.actions.act_window">
+        <field name="name">Scans TVA</field>
+        <field name="res_model">lolirine.scan.tva</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Action pour les scans a traiter -->
+    <record id="action_lolirine_scan_tva_to_process" model="ir.actions.act_window">
+        <field name="name">A traiter</field>
+        <field name="res_model">lolirine.scan.tva</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ('draft', 'scanned', 'processed'))]</field>
+    </record>
+
+    <!-- Action pour les factures creees -->
+    <record id="action_lolirine_scan_tva_done" model="ir.actions.act_window">
+        <field name="name">Factures creees</field>
+        <field name="res_model">lolirine.scan.tva</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'invoice_created')]</field>
+    </record>
+</odoo>
