@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu principal -->
+    <menuitem id="menu_lolirine_scan_tva_root"
+              name="Scan TVA"
+              web_icon="lolirine_scan_tva,static/description/icon.png"
+              sequence="26"/>
+
+    <!-- Sous-menus -->
+    <menuitem id="menu_lolirine_scan_tva_all"
+              name="Tous les scans"
+              parent="menu_lolirine_scan_tva_root"
+              action="action_lolirine_scan_tva"
+              sequence="10"/>
+
+    <menuitem id="menu_lolirine_scan_tva_to_process"
+              name="A traiter"
+              parent="menu_lolirine_scan_tva_root"
+              action="action_lolirine_scan_tva_to_process"
+              sequence="20"/>
+
+    <menuitem id="menu_lolirine_scan_tva_done"
+              name="Factures creees"
+              parent="menu_lolirine_scan_tva_root"
+              action="action_lolirine_scan_tva_done"
+              sequence="30"/>
+</odoo>
