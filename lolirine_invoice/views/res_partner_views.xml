@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extension de la vue formulaire des contacts pour Peppol -->
+    <record id="view_partner_form_lolirine_invoice" model="ir.ui.view">
+        <field name="name">res.partner.form.lolirine.invoice</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Ajouter un onglet Facturation electronique -->
+            <xpath expr="//page[@name='sales_purchases']" position="after">
+                <page string="Facturation electronique" name="peppol">
+                    <group>
+                        <group string="Configuration Peppol">
+                            <field name="peppol_eas"/>
+                            <field name="peppol_endpoint" placeholder="Ex: 0650891279 pour BE:EN"/>
+                        </group>
+                        <group string="Envoi automatique des factures">
+                            <field name="auto_send_invoice"/>
+                            <field name="auto_send_peppol"/>
+                        </group>
+                    </group>
+                    <group>
+                        <div class="alert alert-info" role="alert">
+                            <strong>Configuration Peppol pour la Belgique :</strong>
+                            <ul>
+                                <li><strong>EAS</strong> : Selectionnez "0208 - BE:EN" (numero d'entreprise belge)</li>
+                                <li><strong>Endpoint</strong> : Entrez le numero d'entreprise sans espaces (ex: 0650891279)</li>
+                            </ul>
+                            <p>Le numero d'entreprise correspond au numero BCE/KBO sans le prefixe "BE" et sans espaces.</p>
+                        </div>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
