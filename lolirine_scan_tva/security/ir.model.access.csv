@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_lolirine_scan_tva_user,lolirine.scan.tva.user,model_lolirine_scan_tva,account.group_account_invoice,1,1,1,0
-access_lolirine_scan_tva_manager,lolirine.scan.tva.manager,model_lolirine_scan_tva,account.group_account_manager,1,1,1,1
