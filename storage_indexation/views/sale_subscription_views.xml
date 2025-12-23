@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extension de la vue formulaire sale.order pour les abonnements (Odoo 18) -->
+    <record id="view_sale_order_form_indexation" model="ir.ui.view">
+        <field name="name">sale.order.form.indexation</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Ajouter un bouton pour voir l'historique des indexations -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" type="object" name="action_view_indexations"
+                        icon="fa-line-chart" invisible="not is_subscription">
+                    <field name="indexation_count" widget="statinfo" string="Indexations"/>
+                </button>
+            </xpath>
+            
+            <!-- Ajouter un onglet Indexation -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Indexation" name="indexation" invisible="not is_subscription">
+                    <group>
+                        <group string="Configuration de l'indexation">
+                            <field name="indexation_enabled"/>
+                            <field name="base_index_id" options="{'no_create': True}"/>
+                            <field name="base_index_date"/>
+                            <button name="action_set_base_index" type="object" 
+                                    string="Définir l'indice de base" 
+                                    class="btn-secondary"
+                                    invisible="base_index_id"/>
+                        </group>
+                        <group string="Historique">
+                            <field name="last_indexation_id" readonly="1"/>
+                            <field name="last_indexation_date" readonly="1"/>
+                            <field name="initial_recurring_amount" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extension de la vue liste sale.order pour afficher le statut d'indexation -->
+    <record id="view_sale_order_list_indexation" model="ir.ui.view">
+        <field name="name">sale.order.list.indexation</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="indexation_enabled" column_invisible="1"/>
+                <field name="last_indexation_date" column_invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Filtre de recherche pour les abonnements indexables -->
+    <record id="view_sale_order_search_indexation" model="ir.ui.view">
+        <field name="name">sale.order.search.indexation</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Indexation activée" name="filter_indexation_enabled" 
+                        domain="[('indexation_enabled', '=', True), ('is_subscription', '=', True)]"/>
+                <filter string="Jamais indexé" name="filter_never_indexed" 
+                        domain="[('last_indexation_id', '=', False), ('is_subscription', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
