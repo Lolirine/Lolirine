@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue formulaire du wizard -->
+    <record id="view_storage_indexation_wizard_form" model="ir.ui.view">
+        <field name="name">storage.indexation.wizard.form</field>
+        <field name="model">storage.indexation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Assistant d'indexation">
+                <group>
+                    <group>
+                        <separator string="Sélection de l'indice"/>
+                        <field name="index_type"/>
+                        <field name="new_index_id" 
+                               invisible="create_new_index"
+                               domain="[('index_type', '=', index_type)]"/>
+                        <button name="action_fetch_latest_index" type="object"
+                                string="Récupérer le dernier indice"
+                                class="btn-link"
+                                invisible="index_type != 'health' or create_new_index"/>
+                        <field name="create_new_index"/>
+                        <field name="new_index_date" invisible="not create_new_index"/>
+                        <field name="new_index_value" invisible="not create_new_index"/>
+                    </group>
+                    <group>
+                        <separator string="Configuration"/>
+                        <field name="indexation_date"/>
+                        <field name="send_notifications"/>
+                        <field name="notification_delay_days" invisible="not send_notifications"/>
+                    </group>
+                </group>
+                
+                <group>
+                    <separator string="Filtres (optionnel)" colspan="2"/>
+                    <group>
+                        <field name="filter_partner_ids" widget="many2many_tags"/>
+                    </group>
+                    <group>
+                        <field name="filter_product_ids" widget="many2many_tags"/>
+                    </group>
+                </group>
+
+                <group col="4">
+                    <separator string="Aperçu" colspan="4"/>
+                    <field name="preview_count" readonly="1"/>
+                    <field name="preview_amount" readonly="1"/>
+                    <field name="preview_increase" readonly="1" widget="percentage"/>
+                    <button name="action_preview_subscriptions" type="object"
+                            string="Voir les abonnements" class="btn-link"
+                            icon="fa-external-link"/>
+                </group>
+                
+                <footer>
+                    <button name="action_create_indexation" type="object" 
+                            string="Créer l'indexation" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action pour ouvrir le wizard -->
+    <record id="action_storage_indexation_wizard" model="ir.actions.act_window">
+        <field name="name">Nouvelle indexation</field>
+        <field name="res_model">storage.indexation.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
