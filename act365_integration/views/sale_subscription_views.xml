@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit sale.order (subscription) form view -->
+    <record id="sale_subscription_view_form_inherit_act365" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.act365</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_subscription.sale_subscription_primary_form_view"/>
+        <field name="arch" type="xml">
+            <!-- Add ACT365 button in header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_assign_act365_code" 
+                        type="object" 
+                        string="Code ACT365"
+                        class="btn-secondary"
+                        icon="fa-key"
+                        invisible="not is_subscription"/>
+            </xpath>
+            
+            <!-- Add ACT365 page in notebook -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Acces ACT365" name="act365_access" invisible="not is_subscription">
+                    <group>
+                        <group string="Code d'acces">
+                            <field name="act365_access_code" password="True"/>
+                            <field name="act365_group_id"/>
+                            <field name="act365_cardholder_id" readonly="1"/>
+                        </group>
+                        <group string="Statut">
+                            <field name="act365_synced" readonly="1"/>
+                            <field name="act365_enabled" readonly="1"/>
+                            <field name="act365_last_sync" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Periode de validite">
+                            <field name="act365_valid_from"/>
+                            <field name="act365_valid_to"/>
+                        </group>
+                    </group>
+                    <group>
+                        <div class="d-flex gap-2">
+                            <button name="action_assign_act365_code" 
+                                    type="object" 
+                                    string="Attribuer un code"
+                                    class="btn-primary"
+                                    icon="fa-key"/>
+                            <button name="action_sync_act365" 
+                                    type="object" 
+                                    string="Synchroniser"
+                                    class="btn-secondary"
+                                    icon="fa-refresh"
+                                    invisible="not act365_access_code"/>
+                            <button name="action_enable_act365_access" 
+                                    type="object" 
+                                    string="Activer l'acces"
+                                    class="btn-success"
+                                    icon="fa-check"
+                                    invisible="not act365_cardholder_id or act365_enabled"/>
+                            <button name="action_disable_act365_access" 
+                                    type="object" 
+                                    string="Desactiver l'acces"
+                                    class="btn-warning"
+                                    icon="fa-times"
+                                    invisible="not act365_cardholder_id or not act365_enabled"/>
+                            <button name="action_view_act365_info" 
+                                    type="object" 
+                                    string="Infos ACT365"
+                                    class="btn-secondary"
+                                    icon="fa-info-circle"
+                                    invisible="not act365_cardholder_id"/>
+                        </div>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add ACT365 code to subscription tree view -->
+    <record id="sale_subscription_view_tree_inherit_act365" model="ir.ui.view">
+        <field name="name">sale.order.tree.inherit.act365</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_subscription.sale_subscription_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="act365_access_code" optional="show" string="Code acces"/>
+                <field name="act365_enabled" optional="hide" string="Acces actif"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Search filter for ACT365 with search by code -->
+    <record id="sale_subscription_view_search_inherit_act365" model="ir.ui.view">
+        <field name="name">sale.order.search.inherit.act365</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_subscription.sale_subscription_view_search"/>
+        <field name="arch" type="xml">
+            <!-- Add search field for access code -->
+            <xpath expr="//search" position="inside">
+                <field name="act365_access_code" string="Code acces" 
+                       filter_domain="[('act365_access_code', 'ilike', self)]"/>
+            </xpath>
+            <xpath expr="//filter[@name='my_subscriptions']" position="after">
+                <separator/>
+                <filter name="has_act365_code" string="Avec code ACT365" 
+                        domain="[('act365_access_code', '!=', False)]"/>
+                <filter name="act365_enabled" string="Acces ACT365 actif" 
+                        domain="[('act365_enabled', '=', True)]"/>
+                <filter name="act365_not_synced" string="Non synchronise" 
+                        domain="[('act365_access_code', '!=', False), ('act365_synced', '=', False)]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
