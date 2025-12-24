@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== RELANCES DE FACTURES ==================== -->
+    
+    <!-- Vue formulaire relance -->
+    <record id="view_invoice_reminder_form" model="ir.ui.view">
+        <field name="name">lolirine.invoice.reminder.form</field>
+        <field name="model">lolirine.invoice.reminder</field>
+        <field name="arch" type="xml">
+            <form string="Relance">
+                <header>
+                    <button name="action_send_reminder" type="object" string="Envoyer par email"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_mark_paid" type="object" string="Marquer payee"
+                            class="btn-success" invisible="state not in ('draft', 'sent')"/>
+                    <button name="action_cancel" type="object" string="Annuler"
+                            invisible="state in ('paid', 'cancelled')"/>
+                    <button name="action_reset_draft" type="object" string="Remettre en brouillon"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Relance">
+                            <field name="invoice_id"/>
+                            <field name="partner_id"/>
+                            <field name="reminder_type"/>
+                            <field name="date"/>
+                        </group>
+                        <group string="Montants">
+                            <field name="amount_due"/>
+                            <field name="days_overdue"/>
+                            <field name="penalty_amount"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Envoi">
+                            <field name="send_date" readonly="1"/>
+                            <field name="email_sent"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" placeholder="Notes internes sur cette relance..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue liste relances -->
+    <record id="view_invoice_reminder_list" model="ir.ui.view">
+        <field name="name">lolirine.invoice.reminder.list</field>
+        <field name="model">lolirine.invoice.reminder</field>
+        <field name="arch" type="xml">
+            <list string="Relances" decoration-danger="state == 'draft' and days_overdue > 30"
+                  decoration-warning="state == 'draft' and days_overdue > 14"
+                  decoration-success="state == 'paid'"
+                  decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="invoice_id"/>
+                <field name="partner_id"/>
+                <field name="reminder_type"/>
+                <field name="date"/>
+                <field name="days_overdue"/>
+                <field name="amount_due" sum="Total du"/>
+                <field name="penalty_amount" sum="Total penalites"/>
+                <field name="email_sent" widget="boolean"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'sent'"
+                       decoration-success="state == 'paid'"
+                       decoration-danger="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action relances -->
+    <record id="action_invoice_reminders" model="ir.actions.act_window">
+        <field name="name">Relances</field>
+        <field name="res_model">lolirine.invoice.reminder</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune relance
+            </p>
+            <p>
+                Les relances sont creees depuis les factures impayees.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action relances a envoyer -->
+    <record id="action_invoice_reminders_to_send" model="ir.actions.act_window">
+        <field name="name">Relances a envoyer</field>
+        <field name="res_model">lolirine.invoice.reminder</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'draft')]</field>
+    </record>
+
+    <!-- ==================== CONFIGURATION RELANCES ==================== -->
+    
+    <record id="view_invoice_reminder_config_form" model="ir.ui.view">
+        <field name="name">lolirine.invoice.reminder.config.form</field>
+        <field name="model">lolirine.invoice.reminder.config</field>
+        <field name="arch" type="xml">
+            <form string="Configuration relances">
+                <sheet>
+                    <group>
+                        <group string="Delais de relance (jours apres echeance)">
+                            <field name="reminder_1_days"/>
+                            <field name="reminder_2_days"/>
+                            <field name="reminder_3_days"/>
+                            <field name="formal_notice_days"/>
+                        </group>
+                        <group string="Penalites">
+                            <field name="penalty_rate"/>
+                            <field name="auto_reminder"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info">
+                        <strong>Information:</strong> Le taux legal belge pour les penalites de retard 
+                        est de 10.5% annuel (2024). Ce taux est applique proportionnellement 
+                        au nombre de jours de retard.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_invoice_reminder_config" model="ir.actions.act_window">
+        <field name="name">Configuration relances</field>
+        <field name="res_model">lolirine.invoice.reminder.config</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+    </record>
+
+</odoo>
