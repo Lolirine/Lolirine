@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== VEHICULE PERSONNEL VIEWS ==================== -->
+
+    <!-- Form View -->
+    <record id="km_vehicule_personnel_view_form" model="ir.ui.view">
+        <field name="name">km.vehicule.personnel.form</field>
+        <field name="model">km.vehicule.personnel</field>
+        <field name="arch" type="xml">
+            <form string="Véhicule Personnel">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-road" type="object"
+                                name="action_voir_trajets" string="Trajets">
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Ex: Peugeot 308"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informations véhicule">
+                            <field name="marque"/>
+                            <field name="modele"/>
+                            <field name="immatriculation"/>
+                            <field name="date_mise_circulation"/>
+                        </group>
+                        <group string="Classification">
+                            <field name="type_vehicule"/>
+                            <field name="puissance_fiscale"/>
+                            <field name="employee_id"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="km_vehicule_personnel_view_tree" model="ir.ui.view">
+        <field name="name">km.vehicule.personnel.tree</field>
+        <field name="model">km.vehicule.personnel</field>
+        <field name="arch" type="xml">
+            <list string="Véhicules Personnels">
+                <field name="name"/>
+                <field name="marque"/>
+                <field name="modele"/>
+                <field name="immatriculation"/>
+                <field name="puissance_fiscale"/>
+                <field name="type_vehicule"/>
+                <field name="employee_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="km_vehicule_personnel_view_kanban" model="ir.ui.view">
+        <field name="name">km.vehicule.personnel.kanban</field>
+        <field name="model">km.vehicule.personnel</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="marque"/>
+                <field name="modele"/>
+                <field name="immatriculation"/>
+                <field name="puissance_fiscale"/>
+                <field name="employee_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div><field name="marque"/> <field name="modele"/></div>
+                                <div><i class="fa fa-car"/> <field name="immatriculation"/></div>
+                                <div class="mt-2">
+                                    <span class="badge text-bg-info">
+                                        <field name="puissance_fiscale"/> CV
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="employee_id" widget="many2one_avatar_employee"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="km_vehicule_personnel_action" model="ir.actions.act_window">
+        <field name="name">Mes Vehicules</field>
+        <field name="res_model">km.vehicule.personnel</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Enregistrez votre premier vehicule personnel
+            </p>
+            <p>
+                Ajoutez les vehicules personnels que vous utilisez pour vos deplacements professionnels
+                afin de calculer automatiquement vos indemnites kilometriques.
+            </p>
+        </field>
+    </record>
+
+    <!-- ==================== FLEET.VEHICLE EXTENSION ==================== -->
+
+    <!-- Extend fleet.vehicle form view -->
+    <record id="fleet_vehicle_view_form_inherit_km" model="ir.ui.view">
+        <field name="name">fleet.vehicle.form.inherit.km</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_voir_trajets" type="object"
+                        class="oe_stat_button" icon="fa-road">
+                    <field name="nombre_trajets" widget="statinfo" string="Trajets"/>
+                </button>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <group name="km_expense_group" string="Indemnités Kilométriques">
+                    <group>
+                        <field name="puissance_fiscale"/>
+                        <field name="type_vehicule_km"/>
+                        <field name="est_vehicule_personnel"/>
+                        <field name="proprietaire_id" invisible="not est_vehicule_personnel"/>
+                    </group>
+                    <group>
+                        <field name="total_km_professionnels"/>
+                        <field name="total_indemnites"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
