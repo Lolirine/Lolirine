@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Tags par defaut pour Lolirine -->
+        <record id="tag_self_storage" model="lolirine.invoice.tag">
+            <field name="name">Self-Storage</field>
+            <field name="color">10</field>
+            <field name="sequence">10</field>
+        </record>
+        
+        <record id="tag_pool" model="lolirine.invoice.tag">
+            <field name="name">Piscine</field>
+            <field name="color">4</field>
+            <field name="sequence">20</field>
+        </record>
+        
+        <record id="tag_urgent" model="lolirine.invoice.tag">
+            <field name="name">Urgent</field>
+            <field name="color">1</field>
+            <field name="sequence">5</field>
+        </record>
+        
+        <record id="tag_vip" model="lolirine.invoice.tag">
+            <field name="name">Client VIP</field>
+            <field name="color">5</field>
+            <field name="sequence">15</field>
+        </record>
+        
+        <record id="tag_new_client" model="lolirine.invoice.tag">
+            <field name="name">Nouveau client</field>
+            <field name="color">3</field>
+            <field name="sequence">25</field>
+        </record>
+        
+        <record id="tag_recurring" model="lolirine.invoice.tag">
+            <field name="name">Recurrent</field>
+            <field name="color">11</field>
+            <field name="sequence">30</field>
+        </record>
+        
+    </data>
+</odoo>
