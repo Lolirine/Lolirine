@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- ==================== TEMPLATES RELANCES ==================== -->
+        
+        <!-- 1er Rappel -->
+        <record id="email_template_reminder_1" model="mail.template">
+            <field name="name">Relance 1er Rappel - Lolirine</field>
+            <field name="model_id" ref="model_lolirine_invoice_reminder"/>
+            <field name="email_from">gardemeublelolirine@gmail.com</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="subject">Rappel de paiement - Facture {{ object.invoice_id.name }}</field>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
+    <p>Bonjour {{ object.partner_id.name }},</p>
+    
+    <p>Sauf erreur ou omission de notre part, nous n'avons pas encore recu le paiement de la facture mentionnee ci-dessous :</p>
+    
+    <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 400px;">
+        <tr style="background-color: #f5f5f5;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numero de facture</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.name }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'echeance</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.invoice_date_due }}</td>
+        </tr>
+        <tr style="background-color: #f5f5f5;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant du</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>{{ '%.2f'|format(object.amount_due) }} EUR</strong></td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Jours de retard</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.days_overdue }} jours</td>
+        </tr>
+    </table>
+    
+    <p>Nous vous serions reconnaissants de bien vouloir proceder au reglement de cette facture dans les meilleurs delais.</p>
+    
+    <p><strong>Modalites de paiement :</strong></p>
+    <ul>
+        <li>Communication structuree : {{ object.invoice_id.payment_reference or 'Voir facture' }}</li>
+        <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
+    </ul>
+    
+    <p>Si vous avez deja effectue le paiement, nous vous prions de ne pas tenir compte de ce message.</p>
+    
+    <p>Pour toute question, n'hesitez pas a nous contacter.</p>
+    
+    <p>Cordialement,</p>
+    
+    <p style="margin-top: 20px;">
+        <strong>Lolirine Garde-Meubles</strong><br/>
+        Tel. : 0497/44 41 46<br/>
+        Email : gardemeublelolirine@gmail.com
+    </p>
+</div>
+            </field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+        
+        <!-- 2eme Rappel -->
+        <record id="email_template_reminder_2" model="mail.template">
+            <field name="name">Relance 2eme Rappel - Lolirine</field>
+            <field name="model_id" ref="model_lolirine_invoice_reminder"/>
+            <field name="email_from">gardemeublelolirine@gmail.com</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="subject">2eme Rappel - Facture {{ object.invoice_id.name }} impayee</field>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
+    <p>Bonjour {{ object.partner_id.name }},</p>
+    
+    <p><strong>Ceci est notre deuxieme rappel concernant votre facture impayee.</strong></p>
+    
+    <p>Malgre notre precedent rappel, nous constatons que le paiement de la facture ci-dessous n'a toujours pas ete effectue :</p>
+    
+    <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 400px;">
+        <tr style="background-color: #fff3cd;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numero de facture</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.name }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'echeance</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.invoice_date_due }}</td>
+        </tr>
+        <tr style="background-color: #fff3cd;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant du</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>{{ '%.2f'|format(object.amount_due) }} EUR</strong></td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Jours de retard</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;" style="color: #dc3545;"><strong>{{ object.days_overdue }} jours</strong></td>
+        </tr>
+    </table>
+    
+    <p>Nous vous prions de regulariser cette situation dans les plus brefs delais afin d'eviter des frais supplementaires.</p>
+    
+    <p><strong>Modalites de paiement :</strong></p>
+    <ul>
+        <li>Communication structuree : {{ object.invoice_id.payment_reference or 'Voir facture' }}</li>
+        <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
+    </ul>
+    
+    <p>En cas de difficulte de paiement, nous vous invitons a nous contacter pour trouver une solution.</p>
+    
+    <p>Cordialement,</p>
+    
+    <p style="margin-top: 20px;">
+        <strong>Lolirine Garde-Meubles</strong><br/>
+        Tel. : 0497/44 41 46<br/>
+        Email : gardemeublelolirine@gmail.com
+    </p>
+</div>
+            </field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+        
+        <!-- 3eme Rappel -->
+        <record id="email_template_reminder_3" model="mail.template">
+            <field name="name">Relance 3eme Rappel - Lolirine</field>
+            <field name="model_id" ref="model_lolirine_invoice_reminder"/>
+            <field name="email_from">gardemeublelolirine@gmail.com</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="subject">URGENT - 3eme Rappel - Facture {{ object.invoice_id.name }}</field>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
+    <p>Bonjour {{ object.partner_id.name }},</p>
+    
+    <p style="color: #dc3545;"><strong>TROISIEME ET DERNIER RAPPEL AVANT MISE EN DEMEURE</strong></p>
+    
+    <p>Malgre nos precedentes relances, votre facture reste impayee :</p>
+    
+    <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 400px; border: 2px solid #dc3545;">
+        <tr style="background-color: #f8d7da;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numero de facture</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.name }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'echeance</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.invoice_date_due }}</td>
+        </tr>
+        <tr style="background-color: #f8d7da;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant du</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545;">{{ '%.2f'|format(object.amount_due) }} EUR</strong></td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Jours de retard</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545;">{{ object.days_overdue }} jours</strong></td>
+        </tr>
+        <tr style="background-color: #f8d7da;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Penalites de retard</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ '%.2f'|format(object.penalty_amount) }} EUR</td>
+        </tr>
+    </table>
+    
+    <p><strong>Sans paiement de votre part dans les 7 jours, nous serons contraints de vous adresser une mise en demeure formelle, pouvant entrainer :</strong></p>
+    <ul>
+        <li>L'application de penalites de retard au taux legal belge (10,5% annuel)</li>
+        <li>La suspension de l'acces a votre box</li>
+        <li>Le recours a une societe de recouvrement</li>
+    </ul>
+    
+    <p><strong>Modalites de paiement :</strong></p>
+    <ul>
+        <li>Communication structuree : {{ object.invoice_id.payment_reference or 'Voir facture' }}</li>
+        <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
+    </ul>
+    
+    <p>Nous restons disponibles pour discuter d'un echelonnement de paiement si necessaire.</p>
+    
+    <p>Cordialement,</p>
+    
+    <p style="margin-top: 20px;">
+        <strong>Lolirine Garde-Meubles</strong><br/>
+        Tel. : 0497/44 41 46<br/>
+        Email : gardemeublelolirine@gmail.com
+    </p>
+</div>
+            </field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+        
+        <!-- Mise en demeure -->
+        <record id="email_template_formal_notice" model="mail.template">
+            <field name="name">Mise en demeure - Lolirine</field>
+            <field name="model_id" ref="model_lolirine_invoice_reminder"/>
+            <field name="email_from">gardemeublelolirine@gmail.com</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="subject">MISE EN DEMEURE - Facture {{ object.invoice_id.name }}</field>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
+    <p style="text-align: center; font-size: 16px; color: #dc3545; border: 2px solid #dc3545; padding: 10px;">
+        <strong>MISE EN DEMEURE</strong>
+    </p>
+    
+    <p>{{ object.partner_id.name }}<br/>
+    {{ object.partner_id.street or '' }}<br/>
+    {{ object.partner_id.zip or '' }} {{ object.partner_id.city or '' }}</p>
+    
+    <p>Objet : Mise en demeure de payer - Facture {{ object.invoice_id.name }}</p>
+    
+    <p>Madame, Monsieur,</p>
+    
+    <p>Malgre nos nombreuses relances, nous constatons que vous n'avez toujours pas procede au reglement de la facture suivante :</p>
+    
+    <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 500px; border: 2px solid #dc3545;">
+        <tr style="background-color: #f8d7da;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numero de facture</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.name }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'echeance initiale</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.invoice_date_due }}</td>
+        </tr>
+        <tr style="background-color: #f8d7da;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Principal</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ '%.2f'|format(object.amount_due) }} EUR</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Penalites de retard ({{ object.days_overdue }} jours)</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ '%.2f'|format(object.penalty_amount) }} EUR</td>
+        </tr>
+        <tr style="background-color: #f8d7da;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>TOTAL A PAYER</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545; font-size: 16px;">{{ '%.2f'|format(object.amount_due + object.penalty_amount) }} EUR</strong></td>
+        </tr>
+    </table>
+    
+    <p><strong>Par la presente, nous vous mettons en demeure de nous regler la somme totale de {{ '%.2f'|format(object.amount_due + object.penalty_amount) }} EUR dans un delai de 8 jours a compter de la reception de ce courrier.</strong></p>
+    
+    <p>A defaut de reglement dans ce delai, nous nous reservons le droit de :</p>
+    <ul>
+        <li>Suspendre immediatement l'acces a votre box de stockage</li>
+        <li>Transmettre le dossier a notre service contentieux</li>
+        <li>Engager une procedure judiciaire de recouvrement</li>
+        <li>Faire valoir notre droit de retention sur les biens stockes conformement aux conditions generales</li>
+    </ul>
+    
+    <p><strong>Modalites de paiement :</strong></p>
+    <ul>
+        <li>Communication structuree : {{ object.invoice_id.payment_reference or 'Voir facture' }}</li>
+        <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
+        <li>Titulaire : Lolirine SPRL</li>
+    </ul>
+    
+    <p>Cette mise en demeure vaut interpellation au sens de l'article 1153 du Code civil et fait courir les interets de retard au taux legal.</p>
+    
+    <p>Nous vous prions d'agreer, Madame, Monsieur, l'expression de nos salutations distinguees.</p>
+    
+    <p style="margin-top: 30px;">
+        <strong>Lolirine SPRL</strong><br/>
+        Feron Rodney - Gerant<br/>
+        Tel. : 0497/44 41 46<br/>
+        Email : gardemeublelolirine@gmail.com
+    </p>
+    
+    <p style="font-size: 11px; color: #666; margin-top: 30px; border-top: 1px solid #ddd; padding-top: 10px;">
+        Ce document constitue une mise en demeure au sens juridique du terme. 
+        Une copie de ce courrier est conservee dans nos archives.
+    </p>
+</div>
+            </field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+        
+        <!-- Configuration relances par defaut -->
+        <record id="default_reminder_config" model="lolirine.invoice.reminder.config">
+            <field name="name">Configuration par defaut</field>
+            <field name="reminder_1_days">7</field>
+            <field name="reminder_2_days">14</field>
+            <field name="reminder_3_days">21</field>
+            <field name="formal_notice_days">30</field>
+            <field name="penalty_rate">10.5</field>
+            <field name="auto_reminder" eval="False"/>
+        </record>
+        
+    </data>
+</odoo>
