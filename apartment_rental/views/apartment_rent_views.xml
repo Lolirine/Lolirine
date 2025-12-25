@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="apartment_rent_view_form" model="ir.ui.view">
+        <field name="name">apartment.rent.form</field>
+        <field name="model">apartment.rent</field>
+        <field name="arch" type="xml">
+            <form string="Loyer">
+                <header>
+                    <button name="action_confirm" string="Confirmer" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_register_payment" string="Enregistrer paiement" type="object" class="btn-success" invisible="state not in ('pending', 'partial', 'late')"/>
+                    <button name="action_send_reminder" string="Envoyer rappel" type="object" class="btn-warning" invisible="state not in ('pending', 'partial', 'late')"/>
+                    <button name="action_create_invoice" string="Créer facture" type="object" class="btn-secondary" invisible="invoice_id"/>
+                    <button name="action_cancel" string="Annuler" type="object" invisible="state in ('paid', 'cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending,paid"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="En retard" bg_color="text-bg-danger" invisible="state != 'late'"/>
+                    <widget name="web_ribbon" title="Partiel" bg_color="text-bg-warning" invisible="state != 'partial'"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Référence">
+                            <field name="lease_id" options="{'no_create': True}"/>
+                            <field name="property_id" readonly="1"/>
+                            <field name="tenant_id" readonly="1"/>
+                        </group>
+                        <group string="Période">
+                            <field name="period_start"/>
+                            <field name="period_end"/>
+                            <field name="due_date"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Montants">
+                            <field name="rent_amount"/>
+                            <field name="charges_amount"/>
+                            <field name="other_amount"/>
+                            <field name="total_amount" readonly="1"/>
+                        </group>
+                        <group string="Paiement">
+                            <field name="amount_paid"/>
+                            <field name="amount_due" readonly="1"/>
+                            <field name="payment_date"/>
+                            <field name="payment_method"/>
+                            <field name="payment_reference"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Rappels" name="reminders">
+                            <group>
+                                <field name="reminder_count"/>
+                                <field name="last_reminder_date"/>
+                            </group>
+                            <div class="alert alert-info" role="alert" invisible="reminder_count == 0">
+                                <strong>Rappels envoyés:</strong> <field name="reminder_count" readonly="1"/> (max 3)
+                            </div>
+                        </page>
+                        <page string="Facture" name="invoice" invisible="not invoice_id">
+                            <group>
+                                <field name="invoice_id"/>
+                            </group>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Notes sur ce loyer..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="apartment_rent_view_tree" model="ir.ui.view">
+        <field name="name">apartment.rent.tree</field>
+        <field name="model">apartment.rent</field>
+        <field name="arch" type="xml">
+            <tree string="Loyers" decoration-success="state == 'paid'" decoration-danger="state == 'late'" decoration-warning="state == 'partial'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="tenant_id"/>
+                <field name="period_start"/>
+                <field name="period_end"/>
+                <field name="due_date"/>
+                <field name="total_amount" sum="Total"/>
+                <field name="amount_paid" sum="Payé"/>
+                <field name="amount_due" sum="Restant dû"/>
+                <field name="state" widget="badge" decoration-success="state == 'paid'" decoration-danger="state == 'late'" decoration-warning="state == 'partial'" decoration-info="state == 'pending'" decoration-muted="state == 'cancelled'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="apartment_rent_view_pivot" model="ir.ui.view">
+        <field name="name">apartment.rent.pivot</field>
+        <field name="model">apartment.rent</field>
+        <field name="arch" type="xml">
+            <pivot string="Analyse des loyers">
+                <field name="property_id" type="row"/>
+                <field name="period_start" type="col" interval="month"/>
+                <field name="total_amount" type="measure"/>
+                <field name="amount_paid" type="measure"/>
+                <field name="amount_due" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="apartment_rent_view_graph" model="ir.ui.view">
+        <field name="name">apartment.rent.graph</field>
+        <field name="model">apartment.rent</field>
+        <field name="arch" type="xml">
+            <graph string="Loyers" type="bar">
+                <field name="period_start" interval="month"/>
+                <field name="total_amount" type="measure"/>
+                <field name="amount_paid" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="apartment_rent_view_search" model="ir.ui.view">
+        <field name="name">apartment.rent.search</field>
+        <field name="model">apartment.rent</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher un loyer">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="tenant_id"/>
+                <field name="lease_id"/>
+                <filter string="Brouillon" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="En attente" name="pending" domain="[('state', '=', 'pending')]"/>
+                <filter string="Partiel" name="partial" domain="[('state', '=', 'partial')]"/>
+                <filter string="Payé" name="paid" domain="[('state', '=', 'paid')]"/>
+                <filter string="En retard" name="late" domain="[('state', '=', 'late')]"/>
+                <separator/>
+                <filter string="Ce mois" name="this_month" domain="[('period_start', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <filter string="Mois dernier" name="last_month" domain="[('period_start', '&gt;=', (context_today() - relativedelta(months=1)).strftime('%Y-%m-01')), ('period_start', '&lt;', context_today().strftime('%Y-%m-01'))]"/>
+                <separator/>
+                <filter string="À rappeler" name="to_remind" domain="[('state', 'in', ('pending', 'partial', 'late')), ('reminder_count', '&lt;', 3)]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Bien" name="group_property" context="{'group_by': 'property_id'}"/>
+                    <filter string="Locataire" name="group_tenant" context="{'group_by': 'tenant_id'}"/>
+                    <filter string="Mois" name="group_month" context="{'group_by': 'period_start:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="apartment_rent_action" model="ir.actions.act_window">
+        <field name="name">Loyers</field>
+        <field name="res_model">apartment.rent</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
+        <field name="search_view_id" ref="apartment_rent_view_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun loyer à afficher
+            </p>
+            <p>
+                Les loyers sont générés automatiquement à partir des baux actifs.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action for late rents -->
+    <record id="apartment_rent_action_late" model="ir.actions.act_window">
+        <field name="name">Loyers en retard</field>
+        <field name="res_model">apartment.rent</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state', '=', 'late')]</field>
+        <field name="context">{}</field>
+    </record>
+
+</odoo>
