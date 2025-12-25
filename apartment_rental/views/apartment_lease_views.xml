@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="apartment_lease_view_form" model="ir.ui.view">
+        <field name="name">apartment.lease.form</field>
+        <field name="model">apartment.lease</field>
+        <field name="arch" type="xml">
+            <form string="Bail">
+                <header>
+                    <button name="action_activate" string="Activer" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_give_notice" string="Donner préavis" type="object" class="btn-warning" invisible="state != 'active'"/>
+                    <button name="action_end" string="Terminer" type="object" class="btn-danger" invisible="state != 'ending'"/>
+                    <button name="action_cancel" string="Annuler" type="object" invisible="state not in ('draft', 'active')"/>
+                    <button name="action_apply_indexation" string="Appliquer indexation" type="object" class="btn-secondary" invisible="state != 'active' or not indexation_due"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,active,ending,ended"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_rents" type="object" class="oe_stat_button" icon="fa-money">
+                            <field name="rent_count" widget="statinfo" string="Loyers"/>
+                        </button>
+                        <button name="action_view_inventories" type="object" class="oe_stat_button" icon="fa-clipboard">
+                            <field name="inventory_count" widget="statinfo" string="États lieux"/>
+                        </button>
+                        <button name="action_view_index_history" type="object" class="oe_stat_button" icon="fa-line-chart">
+                            <field name="index_history_count" widget="statinfo" string="Indexations"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Indexation due" bg_color="text-bg-warning" invisible="not indexation_due"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Parties">
+                            <field name="property_id" options="{'no_create': True}"/>
+                            <field name="tenant_id" options="{'no_create': True}"/>
+                        </group>
+                        <group string="Type de bail">
+                            <field name="lease_type"/>
+                            <field name="duration_months"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Durée">
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="notice_date" invisible="state not in ('ending', 'ended')"/>
+                            <field name="notice_period_months"/>
+                        </group>
+                        <group string="Montants">
+                            <field name="rent_amount"/>
+                            <field name="charges_amount"/>
+                            <field name="total_monthly" readonly="1"/>
+                            <field name="deposit_amount"/>
+                            <field name="deposit_paid"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Indexation" name="indexation">
+                            <group>
+                                <group string="Paramètres">
+                                    <field name="indexation_enabled"/>
+                                    <field name="indexation_base_index" invisible="not indexation_enabled"/>
+                                    <field name="indexation_base_date" invisible="not indexation_enabled"/>
+                                    <field name="indexation_anniversary_month" invisible="not indexation_enabled"/>
+                                </group>
+                                <group string="Dernière indexation" invisible="not indexation_enabled">
+                                    <field name="last_indexation_date"/>
+                                    <field name="next_indexation_date"/>
+                                    <field name="indexation_due" invisible="1"/>
+                                </group>
+                            </group>
+                            <group string="Historique des indexations" invisible="not indexation_enabled">
+                                <field name="index_history_ids" nolabel="1">
+                                    <list>
+                                        <field name="application_date"/>
+                                        <field name="old_rent"/>
+                                        <field name="new_rent"/>
+                                        <field name="old_index"/>
+                                        <field name="new_index"/>
+                                        <field name="increase_percentage"/>
+                                        <field name="notified"/>
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="États des lieux" name="inventories">
+                            <group>
+                                <group string="Entrée">
+                                    <field name="entry_inventory_id"/>
+                                </group>
+                                <group string="Sortie">
+                                    <field name="exit_inventory_id"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Enregistrement" name="registration">
+                            <group>
+                                <group>
+                                    <field name="registration_number"/>
+                                    <field name="registration_date"/>
+                                    <field name="registration_office"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                <strong>Rappel:</strong> En Belgique, le bail doit être enregistré dans les 2 mois suivant sa signature.
+                                L'enregistrement est gratuit pour les baux d'habitation.
+                            </div>
+                        </page>
+                        <page string="Clauses particulières" name="clauses">
+                            <field name="special_clauses" placeholder="Ajoutez ici les clauses particulières du bail..."/>
+                        </page>
+                        <page string="Documents" name="documents">
+                            <field name="document_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="document_type"/>
+                                    <field name="create_date"/>
+                                    <field name="is_signed"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Notes internes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="apartment_lease_view_tree" model="ir.ui.view">
+        <field name="name">apartment.lease.tree</field>
+        <field name="model">apartment.lease</field>
+        <field name="arch" type="xml">
+            <list string="Baux" decoration-success="state == 'active'" decoration-warning="state == 'ending'" decoration-muted="state in ('ended', 'cancelled')">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="tenant_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="rent_amount"/>
+                <field name="total_monthly"/>
+                <field name="next_indexation_date" optional="show"/>
+                <field name="state" widget="badge" decoration-success="state == 'active'" decoration-warning="state == 'ending'" decoration-info="state == 'draft'" decoration-muted="state in ('ended', 'cancelled')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Calendar View -->
+    <record id="apartment_lease_view_calendar" model="ir.ui.view">
+        <field name="name">apartment.lease.calendar</field>
+        <field name="model">apartment.lease</field>
+        <field name="arch" type="xml">
+            <calendar string="Baux" date_start="start_date" date_stop="end_date" color="state" mode="month">
+                <field name="name"/>
+                <field name="tenant_id"/>
+                <field name="property_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="apartment_lease_view_search" model="ir.ui.view">
+        <field name="name">apartment.lease.search</field>
+        <field name="model">apartment.lease</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher un bail">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="tenant_id"/>
+                <filter string="Brouillon" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Actif" name="active" domain="[('state', '=', 'active')]"/>
+                <filter string="Préavis donné" name="ending" domain="[('state', '=', 'ending')]"/>
+                <filter string="Terminé" name="ended" domain="[('state', '=', 'ended')]"/>
+                <filter string="Indexation due" name="indexation_due" domain="[('indexation_due', '=', True)]"/>
+                <filter string="Bail court" name="short_term" domain="[('lease_type', '=', 'short')]"/>
+                <filter string="Bail long" name="long_term" domain="[('lease_type', '=', 'long')]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="apartment_lease_action" model="ir.actions.act_window">
+        <field name="name">Baux</field>
+        <field name="res_model">apartment.lease</field>
+        <field name="view_mode">list,form,calendar</field>
+        <field name="search_view_id" ref="apartment_lease_view_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre premier bail
+            </p>
+            <p>
+                Gérez vos contrats de location avec indexation automatique selon la législation belge.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action for indexation due -->
+    <record id="apartment_lease_action_indexation_due" model="ir.actions.act_window">
+        <field name="name">Indexations à appliquer</field>
+        <field name="res_model">apartment.lease</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('indexation_due', '=', True)]</field>
+        <field name="context">{}</field>
+    </record>
+
+</odoo>
