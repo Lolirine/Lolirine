@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Main Inventory Report Template -->
+    <template id="report_apartment_inventory">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <h2>
+                                ÉTAT DES LIEUX 
+                                <t t-if="o.inventory_type == 'entry'">D'ENTRÉE</t>
+                                <t t-else="">DE SORTIE</t>
+                            </h2>
+                            <h4 t-field="o.name"/>
+                        </div>
+
+                        <!-- Property and Parties Info -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <h5>Bien immobilier</h5>
+                                <p>
+                                    <strong t-field="o.property_id.name"/><br/>
+                                    <span t-field="o.property_id.street"/><br/>
+                                    <span t-field="o.property_id.zip"/> <span t-field="o.property_id.city"/>
+                                </p>
+                                <p t-if="o.property_id.surface">
+                                    Surface: <span t-field="o.property_id.surface"/> m²
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <h5>Locataire</h5>
+                                <p t-if="o.tenant_id">
+                                    <strong t-field="o.tenant_id.name"/><br/>
+                                    <t t-if="o.tenant_id.phone">Tél: <span t-field="o.tenant_id.phone"/><br/></t>
+                                    <t t-if="o.tenant_id.email">Email: <span t-field="o.tenant_id.email"/></t>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Date and Lease Info -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <p>
+                                    <strong>Date de l'état des lieux:</strong>
+                                    <span t-field="o.date" t-options='{"format": "dd/MM/yyyy HH:mm"}'/>
+                                </p>
+                            </div>
+                            <div class="col-6" t-if="o.lease_id">
+                                <p>
+                                    <strong>Bail:</strong>
+                                    <span t-field="o.lease_id.name"/>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Meter Readings -->
+                        <t t-if="o.electricity_reading or o.gas_reading or o.water_reading or o.heating_reading">
+                            <h5 class="mt-4 mb-3">Relevés des compteurs</h5>
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Compteur</th>
+                                        <th>Relevé</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-if="o.electricity_reading">
+                                        <td>Électricité</td>
+                                        <td><span t-field="o.electricity_reading"/> kWh</td>
+                                    </tr>
+                                    <tr t-if="o.gas_reading">
+                                        <td>Gaz</td>
+                                        <td><span t-field="o.gas_reading"/> m³</td>
+                                    </tr>
+                                    <tr t-if="o.water_reading">
+                                        <td>Eau</td>
+                                        <td><span t-field="o.water_reading"/> m³</td>
+                                    </tr>
+                                    <tr t-if="o.heating_reading">
+                                        <td>Chauffage</td>
+                                        <td><span t-field="o.heating_reading"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <!-- Keys -->
+                        <t t-if="o.keys_count or o.remotes_count or o.badges_count">
+                            <h5 class="mt-4 mb-3">Clés et accès</h5>
+                            <table class="table table-sm table-bordered">
+                                <tbody>
+                                    <tr t-if="o.keys_count">
+                                        <td>Clés</td>
+                                        <td><span t-field="o.keys_count"/></td>
+                                    </tr>
+                                    <tr t-if="o.remotes_count">
+                                        <td>Télécommandes</td>
+                                        <td><span t-field="o.remotes_count"/></td>
+                                    </tr>
+                                    <tr t-if="o.badges_count">
+                                        <td>Badges</td>
+                                        <td><span t-field="o.badges_count"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p t-if="o.keys_notes">
+                                <strong>Notes:</strong> <span t-field="o.keys_notes"/>
+                            </p>
+                        </t>
+
+                        <!-- Room by Room Details -->
+                        <h5 class="mt-4 mb-3">État des pièces</h5>
+                        <t t-foreach="o.line_ids" t-as="line">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <strong t-field="line.room_type_id"/>
+                                    <t t-if="line.room_name"> - <span t-field="line.room_name"/></t>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            <tr t-if="line.walls_condition">
+                                                <td width="30%">Murs</td>
+                                                <td><span t-field="line.walls_condition"/></td>
+                                                <td t-if="line.walls_notes"><span t-field="line.walls_notes"/></td>
+                                            </tr>
+                                            <tr t-if="line.ceiling_condition">
+                                                <td>Plafond</td>
+                                                <td><span t-field="line.ceiling_condition"/></td>
+                                                <td t-if="line.ceiling_notes"><span t-field="line.ceiling_notes"/></td>
+                                            </tr>
+                                            <tr t-if="line.floor_condition">
+                                                <td>Sol</td>
+                                                <td><span t-field="line.floor_condition"/></td>
+                                                <td t-if="line.floor_notes"><span t-field="line.floor_notes"/></td>
+                                            </tr>
+                                            <tr t-if="line.windows_condition">
+                                                <td>Fenêtres</td>
+                                                <td><span t-field="line.windows_condition"/></td>
+                                                <td t-if="line.windows_notes"><span t-field="line.windows_notes"/></td>
+                                            </tr>
+                                            <tr t-if="line.doors_condition">
+                                                <td>Portes</td>
+                                                <td><span t-field="line.doors_condition"/></td>
+                                                <td t-if="line.doors_notes"><span t-field="line.doors_notes"/></td>
+                                            </tr>
+                                            <tr t-if="line.electricity_condition">
+                                                <td>Électricité</td>
+                                                <td><span t-field="line.electricity_condition"/></td>
+                                                <td t-if="line.electricity_notes"><span t-field="line.electricity_notes"/></td>
+                                            </tr>
+                                            <tr t-if="line.heating_condition">
+                                                <td>Chauffage</td>
+                                                <td><span t-field="line.heating_condition"/></td>
+                                                <td t-if="line.heating_notes"><span t-field="line.heating_notes"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <!-- Kitchen appliances -->
+                                    <t t-if="line.room_type_id.is_kitchen">
+                                        <p class="mt-2"><strong>Équipements cuisine:</strong></p>
+                                        <ul>
+                                            <li t-if="line.has_oven">Four: <span t-field="line.oven_condition"/></li>
+                                            <li t-if="line.has_cooktop">Plaque de cuisson: <span t-field="line.cooktop_condition"/></li>
+                                            <li t-if="line.has_hood">Hotte: <span t-field="line.hood_condition"/></li>
+                                            <li t-if="line.has_dishwasher">Lave-vaisselle: <span t-field="line.dishwasher_condition"/></li>
+                                            <li t-if="line.has_fridge">Réfrigérateur: <span t-field="line.fridge_condition"/></li>
+                                        </ul>
+                                    </t>
+
+                                    <!-- Bathroom fixtures -->
+                                    <t t-if="line.room_type_id.is_bathroom">
+                                        <p class="mt-2"><strong>Équipements salle de bain:</strong></p>
+                                        <ul>
+                                            <li t-if="line.has_sink">Lavabo: <span t-field="line.sink_condition"/></li>
+                                            <li t-if="line.has_toilet">WC: <span t-field="line.toilet_condition"/></li>
+                                            <li t-if="line.has_shower">Douche: <span t-field="line.shower_condition"/></li>
+                                            <li t-if="line.has_bathtub">Baignoire: <span t-field="line.bathtub_condition"/></li>
+                                        </ul>
+                                    </t>
+
+                                    <!-- General notes -->
+                                    <p t-if="line.notes" class="mt-2">
+                                        <strong>Observations:</strong> <span t-field="line.notes"/>
+                                    </p>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Photos Section -->
+                        <t t-if="o.photo_ids">
+                            <h5 class="mt-4 mb-3">Photos</h5>
+                            <div class="row">
+                                <t t-foreach="o.photo_ids" t-as="photo">
+                                    <div class="col-4 mb-3">
+                                        <img t-att-src="image_data_uri(photo.image)" 
+                                             style="max-width: 100%; max-height: 200px;"
+                                             class="img-thumbnail"/>
+                                        <p class="small text-center mt-1">
+                                            <span t-field="photo.name"/>
+                                            <t t-if="photo.is_damage">
+                                                <span class="badge badge-danger">Dégât</span>
+                                            </t>
+                                        </p>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+
+                        <!-- General Notes -->
+                        <t t-if="o.notes">
+                            <h5 class="mt-4 mb-3">Observations générales</h5>
+                            <p t-field="o.notes"/>
+                        </t>
+
+                        <!-- Signatures -->
+                        <div class="row mt-5">
+                            <div class="col-6 text-center">
+                                <p><strong>Signature du bailleur</strong></p>
+                                <t t-if="o.landlord_signature">
+                                    <img t-att-src="image_data_uri(o.landlord_signature)" 
+                                         style="max-height: 100px;"/>
+                                </t>
+                                <t t-else="">
+                                    <div style="border-bottom: 1px solid black; width: 200px; margin: 50px auto 10px;"></div>
+                                </t>
+                                <p t-if="o.landlord_id" t-field="o.landlord_id.name"/>
+                            </div>
+                            <div class="col-6 text-center">
+                                <p><strong>Signature du locataire</strong></p>
+                                <t t-if="o.tenant_signature">
+                                    <img t-att-src="image_data_uri(o.tenant_signature)" 
+                                         style="max-height: 100px;"/>
+                                </t>
+                                <t t-else="">
+                                    <div style="border-bottom: 1px solid black; width: 200px; margin: 50px auto 10px;"></div>
+                                </t>
+                                <p t-if="o.tenant_id" t-field="o.tenant_id.name"/>
+                            </div>
+                        </div>
+
+                        <p class="text-center mt-4 small">
+                            Fait à <span t-if="o.property_id.city" t-field="o.property_id.city"/>, 
+                            le <span t-field="o.date" t-options='{"format": "dd/MM/yyyy"}'/>
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Comparison Report Template -->
+    <template id="report_apartment_inventory_comparison">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-4">
+                            <h2>COMPARAISON ÉTATS DES LIEUX</h2>
+                            <h4>Entrée / Sortie</h4>
+                        </div>
+
+                        <!-- Property Info -->
+                        <div class="mb-4">
+                            <h5>Bien: <span t-field="o.property_id.name"/></h5>
+                            <p>
+                                <span t-field="o.property_id.street"/>,
+                                <span t-field="o.property_id.zip"/> <span t-field="o.property_id.city"/>
+                            </p>
+                        </div>
+
+                        <!-- Dates -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <strong>État d'entrée:</strong>
+                                <t t-if="o.entry_inventory_id">
+                                    <span t-field="o.entry_inventory_id.date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </t>
+                            </div>
+                            <div class="col-6">
+                                <strong>État de sortie:</strong>
+                                <span t-field="o.date" t-options='{"format": "dd/MM/yyyy"}'/>
+                            </div>
+                        </div>
+
+                        <!-- Comparison Table -->
+                        <t t-if="o.inventory_type == 'exit' and o.entry_inventory_id">
+                            <h5 class="mt-4 mb-3">Comparaison par pièce</h5>
+                            <table class="table table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Pièce</th>
+                                        <th>Élément</th>
+                                        <th>État entrée</th>
+                                        <th>État sortie</th>
+                                        <th>Dégradation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.line_ids" t-as="exit_line">
+                                        <t t-set="entry_line" t-value="o.entry_inventory_id.line_ids.filtered(lambda l: l.room_type_id == exit_line.room_type_id)[:1]"/>
+                                        <tr>
+                                            <td rowspan="7"><span t-field="exit_line.room_type_id"/></td>
+                                            <td>Murs</td>
+                                            <td t-if="entry_line"><span t-field="entry_line.walls_condition"/></td>
+                                            <td t-else="">-</td>
+                                            <td><span t-field="exit_line.walls_condition"/></td>
+                                            <td>
+                                                <t t-if="exit_line.walls_degradation">
+                                                    <span class="text-danger">Oui</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Plafond</td>
+                                            <td t-if="entry_line"><span t-field="entry_line.ceiling_condition"/></td>
+                                            <td t-else="">-</td>
+                                            <td><span t-field="exit_line.ceiling_condition"/></td>
+                                            <td>
+                                                <t t-if="exit_line.ceiling_degradation">
+                                                    <span class="text-danger">Oui</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sol</td>
+                                            <td t-if="entry_line"><span t-field="entry_line.floor_condition"/></td>
+                                            <td t-else="">-</td>
+                                            <td><span t-field="exit_line.floor_condition"/></td>
+                                            <td>
+                                                <t t-if="exit_line.floor_degradation">
+                                                    <span class="text-danger">Oui</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Fenêtres</td>
+                                            <td t-if="entry_line"><span t-field="entry_line.windows_condition"/></td>
+                                            <td t-else="">-</td>
+                                            <td><span t-field="exit_line.windows_condition"/></td>
+                                            <td>
+                                                <t t-if="exit_line.windows_degradation">
+                                                    <span class="text-danger">Oui</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Portes</td>
+                                            <td t-if="entry_line"><span t-field="entry_line.doors_condition"/></td>
+                                            <td t-else="">-</td>
+                                            <td><span t-field="exit_line.doors_condition"/></td>
+                                            <td>
+                                                <t t-if="exit_line.doors_degradation">
+                                                    <span class="text-danger">Oui</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Électricité</td>
+                                            <td t-if="entry_line"><span t-field="entry_line.electricity_condition"/></td>
+                                            <td t-else="">-</td>
+                                            <td><span t-field="exit_line.electricity_condition"/></td>
+                                            <td>
+                                                <t t-if="exit_line.electricity_degradation">
+                                                    <span class="text-danger">Oui</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Chauffage</td>
+                                            <td t-if="entry_line"><span t-field="entry_line.heating_condition"/></td>
+                                            <td t-else="">-</td>
+                                            <td><span t-field="exit_line.heating_condition"/></td>
+                                            <td>
+                                                <t t-if="exit_line.heating_degradation">
+                                                    <span class="text-danger">Oui</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <!-- Damages Summary -->
+                            <t t-set="damages" t-value="o.photo_ids.filtered(lambda p: p.is_damage)"/>
+                            <t t-if="damages">
+                                <h5 class="mt-4 mb-3">Récapitulatif des dégâts</h5>
+                                <table class="table table-bordered table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Photo</th>
+                                            <th>Description</th>
+                                            <th>Pièce</th>
+                                            <th>Coût estimé</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="damages" t-as="damage">
+                                            <tr>
+                                                <td>
+                                                    <img t-att-src="image_data_uri(damage.image)" 
+                                                         style="max-width: 100px; max-height: 80px;"/>
+                                                </td>
+                                                <td><span t-field="damage.name"/></td>
+                                                <td t-if="damage.inventory_line_id">
+                                                    <span t-field="damage.inventory_line_id.room_type_id"/>
+                                                </td>
+                                                <td t-else="">-</td>
+                                                <td t-if="damage.estimated_cost">
+                                                    <span t-field="damage.estimated_cost" t-options='{"widget": "monetary"}'/>
+                                                </td>
+                                                <td t-else="">-</td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3" class="text-right"><strong>Total estimé:</strong></td>
+                                            <td>
+                                                <strong>
+                                                    <t t-esc="sum(damages.mapped('estimated_cost'))" 
+                                                       t-options='{"widget": "monetary", "display_currency": o.lease_id.currency_id}'/>
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </t>
+                        </t>
+
+                        <!-- Signatures -->
+                        <div class="row mt-5">
+                            <div class="col-6 text-center">
+                                <p><strong>Signature du bailleur</strong></p>
+                                <div style="border-bottom: 1px solid black; width: 200px; margin: 50px auto 10px;"></div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <p><strong>Signature du locataire</strong></p>
+                                <div style="border-bottom: 1px solid black; width: 200px; margin: 50px auto 10px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
