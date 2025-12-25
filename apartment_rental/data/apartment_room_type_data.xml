@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="room_type_entrance" model="apartment.room.type">
+            <field name="name">Entrée / Hall</field>
+            <field name="code">ENTREE</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="room_type_living" model="apartment.room.type">
+            <field name="name">Séjour / Living</field>
+            <field name="code">SEJOUR</field>
+            <field name="sequence">2</field>
+        </record>
+
+        <record id="room_type_dining" model="apartment.room.type">
+            <field name="name">Salle à manger</field>
+            <field name="code">SAM</field>
+            <field name="sequence">3</field>
+        </record>
+
+        <record id="room_type_kitchen" model="apartment.room.type">
+            <field name="name">Cuisine</field>
+            <field name="code">CUISINE</field>
+            <field name="sequence">4</field>
+            <field name="is_kitchen" eval="True"/>
+        </record>
+
+        <record id="room_type_bedroom1" model="apartment.room.type">
+            <field name="name">Chambre 1</field>
+            <field name="code">CH1</field>
+            <field name="sequence">5</field>
+        </record>
+
+        <record id="room_type_bedroom2" model="apartment.room.type">
+            <field name="name">Chambre 2</field>
+            <field name="code">CH2</field>
+            <field name="sequence">6</field>
+        </record>
+
+        <record id="room_type_bedroom3" model="apartment.room.type">
+            <field name="name">Chambre 3</field>
+            <field name="code">CH3</field>
+            <field name="sequence">7</field>
+        </record>
+
+        <record id="room_type_bathroom" model="apartment.room.type">
+            <field name="name">Salle de bain</field>
+            <field name="code">SDB</field>
+            <field name="sequence">8</field>
+            <field name="is_bathroom" eval="True"/>
+        </record>
+
+        <record id="room_type_shower" model="apartment.room.type">
+            <field name="name">Salle de douche</field>
+            <field name="code">SDD</field>
+            <field name="sequence">9</field>
+            <field name="is_bathroom" eval="True"/>
+        </record>
+
+        <record id="room_type_wc" model="apartment.room.type">
+            <field name="name">WC</field>
+            <field name="code">WC</field>
+            <field name="sequence">10</field>
+            <field name="is_bathroom" eval="True"/>
+        </record>
+
+        <record id="room_type_corridor" model="apartment.room.type">
+            <field name="name">Couloir</field>
+            <field name="code">COULOIR</field>
+            <field name="sequence">11</field>
+        </record>
+
+        <record id="room_type_storage" model="apartment.room.type">
+            <field name="name">Débarras</field>
+            <field name="code">DEBARRAS</field>
+            <field name="sequence">12</field>
+        </record>
+
+        <record id="room_type_laundry" model="apartment.room.type">
+            <field name="name">Buanderie</field>
+            <field name="code">BUANDERIE</field>
+            <field name="sequence">13</field>
+        </record>
+
+        <record id="room_type_garage" model="apartment.room.type">
+            <field name="name">Garage</field>
+            <field name="code">GARAGE</field>
+            <field name="sequence">14</field>
+            <field name="check_heating" eval="False"/>
+        </record>
+
+        <record id="room_type_cellar" model="apartment.room.type">
+            <field name="name">Cave</field>
+            <field name="code">CAVE</field>
+            <field name="sequence">15</field>
+            <field name="check_heating" eval="False"/>
+        </record>
+
+        <record id="room_type_terrace" model="apartment.room.type">
+            <field name="name">Terrasse</field>
+            <field name="code">TERRASSE</field>
+            <field name="sequence">16</field>
+            <field name="check_walls" eval="False"/>
+            <field name="check_ceiling" eval="False"/>
+            <field name="check_heating" eval="False"/>
+            <field name="check_electricity" eval="False"/>
+        </record>
+
+        <record id="room_type_balcony" model="apartment.room.type">
+            <field name="name">Balcon</field>
+            <field name="code">BALCON</field>
+            <field name="sequence">17</field>
+            <field name="check_walls" eval="False"/>
+            <field name="check_ceiling" eval="False"/>
+            <field name="check_heating" eval="False"/>
+            <field name="check_electricity" eval="False"/>
+        </record>
+
+        <record id="room_type_garden" model="apartment.room.type">
+            <field name="name">Jardin</field>
+            <field name="code">JARDIN</field>
+            <field name="sequence">18</field>
+            <field name="check_walls" eval="False"/>
+            <field name="check_ceiling" eval="False"/>
+            <field name="check_floor" eval="False"/>
+            <field name="check_heating" eval="False"/>
+            <field name="check_electricity" eval="False"/>
+            <field name="check_windows" eval="False"/>
+            <field name="check_doors" eval="False"/>
+        </record>
+    </data>
+</odoo>
