@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#875a7b"/>
+      <stop offset="100%" style="stop-color:#6a4761"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="128" height="128" rx="20" fill="url(#bg)"/>
+  
+  <!-- Building/Apartment Icon -->
+  <g fill="white">
+    <!-- Main building -->
+    <rect x="25" y="35" width="50" height="70" rx="3"/>
+    
+    <!-- Roof -->
+    <polygon points="20,40 50,15 80,40"/>
+    
+    <!-- Door -->
+    <rect x="40" y="75" width="20" height="30" rx="2" fill="#6a4761"/>
+    <circle cx="55" cy="90" r="2" fill="white"/>
+    
+    <!-- Windows -->
+    <rect x="32" y="45" width="12" height="12" rx="1" fill="#6a4761"/>
+    <rect x="56" y="45" width="12" height="12" rx="1" fill="#6a4761"/>
+    <rect x="32" y="60" width="12" height="10" rx="1" fill="#6a4761"/>
+    <rect x="56" y="60" width="12" height="10" rx="1" fill="#6a4761"/>
+    
+    <!-- Key symbol -->
+    <g transform="translate(78, 60) scale(0.8)">
+      <circle cx="15" cy="15" r="12" fill="none" stroke="white" stroke-width="4"/>
+      <rect x="20" y="12" width="25" height="6" rx="2"/>
+      <rect x="38" y="18" width="6" height="10" rx="1"/>
+      <rect x="32" y="18" width="6" height="8" rx="1"/>
+    </g>
+    
+    <!-- Euro symbol (for rent) -->
+    <g transform="translate(82, 85)">
+      <text x="0" y="20" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="white">€</text>
+    </g>
+  </g>
+</svg>
