@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Séquence Bien -->
+        <record id="seq_apartment_property" model="ir.sequence">
+            <field name="name">Bien Immobilier</field>
+            <field name="code">apartment.property</field>
+            <field name="prefix">BIEN-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Séquence Locataire -->
+        <record id="seq_apartment_tenant" model="ir.sequence">
+            <field name="name">Locataire</field>
+            <field name="code">apartment.tenant</field>
+            <field name="prefix">LOC-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Séquence Bail -->
+        <record id="seq_apartment_lease" model="ir.sequence">
+            <field name="name">Bail</field>
+            <field name="code">apartment.lease</field>
+            <field name="prefix">BAIL-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Séquence État des lieux -->
+        <record id="seq_apartment_inventory" model="ir.sequence">
+            <field name="name">État des lieux</field>
+            <field name="code">apartment.inventory</field>
+            <field name="prefix">EDL-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Séquence Visite de contrôle -->
+        <record id="seq_apartment_control_visit" model="ir.sequence">
+            <field name="name">Visite de contrôle</field>
+            <field name="code">apartment.control.visit</field>
+            <field name="prefix">VIS-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Séquence Loyer -->
+        <record id="seq_apartment_rent" model="ir.sequence">
+            <field name="name">Loyer</field>
+            <field name="code">apartment.rent</field>
+            <field name="prefix">LOY-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Séquence Intervention -->
+        <record id="seq_apartment_intervention" model="ir.sequence">
+            <field name="name">Intervention</field>
+            <field name="code">apartment.intervention</field>
+            <field name="prefix">INT-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>
