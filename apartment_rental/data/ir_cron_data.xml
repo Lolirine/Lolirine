@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Cron: Vérifier les loyers en retard -->
+        <record id="ir_cron_check_late_rents" model="ir.cron">
+            <field name="name">Gestion Locative: Vérifier loyers en retard</field>
+            <field name="model_id" ref="model_apartment_rent"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_late_rents()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Cron: Envoyer rappels automatiques -->
+        <record id="ir_cron_send_rent_reminders" model="ir.cron">
+            <field name="name">Gestion Locative: Envoyer rappels loyers</field>
+            <field name="model_id" ref="model_apartment_rent"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_send_rent_reminders()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="False"/>
+        </record>
+
+        <!-- Cron: Vérifier indexations -->
+        <record id="ir_cron_check_indexation" model="ir.cron">
+            <field name="name">Gestion Locative: Vérifier indexations</field>
+            <field name="model_id" ref="model_apartment_lease"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_indexation()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">months</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Cron: Vérifier fins de bail -->
+        <record id="ir_cron_check_lease_end" model="ir.cron">
+            <field name="name">Gestion Locative: Vérifier fins de bail</field>
+            <field name="model_id" ref="model_apartment_lease"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_lease_end()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">weeks</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Cron: Rappel visites -->
+        <record id="ir_cron_remind_visits" model="ir.cron">
+            <field name="name">Gestion Locative: Rappel visites</field>
+            <field name="model_id" ref="model_apartment_control_visit"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_remind_visits()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>
