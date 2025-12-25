@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="apartment_intervention_view_form" model="ir.ui.view">
+        <field name="name">apartment.intervention.form</field>
+        <field name="model">apartment.intervention</field>
+        <field name="arch" type="xml">
+            <form string="Intervention">
+                <header>
+                    <button name="action_plan" string="Planifier" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_start" string="Démarrer" type="object" class="btn-primary" invisible="state != 'planned'"/>
+                    <button name="action_done" string="Terminer" type="object" class="btn-success" invisible="state != 'in_progress'"/>
+                    <button name="action_cancel" string="Annuler" type="object" invisible="state in ('done', 'cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,planned,in_progress,done"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Urgent" bg_color="text-bg-danger" invisible="priority != '3'"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informations">
+                            <field name="property_id" options="{'no_create': True}"/>
+                            <field name="lease_id" options="{'no_create': True}"/>
+                            <field name="tenant_id" readonly="1"/>
+                            <field name="intervention_type"/>
+                            <field name="category"/>
+                        </group>
+                        <group string="Planification">
+                            <field name="priority" widget="priority"/>
+                            <field name="scheduled_date"/>
+                            <field name="completion_date" invisible="state != 'done'"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Prestataire">
+                            <field name="contractor_id"/>
+                            <field name="contractor_phone" widget="phone"/>
+                            <field name="contractor_email" widget="email"/>
+                        </group>
+                        <group string="Imputation">
+                            <field name="charge_to"/>
+                            <field name="tenant_share" invisible="charge_to != 'shared'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description" name="description">
+                            <field name="description" placeholder="Décrivez l'intervention à réaliser..."/>
+                        </page>
+                        <page string="Travaux" name="work">
+                            <field name="work_done" placeholder="Travaux réalisés..." invisible="state not in ('in_progress', 'done')"/>
+                        </page>
+                        <page string="Financier" name="financial">
+                            <group>
+                                <group string="Devis">
+                                    <field name="quote_amount"/>
+                                    <field name="quote_date"/>
+                                    <field name="quote_document" filename="quote_filename"/>
+                                    <field name="quote_filename" invisible="1"/>
+                                </group>
+                                <group string="Facture">
+                                    <field name="invoice_amount"/>
+                                    <field name="invoice_date"/>
+                                    <field name="invoice_document" filename="invoice_filename"/>
+                                    <field name="invoice_filename" invisible="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Photos" name="photos">
+                            <group>
+                                <group string="Avant">
+                                    <field name="photo_before" widget="image" options="{'size': [300, 300]}"/>
+                                </group>
+                                <group string="Après">
+                                    <field name="photo_after" widget="image" options="{'size': [300, 300]}"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Garantie" name="warranty">
+                            <group>
+                                <field name="warranty_end_date"/>
+                                <field name="warranty_notes"/>
+                            </group>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Notes internes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="apartment_intervention_view_tree" model="ir.ui.view">
+        <field name="name">apartment.intervention.tree</field>
+        <field name="model">apartment.intervention</field>
+        <field name="arch" type="xml">
+            <list string="Interventions" decoration-danger="priority == '3'" decoration-warning="priority == '2'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="intervention_type"/>
+                <field name="category"/>
+                <field name="contractor_id"/>
+                <field name="scheduled_date"/>
+                <field name="priority" widget="priority"/>
+                <field name="charge_to"/>
+                <field name="invoice_amount" sum="Total"/>
+                <field name="state" widget="badge" decoration-success="state == 'done'" decoration-info="state in ('planned', 'in_progress')" decoration-muted="state in ('draft', 'cancelled')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="apartment_intervention_view_kanban" model="ir.ui.view">
+        <field name="name">apartment.intervention.kanban</field>
+        <field name="model">apartment.intervention</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="intervention_type"/>
+                <field name="priority"/>
+                <field name="contractor_id"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click #{record.priority.raw_value == '3' ? 'border-danger' : ''}">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top mb-0">
+                                    <strong><field name="name"/></strong>
+                                    <field name="priority" widget="priority"/>
+                                </div>
+                                <div><field name="property_id"/></div>
+                                <div class="text-muted"><field name="intervention_type"/> - <field name="category"/></div>
+                                <div invisible="not contractor_id"><i class="fa fa-user"/> <field name="contractor_id"/></div>
+                                <div invisible="not scheduled_date"><i class="fa fa-calendar"/> <field name="scheduled_date"/></div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Calendar View -->
+    <record id="apartment_intervention_view_calendar" model="ir.ui.view">
+        <field name="name">apartment.intervention.calendar</field>
+        <field name="model">apartment.intervention</field>
+        <field name="arch" type="xml">
+            <calendar string="Interventions" date_start="scheduled_date" color="category" mode="month">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="contractor_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="apartment_intervention_view_search" model="ir.ui.view">
+        <field name="name">apartment.intervention.search</field>
+        <field name="model">apartment.intervention</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher une intervention">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="contractor_id"/>
+                <filter string="Brouillon" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Planifié" name="planned" domain="[('state', '=', 'planned')]"/>
+                <filter string="En cours" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Terminé" name="done" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Urgent" name="urgent" domain="[('priority', '=', '3')]"/>
+                <filter string="À charge bailleur" name="landlord" domain="[('charge_to', '=', 'landlord')]"/>
+                <filter string="À charge locataire" name="tenant_charge" domain="[('charge_to', '=', 'tenant')]"/>
+                <separator/>
+                <filter string="Réparation" name="repair" domain="[('intervention_type', '=', 'repair')]"/>
+                <filter string="Maintenance" name="maintenance" domain="[('intervention_type', '=', 'maintenance')]"/>
+                <filter string="Urgence" name="emergency" domain="[('intervention_type', '=', 'emergency')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Priorité" name="group_priority" context="{'group_by': 'priority'}"/>
+                    <filter string="Catégorie" name="group_category" context="{'group_by': 'category'}"/>
+                    <filter string="Bien" name="group_property" context="{'group_by': 'property_id'}"/>
+                    <filter string="Prestataire" name="group_contractor" context="{'group_by': 'contractor_id'}"/>
+                    <filter string="Imputation" name="group_charge" context="{'group_by': 'charge_to'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="apartment_intervention_action" model="ir.actions.act_window">
+        <field name="name">Interventions</field>
+        <field name="res_model">apartment.intervention</field>
+        <field name="view_mode">list,kanban,calendar,form</field>
+        <field name="search_view_id" ref="apartment_intervention_view_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez une intervention
+            </p>
+            <p>
+                Gérez les réparations, maintenances et travaux sur vos biens.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="apartment_inventory_view_form" model="ir.ui.view">
+        <field name="name">apartment.inventory.form</field>
+        <field name="model">apartment.inventory</field>
+        <field name="arch" type="xml">
+            <form string="État des lieux">
+                <header>
+                    <button name="action_start" string="Démarrer" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_pending_signature" string="Prêt pour signature" type="object" class="btn-primary" invisible="state != 'in_progress'"/>
+                    <button name="action_sign" string="Signé" type="object" class="btn-success" invisible="state != 'pending_signature'"/>
+                    <button name="action_dispute" string="Contester" type="object" class="btn-warning" invisible="state != 'pending_signature'"/>
+                    <button name="action_compare_with_entry" string="Comparer avec entrée" type="object" class="btn-secondary" invisible="inventory_type != 'exit' or not entry_inventory_id"/>
+                    <button name="action_print" string="Imprimer PDF" type="object" class="btn-secondary" icon="fa-print"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,pending_signature,signed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_photos" type="object" class="oe_stat_button" icon="fa-camera">
+                            <field name="photo_count" widget="statinfo" string="Photos"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Sortie" bg_color="text-bg-warning" invisible="inventory_type != 'exit'"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informations générales">
+                            <field name="inventory_type"/>
+                            <field name="property_id" options="{'no_create': True}"/>
+                            <field name="lease_id" options="{'no_create': True}"/>
+                            <field name="tenant_id" readonly="1"/>
+                            <field name="date"/>
+                        </group>
+                        <group string="Comparaison" invisible="inventory_type != 'exit'">
+                            <field name="entry_inventory_id" readonly="1"/>
+                            <field name="degradation_detected" readonly="1"/>
+                            <field name="estimated_repair_cost" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Pièces" name="rooms">
+                            <field name="line_ids" context="{'default_inventory_id': active_id}">
+                                <list editable="bottom">
+                                    <field name="room_type_id"/>
+                                    <field name="room_name"/>
+                                    <field name="walls_condition"/>
+                                    <field name="ceiling_condition"/>
+                                    <field name="floor_condition"/>
+                                    <field name="windows_condition"/>
+                                    <field name="doors_condition"/>
+                                    <field name="electricity_condition"/>
+                                    <field name="heating_condition"/>
+                                    <field name="overall_condition" readonly="1"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <group string="Identification">
+                                            <field name="room_type_id"/>
+                                            <field name="room_name"/>
+                                        </group>
+                                        <group string="État général">
+                                            <field name="overall_condition"/>
+                                        </group>
+                                    </group>
+                                    <notebook>
+                                        <page string="Structure">
+                                            <group>
+                                                <group>
+                                                    <field name="walls_condition"/>
+                                                    <field name="walls_notes"/>
+                                                    <field name="ceiling_condition"/>
+                                                    <field name="ceiling_notes"/>
+                                                    <field name="floor_condition"/>
+                                                    <field name="floor_notes"/>
+                                                </group>
+                                                <group>
+                                                    <field name="windows_condition"/>
+                                                    <field name="windows_notes"/>
+                                                    <field name="doors_condition"/>
+                                                    <field name="doors_notes"/>
+                                                </group>
+                                            </group>
+                                        </page>
+                                        <page string="Installations">
+                                            <group>
+                                                <group>
+                                                    <field name="electricity_condition"/>
+                                                    <field name="electricity_notes"/>
+                                                </group>
+                                                <group>
+                                                    <field name="heating_condition"/>
+                                                    <field name="heating_notes"/>
+                                                </group>
+                                            </group>
+                                        </page>
+                                        <page string="Cuisine" invisible="not is_kitchen">
+                                            <field name="is_kitchen" invisible="1"/>
+                                            <group>
+                                                <group>
+                                                    <field name="has_oven"/>
+                                                    <field name="oven_condition" invisible="not has_oven"/>
+                                                    <field name="has_cooktop"/>
+                                                    <field name="cooktop_condition" invisible="not has_cooktop"/>
+                                                    <field name="has_hood"/>
+                                                    <field name="hood_condition" invisible="not has_hood"/>
+                                                </group>
+                                                <group>
+                                                    <field name="has_dishwasher"/>
+                                                    <field name="dishwasher_condition" invisible="not has_dishwasher"/>
+                                                    <field name="has_fridge"/>
+                                                    <field name="fridge_condition" invisible="not has_fridge"/>
+                                                </group>
+                                            </group>
+                                        </page>
+                                        <page string="Salle de bain" invisible="not is_bathroom">
+                                            <field name="is_bathroom" invisible="1"/>
+                                            <group>
+                                                <group>
+                                                    <field name="has_sink"/>
+                                                    <field name="sink_condition" invisible="not has_sink"/>
+                                                    <field name="has_toilet"/>
+                                                    <field name="toilet_condition" invisible="not has_toilet"/>
+                                                </group>
+                                                <group>
+                                                    <field name="has_shower"/>
+                                                    <field name="shower_condition" invisible="not has_shower"/>
+                                                    <field name="has_bathtub"/>
+                                                    <field name="bathtub_condition" invisible="not has_bathtub"/>
+                                                </group>
+                                            </group>
+                                        </page>
+                                        <page string="Photos">
+                                            <field name="photo_ids" mode="kanban">
+                                                <kanban>
+                                                    <field name="name"/>
+                                                    <field name="image"/>
+                                                    <templates>
+                                                        <t t-name="kanban-box">
+                                                            <div class="oe_kanban_global_click">
+                                                                <img t-att-src="kanban_image('apartment.inventory.photo', 'image', record.id.raw_value)" style="max-width: 150px;"/>
+                                                                <div><field name="name"/></div>
+                                                            </div>
+                                                        </t>
+                                                    </templates>
+                                                </kanban>
+                                            </field>
+                                        </page>
+                                        <page string="Notes">
+                                            <field name="notes"/>
+                                        </page>
+                                    </notebook>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Compteurs" name="meters">
+                            <group>
+                                <group string="Électricité">
+                                    <field name="electricity_meter_number"/>
+                                    <field name="electricity_reading"/>
+                                    <field name="electricity_reading_photo" widget="image" options="{'size': [200, 200]}"/>
+                                </group>
+                                <group string="Gaz">
+                                    <field name="gas_meter_number"/>
+                                    <field name="gas_reading"/>
+                                    <field name="gas_reading_photo" widget="image" options="{'size': [200, 200]}"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Eau">
+                                    <field name="water_meter_number"/>
+                                    <field name="water_reading"/>
+                                    <field name="water_reading_photo" widget="image" options="{'size': [200, 200]}"/>
+                                </group>
+                                <group string="Chauffage">
+                                    <field name="heating_meter_number"/>
+                                    <field name="heating_reading"/>
+                                    <field name="heating_reading_photo" widget="image" options="{'size': [200, 200]}"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Clés et accès" name="keys">
+                            <group>
+                                <group>
+                                    <field name="keys_count"/>
+                                    <field name="keys_description"/>
+                                    <field name="mailbox_keys_count"/>
+                                </group>
+                                <group>
+                                    <field name="remotes_count"/>
+                                    <field name="remotes_description"/>
+                                    <field name="badges_count"/>
+                                    <field name="badges_description"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Photos générales" name="photos">
+                            <field name="photo_ids" mode="kanban" context="{'default_inventory_id': active_id}" domain="[('line_id', '=', False)]">
+                                <kanban>
+                                    <field name="name"/>
+                                    <field name="image"/>
+                                    <field name="category"/>
+                                    <field name="is_damage"/>
+                                    <templates>
+                                        <t t-name="kanban-box">
+                                            <div t-attf-class="oe_kanban_global_click #{record.is_damage.raw_value ? 'border-danger' : ''}">
+                                                <div class="o_kanban_image">
+                                                    <img t-att-src="kanban_image('apartment.inventory.photo', 'image', record.id.raw_value)" style="max-width: 150px;"/>
+                                                </div>
+                                                <div class="oe_kanban_details">
+                                                    <strong><field name="name"/></strong>
+                                                    <div><field name="category"/></div>
+                                                    <div t-if="record.is_damage.raw_value" class="text-danger">
+                                                        <i class="fa fa-exclamation-triangle"/> Dommage
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                            </field>
+                        </page>
+                        <page string="Signatures" name="signatures">
+                            <group>
+                                <group string="Locataire">
+                                    <field name="tenant_signature" widget="image" options="{'size': [300, 150]}"/>
+                                    <field name="tenant_signed_date"/>
+                                </group>
+                                <group string="Bailleur">
+                                    <field name="landlord_signature" widget="image" options="{'size': [300, 150]}"/>
+                                    <field name="landlord_signed_date"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Observations" name="observations">
+                            <field name="general_observations" placeholder="Observations générales sur l'état du bien..."/>
+                            <group invisible="inventory_type != 'exit'">
+                                <group string="Comparaison avec entrée">
+                                    <field name="comparison_notes" placeholder="Notes de comparaison avec l'état des lieux d'entrée..."/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="apartment_inventory_view_tree" model="ir.ui.view">
+        <field name="name">apartment.inventory.tree</field>
+        <field name="model">apartment.inventory</field>
+        <field name="arch" type="xml">
+            <list string="États des lieux" decoration-info="inventory_type == 'entry'" decoration-warning="inventory_type == 'exit'" decoration-danger="state == 'disputed'">
+                <field name="name"/>
+                <field name="inventory_type" widget="badge" decoration-info="inventory_type == 'entry'" decoration-warning="inventory_type == 'exit'"/>
+                <field name="property_id"/>
+                <field name="tenant_id"/>
+                <field name="date"/>
+                <field name="photo_count"/>
+                <field name="degradation_detected" invisible="inventory_type != 'exit'"/>
+                <field name="state" widget="badge" decoration-success="state == 'signed'" decoration-warning="state == 'pending_signature'" decoration-danger="state == 'disputed'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="apartment_inventory_view_search" model="ir.ui.view">
+        <field name="name">apartment.inventory.search</field>
+        <field name="model">apartment.inventory</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher un état des lieux">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="tenant_id"/>
+                <filter string="Entrée" name="entry" domain="[('inventory_type', '=', 'entry')]"/>
+                <filter string="Sortie" name="exit" domain="[('inventory_type', '=', 'exit')]"/>
+                <separator/>
+                <filter string="Brouillon" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="En cours" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="À signer" name="pending" domain="[('state', '=', 'pending_signature')]"/>
+                <filter string="Signé" name="signed" domain="[('state', '=', 'signed')]"/>
+                <filter string="Contesté" name="disputed" domain="[('state', '=', 'disputed')]"/>
+                <separator/>
+                <filter string="Avec dégradations" name="degradation" domain="[('degradation_detected', '=', True)]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Type" name="group_type" context="{'group_by': 'inventory_type'}"/>
+                    <filter string="Bien" name="group_property" context="{'group_by': 'property_id'}"/>
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Mois" name="group_month" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="apartment_inventory_action" model="ir.actions.act_window">
+        <field name="name">États des lieux</field>
+        <field name="res_model">apartment.inventory</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="apartment_inventory_view_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez un état des lieux
+            </p>
+            <p>
+                Documentez l'état du bien à l'entrée et à la sortie du locataire avec photos détaillées.
+            </p>
+        </field>
+    </record>
+
+    <!-- Inventory Line Form (popup) -->
+    <record id="apartment_inventory_line_view_form" model="ir.ui.view">
+        <field name="name">apartment.inventory.line.form</field>
+        <field name="model">apartment.inventory.line</field>
+        <field name="arch" type="xml">
+            <form string="Détail pièce">
+                <sheet>
+                    <group>
+                        <group string="Identification">
+                            <field name="room_type_id"/>
+                            <field name="room_name"/>
+                            <field name="overall_condition" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Structure">
+                            <group>
+                                <group>
+                                    <field name="walls_condition"/>
+                                    <field name="walls_notes"/>
+                                </group>
+                                <group>
+                                    <field name="ceiling_condition"/>
+                                    <field name="ceiling_notes"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="floor_condition"/>
+                                    <field name="floor_notes"/>
+                                </group>
+                                <group>
+                                    <field name="windows_condition"/>
+                                    <field name="windows_notes"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="doors_condition"/>
+                                    <field name="doors_notes"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Installations">
+                            <group>
+                                <group>
+                                    <field name="electricity_condition"/>
+                                    <field name="electricity_notes"/>
+                                </group>
+                                <group>
+                                    <field name="heating_condition"/>
+                                    <field name="heating_notes"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>
