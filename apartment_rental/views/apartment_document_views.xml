@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Document Tree View -->
+    <record id="apartment_document_view_tree" model="ir.ui.view">
+        <field name="name">apartment.document.view.tree</field>
+        <field name="model">apartment.document</field>
+        <field name="arch" type="xml">
+            <tree string="Documents">
+                <field name="name"/>
+                <field name="document_type"/>
+                <field name="property_id" optional="show"/>
+                <field name="tenant_id" optional="show"/>
+                <field name="lease_id" optional="show"/>
+                <field name="date"/>
+                <field name="expiry_date"/>
+                <field name="is_signed" widget="boolean_toggle"/>
+                <field name="file_size" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Document Form View -->
+    <record id="apartment_document_view_form" model="ir.ui.view">
+        <field name="name">apartment.document.view.form</field>
+        <field name="model">apartment.document</field>
+        <field name="arch" type="xml">
+            <form string="Document">
+                <sheet>
+                    <group>
+                        <group string="Informations générales">
+                            <field name="name"/>
+                            <field name="document_type"/>
+                            <field name="date"/>
+                            <field name="expiry_date"/>
+                        </group>
+                        <group string="Fichier">
+                            <field name="file" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="file_size" readonly="1"/>
+                            <field name="is_signed" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Liens">
+                            <field name="property_id"/>
+                            <field name="tenant_id"/>
+                            <field name="lease_id"/>
+                            <field name="intervention_id"/>
+                        </group>
+                        <group string="Notes">
+                            <field name="notes" nolabel="1" placeholder="Notes ou commentaires..."/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Document Search View -->
+    <record id="apartment_document_view_search" model="ir.ui.view">
+        <field name="name">apartment.document.view.search</field>
+        <field name="model">apartment.document</field>
+        <field name="arch" type="xml">
+            <search string="Documents">
+                <field name="name"/>
+                <field name="document_type"/>
+                <field name="property_id"/>
+                <field name="tenant_id"/>
+                <field name="lease_id"/>
+                <separator/>
+                <filter string="Signés" name="signed" domain="[('is_signed', '=', True)]"/>
+                <filter string="Non signés" name="unsigned" domain="[('is_signed', '=', False)]"/>
+                <filter string="Expirés" name="expired" domain="[('expiry_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Expire bientôt" name="expiring_soon" domain="[('expiry_date', '&gt;=', context_today().strftime('%Y-%m-%d')), ('expiry_date', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Type" name="group_type" context="{'group_by': 'document_type'}"/>
+                    <filter string="Bien" name="group_property" context="{'group_by': 'property_id'}"/>
+                    <filter string="Locataire" name="group_tenant" context="{'group_by': 'tenant_id'}"/>
+                    <filter string="Bail" name="group_lease" context="{'group_by': 'lease_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Document Action -->
+    <record id="apartment_document_action" model="ir.actions.act_window">
+        <field name="name">Documents</field>
+        <field name="res_model">apartment.document</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer un nouveau document
+            </p>
+            <p>
+                Gérez tous les documents liés à vos biens, locataires et baux.
+            </p>
+        </field>
+    </record>
+
+</odoo>
