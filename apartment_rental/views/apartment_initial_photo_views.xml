@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Initial Photo Form View - with image display -->
+    <record id="apartment_property_initial_photo_view_form" model="ir.ui.view">
+        <field name="name">apartment.property.initial.photo.form</field>
+        <field name="model">apartment.property.initial.photo</field>
+        <field name="arch" type="xml">
+            <form string="Photo initiale">
+                <sheet>
+                    <group>
+                        <group string="Informations">
+                            <field name="property_id" readonly="1"/>
+                            <field name="name"/>
+                            <field name="room_type_id"/>
+                            <field name="location_detail"/>
+                            <field name="photo_type"/>
+                        </group>
+                        <group string="Métadonnées">
+                            <field name="taken_date"/>
+                            <field name="taken_by"/>
+                            <field name="sequence"/>
+                        </group>
+                    </group>
+                    <separator string="Photo"/>
+                    <field name="image" widget="image"/>
+                    <separator string="Notes"/>
+                    <field name="notes" placeholder="Notes ou observations..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Initial Photo List View -->
+    <record id="apartment_property_initial_photo_view_list" model="ir.ui.view">
+        <field name="name">apartment.property.initial.photo.list</field>
+        <field name="model">apartment.property.initial.photo</field>
+        <field name="arch" type="xml">
+            <list string="Photos initiales">
+                <header>
+                    <button name="%(apartment_initial_photo_wizard_action)d" type="action" string="Importer des photos" icon="fa-upload"/>
+                </header>
+                <field name="name"/>
+                <field name="room_type_id"/>
+                <field name="photo_type"/>
+                <field name="taken_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Initial Photo Action -->
+    <record id="apartment_property_initial_photo_action" model="ir.actions.act_window">
+        <field name="name">Photos initiales</field>
+        <field name="res_model">apartment.property.initial.photo</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>
