@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================= -->
+    <!-- ACTIONS (must be defined before menu items)  -->
+    <!-- ============================================= -->
+
+    <!-- Room Type Action -->
+    <record id="apartment_room_type_action" model="ir.actions.act_window">
+        <field name="name">Types de pièces</field>
+        <field name="res_model">apartment.room.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Lease Actions -->
+    <record id="apartment_lease_action_active" model="ir.actions.act_window">
+        <field name="name">Baux actifs</field>
+        <field name="res_model">apartment.lease</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'active')]</field>
+    </record>
+
+    <!-- Inventory Actions -->
+    <record id="apartment_inventory_action_entry" model="ir.actions.act_window">
+        <field name="name">États d'entrée</field>
+        <field name="res_model">apartment.inventory</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('inventory_type', '=', 'entry')]</field>
+        <field name="context">{'default_inventory_type': 'entry'}</field>
+    </record>
+
+    <record id="apartment_inventory_action_exit" model="ir.actions.act_window">
+        <field name="name">États de sortie</field>
+        <field name="res_model">apartment.inventory</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('inventory_type', '=', 'exit')]</field>
+        <field name="context">{'default_inventory_type': 'exit'}</field>
+    </record>
+
+    <!-- Rent Actions -->
+    <record id="apartment_rent_action_pending" model="ir.actions.act_window">
+        <field name="name">Loyers en attente</field>
+        <field name="res_model">apartment.rent</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'pending')]</field>
+    </record>
+
+    <record id="apartment_rent_action_late" model="ir.actions.act_window">
+        <field name="name">Loyers en retard</field>
+        <field name="res_model">apartment.rent</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'late')]</field>
+    </record>
+
+    <!-- Meter Reading Action -->
+    <record id="apartment_meter_reading_action" model="ir.actions.act_window">
+        <field name="name">Relevés de compteurs</field>
+        <field name="res_model">apartment.meter.reading</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ============================================= -->
+    <!-- VIEWS                                         -->
+    <!-- ============================================= -->
+
+    <!-- Room Type Tree View -->
+    <record id="apartment_room_type_view_tree" model="ir.ui.view">
+        <field name="name">apartment.room.type.view.tree</field>
+        <field name="model">apartment.room.type</field>
+        <field name="arch" type="xml">
+            <list string="Types de pièces" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="is_kitchen"/>
+                <field name="is_bathroom"/>
+                <field name="check_walls"/>
+                <field name="check_ceiling"/>
+                <field name="check_floor"/>
+                <field name="check_windows"/>
+                <field name="check_doors"/>
+                <field name="check_electricity"/>
+                <field name="check_heating"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Meter Reading Views -->
+    <record id="apartment_meter_reading_view_tree" model="ir.ui.view">
+        <field name="name">apartment.meter.reading.view.tree</field>
+        <field name="model">apartment.meter.reading</field>
+        <field name="arch" type="xml">
+            <list string="Relevés">
+                <field name="meter_id"/>
+                <field name="date"/>
+                <field name="value"/>
+                <field name="consumption"/>
+                <field name="reading_type"/>
+                <field name="read_by"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="apartment_meter_reading_view_form" model="ir.ui.view">
+        <field name="name">apartment.meter.reading.view.form</field>
+        <field name="model">apartment.meter.reading</field>
+        <field name="arch" type="xml">
+            <form string="Relevé">
+                <sheet>
+                    <group>
+                        <group string="Compteur">
+                            <field name="meter_id"/>
+                            <field name="date"/>
+                            <field name="reading_type"/>
+                        </group>
+                        <group string="Valeurs">
+                            <field name="value"/>
+                            <field name="consumption" readonly="1"/>
+                            <field name="daily_average" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Relevé effectué par">
+                            <field name="read_by"/>
+                        </group>
+                        <group string="Photo">
+                            <field name="image" widget="image" class="oe_avatar"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================= -->
+    <!-- MENU ITEMS                                    -->
+    <!-- ============================================= -->
+
+    <!-- Main Menu -->
+    <menuitem id="apartment_rental_menu_root"
+              name="Gestion Locative"
+              sequence="100"
+              web_icon="apartment_rental,static/description/icon.png"/>
+
+    <!-- Biens -->
+    <menuitem id="apartment_rental_menu_property"
+              name="Biens"
+              parent="apartment_rental_menu_root"
+              sequence="10"/>
+
+    <menuitem id="apartment_rental_menu_property_list"
+              name="Appartements"
+              parent="apartment_rental_menu_property"
+              action="apartment_property_action"
+              sequence="10"/>
+
+    <menuitem id="apartment_rental_menu_room_type"
+              name="Types de pièces"
+              parent="apartment_rental_menu_property"
+              action="apartment_room_type_action"
+              sequence="20"/>
+
+    <menuitem id="apartment_rental_menu_initial_photos"
+              name="Photos initiales"
+              parent="apartment_rental_menu_property"
+              action="apartment_property_initial_photo_action"
+              sequence="30"/>
+
+    <!-- Locataires -->
+    <menuitem id="apartment_rental_menu_tenant"
+              name="Locataires"
+              parent="apartment_rental_menu_root"
+              action="apartment_tenant_action"
+              sequence="20"/>
+
+    <!-- Baux -->
+    <menuitem id="apartment_rental_menu_lease"
+              name="Baux"
+              parent="apartment_rental_menu_root"
+              sequence="30"/>
+
+    <menuitem id="apartment_rental_menu_lease_list"
+              name="Contrats de bail"
+              parent="apartment_rental_menu_lease"
+              action="apartment_lease_action"
+              sequence="10"/>
+
+    <menuitem id="apartment_rental_menu_lease_active"
+              name="Baux actifs"
+              parent="apartment_rental_menu_lease"
+              action="apartment_lease_action_active"
+              sequence="20"/>
+
+    <!-- États des lieux -->
+    <menuitem id="apartment_rental_menu_inventory"
+              name="États des lieux"
+              parent="apartment_rental_menu_root"
+              sequence="40"/>
+
+    <menuitem id="apartment_rental_menu_inventory_list"
+              name="Tous les états des lieux"
+              parent="apartment_rental_menu_inventory"
+              action="apartment_inventory_action"
+              sequence="10"/>
+
+    <menuitem id="apartment_rental_menu_inventory_entry"
+              name="États d'entrée"
+              parent="apartment_rental_menu_inventory"
+              action="apartment_inventory_action_entry"
+              sequence="20"/>
+
+    <menuitem id="apartment_rental_menu_inventory_exit"
+              name="États de sortie"
+              parent="apartment_rental_menu_inventory"
+              action="apartment_inventory_action_exit"
+              sequence="30"/>
+
+    <!-- Visites -->
+    <menuitem id="apartment_rental_menu_visit"
+              name="Visites de contrôle"
+              parent="apartment_rental_menu_root"
+              action="apartment_control_visit_action"
+              sequence="50"/>
+
+    <!-- Finances -->
+    <menuitem id="apartment_rental_menu_finance"
+              name="Finances"
+              parent="apartment_rental_menu_root"
+              sequence="60"/>
+
+    <menuitem id="apartment_rental_menu_rent"
+              name="Loyers"
+              parent="apartment_rental_menu_finance"
+              action="apartment_rent_action"
+              sequence="10"/>
+
+    <menuitem id="apartment_rental_menu_rent_pending"
+              name="Loyers en attente"
+              parent="apartment_rental_menu_finance"
+              action="apartment_rent_action_pending"
+              sequence="20"/>
+
+    <menuitem id="apartment_rental_menu_rent_late"
+              name="Loyers en retard"
+              parent="apartment_rental_menu_finance"
+              action="apartment_rent_action_late"
+              sequence="30"/>
+
+    <menuitem id="apartment_rental_menu_index_history"
+              name="Historique indexations"
+              parent="apartment_rental_menu_finance"
+              action="apartment_index_history_action"
+              sequence="40"/>
+
+    <menuitem id="apartment_rental_menu_wizard_indexation"
+              name="Indexation des loyers"
+              parent="apartment_rental_menu_finance"
+              action="apartment_indexation_wizard_action"
+              sequence="50"/>
+
+    <menuitem id="apartment_rental_menu_wizard_generate_rent"
+              name="Générer les loyers"
+              parent="apartment_rental_menu_finance"
+              action="apartment_generate_rent_wizard_action"
+              sequence="60"/>
+
+    <!-- Compteurs -->
+    <menuitem id="apartment_rental_menu_meter"
+              name="Compteurs"
+              parent="apartment_rental_menu_root"
+              sequence="70"/>
+
+    <menuitem id="apartment_rental_menu_meter_list"
+              name="Liste des compteurs"
+              parent="apartment_rental_menu_meter"
+              action="apartment_meter_action"
+              sequence="10"/>
+
+    <menuitem id="apartment_rental_menu_meter_reading"
+              name="Relevés"
+              parent="apartment_rental_menu_meter"
+              action="apartment_meter_reading_action"
+              sequence="20"/>
+
+    <!-- Interventions -->
+    <menuitem id="apartment_rental_menu_intervention"
+              name="Interventions"
+              parent="apartment_rental_menu_root"
+              action="apartment_intervention_action"
+              sequence="80"/>
+
+    <!-- Contrats d'entretien -->
+    <menuitem id="apartment_rental_menu_maintenance"
+              name="Contrats d'entretien"
+              parent="apartment_rental_menu_root"
+              sequence="85"/>
+
+    <menuitem id="apartment_rental_menu_maintenance_contract"
+              name="Contrats"
+              parent="apartment_rental_menu_maintenance"
+              action="apartment_maintenance_contract_action"
+              sequence="10"/>
+
+    <menuitem id="apartment_rental_menu_maintenance_payment"
+              name="Tous les paiements"
+              parent="apartment_rental_menu_maintenance"
+              action="apartment_maintenance_contract_payment_action"
+              sequence="20"/>
+
+    <menuitem id="apartment_rental_menu_maintenance_payment_upcoming"
+              name="Échéances à venir"
+              parent="apartment_rental_menu_maintenance"
+              action="apartment_maintenance_contract_payment_upcoming_action"
+              sequence="30"/>
+
+    <!-- Documents -->
+    <menuitem id="apartment_rental_menu_document"
+              name="Documents"
+              parent="apartment_rental_menu_root"
+              action="apartment_document_action"
+              sequence="90"/>
+
+    <!-- Configuration -->
+    <menuitem id="apartment_rental_menu_config"
+              name="Configuration"
+              parent="apartment_rental_menu_root"
+              sequence="100"
+              />
+
+    <menuitem id="apartment_rental_menu_config_room_type"
+              name="Types de pièces"
+              parent="apartment_rental_menu_config"
+              action="apartment_room_type_action"
+              sequence="10"/>
+
+</odoo>

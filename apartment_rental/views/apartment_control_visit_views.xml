@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="apartment_control_visit_view_form" model="ir.ui.view">
+        <field name="name">apartment.control.visit.form</field>
+        <field name="model">apartment.control.visit</field>
+        <field name="arch" type="xml">
+            <form string="Visite de contrôle">
+                <header>
+                    <button name="action_notify_tenant" string="Notifier locataire" type="object" class="btn-primary" invisible="state != 'planned' or tenant_notified"/>
+                    <button name="action_mark_done" string="Terminer" type="object" class="btn-success" invisible="state != 'planned'"/>
+                    <button name="action_cancel" string="Annuler" type="object" invisible="state not in ('planned',)"/>
+                    <button name="action_create_intervention" string="Créer intervention" type="object" class="btn-warning" invisible="state != 'done' or not action_required"/>
+                    <field name="state" widget="statusbar" statusbar_visible="planned,done"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Action urgente!" bg_color="text-bg-danger" invisible="not urgent_action"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informations générales">
+                            <field name="property_id" options="{'no_create': True}"/>
+                            <field name="lease_id" options="{'no_create': True}"/>
+                            <field name="tenant_id" readonly="1"/>
+                            <field name="visit_type"/>
+                        </group>
+                        <group string="Planification">
+                            <field name="date"/>
+                            <field name="time_scheduled" widget="float_time"/>
+                            <field name="duration_planned"/>
+                            <field name="conducted_by"/>
+                            <field name="tenant_present"/>
+                            <field name="tenant_notified"/>
+                            <field name="notification_date" invisible="not tenant_notified"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Checklist" name="checklist">
+                            <group>
+                                <group>
+                                    <field name="check_heating"/>
+                                    <field name="heating_ok" invisible="not check_heating"/>
+                                    <field name="heating_notes" invisible="not check_heating"/>
+                                </group>
+                                <group>
+                                    <field name="check_plumbing"/>
+                                    <field name="plumbing_ok" invisible="not check_plumbing"/>
+                                    <field name="plumbing_notes" invisible="not check_plumbing"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="check_electricity"/>
+                                    <field name="electricity_ok" invisible="not check_electricity"/>
+                                    <field name="electricity_notes" invisible="not check_electricity"/>
+                                </group>
+                                <group>
+                                    <field name="check_ventilation"/>
+                                    <field name="ventilation_ok" invisible="not check_ventilation"/>
+                                    <field name="ventilation_notes" invisible="not check_ventilation"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="check_smoke_detectors"/>
+                                    <field name="smoke_detectors_ok" invisible="not check_smoke_detectors"/>
+                                    <field name="smoke_detectors_notes" invisible="not check_smoke_detectors"/>
+                                </group>
+                                <group>
+                                    <field name="check_humidity"/>
+                                    <field name="humidity_ok" invisible="not check_humidity"/>
+                                    <field name="humidity_level" invisible="not check_humidity"/>
+                                    <field name="humidity_notes" invisible="not check_humidity"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="check_windows"/>
+                                    <field name="windows_ok" invisible="not check_windows"/>
+                                    <field name="windows_notes" invisible="not check_windows"/>
+                                </group>
+                                <group>
+                                    <field name="check_doors"/>
+                                    <field name="doors_ok" invisible="not check_doors"/>
+                                    <field name="doors_notes" invisible="not check_doors"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Constatations" name="findings">
+                            <group>
+                                <group>
+                                    <field name="general_condition"/>
+                                    <field name="cleanliness"/>
+                                </group>
+                            </group>
+                            <group string="Observations">
+                                <field name="observations" nolabel="1" placeholder="Observations générales..."/>
+                            </group>
+                            <group string="Anomalies">
+                                <field name="anomalies" nolabel="1" placeholder="Anomalies constatées..."/>
+                            </group>
+                            <group string="Recommandations">
+                                <field name="recommendations" nolabel="1" placeholder="Recommandations..."/>
+                            </group>
+                        </page>
+                        <page string="Actions" name="actions">
+                            <group>
+                                <group>
+                                    <field name="action_required"/>
+                                    <field name="urgent_action" invisible="not action_required"/>
+                                    <field name="action_deadline" invisible="not action_required"/>
+                                </group>
+                                <group>
+                                    <field name="followup_needed"/>
+                                    <field name="followup_date" invisible="not followup_needed"/>
+                                    <field name="followup_notes" invisible="not followup_needed"/>
+                                </group>
+                            </group>
+                            <group string="Description des actions" invisible="not action_required">
+                                <field name="action_description" nolabel="1" placeholder="Actions à entreprendre..."/>
+                            </group>
+                        </page>
+                        <page string="Photos" name="photos">
+                            <field name="photo_ids"/>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Notes internes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="apartment_control_visit_view_tree" model="ir.ui.view">
+        <field name="name">apartment.control.visit.tree</field>
+        <field name="model">apartment.control.visit</field>
+        <field name="arch" type="xml">
+            <list string="Visites de contrôle" decoration-danger="urgent_action" decoration-warning="action_required and not urgent_action">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="tenant_id"/>
+                <field name="date"/>
+                <field name="visit_type"/>
+                <field name="tenant_notified"/>
+                <field name="action_required"/>
+                <field name="state" widget="badge" decoration-success="state == 'done'" decoration-info="state == 'planned'" decoration-muted="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Calendar View -->
+    <record id="apartment_control_visit_view_calendar" model="ir.ui.view">
+        <field name="name">apartment.control.visit.calendar</field>
+        <field name="model">apartment.control.visit</field>
+        <field name="arch" type="xml">
+            <calendar string="Visites" date_start="date" color="visit_type" mode="month">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="tenant_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="apartment_control_visit_view_search" model="ir.ui.view">
+        <field name="name">apartment.control.visit.search</field>
+        <field name="model">apartment.control.visit</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher une visite">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="tenant_id"/>
+                <filter string="Planifiées" name="planned" domain="[('state', '=', 'planned')]"/>
+                <filter string="Effectuées" name="done" domain="[('state', '=', 'done')]"/>
+                <filter string="À notifier" name="to_notify" domain="[('state', '=', 'planned'), ('tenant_notified', '=', False)]"/>
+                <filter string="Action requise" name="action_required" domain="[('action_required', '=', True)]"/>
+                <filter string="Urgent" name="urgent" domain="[('urgent_action', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="apartment_control_visit_action" model="ir.actions.act_window">
+        <field name="name">Visites de contrôle</field>
+        <field name="res_model">apartment.control.visit</field>
+        <field name="view_mode">list,calendar,form</field>
+        <field name="search_view_id" ref="apartment_control_visit_view_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Planifiez une visite de contrôle
+            </p>
+            <p>
+                Effectuez des visites régulières pour vérifier l'état de vos biens.
+            </p>
+        </field>
+    </record>
+
+</odoo>

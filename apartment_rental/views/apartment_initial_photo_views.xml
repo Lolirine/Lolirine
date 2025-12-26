@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Initial Photo Form View -->
+    <record id="apartment_property_initial_photo_view_form" model="ir.ui.view">
+        <field name="name">apartment.property.initial.photo.form</field>
+        <field name="model">apartment.property.initial.photo</field>
+        <field name="arch" type="xml">
+            <form string="Photo initiale">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Description de la photo"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informations">
+                            <field name="property_id" readonly="1"/>
+                            <field name="room_type_id"/>
+                            <field name="location_detail" placeholder="Ex: Mur gauche, sous fenêtre..."/>
+                            <field name="photo_type"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group string="Métadonnées">
+                            <field name="taken_date"/>
+                            <field name="taken_by"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Photo" name="photo">
+                            <field name="image" widget="image" class="oe_avatar" options="{'size': [800, 800]}"/>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Notes ou observations..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Initial Photo List View -->
+    <record id="apartment_property_initial_photo_view_list" model="ir.ui.view">
+        <field name="name">apartment.property.initial.photo.list</field>
+        <field name="model">apartment.property.initial.photo</field>
+        <field name="arch" type="xml">
+            <list string="Photos initiales">
+                <field name="sequence" widget="handle"/>
+                <field name="image_thumbnail" widget="image" options="{'size': [64, 64]}"/>
+                <field name="name"/>
+                <field name="room_type_id"/>
+                <field name="photo_type"/>
+                <field name="taken_date"/>
+                <field name="property_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Initial Photo Kanban View -->
+    <record id="apartment_property_initial_photo_view_kanban" model="ir.ui.view">
+        <field name="name">apartment.property.initial.photo.kanban</field>
+        <field name="model">apartment.property.initial.photo</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="room_type_id" class="o_kanban_small_column">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="image"/>
+                <field name="image_thumbnail"/>
+                <field name="room_type_id"/>
+                <field name="photo_type"/>
+                <field name="taken_date"/>
+                <field name="property_id"/>
+                <templates>
+                    <t t-name="card" class="flex-row">
+                        <aside>
+                            <field name="image_thumbnail" widget="image" options="{'size': [100, 100]}"/>
+                        </aside>
+                        <main class="ms-2">
+                            <field name="name" class="fw-bold text-truncate"/>
+                            <div class="text-muted small">
+                                <field name="photo_type"/>
+                            </div>
+                            <div class="text-muted small">
+                                <i class="fa fa-calendar me-1"/><field name="taken_date"/>
+                            </div>
+                        </main>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Initial Photo Search View -->
+    <record id="apartment_property_initial_photo_view_search" model="ir.ui.view">
+        <field name="name">apartment.property.initial.photo.search</field>
+        <field name="model">apartment.property.initial.photo</field>
+        <field name="arch" type="xml">
+            <search string="Photos initiales">
+                <field name="name"/>
+                <field name="property_id"/>
+                <field name="room_type_id"/>
+                <filter string="Vue générale" name="filter_general" domain="[('photo_type', '=', 'general')]"/>
+                <filter string="Détail" name="filter_detail" domain="[('photo_type', '=', 'detail')]"/>
+                <filter string="Équipement" name="filter_equipment" domain="[('photo_type', '=', 'equipment')]"/>
+                <filter string="Compteur" name="filter_meter" domain="[('photo_type', '=', 'meter')]"/>
+                <filter string="Extérieur" name="filter_exterior" domain="[('photo_type', '=', 'exterior')]"/>
+                <separator/>
+                <group expand="1" string="Grouper par">
+                    <filter string="Pièce" name="group_room" context="{'group_by': 'room_type_id'}"/>
+                    <filter string="Type" name="group_type" context="{'group_by': 'photo_type'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'taken_date'}"/>
+                    <filter string="Bien" name="group_property" context="{'group_by': 'property_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Initial Photo Action -->
+    <record id="apartment_property_initial_photo_action" model="ir.actions.act_window">
+        <field name="name">Photos initiales</field>
+        <field name="res_model">apartment.property.initial.photo</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="apartment_property_initial_photo_view_search"/>
+        <field name="context">{'search_default_group_room': 1}</field>
+    </record>
+
+</odoo>
