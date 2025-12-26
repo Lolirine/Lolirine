@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================ -->
+        <!-- PROPRIÉTAIRE: Feron Rodney (Lolirine)        -->
+        <!-- Source: Attestation chaudière page 2         -->
+        <!-- ============================================ -->
+        <record id="demo_partner_proprietaire" model="res.partner">
+            <field name="name">Feron Rodney (Lolirine)</field>
+            <field name="is_company" eval="False"/>
+            <field name="vat">BE0401874760</field>
+            <field name="street">Rue Bois d'Esneux 110</field>
+            <field name="zip">5021</field>
+            <field name="city">Boninne</field>
+            <field name="country_id" ref="base.be"/>
+            <field name="comment">N° Entreprise BCE: BE 0401.874.760
+Propriétaire de l'installation de chauffage central</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- LOCATAIRE: Maquet Cédric                     -->
+        <!-- Source: Attestation chaudière page 2 et 5    -->
+        <!-- ============================================ -->
+        <record id="demo_partner_locataire" model="res.partner">
+            <field name="name">Maquet Cédric</field>
+            <field name="phone">+32 81 71 72 13</field>
+            <field name="email">rodneyferon@hotmail.com</field>
+            <field name="street">Drève Boninas 4</field>
+            <field name="zip">5021</field>
+            <field name="city">Boninne</field>
+            <field name="country_id" ref="base.be"/>
+            <field name="comment">Locataire - RIT
+Source: Attestation contrôle chaudière 05/06/2023</field>
+        </record>
+
+        <record id="demo_tenant" model="apartment.tenant">
+            <field name="partner_id" ref="demo_partner_locataire"/>
+            <field name="reference">LOC-001</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- PRESTATAIRE: Vaillant N.V. (Chauffagiste)    -->
+        <!-- Source: Attestation chaudière page 2         -->
+        <!-- ============================================ -->
+        <record id="demo_partner_chauffagiste" model="res.partner">
+            <field name="name">Vaillant N.V.</field>
+            <field name="phone">02/334.93.00</field>
+            <field name="country_id" ref="base.be"/>
+            <field name="is_company" eval="True"/>
+            <field name="comment">Technicien agréé: Vandervecken Mikaël
+N° agrément: TGI00513 (Technicien GI)
+Source: Attestation contrôle chaudière 05/06/2023</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- PROPRIÉTÉ: Appartement Boninne               -->
+        <!-- Source: PEB RWPEB-057550 + Cadastre          -->
+        <!-- ============================================ -->
+        <record id="demo_property_boninne" model="apartment.property">
+            <field name="name">Appartement Boninne</field>
+            <field name="reference">APT-BON-001</field>
+            
+            <!-- Adresse (Source: PEB page 1) -->
+            <field name="street">Route de Hannut 279</field>
+            <field name="zip_code">5021</field>
+            <field name="city">Boninne</field>
+            <field name="country_id" ref="base.be"/>
+            
+            <!-- Caractéristiques (Source: PEB) -->
+            <field name="property_type">apartment</field>
+            <field name="surface">122.0</field>
+            <field name="construction_year">2016</field>
+            <field name="nb_bedrooms">2</field>
+            <field name="nb_bathrooms">1</field>
+            
+            <!-- PEB - Certificat (Source: PEB page 1) -->
+            <field name="peb_certificate">RWPEB-057550</field>
+            <field name="peb_number">20171213512823</field>
+            <field name="peb_date">2017-12-13</field>
+            <field name="peb_expiry_date">2027-12-13</field>
+            <field name="energy_class">b</field>
+            <field name="peb_responsible">ArteTEK Architectes Associés</field>
+            <field name="peb_responsible_number">PEB-01484-A</field>
+            
+            <!-- PEB - Performance (Source: PEB pages 1-2, 5) -->
+            <field name="peb_espec">162</field>
+            <field name="peb_ew">79</field>
+            <field name="peb_k">35</field>
+            <field name="peb_consumption_total">19752.0</field>
+            <field name="peb_consumption_specific">162.0</field>
+            <field name="peb_heated_surface">122.0</field>
+            <field name="peb_volume">330.0</field>
+            
+            <!-- PEB - Émissions CO2 (Source: PEB page 15) -->
+            <field name="peb_co2_annual">3894.64</field>
+            <field name="peb_co2_specific">31.92</field>
+            
+            <!-- Chauffage (Source: PEB page 11 + Attestation) -->
+            <field name="heating_type">propane</field>
+            <field name="heating_system">floor</field>
+            <field name="heating_distribution">Chauffage de surface (sol, mur, plafond)</field>
+            <field name="has_thermostat" eval="True"/>
+            
+            <!-- ECS (Source: PEB page 12) -->
+            <field name="hot_water_system">boiler</field>
+            
+            <!-- Ventilation (Source: PEB page 13) -->
+            <field name="ventilation_type">d</field>
+            
+            <!-- Énergies renouvelables (Source: PEB page 14 - Néant) -->
+            <field name="has_solar_thermal" eval="False"/>
+            <field name="has_solar_pv" eval="False"/>
+            <field name="has_heat_pump" eval="False"/>
+            
+            <!-- Cadastre (Source: Identifiant parcellaire) -->
+            <field name="cadastral_division">92017 NAMUR 18 DIV/BONINNE</field>
+            <field name="cadastral_section">A</field>
+            <field name="cadastral_parcel">57 M P0000</field>
+            <field name="cadastral_surface">1200.0</field>
+            <field name="cadastral_reference">MEOW-2016-DD-01529017</field>
+            
+            <!-- Permis (Source: PEB page 15) -->
+            <field name="building_permit_date">2016-08-25</field>
+            <field name="building_permit_ref">UCP3/408128</field>
+            
+            <!-- Description des pièces (Source: PEB page 13) -->
+            <field name="equipment">PIÈCES DU LOGEMENT (Source: PEB)
+================================
+Locaux secs:
+- Living (1 OAM, 1 OT)
+- Chambre 1 (1 OAM, 1 OT)
+- Chambre 2 (1 OAM, 1 OT)
+
+Locaux humides:
+- Cuisine (2 OT, 1 OEM)
+- Buanderie (1 OT, 1 OEM)
+- Dressing 1 (1 OT, 1 OEM)
+- Dressing 2 (1 OT, 1 OEM)
+- Salle de bains (1 OT, 1 OEM)
+
+CARACTÉRISTIQUES TECHNIQUES
+===========================
+- Isolation thermique: Conforme
+- Ventilation hygiénique: Conforme (système D)
+- Risque de surchauffe: 4% (acceptable)
+
+CHAUDIÈRE (Source: Attestation 05/06/2023)
+==========================================
+- Marque: Vaillant
+- Modèle: VCW ecoTEC /5-3 pro
+- N° série: 21170700100184831300369148N9
+- Année: 2017
+- Puissance: 24 kW
+- Type: C13, condensation, prémix modulant
+- Combustible: Propane
+- Rendement mesuré: 98.8%</field>
+
+            <field name="notes">CONTACTS ET RÉFÉRENCES
+======================
+Propriétaire: Feron Rodney (Lolirine)
+BCE: BE 0401.874.760
+
+Locataire: Maquet Cédric
+Tél: +32 81 71 72 13
+
+Responsable PEB: ArteTEK Architectes Associés
+N° agrément: PEB-01484-A
+Adresse: Avenue du Bois l'Evêque 28, 5100 Wierde
+
+Contact cadastre: Service Plan Namur
+Tél: 0257/80 430
+Email: vincent.bellet@minfin.fed.be
+
+Chauffagiste: Vaillant N.V.
+Technicien: Vandervecken Mikaël (TGI00513)
+Tél: 02/334.93.00
+
+ÉCHÉANCES
+=========
+- PEB: Renouvellement avant 13/12/2027
+- Entretien chaudière: 05/06/2024
+- Inspection périodique: 05/06/2026 - 05/09/2026
+
+NOTE: Adresse attestation chaudière = "Rue Bois d'Esneux 110"
+      Adresse PEB/Cadastre = "Route de Hannut 279"</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- BAIL: Maquet Cédric                          -->
+        <!-- ============================================ -->
+        <record id="demo_lease_boninne" model="apartment.lease">
+            <field name="property_id" ref="demo_property_boninne"/>
+            <field name="tenant_id" ref="demo_tenant"/>
+            <field name="date_start">2024-01-01</field>
+            <field name="date_end">2026-12-31</field>
+            <field name="rent_amount">0.00</field>
+            <field name="charges_amount">0.00</field>
+            <field name="deposit_amount">0.00</field>
+            <field name="indexation_enabled" eval="True"/>
+            <field name="state">active</field>
+            <field name="notes">Locataire: Maquet Cédric
+Adresse de contact: Drève Boninas 4, 5021 Boninne
+Tél: +32 81 71 72 13
+
+Bail 3 ans (01/01/2024 - 31/12/2026)
+
+[Loyer, charges et garantie locative à compléter]</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- DOCUMENT: Certificat PEB                     -->
+        <!-- ============================================ -->
+        <record id="demo_document_peb" model="apartment.document">
+            <field name="name">Certificat PEB - RWPEB-057550</field>
+            <field name="property_id" ref="demo_property_boninne"/>
+            <field name="document_type">peb</field>
+            <field name="date">2017-12-13</field>
+            <field name="expiry_date">2027-12-13</field>
+            <field name="is_signed" eval="True"/>
+            <field name="signed_date">2017-12-13</field>
+            <field name="signed_by">ArteTEK Architectes Associés (PEB-01484-A)</field>
+            <field name="source">received</field>
+            <field name="description">CERTIFICAT DE PERFORMANCE ÉNERGÉTIQUE (PEB)
+Bâtiment résidentiel - Permis à partir du 1er mai 2010
+
+IDENTIFICATION
+==============
+Référence PEB: RWPEB-057550
+Numéro: 20171213512823
+Établi le: 13/12/2017
+Validité maximale: 13/12/2027
+
+LOGEMENT CERTIFIÉ
+=================
+Adresse: Route de Hannut 279, 5021 Boninne
+Type: Appartement
+Construction: 2016
+
+PERFORMANCE ÉNERGÉTIQUE
+=======================
+Consommation totale: 19.752 kWh/an
+Surface plancher chauffée: 122 m²
+Consommation spécifique (Espec): 162 kWh/m².an
+Classe énergétique: B (85 &lt; Espec ≤ 170)
+
+INDICATEURS RÉGLEMENTAIRES
+==========================
+Niveau K: 35
+Niveau Ew: 79
+Espec: 162
+Ventilation: Conforme ✓
+Surchauffe: Conforme ✓
+
+ÉMISSIONS CO2
+=============
+Émissions annuelles: 3.894,64 kg CO2/an
+Émissions spécifiques: 31,92 kg CO2/m².an</field>
+            <field name="notes">Fichier: PEB_RWPEB-057550.pdf
+
+Responsable PEB:
+ArteTEK Architectes Associés
+Avenue du Bois l'Evêque 28
+5100 Wierde
+N° agrément: PEB-01484-A</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- DOCUMENT: Identifiant parcellaire            -->
+        <!-- ============================================ -->
+        <record id="demo_document_cadastre" model="apartment.document">
+            <field name="name">Identifiant parcellaire - MEOW-2016-DD-01529017</field>
+            <field name="property_id" ref="demo_property_boninne"/>
+            <field name="document_type">other</field>
+            <field name="date">2016-08-30</field>
+            <field name="is_signed" eval="True"/>
+            <field name="signed_date">2016-08-30</field>
+            <field name="signed_by">Bellet Vincent - Expert Fiscal SPF Finances</field>
+            <field name="source">received</field>
+            <field name="description">RÉSUMÉ PRECAD - IDENTIFICATION PRÉALABLE
+Type: Division parcellaire horizontale
+Référence dossier: MEOW-2016-DD-01529017
+
+PARCELLE SOURCE
+===============
+Division cadastrale: 92017 NAMUR 18 DIV/BONINNE
+Section: A
+N° parcellaire: 57 L P0000
+Situation: Route de Hannut 279
+Nature initiale: Entrepôt
+Statut: Cadastré
+
+PARCELLE RÉSERVÉE
+=================
+N° parcellaire: 57 M P0000
+Nature: Terrain
+Surface: 1200 m²
+
+PERMIS D'URBANISME
+==================
+Date: 25/08/2016
+Référence: UCP3/408128</field>
+            <field name="notes">Fichier: Cadastre_92017-10047.pdf
+
+Contact Service Plan Namur:
+SPF Finances - Documentation Patrimoniale
+Rue des Bourgeois 7, Bloc B
+5000 Namur
+Tél: 0257/80 430
+Fax: 0257/96 160
+Email: vincent.bellet@minfin.fed.be</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- DOCUMENT: Attestation contrôle chaudière     -->
+        <!-- Source: Attestation 05/06/2023               -->
+        <!-- ============================================ -->
+        <record id="demo_document_attestation_chaudiere" model="apartment.document">
+            <field name="name">Attestation contrôle chaudière - 202306051256-48003</field>
+            <field name="property_id" ref="demo_property_boninne"/>
+            <field name="document_type">diagnostic</field>
+            <field name="date">2023-06-05</field>
+            <field name="expiry_date">2026-09-05</field>
+            <field name="is_signed" eval="True"/>
+            <field name="signed_date">2023-06-05</field>
+            <field name="signed_by">Vandervecken Mikaël - Technicien agréé TGI00513</field>
+            <field name="source">received</field>
+            <field name="description">ATTESTATION DE CONTRÔLE CHAUDIÈRE
+AGW 29/01/2009 - Prévention pollution atmosphérique
+
+IDENTIFICATION
+==============
+N° attestation: 202306051256-48003
+Date du contrôle: 05/06/2023
+Résultat global: CONFORME ✓
+
+TECHNICIEN AGRÉÉ
+================
+Nom: Vandervecken Mikaël
+N° agrément: TGI00513
+Entreprise: Vaillant N.V.
+Tél: 02/334.93.00
+
+DEMANDEUR (Locataire)
+=====================
+Nom: Maquet Cédric
+Adresse: Drève Boninas 4, 5021 Boninne
+Tél: +32 81 71 72 13
+
+PROPRIÉTAIRE
+============
+Nom: Feron Rodney (Lolirine)
+BCE: BE 0401.874.760
+
+GÉNÉRATEUR DE CHALEUR
+=====================
+Marque: Vaillant
+Type: VCW ecoTEC /5-3 pro
+N° série: 21170700100184831300369148N9
+Année construction: 2017
+Puissance nominale: 24 kW
+Raccordement: C13
+Condensation: Oui
+Brûleur: Prémix modulant
+
+COMBUSTIBLE
+===========
+Type: Gazeux - Propane
+Production: Chauffage + ECS
+Fluide caloporteur: Eau
+
+RÉSULTATS DES MESURES (Puissance max)
+=====================================
+Température eau: 50°C
+T° nette gaz combustion: 24.2°C (max 180°C) ✓
+Teneur CO2: 10.5% (min 12%)
+Teneur O2: 5.4% (max 4.4%)
+Teneur CO: 63 mg/kWh (max 125) ✓
+Rendement combustion: 98.8% (min 90%) ✓
+
+Analyseur: EUROLY (06-46-0194)
+Heure mesure: 12:59
+
+CONFORMITÉ
+==========
+Ventilation local de chauffe: CONFORME ✓
+Amenée d'air comburant: CONFORME ✓
+Évacuation gaz de combustion: CONFORME ✓
+Orifices de mesure: Dispensé (type C13)
+RÉSULTAT GLOBAL: CONFORME ✓</field>
+            <field name="notes">Fichier: attestation_chaudiere_20230605.pdf
+
+PROCHAINES INTERVENTIONS
+========================
+✓ Entretien conseillé constructeur: 05/06/2024
+✓ Prochaine inspection périodique: 05/06/2026 - 05/09/2026
+✓ Diagnostic approfondi: 05/06/2026 - 05/09/2026
+
+Attestation reçue par: Maquet Cédric (Locataire)
+Email: rodneyferon@hotmail.com
+
+Note: Permis d'urbanisme introduit après le 29/05/2009
+→ Respect normes NBN B 61-001, B 61-002, D 51-003, D 51-004, D 51-006</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- CONTRAT D'ENTRETIEN CHAUDIÈRE                -->
+        <!-- Source: Attestation + PEB                    -->
+        <!-- ============================================ -->
+        <record id="demo_maintenance_contract_boiler" model="apartment.maintenance.contract">
+            <field name="name">CTR-CHAUD-001</field>
+            <field name="property_id" ref="demo_property_boninne"/>
+            <field name="provider_id" ref="demo_partner_chauffagiste"/>
+            <field name="contract_type">boiler</field>
+            
+            <!-- Équipement (Source: Attestation page 2) -->
+            <field name="equipment_brand">Vaillant</field>
+            <field name="equipment_model">VCW ecoTEC /5-3 pro</field>
+            <field name="equipment_serial">21170700100184831300369148N9</field>
+            <field name="equipment_year">2017</field>
+            <field name="equipment_notes">CHAUDIÈRE VAILLANT
+==================
+Type: VCW ecoTEC /5-3 pro
+N° série: 21170700100184831300369148N9
+Année: 2017
+Puissance nominale: 24 kW
+Raccordement: C13 (étanche)
+Condensation: Oui
+Brûleur: Prémix modulant intégré
+
+COMBUSTIBLE
+===========
+Type: Propane (gazeux)
+Production: Chauffage + ECS
+Fluide caloporteur: Eau
+
+DISTRIBUTION (Source: PEB)
+==========================
+Toutes conduites dans le volume protégé
+Émission: Chauffage de surface (sol, mur, plafond)
+Régulation: Vannes thermostatiques
+
+DERNIER CONTRÔLE: 05/06/2023
+============================
+N° attestation: 202306051256-48003
+Technicien: Vandervecken Mikaël (TGI00513)
+Rendement mesuré: 98.8%
+CO: 63 mg/kWh
+Résultat: CONFORME</field>
+
+            <!-- Dates contrat basées sur attestation -->
+            <field name="date_start">2023-06-05</field>
+            <field name="date_end">2026-09-05</field>
+            <field name="is_renewable" eval="True"/>
+            <field name="renewal_notice_days">60</field>
+            
+            <!-- Paiement (À compléter) -->
+            <field name="payment_frequency">annual</field>
+            <field name="payment_amount">0.00</field>
+            <field name="payment_day">1</field>
+            <field name="reminder_days">30</field>
+            
+            <field name="state">active</field>
+            <field name="description">CONTRAT D'ENTRETIEN CHAUDIÈRE
+Prestataire: Vaillant N.V.
+Technicien référent: Vandervecken Mikaël
+
+PRESTATIONS INCLUSES
+====================
+- Contrôle périodique réglementaire (AGW 29/01/2009)
+- Attestation de conformité
+- Nettoyage et réglages
+- Vérification sécurité
+- Inspection système de régulation
+- Contrôle pompe de circulation
+
+ÉCHÉANCES
+=========
+- Entretien constructeur: 05/06/2024
+- Prochaine inspection: 05/06/2026 - 05/09/2026
+- Diagnostic approfondi: 05/06/2026 - 05/09/2026
+
+[Montant du contrat à compléter]</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- PAIEMENTS CONTRAT (Historique)               -->
+        <!-- ============================================ -->
+        <record id="demo_payment_2023" model="apartment.maintenance.contract.payment">
+            <field name="contract_id" ref="demo_maintenance_contract_boiler"/>
+            <field name="due_date">2023-06-05</field>
+            <field name="amount">0.00</field>
+            <field name="description">Contrôle périodique 2023 - Attestation 202306051256-48003</field>
+            <field name="date">2023-06-05</field>
+            <field name="payment_method">bank_transfer</field>
+            <field name="notes">Contrôle effectué par Vandervecken Mikaël (TGI00513)
+Résultat: CONFORME
+[Montant à compléter]</field>
+        </record>
+
+        <record id="demo_payment_2024" model="apartment.maintenance.contract.payment">
+            <field name="contract_id" ref="demo_maintenance_contract_boiler"/>
+            <field name="due_date">2024-06-05</field>
+            <field name="amount">0.00</field>
+            <field name="description">Entretien conseillé constructeur 2024</field>
+            <field name="notes">Échéance: 05/06/2024
+[À planifier - Montant à compléter]</field>
+        </record>
+
+        <record id="demo_payment_2026" model="apartment.maintenance.contract.payment">
+            <field name="contract_id" ref="demo_maintenance_contract_boiler"/>
+            <field name="due_date">2026-06-05</field>
+            <field name="amount">0.00</field>
+            <field name="description">Inspection périodique + Diagnostic approfondi 2026</field>
+            <field name="notes">Période: 05/06/2026 - 05/09/2026
+Inclut diagnostic approfondi obligatoire (Pnom > 20 kW)
+[À planifier - Montant à compléter]</field>
+        </record>
+
+    </data>
+</odoo>
