@@ -1,7 +1,7 @@
 /**
- * Lolirine Storage Availability v3
+ * Lolirine Storage Availability v3.1
  * Remplace le bouton "Ajouter au panier" par "Contactez-nous" ou "Demande générale"
- * Compatible Odoo 18
+ * Compatible Odoo 18/19 - Corrigé pour Website Builder
  */
 
 console.log('=== Lolirine Storage v3: Script chargé ===');
@@ -10,6 +10,7 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
     'use strict';
 
     var DONE = false;
+    var EDITOR_MODE = false;
 
     // Démarrer
     init();
@@ -18,8 +19,28 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
     setTimeout(init, 1000);
     setTimeout(init, 2000);
 
+    function isEditorMode() {
+        // Détection du mode édition Website Builder Odoo 18/19
+        return document.body.classList.contains('editor_enable') || 
+               document.body.classList.contains('o_edit_mode') ||
+               document.querySelector('.o_we_website_top_actions') ||
+               document.querySelector('#oe_snippets') ||
+               document.querySelector('.o_website_preview') ||
+               window.location.href.includes('enable_editor') ||
+               window.location.href.includes('edit_translations') ||
+               document.body.dataset.edit === '1' ||
+               document.body.dataset.edit === 'true';
+    }
+
     function init() {
         if (DONE) return;
+
+        // NE PAS exécuter en mode édition Website Builder
+        if (isEditorMode()) {
+            console.log('Lolirine Storage: Mode édition détecté, script désactivé');
+            EDITOR_MODE = true;
+            return;
+        }
 
         var url = window.location.pathname;
         if (!url.includes('/shop/')) return;
@@ -56,18 +77,35 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
     function transform(data) {
         console.log('Lolirine Storage: === TRANSFORMATION ===');
 
+        // Vérifier encore une fois le mode édition
+        if (isEditorMode()) {
+            console.log('Lolirine Storage: Mode édition, transformation annulée');
+            return;
+        }
+
         // 1. MASQUER TOUT LE PANIER - très agressif
         hideAllCartElements();
 
         // 2. CRÉER ET INSÉRER LES BOUTONS
         createAndInsertButtons(data);
 
-        // 3. RÉPÉTER LE MASQUAGE
-        setInterval(hideAllCartElements, 500);
+        // 3. RÉPÉTER LE MASQUAGE - SEULEMENT si pas en mode édition
+        var intervalId = setInterval(function() {
+            // Arrêter si on passe en mode édition
+            if (isEditorMode()) {
+                console.log('Lolirine Storage: Mode édition détecté, arrêt du masquage');
+                clearInterval(intervalId);
+                return;
+            }
+            hideAllCartElements();
+        }, 500);
     }
 
     function hideAllCartElements() {
-        // Liste complète de tous les sélecteurs possibles pour Odoo 18
+        // Ne rien faire en mode édition
+        if (isEditorMode()) return;
+
+        // Liste complète de tous les sélecteurs possibles pour Odoo 18/19
         var hide = [
             // Formulaires
             'form[action*="cart"]',
@@ -98,10 +136,6 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
             '.oe_product_cart',
             '.o_product_page_add_to_cart',
             '.product_price + form',
-            
-            // Wishlist et compare (garder si besoin, commenter sinon)
-            // '.o_add_wishlist_dyn',
-            // '.o_add_compare_dyn',
         ];
 
         var count = 0;
@@ -110,6 +144,11 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
                 // Ne pas masquer nos propres boutons
                 if (el.closest('#lolirine_storage_buttons')) return;
                 if (el.id === 'lolirine_storage_buttons') return;
+                
+                // Ne pas masquer les éléments du Website Builder
+                if (el.closest('.o_we_customize_panel')) return;
+                if (el.closest('#oe_snippets')) return;
+                if (el.closest('.o_website_preview')) return;
                 
                 if (el.style.display !== 'none') {
                     el.style.cssText = 'display:none!important;visibility:hidden!important;opacity:0!important;height:0!important;overflow:hidden!important;position:absolute!important;left:-9999px!important;';
@@ -127,6 +166,9 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
     }
 
     function createAndInsertButtons(data) {
+        // Ne rien faire en mode édition
+        if (isEditorMode()) return;
+
         // Supprimer si déjà présent
         var existing = document.getElementById('lolirine_storage_buttons');
         if (existing) existing.remove();
@@ -139,7 +181,7 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
         var html = '';
 
         // Badge de statut
-        if (data.show_badge !== false) {  // Afficher par défaut
+        if (data.show_badge !== false) {
             var badge = {
                 'available': { bg: '#28a745', icon: 'fa-check-circle', text: data.storage_status_display || 'Disponible' },
                 'rented': { bg: '#dc3545', icon: 'fa-lock', text: data.storage_status_display || 'Loué' },
@@ -155,7 +197,6 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
 
         // Bouton selon le statut
         if (data.storage_status === 'available' && data.show_appointment_button) {
-            // Box DISPONIBLE -> Bouton RDV
             html += '<a href="' + escHtml(data.appointment_url || '/appointment') + '" ';
             html += 'style="display:block;width:100%;padding:18px;font-size:20px;font-weight:bold;text-align:center;color:#fff;background:#007bff;border:none;border-radius:10px;text-decoration:none;box-shadow:0 4px 6px rgba(0,0,0,0.1);">';
             html += '<i class="fa fa-calendar" style="margin-right:10px;"></i>';
@@ -164,7 +205,6 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
             html += '<p style="text-align:center;color:#666;margin-top:10px;margin-bottom:0;font-size:14px;">';
             html += '<i class="fa fa-info-circle"></i> Prenez rendez-vous pour visiter ce box</p>';
         } else if (data.storage_status !== 'available') {
-            // Box NON DISPONIBLE -> Bouton demande générale
             html += '<a href="' + escHtml(data.general_inquiry_url || '/contactus') + '" ';
             html += 'style="display:block;width:100%;padding:18px;font-size:20px;font-weight:bold;text-align:center;color:#fff;background:#6c757d;border:none;border-radius:10px;text-decoration:none;box-shadow:0 4px 6px rgba(0,0,0,0.1);">';
             html += '<i class="fa fa-envelope" style="margin-right:10px;"></i>';
