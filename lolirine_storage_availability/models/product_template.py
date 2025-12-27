@@ -233,3 +233,11 @@ class ProductTemplate(models.Model):
     def action_convert_to_storage_box(self):
         """Convertit le produit en box de stockage"""
         self.write({'is_storage_box': True, 'storage_status': 'available'})
+
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+
+    def action_view_appointments(self):
+        """Délègue au template parent"""
+        self.ensure_one()
+        return self.product_tmpl_id.action_view_appointments()
