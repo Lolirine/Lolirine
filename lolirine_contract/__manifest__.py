@@ -13,7 +13,6 @@
         "report/contract_template.xml",
         "report/quotation_template.xml",
         "report/quotation_wizard_template.xml",
-        "wizard/quotation_wizard_views.xml",
         "data/mail_template.xml",
         "views/res_partner_views.xml",
         "views/sale_order_views.xml",
