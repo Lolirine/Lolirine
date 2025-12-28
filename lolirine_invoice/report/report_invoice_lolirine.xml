@@ -11,7 +11,6 @@
         <field name="binding_model_id" ref="account.model_account_move"/>
         <field name="binding_type">report</field>
     </record>
-
     <!-- Template principal -->
     <template id="report_invoice_lolirine">
         <t t-call="web.html_container">
@@ -20,7 +19,6 @@
             </t>
         </t>
     </template>
-
     <!-- Document de facture -->
     <template id="report_invoice_lolirine_document">
         <div class="article" style="font-family: Arial, sans-serif; font-size: 10pt; padding: 15px;">
@@ -148,7 +146,6 @@
                     text-align: center;
                 }
             </style>
-
             <div class="lolirine-invoice">
                 <!-- En-tête -->
                 <table style="width: 100%; margin-bottom: 10px;">
@@ -170,10 +167,8 @@
                         </td>
                     </tr>
                 </table>
-
                 <!-- Infos client -->
                 <div class="lolirine-client-block">
-                    <t t-if="o.partner_id.title"><t t-esc="o.partner_id.title.name"/> </t>
                     <strong><t t-esc="o.partner_id.name"/></strong><br/>
                     <t t-if="o.partner_id.street"><t t-esc="o.partner_id.street"/><br/></t>
                     <t t-if="o.partner_id.street2"><t t-esc="o.partner_id.street2"/><br/></t>
@@ -181,7 +176,6 @@
                     <t t-if="o.partner_id.city"><t t-esc="o.partner_id.city"/><br/></t>
                     <t t-if="o.partner_id.country_id"><t t-esc="o.partner_id.country_id.name"/></t>
                 </div>
-
                 <!-- Titre facture -->
                 <div class="lolirine-title">
                     <t t-if="o.state == 'draft'">PRO FORMA </t>
@@ -189,7 +183,6 @@
                     <t t-elif="o.move_type == 'out_refund'">Avoir </t>
                     <t t-esc="o.name or ''"/>
                 </div>
-
                 <!-- Dates -->
                 <table class="lolirine-dates-table">
                     <tr>
@@ -205,7 +198,6 @@
                         </td>
                     </tr>
                 </table>
-
                 <!-- Tableau des lignes -->
                 <table class="lolirine-main-table">
                     <thead>
@@ -241,7 +233,6 @@
                         </t>
                     </tbody>
                 </table>
-
                 <!-- Section paiement et totaux -->
                 <table style="width: 100%;">
                     <tr>
@@ -258,21 +249,6 @@
                                     <t t-if="o.partner_bank_id.bank_id"> - <t t-esc="o.partner_bank_id.bank_id.name"/></t>
                                 </t>
                             </div>
-
-                            <!-- QR Code si disponible - on le désactive pour éviter les erreurs -->
-                            <!--
-                            <t t-if="o.display_qr_code and o.state == 'posted'">
-                                <div style="margin-top: 15px;">
-                                    <table>
-                                        <tr>
-                                            <td style="vertical-align: middle;">
-                                                QR Code disponible sur le portail
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </t>
-                            -->
                         </td>
                         <td style="width: 45%; vertical-align: top;">
                             <!-- Totaux -->
@@ -290,7 +266,6 @@
                                     <td class="value-cell"><t t-esc="'%.2f' % o.amount_total"/> €</td>
                                 </tr>
                             </table>
-
                             <!-- Montant en lettres -->
                             <div class="lolirine-amount-words">
                                 <strong>Montant total en toutes lettres :</strong><br/>
@@ -299,17 +274,14 @@
                         </td>
                     </tr>
                 </table>
-
                 <!-- Conditions générales -->
                 <div class="lolirine-conditions">
                     Conditions générales : <a t-att-href="'https://' + (o.company_id.website or 'lolirine-lolirine.odoo.com') + '/terms'">https://<t t-esc="o.company_id.website or 'lolirine-lolirine.odoo.com'"/>/terms</a>
                 </div>
-
                 <!-- Zone signature -->
                 <div class="lolirine-signature">
                     Signataire autorisé
                 </div>
-
                 <!-- Pied de page -->
                 <div class="lolirine-footer">
                     <t t-if="o.company_id.email">Email.: <t t-esc="o.company_id.email"/> </t>
@@ -319,10 +291,8 @@
                         <t t-esc="o.company_id.partner_id.bank_ids[0].bank_id.name or ''"/> : <t t-esc="o.company_id.partner_id.bank_ids[0].acc_number"/>.
                     </t>
                 </div>
-
             </div>
         </div>
-
         <!-- Saut de page entre les factures -->
         <p style="page-break-after: always;"/>
     </template>
