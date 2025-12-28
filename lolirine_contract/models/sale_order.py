@@ -33,14 +33,22 @@ class SaleOrder(models.Model):
             order.contract_deposit_amount = monthly_rent * 2
 
     def action_preview_contract(self):
-        """Aperçu du contrat PDF dans le navigateur"""
+        """Aperçu du contrat PDF dans le navigateur (nouvel onglet)"""
         self.ensure_one()
-        return self.env.ref("lolirine_contract.action_report_contract").report_action(self)
+        return {
+            "type": "ir.actions.act_url",
+            "url": f"/report/pdf/lolirine_contract.report_contract_document/{self.id}",
+            "target": "new",
+        }
 
     def action_preview_quotation(self):
-        """Aperçu du devis PDF dans le navigateur"""
+        """Aperçu du devis PDF dans le navigateur (nouvel onglet)"""
         self.ensure_one()
-        return self.env.ref("lolirine_contract.action_report_quotation").report_action(self)
+        return {
+            "type": "ir.actions.act_url",
+            "url": f"/report/pdf/lolirine_contract.report_lolirine_quotation_document/{self.id}",
+            "target": "new",
+        }
 
     def action_send_contract(self):
         """Envoyer le contrat par email"""
