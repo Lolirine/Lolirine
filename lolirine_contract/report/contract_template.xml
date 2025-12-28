@@ -10,6 +10,8 @@
     </template>
     <template id="report_contract_content">
         <t t-set="company" t-value="doc.company_id or res_company"/>
+        <!-- Variable pour le téléphone (compatible Odoo 19) -->
+        <t t-set="partner_phone" t-value="doc.partner_id.phone or ''"/>
         <div class="page" style="font-family: Arial, sans-serif; font-size: 10pt; line-height: 1.4;">
             <div style="text-align: center; margin-bottom: 15px;">
                 <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 70px;" alt="Logo"/>
@@ -40,8 +42,8 @@
                         <t t-if="doc.partner_id.street"><t t-esc="doc.partner_id.street"/><br/></t>
                         <t t-if="doc.partner_id.street2"><t t-esc="doc.partner_id.street2"/><br/></t>
                         B - <t t-esc="doc.partner_id.zip"/> <t t-esc="doc.partner_id.city"/><br/><br/>
-                        <t t-if="doc.partner_id.mobile or doc.partner_id.phone">
-                            GSM : <t t-esc="doc.partner_id.mobile or doc.partner_id.phone"/><br/>
+                        <t t-if="partner_phone">
+                            GSM : <t t-esc="partner_phone"/><br/>
                         </t>
                         <t t-if="doc.partner_id.email">
                             Mail : <t t-esc="doc.partner_id.email"/>
