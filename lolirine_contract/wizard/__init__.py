@@ -1,1 +1,3 @@
-from . import quotation_wizard
+# -*- coding: utf-8 -*-
+
+from . import send_document_wizard

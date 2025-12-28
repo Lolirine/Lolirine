@@ -4,9 +4,9 @@ from odoo import api, fields, models
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    contract_access_code = fields.Char(string="Code acces")
+    contract_access_code = fields.Char(string="Code accès")
     contract_forklift_code = fields.Char(string="Code gerbeur")
-    contract_deposit_date = fields.Date(string="Date de depot des effets")
+    contract_deposit_date = fields.Date(string="Date de dépôt des effets")
     contract_signature_date = fields.Date(string="Date de signature", default=fields.Date.context_today)
     contract_signature_location = fields.Char(string="Lieu de signature", default="Boninne")
     contract_deposit_amount = fields.Monetary(string="Montant caution", compute="_compute_contract_amounts", store=True)
@@ -51,53 +51,33 @@ class SaleOrder(models.Model):
         }
 
     def action_send_contract(self):
-        """Envoyer le contrat par email"""
+        """Ouvrir le wizard d'envoi du contrat"""
         self.ensure_one()
-        template = self.env.ref("lolirine_contract.email_template_contract", raise_if_not_found=False)
-        if not template:
-            return True
-
-        compose_form = self.env.ref("mail.email_compose_message_wizard_form", raise_if_not_found=False)
-        ctx = {
-            "default_model": "sale.order",
-            "default_res_ids": self.ids,
-            "default_template_id": template.id,
-            "default_composition_mode": "comment",
-            "force_email": True,
-        }
         return {
             "name": "Envoyer le contrat",
             "type": "ir.actions.act_window",
+            "res_model": "send.document.wizard",
             "view_mode": "form",
-            "res_model": "mail.compose.message",
-            "views": [(compose_form.id, "form")],
-            "view_id": compose_form.id,
             "target": "new",
-            "context": ctx,
+            "context": {
+                "default_sale_order_id": self.id,
+                "default_document_type": "contract",
+                "active_id": self.id,
+            },
         }
 
     def action_send_quotation(self):
-        """Envoyer le devis par email"""
+        """Ouvrir le wizard d'envoi du devis"""
         self.ensure_one()
-        template = self.env.ref("lolirine_contract.email_template_quotation", raise_if_not_found=False)
-        if not template:
-            return True
-
-        compose_form = self.env.ref("mail.email_compose_message_wizard_form", raise_if_not_found=False)
-        ctx = {
-            "default_model": "sale.order",
-            "default_res_ids": self.ids,
-            "default_template_id": template.id,
-            "default_composition_mode": "comment",
-            "force_email": True,
-        }
         return {
             "name": "Envoyer le devis",
             "type": "ir.actions.act_window",
+            "res_model": "send.document.wizard",
             "view_mode": "form",
-            "res_model": "mail.compose.message",
-            "views": [(compose_form.id, "form")],
-            "view_id": compose_form.id,
             "target": "new",
-            "context": ctx,
+            "context": {
+                "default_sale_order_id": self.id,
+                "default_document_type": "quotation",
+                "active_id": self.id,
+            },
         }

@@ -1,3 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_lolirine_quotation_wizard,lolirine.quotation.wizard,model_lolirine_quotation_wizard,base.group_user,1,1,1,1
-access_lolirine_quotation_wizard_line,lolirine.quotation.wizard.line,model_lolirine_quotation_wizard_line,base.group_user,1,1,1,1
+access_send_document_wizard,send.document.wizard,model_send_document_wizard,sales_team.group_sale_salesman,1,1,1,1
