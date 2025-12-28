@@ -8,6 +8,7 @@
     "depends": ["sale_subscription", "mail", "contacts", "portal", "website", "product"],
     "data": [
         "security/ir.model.access.csv",
+        "wizard/send_document_wizard_views.xml",
         "report/contract_report.xml",
         "report/contract_template.xml",
         "report/quotation_template.xml",
