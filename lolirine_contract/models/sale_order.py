@@ -12,7 +12,7 @@ class SaleOrder(models.Model):
     contract_deposit_amount = fields.Monetary(string="Montant caution", compute="_compute_contract_amounts", store=True)
     contract_monthly_rent = fields.Monetary(string="Loyer mensuel", compute="_compute_contract_amounts", store=True)
     contract_dossier_fees = fields.Monetary(string="Frais de dossier", compute="_compute_contract_amounts", store=True)
-    
+
     # Champs related pour la carte d'identité du client
     partner_id_card_recto = fields.Binary(related="partner_id.id_card_recto", string="CI Recto", readonly=True)
     partner_id_card_verso = fields.Binary(related="partner_id.id_card_verso", string="CI Verso", readonly=True)
@@ -32,11 +32,23 @@ class SaleOrder(models.Model):
             order.contract_dossier_fees = dossier_fees
             order.contract_deposit_amount = monthly_rent * 2
 
+    def action_preview_contract(self):
+        """Aperçu du contrat PDF dans le navigateur"""
+        self.ensure_one()
+        return self.env.ref("lolirine_contract.action_report_contract").report_action(self)
+
+    def action_preview_quotation(self):
+        """Aperçu du devis PDF dans le navigateur"""
+        self.ensure_one()
+        return self.env.ref("lolirine_contract.action_report_quotation").report_action(self)
+
     def action_send_contract(self):
+        """Envoyer le contrat par email"""
         self.ensure_one()
         template = self.env.ref("lolirine_contract.email_template_contract", raise_if_not_found=False)
         if not template:
             return True
+
         compose_form = self.env.ref("mail.email_compose_message_wizard_form", raise_if_not_found=False)
         ctx = {
             "default_model": "sale.order",
@@ -57,11 +69,12 @@ class SaleOrder(models.Model):
         }
 
     def action_send_quotation(self):
-        """Envoyer le devis par email avec le PDF en pièce jointe"""
+        """Envoyer le devis par email"""
         self.ensure_one()
         template = self.env.ref("lolirine_contract.email_template_quotation", raise_if_not_found=False)
         if not template:
             return True
+
         compose_form = self.env.ref("mail.email_compose_message_wizard_form", raise_if_not_found=False)
         ctx = {
             "default_model": "sale.order",
