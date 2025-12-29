@@ -18,6 +18,8 @@ class ProductTemplate(models.Model):
         ('rented', 'Loué'),
         ('reserved', 'Réservé'),
         ('maintenance', 'En maintenance'),
+        ('cleaning', 'En nettoyage'),
+        ('soon_available', 'Bientôt disponible'),
     ], string="Statut du box", default='available',
         help="Statut actuel du box de stockage")
 
@@ -87,13 +89,13 @@ class ProductTemplate(models.Model):
 
     @api.depends('is_storage_box', 'storage_status', 'storage_appointment_override')
     def _compute_show_appointment_button(self):
-        """Calcule si le bouton rendez-vous doit être affiché (box disponible)"""
+        """Calcule si le bouton rendez-vous doit être affiché (box disponible ou bientôt disponible)"""
         config = self.env['ir.config_parameter'].sudo()
         global_enabled = config.get_param('lolirine_storage.enable_appointment_button', 'False') == 'True'
 
         for product in self:
             show = False
-            if product.is_storage_box and product.storage_status == 'available':
+            if product.is_storage_box and product.storage_status in ('available', 'soon_available'):
                 if product.storage_appointment_override == 'show':
                     show = True
                 elif product.storage_appointment_override == 'hide':
@@ -107,7 +109,7 @@ class ProductTemplate(models.Model):
         """Calcule si le bouton demande générale doit être affiché (box non disponible)"""
         for product in self:
             show = False
-            if product.is_storage_box and product.storage_status != 'available':
+            if product.is_storage_box and product.storage_status not in ('available', 'soon_available'):
                 show = True
             product.show_general_inquiry_button = show
 
@@ -165,6 +167,8 @@ class ProductTemplate(models.Model):
             'rented': 'Loué',
             'reserved': 'Réservé',
             'maintenance': 'En maintenance',
+            'cleaning': 'En nettoyage',
+            'soon_available': 'Bientôt disponible',
         }
         for product in self:
             product.storage_status_display = status_labels.get(product.storage_status, '')
@@ -191,6 +195,8 @@ class ProductTemplate(models.Model):
             'rented': 'lolirine_storage_availability.ribbon_storage_rented',
             'reserved': 'lolirine_storage_availability.ribbon_storage_reserved',
             'maintenance': 'lolirine_storage_availability.ribbon_storage_maintenance',
+            'cleaning': 'lolirine_storage_availability.ribbon_storage_cleaning',
+            'soon_available': 'lolirine_storage_availability.ribbon_storage_soon_available',
         }
         
         for product in self.filtered('is_storage_box'):
@@ -230,9 +236,18 @@ class ProductTemplate(models.Model):
         """Marque le box en maintenance"""
         self.filtered('is_storage_box').write({'storage_status': 'maintenance'})
 
+    def action_set_cleaning(self):
+        """Marque le box en nettoyage"""
+        self.filtered('is_storage_box').write({'storage_status': 'cleaning'})
+
+    def action_set_soon_available(self):
+        """Marque le box comme bientôt disponible"""
+        self.filtered('is_storage_box').write({'storage_status': 'soon_available'})
+
     def action_convert_to_storage_box(self):
         """Convertit le produit en box de stockage"""
         self.write({'is_storage_box': True, 'storage_status': 'available'})
+
 
 class ProductProduct(models.Model):
     _inherit = 'product.product'
