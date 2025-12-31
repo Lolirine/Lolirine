@@ -20,8 +20,12 @@
                     </group>
                     <group string="Options">
                         <field name="aller_retour"/>
-                        <field name="destination_info" readonly="1" 
-                               class="text-info" nolabel="1" colspan="2"/>
+                        <div class="text-info" colspan="2" invisible="destination_found">
+                            <field name="destination_info" readonly="1" nolabel="1"/>
+                        </div>
+                        <div class="text-success" colspan="2" invisible="not destination_found">
+                            <field name="destination_info" readonly="1" nolabel="1"/>
+                        </div>
                         <field name="destination_found" invisible="1"/>
                     </group>
                 </group>
@@ -31,7 +35,6 @@
                         <field name="use_predefined" widget="boolean_toggle"/>
                     </group>
                     <group>
-                        <!-- Bouton pour créer une nouvelle destination si pas trouvée -->
                         <button name="action_create_destination" 
                                 string="+ Créer cette destination comme prédéfinie"
                                 type="object" class="btn-link text-primary"
@@ -41,38 +44,46 @@
                     </group>
                 </group>
                 
-                <group invisible="not use_predefined">
-                    <group string="Destination prédéfinie">
+                <!-- Mode destination prédéfinie -->
+                <group string="Destination prédéfinie" invisible="not use_predefined">
+                    <group>
                         <field name="lieu_depart_predef_id" 
                                required="use_predefined"
                                options="{'no_create': True}"/>
                         <field name="destination_predef_id" 
                                required="use_predefined"
                                options="{'no_create': False, 'no_quick_create': True}"/>
+                    </group>
+                    <group>
                         <field name="distance_aller"/>
                     </group>
                 </group>
                 
-                <group invisible="use_predefined">
-                    <group string="Adresses manuelles">
-                        <div class="alert alert-info mb-2" role="alert" colspan="2">
-                            <i class="fa fa-info-circle"/> Tapez l'adresse, des suggestions apparaîtront automatiquement.
-                        </div>
+                <!-- Mode adresses manuelles -->
+                <group string="Adresses manuelles" invisible="use_predefined">
+                    <div class="alert alert-info mb-3 col-12" role="alert">
+                        <i class="fa fa-info-circle me-1"/> Tapez votre adresse, des suggestions apparaîtront automatiquement.
+                        Sélectionnez l'adresse correcte dans la liste pour une précision optimale.
+                    </div>
+                    <group>
                         <field name="lieu_depart" 
+                               string="Lieu de départ"
                                required="not use_predefined"
                                widget="address_autocomplete"
                                placeholder="Commencez à taper l'adresse de départ..."/>
                         <field name="lieu_arrivee" 
+                               string="Lieu d'arrivée"
                                required="not use_predefined"
                                widget="address_autocomplete"
                                placeholder="Commencez à taper l'adresse d'arrivée..."/>
-                        <field name="distance_aller" 
-                               placeholder="Distance en km (laisser 0 pour calculer plus tard)"/>
+                    </group>
+                    <group>
+                        <field name="distance_aller" string="Distance aller (km)"/>
                     </group>
                 </group>
                 
-                <group>
-                    <field name="motif" placeholder="Motif du déplacement..."/>
+                <group string="Motif du déplacement">
+                    <field name="motif" nolabel="1" placeholder="Motif du déplacement..." colspan="2"/>
                 </group>
                 
                 <footer>
@@ -115,6 +126,7 @@
                         <field name="lieu_depart_id" readonly="1"/>
                         <field name="distance_km" placeholder="Distance en km"/>
                     </group>
+                    <group/>
                 </group>
                 
                 <footer>
@@ -149,22 +161,26 @@
                     </group>
                 </group>
                 
-                <group invisible="not use_predefined">
-                    <group string="Destination prédéfinie">
+                <!-- Mode destination prédéfinie -->
+                <group string="Destination prédéfinie" invisible="not use_predefined">
+                    <group>
                         <field name="lieu_depart_predef_id" 
                                required="use_predefined"
                                options="{'no_create': True}"/>
                         <field name="destination_predef_id" 
                                options="{'no_create': False, 'no_quick_create': True}"/>
+                    </group>
+                    <group>
                         <field name="distance_aller"/>
                     </group>
                 </group>
                 
-                <group invisible="use_predefined">
-                    <group string="Adresses">
-                        <div class="alert alert-info mb-2" role="alert" colspan="2">
-                            <i class="fa fa-info-circle"/> Tapez l'adresse, des suggestions apparaîtront automatiquement.
-                        </div>
+                <!-- Mode adresses manuelles -->
+                <group string="Adresses" invisible="use_predefined">
+                    <div class="alert alert-info mb-3 col-12" role="alert">
+                        <i class="fa fa-info-circle me-1"/> Tapez l'adresse, des suggestions apparaîtront automatiquement.
+                    </div>
+                    <group>
                         <field name="lieu_depart" 
                                required="not use_predefined"
                                widget="address_autocomplete"
@@ -173,8 +189,9 @@
                                required="not use_predefined"
                                widget="address_autocomplete"
                                placeholder="Adresse du client"/>
-                        <field name="distance_aller" 
-                               placeholder="Distance en km"/>
+                    </group>
+                    <group>
+                        <field name="distance_aller" placeholder="Distance en km"/>
                     </group>
                 </group>
                 
