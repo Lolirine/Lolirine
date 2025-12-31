@@ -22,14 +22,13 @@ export class AddressAutocompleteField extends CharField {
         this.initAttempts = 0;
         this.maxAttempts = 25;
         this.isInModal = false;
-        this.pacContainerId = null;
+        this.modalObserver = null;
         
         onMounted(() => {
             this.isInModal = this.detectModal();
             const delay = this.isInModal ? 1000 : 300;
             setTimeout(() => this.initGooglePlaces(), delay);
             
-            // Écouter la fermeture des modals pour nettoyer
             if (this.isInModal) {
                 this.setupModalCloseListener();
             }
@@ -53,14 +52,12 @@ export class AddressAutocompleteField extends CharField {
     }
     
     setupModalCloseListener() {
-        // Écouter les événements de fermeture de modal Bootstrap/Odoo
         const modal = document.querySelector('.modal.show, .o_dialog');
         if (modal) {
             modal.addEventListener('hidden.bs.modal', () => this.cleanup());
             modal.addEventListener('hide.bs.modal', () => this.hidePacContainer());
         }
         
-        // Observer les changements du DOM pour détecter la fermeture
         this.modalObserver = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 for (const node of mutation.removedNodes) {
@@ -74,7 +71,6 @@ export class AddressAutocompleteField extends CharField {
     }
     
     hidePacContainer() {
-        // Cacher tous les dropdowns Google Places
         const pacContainers = document.querySelectorAll('.pac-container');
         pacContainers.forEach(container => {
             container.style.display = 'none';
@@ -83,13 +79,11 @@ export class AddressAutocompleteField extends CharField {
     }
     
     cleanup() {
-        // Nettoyer l'observer
         if (this.modalObserver) {
             this.modalObserver.disconnect();
             this.modalObserver = null;
         }
         
-        // Nettoyer l'autocomplete Google
         if (this.autocomplete && window.google && window.google.maps) {
             try {
                 google.maps.event.clearInstanceListeners(this.autocomplete);
@@ -99,15 +93,12 @@ export class AddressAutocompleteField extends CharField {
             this.autocomplete = null;
         }
         
-        // Supprimer les pac-containers orphelins
         this.removePacContainers();
     }
     
     removePacContainers() {
-        // Supprimer tous les dropdowns Google Places qui traînent
         const pacContainers = document.querySelectorAll('.pac-container');
         pacContainers.forEach(container => {
-            // Vérifier si le container est "orphelin" (plus d'input associé visible)
             const isOrphan = !document.querySelector('.pac-target-input:focus');
             if (isOrphan) {
                 container.remove();
@@ -281,7 +272,6 @@ export class AddressAutocompleteField extends CharField {
         try {
             this.autocomplete = new google.maps.places.Autocomplete(input, options);
             
-            // Empêcher soumission sur Enter
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -290,9 +280,7 @@ export class AddressAutocompleteField extends CharField {
                 }
             });
             
-            // Cacher le dropdown quand on perd le focus
             input.addEventListener('blur', () => {
-                // Petit délai pour permettre la sélection
                 setTimeout(() => {
                     if (!document.activeElement || document.activeElement !== input) {
                         this.hidePacContainer();
@@ -300,7 +288,6 @@ export class AddressAutocompleteField extends CharField {
                 }, 200);
             });
             
-            // Re-bind sur focus
             input.addEventListener('focus', () => {
                 if (this.autocomplete && window.google?.maps) {
                     setTimeout(() => {
@@ -309,7 +296,6 @@ export class AddressAutocompleteField extends CharField {
                 }
             });
             
-            // Écouter la sélection
             this.autocomplete.addListener("place_changed", () => {
                 const place = this.autocomplete.getPlace();
                 
@@ -320,7 +306,6 @@ export class AddressAutocompleteField extends CharField {
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                     input.dispatchEvent(new Event('change', { bubbles: true }));
                     
-                    // Cacher le dropdown après sélection
                     this.hidePacContainer();
                 }
             });
@@ -339,4 +324,4 @@ export const addressAutocompleteField = {
     component: AddressAutocompleteField,
 };
 
-registry.category("fields").add("address_autocomplete", addressAutocompleteField);lete", addressAutocompleteField);
+registry.category("fields").add("address_autocomplete", addressAutocompleteField);
