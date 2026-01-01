@@ -1,31 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vue recherche des boxes -->
-    <record id="view_storage_box_search" model="ir.ui.view">
-        <field name="name">storage.box.search</field>
-        <field name="model">storage.box</field>
-        <field name="arch" type="xml">
-            <search string="Rechercher un box">
-                <field name="name"/>
-                <field name="floor_id"/>
-                <field name="current_customer_name" string="Client"/>
-                <separator/>
-                <filter name="disponible" string="Disponibles" domain="[('status', '=', 'disponible')]"/>
-                <filter name="occupe" string="Occupés" domain="[('status', '=', 'occupe')]"/>
-                <filter name="reserve" string="Réservés" domain="[('status', '=', 'reserve')]"/>
-                <filter name="maintenance" string="En maintenance" domain="[('status', '=', 'maintenance')]"/>
-                <separator/>
-                <filter name="avec_client" string="Avec client" domain="[('current_customer_name', '!=', False)]"/>
-                <filter name="sans_client" string="Sans client" domain="[('current_customer_name', '=', False)]"/>
-                <separator/>
-                <group expand="0" string="Grouper par">
-                    <filter name="group_floor" string="Étage" context="{'group_by': 'floor_id'}"/>
-                    <filter name="group_status" string="Statut" context="{'group_by': 'status'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-
     <!-- Vue liste des boxes -->
     <record id="view_storage_box_tree" model="ir.ui.view">
         <field name="name">storage.box.tree</field>
@@ -227,23 +201,6 @@
         <field name="name">Boxes de stockage</field>
         <field name="res_model">storage.box</field>
         <field name="view_mode">kanban,list,form</field>
-        <field name="search_view_id" ref="view_storage_box_search"/>
-    </record>
-    
-    <!-- Action boxes occupés -->
-    <record id="action_storage_box_occupied" model="ir.actions.act_window">
-        <field name="name">Boxes occupés</field>
-        <field name="res_model">storage.box</field>
-        <field name="view_mode">list,form,kanban</field>
-        <field name="domain">[('status', '=', 'occupe')]</field>
-    </record>
-    
-    <!-- Action boxes disponibles -->
-    <record id="action_storage_box_available" model="ir.actions.act_window">
-        <field name="name">Boxes disponibles</field>
-        <field name="res_model">storage.box</field>
-        <field name="view_mode">list,form,kanban</field>
-        <field name="domain">[('status', '=', 'disponible')]</field>
     </record>
     
 </odoo>
