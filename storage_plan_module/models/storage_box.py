@@ -53,7 +53,32 @@ class StorageBox(models.Model):
     # Relations
     reservation_ids = fields.One2many('box.reservation', 'box_id', string='Réservations')
     current_reservation_id = fields.Many2one('box.reservation', string='Réservation actuelle',
-                                             compute='_compute_current_reservation')
+                                             compute='_compute_current_reservation', store=True)
+    
+    # Champs related pour le client actuel
+    current_customer_name = fields.Char(
+        string='Client actuel',
+        compute='_compute_current_reservation',
+        store=True,
+        help="Nom du client de la réservation en cours"
+    )
+    current_partner_id = fields.Many2one(
+        'res.partner',
+        string='Client (contact)',
+        compute='_compute_current_reservation',
+        store=True,
+        help="Contact lié à la réservation en cours"
+    )
+    current_reservation_state = fields.Selection(
+        related='current_reservation_id.state',
+        string='État réservation',
+        store=True
+    )
+    current_reservation_start = fields.Date(
+        related='current_reservation_id.start_date',
+        string='Date début occupation',
+        store=True
+    )
     
     # Informations supplémentaires
     description = fields.Text(string='Description')
@@ -77,13 +102,26 @@ class StorageBox(models.Model):
         for box in self:
             box.deposit_amount = box.price_monthly * box.deposit_months
     
-    @api.depends('reservation_ids', 'reservation_ids.state')
+    @api.depends('reservation_ids', 'reservation_ids.state', 'reservation_ids.customer_name', 'reservation_ids.partner_id')
     def _compute_current_reservation(self):
         for box in self:
             current = box.reservation_ids.filtered(
                 lambda r: r.state in ['confirmed', 'ongoing'] and r.active
             )
-            box.current_reservation_id = current[0] if current else False
+            if current:
+                reservation = current[0]
+                box.current_reservation_id = reservation.id
+                box.current_customer_name = reservation.customer_name
+                box.current_partner_id = reservation.partner_id.id if reservation.partner_id else False
+            else:
+                box.current_reservation_id = False
+                box.current_customer_name = False
+                box.current_partner_id = False
+    
+    def action_refresh_customer_info(self):
+        """Force le recalcul des informations client"""
+        self._compute_current_reservation()
+        return True
     
     def get_status_color(self):
         """Retourne la couleur associée au statut depuis la configuration"""
@@ -106,6 +144,34 @@ class StorageBox(models.Model):
             'url': '/storage/plan',
             'target': 'new',
         }
+    
+    def action_view_current_reservation(self):
+        """Ouvre la réservation actuelle"""
+        self.ensure_one()
+        if self.current_reservation_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Réservation actuelle',
+                'res_model': 'box.reservation',
+                'res_id': self.current_reservation_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+        return False
+    
+    def action_view_customer(self):
+        """Ouvre la fiche du client actuel"""
+        self.ensure_one()
+        if self.current_partner_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Client',
+                'res_model': 'res.partner',
+                'res_id': self.current_partner_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+        return False
     
     def get_box_details(self):
         """Retourne les détails du box pour l'affichage web"""
@@ -137,6 +203,7 @@ class StorageBox(models.Model):
             'description': self.description or '',
             'aisle': self.aisle or 'left',
             'date_available': date_available_str,
+            'current_customer': self.current_customer_name or '',
         }
     
     @api.model
@@ -162,6 +229,7 @@ class StorageBox(models.Model):
                 'aisle': box.aisle,
                 'description': box.description or '',
                 'active': box.active,
+                'current_customer': box.current_customer_name or '',
             })
         return data
     
