@@ -115,8 +115,6 @@
                 <filter name="ongoing" string="En cours" domain="[('state', '=', 'ongoing')]"/>
                 <filter name="completed" string="Terminé" domain="[('state', '=', 'completed')]"/>
                 <separator/>
-                <filter name="today" string="Aujourd'hui" domain="[('reservation_date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))), ('reservation_date', '&lt;', datetime.datetime.combine(context_today() + relativedelta(days=1), datetime.time(0,0,0)))]"/>
-                <separator/>
                 <group expand="0" string="Grouper par">
                     <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
                     <filter name="group_box" string="Box" context="{'group_by': 'box_id'}"/>
