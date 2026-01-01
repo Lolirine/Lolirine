@@ -9,7 +9,7 @@
                   decoration-danger="status == 'occupe'" decoration-warning="status == 'maintenance'">
                 <field name="name"/>
                 <field name="floor_id"/>
-                <field name="current_customer_name" string="Client" optional="show"/>
+                <field name="current_customer_name" string="Client"/>
                 <field name="volume"/>
                 <field name="surface"/>
                 <field name="price_monthly"/>
@@ -18,7 +18,7 @@
                        decoration-danger="status == 'occupe'"
                        decoration-warning="status == 'maintenance'"
                        decoration-info="status == 'reserve'"/>
-                <field name="current_reservation_start" string="Début" optional="hide"/>
+                <field name="product_tmpl_id" string="Produit" optional="hide"/>
                 <field name="date_available" optional="show"/>
             </list>
         </field>
@@ -48,12 +48,12 @@
                         <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
                             <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
                         </button>
-                        <button name="action_view_current_reservation" type="object" 
-                                class="oe_stat_button" icon="fa-calendar-check-o"
-                                invisible="not current_reservation_id">
+                        <button name="action_view_current_subscription" type="object" 
+                                class="oe_stat_button" icon="fa-refresh"
+                                invisible="not current_subscription_id">
                             <div class="o_stat_info">
-                                <span class="o_stat_text">Réservation</span>
-                                <span class="o_stat_text text-success">Active</span>
+                                <span class="o_stat_text">Abonnement</span>
+                                <span class="o_stat_text text-success">Actif</span>
                             </div>
                         </button>
                         <button name="action_view_customer" type="object" 
@@ -65,17 +65,28 @@
                             </div>
                         </button>
                         <button name="action_view_on_website" type="object" 
-                                class="oe_stat_button" icon="fa-globe" string="Voir sur le site">
+                                class="oe_stat_button" icon="fa-globe">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Voir sur</span>
+                                <span class="o_stat_text">le site</span>
+                            </div>
                         </button>
                     </div>
                     
                     <!-- Bandeau client actuel -->
-                    <div class="alert alert-info" role="alert" invisible="not current_customer_name">
-                        <strong>Client actuel :</strong> 
-                        <field name="current_customer_name" class="fw-bold" nolabel="1"/>
-                        <span class="ms-3">
-                            Depuis le <field name="current_reservation_start" nolabel="1"/>
-                        </span>
+                    <div class="alert alert-info d-flex align-items-center" role="alert" 
+                         invisible="not current_customer_name">
+                        <i class="fa fa-user fa-lg me-3"/>
+                        <div>
+                            <strong>Client actuel : </strong>
+                            <field name="current_customer_name" class="fw-bold"/>
+                            <span class="ms-2 text-muted" invisible="not current_subscription_id">
+                                (via abonnement)
+                            </span>
+                        </div>
+                        <button name="action_refresh_customer" type="object" 
+                                class="btn btn-sm btn-outline-secondary ms-auto"
+                                string="Rafraîchir" icon="fa-refresh"/>
                     </div>
                     
                     <group>
@@ -115,9 +126,9 @@
                     </group>
                     
                     <!-- Champs cachés pour les computed -->
-                    <field name="current_reservation_id" invisible="1"/>
                     <field name="current_partner_id" invisible="1"/>
-                    <field name="current_reservation_state" invisible="1"/>
+                    <field name="current_subscription_id" invisible="1"/>
+                    <field name="current_reservation_id" invisible="1"/>
                     
                     <notebook>
                         <page string="Réservations" name="reservations">
@@ -138,6 +149,30 @@
                                            decoration-danger="state == 'cancelled'"/>
                                 </list>
                             </field>
+                        </page>
+                        <page string="Produit lié" name="product_link">
+                            <group>
+                                <group string="Liaison avec le produit e-commerce">
+                                    <field name="product_tmpl_id" 
+                                           options="{'no_create': True}"
+                                           context="{'default_is_storage_box': True}"/>
+                                    <button name="action_link_product_by_name" 
+                                            string="Lier automatiquement par nom"
+                                            type="object" class="btn-link"
+                                            icon="fa-magic"
+                                            invisible="product_tmpl_id"
+                                            help="Cherche un produit avec un nom correspondant"/>
+                                </group>
+                                <group string="Info abonnement" invisible="not current_subscription_id">
+                                    <field name="current_subscription_id" readonly="1"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-warning" role="alert" invisible="product_tmpl_id">
+                                <i class="fa fa-exclamation-triangle me-2"/>
+                                <strong>Aucun produit lié.</strong> 
+                                Liez ce box à un produit e-commerce pour que le système récupère 
+                                automatiquement le client depuis les abonnements actifs.
+                            </div>
                         </page>
                         <page string="Notes internes" name="notes">
                             <field name="notes" placeholder="Notes internes..."/>
@@ -201,6 +236,32 @@
         <field name="name">Boxes de stockage</field>
         <field name="res_model">storage.box</field>
         <field name="view_mode">kanban,list,form</field>
+    </record>
+    
+    <!-- Action serveur pour rafraîchir les clients -->
+    <record id="action_refresh_all_customers" model="ir.actions.server">
+        <field name="name">Rafraîchir les clients</field>
+        <field name="model_id" ref="storage_plan_module.model_storage_box"/>
+        <field name="binding_model_id" ref="storage_plan_module.model_storage_box"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    records.action_refresh_customer()
+        </field>
+    </record>
+    
+    <!-- Action serveur pour lier les produits automatiquement -->
+    <record id="action_link_products_auto" model="ir.actions.server">
+        <field name="name">Lier produits automatiquement</field>
+        <field name="model_id" ref="storage_plan_module.model_storage_box"/>
+        <field name="binding_model_id" ref="storage_plan_module.model_storage_box"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    records.action_link_product_by_name()
+        </field>
     </record>
     
 </odoo>
