@@ -9,6 +9,7 @@
                   decoration-danger="status == 'occupe'" decoration-warning="status == 'maintenance'">
                 <field name="name"/>
                 <field name="floor_id"/>
+                <field name="current_customer_name" string="Client" optional="show"/>
                 <field name="volume"/>
                 <field name="surface"/>
                 <field name="price_monthly"/>
@@ -17,6 +18,7 @@
                        decoration-danger="status == 'occupe'"
                        decoration-warning="status == 'maintenance'"
                        decoration-info="status == 'reserve'"/>
+                <field name="current_reservation_start" string="Début" optional="hide"/>
                 <field name="date_available" optional="show"/>
             </list>
         </field>
@@ -46,9 +48,43 @@
                         <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
                             <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
                         </button>
-                        <button name="action_view_on_website" type="object" class="oe_stat_button" icon="fa-globe" string="Voir sur le site">
+                        <button name="action_view_current_reservation" type="object" 
+                                class="oe_stat_button" icon="fa-calendar-check-o"
+                                invisible="not current_reservation_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Réservation</span>
+                                <span class="o_stat_text text-success">Active</span>
+                            </div>
+                        </button>
+                        <button name="action_view_customer" type="object" 
+                                class="oe_stat_button" icon="fa-user"
+                                invisible="not current_partner_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Voir</span>
+                                <span class="o_stat_text">Client</span>
+                            </div>
+                        </button>
+                        <button name="action_view_on_website" type="object" 
+                                class="oe_stat_button" icon="fa-globe" string="Voir sur le site">
                         </button>
                     </div>
+                    
+                    <!-- Bandeau client actuel -->
+                    <div class="alert alert-info" role="alert" invisible="not current_customer_name">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-user fa-2x me-3"/>
+                            <div>
+                                <strong>Client actuel :</strong> 
+                                <field name="current_customer_name" class="fw-bold" nolabel="1"/>
+                                <br/>
+                                <small class="text-muted">
+                                    Depuis le <field name="current_reservation_start" nolabel="1"/>
+                                    - État : <field name="current_reservation_state" widget="badge" nolabel="1"/>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <group>
                         <group string="Informations générales">
                             <field name="name"/>
@@ -84,19 +120,32 @@
                     <group>
                         <field name="description" placeholder="Description du box..."/>
                     </group>
+                    
+                    <!-- Champs cachés pour les computed -->
+                    <field name="current_reservation_id" invisible="1"/>
+                    <field name="current_partner_id" invisible="1"/>
+                    
                     <notebook>
-                        <page string="Réservations">
+                        <page string="Réservations" name="reservations">
                             <field name="reservation_ids">
-                                <list>
+                                <list decoration-success="state == 'ongoing'" 
+                                      decoration-info="state == 'confirmed'"
+                                      decoration-muted="state in ('completed', 'cancelled')">
                                     <field name="name"/>
                                     <field name="customer_name"/>
+                                    <field name="partner_id" optional="hide"/>
                                     <field name="reservation_date"/>
                                     <field name="start_date"/>
-                                    <field name="state" widget="badge"/>
+                                    <field name="end_date" optional="show"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'ongoing'"
+                                           decoration-info="state == 'confirmed'"
+                                           decoration-warning="state == 'pending'"
+                                           decoration-danger="state == 'cancelled'"/>
                                 </list>
                             </field>
                         </page>
-                        <page string="Notes internes">
+                        <page string="Notes internes" name="notes">
                             <field name="notes" placeholder="Notes internes..."/>
                         </page>
                     </notebook>
@@ -117,6 +166,7 @@
                 <field name="price_monthly"/>
                 <field name="status"/>
                 <field name="date_available"/>
+                <field name="current_customer_name"/>
                 <templates>
                     <t t-name="card">
                         <div class="o_kanban_record_top">
@@ -130,9 +180,15 @@
                             </div>
                         </div>
                         <div class="o_kanban_record_body">
-                            <field name="volume"/> m³ - <field name="price_monthly"/> €/mois
+                            <div><field name="volume"/> m³ - <field name="price_monthly"/> €/mois</div>
+                            <t t-if="record.current_customer_name.raw_value">
+                                <div class="mt-1">
+                                    <i class="fa fa-user text-primary"/> 
+                                    <strong><field name="current_customer_name"/></strong>
+                                </div>
+                            </t>
                             <t t-if="record.date_available.raw_value">
-                                <br/><small class="text-muted">Dispo: <field name="date_available"/></small>
+                                <div><small class="text-muted">Dispo: <field name="date_available"/></small></div>
                             </t>
                         </div>
                         <div class="o_kanban_record_bottom">
@@ -146,11 +202,58 @@
         </field>
     </record>
 
+    <!-- Vue recherche des boxes -->
+    <record id="view_storage_box_search" model="ir.ui.view">
+        <field name="name">storage.box.search</field>
+        <field name="model">storage.box</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher un box">
+                <field name="name"/>
+                <field name="floor_id"/>
+                <field name="current_customer_name" string="Client"/>
+                <field name="current_partner_id" string="Contact client"/>
+                <separator/>
+                <filter name="disponible" string="Disponibles" domain="[('status', '=', 'disponible')]"/>
+                <filter name="occupe" string="Occupés" domain="[('status', '=', 'occupe')]"/>
+                <filter name="reserve" string="Réservés" domain="[('status', '=', 'reserve')]"/>
+                <filter name="maintenance" string="En maintenance" domain="[('status', '=', 'maintenance')]"/>
+                <separator/>
+                <filter name="avec_client" string="Avec client" domain="[('current_customer_name', '!=', False)]"/>
+                <filter name="sans_client" string="Sans client" domain="[('current_customer_name', '=', False)]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_floor" string="Étage" context="{'group_by': 'floor_id'}"/>
+                    <filter name="group_status" string="Statut" context="{'group_by': 'status'}"/>
+                    <filter name="group_customer" string="Client" context="{'group_by': 'current_customer_name'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <!-- Action pour les boxes -->
     <record id="action_storage_box" model="ir.actions.act_window">
         <field name="name">Boxes de stockage</field>
         <field name="res_model">storage.box</field>
         <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_storage_box_search"/>
+    </record>
+    
+    <!-- Action boxes occupés -->
+    <record id="action_storage_box_occupied" model="ir.actions.act_window">
+        <field name="name">Boxes occupés</field>
+        <field name="res_model">storage.box</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="domain">[('status', '=', 'occupe')]</field>
+        <field name="context">{'search_default_occupe': 1}</field>
+    </record>
+    
+    <!-- Action boxes disponibles -->
+    <record id="action_storage_box_available" model="ir.actions.act_window">
+        <field name="name">Boxes disponibles</field>
+        <field name="res_model">storage.box</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="domain">[('status', '=', 'disponible')]</field>
+        <field name="context">{'search_default_disponible': 1}</field>
     </record>
     
 </odoo>
