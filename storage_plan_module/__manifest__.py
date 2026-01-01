@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Plan Interactif Garde-Meubles',
-    'version': '19.0.1.0.66',
+    'version': '19.0.1.0.67',
     'category': 'Services',
     'summary': 'Gestion interactive des boxes de stockage',
     'description': """
@@ -15,10 +15,11 @@
         * Réservation en ligne
         * Gestion des rendez-vous
         * Export/Import XLSX des boxes
+        * Liaison avec les abonnements pour affichage du client actuel
     """,
     'author': 'Lolirine SPRL',
     'website': 'https://www.lolirine.be',
-    'depends': ['base', 'website', 'portal'],
+    'depends': ['base', 'website', 'portal', 'sale_subscription'],
     'data': [
         'security/ir.model.access.csv',
         'views/storage_box_views.xml',
