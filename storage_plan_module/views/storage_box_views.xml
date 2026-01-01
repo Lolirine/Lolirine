@@ -73,22 +73,6 @@
                         </button>
                     </div>
                     
-                    <!-- Bandeau client actuel -->
-                    <div class="alert alert-info d-flex align-items-center" role="alert" 
-                         invisible="not current_customer_name">
-                        <i class="fa fa-user fa-lg me-3"/>
-                        <div>
-                            <strong>Client actuel : </strong>
-                            <field name="current_customer_name" class="fw-bold"/>
-                            <span class="ms-2 text-muted" invisible="not current_subscription_id">
-                                (via abonnement)
-                            </span>
-                        </div>
-                        <button name="action_refresh_customer" type="object" 
-                                class="btn btn-sm btn-outline-secondary ms-auto"
-                                string="Rafraîchir" icon="fa-refresh"/>
-                    </div>
-                    
                     <group>
                         <group string="Informations générales">
                             <field name="name"/>
@@ -125,12 +109,31 @@
                         <field name="description" placeholder="Description du box..."/>
                     </group>
                     
-                    <!-- Champs cachés pour les computed -->
-                    <field name="current_partner_id" invisible="1"/>
-                    <field name="current_subscription_id" invisible="1"/>
-                    <field name="current_reservation_id" invisible="1"/>
-                    
                     <notebook>
+                        <page string="Client actuel" name="current_client">
+                            <group>
+                                <group string="Informations client">
+                                    <field name="current_customer_name" readonly="1" string="Nom du client"/>
+                                    <field name="current_partner_id" readonly="1" string="Fiche contact"/>
+                                </group>
+                                <group string="Abonnement">
+                                    <field name="current_subscription_id" readonly="1" string="Contrat actif"/>
+                                </group>
+                            </group>
+                            <group>
+                                <button name="action_refresh_customer" 
+                                        string="Rafraîchir les informations client"
+                                        type="object" 
+                                        class="btn-primary"
+                                        icon="fa-refresh"/>
+                            </group>
+                            <div class="alert alert-info" role="alert" invisible="current_customer_name">
+                                <i class="fa fa-info-circle me-2"/>
+                                <strong>Aucun client lié.</strong> 
+                                Pour afficher le client, assurez-vous qu'un produit est lié dans l'onglet "Produit lié" 
+                                et qu'un abonnement actif existe pour ce produit.
+                            </div>
+                        </page>
                         <page string="Réservations" name="reservations">
                             <field name="reservation_ids">
                                 <list decoration-success="state == 'ongoing'" 
@@ -160,11 +163,7 @@
                                             string="Lier automatiquement par nom"
                                             type="object" class="btn-link"
                                             icon="fa-magic"
-                                            invisible="product_tmpl_id"
-                                            help="Cherche un produit avec un nom correspondant"/>
-                                </group>
-                                <group string="Info abonnement" invisible="not current_subscription_id">
-                                    <field name="current_subscription_id" readonly="1"/>
+                                            invisible="product_tmpl_id"/>
                                 </group>
                             </group>
                             <div class="alert alert-warning" role="alert" invisible="product_tmpl_id">
@@ -236,32 +235,6 @@
         <field name="name">Boxes de stockage</field>
         <field name="res_model">storage.box</field>
         <field name="view_mode">kanban,list,form</field>
-    </record>
-    
-    <!-- Action serveur pour rafraîchir les clients -->
-    <record id="action_refresh_all_customers" model="ir.actions.server">
-        <field name="name">Rafraîchir les clients</field>
-        <field name="model_id" ref="storage_plan_module.model_storage_box"/>
-        <field name="binding_model_id" ref="storage_plan_module.model_storage_box"/>
-        <field name="binding_view_types">list</field>
-        <field name="state">code</field>
-        <field name="code">
-if records:
-    records.action_refresh_customer()
-        </field>
-    </record>
-    
-    <!-- Action serveur pour lier les produits automatiquement -->
-    <record id="action_link_products_auto" model="ir.actions.server">
-        <field name="name">Lier produits automatiquement</field>
-        <field name="model_id" ref="storage_plan_module.model_storage_box"/>
-        <field name="binding_model_id" ref="storage_plan_module.model_storage_box"/>
-        <field name="binding_view_types">list</field>
-        <field name="state">code</field>
-        <field name="code">
-if records:
-    records.action_link_product_by_name()
-        </field>
     </record>
     
 </odoo>
