@@ -10,12 +10,15 @@ class BoxReservation(models.Model):
 
     name = fields.Char(string='Référence', required=True, copy=False, readonly=True, default='New')
     box_id = fields.Many2one('storage.box', string='Box', required=True, ondelete='cascade')
-    partner_id = fields.Many2one('res.partner', string='Client')
     
-    # Informations contact
+    # Client - champ principal
+    partner_id = fields.Many2one('res.partner', string='Client', 
+                                  help="Sélectionnez un client existant ou créez-en un nouveau")
+    
+    # Informations contact (remplies automatiquement ou manuellement)
     customer_name = fields.Char(string='Nom du client', required=True)
-    customer_email = fields.Char(string='Email', required=True)
-    customer_phone = fields.Char(string='Téléphone', required=True)
+    customer_email = fields.Char(string='Email')
+    customer_phone = fields.Char(string='Téléphone')
     
     # Dates
     reservation_date = fields.Datetime(string='Date de réservation', default=fields.Datetime.now, required=True)
@@ -51,11 +54,41 @@ class BoxReservation(models.Model):
     internal_notes = fields.Text(string='Notes internes')
     active = fields.Boolean(string='Actif', default=True)
     
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        """Remplit automatiquement les champs depuis le client sélectionné"""
+        if self.partner_id:
+            self.customer_name = self.partner_id.name
+            self.customer_email = self.partner_id.email or ''
+            self.customer_phone = self.partner_id.phone or self.partner_id.mobile or ''
+    
     @api.model
     def create(self, vals):
         if vals.get('name', 'New') == 'New':
             vals['name'] = self.env['ir.sequence'].next_by_code('box.reservation') or 'New'
+        
+        # Si partner_id fourni mais pas customer_name, le remplir
+        if vals.get('partner_id') and not vals.get('customer_name'):
+            partner = self.env['res.partner'].browse(vals['partner_id'])
+            vals['customer_name'] = partner.name
+            if not vals.get('customer_email'):
+                vals['customer_email'] = partner.email
+            if not vals.get('customer_phone'):
+                vals['customer_phone'] = partner.phone or partner.mobile
+        
         return super(BoxReservation, self).create(vals)
+    
+    def write(self, vals):
+        # Si partner_id change, mettre à jour les infos client
+        if 'partner_id' in vals and vals['partner_id']:
+            partner = self.env['res.partner'].browse(vals['partner_id'])
+            if 'customer_name' not in vals:
+                vals['customer_name'] = partner.name
+            if 'customer_email' not in vals:
+                vals['customer_email'] = partner.email
+            if 'customer_phone' not in vals:
+                vals['customer_phone'] = partner.phone or partner.mobile
+        return super(BoxReservation, self).write(vals)
     
     @api.depends('monthly_price', 'registration_fee', 'deposit_amount', 'start_date', 'end_date')
     def _compute_total_amount(self):
@@ -93,3 +126,25 @@ class BoxReservation(models.Model):
         if self.box_id.status in ['reserve', 'occupe']:
             self.box_id.status = 'disponible'
         return True
+    
+    def action_create_partner(self):
+        """Crée un contact depuis les informations de la réservation"""
+        self.ensure_one()
+        if not self.partner_id and self.customer_name:
+            partner = self.env['res.partner'].create({
+                'name': self.customer_name,
+                'email': self.customer_email,
+                'phone': self.customer_phone,
+            })
+            self.partner_id = partner.id
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Contact créé',
+                    'message': f'Le contact "{partner.name}" a été créé avec succès.',
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+        return False
