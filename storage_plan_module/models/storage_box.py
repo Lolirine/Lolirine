@@ -10,6 +10,14 @@ class StorageBox(models.Model):
     name = fields.Char(string='Numéro de box', required=True, index=True)
     floor_id = fields.Many2one('storage.floor', string='Étage', required=True)
     
+    # Lien vers le produit (pour les abonnements)
+    product_tmpl_id = fields.Many2one(
+        'product.template',
+        string='Produit lié',
+        domain="[('is_storage_box', '=', True)]",
+        help="Produit e-commerce lié à ce box pour les abonnements"
+    )
+    
     # Dimensions
     width = fields.Float(string='Largeur (cm)', required=True)
     depth = fields.Float(string='Profondeur (cm)', required=True)
@@ -50,34 +58,31 @@ class StorageBox(models.Model):
     ], string='Allée', default='left', required=True,
        help="Choisissez dans quelle allée placer le box sur le plan")
     
-    # Relations
+    # Relations - Réservations internes
     reservation_ids = fields.One2many('box.reservation', 'box_id', string='Réservations')
     current_reservation_id = fields.Many2one('box.reservation', string='Réservation actuelle',
                                              compute='_compute_current_reservation', store=True)
     
-    # Champs related pour le client actuel
+    # Client actuel (depuis réservation OU abonnement)
     current_customer_name = fields.Char(
         string='Client actuel',
-        compute='_compute_current_reservation',
+        compute='_compute_current_customer',
         store=True,
-        help="Nom du client de la réservation en cours"
+        help="Nom du client occupant actuellement le box"
     )
     current_partner_id = fields.Many2one(
         'res.partner',
         string='Client (contact)',
-        compute='_compute_current_reservation',
+        compute='_compute_current_customer',
         store=True,
-        help="Contact lié à la réservation en cours"
+        help="Contact du client occupant le box"
     )
-    current_reservation_state = fields.Selection(
-        related='current_reservation_id.state',
-        string='État réservation',
-        store=True
-    )
-    current_reservation_start = fields.Date(
-        related='current_reservation_id.start_date',
-        string='Date début occupation',
-        store=True
+    current_subscription_id = fields.Many2one(
+        'sale.order',
+        string='Abonnement actif',
+        compute='_compute_current_customer',
+        store=True,
+        help="Abonnement actif pour ce box"
     )
     
     # Informations supplémentaires
@@ -88,13 +93,11 @@ class StorageBox(models.Model):
     @api.depends('width', 'depth', 'height')
     def _compute_volume(self):
         for box in self:
-            # Conversion cm³ en m³
             box.volume = (box.width * box.depth * box.height) / 1000000 if box.width and box.depth and box.height else 0
     
     @api.depends('width', 'depth')
     def _compute_surface(self):
         for box in self:
-            # Conversion cm² en m²
             box.surface = (box.width * box.depth) / 10000 if box.width and box.depth else 0
     
     @api.depends('price_monthly', 'deposit_months')
@@ -102,25 +105,71 @@ class StorageBox(models.Model):
         for box in self:
             box.deposit_amount = box.price_monthly * box.deposit_months
     
-    @api.depends('reservation_ids', 'reservation_ids.state', 'reservation_ids.customer_name', 'reservation_ids.partner_id')
+    @api.depends('reservation_ids', 'reservation_ids.state')
     def _compute_current_reservation(self):
         for box in self:
             current = box.reservation_ids.filtered(
                 lambda r: r.state in ['confirmed', 'ongoing'] and r.active
             )
-            if current:
-                reservation = current[0]
-                box.current_reservation_id = reservation.id
-                box.current_customer_name = reservation.customer_name
-                box.current_partner_id = reservation.partner_id.id if reservation.partner_id else False
-            else:
-                box.current_reservation_id = False
-                box.current_customer_name = False
-                box.current_partner_id = False
+            box.current_reservation_id = current[0] if current else False
     
-    def action_refresh_customer_info(self):
+    @api.depends('product_tmpl_id', 'reservation_ids', 'reservation_ids.state', 
+                 'reservation_ids.customer_name', 'reservation_ids.partner_id')
+    def _compute_current_customer(self):
+        """Récupère le client actuel depuis l'abonnement actif ou la réservation"""
+        for box in self:
+            customer_name = False
+            partner = False
+            subscription = False
+            
+            # 1. D'abord chercher un abonnement actif via le produit lié
+            if box.product_tmpl_id:
+                # Chercher les abonnements actifs (sale.order avec is_subscription)
+                # qui contiennent ce produit
+                active_subscriptions = self.env['sale.order'].search([
+                    ('is_subscription', '=', True),
+                    ('subscription_state', '=', '3_progress'),  # En cours
+                    ('order_line.product_template_id', '=', box.product_tmpl_id.id),
+                ], limit=1, order='date_order desc')
+                
+                if active_subscriptions:
+                    subscription = active_subscriptions[0]
+                    partner = subscription.partner_id
+                    customer_name = partner.name if partner else False
+            
+            # 2. Si pas d'abonnement, chercher dans les réservations internes
+            if not customer_name:
+                current_reservation = box.reservation_ids.filtered(
+                    lambda r: r.state in ['confirmed', 'ongoing'] and r.active
+                )
+                if current_reservation:
+                    reservation = current_reservation[0]
+                    customer_name = reservation.customer_name
+                    partner = reservation.partner_id
+            
+            box.current_customer_name = customer_name
+            box.current_partner_id = partner.id if partner else False
+            box.current_subscription_id = subscription.id if subscription else False
+    
+    def action_refresh_customer(self):
         """Force le recalcul des informations client"""
-        self._compute_current_reservation()
+        self._compute_current_customer()
+        return True
+    
+    def action_link_product_by_name(self):
+        """Lie automatiquement le produit en cherchant par nom"""
+        ProductTemplate = self.env['product.template']
+        for box in self:
+            if not box.product_tmpl_id:
+                # Chercher un produit avec un nom similaire
+                product = ProductTemplate.search([
+                    ('is_storage_box', '=', True),
+                    '|',
+                    ('name', 'ilike', box.name),
+                    ('default_code', '=', box.name),
+                ], limit=1)
+                if product:
+                    box.product_tmpl_id = product.id
         return True
     
     def get_status_color(self):
@@ -145,15 +194,15 @@ class StorageBox(models.Model):
             'target': 'new',
         }
     
-    def action_view_current_reservation(self):
-        """Ouvre la réservation actuelle"""
+    def action_view_current_subscription(self):
+        """Ouvre l'abonnement actuel"""
         self.ensure_one()
-        if self.current_reservation_id:
+        if self.current_subscription_id:
             return {
                 'type': 'ir.actions.act_window',
-                'name': 'Réservation actuelle',
-                'res_model': 'box.reservation',
-                'res_id': self.current_reservation_id.id,
+                'name': 'Abonnement',
+                'res_model': 'sale.order',
+                'res_id': self.current_subscription_id.id,
                 'view_mode': 'form',
                 'target': 'current',
             }
@@ -176,12 +225,10 @@ class StorageBox(models.Model):
     def get_box_details(self):
         """Retourne les détails du box pour l'affichage web"""
         self.ensure_one()
-        # Formater la date de disponibilité
         date_available_str = ''
         if self.date_available:
             date_available_str = self.date_available.strftime('%d/%m/%Y')
         
-        # Récupérer la couleur du statut
         status_color = self.get_status_color()
         
         return {
@@ -247,7 +294,6 @@ class StorageBox(models.Model):
                 if not name:
                     continue
                 
-                # Chercher ou créer l'étage
                 floor_name = row.get('floor', '').strip()
                 floor_code = row.get('floor_code', '').strip()
                 floor = False
@@ -259,7 +305,6 @@ class StorageBox(models.Model):
                             'code': floor_code,
                         })
                 
-                # Chercher le box existant
                 box = self.search([('name', '=', name)], limit=1)
                 
                 vals = {
@@ -279,7 +324,6 @@ class StorageBox(models.Model):
                 if floor:
                     vals['floor_id'] = floor.id
                 
-                # Date disponibilité
                 date_str = row.get('date_available', '')
                 if date_str:
                     try:
@@ -306,3 +350,10 @@ class StorageBox(models.Model):
             'updated': updated,
             'errors': errors,
         }
+    
+    @api.model
+    def cron_refresh_customers(self):
+        """Tâche planifiée pour rafraîchir les informations clients"""
+        boxes = self.search([('status', 'in', ['occupe', 'reserve'])])
+        boxes._compute_current_customer()
+        return True
