@@ -117,6 +117,9 @@ class StorageBox(models.Model):
                  'reservation_ids.customer_name', 'reservation_ids.partner_id')
     def _compute_current_customer(self):
         """Récupère le client actuel depuis l'abonnement actif ou la réservation"""
+        SaleOrder = self.env['sale.order']
+        ProductProduct = self.env['product.product']
+        
         for box in self:
             customer_name = False
             partner = False
@@ -124,18 +127,23 @@ class StorageBox(models.Model):
             
             # 1. D'abord chercher un abonnement actif via le produit lié
             if box.product_tmpl_id:
-                # Chercher les abonnements actifs (sale.order avec is_subscription)
-                # qui contiennent ce produit
-                active_subscriptions = self.env['sale.order'].search([
-                    ('is_subscription', '=', True),
-                    ('subscription_state', '=', '3_progress'),  # En cours
-                    ('order_line.product_template_id', '=', box.product_tmpl_id.id),
-                ], limit=1, order='date_order desc')
+                # Récupérer les variantes (product.product) du template
+                product_variants = ProductProduct.search([
+                    ('product_tmpl_id', '=', box.product_tmpl_id.id)
+                ])
                 
-                if active_subscriptions:
-                    subscription = active_subscriptions[0]
-                    partner = subscription.partner_id
-                    customer_name = partner.name if partner else False
+                if product_variants:
+                    # Chercher les abonnements actifs qui contiennent ce produit
+                    active_subscriptions = SaleOrder.search([
+                        ('is_subscription', '=', True),
+                        ('subscription_state', '=', '3_progress'),
+                        ('order_line.product_id', 'in', product_variants.ids),
+                    ], limit=1, order='date_order desc')
+                    
+                    if active_subscriptions:
+                        subscription = active_subscriptions[0]
+                        partner = subscription.partner_id
+                        customer_name = partner.name if partner else False
             
             # 2. Si pas d'abonnement, chercher dans les réservations internes
             if not customer_name:
@@ -354,6 +362,6 @@ class StorageBox(models.Model):
     @api.model
     def cron_refresh_customers(self):
         """Tâche planifiée pour rafraîchir les informations clients"""
-        boxes = self.search([('status', 'in', ['occupe', 'reserve'])])
+        boxes = self.search([('product_tmpl_id', '!=', False)])
         boxes._compute_current_customer()
         return True
