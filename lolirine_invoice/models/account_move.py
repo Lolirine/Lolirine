@@ -630,11 +630,15 @@ class ResPartner(models.Model):
     @api.onchange('vat')
     def _onchange_vat_peppol(self):
         """Suggerer l'endpoint Peppol base sur le numero TVA"""
-        if self.vat and not self.peppol_endpoint:
-            vat_clean = self.vat.replace(' ', '').replace('.', '')
-            if vat_clean.startswith('BE'):
-                self.peppol_eas = '0208'
-                self.peppol_endpoint = vat_clean[2:]
+        try:
+            if self.vat and not self.peppol_endpoint:
+                vat_clean = self.vat.replace(' ', '').replace('.', '')
+                if vat_clean.startswith('BE'):
+                    self.peppol_eas = '0208'
+                    self.peppol_endpoint = vat_clean[2:]
+        except (ValueError, Exception):
+            # Ignorer les erreurs de validation Peppol (cache non rafraîchi)
+            pass
 
     def _compute_invoice_stats(self):
         for partner in self:
