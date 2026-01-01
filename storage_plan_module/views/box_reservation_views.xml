@@ -8,6 +8,7 @@
             <list string="Réservations" decoration-info="state == 'pending'" 
                   decoration-success="state == 'confirmed'" decoration-muted="state == 'cancelled'">
                 <field name="name"/>
+                <field name="partner_id" optional="show"/>
                 <field name="customer_name"/>
                 <field name="box_id"/>
                 <field name="reservation_date"/>
@@ -48,16 +49,27 @@
                     </div>
                     <group>
                         <group string="Informations client">
-                            <field name="customer_name"/>
-                            <field name="customer_email" widget="email"/>
-                            <field name="customer_phone" widget="phone"/>
-                            <field name="partner_id"/>
+                            <field name="partner_id" 
+                                   options="{'no_quick_create': False, 'no_create_edit': False}"
+                                   context="{'default_name': customer_name, 'default_email': customer_email, 'default_phone': customer_phone}"
+                                   placeholder="Rechercher ou créer un client..."/>
+                            <field name="customer_name" placeholder="Nom complet"/>
+                            <field name="customer_email" widget="email" placeholder="email@exemple.com"/>
+                            <field name="customer_phone" widget="phone" placeholder="+32 xxx xx xx xx"/>
+                            <button name="action_create_partner" 
+                                    string="Créer le contact" 
+                                    type="object" 
+                                    class="btn-link"
+                                    icon="fa-user-plus"
+                                    invisible="partner_id or not customer_name"
+                                    help="Créer un contact avec ces informations"/>
                         </group>
                         <group string="Box">
-                            <field name="box_id"/>
+                            <field name="box_id" options="{'no_create': True}"/>
                             <field name="monthly_price" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             <field name="registration_fee" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             <field name="deposit_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="currency_id" invisible="1"/>
                         </group>
                     </group>
                     <group>
@@ -87,11 +99,39 @@
     </record>
 
     <!-- Vue recherche des réservations -->
+    <record id="view_box_reservation_search" model="ir.ui.view">
+        <field name="name">box.reservation.search</field>
+        <field name="model">box.reservation</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher une réservation">
+                <field name="name"/>
+                <field name="customer_name"/>
+                <field name="partner_id"/>
+                <field name="box_id"/>
+                <separator/>
+                <filter name="draft" string="Brouillon" domain="[('state', '=', 'draft')]"/>
+                <filter name="pending" string="En attente" domain="[('state', '=', 'pending')]"/>
+                <filter name="confirmed" string="Confirmé" domain="[('state', '=', 'confirmed')]"/>
+                <filter name="ongoing" string="En cours" domain="[('state', '=', 'ongoing')]"/>
+                <filter name="completed" string="Terminé" domain="[('state', '=', 'completed')]"/>
+                <separator/>
+                <filter name="today" string="Aujourd'hui" domain="[('reservation_date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))), ('reservation_date', '&lt;', datetime.datetime.combine(context_today() + relativedelta(days=1), datetime.time(0,0,0)))]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
+                    <filter name="group_box" string="Box" context="{'group_by': 'box_id'}"/>
+                    <filter name="group_type" string="Type" context="{'group_by': 'reservation_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <!-- Action pour les réservations -->
     <record id="action_box_reservation" model="ir.actions.act_window">
         <field name="name">Réservations</field>
         <field name="res_model">box.reservation</field>
         <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_box_reservation_search"/>
     </record>
 
     <!-- Séquence pour les réservations -->
