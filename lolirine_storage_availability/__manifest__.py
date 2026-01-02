@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Storage Availability',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Website/Website',
     'summary': 'Gestion de la disponibilité des box de stockage avec bouton rendez-vous',
     'description': """
 Lolirine Storage Availability
 =============================
-
 Module de gestion de la disponibilité des box de stockage pour le e-commerce.
-
 Fonctionnalités:
 ----------------
 * Statut de disponibilité sur les produits (Disponible, Loué, Maintenance, Réservé)
@@ -17,14 +15,13 @@ Fonctionnalités:
 * Configuration globale dans les Paramètres généraux
 * Configuration individuelle par produit (override possible)
 * Intégration native avec le module website_appointment d'Odoo
-
+* Liaison avec le client/locataire actuel et son abonnement
 Configuration:
 --------------
 1. Allez dans Configuration > Paramètres généraux > section "Box de Stockage"
 2. Activez l'affichage du bouton rendez-vous
 3. Sélectionnez le type de rendez-vous par défaut
 4. Sur chaque produit, vous pouvez surcharger ces paramètres
-
 Auteur: Lolirine SPRL
     """,
     'author': 'Lolirine SPRL',
@@ -35,6 +32,7 @@ Auteur: Lolirine SPRL
         'website_sale',
         'website_appointment',
         'product',
+        'sale_subscription',
     ],
     'data': [
         'security/ir.model.access.csv',
