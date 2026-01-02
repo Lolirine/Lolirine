@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extension du formulaire partenaire -->
+    <record id="res_partner_view_form_penalties" model="ir.ui.view">
+        <field name="name">res.partner.form.penalties</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <!-- Boutons statistiques -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" type="object" name="action_view_penalties"
+                        icon="fa-exclamation-triangle"
+                        invisible="penalty_count == 0">
+                    <div class="o_stat_info">
+                        <field name="penalty_count" class="o_stat_value"/>
+                        <span class="o_stat_text">Pénalités</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Nouvel onglet "Garde-Meubles" -->
+            <xpath expr="//page[@name='sales_purchases']" position="after">
+                <page string="Garde-Meubles" name="storage_penalties">
+                    <group>
+                        <group string="Box de stockage">
+                            <field name="storage_product_id" 
+                                   options="{'no_create': True}"/>
+                            <field name="storage_subscription_id"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        <group string="Évaluation client">
+                            <field name="behavior_rating" widget="radio"/>
+                            <field name="penalty_total"/>
+                            <field name="penalty_unpaid" 
+                                   decoration-danger="penalty_unpaid > 0"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Remarques sur le comportement">
+                        <field name="behavior_notes" nolabel="1" 
+                               placeholder="Notes sur le comportement du client (paiements, respect des règles, incidents, etc.)"/>
+                    </group>
+
+                    <group string="Pénalités">
+                        <field name="penalty_ids" nolabel="1" colspan="2"/>
+                        <button name="action_add_penalty" type="object" 
+                                string="➕ Ajouter une pénalité" class="btn-secondary"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vue liste inline des pénalités pour le One2many -->
+    <record id="partner_penalty_view_tree_inline" model="ir.ui.view">
+        <field name="name">partner.penalty.tree.inline</field>
+        <field name="model">partner.penalty</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <tree string="Pénalités" editable="bottom" 
+                  decoration-danger="state in ('draft', 'confirmed')" 
+                  decoration-muted="state == 'cancelled'">
+                <field name="date"/>
+                <field name="name" readonly="1"/>
+                <field name="penalty_type_id"/>
+                <field name="category" optional="hide"/>
+                <field name="amount" sum="Total"/>
+                <field name="description"/>
+                <field name="state" widget="badge" 
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'confirmed'"
+                       decoration-success="state == 'paid'"
+                       decoration-danger="state == 'invoiced'"
+                       decoration-muted="state == 'cancelled'"/>
+                <field name="invoice_id" optional="show"/>
+                <button name="action_confirm" type="object" string="Confirmer" 
+                        class="btn-link" invisible="state != 'draft'"/>
+                <button name="action_create_invoice" type="object" string="Facturer" 
+                        class="btn-link" invisible="state != 'confirmed'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vue liste des partenaires avec colonnes pénalités -->
+    <record id="res_partner_view_tree_penalties" model="ir.ui.view">
+        <field name="name">res.partner.tree.penalties</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='phone']" position="after">
+                <field name="storage_product_id" optional="hide" string="Box"/>
+                <field name="penalty_count" optional="hide" string="Pénalités"/>
+                <field name="penalty_unpaid" optional="hide" string="Impayés (€)"
+                       decoration-danger="penalty_unpaid > 0"/>
+                <field name="behavior_rating" optional="hide" string="Comportement"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Filtres de recherche -->
+    <record id="res_partner_view_search_penalties" model="ir.ui.view">
+        <field name="name">res.partner.search.penalties</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='inactive']" position="after">
+                <separator/>
+                <filter string="Avec pénalités impayées" name="has_unpaid_penalties"
+                        domain="[('penalty_unpaid', '>', 0)]"/>
+                <filter string="Avec box de stockage" name="has_storage"
+                        domain="[('storage_product_id', '!=', False)]"/>
+                <filter string="Comportement problématique" name="bad_behavior"
+                        domain="[('behavior_rating', 'in', ['poor', 'bad'])]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Comportement" name="group_behavior" 
+                        context="{'group_by': 'behavior_rating'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
