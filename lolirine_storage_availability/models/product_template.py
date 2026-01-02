@@ -12,6 +12,22 @@ class ProductTemplate(models.Model):
         help="Cochez si ce produit est un box de stockage géré par contrat/abonnement"
     )
 
+    # Client/Locataire actuel du box
+    current_tenant_id = fields.Many2one(
+        'res.partner',
+        string="Client actuel",
+        domain="[('is_company', '=', False)]",
+        help="Le client qui loue actuellement ce box de stockage"
+    )
+
+    # Abonnement actuel lié
+    current_subscription_id = fields.Many2one(
+        'sale.order',
+        string="Abonnement actif",
+        domain="[('is_subscription', '=', True), ('subscription_state', '=', '3_progress')]",
+        help="L'abonnement actif pour ce box"
+    )
+
     # Statut de disponibilité du box
     storage_status = fields.Selection([
         ('available', 'Disponible'),
@@ -173,6 +189,50 @@ class ProductTemplate(models.Model):
         for product in self:
             product.storage_status_display = status_labels.get(product.storage_status, '')
 
+    @api.onchange('current_tenant_id')
+    def _onchange_current_tenant_id(self):
+        """Met à jour le statut quand un client est assigné"""
+        for product in self:
+            if product.current_tenant_id and product.storage_status == 'available':
+                product.storage_status = 'rented'
+            elif not product.current_tenant_id and product.storage_status == 'rented':
+                product.storage_status = 'available'
+
+    @api.onchange('current_subscription_id')
+    def _onchange_current_subscription_id(self):
+        """Remplit le client depuis l'abonnement sélectionné"""
+        for product in self:
+            if product.current_subscription_id:
+                product.current_tenant_id = product.current_subscription_id.partner_id
+
+    def action_view_subscription(self):
+        """Ouvre l'abonnement actuel"""
+        self.ensure_one()
+        if self.current_subscription_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Abonnement',
+                'res_model': 'sale.order',
+                'res_id': self.current_subscription_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+        return False
+
+    def action_view_tenant(self):
+        """Ouvre la fiche du client actuel"""
+        self.ensure_one()
+        if self.current_tenant_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Client',
+                'res_model': 'res.partner',
+                'res_id': self.current_tenant_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+        return False
+
     def write(self, vals):
         """Override write pour synchroniser le ruban avec le statut"""
         res = super().write(vals)
@@ -222,7 +282,7 @@ class ProductTemplate(models.Model):
 
     def action_set_available(self):
         """Marque le box comme disponible"""
-        self.filtered('is_storage_box').write({'storage_status': 'available'})
+        self.filtered('is_storage_box').write({'storage_status': 'available', 'current_tenant_id': False})
 
     def action_set_rented(self):
         """Marque le box comme loué"""
