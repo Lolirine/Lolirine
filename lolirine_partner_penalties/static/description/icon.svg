@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B1538;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5C0E24;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="docGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E8E8E8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond arrondi -->
+  <rect x="4" y="4" width="120" height="120" rx="20" ry="20" fill="url(#bgGrad)"/>
+  
+  <!-- Document/Facture -->
+  <rect x="30" y="22" width="50" height="65" rx="4" ry="4" fill="url(#docGrad)"/>
+  <!-- Coin plié -->
+  <path d="M 68 22 L 80 22 L 80 34 L 68 34 Z" fill="#CCCCCC"/>
+  <path d="M 68 22 L 80 34 L 68 34 Z" fill="#AAAAAA"/>
+  
+  <!-- Lignes du document -->
+  <rect x="36" y="32" width="30" height="3" rx="1" fill="#CCCCCC"/>
+  <rect x="36" y="40" width="25" height="3" rx="1" fill="#CCCCCC"/>
+  <rect x="36" y="48" width="28" height="3" rx="1" fill="#CCCCCC"/>
+  <rect x="36" y="56" width="20" height="3" rx="1" fill="#CCCCCC"/>
+  
+  <!-- Symbole Euro -->
+  <circle cx="50" cy="72" r="10" fill="#8B1538" opacity="0.3"/>
+  <text x="50" y="77" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#5C0E24" text-anchor="middle">€</text>
+  
+  <!-- Triangle d'avertissement -->
+  <g transform="translate(75, 50)">
+    <path d="M 20 0 L 40 35 L 0 35 Z" fill="#FFD93D" stroke="#F5A623" stroke-width="2"/>
+    <text x="20" y="28" font-family="Arial, sans-serif" font-size="26" font-weight="bold" fill="#5C0E24" text-anchor="middle">!</text>
+  </g>
+  
+  <!-- Croix rouge (pénalité) -->
+  <g transform="translate(22, 70)">
+    <circle cx="18" cy="18" r="16" fill="#DC3545"/>
+    <rect x="10" y="16" width="16" height="4" rx="1" fill="white" transform="rotate(45, 18, 18)"/>
+    <rect x="10" y="16" width="16" height="4" rx="1" fill="white" transform="rotate(-45, 18, 18)"/>
+  </g>
+  
+  <!-- Texte "Pénalités" stylisé en bas -->
+  <text x="64" y="118" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#FFFFFF" text-anchor="middle" opacity="0.9">PÉNALITÉS</text>
+</svg>

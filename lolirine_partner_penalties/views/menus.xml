@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu racine de l'application -->
+    <menuitem id="menu_penalties_root"
+              name="Pénalités"
+              sequence="65"
+              web_icon="lolirine_partner_penalties,static/description/icon.png"/>
+
+    <!-- Sous-menu Pénalités -->
+    <menuitem id="menu_penalties_main"
+              name="Pénalités"
+              parent="menu_penalties_root"
+              sequence="10"/>
+
+    <menuitem id="menu_partner_penalties"
+              name="Pénalités clients"
+              parent="menu_penalties_main"
+              action="action_partner_penalties"
+              sequence="10"/>
+
+    <!-- Sous-menu Configuration -->
+    <menuitem id="menu_penalties_config"
+              name="Configuration"
+              parent="menu_penalties_root"
+              sequence="90"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_penalty_types"
+              name="Types de pénalités"
+              parent="menu_penalties_config"
+              action="action_penalty_types"
+              sequence="10"/>
+</odoo>
