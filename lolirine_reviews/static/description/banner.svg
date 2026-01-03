@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 180" width="560" height="180">
+  <defs>
+    <linearGradient id="headerBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#faf8f6"/>
+      <stop offset="100%" style="stop-color:#f0eeec"/>
+    </linearGradient>
+    <linearGradient id="lolirineRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C91E18"/>
+      <stop offset="100%" style="stop-color:#a11813"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="560" height="180" fill="url(#headerBg)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="500" cy="30" r="80" fill="#C91E18" opacity="0.05"/>
+  <circle cx="60" cy="150" r="60" fill="#C91E18" opacity="0.03"/>
+  
+  <!-- Logo/Icon area -->
+  <g transform="translate(40, 50)">
+    <!-- Icon container -->
+    <rect width="80" height="80" fill="url(#lolirineRed)" rx="16"/>
+    
+    <!-- Stars icon -->
+    <g fill="white" transform="translate(15, 20)">
+      <polygon points="25,0 30.9,15.5 47.6,15.5 34.1,25.1 39.4,40.5 25,30.9 10.6,40.5 15.9,25.1 2.4,15.5 19.1,15.5"/>
+    </g>
+    
+    <!-- Google G -->
+    <circle cx="60" cy="60" r="12" fill="white"/>
+    <text x="60" y="65" font-size="16" font-weight="bold" fill="#4285F4" text-anchor="middle" font-family="Arial, sans-serif">G</text>
+  </g>
+  
+  <!-- Text content -->
+  <g transform="translate(145, 55)">
+    <text font-size="28" font-weight="bold" fill="#1a1a1a" font-family="Arial, sans-serif">
+      <tspan>Avis Clients Google</tspan>
+    </text>
+    <text y="35" font-size="16" fill="#666666" font-family="Arial, sans-serif">
+      <tspan>Bloc carousel pour afficher les avis Google</tspan>
+    </text>
+    <text y="55" font-size="16" fill="#666666" font-family="Arial, sans-serif">
+      <tspan>avec la charte graphique Lolirine</tspan>
+    </text>
+    
+    <!-- Features badges -->
+    <g transform="translate(0, 75)">
+      <rect width="75" height="24" fill="#C91E18" fill-opacity="0.1" rx="12"/>
+      <text x="37.5" y="16" font-size="11" fill="#C91E18" text-anchor="middle" font-family="Arial, sans-serif">12 Avis</text>
+      
+      <rect x="85" width="90" height="24" fill="#f59e0b" fill-opacity="0.1" rx="12"/>
+      <text x="130" y="16" font-size="11" fill="#b45309" text-anchor="middle" font-family="Arial, sans-serif">⭐ 5.0/5</text>
+      
+      <rect x="185" width="90" height="24" fill="#22c55e" fill-opacity="0.1" rx="12"/>
+      <text x="230" y="16" font-size="11" fill="#16a34a" text-anchor="middle" font-family="Arial, sans-serif">Responsive</text>
+    </g>
+  </g>
+  
+  <!-- Preview cards -->
+  <g transform="translate(420, 35)">
+    <!-- Card 1 -->
+    <rect width="55" height="70" fill="white" rx="6" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"/>
+    <circle cx="14" cy="14" r="8" fill="url(#lolirineRed)"/>
+    <text x="14" y="17" font-size="8" fill="white" text-anchor="middle" font-weight="bold" font-family="Arial">JF</text>
+    <g fill="#f59e0b" transform="translate(8, 28)">
+      <circle cx="0" cy="0" r="2"/>
+      <circle cx="8" cy="0" r="2"/>
+      <circle cx="16" cy="0" r="2"/>
+      <circle cx="24" cy="0" r="2"/>
+      <circle cx="32" cy="0" r="2"/>
+    </g>
+    <rect x="8" y="36" width="40" height="3" fill="#e0e0e0" rx="1.5"/>
+    <rect x="8" y="42" width="35" height="3" fill="#e0e0e0" rx="1.5"/>
+    <rect x="8" y="48" width="30" height="3" fill="#e0e0e0" rx="1.5"/>
+    <rect x="8" y="58" width="25" height="8" fill="#C91E18" fill-opacity="0.15" rx="4"/>
+  </g>
+  
+  <g transform="translate(485, 55)">
+    <!-- Card 2 -->
+    <rect width="55" height="70" fill="white" rx="6" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"/>
+    <circle cx="14" cy="14" r="8" fill="url(#lolirineRed)"/>
+    <text x="14" y="17" font-size="8" fill="white" text-anchor="middle" font-weight="bold" font-family="Arial">NH</text>
+    <g fill="#f59e0b" transform="translate(8, 28)">
+      <circle cx="0" cy="0" r="2"/>
+      <circle cx="8" cy="0" r="2"/>
+      <circle cx="16" cy="0" r="2"/>
+      <circle cx="24" cy="0" r="2"/>
+      <circle cx="32" cy="0" r="2"/>
+    </g>
+    <rect x="8" y="36" width="40" height="3" fill="#e0e0e0" rx="1.5"/>
+    <rect x="8" y="42" width="32" height="3" fill="#e0e0e0" rx="1.5"/>
+    <rect x="8" y="48" width="38" height="3" fill="#e0e0e0" rx="1.5"/>
+    <rect x="8" y="58" width="25" height="8" fill="#C91E18" fill-opacity="0.15" rx="4"/>
+  </g>
+  
+  <!-- Version badge -->
+  <rect x="480" y="10" width="70" height="20" fill="#C91E18" rx="10"/>
+  <text x="515" y="24" font-size="10" fill="white" text-anchor="middle" font-weight="bold" font-family="Arial">Odoo 19</text>
+</svg>
