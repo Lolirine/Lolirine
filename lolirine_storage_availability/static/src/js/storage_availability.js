@@ -302,5 +302,3 @@ console.log('=== Lolirine Storage v3.9: Script chargé ===');
     }
 
 })();
-
-})();
