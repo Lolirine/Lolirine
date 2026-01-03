@@ -1,16 +1,21 @@
 /**
- * Lolirine Storage Availability v3.2
+ * Lolirine Storage Availability v3.3
  * Remplace le bouton "Ajouter au panier" par "Contactez-nous" ou "Demande générale"
  * Compatible Odoo 18/19 - Corrigé pour Website Builder
  */
 
-console.log('=== Lolirine Storage v3.2: Script chargé ===');
-
 (function () {
     'use strict';
 
+    // VÉRIFICATION IMMÉDIATE - ne rien faire si pas sur /shop/
+    var url = window.location.pathname;
+    if (!url.includes('/shop/')) {
+        return; // Arrêt total du script
+    }
+
+    console.log('=== Lolirine Storage v3.3: Script chargé sur page shop ===');
+
     var DONE = false;
-    var EDITOR_MODE = false;
 
     // Démarrer
     init();
@@ -33,17 +38,9 @@ console.log('=== Lolirine Storage v3.2: Script chargé ===');
 
     function init() {
         if (DONE) return;
+        if (isEditorMode()) return;
 
-        if (isEditorMode()) {
-            console.log('Lolirine Storage: Mode édition détecté, script désactivé');
-            EDITOR_MODE = true;
-            return;
-        }
-
-        var url = window.location.pathname;
-        if (!url.includes('/shop/')) return;
-
-        var slug = getSlug(url);
+        var slug = getSlug(window.location.pathname);
         if (!slug) return;
 
         console.log('Lolirine Storage: Slug = ' + slug);
@@ -75,41 +72,26 @@ console.log('=== Lolirine Storage v3.2: Script chargé ===');
     function transform(data) {
         console.log('Lolirine Storage: === TRANSFORMATION ===');
 
-        if (isEditorMode()) {
-            console.log('Lolirine Storage: Mode édition, transformation annulée');
-            return;
-        }
+        if (isEditorMode()) return;
 
-        // 1. MASQUER LES ÉLÉMENTS DU PANIER (une seule fois)
         hideCartElements();
-
-        // 2. CRÉER ET INSÉRER LES BOUTONS
         createAndInsertButtons(data);
-
-        // 3. Observer les changements DOM pour re-masquer si nécessaire
-        // (remplace le setInterval agressif)
         observeCartElements();
     }
 
     function hideCartElements() {
         if (isEditorMode()) return;
 
-        // Sélecteurs PRÉCIS uniquement pour les éléments d'ajout au panier
         var selectors = [
-            // Boutons d'ajout au panier spécifiques
             '#add_to_cart',
             'button#add_to_cart',
             'a#add_to_cart',
             '[name="add_to_cart"]',
             '.js_check_product',
             'a.a-submit.js_check_product',
-            
-            // Quantité
             '.css_quantity',
             '.input-group.js_quantity',
             'input[name="add_qty"]',
-            
-            // Formulaire d'ajout au panier (sélecteur précis)
             'form.js_add_cart_json',
             'form[action*="/shop/cart/update"]',
         ];
@@ -117,11 +99,8 @@ console.log('=== Lolirine Storage v3.2: Script chargé ===');
         var count = 0;
         selectors.forEach(function(sel) {
             document.querySelectorAll(sel).forEach(function(el) {
-                // Ne pas masquer nos propres boutons
                 if (el.closest('#lolirine_storage_buttons')) return;
                 if (el.id === 'lolirine_storage_buttons') return;
-                
-                // Ne pas masquer les éléments du Website Builder
                 if (el.closest('.o_we_customize_panel')) return;
                 if (el.closest('#oe_snippets')) return;
                 if (el.closest('.o_website_preview')) return;
@@ -141,15 +120,12 @@ console.log('=== Lolirine Storage v3.2: Script chargé ===');
     }
 
     function observeCartElements() {
-        // Utiliser MutationObserver au lieu de setInterval
-        // pour ne réagir que quand le DOM change
         var observer = new MutationObserver(function(mutations) {
             if (isEditorMode()) {
                 observer.disconnect();
                 return;
             }
             
-            // Vérifier si un élément panier a été ajouté
             var needsHide = false;
             mutations.forEach(function(mutation) {
                 mutation.addedNodes.forEach(function(node) {
@@ -227,7 +203,6 @@ console.log('=== Lolirine Storage v3.2: Script chargé ===');
         if (priceEl && priceEl.parentNode) {
             priceEl.parentNode.insertBefore(container, priceEl.nextSibling);
             inserted = true;
-            console.log('Lolirine Storage: Boutons insérés après le prix');
         }
 
         if (!inserted) {
@@ -235,7 +210,6 @@ console.log('=== Lolirine Storage v3.2: Script chargé ===');
             if (formEl && formEl.parentNode) {
                 formEl.parentNode.insertBefore(container, formEl);
                 inserted = true;
-                console.log('Lolirine Storage: Boutons insérés avant le formulaire');
             }
         }
 
@@ -244,12 +218,7 @@ console.log('=== Lolirine Storage v3.2: Script chargé ===');
             if (detailEl) {
                 detailEl.appendChild(container);
                 inserted = true;
-                console.log('Lolirine Storage: Boutons ajoutés dans product_detail');
             }
-        }
-
-        if (!inserted) {
-            console.warn('Lolirine Storage: IMPOSSIBLE d\'insérer les boutons!');
         }
     }
 
