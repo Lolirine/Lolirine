@@ -107,7 +107,7 @@ console.log('=== Lolirine Storage v3.9: Script chargé ===');
                 
                 // Créer un lien de remplacement
                 var link = document.createElement('a');
-                link.href = '/conditions-generales#table_of_content_heading_1_1';
+                link.href = '/conditions-generales/#table_of_content_heading_1_1';
                 link.className = btn.className;
                 link.style.cssText = btn.style.cssText || '';
                 link.innerHTML = '<i class="fa fa-info-circle me-2"></i>Voir les conditions';
@@ -300,5 +300,7 @@ console.log('=== Lolirine Storage v3.9: Script chargé ===');
     } else {
         console.log('Lolirine Storage: Page hors /shop/, script ignoré');
     }
+
+})();
 
 })();
