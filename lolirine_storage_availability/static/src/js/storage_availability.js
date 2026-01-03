@@ -1,20 +1,19 @@
 /**
- * Lolirine Storage Availability v3.5
- * Remplace le bouton "Ajouter au panier" par "Contactez-nous" ou "Demande générale"
- * Compatible Odoo 18/19 - Version corrigée pour ne pas masquer les infos produit
+ * Lolirine Storage Availability v3.6 - VERSION TEST SANS MASQUAGE
+ * Cette version n'effectue AUCUN masquage pour identifier la source du problème
  */
 
-console.log('=== Lolirine Storage v3.5: Script chargé ===');
+console.log('=== Lolirine Storage v3.6 TEST: Script chargé (SANS MASQUAGE) ===');
 
 (function () {
     'use strict';
 
     var DONE = false;
-    var EDITOR_MODE = false;
 
     // Démarrer seulement sur les pages /shop/
     var currentUrl = window.location.pathname;
     if (!currentUrl.includes('/shop/')) {
+        console.log('Lolirine Storage: Pas sur /shop/, script ignoré');
         return;
     }
 
@@ -41,7 +40,6 @@ console.log('=== Lolirine Storage v3.5: Script chargé ===');
 
         if (isEditorMode()) {
             console.log('Lolirine Storage: Mode édition détecté, script désactivé');
-            EDITOR_MODE = true;
             return;
         }
 
@@ -56,7 +54,8 @@ console.log('=== Lolirine Storage v3.5: Script chargé ===');
                 console.log('Lolirine Storage: Data = ', data);
                 if (data && data.is_storage_box) {
                     DONE = true;
-                    transform(data);
+                    // UNIQUEMENT ajouter les boutons, SANS masquer quoi que ce soit
+                    createAndInsertButtons(data);
                 }
             })
             .catch(function(e) {
@@ -72,101 +71,6 @@ console.log('=== Lolirine Storage v3.5: Script chargé ===');
             }
         }
         return null;
-    }
-
-    function transform(data) {
-        console.log('Lolirine Storage: === TRANSFORMATION ===');
-
-        if (isEditorMode()) {
-            console.log('Lolirine Storage: Mode édition, transformation annulée');
-            return;
-        }
-
-        // 1. Masquer UNIQUEMENT les éléments du panier
-        hideCartElements();
-
-        // 2. Créer et insérer les boutons personnalisés
-        createAndInsertButtons(data);
-
-        // 3. Observer les changements DOM pour re-masquer si nécessaire
-        observeCartElements();
-    }
-
-    function hideCartElements() {
-        if (isEditorMode()) return;
-
-        // Sélecteurs TRÈS PRÉCIS - uniquement les éléments d'ajout au panier
-        var selectorsToHide = [
-            // Le bouton "Ajouter au panier" spécifiquement
-            '#add_to_cart',
-            'button#add_to_cart',
-            'a#add_to_cart',
-            
-            // Les contrôles de quantité
-            '.css_quantity',
-            '.input-group.js_quantity',
-            
-            // Le formulaire d'ajout au panier (mais PAS tout le formulaire produit)
-            'form[action*="/shop/cart/update"]',
-        ];
-
-        var count = 0;
-        selectorsToHide.forEach(function(sel) {
-            document.querySelectorAll(sel).forEach(function(el) {
-                // Ne pas masquer nos propres boutons
-                if (el.closest('#lolirine_storage_buttons')) return;
-                if (el.id === 'lolirine_storage_buttons') return;
-                
-                // Ne pas masquer les éléments du Website Builder
-                if (el.closest('.o_we_customize_panel')) return;
-                if (el.closest('#oe_snippets')) return;
-                if (el.closest('.o_website_preview')) return;
-                
-                if (el.style.display !== 'none') {
-                    el.style.setProperty('display', 'none', 'important');
-                    count++;
-                }
-            });
-        });
-
-        // Ajouter une classe pour le CSS personnalisé si nécessaire
-        document.body.classList.add('lolirine-storage-box');
-
-        if (count > 0) {
-            console.log('Lolirine Storage: ' + count + ' éléments masqués');
-        }
-    }
-
-    function observeCartElements() {
-        // Utiliser MutationObserver pour réagir aux changements DOM
-        var observer = new MutationObserver(function(mutations) {
-            if (isEditorMode()) {
-                observer.disconnect();
-                return;
-            }
-            
-            var needsHide = false;
-            mutations.forEach(function(mutation) {
-                mutation.addedNodes.forEach(function(node) {
-                    if (node.nodeType === 1) {
-                        if (node.id === 'add_to_cart' || 
-                            (node.matches && node.matches('#add_to_cart, .css_quantity')) ||
-                            (node.querySelector && node.querySelector('#add_to_cart, .css_quantity'))) {
-                            needsHide = true;
-                        }
-                    }
-                });
-            });
-            
-            if (needsHide) {
-                hideCartElements();
-            }
-        });
-
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
     }
 
     function createAndInsertButtons(data) {
@@ -234,17 +138,9 @@ console.log('=== Lolirine Storage v3.5: Script chargé ===');
         if (!inserted) {
             var productDetail = document.querySelector('#product_details, #product_detail, .js_product');
             if (productDetail) {
-                // Chercher un bon endroit dans product_detail
-                var priceInDetail = productDetail.querySelector('.product_price, .oe_price');
-                if (priceInDetail && priceInDetail.parentNode) {
-                    priceInDetail.parentNode.insertBefore(container, priceInDetail.nextSibling);
-                    inserted = true;
-                    console.log('Lolirine Storage: Boutons insérés après le prix dans product_detail');
-                } else {
-                    productDetail.appendChild(container);
-                    inserted = true;
-                    console.log('Lolirine Storage: Boutons ajoutés à la fin de product_detail');
-                }
+                productDetail.appendChild(container);
+                inserted = true;
+                console.log('Lolirine Storage: Boutons ajoutés dans product_detail');
             }
         }
 
@@ -257,5 +153,7 @@ console.log('=== Lolirine Storage v3.5: Script chargé ===');
         if (!str) return '';
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
+
+})();
 
 })();
