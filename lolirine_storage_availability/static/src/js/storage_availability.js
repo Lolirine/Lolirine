@@ -1,9 +1,10 @@
 /**
- * Lolirine Storage Availability v3.7 - VERSION TEST SANS MASQUAGE
- * Cette version n'effectue AUCUN masquage pour identifier la source du problème
+ * Lolirine Storage Availability v3.8
+ * Modifie le bouton "Ajouter au panier" pour rediriger vers les boxes disponibles
+ * Compatible Odoo 18/19
  */
 
-console.log('=== Lolirine Storage v3.7 TEST: Script chargé (SANS MASQUAGE) ===');
+console.log('=== Lolirine Storage v3.8: Script chargé ===');
 
 (function () {
     'use strict';
@@ -51,7 +52,7 @@ console.log('=== Lolirine Storage v3.7 TEST: Script chargé (SANS MASQUAGE) ==='
                     console.log('Lolirine Storage: Data = ', data);
                     if (data && data.is_storage_box) {
                         DONE = true;
-                        createAndInsertButtons(data);
+                        transform(data);
                     }
                 })
                 .catch(function(e) {
@@ -67,6 +68,95 @@ console.log('=== Lolirine Storage v3.7 TEST: Script chargé (SANS MASQUAGE) ==='
                 }
             }
             return null;
+        }
+
+        function transform(data) {
+            console.log('Lolirine Storage: === TRANSFORMATION ===');
+
+            if (isEditorMode()) return;
+
+            // 1. Ajouter les boutons personnalisés (badge + contact)
+            createAndInsertButtons(data);
+
+            // 2. Modifier le bouton "Ajouter au panier"
+            modifyCartButton(data);
+
+            // 3. Masquer les contrôles de quantité
+            hideQuantityControls();
+
+            // 4. Observer les changements pour re-appliquer si nécessaire
+            observeChanges(data);
+        }
+
+        function modifyCartButton(data) {
+            var cartButtons = document.querySelectorAll('#add_to_cart, button[name="add_to_cart"], .js_check_product');
+            
+            cartButtons.forEach(function(btn) {
+                // Créer un lien de remplacement
+                var link = document.createElement('a');
+                link.href = '/storage/plan'; // URL vers le plan des boxes disponibles
+                link.className = btn.className;
+                link.style.cssText = btn.style.cssText || '';
+                
+                // Garder le même style mais changer le contenu
+                link.innerHTML = '<i class="fa fa-search me-2"></i>Voir les boxes disponibles';
+                
+                // Ajouter des styles pour que ça ressemble au bouton original
+                link.style.display = 'inline-flex';
+                link.style.alignItems = 'center';
+                link.style.justifyContent = 'center';
+                link.style.textDecoration = 'none';
+                
+                // Remplacer le bouton par le lien
+                if (btn.parentNode) {
+                    btn.parentNode.replaceChild(link, btn);
+                    console.log('Lolirine Storage: Bouton panier remplacé');
+                }
+            });
+        }
+
+        function hideQuantityControls() {
+            // Masquer uniquement les contrôles de quantité
+            var quantityControls = document.querySelectorAll('.css_quantity, .input-group.js_quantity');
+            quantityControls.forEach(function(el) {
+                el.style.setProperty('display', 'none', 'important');
+            });
+            console.log('Lolirine Storage: Contrôles de quantité masqués');
+        }
+
+        function observeChanges(data) {
+            var observer = new MutationObserver(function(mutations) {
+                if (isEditorMode()) {
+                    observer.disconnect();
+                    return;
+                }
+                
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) {
+                            // Si un bouton panier est ajouté, le modifier
+                            if (node.id === 'add_to_cart' || (node.matches && node.matches('#add_to_cart, .js_check_product'))) {
+                                setTimeout(function() {
+                                    modifyCartButton(data);
+                                    hideQuantityControls();
+                                }, 100);
+                            }
+                            // Vérifier aussi les enfants
+                            if (node.querySelector && node.querySelector('#add_to_cart, .js_check_product')) {
+                                setTimeout(function() {
+                                    modifyCartButton(data);
+                                    hideQuantityControls();
+                                }, 100);
+                            }
+                        }
+                    });
+                });
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
         }
 
         function createAndInsertButtons(data) {
