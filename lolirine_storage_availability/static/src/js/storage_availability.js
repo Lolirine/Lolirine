@@ -1,10 +1,11 @@
 /**
- * Lolirine Storage Availability v3.8
- * Modifie le bouton "Ajouter au panier" pour rediriger vers les boxes disponibles
+ * Lolirine Storage Availability v3.9
+ * - Boxes de stockage : remplace "Ajouter au panier" par "Voir les boxes disponibles" → /storage/plan
+ * - Frais de dossier : remplace "Ajouter au panier" par "Voir les conditions" → /conditions-generales#table_of_content_heading_1_1
  * Compatible Odoo 18/19
  */
 
-console.log('=== Lolirine Storage v3.8: Script chargé ===');
+console.log('=== Lolirine Storage v3.9: Script chargé ===');
 
 (function () {
     'use strict';
@@ -45,6 +46,14 @@ console.log('=== Lolirine Storage v3.8: Script chargé ===');
             if (!slug) return;
 
             console.log('Lolirine Storage: Slug = ' + slug);
+
+            // Vérifier si c'est le produit "Frais de dossier"
+            if (slug.includes('frais-de-dossier') || slug.includes('frais-dossier')) {
+                console.log('Lolirine Storage: Produit Frais de dossier détecté');
+                DONE = true;
+                transformFraisDossier();
+                return;
+            }
             
             fetch('/storage_box/get_data_by_slug/' + encodeURIComponent(slug))
                 .then(function(r) { return r.json(); })
@@ -58,6 +67,61 @@ console.log('=== Lolirine Storage v3.8: Script chargé ===');
                 .catch(function(e) {
                     console.error('Lolirine Storage: Erreur', e);
                 });
+        }
+
+        function transformFraisDossier() {
+            // Modifier le bouton "Ajouter au panier" pour Frais de dossier
+            modifyCartButtonFraisDossier();
+            hideQuantityControls();
+            
+            // Observer les changements
+            var observer = new MutationObserver(function(mutations) {
+                if (isEditorMode()) {
+                    observer.disconnect();
+                    return;
+                }
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) {
+                            if (node.id === 'add_to_cart' || 
+                                (node.matches && node.matches('#add_to_cart, .js_check_product')) ||
+                                (node.querySelector && node.querySelector('#add_to_cart, .js_check_product'))) {
+                                setTimeout(function() {
+                                    modifyCartButtonFraisDossier();
+                                    hideQuantityControls();
+                                }, 100);
+                            }
+                        }
+                    });
+                });
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+
+        function modifyCartButtonFraisDossier() {
+            var cartButtons = document.querySelectorAll('#add_to_cart, button[name="add_to_cart"], .js_check_product');
+            
+            cartButtons.forEach(function(btn) {
+                // Vérifier si déjà modifié
+                if (btn.dataset.modified === 'true') return;
+                
+                // Créer un lien de remplacement
+                var link = document.createElement('a');
+                link.href = '/conditions-generales#table_of_content_heading_1_1';
+                link.className = btn.className;
+                link.style.cssText = btn.style.cssText || '';
+                link.innerHTML = '<i class="fa fa-info-circle me-2"></i>Voir les conditions';
+                link.style.display = 'inline-flex';
+                link.style.alignItems = 'center';
+                link.style.justifyContent = 'center';
+                link.style.textDecoration = 'none';
+                link.dataset.modified = 'true';
+                
+                if (btn.parentNode) {
+                    btn.parentNode.replaceChild(link, btn);
+                    console.log('Lolirine Storage: Bouton Frais de dossier remplacé');
+                }
+            });
         }
 
         function getSlug(url) {
