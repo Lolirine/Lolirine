@@ -1,16 +1,22 @@
 /**
- * Lolirine Storage Availability v3.1
+ * Lolirine Storage Availability v3.5
  * Remplace le bouton "Ajouter au panier" par "Contactez-nous" ou "Demande générale"
- * Compatible Odoo 18/19 - Corrigé pour Website Builder
+ * Compatible Odoo 18/19 - Version corrigée pour ne pas masquer les infos produit
  */
 
-console.log('=== Lolirine Storage v3: Script chargé ===');
+console.log('=== Lolirine Storage v3.5: Script chargé ===');
 
 (function () {
     'use strict';
 
     var DONE = false;
     var EDITOR_MODE = false;
+
+    // Démarrer seulement sur les pages /shop/
+    var currentUrl = window.location.pathname;
+    if (!currentUrl.includes('/shop/')) {
+        return;
+    }
 
     init();
     document.addEventListener('DOMContentLoaded', init);
@@ -39,10 +45,7 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
             return;
         }
 
-        var url = window.location.pathname;
-        if (!url.includes('/shop/')) return;
-
-        var slug = getSlug(url);
+        var slug = getSlug(window.location.pathname);
         if (!slug) return;
 
         console.log('Lolirine Storage: Slug = ' + slug);
@@ -79,63 +82,54 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
             return;
         }
 
-        hideAllCartElements();
+        // 1. Masquer UNIQUEMENT les éléments du panier
+        hideCartElements();
+
+        // 2. Créer et insérer les boutons personnalisés
         createAndInsertButtons(data);
 
-        var intervalId = setInterval(function() {
-            if (isEditorMode()) {
-                console.log('Lolirine Storage: Mode édition détecté, arrêt du masquage');
-                clearInterval(intervalId);
-                return;
-            }
-            hideAllCartElements();
-        }, 500);
+        // 3. Observer les changements DOM pour re-masquer si nécessaire
+        observeCartElements();
     }
 
-    function hideAllCartElements() {
+    function hideCartElements() {
         if (isEditorMode()) return;
 
-        var hide = [
-            'form[action*="cart"]',
-            'form.js_add_cart_json',
-            'form.o_wsale_product_page_form',
-            '#product_detail form',
-            '.js_main_product form',
+        // Sélecteurs TRÈS PRÉCIS - uniquement les éléments d'ajout au panier
+        var selectorsToHide = [
+            // Le bouton "Ajouter au panier" spécifiquement
             '#add_to_cart',
             'button#add_to_cart',
             'a#add_to_cart',
-            '[name="add_to_cart"]',
-            '.js_check_product',
-            '.a-submit',
-            'a.a-submit',
-            '.o_wsale_product_btn',
-            '.btn-primary[type="submit"]',
+            
+            // Les contrôles de quantité
             '.css_quantity',
-            '.js_quantity',
-            '.quantity',
-            'input[name="add_qty"]',
             '.input-group.js_quantity',
-            '.oe_product_cart',
-            '.o_product_page_add_to_cart',
-            '.product_price + form',
+            
+            // Le formulaire d'ajout au panier (mais PAS tout le formulaire produit)
+            'form[action*="/shop/cart/update"]',
         ];
 
         var count = 0;
-        hide.forEach(function(sel) {
+        selectorsToHide.forEach(function(sel) {
             document.querySelectorAll(sel).forEach(function(el) {
+                // Ne pas masquer nos propres boutons
                 if (el.closest('#lolirine_storage_buttons')) return;
                 if (el.id === 'lolirine_storage_buttons') return;
+                
+                // Ne pas masquer les éléments du Website Builder
                 if (el.closest('.o_we_customize_panel')) return;
                 if (el.closest('#oe_snippets')) return;
                 if (el.closest('.o_website_preview')) return;
                 
                 if (el.style.display !== 'none') {
-                    el.style.cssText = 'display:none!important;visibility:hidden!important;opacity:0!important;height:0!important;overflow:hidden!important;position:absolute!important;left:-9999px!important;';
+                    el.style.setProperty('display', 'none', 'important');
                     count++;
                 }
             });
         });
 
+        // Ajouter une classe pour le CSS personnalisé si nécessaire
         document.body.classList.add('lolirine-storage-box');
 
         if (count > 0) {
@@ -143,18 +137,53 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
         }
     }
 
+    function observeCartElements() {
+        // Utiliser MutationObserver pour réagir aux changements DOM
+        var observer = new MutationObserver(function(mutations) {
+            if (isEditorMode()) {
+                observer.disconnect();
+                return;
+            }
+            
+            var needsHide = false;
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) {
+                        if (node.id === 'add_to_cart' || 
+                            (node.matches && node.matches('#add_to_cart, .css_quantity')) ||
+                            (node.querySelector && node.querySelector('#add_to_cart, .css_quantity'))) {
+                            needsHide = true;
+                        }
+                    }
+                });
+            });
+            
+            if (needsHide) {
+                hideCartElements();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
     function createAndInsertButtons(data) {
         if (isEditorMode()) return;
 
+        // Supprimer si déjà présent
         var existing = document.getElementById('lolirine_storage_buttons');
         if (existing) existing.remove();
 
+        // Créer le conteneur
         var container = document.createElement('div');
         container.id = 'lolirine_storage_buttons';
         container.style.cssText = 'margin:20px 0;padding:20px;background:#f8f9fa;border-radius:12px;border:2px solid #e9ecef;';
 
         var html = '';
 
+        // Badge de statut
         if (data.show_badge !== false) {
             var badge = {
                 'available': { bg: '#28a745', icon: 'fa-check-circle', text: data.storage_status_display || 'Disponible' },
@@ -169,6 +198,7 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
             html += '</span></div>';
         }
 
+        // Bouton selon le statut
         if (data.storage_status === 'available' && data.show_appointment_button) {
             html += '<a href="' + escHtml(data.appointment_url || '/appointment') + '" ';
             html += 'style="display:block;width:100%;padding:18px;font-size:20px;font-weight:bold;text-align:center;color:#fff;background:#007bff;border:none;border-radius:10px;text-decoration:none;box-shadow:0 4px 6px rgba(0,0,0,0.1);">';
@@ -189,8 +219,10 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
 
         container.innerHTML = html;
 
+        // INSERTION - trouver le meilleur endroit
         var inserted = false;
         
+        // Essayer après le prix
         var priceEl = document.querySelector('.product_price, [itemprop="offers"], .oe_price');
         if (priceEl && priceEl.parentNode) {
             priceEl.parentNode.insertBefore(container, priceEl.nextSibling);
@@ -198,21 +230,21 @@ console.log('=== Lolirine Storage v3: Script chargé ===');
             console.log('Lolirine Storage: Boutons insérés après le prix');
         }
 
+        // Sinon, essayer dans la zone produit
         if (!inserted) {
-            var formEl = document.querySelector('form[action*="cart"], #add_to_cart, .js_check_product');
-            if (formEl && formEl.parentNode) {
-                formEl.parentNode.insertBefore(container, formEl);
-                inserted = true;
-                console.log('Lolirine Storage: Boutons insérés avant le formulaire');
-            }
-        }
-
-        if (!inserted) {
-            var detailEl = document.querySelector('#product_details, #product_detail, .js_product');
-            if (detailEl) {
-                detailEl.appendChild(container);
-                inserted = true;
-                console.log('Lolirine Storage: Boutons ajoutés dans product_detail');
+            var productDetail = document.querySelector('#product_details, #product_detail, .js_product');
+            if (productDetail) {
+                // Chercher un bon endroit dans product_detail
+                var priceInDetail = productDetail.querySelector('.product_price, .oe_price');
+                if (priceInDetail && priceInDetail.parentNode) {
+                    priceInDetail.parentNode.insertBefore(container, priceInDetail.nextSibling);
+                    inserted = true;
+                    console.log('Lolirine Storage: Boutons insérés après le prix dans product_detail');
+                } else {
+                    productDetail.appendChild(container);
+                    inserted = true;
+                    console.log('Lolirine Storage: Boutons ajoutés à la fin de product_detail');
+                }
             }
         }
 
