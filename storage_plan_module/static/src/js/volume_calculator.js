@@ -188,7 +188,7 @@
         }
         
         // Trouver les boxes adaptés (avec 20% de marge)
-        var requiredVolume = totalVolume * 1.2;
+        var requiredVolume = totalVolume * 1.05;
         var suitableBoxes = [];
         
         var boxItems = calculator.querySelectorAll('.box-volume-item');
