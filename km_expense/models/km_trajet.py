@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 from datetime import date
@@ -483,6 +482,9 @@ class KmTrajet(models.Model):
         if not self.use_predefined:
             self.lieu_depart_predef_id = False
             self.destination_predef_id = False
+            # Si un partenaire est déjà sélectionné, remplir l'adresse d'arrivée
+            if self.partner_id:
+                self.lieu_arrivee = self._format_partner_address(self.partner_id)
         else:
             # Sélectionner le lieu de départ par défaut
             default_depart = self.env['km.lieu.depart'].get_default()
@@ -502,6 +504,31 @@ class KmTrajet(models.Model):
                     self.destination_predef_id.type_destination, ''
                 )
                 self.motif = f"Visite {type_label}: {self.destination_predef_id.name}"
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id_address(self):
+        """Remplir le lieu d'arrivée avec l'adresse du partenaire (mode manuel)"""
+        if self.partner_id and not self.use_predefined:
+            # Construire l'adresse complète
+            self.lieu_arrivee = self._format_partner_address(self.partner_id)
+            # Proposer un motif par défaut si vide
+            if not self.motif:
+                self.motif = f"Visite: {self.partner_id.name}"
+
+    def _format_partner_address(self, partner):
+        """Formater l'adresse complète d'un partenaire pour le lieu d'arrivée"""
+        if not partner:
+            return ''
+        address_parts = []
+        if partner.street:
+            address_parts.append(partner.street)
+        if partner.street2:
+            address_parts.append(partner.street2)
+        if partner.zip or partner.city:
+            address_parts.append(f"{partner.zip or ''} {partner.city or ''}".strip())
+        if partner.country_id:
+            address_parts.append(partner.country_id.name)
+        return ', '.join(address_parts) if address_parts else partner.name
 
     @api.onchange('lieu_depart_predef_id', 'destination_predef_id')
     def _onchange_predef_distance(self):
