@@ -237,15 +237,16 @@ class AccountMove(models.Model):
         }
 
     def action_view_km_trajets(self):
-    """Voir les trajets liés à cette facture"""
-    self.ensure_one()
-    return {
-        'name': 'Trajets',
-        'type': 'ir.actions.act_window',
-        'res_model': 'km.trajet',
-        'view_mode': 'list,form',  # ← Nouveau nom Odoo 19
-        ...
-    }
+        """Voir les trajets liés à cette facture"""
+        self.ensure_one()
+        return {
+            'name': 'Trajets',
+            'type': 'ir.actions.act_window',
+            'res_model': 'km.trajet',
+            'view_mode': 'list,form',
+            'domain': [('invoice_id', '=', self.id)],
+            'context': {'default_invoice_id': self.id},
+        }
 
     def action_create_km_trajet_auto(self):
         """Créer automatiquement un trajet pour cette facture (même brouillon)"""
