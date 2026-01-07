@@ -2,12 +2,9 @@ import base64
 import re
 import logging
 from datetime import datetime, date
-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
-
 _logger = logging.getLogger(__name__)
-
 # Essayer d'importer les bibliothèques OCR
 try:
     import pytesseract
@@ -17,15 +14,12 @@ try:
 except ImportError:
     OCR_AVAILABLE = False
     _logger.warning("pytesseract ou PIL non disponible. L'OCR ne fonctionnera pas.")
-
 try:
     from pdf2image import convert_from_bytes
     PDF_AVAILABLE = True
 except ImportError:
     PDF_AVAILABLE = False
     _logger.warning("pdf2image non disponible. La conversion PDF ne fonctionnera pas.")
-
-
 class LolirineScanTva(models.Model):
     _name = "lolirine.scan.tva"
     _description = "Scan de souche TVA"
@@ -403,26 +397,63 @@ class LolirineScanTva(models.Model):
         _logger.info("Type de document detecte: %s", doc_type)
         
         # ========================================
-        # EXTRACTION DU NUMÉRO DE TVA BELGE
+        # EXTRACTION DU NUMÉRO DE TVA BELGE (FOURNISSEUR)
         # ========================================
+        # IMPORTANT: Identifier la section "Client" pour l'exclure
+        # Le TVA après "Client:" est celui du CLIENT, pas du fournisseur
+        client_section_start = -1
+        for marker in ['CLIENT:', 'CLIENT :', 'KLANT:', 'KLANT :', 'CLIENT\n', 'KLANT\n']:
+            pos = text_upper.find(marker)
+            if pos != -1:
+                client_section_start = pos
+                _logger.info("Section client trouvee a position %d", pos)
+                break
+        
+        # Texte à analyser pour le fournisseur (AVANT la section client)
+        if client_section_start > 0:
+            supplier_text_upper = text_upper[:client_section_start]
+            supplier_text = text[:client_section_start]
+        else:
+            supplier_text_upper = text_upper
+            supplier_text = text
+        
+        _logger.info("Texte fournisseur (avant section client): %d caracteres", len(supplier_text_upper))
+        
+        # Patterns TVA améliorés pour gérer les erreurs OCR courantes
+        # TV4 au lieu de TVA, virgules au lieu de points, espaces, etc.
         vat_patterns = [
-            r'TVA\s*:?\s*(BE\s*0?\d{3}[\.\s]?\d{3}[\.\s]?\d{3})',
-            r'BTW\s*:?\s*(BE\s*0?\d{3}[\.\s]?\d{3}[\.\s]?\d{3})',
-            r'N[°o]?\s*(?:TVA|ENTREPRISE)\s*:?\s*(BE\s*0?\d{3}[\.\s]?\d{3}[\.\s]?\d{3})',
-            r'(BE\s*0\d{3}[\.\s]?\d{3}[\.\s]?\d{3})',
+            # Pattern standard
+            r'TVA?\s*:?\s*(BE\s*0?\d{3}[\.\s,]?\d{3}[\.\s,]?\d{3})',
+            # TV4, TV8 (erreurs OCR courantes)
+            r'TV[A48]\s*:?\s*(BE\s*0?\d{3}[\.\s,]?\d{3}[\.\s,]?\d{3})',
+            # BTW (néerlandais)
+            r'BTW\s*:?\s*(BE\s*0?\d{3}[\.\s,]?\d{3}[\.\s,]?\d{3})',
+            # Numéro entreprise/TVA
+            r'N[°o]?\s*(?:TVA|ENTREPRISE)\s*:?\s*(BE\s*0?\d{3}[\.\s,]?\d{3}[\.\s,]?\d{3})',
+            # BE suivi de chiffres avec séparateurs variés
+            r'(BE\s*0\d{3}[\.\s,]?\d{3}[\.\s,]?\d{3})',
+            # Format compact
             r'(BE0\d{9})',
         ]
+        
         for pattern in vat_patterns:
-            match = re.search(pattern, text_upper)
+            match = re.search(pattern, supplier_text_upper)
             if match:
                 vat = match.group(1) if match.lastindex else match.group(0)
-                vat = re.sub(r'[\s\.]', '', vat)
+                # Nettoyer : enlever espaces, points, virgules
+                vat = re.sub(r'[\s\.,]', '', vat)
                 if not vat.startswith('BE'):
                     vat = 'BE' + vat
+                # Valider le format final
                 if re.match(r'^BE0\d{9}$', vat):
                     self.supplier_vat = vat
-                    _logger.info("TVA trouvee: %s", vat)
+                    _logger.info("TVA fournisseur trouvee: %s (pattern: %s)", vat, pattern)
                     break
+                else:
+                    _logger.warning("TVA invalide apres nettoyage: %s", vat)
+        
+        if not self.supplier_vat:
+            _logger.warning("Aucun TVA fournisseur trouve dans la section fournisseur")
         
         # ========================================
         # EXTRACTION DU NOM DU FOURNISSEUR
@@ -438,21 +469,25 @@ class LolirineScanTva(models.Model):
             'ORANGE': 'Orange',
             'TOTAL ENERGIES': 'TotalEnergies',
             'TOTALENERGIES': 'TotalEnergies',
+            'TOTAL BOUGE': 'TotalEnergies Bouge',
             'SHELL': 'Shell',
             'TEXACO': 'Texaco',
             'Q8': 'Q8',
             'LUKOIL': 'Lukoil',
             'ESSO': 'Esso',
+            'DEBE SERVICES': 'DEBE Services SRL',
         }
         
         for key, name in known_suppliers.items():
-            if key in text_upper:
+            if key in supplier_text_upper:
                 self.supplier_name = name
                 _logger.info("Fournisseur connu: %s", name)
                 break
         
         if not self.supplier_name:
-            for line in text_lines[:10]:
+            # Chercher un nom de société (SRL, SPRL, SA, etc.) dans la section fournisseur
+            supplier_lines = supplier_text.split('\n')
+            for line in supplier_lines[:15]:  # Premières 15 lignes
                 line = line.strip()
                 if line and len(line) > 3:
                     skip_keywords = ['TVA', 'BTW', 'FACTURE', 'DATE', 'TOTAL', 'CLIENT', 
@@ -464,14 +499,21 @@ class LolirineScanTva(models.Model):
                         continue
                     if re.match(r'^\d{4}\s+\w+$', line):
                         continue
+                    # Priorité aux lignes avec forme juridique
                     if re.search(r'\b(SRL|SPRL|SA|NV|BVBA|BV)\b', line.upper()):
                         self.supplier_name = line.strip()
+                        _logger.info("Nom fournisseur (forme juridique): %s", self.supplier_name)
                         break
-                    if len(line) > 5:
-                        self.supplier_name = line
-                        break
-            if self.supplier_name:
-                _logger.info("Nom fournisseur: %s", self.supplier_name)
+            
+            # Si toujours pas trouvé, prendre la première ligne significative
+            if not self.supplier_name:
+                for line in supplier_lines[:10]:
+                    line = line.strip()
+                    if line and len(line) > 5 and not any(kw in line.upper() for kw in ['TVA', 'BTW', 'FACTURE', 'DATE']):
+                        if not re.match(r'^[\d\s\-\.\,\/\:]+$', line):
+                            self.supplier_name = line
+                            _logger.info("Nom fournisseur (premiere ligne): %s", self.supplier_name)
+                            break
         
         # ========================================
         # EXTRACTION DE L'ADRESSE
