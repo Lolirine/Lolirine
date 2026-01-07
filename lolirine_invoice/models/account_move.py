@@ -600,18 +600,7 @@ class ResPartner(models.Model):
         default=False,
         help="Si active, les factures de ce client seront envoyees automatiquement via Peppol"
     )
-    
-    peppol_eas = fields.Selection([
-        ('0002', '0002 - SIREN'),
-        ('0007', '0007 - Numero TVA'),
-        ('0009', '0009 - SIRET'),
-        ('0088', '0088 - EAN Location Code'),
-        ('0130', '0130 - EU VAT'),
-        ('0208', '0208 - BE:EN'),
-        ('9930', '9930 - BE:VAT'),
-    ], string="EAS (Scheme ID)", 
-       help="Electronic Address Scheme pour Peppol. Pour la Belgique, utilisez 0208 (BE:EN).")
-    
+      
     peppol_endpoint = fields.Char(
         string="Endpoint Peppol",
         help="Identifiant Peppol (ex: numero d'entreprise pour BE:EN)"
