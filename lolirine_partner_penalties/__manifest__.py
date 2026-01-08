@@ -35,6 +35,7 @@ Auteur: Lolirine SPRL
     'data': [
         'security/ir.model.access.csv',
         'data/penalty_types.xml',
+        'views/product_template_views.xml',
         'views/res_partner_views.xml',
         'views/partner_penalty_views.xml',
         'views/menus.xml',
