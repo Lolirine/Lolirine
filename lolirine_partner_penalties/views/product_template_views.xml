@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="priority">100</field>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='detailed_type']" position="after">
+            <xpath expr="//field[@name='list_price']" position="after">
                 <field name="is_storage_box"/>
             </xpath>
         </field>
@@ -20,7 +20,7 @@
         <field name="inherit_id" ref="product.product_template_search_view"/>
         <field name="priority">100</field>
         <field name="arch" type="xml">
-            <xpath expr="//filter[@name='services']" position="after">
+            <xpath expr="//search" position="inside">
                 <separator/>
                 <filter string="Box de stockage" name="storage_box" domain="[('is_storage_box', '=', True)]"/>
             </xpath>
