@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        
+        <!-- ============================================================ -->
+        <!-- Action Serveur: Envoyer Annonce Portail depuis Abonnements   -->
+        <!-- Ouvre le compositeur avec prévisualisation                   -->
+        <!-- ============================================================ -->
+        <record id="action_send_portal_announcement_subscription" model="ir.actions.server">
+            <field name="name">📧 Envoyer Annonce Portail Client</field>
+            <field name="model_id" ref="sale_subscription.model_sale_order"/>
+            <field name="binding_model_id" ref="sale_subscription.model_sale_order"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">
+# Ouvrir le compositeur d'email avec le template pour prévisualisation
+if records:
+    template = env.ref('lolirine_email_templates.email_template_annonce_portail_subscription', raise_if_not_found=False)
+    if template:
+        # Ouvrir le wizard de composition d'email
+        composer = env['mail.compose.message'].create({
+            'composition_mode': 'mass_mail' if len(records) > 1 else 'comment',
+            'model': 'sale.order',
+            'res_ids': records.ids,
+            'template_id': template.id,
+        })
+        # Charger les valeurs du template
+        composer._onchange_template_id_wrapper()
+        
+        action = {
+            'type': 'ir.actions.act_window',
+            'name': 'Envoyer Annonce Portail Client',
+            'res_model': 'mail.compose.message',
+            'res_id': composer.id,
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_composition_mode': 'mass_mail' if len(records) > 1 else 'comment',
+                'default_model': 'sale.order',
+                'default_res_ids': records.ids,
+                'default_template_id': template.id,
+                'active_ids': records.ids,
+            },
+        }
+    else:
+        action = {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Erreur',
+                'message': 'Template d\'email non trouvé. Veuillez réinstaller le module.',
+                'type': 'danger',
+                'sticky': True,
+            }
+        }
+else:
+    action = {
+        'type': 'ir.actions.client',
+        'tag': 'display_notification',
+        'params': {
+            'title': 'Attention',
+            'message': 'Veuillez sélectionner au moins un abonnement.',
+            'type': 'warning',
+            'sticky': False,
+        }
+    }
+            </field>
+        </record>
+
+
+        <!-- ============================================================ -->
+        <!-- Action Serveur: Envoyer Annonce Portail depuis Contacts      -->
+        <!-- Ouvre le compositeur avec prévisualisation                   -->
+        <!-- ============================================================ -->
+        <record id="action_send_portal_announcement_partner" model="ir.actions.server">
+            <field name="name">📧 Envoyer Annonce Portail Client</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="binding_model_id" ref="base.model_res_partner"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">
+# Ouvrir le compositeur d'email avec le template pour prévisualisation
+if records:
+    # Filtrer les contacts avec email
+    valid_records = records.filtered(lambda r: r.email)
+    
+    if not valid_records:
+        action = {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Attention',
+                'message': 'Aucun contact sélectionné n\'a d\'adresse email.',
+                'type': 'warning',
+                'sticky': False,
+            }
+        }
+    else:
+        template = env.ref('lolirine_email_templates.email_template_annonce_portail_partner', raise_if_not_found=False)
+        if template:
+            # Ouvrir le wizard de composition d'email
+            composer = env['mail.compose.message'].create({
+                'composition_mode': 'mass_mail' if len(valid_records) > 1 else 'comment',
+                'model': 'res.partner',
+                'res_ids': valid_records.ids,
+                'template_id': template.id,
+            })
+            # Charger les valeurs du template
+            composer._onchange_template_id_wrapper()
+            
+            action = {
+                'type': 'ir.actions.act_window',
+                'name': 'Envoyer Annonce Portail Client',
+                'res_model': 'mail.compose.message',
+                'res_id': composer.id,
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_composition_mode': 'mass_mail' if len(valid_records) > 1 else 'comment',
+                    'default_model': 'res.partner',
+                    'default_res_ids': valid_records.ids,
+                    'default_template_id': template.id,
+                    'active_ids': valid_records.ids,
+                },
+            }
+            
+            # Notification si certains contacts ont été ignorés
+            skipped = len(records) - len(valid_records)
+            if skipped > 0:
+                action = [
+                    {
+                        'type': 'ir.actions.client',
+                        'tag': 'display_notification',
+                        'params': {
+                            'title': 'Information',
+                            'message': f'{skipped} contact(s) ignoré(s) car sans adresse email.',
+                            'type': 'info',
+                            'sticky': False,
+                        }
+                    },
+                    action
+                ]
+        else:
+            action = {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Erreur',
+                    'message': 'Template d\'email non trouvé. Veuillez réinstaller le module.',
+                    'type': 'danger',
+                    'sticky': True,
+                }
+            }
+else:
+    action = {
+        'type': 'ir.actions.client',
+        'tag': 'display_notification',
+        'params': {
+            'title': 'Attention',
+            'message': 'Veuillez sélectionner au moins un contact.',
+            'type': 'warning',
+            'sticky': False,
+        }
+    }
+            </field>
+        </record>
+
+
+        <!-- ============================================================ -->
+        <!-- Menu pour accéder aux templates d'email Lolirine             -->
+        <!-- ============================================================ -->
+        <record id="action_lolirine_email_templates" model="ir.actions.act_window">
+            <field name="name">Templates Email Lolirine</field>
+            <field name="res_model">mail.template</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('name', 'ilike', 'Lolirine')]</field>
+            <field name="context">{'search_default_name': 'Lolirine'}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Templates d'email Lolirine
+                </p>
+                <p>
+                    Gérez ici les templates d'email personnalisés pour votre communication client.
+                </p>
+            </field>
+        </record>
+        
+    </data>
+</odoo>
