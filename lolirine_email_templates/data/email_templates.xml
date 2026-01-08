@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- ============================================================ -->
+        <!-- Email Template: Annonce Portail - Basé sur Abonnements       -->
+        <!-- Usage: Envoi depuis la liste des abonnements                 -->
+        <!-- Couleurs: Rouge Lolirine #C91E18                             -->
+        <!-- ============================================================ -->
+        <record id="email_template_annonce_portail_subscription" model="mail.template">
+            <field name="name">Lolirine - Annonce Portail Client (Abonnements)</field>
+            <field name="model_id" ref="sale_subscription.model_sale_order"/>
+            <field name="subject">Lolirine évolue : Découvrez votre nouvel espace client en ligne</field>
+            <field name="email_from">gardemeublelolirine@gmail.com</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5;">
+        <tr>
+            <td style="padding: 20px 0;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #a11813 0%, #C91E18 100%); padding: 30px 40px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">LOLIRINE</h1>
+                            <p style="margin: 10px 0 0 0; color: #f5d5d4; font-size: 14px; letter-spacing: 1px;">GARDE-MEUBLES</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+                                Bonjour <t t-out="object.partner_id.name or 'cher(e) client(e)'"/>,
+                            </p>
+                            
+                            <p style="margin: 0 0 20px 0; color: #555555; font-size: 15px; line-height: 1.7;">
+                                Nous avons le plaisir de vous annoncer une évolution importante dans la gestion de nos services de garde-meubles.
+                            </p>
+                            
+                            <!-- Highlight Box -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="background-color: #fce8e8; border-left: 4px solid #C91E18; padding: 20px; border-radius: 0 4px 4px 0; margin: 20px 0;">
+                                        <p style="margin: 0; color: #8b1510; font-size: 18px; font-weight: 600;">
+                                            🚀 Lolirine se digitalise pour mieux vous servir.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="margin: 25px 0 20px 0; color: #555555; font-size: 15px; line-height: 1.7;">
+                                Dans les prochaines semaines, nous mettons en place une nouvelle plateforme de gestion qui vous permettra de gérer votre abonnement en toute autonomie, <strong>24h/24 et 7j/7</strong>.
+                            </p>
+                            
+                            <!-- Section: Ce qui change -->
+                            <h2 style="margin: 30px 0 15px 0; color: #8b1510; font-size: 18px; font-weight: 600; border-bottom: 2px solid #C91E18; padding-bottom: 8px;">
+                                ✨ Ce qui change pour vous
+                            </h2>
+                            
+                            <p style="margin: 0 0 15px 0; color: #555555; font-size: 15px; line-height: 1.7;">
+                                Vous recevrez prochainement une invitation à créer votre compte personnel sur notre portail client. Une fois inscrit(e), vous pourrez :
+                            </p>
+                            
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="padding: 8px 0 8px 20px; color: #555555; font-size: 14px;">
+                                        <span style="color: #C91E18; margin-right: 10px;">✓</span> Consulter les détails de votre contrat et votre historique
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0 8px 20px; color: #555555; font-size: 14px;">
+                                        <span style="color: #C91E18; margin-right: 10px;">✓</span> Télécharger vos factures à tout moment
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0 8px 20px; color: #555555; font-size: 14px;">
+                                        <span style="color: #C91E18; margin-right: 10px;">✓</span> Suivre vos paiements en temps réel
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0 8px 20px; color: #555555; font-size: 14px;">
+                                        <span style="color: #C91E18; margin-right: 10px;">✓</span> Mettre à jour vos informations personnelles
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0 8px 20px; color: #555555; font-size: 14px;">
+                                        <span style="color: #C91E18; margin-right: 10px;">✓</span> Communiquer directement avec notre équipe
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- CTA Button -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 35px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                            <tr>
+                                                <td style="border-radius: 8px; background: linear-gradient(135deg, #C91E18 0%, #ab1a14 100%); box-shadow: 0 4px 15px rgba(201, 30, 24, 0.4);">
+                                                    <a t-att-href="object.get_portal_url()" target="_blank" style="display: inline-block; padding: 18px 45px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none; letter-spacing: 0.5px;">
+                                                        🔐 Accéder à mon espace client
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <p style="margin: 12px 0 0 0; color: #95a5a6; font-size: 12px;">
+                                            Vous recevrez vos identifiants de connexion par e-mail
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Info Box: Référence abonnement -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="background-color: #fff8e1; border-left: 4px solid #f39c12; padding: 15px 20px; border-radius: 0 4px 4px 0; margin: 20px 0;">
+                                        <p style="margin: 0; color: #7f6003; font-size: 14px;">
+                                            <strong>📋 Votre abonnement :</strong> <t t-out="object.name"/>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Section: Ce qui ne change pas -->
+                            <h2 style="margin: 30px 0 15px 0; color: #1e7e34; font-size: 18px; font-weight: 600; border-bottom: 2px solid #27ae60; padding-bottom: 8px;">
+                                🔒 Ce qui ne change pas
+                            </h2>
+                            
+                            <p style="margin: 0 0 20px 0; color: #555555; font-size: 15px; line-height: 1.7;">
+                                Votre box de stockage, vos conditions tarifaires et la qualité de notre service restent identiques. Cette transition est purement administrative et vise à simplifier votre expérience client.
+                            </p>
+                            
+                            <!-- Section: Prochaines étapes -->
+                            <h2 style="margin: 30px 0 15px 0; color: #8b1510; font-size: 18px; font-weight: 600; border-bottom: 2px solid #C91E18; padding-bottom: 8px;">
+                                📋 Prochaines étapes
+                            </h2>
+                            
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="padding: 12px 0; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td width="40" style="vertical-align: top;">
+                                                    <span style="display: inline-block; width: 28px; height: 28px; background-color: #C91E18; color: #ffffff; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 600; font-size: 14px;">1</span>
+                                                </td>
+                                                <td style="color: #555555; font-size: 14px; line-height: 1.6;">
+                                                    <strong>Réception de l'invitation</strong><br/>
+                                                    Vous recevrez un e-mail avec un lien d'activation
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td width="40" style="vertical-align: top;">
+                                                    <span style="display: inline-block; width: 28px; height: 28px; background-color: #C91E18; color: #ffffff; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 600; font-size: 14px;">2</span>
+                                                </td>
+                                                <td style="color: #555555; font-size: 14px; line-height: 1.6;">
+                                                    <strong>Création de votre mot de passe</strong><br/>
+                                                    Définissez votre mot de passe personnel en quelques clics
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td width="40" style="vertical-align: top;">
+                                                    <span style="display: inline-block; width: 28px; height: 28px; background-color: #27ae60; color: #ffffff; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 600; font-size: 14px;">✓</span>
+                                                </td>
+                                                <td style="color: #555555; font-size: 14px; line-height: 1.6;">
+                                                    <strong>Accès à votre espace</strong><br/>
+                                                    Gérez votre abonnement en toute autonomie !
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Contact Box -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 30px;">
+                                <tr>
+                                    <td style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+                                        <p style="margin: 0 0 10px 0; color: #333333; font-size: 15px;">
+                                            <strong>Des questions ?</strong> N'hésitez pas à nous contacter :
+                                        </p>
+                                        <p style="margin: 5px 0; color: #555555; font-size: 14px;">
+                                            📧 <a href="mailto:gardemeublelolirine@gmail.com" style="color: #C91E18; text-decoration: none;">gardemeublelolirine@gmail.com</a>
+                                        </p>
+                                        <p style="margin: 5px 0; color: #555555; font-size: 14px;">
+                                            📞 <a href="tel:+32497444146" style="color: #C91E18; text-decoration: none;">0497/444146</a>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="margin: 30px 0 0 0; color: #555555; font-size: 15px; line-height: 1.7;">
+                                Nous vous remercions de votre confiance et restons à votre disposition.
+                            </p>
+                            
+                            <p style="margin: 20px 0 0 0; color: #333333; font-size: 15px;">
+                                Bien cordialement,
+                            </p>
+                            <p style="margin: 5px 0 0 0; color: #C91E18; font-size: 16px; font-weight: 600;">
+                                L'équipe Lolirine
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #8b1510; padding: 25px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; color: #ffffff; font-size: 16px; font-weight: 600;">
+                                Lolirine SPRL
+                            </p>
+                            <p style="margin: 0 0 5px 0; color: #f5d5d4; font-size: 13px;">
+                                📍 Boninne, Belgique
+                            </p>
+                            <p style="margin: 0 0 5px 0; color: #f5d5d4; font-size: 13px;">
+                                📧 gardemeublelolirine@gmail.com | 📞 0497/444146
+                            </p>
+                            <p style="margin: 15px 0 0 0; color: #d4a5a3; font-size: 11px;">
+                                © 2025 Lolirine SPRL - Tous droits réservés
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+            </field>
+        </record>
+
+
+        <!-- ============================================================ -->
+        <!-- Email Template: Annonce Portail - Basé sur Contacts          -->
+        <!-- Usage: Envoi groupé depuis la liste des contacts             -->
+        <!-- Couleurs: Rouge Lolirine #C91E18                             -->
+        <!-- ============================================================ -->
+        <record id="email_template_annonce_portail_partner" model="mail.template">
+            <field name="name">Lolirine - Annonce Portail Client (Contacts)</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="subject">Lolirine évolue : Découvrez votre nouvel espace client en ligne</field>
+            <field name="email_from">gardemeublelolirine@gmail.com</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="lang">{{ object.lang }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5;">
+        <tr>
+            <td style="padding: 20px 0;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #a11813 0%, #C91E18 100%); padding: 30px 40px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">LOLIRINE</h1>
+                            <p style="margin: 10px 0 0 0; color: #f5d5d4; font-size: 14px; letter-spacing: 1px;">GARDE-MEUBLES</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+                                Bonjour <t t-out="object.name or 'cher(e) client(e)'"/>,
+                            </p>
+                            
+                            <p style="margin: 0 0 20px 0; color: #555555; font-size: 15px; line-height: 1.7;">
+                                Nous avons le plaisir de vous annoncer une évolution importante dans la gestion de nos services de garde-meubles.
+                            </p>
+                            
+                            <!-- Highlight Box -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="background-color: #fce8e8; border-left: 4px solid #C91E18; padding: 20px; border-radius: 0 4px 4px 0; margin: 20px 0;">
+                                        <p style="margin: 0; color: #8b1510; font-size: 18px; font-weight: 600;">
+                                            🚀 Lolirine se digitalise pour mieux vous servir.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="margin: 25px 0 20px 0; color: #555555; font-size: 15px; line-height: 1.7;">
+                                Dans les prochaines semaines, nous mettons en place une nouvelle plateforme de gestion qui vous permettra de gérer votre abonnement en toute autonomie, <strong>24h/24 et 7j/7</strong>.
+                            </p>
+                            
+                            <!-- Section: Ce qui change -->
+                            <h2 style="margin: 30px 0 15px 0; color: #8b1510; font-size: 18px; font-weight: 600; border-bottom: 2px solid #C91E18; padding-bottom: 8px;">
+                                ✨ Ce qui change pour vous
+                            </h2>
+                            
+                            <p style="margin: 0 0 15px 0; color: #555555; font-size: 15px; line-height: 1.7;">
+                                Vous recevrez prochainement une invitation à créer votre compte personnel sur notre portail client. Une fois inscrit(e), vous pourrez :
+                            </p>
+                            
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="padding: 8px 0 8px 20px; color: #555555; font-size: 14px;">
+                                        <span style="color: #C91E18; margin-right: 10px;">✓</span> Consulter les détails de votre contrat et votre historique
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0 8px 20px; color: #555555; font-size: 14px;">
+                                        <span style="color: #C91E18; margin-right: 10px;">✓</span> Télécharger vos factures à tout moment
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0 8px 20px; color: #555555; font-size: 14px;">
+                                        <span style="color: #C91E18; margin-right: 10px;">✓</span> Suivre vos paiements en temps réel
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0 8px 20px; color: #555555; font-size: 14px;">
+                                        <span style="color: #C91E18; margin-right: 10px;">✓</span> Mettre à jour vos informations personnelles
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0 8px 20px; color: #555555; font-size: 14px;">
+                                        <span style="color: #C91E18; margin-right: 10px;">✓</span> Communiquer directement avec notre équipe
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- CTA Button -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 35px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                            <tr>
+                                                <td style="border-radius: 8px; background: linear-gradient(135deg, #C91E18 0%, #ab1a14 100%); box-shadow: 0 4px 15px rgba(201, 30, 24, 0.4);">
+                                                    <a t-att-href="object.with_context(signup_valid=True)._get_signup_url_for_action()[object.id]" target="_blank" style="display: inline-block; padding: 18px 45px; font-size: 16px; font-weight: 600; color: #ffffff; text-decoration: none; letter-spacing: 0.5px;">
+                                                        🔐 Activer mon compte
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <p style="margin: 12px 0 0 0; color: #95a5a6; font-size: 12px;">
+                                            Cliquez pour créer votre mot de passe et accéder à votre espace
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Section: Ce qui ne change pas -->
+                            <h2 style="margin: 30px 0 15px 0; color: #1e7e34; font-size: 18px; font-weight: 600; border-bottom: 2px solid #27ae60; padding-bottom: 8px;">
+                                🔒 Ce qui ne change pas
+                            </h2>
+                            
+                            <p style="margin: 0 0 20px 0; color: #555555; font-size: 15px; line-height: 1.7;">
+                                Votre box de stockage, vos conditions tarifaires et la qualité de notre service restent identiques. Cette transition est purement administrative et vise à simplifier votre expérience client.
+                            </p>
+                            
+                            <!-- Section: Prochaines étapes -->
+                            <h2 style="margin: 30px 0 15px 0; color: #8b1510; font-size: 18px; font-weight: 600; border-bottom: 2px solid #C91E18; padding-bottom: 8px;">
+                                📋 Prochaines étapes
+                            </h2>
+                            
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="padding: 12px 0; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td width="40" style="vertical-align: top;">
+                                                    <span style="display: inline-block; width: 28px; height: 28px; background-color: #C91E18; color: #ffffff; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 600; font-size: 14px;">1</span>
+                                                </td>
+                                                <td style="color: #555555; font-size: 14px; line-height: 1.6;">
+                                                    <strong>Cliquez sur le bouton ci-dessus</strong><br/>
+                                                    Accédez à la page d'activation de votre compte
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td width="40" style="vertical-align: top;">
+                                                    <span style="display: inline-block; width: 28px; height: 28px; background-color: #C91E18; color: #ffffff; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 600; font-size: 14px;">2</span>
+                                                </td>
+                                                <td style="color: #555555; font-size: 14px; line-height: 1.6;">
+                                                    <strong>Créez votre mot de passe</strong><br/>
+                                                    Définissez votre mot de passe personnel en quelques clics
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 0; vertical-align: top;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td width="40" style="vertical-align: top;">
+                                                    <span style="display: inline-block; width: 28px; height: 28px; background-color: #27ae60; color: #ffffff; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 600; font-size: 14px;">✓</span>
+                                                </td>
+                                                <td style="color: #555555; font-size: 14px; line-height: 1.6;">
+                                                    <strong>Accédez à votre espace</strong><br/>
+                                                    Gérez votre abonnement en toute autonomie !
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Contact Box -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 30px;">
+                                <tr>
+                                    <td style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+                                        <p style="margin: 0 0 10px 0; color: #333333; font-size: 15px;">
+                                            <strong>Des questions ?</strong> N'hésitez pas à nous contacter :
+                                        </p>
+                                        <p style="margin: 5px 0; color: #555555; font-size: 14px;">
+                                            📧 <a href="mailto:gardemeublelolirine@gmail.com" style="color: #C91E18; text-decoration: none;">gardemeublelolirine@gmail.com</a>
+                                        </p>
+                                        <p style="margin: 5px 0; color: #555555; font-size: 14px;">
+                                            📞 <a href="tel:+32497444146" style="color: #C91E18; text-decoration: none;">0497/444146</a>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="margin: 30px 0 0 0; color: #555555; font-size: 15px; line-height: 1.7;">
+                                Nous vous remercions de votre confiance et restons à votre disposition.
+                            </p>
+                            
+                            <p style="margin: 20px 0 0 0; color: #333333; font-size: 15px;">
+                                Bien cordialement,
+                            </p>
+                            <p style="margin: 5px 0 0 0; color: #C91E18; font-size: 16px; font-weight: 600;">
+                                L'équipe Lolirine
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #8b1510; padding: 25px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; color: #ffffff; font-size: 16px; font-weight: 600;">
+                                Lolirine SPRL
+                            </p>
+                            <p style="margin: 0 0 5px 0; color: #f5d5d4; font-size: 13px;">
+                                📍 Boninne, Belgique
+                            </p>
+                            <p style="margin: 0 0 5px 0; color: #f5d5d4; font-size: 13px;">
+                                📧 gardemeublelolirine@gmail.com | 📞 0497/444146
+                            </p>
+                            <p style="margin: 15px 0 0 0; color: #d4a5a3; font-size: 11px;">
+                                © 2025 Lolirine SPRL - Tous droits réservés
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+            </field>
+        </record>
+        
+    </data>
+</odoo>
