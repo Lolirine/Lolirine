@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        
+        <!-- ============================================================ -->
+        <!-- ABONNEMENTS - Prévisualisation avant envoi                   -->
+        <!-- ============================================================ -->
+        <record id="action_send_portal_announcement_subscription" model="ir.actions.server">
+            <field name="name">📧 Annonce Portail (Prévisualiser)</field>
+            <field name="model_id" ref="sale_subscription.model_sale_order"/>
+            <field name="binding_model_id" ref="sale_subscription.model_sale_order"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">
+# Ouvrir le compositeur d'email avec le template pré-sélectionné
+if records:
+    template = env.ref('lolirine_email_templates.email_template_annonce_portail_subscription', raise_if_not_found=False)
+    if template:
+        ctx = {
+            'default_model': 'sale.order',
+            'default_res_ids': records.ids,
+            'default_template_id': template.id,
+            'default_composition_mode': 'mass_mail' if len(records) > 1 else 'comment',
+            'active_model': 'sale.order',
+            'active_ids': records.ids,
+            'active_id': records[0].id if len(records) == 1 else False,
+        }
+        action = {
+            'type': 'ir.actions.act_window',
+            'name': 'Envoyer Annonce Portail Client',
+            'res_model': 'mail.compose.message',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': ctx,
+        }
+    else:
+        action = {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'title': 'Erreur', 'message': 'Template non trouvé.', 'type': 'danger', 'sticky': True}}
+else:
+    action = {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'title': 'Attention', 'message': 'Sélectionnez au moins un abonnement.', 'type': 'warning', 'sticky': False}}
+            </field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- ABONNEMENTS - Envoi immédiat                                 -->
+        <!-- ============================================================ -->
+        <record id="action_send_portal_announcement_subscription_now" model="ir.actions.server">
+            <field name="name">⚡ Annonce Portail (Envoyer maintenant)</field>
+            <field name="model_id" ref="sale_subscription.model_sale_order"/>
+            <field name="binding_model_id" ref="sale_subscription.model_sale_order"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">
+# Envoyer immédiatement l'email d'annonce portail
+if records:
+    template = env.ref('lolirine_email_templates.email_template_annonce_portail_subscription', raise_if_not_found=False)
+    if template:
+        sent_count = 0
+        error_count = 0
+        for record in records:
+            if record.partner_id and record.partner_id.email:
+                try:
+                    template.send_mail(record.id, force_send=True)
+                    sent_count += 1
+                except Exception as e:
+                    error_count += 1
+        
+        if error_count > 0:
+            message = f'{sent_count} email(s) envoyé(s), {error_count} erreur(s).'
+            notif_type = 'warning'
+        else:
+            message = f'{sent_count} email(s) envoyé(s) avec succès !'
+            notif_type = 'success'
+        
+        action = {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Envoi terminé',
+                'message': message,
+                'type': notif_type,
+                'sticky': False,
+            }
+        }
+    else:
+        action = {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'title': 'Erreur', 'message': 'Template non trouvé.', 'type': 'danger', 'sticky': True}}
+else:
+    action = {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'title': 'Attention', 'message': 'Sélectionnez au moins un abonnement.', 'type': 'warning', 'sticky': False}}
+            </field>
+        </record>
+
+
+        <!-- ============================================================ -->
+        <!-- CONTACTS - Prévisualisation avant envoi                      -->
+        <!-- ============================================================ -->
+        <record id="action_send_portal_announcement_partner" model="ir.actions.server">
+            <field name="name">📧 Annonce Portail (Prévisualiser)</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="binding_model_id" ref="base.model_res_partner"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">
+# Ouvrir le compositeur d'email avec le template pré-sélectionné
+if records:
+    valid_records = records.filtered(lambda r: r.email)
+    
+    if not valid_records:
+        action = {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'title': 'Attention', 'message': 'Aucun contact avec email.', 'type': 'warning', 'sticky': False}}
+    else:
+        template = env.ref('lolirine_email_templates.email_template_annonce_portail_partner', raise_if_not_found=False)
+        if template:
+            ctx = {
+                'default_model': 'res.partner',
+                'default_res_ids': valid_records.ids,
+                'default_template_id': template.id,
+                'default_composition_mode': 'mass_mail' if len(valid_records) > 1 else 'comment',
+                'active_model': 'res.partner',
+                'active_ids': valid_records.ids,
+                'active_id': valid_records[0].id if len(valid_records) == 1 else False,
+            }
+            action = {
+                'type': 'ir.actions.act_window',
+                'name': 'Envoyer Annonce Portail Client',
+                'res_model': 'mail.compose.message',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': ctx,
+            }
+        else:
+            action = {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'title': 'Erreur', 'message': 'Template non trouvé.', 'type': 'danger', 'sticky': True}}
+else:
+    action = {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'title': 'Attention', 'message': 'Sélectionnez au moins un contact.', 'type': 'warning', 'sticky': False}}
+            </field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- CONTACTS - Envoi immédiat                                    -->
+        <!-- ============================================================ -->
+        <record id="action_send_portal_announcement_partner_now" model="ir.actions.server">
+            <field name="name">⚡ Annonce Portail (Envoyer maintenant)</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="binding_model_id" ref="base.model_res_partner"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">
+# Envoyer immédiatement l'email d'annonce portail
+if records:
+    valid_records = records.filtered(lambda r: r.email)
+    
+    if not valid_records:
+        action = {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'title': 'Attention', 'message': 'Aucun contact avec email.', 'type': 'warning', 'sticky': False}}
+    else:
+        template = env.ref('lolirine_email_templates.email_template_annonce_portail_partner', raise_if_not_found=False)
+        if template:
+            sent_count = 0
+            error_count = 0
+            for record in valid_records:
+                try:
+                    template.send_mail(record.id, force_send=True)
+                    sent_count += 1
+                except Exception as e:
+                    error_count += 1
+            
+            skipped = len(records) - len(valid_records)
+            
+            if error_count > 0:
+                message = f'{sent_count} envoyé(s), {error_count} erreur(s)'
+                if skipped > 0:
+                    message += f', {skipped} ignoré(s) (sans email)'
+                notif_type = 'warning'
+            else:
+                message = f'{sent_count} email(s) envoyé(s) avec succès !'
+                if skipped > 0:
+                    message += f' ({skipped} ignoré(s) sans email)'
+                notif_type = 'success'
+            
+            action = {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Envoi terminé',
+                    'message': message,
+                    'type': notif_type,
+                    'sticky': False,
+                }
+            }
+        else:
+            action = {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'title': 'Erreur', 'message': 'Template non trouvé.', 'type': 'danger', 'sticky': True}}
+else:
+    action = {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'title': 'Attention', 'message': 'Sélectionnez au moins un contact.', 'type': 'warning', 'sticky': False}}
+            </field>
+        </record>
+        
+    </data>
+</odoo>
