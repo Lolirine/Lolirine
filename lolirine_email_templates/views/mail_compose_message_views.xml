@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Ajouter le bouton "Envoyer maintenant" dans le compositeur d'email -->
+    <record id="view_mail_compose_message_form_lolirine" model="ir.ui.view">
+        <field name="name">mail.compose.message.form.lolirine</field>
+        <field name="model">mail.compose.message</field>
+        <field name="inherit_id" ref="mail.email_compose_message_wizard_form"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <!-- Ajouter le bouton après le bouton Envoyer existant -->
+            <xpath expr="//footer/button[@special='cancel']" position="before">
+                <button name="action_send_mail_now" 
+                        type="object" 
+                        string="⚡ Envoyer maintenant" 
+                        class="btn-primary"
+                        title="Envoie l'email immédiatement sans passer par la file d'attente"/>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>
