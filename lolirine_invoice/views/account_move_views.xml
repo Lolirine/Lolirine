@@ -59,8 +59,10 @@
             <!-- CORRECTION: Champs envoi automatique DANS Autres informations (pas après invoice_date_due) -->
             <xpath expr="//page[@name='other_info']//group" position="before">
                 <group string="📤 Options d'envoi" invisible="move_type not in ('out_invoice', 'out_refund')">
-                    <field name="auto_send_invoice" widget="boolean_toggle" string="📧 Envoi Email automatique"/>
-                    <field name="auto_send_peppol" widget="boolean_toggle" string="🔄 Envoi Peppol automatique"/>
+                    <group>
+                        <field name="auto_send_invoice" string="📧 Envoi Email automatique"/>
+                        <field name="auto_send_peppol" string="🔄 Envoi Peppol automatique"/>
+                    </group>
                 </group>
             </xpath>
             
