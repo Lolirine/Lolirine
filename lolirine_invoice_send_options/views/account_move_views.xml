@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- 
+        Module: Lolirine Invoice Send Options
+        Ajoute les toggles d'envoi dans l'onglet "Autres informations"
+    -->
+    
+    <!-- Ajouter les toggles dans Autres informations -->
+    <record id="view_move_form_send_options" model="ir.ui.view">
+        <field name="name">account.move.form.send.options</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            
+            <!-- Ajouter un nouveau groupe dans Autres informations -->
+            <xpath expr="//page[@name='other_info']" position="inside">
+                <group string="📤 Options d'envoi" 
+                       invisible="move_type not in ('out_invoice', 'out_refund')">
+                    <group>
+                        <field name="auto_send_invoice" 
+                               string="📧 Envoi Email automatique"
+                               widget="boolean_toggle"/>
+                        <field name="auto_send_peppol" 
+                               string="🔄 Envoi Peppol automatique"
+                               widget="boolean_toggle"/>
+                    </group>
+                </group>
+            </xpath>
+            
+        </field>
+    </record>
+    
+</odoo>
