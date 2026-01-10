@@ -667,17 +667,36 @@ class SaleSubscription(models.Model):
             if self.partner_id.auto_send_peppol:
                 self.auto_send_peppol = True
     
-    def set_close(self, close_reason_id=None, renew=False):
+    def set_close(self, close_reason_id=None, renew=False, **kwargs):
         """
-        PATCH: Corrige le bug Odoo Enterprise où set_close() est appelé
-        sans arguments mais les modules héritiers en attendent.
-        Bug entre sale_subscription, project_sale_subscription et sale_subscription_partnership
+        PATCH: Corrige le bug Odoo Enterprise où set_close() a des signatures incompatibles
+        entre sale_subscription, project_sale_subscription et sale_subscription_partnership.
+        
+        Cette méthode accepte tous les arguments possibles et implémente la logique de base.
         """
-        try:
-            return super().set_close(close_reason_id, renew)
-        except TypeError:
-            # Fallback si la signature ne correspond pas
-            return super().set_close()
+        for subscription in self:
+            # Mettre à jour l'état de l'abonnement
+            vals = {'subscription_state': '6_churn'}
+            
+            # Ajouter la raison de clôture si fournie
+            if close_reason_id:
+                vals['close_reason_id'] = close_reason_id
+                
+            subscription.write(vals)
+            
+            # Poster un message dans le chatter
+            msg = _("Abonnement clôturé.")
+            if close_reason_id:
+                reason = self.env['sale.order.close.reason'].browse(close_reason_id)
+                if reason.exists():
+                    msg = _("Abonnement clôturé. Raison: %s") % reason.name
+            
+            subscription.message_post(
+                body=msg,
+                message_type='notification'
+            )
+        
+        return True
     
     def _create_invoices(self, grouped=False, final=False, date=None):
         """Override pour propager les options d'envoi auto"""
