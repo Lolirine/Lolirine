@@ -667,6 +667,18 @@ class SaleSubscription(models.Model):
             if self.partner_id.auto_send_peppol:
                 self.auto_send_peppol = True
     
+    def set_close(self, close_reason_id=None, renew=False):
+        """
+        PATCH: Corrige le bug Odoo Enterprise où set_close() est appelé
+        sans arguments mais les modules héritiers en attendent.
+        Bug entre sale_subscription, project_sale_subscription et sale_subscription_partnership
+        """
+        try:
+            return super().set_close(close_reason_id, renew)
+        except TypeError:
+            # Fallback si la signature ne correspond pas
+            return super().set_close()
+    
     def _create_invoices(self, grouped=False, final=False, date=None):
         """Override pour propager les options d'envoi auto"""
         moves = super()._create_invoices(grouped=grouped, final=final, date=date)
