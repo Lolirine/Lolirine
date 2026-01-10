@@ -118,6 +118,19 @@
                     margin: 20px 0;
                     font-size: 10pt;
                 }
+                .lolirine-qr-code {
+                    text-align: center;
+                    margin-top: 15px;
+                }
+                .lolirine-qr-code img {
+                    width: 120px;
+                    height: 120px;
+                }
+                .lolirine-qr-code-label {
+                    font-size: 8pt;
+                    color: #666;
+                    margin-top: 5px;
+                }
                 .lolirine-amount-words {
                     text-align: right;
                     font-size: 9pt;
@@ -248,6 +261,17 @@
                                     <t t-if="o.partner_bank_id.bank_id"> - <t t-esc="o.partner_bank_id.bank_id.name"/></t>
                                 </t>
                             </div>
+                            
+                            <!-- QR Code SEPA -->
+                            <t t-if="o.display_qr_code and o.partner_bank_id">
+                                <div class="lolirine-qr-code">
+                                    <t t-set="qr_code_url" t-value="o.partner_bank_id.build_qr_code_url(o.amount_residual or o.amount_total, o.ref or o.name, o.payment_reference, o.currency_id, o.partner_id)"/>
+                                    <img t-if="qr_code_url" t-att-src="qr_code_url" alt="QR Code SEPA"/>
+                                    <div class="lolirine-qr-code-label">
+                                        Scannez pour payer par virement SEPA
+                                    </div>
+                                </div>
+                            </t>
                         </td>
                         <td style="width: 45%; vertical-align: top;">
                             <!-- Totaux -->
