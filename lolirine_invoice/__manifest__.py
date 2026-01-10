@@ -47,6 +47,8 @@
     "depends": [
         "account",
         "sale_subscription",
+        "project_sale_subscription",
+        "sale_subscription_partnership",
         "mail",
         "web",
     ],
