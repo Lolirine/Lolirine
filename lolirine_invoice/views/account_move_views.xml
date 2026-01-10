@@ -56,10 +56,12 @@
                        placeholder="Tags..." invisible="move_type not in ('out_invoice', 'out_refund')"/>
             </xpath>
             
-            <!-- Champs envoi automatique -->
-            <xpath expr="//field[@name='invoice_date_due']" position="after">
-                <field name="auto_send_invoice" invisible="move_type not in ('out_invoice', 'out_refund')"/>
-                <field name="auto_send_peppol" invisible="move_type not in ('out_invoice', 'out_refund')"/>
+            <!-- CORRECTION: Champs envoi automatique DANS Autres informations (pas après invoice_date_due) -->
+            <xpath expr="//page[@name='other_info']//group" position="before">
+                <group string="📤 Options d'envoi" invisible="move_type not in ('out_invoice', 'out_refund')">
+                    <field name="auto_send_invoice" widget="boolean_toggle" string="📧 Envoi Email automatique"/>
+                    <field name="auto_send_peppol" widget="boolean_toggle" string="🔄 Envoi Peppol automatique"/>
+                </group>
             </xpath>
             
             <!-- Groupe Peppol et relances dans autres informations -->
@@ -292,5 +294,4 @@
         <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('peppol_sent', '=', True)]</field>
         <field name="context">{'default_move_type': 'out_invoice'}</field>
     </record>
-
 </odoo>
