@@ -645,6 +645,13 @@ class ResPartner(models.Model):
 class SaleSubscription(models.Model):
     _inherit = "sale.order"
     
+    # AJOUT: Champ envoi auto Email pour les abonnements
+    auto_send_invoice = fields.Boolean(
+        string="Envoi auto Email",
+        default=False,
+        help="Si active, les factures generees seront envoyees automatiquement par email"
+    )
+    
     auto_send_peppol = fields.Boolean(
         string="Envoi auto Peppol",
         default=False,
@@ -652,23 +659,31 @@ class SaleSubscription(models.Model):
     )
     
     @api.onchange('partner_id')
-    def _onchange_partner_peppol(self):
-        """Heriter les preferences Peppol du client"""
-        if self.partner_id and self.partner_id.auto_send_peppol:
-            self.auto_send_peppol = True
+    def _onchange_partner_auto_send(self):
+        """Heriter les preferences d'envoi du client"""
+        if self.partner_id:
+            if self.partner_id.auto_send_invoice:
+                self.auto_send_invoice = True
+            if self.partner_id.auto_send_peppol:
+                self.auto_send_peppol = True
     
     def _create_invoices(self, grouped=False, final=False, date=None):
-        """Override pour propager l'option d'envoi auto"""
+        """Override pour propager les options d'envoi auto"""
         moves = super()._create_invoices(grouped=grouped, final=final, date=date)
         
         for move in moves:
-            if move.partner_id.auto_send_invoice:
-                move.auto_send_invoice = True
-            
+            # Propager depuis l'abonnement
             subscription = self.filtered(lambda s: move.partner_id in s.partner_id)
-            if subscription and subscription[0].auto_send_peppol:
-                move.auto_send_peppol = True
-            elif move.partner_id.auto_send_peppol:
-                move.auto_send_peppol = True
+            if subscription:
+                if subscription[0].auto_send_invoice:
+                    move.auto_send_invoice = True
+                if subscription[0].auto_send_peppol:
+                    move.auto_send_peppol = True
+            # Ou depuis le client
+            else:
+                if move.partner_id.auto_send_invoice:
+                    move.auto_send_invoice = True
+                if move.partner_id.auto_send_peppol:
+                    move.auto_send_peppol = True
         
         return moves
