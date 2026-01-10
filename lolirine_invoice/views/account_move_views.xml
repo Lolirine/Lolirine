@@ -155,7 +155,8 @@
         <field name="inherit_id" ref="sale_subscription.sale_subscription_primary_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='payment_token_id']" position="after">
-                <field name="auto_send_peppol"/>
+                <field name="auto_send_invoice" string="📧 Envoi auto Email"/>
+                <field name="auto_send_peppol" string="🔄 Envoi auto Peppol"/>
             </xpath>
         </field>
     </record>
