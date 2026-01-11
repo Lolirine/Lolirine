@@ -112,7 +112,8 @@ class SendDocumentWizard(models.TransientModel):
             report = self.env.ref('lolirine_contract.action_report_quotation')
             filename = f'Devis_{self.sale_order_id.name.replace("/", "_")}.pdf'
         
-        pdf_content, _ = report._render_qweb_pdf(report.report_name, [self.sale_order_id.id])
+        # CORRECTION: Utiliser _unused au lieu de _ pour ne pas écraser la fonction de traduction
+        pdf_content, _unused = report._render_qweb_pdf(report.report_name, [self.sale_order_id.id])
         
         # Créer la pièce jointe
         attachment = self.env['ir.attachment'].create({
