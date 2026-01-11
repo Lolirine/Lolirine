@@ -1,0 +1,110 @@
+/* Lolirine Contact Form Styles */
+
+.lolirine-contact-form .form-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #C91E18;
+}
+
+.lolirine-contact-form .form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.lolirine-contact-form .form-control:focus,
+.lolirine-contact-form .form-select:focus {
+    border-color: #C91E18;
+    box-shadow: 0 0 0 0.2rem rgba(201, 30, 24, 0.25);
+}
+
+.lolirine-contact-form .btn-primary {
+    background-color: #C91E18;
+    border-color: #C91E18;
+}
+
+.lolirine-contact-form .btn-primary:hover {
+    background-color: #ab1a14;
+    border-color: #ab1a14;
+}
+
+.lolirine-contact-form .text-primary {
+    color: #C91E18 !important;
+}
+
+/* Autocomplete suggestions */
+#address_suggestions {
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 8px 8px;
+}
+
+#address_suggestions .list-group-item {
+    cursor: pointer;
+    padding: 10px 15px;
+    border-left: none;
+    border-right: none;
+    font-size: 0.9rem;
+}
+
+#address_suggestions .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+#address_suggestions .list-group-item:first-child {
+    border-top: none;
+}
+
+/* Card headers */
+.card-header.bg-primary {
+    background-color: #C91E18 !important;
+}
+
+/* Form validation */
+.lolirine-contact-form .form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+.lolirine-contact-form .form-control.is-valid {
+    border-color: #28a745;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .lolirine-contact-form .form-section {
+        padding: 15px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+}
+
+/* Loading spinner */
+.lolirine-contact-form .spinner-border {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Switch styling */
+.form-check-input:checked {
+    background-color: #C91E18;
+    border-color: #C91E18;
+}
+
+/* Input group styling */
+.input-group-text {
+    background-color: #f8f9fa;
+}
+
+/* Thank you page */
+.fa-check-circle.text-success {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
