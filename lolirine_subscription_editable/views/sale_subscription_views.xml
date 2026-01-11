@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Hériter la vue formulaire des abonnements pour rendre le nom éditable -->
+    <record id="view_sale_subscription_form_editable_name" model="ir.ui.view">
+        <field name="name">sale.order.form.editable.name</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_subscription.sale_subscription_primary_form_view"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            
+            <!-- Rendre le champ name éditable -->
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="readonly">0</attribute>
+            </xpath>
+            
+            <!-- Ajouter le champ pour forcer un numéro dans Autres informations -->
+            <xpath expr="//page[@name='other_information']//group[@name='sale_info']" position="inside">
+                <field name="force_subscription_number" 
+                       string="Forcer n° abonnement"
+                       invisible="not is_subscription"/>
+            </xpath>
+            
+        </field>
+    </record>
+    
+    <!-- Action serveur pour réinitialiser la séquence -->
+    <record id="action_reset_subscription_sequence" model="ir.actions.server">
+        <field name="name">Réinitialiser séquence abonnements</field>
+        <field name="model_id" ref="sale_subscription.model_sale_order"/>
+        <field name="binding_model_id" ref="sale_subscription.model_sale_order"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = model.action_reset_subscription_sequence()
+        </field>
+    </record>
+    
+    <!-- Wizard pour réinitialiser la séquence -->
+    <record id="view_subscription_sequence_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.subscription.sequence.wizard.form</field>
+        <field name="model">lolirine.subscription.sequence.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Réinitialiser la séquence">
+                <group>
+                    <field name="sequence_id" invisible="1"/>
+                    <field name="current_number"/>
+                    <field name="new_number"/>
+                </group>
+                <div class="alert alert-warning" role="alert">
+                    <strong>⚠️ Attention :</strong> Cette action va modifier le prochain numéro d'abonnement généré automatiquement.
+                    <br/>Par exemple, si vous mettez 1, le prochain abonnement sera CTR/2026/001.
+                </div>
+                <footer>
+                    <button name="action_reset_sequence" type="object" string="Réinitialiser" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Menu pour accéder à la configuration des séquences -->
+    <menuitem id="menu_subscription_sequence_config"
+              name="Séquence abonnements"
+              parent="sale_subscription.menu_sale_subscription_config"
+              action="base.ir_sequence_form"
+              sequence="100"/>
+    
+</odoo>
