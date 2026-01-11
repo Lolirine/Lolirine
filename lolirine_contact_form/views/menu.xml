@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Action pour voir les demandes web -->
+    <record id="action_crm_lead_web_requests" model="ir.actions.act_window">
+        <field name="name">Demandes Web Garde-Meubles</field>
+        <field name="res_model">crm.lead</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[('name', 'ilike', 'Demande web')]</field>
+        <field name="context">{
+            'default_type': 'lead',
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune demande web pour le moment
+            </p>
+            <p>
+                Les demandes reçues via le formulaire de contact apparaîtront ici.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Menu sous CRM -->
+    <menuitem id="menu_crm_web_requests"
+              name="Demandes Web"
+              parent="crm.crm_menu_root"
+              action="action_crm_lead_web_requests"
+              sequence="5"/>
+    
+</odoo>
