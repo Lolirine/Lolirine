@@ -1,0 +1,188 @@
+/* Lolirine Popup Styles */
+
+/* Overlay */
+.lolirine-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lolirine-popup-overlay.show {
+    opacity: 1;
+}
+
+/* Modal */
+.lolirine-popup-modal {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    transform: scale(0.8) translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.lolirine-popup-overlay.show .lolirine-popup-modal {
+    transform: scale(1) translateY(0);
+}
+
+/* Header avec image de fond */
+.lolirine-popup-header {
+    height: 120px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    background-image: linear-gradient(135deg, #C91E18 0%, #8b1510 100%);
+}
+
+/* Bouton fermer */
+.lolirine-popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #333;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.lolirine-popup-close:hover {
+    background: #ffffff;
+    transform: scale(1.1);
+}
+
+.lolirine-popup-close span {
+    margin-top: -2px;
+}
+
+/* Contenu */
+.lolirine-popup-content {
+    padding: 30px;
+    text-align: center;
+}
+
+.lolirine-popup-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 15px 0;
+}
+
+.lolirine-popup-subtitle {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+    margin: 0 0 25px 0;
+}
+
+/* Boutons */
+.lolirine-popup-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lolirine-popup-btn-primary {
+    display: inline-block;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff !important;
+    background-color: #C91E18;
+    border: 2px solid #C91E18;
+    border-radius: 8px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.lolirine-popup-btn-primary:hover {
+    background-color: #ab1a14;
+    border-color: #ab1a14;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(201, 30, 24, 0.4);
+}
+
+.lolirine-popup-btn-secondary {
+    display: inline-block;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666 !important;
+    background-color: transparent;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.lolirine-popup-btn-secondary:hover {
+    background-color: #f5f5f5;
+    border-color: #ccc;
+}
+
+/* Animation d'entrée */
+@keyframes popupSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .lolirine-popup-modal {
+        width: 95%;
+        margin: 10px;
+    }
+    
+    .lolirine-popup-header {
+        height: 80px;
+    }
+    
+    .lolirine-popup-content {
+        padding: 20px;
+    }
+    
+    .lolirine-popup-title {
+        font-size: 22px;
+    }
+    
+    .lolirine-popup-subtitle {
+        font-size: 14px;
+    }
+    
+    .lolirine-popup-btn-primary {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+}
+
+/* Ne pas afficher en mode édition */
+.editor_enable .lolirine-popup-overlay,
+body.editor_has_snippets .lolirine-popup-overlay {
+    display: none !important;
+}

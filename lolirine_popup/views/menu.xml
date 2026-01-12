@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Menu sous Site Web → Configuration -->
+    <menuitem id="menu_lolirine_popup_config"
+              name="Popup Lolirine"
+              parent="website.menu_website_configuration"
+              action="action_lolirine_popup_config"
+              sequence="100"/>
+    
+</odoo>
