@@ -32,7 +32,7 @@ class ProductTemplate(models.Model):
     is_rented_in_subscription = fields.Boolean(
         string="Loué via abonnement",
         compute='_compute_is_rented_in_subscription',
-        store=True,
+        store=False,  # Non stocké pour éviter les problèmes de dépendances
         help="Indique si ce box est actuellement dans un abonnement actif"
     )
 
@@ -111,9 +111,6 @@ class ProductTemplate(models.Model):
         store=False
     )
 
-    @api.depends('product_variant_ids.sale_order_line_ids.order_id.state',
-                 'product_variant_ids.sale_order_line_ids.order_id.is_subscription',
-                 'product_variant_ids.sale_order_line_ids.order_id.subscription_state')
     def _compute_is_rented_in_subscription(self):
         """Calcule si le produit est dans un abonnement actif"""
         for product in self:
