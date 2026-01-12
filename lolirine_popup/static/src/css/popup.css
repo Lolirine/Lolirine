@@ -1,0 +1,324 @@
+/* Lolirine Popup Styles */
+
+/* Overlay */
+.lolirine-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lolirine-popup-overlay.show {
+    opacity: 1;
+}
+
+/* Modal */
+.lolirine-popup-modal {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+    max-width: 550px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    transform: scale(0.8) translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.lolirine-popup-overlay.show .lolirine-popup-modal {
+    transform: scale(1) translateY(0);
+}
+
+/* Header avec couleur de fond */
+.lolirine-popup-header {
+    height: 100px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    background-image: linear-gradient(135deg, #C91E18 0%, #8b1510 100%);
+}
+
+/* Header avec image de fond */
+.lolirine-popup-header.lolirine-popup-header-image {
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Bouton fermer */
+.lolirine-popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #333;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.lolirine-popup-close:hover {
+    background: #ffffff;
+    transform: scale(1.1);
+}
+
+.lolirine-popup-close span {
+    margin-top: -2px;
+}
+
+/* Contenu */
+.lolirine-popup-content {
+    padding: 25px;
+    text-align: center;
+    max-height: calc(90vh - 100px);
+    overflow-y: auto;
+}
+
+.lolirine-popup-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 12px 0;
+}
+
+.lolirine-popup-subtitle {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.5;
+    margin: 0 0 20px 0;
+}
+
+/* Boutons - Popup Standard */
+.lolirine-popup-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lolirine-popup-btn-primary {
+    display: inline-block;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff !important;
+    background-color: #C91E18;
+    border: 2px solid #C91E18;
+    border-radius: 8px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.lolirine-popup-btn-primary:hover {
+    background-color: #ab1a14;
+    border-color: #ab1a14;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(201, 30, 24, 0.4);
+}
+
+.lolirine-popup-btn-secondary {
+    display: inline-block;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666 !important;
+    background-color: transparent;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.lolirine-popup-btn-secondary:hover {
+    background-color: #f5f5f5;
+    border-color: #ccc;
+}
+
+/* ===================== */
+/* Styles Boxes Disponibles */
+/* ===================== */
+
+.lolirine-popup-boxes {
+    text-align: left;
+}
+
+.lolirine-boxes-loading {
+    text-align: center;
+    padding: 30px;
+    color: #666;
+    font-size: 14px;
+}
+
+.lolirine-boxes-loading i {
+    margin-right: 8px;
+    color: #C91E18;
+}
+
+.lolirine-boxes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lolirine-box-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    background: #fafafa;
+    transition: all 0.2s ease;
+}
+
+.lolirine-box-item:hover {
+    border-color: #C91E18;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.lolirine-box-image {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #eee;
+}
+
+.lolirine-box-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.lolirine-box-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.lolirine-box-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lolirine-box-price {
+    font-size: 14px;
+    color: #C91E18;
+    font-weight: 600;
+}
+
+.lolirine-box-action {
+    flex-shrink: 0;
+}
+
+.lolirine-box-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff !important;
+    background-color: #C91E18;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.lolirine-box-btn:hover {
+    background-color: #ab1a14;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(201, 30, 24, 0.3);
+}
+
+.lolirine-boxes-empty {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.lolirine-boxes-empty p {
+    margin-bottom: 15px;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .lolirine-popup-modal {
+        width: 95%;
+        margin: 10px;
+    }
+    
+    .lolirine-popup-header {
+        height: 70px;
+    }
+    
+    .lolirine-popup-content {
+        padding: 18px;
+    }
+    
+    .lolirine-popup-title {
+        font-size: 20px;
+    }
+    
+    .lolirine-popup-subtitle {
+        font-size: 14px;
+    }
+    
+    .lolirine-popup-btn-primary {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+    
+    /* Boxes mobile */
+    .lolirine-box-item {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .lolirine-box-image {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .lolirine-box-info {
+        flex: 1 1 calc(100% - 70px);
+    }
+    
+    .lolirine-box-action {
+        width: 100%;
+    }
+    
+    .lolirine-box-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Ne pas afficher en mode édition */
+.editor_enable .lolirine-popup-overlay,
+body.editor_has_snippets .lolirine-popup-overlay {
+    display: none !important;
+}
