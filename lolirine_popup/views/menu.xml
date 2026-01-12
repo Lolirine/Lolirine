@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Menu principal sous Site Web -->
+    <menuitem id="menu_lolirine_popup_root"
+              name="Popup Lolirine"
+              parent="website.menu_website_configuration"
+              action="action_lolirine_popup_config"
+              sequence="100"
+              groups="website.group_website_designer"/>
+    
+    <!-- Alternative : Menu sous Paramètres généraux si le premier ne fonctionne pas -->
+    <menuitem id="menu_lolirine_popup_settings"
+              name="Popup Lolirine"
+              parent="base.menu_administration"
+              action="action_lolirine_popup_config"
+              sequence="200"
+              groups="base.group_system"/>
+    
+</odoo>

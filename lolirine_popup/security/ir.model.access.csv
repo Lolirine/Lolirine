@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_lolirine_popup_config_public,lolirine.popup.config.public,model_lolirine_popup_config,,1,0,0,0
+access_lolirine_popup_config_user,lolirine.popup.config.user,model_lolirine_popup_config,base.group_user,1,0,0,0
+access_lolirine_popup_config_website,lolirine.popup.config.website,model_lolirine_popup_config,website.group_website_designer,1,1,1,1
+access_lolirine_popup_config_admin,lolirine.popup.config.admin,model_lolirine_popup_config,base.group_system,1,1,1,1
