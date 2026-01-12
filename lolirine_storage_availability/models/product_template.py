@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 
 
 class ProductTemplate(models.Model):
@@ -26,6 +26,14 @@ class ProductTemplate(models.Model):
         string="Abonnement actif",
         domain="[('is_subscription', '=', True), ('subscription_state', '=', '3_progress')]",
         help="L'abonnement actif pour ce box"
+    )
+
+    # Champ calculé : est-ce que ce box est dans un abonnement actif ?
+    is_rented_in_subscription = fields.Boolean(
+        string="Loué via abonnement",
+        compute='_compute_is_rented_in_subscription',
+        store=True,
+        help="Indique si ce box est actuellement dans un abonnement actif"
     )
 
     # Statut de disponibilité du box
@@ -102,6 +110,26 @@ class ProductTemplate(models.Model):
         compute='_compute_storage_status_display',
         store=False
     )
+
+    @api.depends('product_variant_ids.sale_order_line_ids.order_id.state',
+                 'product_variant_ids.sale_order_line_ids.order_id.is_subscription',
+                 'product_variant_ids.sale_order_line_ids.order_id.subscription_state')
+    def _compute_is_rented_in_subscription(self):
+        """Calcule si le produit est dans un abonnement actif"""
+        for product in self:
+            if not product.is_storage_box:
+                product.is_rented_in_subscription = False
+                continue
+            
+            # Chercher un abonnement actif contenant ce produit
+            active_subscription = self.env['sale.order'].search([
+                ('is_subscription', '=', True),
+                ('state', '=', 'sale'),
+                ('subscription_state', 'in', ['3_progress', '4_paused']),
+                ('order_line.product_template_id', '=', product.id),
+            ], limit=1)
+            
+            product.is_rented_in_subscription = bool(active_subscription)
 
     @api.depends('is_storage_box', 'storage_status', 'storage_appointment_override')
     def _compute_show_appointment_button(self):
@@ -233,6 +261,30 @@ class ProductTemplate(models.Model):
             }
         return False
 
+    def action_sync_from_subscriptions(self):
+        """Synchronise le statut et les liens depuis les abonnements actifs"""
+        for product in self.filtered('is_storage_box'):
+            # Chercher un abonnement actif
+            active_sub = self.env['sale.order'].search([
+                ('is_subscription', '=', True),
+                ('state', '=', 'sale'),
+                ('subscription_state', 'in', ['3_progress', '4_paused']),
+                ('order_line.product_template_id', '=', product.id),
+            ], limit=1, order='date_order desc')
+            
+            if active_sub:
+                product.write({
+                    'storage_status': 'rented',
+                    'current_subscription_id': active_sub.id,
+                    'current_tenant_id': active_sub.partner_id.id,
+                })
+            elif product.storage_status == 'rented' and not product.current_tenant_id:
+                # Pas d'abonnement actif et pas de locataire manuel → disponible
+                product.write({
+                    'storage_status': 'available',
+                    'current_subscription_id': False,
+                })
+
     def write(self, vals):
         """Override write pour synchroniser le ruban avec le statut"""
         res = super().write(vals)
@@ -282,7 +334,11 @@ class ProductTemplate(models.Model):
 
     def action_set_available(self):
         """Marque le box comme disponible"""
-        self.filtered('is_storage_box').write({'storage_status': 'available', 'current_tenant_id': False})
+        self.filtered('is_storage_box').write({
+            'storage_status': 'available', 
+            'current_tenant_id': False,
+            'current_subscription_id': False
+        })
 
     def action_set_rented(self):
         """Marque le box comme loué"""
