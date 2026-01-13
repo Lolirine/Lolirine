@@ -1,7 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_biztax_declaration_user,biztax.declaration.user,model_biztax_declaration,lolirine_biztax.group_biztax_user,1,1,1,0
-access_biztax_declaration_manager,biztax.declaration.manager,model_biztax_declaration,lolirine_biztax.group_biztax_manager,1,1,1,1
-access_biztax_adjustment_user,biztax.adjustment.user,model_biztax_adjustment,lolirine_biztax.group_biztax_user,1,1,1,0
-access_biztax_adjustment_manager,biztax.adjustment.manager,model_biztax_adjustment,lolirine_biztax.group_biztax_manager,1,1,1,1
-access_biztax_tax_code_user,biztax.tax.code.user,model_biztax_tax_code,lolirine_biztax.group_biztax_user,1,0,0,0
-access_biztax_tax_code_manager,biztax.tax.code.manager,model_biztax_tax_code,lolirine_biztax.group_biztax_manager,1,1,1,1
