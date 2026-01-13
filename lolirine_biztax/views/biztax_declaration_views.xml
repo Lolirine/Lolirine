@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Declaration Form View -->
+    <record id="view_biztax_declaration_form" model="ir.ui.view">
+        <field name="name">biztax.declaration.form</field>
+        <field name="model">biztax.declaration</field>
+        <field name="arch" type="xml">
+            <form string="Déclaration Biztax">
+                <header>
+                    <button name="action_compute" type="object" string="Calculer"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_validate" type="object" string="Valider"
+                            class="btn-primary" invisible="state != 'computed'"/>
+                    <button name="action_generate_xbrl" type="object" string="Générer XBRL"
+                            invisible="state not in ('validated', 'generated')"/>
+                    <button name="action_generate_biztax" type="object" string="Télécharger .biztax"
+                            class="btn-primary" invisible="state not in ('validated', 'generated')"/>
+                    <button name="action_mark_submitted" type="object" string="Marquer soumis"
+                            invisible="state != 'generated'"
+                            confirm="Confirmez-vous que la déclaration a été soumise via Biztax?"/>
+                    <button name="action_reset_draft" type="object" string="Remettre en brouillon"
+                            invisible="state in ('draft', 'submitted')"/>
+                    <button name="action_cancel" type="object" string="Annuler"
+                            invisible="state in ('cancelled', 'submitted')"/>
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="draft,computed,validated,generated,submitted"/>
+                </header>
+                
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(action_biztax_adjustment)d" type="action"
+                                class="oe_stat_button" icon="fa-sliders"
+                                context="{'default_declaration_id': active_id, 'search_default_declaration_id': active_id}">
+                            <field name="adjustment_ids" widget="statinfo" string="Ajustements"/>
+                        </button>
+                    </div>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="Identification">
+                            <field name="company_id" readonly="state != 'draft'"/>
+                            <field name="declaration_type" readonly="state != 'draft'"/>
+                            <field name="taxonomy_version" readonly="state != 'draft'"/>
+                            <field name="enterprise_number"/>
+                            <field name="vat_number"/>
+                        </group>
+                        <group string="Période fiscale">
+                            <field name="fiscal_year_start" readonly="state != 'draft'"/>
+                            <field name="fiscal_year_end" readonly="state != 'draft'"/>
+                            <field name="assessment_year"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Résultat" name="result">
+                            <group>
+                                <group string="Résultat comptable">
+                                    <field name="accounting_result"/>
+                                    <field name="accounting_result_type"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </group>
+                                <group string="Ajustements">
+                                    <field name="total_increases"/>
+                                    <field name="total_decreases"/>
+                                </group>
+                            </group>
+                            
+                            <group>
+                                <group string="Base imposable">
+                                    <field name="taxable_base"/>
+                                    <field name="is_sme"/>
+                                    <field name="tax_rate"/>
+                                </group>
+                                <group string="Impôt">
+                                    <field name="tax_due"/>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <page string="Ajustements" name="adjustments">
+                            <field name="adjustment_ids">
+                                <list editable="bottom"
+                                      decoration-success="adjustment_type == 'decrease'"
+                                      decoration-warning="adjustment_type == 'increase'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="category"/>
+                                    <field name="adjustment_type"/>
+                                    <field name="amount" sum="Total"/>
+                                    <field name="signed_amount" sum="Total signé"/>
+                                    <field name="legal_reference"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        
+                        <page string="Fichiers générés" name="files"
+                              invisible="state not in ('generated', 'submitted')">
+                            <group>
+                                <group>
+                                    <field name="xbrl_file" filename="xbrl_filename"/>
+                                    <field name="xbrl_filename" invisible="1"/>
+                                </group>
+                                <group>
+                                    <field name="biztax_file" filename="biztax_filename"/>
+                                    <field name="biztax_filename" invisible="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_biztax_declaration_tree" model="ir.ui.view">
+        <field name="name">biztax.declaration.tree</field>
+        <field name="model">biztax.declaration</field>
+        <field name="arch" type="xml">
+            <list string="Déclarations Biztax"
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state == 'computed'"
+                  decoration-success="state in ('validated', 'generated', 'submitted')"
+                  decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="declaration_type"/>
+                <field name="fiscal_year_end"/>
+                <field name="assessment_year"/>
+                <field name="accounting_result"/>
+                <field name="taxable_base"/>
+                <field name="tax_due"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'computed'"
+                       decoration-success="state in ('validated', 'generated', 'submitted')"
+                       decoration-danger="state == 'cancelled'"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_biztax_declaration_search" model="ir.ui.view">
+        <field name="name">biztax.declaration.search</field>
+        <field name="model">biztax.declaration</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher déclarations">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="assessment_year"/>
+                <separator/>
+                <filter name="filter_draft" string="Brouillon" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_computed" string="Calculé" domain="[('state', '=', 'computed')]"/>
+                <filter name="filter_validated" string="Validé" domain="[('state', '=', 'validated')]"/>
+                <filter name="filter_submitted" string="Soumis" domain="[('state', '=', 'submitted')]"/>
+                <separator/>
+                <filter name="filter_isoc" string="ISOC" domain="[('declaration_type', '=', 'rcorp')]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Société" name="group_company" context="{'group_by': 'company_id'}"/>
+                    <filter string="Exercice" name="group_year" context="{'group_by': 'assessment_year'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_biztax_declaration" model="ir.actions.act_window">
+        <field name="name">Déclarations ISOC</field>
+        <field name="res_model">biztax.declaration</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_biztax_declaration_search"/>
+        <field name="context">{'search_default_filter_draft': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre première déclaration ISOC
+            </p>
+            <p>
+                Les déclarations Biztax permettent de calculer l'impôt des sociétés
+                et de générer les fichiers XBRL pour soumission sur MyMinfin.
+            </p>
+        </field>
+    </record>
+</odoo>
