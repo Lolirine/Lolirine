@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Standard Belgian Account Mapping Templates -->
+        <!-- Based on MAR (Minimum Algemeen Rekeningstelsel) / PCMN -->
+
+        <!-- DNA - Frais de voiture (déductibilité variable selon CO2) -->
+        <record id="mapping_template_car_617" model="biztax.account.mapping.template">
+            <field name="name">Frais de véhicules automoteurs</field>
+            <field name="sequence">10</field>
+            <field name="account_code_prefix">617</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_cars"/>
+            <field name="dna_percentage">40</field>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="legal_reference">Art. 66 CIR92</field>
+            <field name="description">La déductibilité des frais de voiture dépend des émissions CO2. Le pourcentage DNA standard de 40% est une moyenne, à ajuster selon le parc automobile.</field>
+        </record>
+
+        <!-- DNA - Frais de restaurant (31% non déductible) -->
+        <record id="mapping_template_restaurant_6131" model="biztax.account.mapping.template">
+            <field name="name">Frais de restaurant</field>
+            <field name="sequence">20</field>
+            <field name="account_code_prefix">6131</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_restaurant"/>
+            <field name="dna_percentage">31</field>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="legal_reference">Art. 53, 8° CIR92</field>
+            <field name="description">Les frais de restaurant sont déductibles à concurrence de 69%. Les 31% non déductibles constituent une DNA.</field>
+        </record>
+
+        <!-- DNA - Frais de réception (50% non déductible) -->
+        <record id="mapping_template_reception_6132" model="biztax.account.mapping.template">
+            <field name="name">Frais de réception</field>
+            <field name="sequence">30</field>
+            <field name="account_code_prefix">6132</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_reception"/>
+            <field name="dna_percentage">50</field>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="legal_reference">Art. 53, 8° CIR92</field>
+            <field name="description">Les frais de réception sont déductibles à 50%. La moitié constitue une DNA.</field>
+        </record>
+
+        <!-- DNA - Cadeaux d'affaires (50% non déductible) -->
+        <record id="mapping_template_gifts_6133" model="biztax.account.mapping.template">
+            <field name="name">Cadeaux d'affaires</field>
+            <field name="sequence">40</field>
+            <field name="account_code_prefix">6133</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_gifts"/>
+            <field name="dna_percentage">50</field>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="legal_reference">Art. 53, 8° CIR92</field>
+            <field name="description">Les cadeaux d'affaires sont déductibles à 50% (max 125 EUR par cadeau). La moitié constitue une DNA.</field>
+        </record>
+
+        <!-- DNA - Vêtements professionnels -->
+        <record id="mapping_template_clothing_612" model="biztax.account.mapping.template">
+            <field name="name">Vêtements et équipements individuels</field>
+            <field name="sequence">50</field>
+            <field name="account_code_prefix">612</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_clothing"/>
+            <field name="dna_percentage">0</field>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="description">Les vêtements non professionnels ne sont pas déductibles. Vérifier manuellement les montants.</field>
+        </record>
+
+        <!-- DNA - Amendes et pénalités (100% non déductible) -->
+        <record id="mapping_template_fines_6580" model="biztax.account.mapping.template">
+            <field name="name">Amendes et pénalités</field>
+            <field name="sequence">60</field>
+            <field name="account_code_prefix">6580</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_fines"/>
+            <field name="dna_percentage">100</field>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="legal_reference">Art. 53, 6° CIR92</field>
+            <field name="description">Les amendes, confiscations et pénalités de toute nature ne sont pas déductibles fiscalement.</field>
+        </record>
+
+        <!-- DNA - Impôts non déductibles -->
+        <record id="mapping_template_taxes_640" model="biztax.account.mapping.template">
+            <field name="name">Impôts et taxes d'exploitation</field>
+            <field name="sequence">70</field>
+            <field name="account_code_prefix">640</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_isoc"/>
+            <field name="dna_percentage">0</field>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="legal_reference">Art. 198 CIR92</field>
+            <field name="description">Certains impôts ne sont pas déductibles (ISOC, précompte mobilier non imputable...). Vérifier manuellement.</field>
+        </record>
+
+        <!-- Provisions -->
+        <record id="mapping_template_provisions_635" model="biztax.account.mapping.template">
+            <field name="name">Dotations aux provisions pour risques et charges</field>
+            <field name="sequence">80</field>
+            <field name="account_code_prefix">635</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_provisions"/>
+            <field name="dna_percentage">0</field>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="description">Les provisions ne sont déductibles que si elles répondent aux conditions de l'art. 48 CIR92. Vérifier manuellement.</field>
+        </record>
+
+        <!-- Intérêts financiers -->
+        <record id="mapping_template_interest_650" model="biztax.account.mapping.template">
+            <field name="name">Charges financières diverses</field>
+            <field name="sequence">90</field>
+            <field name="account_code_prefix">650</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_interest"/>
+            <field name="dna_percentage">0</field>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="legal_reference">Art. 55 CIR92</field>
+            <field name="description">Les intérêts peuvent être requalifiés en dividendes ou limités (thin cap, EBITDA rule). Vérifier manuellement.</field>
+        </record>
+
+        <!-- Adjustment Templates -->
+        <record id="adjustment_template_restaurant" model="biztax.adjustment.template">
+            <field name="name">DNA - Frais de restaurant (31%)</field>
+            <field name="sequence">10</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_restaurant"/>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="default_dna_percentage">31</field>
+            <field name="legal_reference">Art. 53, 8° CIR92</field>
+        </record>
+
+        <record id="adjustment_template_reception" model="biztax.adjustment.template">
+            <field name="name">DNA - Frais de réception (50%)</field>
+            <field name="sequence">20</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_reception"/>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="default_dna_percentage">50</field>
+            <field name="legal_reference">Art. 53, 8° CIR92</field>
+        </record>
+
+        <record id="adjustment_template_gifts" model="biztax.adjustment.template">
+            <field name="name">DNA - Cadeaux d'affaires (50%)</field>
+            <field name="sequence">30</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_gifts"/>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="default_dna_percentage">50</field>
+            <field name="legal_reference">Art. 53, 8° CIR92</field>
+        </record>
+
+        <record id="adjustment_template_fines" model="biztax.adjustment.template">
+            <field name="name">DNA - Amendes (100%)</field>
+            <field name="sequence">40</field>
+            <field name="tax_code_id" ref="tax_code_i_dna_fines"/>
+            <field name="category">dna</field>
+            <field name="adjustment_type">increase</field>
+            <field name="default_dna_percentage">100</field>
+            <field name="legal_reference">Art. 53, 6° CIR92</field>
+        </record>
+
+        <record id="adjustment_template_rdt" model="biztax.adjustment.template">
+            <field name="name">Déduction RDT (Revenus Définitivement Taxés)</field>
+            <field name="sequence">100</field>
+            <field name="tax_code_id" ref="tax_code_j_rdt"/>
+            <field name="category">rdi</field>
+            <field name="adjustment_type">decrease</field>
+            <field name="legal_reference">Art. 202-204 CIR92</field>
+        </record>
+
+        <record id="adjustment_template_investment" model="biztax.adjustment.template">
+            <field name="name">Déduction pour investissement</field>
+            <field name="sequence">110</field>
+            <field name="tax_code_id" ref="tax_code_j_investment"/>
+            <field name="category">investment</field>
+            <field name="adjustment_type">decrease</field>
+            <field name="legal_reference">Art. 68-77 CIR92</field>
+        </record>
+
+        <record id="adjustment_template_losses" model="biztax.adjustment.template">
+            <field name="name">Pertes antérieures récupérables</field>
+            <field name="sequence">120</field>
+            <field name="tax_code_id" ref="tax_code_j_losses"/>
+            <field name="category">loss_carryforward</field>
+            <field name="adjustment_type">decrease</field>
+            <field name="legal_reference">Art. 206 CIR92</field>
+        </record>
+    </data>
+</odoo>

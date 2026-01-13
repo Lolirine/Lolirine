@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ============================================ -->
+    <!-- MULTI-COMPANY MANAGER VIEWS                 -->
+    <!-- ============================================ -->
+    
+    <record id="view_biztax_multicompany_manager_form" model="ir.ui.view">
+        <field name="name">biztax.multicompany.manager.form</field>
+        <field name="model">biztax.multicompany.manager</field>
+        <field name="arch" type="xml">
+            <form string="Gestionnaire groupe fiscal">
+                <header>
+                    <button name="action_create_declarations" 
+                            type="object" 
+                            string="Créer déclarations"
+                            class="oe_highlight"
+                            invisible="declaration_count > 0"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,validated,submitted"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_declarations" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-file-text-o">
+                            <field name="declaration_count" string="Déclarations" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Référence groupe..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Groupe">
+                            <field name="parent_company_id"/>
+                            <field name="assessment_year"/>
+                            <field name="company_ids" widget="many2many_tags" readonly="1"/>
+                        </group>
+                        <group string="Progression">
+                            <field name="progress_percentage" widget="progressbar"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Totaux consolidés" name="consolidated">
+                            <group>
+                                <group string="Montants (EUR)">
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="total_taxable_base"/>
+                                    <field name="total_tax_amount"/>
+                                    <field name="total_balance_due"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Déclarations" name="declarations">
+                            <field name="declaration_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="company_id"/>
+                                    <field name="taxable_base"/>
+                                    <field name="tax_amount"/>
+                                    <field name="balance_due"/>
+                                    <field name="state" widget="badge" 
+                                           decoration-success="state == 'submitted'"
+                                           decoration-info="state in ('validated', 'generated')"
+                                           decoration-warning="state == 'computed'"
+                                           decoration-muted="state == 'draft'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_biztax_multicompany_manager_tree" model="ir.ui.view">
+        <field name="name">biztax.multicompany.manager.tree</field>
+        <field name="model">biztax.multicompany.manager</field>
+        <field name="arch" type="xml">
+            <list string="Groupes fiscaux">
+                <field name="name"/>
+                <field name="parent_company_id"/>
+                <field name="assessment_year"/>
+                <field name="declaration_count"/>
+                <field name="total_tax_amount" sum="Total"/>
+                <field name="progress_percentage" widget="progressbar"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- CLOSING ENTRY VIEWS                         -->
+    <!-- ============================================ -->
+    
+    <record id="view_biztax_closing_entry_form" model="ir.ui.view">
+        <field name="name">biztax.closing.entry.form</field>
+        <field name="model">biztax.closing.entry</field>
+        <field name="arch" type="xml">
+            <form string="Écriture de clôture">
+                <header>
+                    <button name="action_create_adjustment" 
+                            type="object" 
+                            string="Créer ajustement"
+                            class="oe_highlight"
+                            invisible="fiscal_treatment != 'adjust' or processed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="declaration_id"/>
+                            <field name="move_id"/>
+                            <field name="date"/>
+                            <field name="amount"/>
+                        </group>
+                        <group string="Traitement fiscal">
+                            <field name="entry_type"/>
+                            <field name="fiscal_treatment" widget="radio"/>
+                            <field name="processed"/>
+                            <field name="adjustment_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Lignes comptables" name="lines">
+                            <field name="line_ids" readonly="1">
+                                <list>
+                                    <field name="account_id"/>
+                                    <field name="name"/>
+                                    <field name="debit"/>
+                                    <field name="credit"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Notes sur le traitement fiscal..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_biztax_closing_entry_tree" model="ir.ui.view">
+        <field name="name">biztax.closing.entry.tree</field>
+        <field name="model">biztax.closing.entry</field>
+        <field name="arch" type="xml">
+            <list string="Écritures de clôture" decoration-success="fiscal_treatment == 'include'" 
+                  decoration-danger="fiscal_treatment == 'exclude'"
+                  decoration-warning="fiscal_treatment == 'adjust'"
+                  decoration-muted="processed">
+                <field name="date"/>
+                <field name="name"/>
+                <field name="entry_type"/>
+                <field name="amount"/>
+                <field name="fiscal_treatment" widget="badge"/>
+                <field name="processed"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- EXTRA ACCOUNTING VIEWS                      -->
+    <!-- ============================================ -->
+    
+    <record id="view_biztax_extra_accounting_form" model="ir.ui.view">
+        <field name="name">biztax.extra.accounting.form</field>
+        <field name="model">biztax.extra.accounting</field>
+        <field name="arch" type="xml">
+            <form string="Mouvement extra-comptable">
+                <sheet>
+                    <group>
+                        <group string="Identification">
+                            <field name="declaration_id"/>
+                            <field name="name"/>
+                            <field name="category"/>
+                            <field name="movement_type"/>
+                            <field name="tax_code_id"/>
+                        </group>
+                        <group string="Montants">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="accounting_amount"/>
+                            <field name="fiscal_amount"/>
+                            <field name="adjustment_amount"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="DNA - Détails" name="dna_details" 
+                              invisible="category not in ('dna_car', 'dna_car_co2', 'dna_fuel_card', 'dna_restaurant', 'dna_reception', 'dna_gift', 'dna_other')">
+                            <group>
+                                <group string="Base de calcul">
+                                    <field name="base_amount"/>
+                                    <field name="dna_percentage_fixed"/>
+                                </group>
+                                <group string="Véhicule" invisible="category not in ('dna_car', 'dna_car_co2', 'dna_fuel_card')">
+                                    <field name="vehicle_id"/>
+                                    <field name="co2_emission"/>
+                                    <field name="fuel_type"/>
+                                    <field name="dna_percentage_calculated"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Plus-value" name="capital_gain"
+                              invisible="category not in ('capital_gain_normal', 'capital_gain_spread', 'capital_gain_exempt', 'capital_gain_shares', 'capital_gain_reinvest')">
+                            <group>
+                                <group string="Dates">
+                                    <field name="acquisition_date"/>
+                                    <field name="disposal_date"/>
+                                    <field name="holding_period_months"/>
+                                </group>
+                                <group string="Réinvestissement">
+                                    <field name="reinvestment_deadline"/>
+                                    <field name="reinvestment_amount"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="RDT" name="rdt"
+                              invisible="category not in ('ded_rdt', 'ded_rdt_excess')">
+                            <group>
+                                <group string="Participation">
+                                    <field name="participation_percentage"/>
+                                    <field name="participation_value"/>
+                                    <field name="holding_period_months"/>
+                                    <field name="rdt_eligible" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="NID" name="nid"
+                              invisible="category != 'ded_nid'">
+                            <group>
+                                <group>
+                                    <field name="risk_capital_base"/>
+                                    <field name="nid_rate"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Pertes" name="losses"
+                              invisible="category not in ('ded_loss', 'ded_loss_foreign')">
+                            <group>
+                                <group>
+                                    <field name="loss_year"/>
+                                    <field name="loss_original_amount"/>
+                                    <field name="loss_used_amount"/>
+                                    <field name="loss_remaining"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Comptabilité" name="accounting">
+                            <group>
+                                <field name="account_ids" widget="many2many_tags"/>
+                                <field name="move_line_ids"/>
+                                <field name="asset_id"/>
+                            </group>
+                        </page>
+                        <page string="Documentation" name="doc">
+                            <group>
+                                <field name="legal_reference"/>
+                                <field name="requires_annex"/>
+                                <field name="annex_type"/>
+                                <field name="auto_calculated"/>
+                            </group>
+                            <field name="notes" placeholder="Justification..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_biztax_extra_accounting_tree" model="ir.ui.view">
+        <field name="name">biztax.extra.accounting.tree</field>
+        <field name="model">biztax.extra.accounting</field>
+        <field name="arch" type="xml">
+            <list string="Mouvements extra-comptables">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="category"/>
+                <field name="movement_type" widget="badge" 
+                       decoration-danger="movement_type == 'increase'"
+                       decoration-success="movement_type == 'decrease'"/>
+                <field name="adjustment_amount" sum="Total"/>
+                <field name="requires_annex"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- PCMN MAPPING VIEWS                          -->
+    <!-- ============================================ -->
+    
+    <record id="view_biztax_pcmn_xbrl_mapping_form" model="ir.ui.view">
+        <field name="name">biztax.pcmn.xbrl.mapping.form</field>
+        <field name="model">biztax.pcmn.xbrl.mapping</field>
+        <field name="arch" type="xml">
+            <form string="Mapping PCMN → XBRL">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Compte PCMN">
+                            <field name="pcmn_code"/>
+                            <field name="pcmn_code_to"/>
+                            <field name="pcmn_name"/>
+                            <field name="pcmn_class"/>
+                        </group>
+                        <group string="Mapping XBRL">
+                            <field name="xbrl_element"/>
+                            <field name="xbrl_concept_id"/>
+                            <field name="tax_code_id"/>
+                            <field name="fiscal_category"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="DNA" name="dna" invisible="not requires_dna_adjustment">
+                            <group>
+                                <group>
+                                    <field name="requires_dna_adjustment"/>
+                                    <field name="dna_percentage"/>
+                                    <field name="dna_variable"/>
+                                    <field name="dna_legal_reference"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Déductions" name="deductions" invisible="not is_deductible_base">
+                            <group>
+                                <group>
+                                    <field name="is_deductible_base"/>
+                                    <field name="deduction_type"/>
+                                    <field name="deduction_rate"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Annexes" name="annexes" invisible="not requires_annex">
+                            <group>
+                                <field name="requires_annex"/>
+                                <field name="annex_type"/>
+                            </group>
+                        </page>
+                        <page string="Vérification" name="review" invisible="not requires_manual_review">
+                            <group>
+                                <field name="requires_manual_review"/>
+                                <field name="review_reason"/>
+                            </group>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_biztax_pcmn_xbrl_mapping_tree" model="ir.ui.view">
+        <field name="name">biztax.pcmn.xbrl.mapping.tree</field>
+        <field name="model">biztax.pcmn.xbrl.mapping</field>
+        <field name="arch" type="xml">
+            <list string="Mapping PCMN → XBRL">
+                <field name="pcmn_code"/>
+                <field name="pcmn_code_to"/>
+                <field name="pcmn_name"/>
+                <field name="fiscal_category"/>
+                <field name="requires_dna_adjustment"/>
+                <field name="dna_percentage"/>
+                <field name="requires_manual_review"/>
+            </list>
+        </field>
+    </record>
+    
+    <record id="view_biztax_pcmn_xbrl_mapping_search" model="ir.ui.view">
+        <field name="name">biztax.pcmn.xbrl.mapping.search</field>
+        <field name="model">biztax.pcmn.xbrl.mapping</field>
+        <field name="arch" type="xml">
+            <search string="Recherche mapping PCMN">
+                <field name="pcmn_code"/>
+                <field name="pcmn_name"/>
+                <filter string="DNA requis" name="dna" domain="[('requires_dna_adjustment', '=', True)]"/>
+                <filter string="Vérification requise" name="review" domain="[('requires_manual_review', '=', True)]"/>
+                <filter string="Annexe requise" name="annex" domain="[('requires_annex', '=', True)]"/>
+                <group expand="1" string="Grouper par">
+                    <filter string="Classe PCMN" name="group_class" context="{'group_by': 'pcmn_class'}"/>
+                    <filter string="Catégorie fiscale" name="group_category" context="{'group_by': 'fiscal_category'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- NID CALCULATION VIEWS                       -->
+    <!-- ============================================ -->
+    
+    <record id="view_biztax_nid_calculation_form" model="ir.ui.view">
+        <field name="name">biztax.nid.calculation.form</field>
+        <field name="model">biztax.nid.calculation</field>
+        <field name="arch" type="xml">
+            <form string="Calcul intérêts notionnels (NID)">
+                <sheet>
+                    <group>
+                        <group string="Fonds propres">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="declaration_id"/>
+                            <field name="equity_start"/>
+                            <field name="equity_end"/>
+                            <field name="average_equity"/>
+                        </group>
+                        <group string="Déductions du capital à risque">
+                            <field name="own_shares"/>
+                            <field name="financial_fixed_assets"/>
+                            <field name="foreign_establishments"/>
+                            <field name="real_estate_excess"/>
+                            <field name="revaluation_surplus"/>
+                            <field name="subsidies"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Capital à risque">
+                            <field name="risk_capital"/>
+                        </group>
+                        <group string="Taux et déduction">
+                            <field name="nid_rate_base"/>
+                            <field name="nid_rate_sme_bonus"/>
+                            <field name="nid_rate_applied"/>
+                            <field name="nid_amount"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- LOSS CARRYFORWARD VIEWS                     -->
+    <!-- ============================================ -->
+    
+    <record id="view_biztax_loss_carryforward_form" model="ir.ui.view">
+        <field name="name">biztax.loss.carryforward.form</field>
+        <field name="model">biztax.loss.carryforward</field>
+        <field name="arch" type="xml">
+            <form string="Perte reportable">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id"/>
+                            <field name="loss_year"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="original_amount"/>
+                            <field name="used_amount"/>
+                            <field name="remaining_amount"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Utilisations" name="usage">
+                            <field name="usage_ids">
+                                <list editable="bottom">
+                                    <field name="declaration_id"/>
+                                    <field name="amount"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_biztax_loss_carryforward_tree" model="ir.ui.view">
+        <field name="name">biztax.loss.carryforward.tree</field>
+        <field name="model">biztax.loss.carryforward</field>
+        <field name="arch" type="xml">
+            <list string="Pertes reportables">
+                <field name="company_id"/>
+                <field name="loss_year"/>
+                <field name="original_amount" sum="Total original"/>
+                <field name="used_amount" sum="Total utilisé"/>
+                <field name="remaining_amount" sum="Total restant"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- CLOSING DETECTION WIZARD VIEW               -->
+    <!-- ============================================ -->
+    
+    <record id="view_biztax_closing_detection_wizard_form" model="ir.ui.view">
+        <field name="name">biztax.closing.detection.wizard.form</field>
+        <field name="model">biztax.closing.detection.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Détection écritures de clôture">
+                <group>
+                    <field name="declaration_id" readonly="1"/>
+                    <field name="detection_method"/>
+                    <field name="closing_journal_ids" widget="many2many_tags"
+                           invisible="detection_method not in ('journal', 'all')"/>
+                </group>
+                <group invisible="detected_count == 0">
+                    <field name="detected_count"/>
+                </group>
+                <field name="preview_ids" invisible="detected_count == 0">
+                    <list>
+                        <field name="date"/>
+                        <field name="name"/>
+                        <field name="ref"/>
+                        <field name="amount_total"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_detect" type="object" string="Détecter" class="oe_highlight"
+                            invisible="detected_count > 0"/>
+                    <button name="action_import" type="object" string="Importer" class="oe_highlight"
+                            invisible="detected_count == 0"/>
+                    <button special="cancel" string="Annuler"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- PCMN MAPPING WIZARD VIEW                    -->
+    <!-- ============================================ -->
+    
+    <record id="view_biztax_pcmn_mapping_wizard_form" model="ir.ui.view">
+        <field name="name">biztax.pcmn.mapping.wizard.form</field>
+        <field name="model">biztax.pcmn.mapping.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Appliquer mappings PCMN">
+                <group>
+                    <field name="company_id"/>
+                    <field name="chart_type"/>
+                    <field name="overwrite_existing"/>
+                </group>
+                <footer>
+                    <button name="action_apply_mappings" type="object" string="Appliquer" class="oe_highlight"/>
+                    <button special="cancel" string="Annuler"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+</odoo>
