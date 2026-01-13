@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- ====== CADRE F - PREMIÈRE OPÉRATION ====== -->
+        <record id="tax_code_f_profit" model="biztax.tax.code">
+            <field name="code">F001</field>
+            <field name="name">Bénéfice comptable de l'exercice</field>
+            <field name="name_nl">Boekhoudkundige winst van het boekjaar</field>
+            <field name="xbrl_element">AccountingProfit</field>
+            <field name="section">F</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="is_mandatory">True</field>
+        </record>
+
+        <record id="tax_code_f_loss" model="biztax.tax.code">
+            <field name="code">F002</field>
+            <field name="name">Perte comptable de l'exercice</field>
+            <field name="name_nl">Boekhoudkundig verlies van het boekjaar</field>
+            <field name="xbrl_element">AccountingLoss</field>
+            <field name="section">F</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+        </record>
+
+        <record id="tax_code_f_reserves_movement" model="biztax.tax.code">
+            <field name="code">F003</field>
+            <field name="name">Mouvement des réserves</field>
+            <field name="name_nl">Mutatie van de reserves</field>
+            <field name="xbrl_element">ReservesMovement</field>
+            <field name="section">F</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+        </record>
+
+        <record id="tax_code_f_dividends" model="biztax.tax.code">
+            <field name="code">F004</field>
+            <field name="name">Dividendes distribués</field>
+            <field name="name_nl">Uitgekeerde dividenden</field>
+            <field name="xbrl_element">DividendsDistributed</field>
+            <field name="section">F</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+        </record>
+
+        <record id="tax_code_f_tantiemes" model="biztax.tax.code">
+            <field name="code">F005</field>
+            <field name="name">Tantièmes</field>
+            <field name="name_nl">Tantièmes</field>
+            <field name="xbrl_element">Tantiemes</field>
+            <field name="section">F</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+        </record>
+
+        <!-- ====== CADRE I - DNA (Dépenses Non Admises) ====== -->
+        <record id="tax_code_i_dna_cars" model="biztax.tax.code">
+            <field name="code">I101</field>
+            <field name="name">DNA - Frais de voiture</field>
+            <field name="name_nl">VAU - Autokosten</field>
+            <field name="xbrl_element">DisallowedExpensesCar</field>
+            <field name="section">I</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">dna</field>
+            <field name="default_adjustment_type">increase</field>
+            <field name="legal_reference">Art. 66 CIR92</field>
+        </record>
+
+        <record id="tax_code_i_dna_restaurant" model="biztax.tax.code">
+            <field name="code">I102</field>
+            <field name="name">DNA - Frais de restaurant (31%)</field>
+            <field name="name_nl">VAU - Restaurantkosten (31%)</field>
+            <field name="xbrl_element">DisallowedExpensesRestaurant</field>
+            <field name="section">I</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">dna</field>
+            <field name="default_adjustment_type">increase</field>
+            <field name="legal_reference">Art. 53, 8° CIR92</field>
+        </record>
+
+        <record id="tax_code_i_dna_reception" model="biztax.tax.code">
+            <field name="code">I103</field>
+            <field name="name">DNA - Frais de réception (50%)</field>
+            <field name="name_nl">VAU - Receptiekosten (50%)</field>
+            <field name="xbrl_element">DisallowedExpensesReception</field>
+            <field name="section">I</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">dna</field>
+            <field name="default_adjustment_type">increase</field>
+            <field name="legal_reference">Art. 53, 8° CIR92</field>
+        </record>
+
+        <record id="tax_code_i_dna_gifts" model="biztax.tax.code">
+            <field name="code">I104</field>
+            <field name="name">DNA - Cadeaux d'affaires (50%)</field>
+            <field name="name_nl">VAU - Relatiegeschenken (50%)</field>
+            <field name="xbrl_element">DisallowedExpensesGifts</field>
+            <field name="section">I</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">dna</field>
+            <field name="default_adjustment_type">increase</field>
+            <field name="legal_reference">Art. 53, 8° CIR92</field>
+        </record>
+
+        <record id="tax_code_i_dna_clothing" model="biztax.tax.code">
+            <field name="code">I105</field>
+            <field name="name">DNA - Vêtements non professionnels</field>
+            <field name="name_nl">VAU - Niet-beroepskleding</field>
+            <field name="xbrl_element">DisallowedExpensesClothing</field>
+            <field name="section">I</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">dna</field>
+            <field name="default_adjustment_type">increase</field>
+        </record>
+
+        <record id="tax_code_i_dna_fines" model="biztax.tax.code">
+            <field name="code">I106</field>
+            <field name="name">DNA - Amendes et pénalités</field>
+            <field name="name_nl">VAU - Boetes en sancties</field>
+            <field name="xbrl_element">DisallowedExpensesFines</field>
+            <field name="section">I</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">dna</field>
+            <field name="default_adjustment_type">increase</field>
+            <field name="legal_reference">Art. 53, 6° CIR92</field>
+        </record>
+
+        <record id="tax_code_i_dna_provisions" model="biztax.tax.code">
+            <field name="code">I107</field>
+            <field name="name">DNA - Provisions non admises</field>
+            <field name="name_nl">VAU - Niet toegelaten voorzieningen</field>
+            <field name="xbrl_element">DisallowedExpensesProvisions</field>
+            <field name="section">I</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">dna</field>
+            <field name="default_adjustment_type">increase</field>
+        </record>
+
+        <record id="tax_code_i_dna_interest" model="biztax.tax.code">
+            <field name="code">I108</field>
+            <field name="name">DNA - Intérêts excessifs</field>
+            <field name="name_nl">VAU - Overmatige interesten</field>
+            <field name="xbrl_element">DisallowedExpensesInterest</field>
+            <field name="section">I</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">dna</field>
+            <field name="default_adjustment_type">increase</field>
+            <field name="legal_reference">Art. 55 CIR92</field>
+        </record>
+
+        <record id="tax_code_i_dna_isoc" model="biztax.tax.code">
+            <field name="code">I109</field>
+            <field name="name">DNA - Impôt des sociétés</field>
+            <field name="name_nl">VAU - Vennootschapsbelasting</field>
+            <field name="xbrl_element">DisallowedExpensesCorporateTax</field>
+            <field name="section">I</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">dna</field>
+            <field name="default_adjustment_type">increase</field>
+            <field name="legal_reference">Art. 198, §1, 1° CIR92</field>
+        </record>
+
+        <!-- ====== CADRE J - DÉDUCTIONS ====== -->
+        <record id="tax_code_j_rdt" model="biztax.tax.code">
+            <field name="code">J001</field>
+            <field name="name">Revenus définitivement taxés (RDT)</field>
+            <field name="name_nl">Definitief belaste inkomsten (DBI)</field>
+            <field name="xbrl_element">DefinitivelyTaxedIncome</field>
+            <field name="section">J</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">rdi</field>
+            <field name="default_adjustment_type">decrease</field>
+            <field name="legal_reference">Art. 202-204 CIR92</field>
+        </record>
+
+        <record id="tax_code_j_innovation" model="biztax.tax.code">
+            <field name="code">J002</field>
+            <field name="name">Déduction pour revenus d'innovation</field>
+            <field name="name_nl">Aftrek voor innovatie-inkomsten</field>
+            <field name="xbrl_element">InnovationIncomeDeduction</field>
+            <field name="section">J</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">innovation</field>
+            <field name="default_adjustment_type">decrease</field>
+            <field name="legal_reference">Art. 205/1-205/4 CIR92</field>
+        </record>
+
+        <record id="tax_code_j_investment" model="biztax.tax.code">
+            <field name="code">J003</field>
+            <field name="name">Déduction pour investissement</field>
+            <field name="name_nl">Investeringsaftrek</field>
+            <field name="xbrl_element">InvestmentDeduction</field>
+            <field name="section">J</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">investment</field>
+            <field name="default_adjustment_type">decrease</field>
+            <field name="legal_reference">Art. 68-77 CIR92</field>
+        </record>
+
+        <record id="tax_code_j_losses" model="biztax.tax.code">
+            <field name="code">J004</field>
+            <field name="name">Pertes antérieures récupérables</field>
+            <field name="name_nl">Recupereerbare vorige verliezen</field>
+            <field name="xbrl_element">PreviousLossesDeduction</field>
+            <field name="section">J</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">loss_carryforward</field>
+            <field name="default_adjustment_type">decrease</field>
+            <field name="legal_reference">Art. 206 CIR92</field>
+        </record>
+
+        <record id="tax_code_j_nid" model="biztax.tax.code">
+            <field name="code">J005</field>
+            <field name="name">Déduction pour capital à risque (NID)</field>
+            <field name="name_nl">Aftrek voor risicokapitaal (NIA)</field>
+            <field name="xbrl_element">NotionalInterestDeduction</field>
+            <field name="section">J</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="default_category">deduction</field>
+            <field name="default_adjustment_type">decrease</field>
+            <field name="legal_reference">Art. 205bis-205novies CIR92</field>
+        </record>
+
+        <!-- ====== CADRE K - BASE IMPOSABLE ====== -->
+        <record id="tax_code_k_taxable_base" model="biztax.tax.code">
+            <field name="code">K001</field>
+            <field name="name">Base imposable</field>
+            <field name="name_nl">Belastbare grondslag</field>
+            <field name="xbrl_element">TaxableBase</field>
+            <field name="section">K</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+            <field name="is_mandatory">True</field>
+        </record>
+
+        <!-- ====== CADRE L - IMPÔT ====== -->
+        <record id="tax_code_l_tax_amount" model="biztax.tax.code">
+            <field name="code">L001</field>
+            <field name="name">Impôt des sociétés dû</field>
+            <field name="name_nl">Verschuldigde vennootschapsbelasting</field>
+            <field name="xbrl_element">CorporateTaxAmount</field>
+            <field name="section">L</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+        </record>
+
+        <!-- ====== CADRE M - PRÉCOMPTES ====== -->
+        <record id="tax_code_m_prepayments" model="biztax.tax.code">
+            <field name="code">M001</field>
+            <field name="name">Versements anticipés</field>
+            <field name="name_nl">Voorafbetalingen</field>
+            <field name="xbrl_element">PrepaymentsTotalAmount</field>
+            <field name="section">M</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+        </record>
+
+        <record id="tax_code_m_prepayment_benefit" model="biztax.tax.code">
+            <field name="code">M002</field>
+            <field name="name">Bonification pour versements anticipés</field>
+            <field name="name_nl">Bonificatie voor voorafbetalingen</field>
+            <field name="xbrl_element">PrepaymentsBenefit</field>
+            <field name="section">M</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+        </record>
+
+        <!-- ====== CADRE N - SOLDE ====== -->
+        <record id="tax_code_n_balance" model="biztax.tax.code">
+            <field name="code">N001</field>
+            <field name="name">Solde à payer/récupérer</field>
+            <field name="name_nl">Te betalen/terug te vorderen saldo</field>
+            <field name="xbrl_element">BalanceDue</field>
+            <field name="section">N</field>
+            <field name="declaration_type">rcorp</field>
+            <field name="data_type">monetary</field>
+        </record>
+    </data>
+</odoo>
