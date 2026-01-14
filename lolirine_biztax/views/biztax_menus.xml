@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ================================================================== -->
+    <!-- ROOT MENU - APPLICATION BIZTAX                                    -->
+    <!-- ================================================================== -->
+    
+    <!-- Menu racine pointe vers la liste des déclarations -->
+    <menuitem id="menu_biztax_root"
+              name="Biztax"
+              action="action_biztax_declaration"
+              web_icon="lolirine_biztax,static/description/icon.png"
+              groups="lolirine_biztax.group_biztax_user"
+              sequence="85"/>
+
+    <!-- ================================================================== -->
+    <!-- DECLARATIONS MENU                                                 -->
+    <!-- ================================================================== -->
+    
+    <!-- Sous-menu Déclarations pointe aussi vers la liste -->
+    <menuitem id="menu_biztax_declarations"
+              name="Déclarations"
+              parent="menu_biztax_root"
+              action="action_biztax_declaration"
+              groups="lolirine_biztax.group_biztax_user"
+              sequence="10"/>
+
+    <menuitem id="menu_biztax_adjustment_list"
+              name="Ajustements fiscaux"
+              parent="menu_biztax_root"
+              action="action_biztax_adjustment"
+              groups="lolirine_biztax.group_biztax_user"
+              sequence="20"/>
+              
+    <menuitem id="menu_biztax_attachment_list"
+              name="Annexes"
+              parent="menu_biztax_root"
+              action="action_biztax_attachment"
+              groups="lolirine_biztax.group_biztax_user"
+              sequence="30"/>
+
+    <!-- ================================================================== -->
+    <!-- CONFIGURATION MENU                                                -->
+    <!-- ================================================================== -->
+    
+    <!-- ACTION: OPEN SETTINGS - Must be defined before menuitem -->
+    <record id="action_biztax_config_settings" model="ir.actions.act_window">
+        <field name="name">Paramètres Biztax</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'lolirine_biztax', 'bin_size': False}</field>
+    </record>
+    
+    <menuitem id="menu_biztax_config"
+              name="Configuration"
+              parent="menu_biztax_root"
+              groups="lolirine_biztax.group_biztax_manager"
+              sequence="90"/>
+
+    <!-- Settings shortcut -->
+    <menuitem id="menu_biztax_settings"
+              name="Paramètres"
+              parent="menu_biztax_config"
+              action="action_biztax_config_settings"
+              groups="lolirine_biztax.group_biztax_manager"
+              sequence="0"/>
+
+    <!-- Reference Data -->
+    <menuitem id="menu_biztax_config_data"
+              name="Données de référence"
+              parent="menu_biztax_config"
+              groups="lolirine_biztax.group_biztax_manager"
+              sequence="10"/>
+              
+    <menuitem id="menu_biztax_declaration_types"
+              name="Types de déclaration"
+              parent="menu_biztax_config_data"
+              action="action_biztax_declaration_type"
+              groups="lolirine_biztax.group_biztax_manager"
+              sequence="10"/>
+
+    <menuitem id="menu_biztax_tax_codes"
+              name="Codes fiscaux XBRL"
+              parent="menu_biztax_config_data"
+              action="action_biztax_tax_code"
+              groups="lolirine_biztax.group_biztax_manager"
+              sequence="20"/>
+              
+    <menuitem id="menu_biztax_annexe_types"
+              name="Types d'annexes"
+              parent="menu_biztax_config_data"
+              action="action_biztax_annexe_type"
+              groups="lolirine_biztax.group_biztax_manager"
+              sequence="30"/>
+    
+</odoo>
