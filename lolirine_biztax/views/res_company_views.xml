@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Inherit res.company form view to add Biztax fields -->
+    <record id="view_company_form_biztax" model="ir.ui.view">
+        <field name="name">res.company.form.biztax</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Biztax" name="biztax" groups="lolirine_biztax.group_biztax_user">
+                    <group>
+                        <group string="Identification fiscale">
+                            <field name="bce_number" placeholder="0XXX.XXX.XXX"/>
+                            <field name="tax_identification_number"/>
+                            <field name="legal_form"/>
+                            <field name="legal_form_code" readonly="1"/>
+                            <field name="nace_code" placeholder="68.100"/>
+                        </group>
+                        <group string="Configuration fiscale">
+                            <field name="is_sme"/>
+                            <field name="accounting_standard"/>
+                            <label for="fiscal_year_start_day" string="Début exercice"/>
+                            <div class="o_row">
+                                <field name="fiscal_year_start_day" class="oe_inline"/>
+                                <field name="fiscal_year_start_month" class="oe_inline"/>
+                            </div>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Configuration Biztax">
+                            <field name="biztax_default_taxonomy"/>
+                            <field name="biztax_auto_adjustments"/>
+                            <field name="biztax_default_tax_rate"/>
+                            <field name="biztax_sme_reduced_rate"/>
+                            <field name="biztax_sme_threshold"/>
+                        </group>
+                        <group string="Représentants">
+                            <field name="biztax_representative_id"/>
+                            <field name="biztax_accountant_id"/>
+                            <field name="biztax_accountant_itaa_number"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Génération d'annexes">
+                            <field name="biztax_auto_generate_annexes"/>
+                            <field name="biztax_include_balance_sheet" invisible="not biztax_auto_generate_annexes"/>
+                            <field name="biztax_include_profit_loss" invisible="not biztax_auto_generate_annexes"/>
+                        </group>
+                    </group>
+                    <group string="Adresse du siège social" invisible="not biztax_use_different_registered_address">
+                        <group>
+                            <field name="biztax_use_different_registered_address"/>
+                        </group>
+                    </group>
+                    <group invisible="not biztax_use_different_registered_address">
+                        <group>
+                            <field name="biztax_registered_street" placeholder="Rue"/>
+                            <field name="biztax_registered_street2" placeholder="Rue 2"/>
+                            <label for="biztax_registered_zip" string="Localité"/>
+                            <div class="o_row">
+                                <field name="biztax_registered_zip" placeholder="Code postal" class="oe_inline" style="width: 80px;"/>
+                                <field name="biztax_registered_city" placeholder="Ville"/>
+                            </div>
+                            <field name="biztax_registered_country_id"/>
+                        </group>
+                    </group>
+                    <group invisible="biztax_use_different_registered_address">
+                        <group>
+                            <field name="biztax_use_different_registered_address"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
