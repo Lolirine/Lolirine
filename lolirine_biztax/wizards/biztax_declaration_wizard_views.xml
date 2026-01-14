@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Wizard Form View -->
+    <record id="view_biztax_declaration_wizard_form" model="ir.ui.view">
+        <field name="name">biztax.declaration.wizard.form</field>
+        <field name="model">biztax.declaration.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Nouvelle déclaration Biztax">
+                <group>
+                    <group string="Société">
+                        <field name="company_id"/>
+                        <field name="declaration_type"/>
+                        <field name="declaration_status"/>
+                        <field name="taxonomy_version"/>
+                    </group>
+                    <group string="Période fiscale">
+                        <field name="fiscal_year_start"/>
+                        <field name="fiscal_year_end"/>
+                    </group>
+                </group>
+                <group>
+                    <group string="Options">
+                        <field name="is_sme"/>
+                        <field name="create_standard_adjustments"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_create_declaration" type="object"
+                            string="Créer la déclaration" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_biztax_declaration_wizard" model="ir.actions.act_window">
+        <field name="name">Nouvelle déclaration ISOC</field>
+        <field name="res_model">biztax.declaration.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

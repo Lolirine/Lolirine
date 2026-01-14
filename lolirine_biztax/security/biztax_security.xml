@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Biztax Security Groups - Odoo 19 compatible -->
+    
+    <!-- User group -->
+    <record id="group_biztax_user" model="res.groups">
+        <field name="name">Biztax / User</field>
+    </record>
+
+    <!-- Manager group -->
+    <record id="group_biztax_manager" model="res.groups">
+        <field name="name">Biztax / Manager</field>
+        <field name="implied_ids" eval="[(4, ref('lolirine_biztax.group_biztax_user'))]"/>
+    </record>
+    
+    <!-- Auto-grant Biztax User to Accountants (Invoicing group) -->
+    <record id="account.group_account_invoice" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('lolirine_biztax.group_biztax_user'))]"/>
+    </record>
+    
+    <!-- Auto-grant Biztax Manager to Account Managers -->
+    <record id="account.group_account_manager" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('lolirine_biztax.group_biztax_manager'))]"/>
+    </record>
+</odoo>
