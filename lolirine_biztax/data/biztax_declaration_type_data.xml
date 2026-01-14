@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        
+        <!-- ============================================================= -->
+        <!-- DECLARATION TYPES                                            -->
+        <!-- ============================================================= -->
+        
+        <record id="declaration_type_isoc" model="biztax.declaration.type">
+            <field name="name">Déclaration ISoc (Impôt des Sociétés)</field>
+            <field name="code">ISOC</field>
+            <field name="sequence">10</field>
+            <field name="tax_type">isoc</field>
+            <field name="description">Déclaration à l'impôt des sociétés pour les sociétés résidentes belges assujetties à l'ISoc.</field>
+            <field name="xbrl_namespace">http://www.nbb.be/be/fr/pfs/ci/isoc</field>
+            <field name="allowed_legal_forms">sa,srl,sc,scrl,scs,sca,se</field>
+        </record>
+        
+        <record id="declaration_type_ipm" model="biztax.declaration.type">
+            <field name="name">Déclaration IPM (Impôt des Personnes Morales)</field>
+            <field name="code">IPM</field>
+            <field name="sequence">20</field>
+            <field name="tax_type">ipm</field>
+            <field name="description">Déclaration à l'impôt des personnes morales pour les ASBL, fondations et autres personnes morales non assujetties à l'ISoc.</field>
+            <field name="xbrl_namespace">http://www.nbb.be/be/fr/pfs/ci/ipm</field>
+            <field name="allowed_legal_forms">asbl,aisbl,fondation</field>
+        </record>
+        
+        <record id="declaration_type_inr_soc" model="biztax.declaration.type">
+            <field name="name">Déclaration INR-Soc (Non-résidents/Sociétés)</field>
+            <field name="code">INR-SOC</field>
+            <field name="sequence">30</field>
+            <field name="tax_type">inr_soc</field>
+            <field name="description">Déclaration à l'impôt des non-résidents pour les sociétés étrangères ayant des revenus de source belge.</field>
+            <field name="xbrl_namespace">http://www.nbb.be/be/fr/pfs/ci/inr-soc</field>
+        </record>
+        
+        <!-- ============================================================= -->
+        <!-- ANNEXE TYPES                                                 -->
+        <!-- ============================================================= -->
+        
+        <!-- Financial Statements -->
+        <record id="annexe_type_balance_sheet" model="biztax.annexe.type">
+            <field name="name">Bilan</field>
+            <field name="code">BILAN</field>
+            <field name="sequence">10</field>
+            <field name="annexe_category">financial</field>
+            <field name="can_auto_generate">True</field>
+            <field name="description">Bilan de l'exercice comptable au format schéma complet ou abrégé.</field>
+            <field name="xbrl_element">pfs:BalanceSheet</field>
+        </record>
+        
+        <record id="annexe_type_profit_loss" model="biztax.annexe.type">
+            <field name="name">Compte de résultats</field>
+            <field name="code">COMPTE-RESULTATS</field>
+            <field name="sequence">20</field>
+            <field name="annexe_category">financial</field>
+            <field name="can_auto_generate">True</field>
+            <field name="description">Compte de résultats de l'exercice comptable.</field>
+            <field name="xbrl_element">pfs:ProfitAndLossAccount</field>
+        </record>
+        
+        <record id="annexe_type_notes" model="biztax.annexe.type">
+            <field name="name">Annexe aux comptes annuels</field>
+            <field name="code">ANNEXE-CA</field>
+            <field name="sequence">30</field>
+            <field name="annexe_category">financial</field>
+            <field name="can_auto_generate">False</field>
+            <field name="description">Notes explicatives aux comptes annuels.</field>
+            <field name="xbrl_element">pfs:Notes</field>
+        </record>
+        
+        <!-- Fiscal Documents -->
+        <record id="annexe_type_dna_details" model="biztax.annexe.type">
+            <field name="name">Détail des dépenses non admises</field>
+            <field name="code">DNA-DETAIL</field>
+            <field name="sequence">40</field>
+            <field name="annexe_category">fiscal</field>
+            <field name="can_auto_generate">True</field>
+            <field name="description">Détail des dépenses non admises fiscalement (DNA).</field>
+            <field name="condition_field">total_increases > 0</field>
+        </record>
+        
+        <record id="annexe_type_dividends" model="biztax.annexe.type">
+            <field name="name">Détail des dividendes (RDT)</field>
+            <field name="code">RDT-DETAIL</field>
+            <field name="sequence">50</field>
+            <field name="annexe_category">fiscal</field>
+            <field name="can_auto_generate">False</field>
+            <field name="description">Détail des dividendes bénéficiant du régime RDT (Revenus Définitivement Taxés).</field>
+        </record>
+        
+        <record id="annexe_type_innovation" model="biztax.annexe.type">
+            <field name="name">Déduction pour revenus d'innovation</field>
+            <field name="code">INNOV-DETAIL</field>
+            <field name="sequence">60</field>
+            <field name="annexe_category">fiscal</field>
+            <field name="can_auto_generate">False</field>
+            <field name="description">Justificatif pour la déduction des revenus d'innovation.</field>
+        </record>
+        
+        <record id="annexe_type_investment" model="biztax.annexe.type">
+            <field name="name">Déduction pour investissement</field>
+            <field name="code">INVEST-DETAIL</field>
+            <field name="sequence">70</field>
+            <field name="annexe_category">fiscal</field>
+            <field name="can_auto_generate">False</field>
+            <field name="description">Justificatif pour la déduction pour investissement.</field>
+        </record>
+        
+        <record id="annexe_type_losses" model="biztax.annexe.type">
+            <field name="name">Détail des pertes reportées</field>
+            <field name="code">PERTES-DETAIL</field>
+            <field name="sequence">80</field>
+            <field name="annexe_category">fiscal</field>
+            <field name="can_auto_generate">True</field>
+            <field name="description">Historique et détail des pertes fiscales reportées.</field>
+        </record>
+        
+        <!-- Legal Documents -->
+        <record id="annexe_type_pv_ag" model="biztax.annexe.type">
+            <field name="name">PV Assemblée Générale</field>
+            <field name="code">PV-AG</field>
+            <field name="sequence">90</field>
+            <field name="annexe_category">legal</field>
+            <field name="can_auto_generate">False</field>
+            <field name="description">Procès-verbal de l'assemblée générale approuvant les comptes.</field>
+        </record>
+        
+        <record id="annexe_type_rapport_gestion" model="biztax.annexe.type">
+            <field name="name">Rapport de gestion</field>
+            <field name="code">RAPPORT-GESTION</field>
+            <field name="sequence">100</field>
+            <field name="annexe_category">legal</field>
+            <field name="can_auto_generate">False</field>
+            <field name="description">Rapport de gestion du conseil d'administration.</field>
+        </record>
+        
+        <record id="annexe_type_rapport_commissaire" model="biztax.annexe.type">
+            <field name="name">Rapport du commissaire</field>
+            <field name="code">RAPPORT-COMMISSAIRE</field>
+            <field name="sequence">110</field>
+            <field name="annexe_category">legal</field>
+            <field name="can_auto_generate">False</field>
+            <field name="description">Rapport du commissaire aux comptes (si applicable).</field>
+        </record>
+        
+        <!-- Other -->
+        <record id="annexe_type_other" model="biztax.annexe.type">
+            <field name="name">Autre document</field>
+            <field name="code">AUTRE</field>
+            <field name="sequence">200</field>
+            <field name="annexe_category">other</field>
+            <field name="can_auto_generate">False</field>
+            <field name="description">Document complémentaire ou justificatif supplémentaire.</field>
+        </record>
+        
+        <!-- ============================================================= -->
+        <!-- LINK ANNEXES TO DECLARATION TYPES                            -->
+        <!-- ============================================================= -->
+        
+        <!-- ISoc Required Annexes -->
+        <record id="declaration_type_isoc" model="biztax.declaration.type">
+            <field name="required_annexe_type_ids" eval="[(6, 0, [
+                ref('annexe_type_balance_sheet'),
+                ref('annexe_type_profit_loss'),
+            ])]"/>
+            <field name="optional_annexe_type_ids" eval="[(6, 0, [
+                ref('annexe_type_notes'),
+                ref('annexe_type_dna_details'),
+                ref('annexe_type_dividends'),
+                ref('annexe_type_innovation'),
+                ref('annexe_type_investment'),
+                ref('annexe_type_losses'),
+                ref('annexe_type_pv_ag'),
+                ref('annexe_type_rapport_gestion'),
+                ref('annexe_type_rapport_commissaire'),
+                ref('annexe_type_other'),
+            ])]"/>
+        </record>
+        
+        <!-- IPM Required Annexes -->
+        <record id="declaration_type_ipm" model="biztax.declaration.type">
+            <field name="required_annexe_type_ids" eval="[(6, 0, [
+                ref('annexe_type_balance_sheet'),
+                ref('annexe_type_profit_loss'),
+            ])]"/>
+            <field name="optional_annexe_type_ids" eval="[(6, 0, [
+                ref('annexe_type_notes'),
+                ref('annexe_type_pv_ag'),
+                ref('annexe_type_other'),
+            ])]"/>
+        </record>
+        
+    </data>
+</odoo>
