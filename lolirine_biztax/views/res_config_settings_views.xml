@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ================================================================== -->
+    <!-- RES.CONFIG.SETTINGS VIEW FOR BIZTAX                               -->
+    <!-- Accessible via Settings → Biztax                                  -->
+    <!-- ================================================================== -->
+    
+    <record id="res_config_settings_view_form_biztax" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.biztax</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority">50</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Biztax" string="Biztax" name="lolirine_biztax" groups="lolirine_biztax.group_biztax_manager">
+                    
+                    <!-- ================================================= -->
+                    <!-- COMPANY FISCAL IDENTIFICATION                    -->
+                    <!-- ================================================= -->
+                    <block title="Identification fiscale" name="biztax_identification">
+                        <setting string="Numéro d'entreprise BCE/KBO" 
+                                 help="Numéro d'identification unique auprès de la Banque-Carrefour des Entreprises">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="company_bce_number" class="col-lg-3 o_light_label"/>
+                                    <field name="company_bce_number" placeholder="0XXX.XXX.XXX"/>
+                                </div>
+                            </div>
+                        </setting>
+                        
+                        <setting string="Numéro d'identification fiscale"
+                                 help="Si différent du numéro BCE">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="company_tax_identification_number" class="col-lg-3 o_light_label"/>
+                                    <field name="company_tax_identification_number"/>
+                                </div>
+                            </div>
+                        </setting>
+                        
+                        <setting string="Forme juridique"
+                                 help="Forme juridique de l'entreprise">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="company_legal_form" class="col-lg-3 o_light_label"/>
+                                    <field name="company_legal_form"/>
+                                </div>
+                            </div>
+                        </setting>
+                        
+                        <setting string="Code NACE"
+                                 help="Code d'activité économique NACE-BEL">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="company_nace_code" class="col-lg-3 o_light_label"/>
+                                    <field name="company_nace_code" placeholder="68.100"/>
+                                </div>
+                            </div>
+                        </setting>
+                        
+                        <setting string="Statut PME"
+                                 help="L'entreprise est-elle une PME au sens de l'article 1:24 CSA?">
+                            <field name="company_is_sme"/>
+                        </setting>
+                    </block>
+                    
+                    <!-- ================================================= -->
+                    <!-- FISCAL YEAR                                       -->
+                    <!-- ================================================= -->
+                    <block title="Exercice comptable" name="biztax_fiscal_year">
+                        <setting string="Début de l'exercice fiscal"
+                                 help="Date de début de l'exercice comptable">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="company_fiscal_year_start_day" class="col-lg-3 o_light_label"/>
+                                    <field name="company_fiscal_year_start_day" class="oe_inline"/>
+                                    <field name="company_fiscal_year_start_month" class="oe_inline"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    
+                    <!-- ================================================= -->
+                    <!-- TAX RATES                                        -->
+                    <!-- ================================================= -->
+                    <block title="Taux d'imposition" name="biztax_tax_rates">
+                        <setting string="Taux ISOC standard"
+                                 help="Taux normal de l'impôt des sociétés (25% en 2024)">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="biztax_default_tax_rate" class="col-lg-3 o_light_label"/>
+                                    <field name="biztax_default_tax_rate" class="oe_inline"/> %
+                                </div>
+                            </div>
+                        </setting>
+                        
+                        <setting string="Taux réduit PME"
+                                 help="Taux réduit applicable aux PME sur la première tranche (20% en 2024)">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="biztax_sme_reduced_rate" class="col-lg-3 o_light_label"/>
+                                    <field name="biztax_sme_reduced_rate" class="oe_inline"/> %
+                                </div>
+                                <div class="row">
+                                    <label for="biztax_sme_threshold" class="col-lg-3 o_light_label"/>
+                                    <field name="biztax_sme_threshold" class="oe_inline"/> €
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    
+                    <!-- ================================================= -->
+                    <!-- BIZTAX DEFAULTS                                  -->
+                    <!-- ================================================= -->
+                    <block title="Configuration Biztax" name="biztax_defaults">
+                        <setting string="Version de taxonomie"
+                                 help="Version de la taxonomie be-tax à utiliser par défaut">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="biztax_default_taxonomy" class="col-lg-3 o_light_label"/>
+                                    <field name="biztax_default_taxonomy"/>
+                                </div>
+                            </div>
+                        </setting>
+                        
+                        <setting string="Ajustements automatiques"
+                                 help="Créer automatiquement les ajustements fiscaux standards lors de la création d'une déclaration">
+                            <field name="biztax_auto_adjustments"/>
+                        </setting>
+                    </block>
+                    
+                    <!-- ================================================= -->
+                    <!-- ANNEXES                                          -->
+                    <!-- ================================================= -->
+                    <block title="Annexes" name="biztax_annexes">
+                        <setting string="Génération automatique des annexes"
+                                 help="Générer automatiquement les annexes PDF obligatoires depuis les données Odoo">
+                            <field name="biztax_auto_generate_annexes"/>
+                            <div class="content-group" invisible="not biztax_auto_generate_annexes">
+                                <div class="mt16">
+                                    <field name="biztax_include_balance_sheet" class="oe_inline"/>
+                                    <label for="biztax_include_balance_sheet"/>
+                                </div>
+                                <div>
+                                    <field name="biztax_include_profit_loss" class="oe_inline"/>
+                                    <label for="biztax_include_profit_loss"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    
+                    <!-- ================================================= -->
+                    <!-- REPRESENTATIVES                                  -->
+                    <!-- ================================================= -->
+                    <block title="Représentants" name="biztax_representatives">
+                        <setting string="Représentant légal"
+                                 help="Personne autorisée à signer les déclarations fiscales">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="company_representative_id" class="col-lg-3 o_light_label"/>
+                                    <field name="company_representative_id"/>
+                                </div>
+                            </div>
+                        </setting>
+                        
+                        <setting string="Comptable / Expert-comptable"
+                                 help="Comptable ou expert-comptable responsable de la déclaration">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="company_accountant_id" class="col-lg-3 o_light_label"/>
+                                    <field name="company_accountant_id"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    
+                    <!-- ================================================= -->
+                    <!-- REFERENCE DATA                                   -->
+                    <!-- ================================================= -->
+                    <block title="Données de référence" name="biztax_reference_data">
+                        <setting string="Codes fiscaux XBRL"
+                                 help="Gérer les codes fiscaux de la taxonomie be-tax">
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <button name="action_open_tax_codes" 
+                                            type="object" 
+                                            string="Configurer les codes fiscaux"
+                                            class="btn-link"
+                                            icon="fa-arrow-right"/>
+                                </div>
+                            </div>
+                        </setting>
+                        
+                        <setting string="Types de déclaration"
+                                 help="Gérer les types de déclaration (ISoc, IPM, INR)">
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <button name="action_open_declaration_types" 
+                                            type="object" 
+                                            string="Configurer les types de déclaration"
+                                            class="btn-link"
+                                            icon="fa-arrow-right"/>
+                                </div>
+                            </div>
+                        </setting>
+                        
+                        <setting string="Types d'annexes"
+                                 help="Gérer les types d'annexes et leurs règles">
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <button name="action_open_annexe_types" 
+                                            type="object" 
+                                            string="Configurer les types d'annexes"
+                                            class="btn-link"
+                                            icon="fa-arrow-right"/>
+                                </div>
+                            </div>
+                        </setting>
+                        
+                        <setting string="Synchronisation"
+                                 help="Synchroniser les codes fiscaux avec la dernière version de la taxonomie">
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <button name="action_sync_tax_codes" 
+                                            type="object" 
+                                            string="Synchroniser les codes fiscaux"
+                                            class="btn-secondary"
+                                            icon="fa-refresh"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    
+                </app>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>
