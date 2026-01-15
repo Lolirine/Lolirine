@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu principal de l'application Piscine -->
+    <menuitem id="menu_pool_root"
+        name="Piscine"
+        web_icon="lolirine_pool_import,static/description/icon.png"
+        sequence="50"/>
+    
+    <!-- Products Submenu -->
+    <menuitem id="menu_pool_products"
+        name="Produits Piscine"
+        parent="menu_pool_root"
+        action="action_pool_products"
+        sequence="10"/>
+    
+    <!-- Import Submenu -->
+    <menuitem id="menu_pool_import"
+        name="Importer Catalogue"
+        parent="menu_pool_root"
+        action="action_pool_import_wizard"
+        sequence="20"/>
+    
+    <!-- Configuration Menu -->
+    <menuitem id="menu_pool_config"
+        name="Configuration"
+        parent="menu_pool_root"
+        sequence="100"/>
+    
+    <menuitem id="menu_pool_suppliers"
+        name="Fournisseurs"
+        parent="menu_pool_config"
+        action="action_pool_supplier"
+        sequence="10"/>
+    
+    <menuitem id="menu_pool_import_log"
+        name="Historique des imports"
+        parent="menu_pool_config"
+        action="action_pool_import_log"
+        sequence="20"/>
+</odoo>
