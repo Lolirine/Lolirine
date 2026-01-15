@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
-        
-        <!-- Configuration par défaut pour le site piscine -->
-        <!-- Ces données seront utilisées lors de la création du website -->
-        
-    </data>
-</odoo>
