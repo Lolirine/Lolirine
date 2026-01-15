@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Page d'accueil Shop Piscine -->
+    <template id="pool_shop_home" name="Accueil Piscine">
+        <t t-call="website.layout">
+            <div id="wrap" class="pool-shop">
+                
+                <!-- Hero Banner -->
+                <section class="pool-hero py-5 text-white" style="background: linear-gradient(135deg, #0077B6 0%, #00B4D8 100%);">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6">
+                                <h1 class="display-4 fw-bold">Matériel Piscine</h1>
+                                <p class="lead">Tout l'équipement professionnel pour votre piscine. Qualité, conseils et livraison rapide.</p>
+                                <a href="/shop" class="btn btn-light btn-lg me-2">
+                                    <i class="fa fa-shopping-cart"/> Voir le catalogue
+                                </a>
+                                <a href="/contactus" class="btn btn-outline-light btn-lg">
+                                    <i class="fa fa-phone"/> Nous contacter
+                                </a>
+                            </div>
+                            <div class="col-lg-6 text-center d-none d-lg-block">
+                                <i class="fa fa-tint" style="font-size: 200px; opacity: 0.3;"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Catégories -->
+                <section class="pool-categories py-5">
+                    <div class="container">
+                        <h2 class="text-center mb-4">Nos catégories</h2>
+                        <div class="row g-4">
+                            <t t-foreach="categories" t-as="cat">
+                                <div class="col-6 col-md-4 col-lg-3">
+                                    <a t-attf-href="/shop/pool/category/#{cat.id}" class="text-decoration-none">
+                                        <div class="card h-100 pool-category-card text-center p-4">
+                                            <i t-attf-class="fa #{cat.icon or 'fa-cube'} fa-3x text-primary mb-3"/>
+                                            <h5 class="card-title" t-field="cat.name"/>
+                                            <p class="text-muted small" t-if="cat.description" t-esc="cat.description[:80]"/>
+                                        </div>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Produits en vedette -->
+                <section class="pool-featured py-5 bg-light" t-if="featured_products">
+                    <div class="container">
+                        <h2 class="text-center mb-4">Nouveautés</h2>
+                        <div class="row g-4">
+                            <t t-foreach="featured_products" t-as="product">
+                                <div class="col-6 col-md-4 col-lg-3">
+                                    <div class="card h-100 pool-product-card">
+                                        <t t-if="product.image_128">
+                                            <img t-att-src="image_data_uri(product.image_128)" 
+                                                 class="card-img-top" t-att-alt="product.name"/>
+                                        </t>
+                                        <t t-else="">
+                                            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 150px;">
+                                                <i class="fa fa-image fa-3x text-white"/>
+                                            </div>
+                                        </t>
+                                        <div class="card-body">
+                                            <h6 class="card-title" t-field="product.name"/>
+                                            <p class="card-text">
+                                                <span class="h5 text-primary" t-field="product.list_price" 
+                                                      t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                                            </p>
+                                            <a t-attf-href="/shop/product/#{product.id}" class="btn btn-sm btn-outline-primary">
+                                                Voir le produit
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="text-center mt-4">
+                            <a href="/shop" class="btn btn-primary btn-lg">Voir tous les produits</a>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Marques -->
+                <section class="pool-brands py-5" t-if="brands">
+                    <div class="container">
+                        <h2 class="text-center mb-4">Nos marques</h2>
+                        <div class="row g-3 justify-content-center align-items-center">
+                            <t t-foreach="brands" t-as="brand">
+                                <div class="col-4 col-md-2 text-center">
+                                    <a t-attf-href="/shop/pool/brand/#{brand.id}" class="text-decoration-none">
+                                        <t t-if="brand.logo">
+                                            <img t-att-src="image_data_uri(brand.logo)" 
+                                                 t-att-alt="brand.name" class="img-fluid" style="max-height: 60px;"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="badge bg-secondary p-3" t-field="brand.name"/>
+                                        </t>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Avantages -->
+                <section class="pool-advantages py-5 bg-primary text-white">
+                    <div class="container">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <i class="fa fa-truck fa-3x mb-3"/>
+                                <h4>Livraison rapide</h4>
+                                <p>Expédition sous 24-48h pour les produits en stock</p>
+                            </div>
+                            <div class="col-md-4">
+                                <i class="fa fa-headphones fa-3x mb-3"/>
+                                <h4>Conseil expert</h4>
+                                <p>Notre équipe vous accompagne dans vos choix</p>
+                            </div>
+                            <div class="col-md-4">
+                                <i class="fa fa-shield fa-3x mb-3"/>
+                                <h4>Garantie qualité</h4>
+                                <p>Produits de marques reconnues, garantis</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+            </div>
+        </t>
+    </template>
+
+    <!-- Page catégorie -->
+    <template id="pool_category_page" name="Catégorie Piscine">
+        <t t-call="website.layout">
+            <div id="wrap" class="pool-category">
+                <div class="container py-5">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/shop/pool">Piscine</a></li>
+                            <t t-if="category.parent_id">
+                                <li class="breadcrumb-item">
+                                    <a t-attf-href="/shop/pool/category/#{category.parent_id.id}" 
+                                       t-field="category.parent_id.name"/>
+                                </li>
+                            </t>
+                            <li class="breadcrumb-item active" t-field="category.name"/>
+                        </ol>
+                    </nav>
+                    
+                    <div class="row">
+                        <!-- Sidebar -->
+                        <div class="col-lg-3" t-if="subcategories">
+                            <div class="card mb-4">
+                                <div class="card-header">Sous-catégories</div>
+                                <ul class="list-group list-group-flush">
+                                    <t t-foreach="subcategories" t-as="subcat">
+                                        <li class="list-group-item">
+                                            <a t-attf-href="/shop/pool/category/#{subcat.id}" 
+                                               t-field="subcat.name"/>
+                                        </li>
+                                    </t>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Produits -->
+                        <div t-attf-class="col-lg-#{9 if subcategories else 12}">
+                            <h1 class="mb-4" t-field="category.name"/>
+                            <p t-if="category.description" t-field="category.description"/>
+                            
+                            <div class="row g-4">
+                                <t t-foreach="products" t-as="product">
+                                    <div class="col-6 col-md-4">
+                                        <t t-call="lolirine_pool.pool_product_card"/>
+                                    </div>
+                                </t>
+                            </div>
+                            
+                            <div t-if="not products" class="alert alert-info">
+                                Aucun produit dans cette catégorie pour le moment.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Page marque -->
+    <template id="pool_brand_page" name="Marque Piscine">
+        <t t-call="website.layout">
+            <div id="wrap" class="pool-brand">
+                <div class="container py-5">
+                    <div class="row align-items-center mb-4">
+                        <div class="col-auto" t-if="brand.logo">
+                            <img t-att-src="image_data_uri(brand.logo)" t-att-alt="brand.name" 
+                                 style="max-height: 80px;"/>
+                        </div>
+                        <div class="col">
+                            <h1 t-field="brand.name"/>
+                            <p t-if="brand.description" t-raw="brand.description"/>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-4">
+                        <t t-foreach="products" t-as="product">
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <t t-call="lolirine_pool.pool_product_card"/>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Résultats de recherche -->
+    <template id="pool_search_results" name="Recherche Piscine">
+        <t t-call="website.layout">
+            <div id="wrap" class="pool-search">
+                <div class="container py-5">
+                    <h1>Résultats pour "<t t-esc="search"/>"</h1>
+                    <p class="text-muted"><t t-esc="search_count"/> produit(s) trouvé(s)</p>
+                    
+                    <div class="row g-4">
+                        <t t-foreach="products" t-as="product">
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <t t-call="lolirine_pool.pool_product_card"/>
+                            </div>
+                        </t>
+                    </div>
+                    
+                    <div t-if="not products" class="alert alert-warning">
+                        Aucun produit ne correspond à votre recherche.
+                        <a href="/shop/pool">Retour au catalogue</a>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Carte produit (réutilisable) -->
+    <template id="pool_product_card" name="Carte Produit Piscine">
+        <div class="card h-100 pool-product-card">
+            <a t-attf-href="/shop/product/#{product.id}">
+                <t t-if="product.image_128">
+                    <img t-att-src="image_data_uri(product.image_128)" 
+                         class="card-img-top" t-att-alt="product.name"/>
+                </t>
+                <t t-else="">
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                         style="height: 150px;">
+                        <i class="fa fa-image fa-3x text-muted"/>
+                    </div>
+                </t>
+            </a>
+            <div class="card-body">
+                <p class="text-muted small mb-1" t-if="product.pool_brand" t-esc="product.pool_brand"/>
+                <h6 class="card-title">
+                    <a t-attf-href="/shop/product/#{product.id}" class="text-decoration-none text-dark" 
+                       t-field="product.name"/>
+                </h6>
+                <p class="card-text">
+                    <span class="h5 text-primary" t-field="product.list_price" 
+                          t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                    <span class="text-muted small">HTVA</span>
+                </p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a t-attf-href="/shop/product/#{product.id}" class="btn btn-sm btn-primary w-100">
+                    <i class="fa fa-eye"/> Voir
+                </a>
+            </div>
+        </div>
+    </template>
+
+    <!-- Configurateur (placeholder) -->
+    <template id="pool_configurator" name="Configurateur Piscine">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container py-5 text-center">
+                    <i class="fa fa-cogs fa-5x text-primary mb-4"/>
+                    <h1>Configurateur de piscine</h1>
+                    <p class="lead">Bientôt disponible !</p>
+                    <p>Configurez votre système de filtration, chauffage et traitement selon les caractéristiques de votre piscine.</p>
+                    <a href="/shop/pool" class="btn btn-primary">Voir le catalogue</a>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

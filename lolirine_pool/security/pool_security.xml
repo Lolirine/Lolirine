@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Catégorie du module -->
+    <record id="module_category_pool" model="ir.module.category">
+        <field name="name">Piscine</field>
+        <field name="description">Gestion du catalogue et ventes de matériel piscine</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Groupe Utilisateur Piscine -->
+    <record id="group_pool_user" model="res.groups">
+        <field name="name">Utilisateur Piscine</field>
+        <field name="category_id" ref="module_category_pool"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Accès en lecture au catalogue piscine</field>
+    </record>
+
+    <!-- Groupe Manager Piscine -->
+    <record id="group_pool_manager" model="res.groups">
+        <field name="name">Responsable Piscine</field>
+        <field name="category_id" ref="module_category_pool"/>
+        <field name="implied_ids" eval="[(4, ref('group_pool_user'))]"/>
+        <field name="comment">Gestion complète du catalogue piscine et imports</field>
+    </record>
+
+    <!-- Règles d'accès aux enregistrements -->
+    
+    <!-- Tout le monde peut voir les fournisseurs actifs -->
+    <record id="pool_supplier_rule_read" model="ir.rule">
+        <field name="name">Fournisseurs piscine: Lecture globale</field>
+        <field name="model_id" ref="model_pool_supplier"/>
+        <field name="domain_force">[('active', '=', True)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Managers peuvent tout faire -->
+    <record id="pool_supplier_rule_manager" model="ir.rule">
+        <field name="name">Fournisseurs piscine: Managers</field>
+        <field name="model_id" ref="model_pool_supplier"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_pool_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+</odoo>

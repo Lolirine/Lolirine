@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Menu principal Piscine -->
+    <menuitem id="menu_pool_root"
+              name="Piscine"
+              sequence="45"
+              web_icon="lolirine_pool,static/description/icon.png"/>
+
+    <!-- Sous-menu Catalogue -->
+    <menuitem id="menu_pool_catalog"
+              name="Catalogue"
+              parent="menu_pool_root"
+              sequence="10"/>
+
+    <menuitem id="menu_pool_products"
+              name="Produits"
+              parent="menu_pool_catalog"
+              action="action_pool_products"
+              sequence="10"/>
+
+    <menuitem id="menu_pool_categories"
+              name="Catégories"
+              parent="menu_pool_catalog"
+              action="action_pool_product_category"
+              sequence="20"/>
+
+    <menuitem id="menu_pool_brands"
+              name="Marques"
+              parent="menu_pool_catalog"
+              action="action_pool_brand"
+              sequence="30"/>
+
+    <!-- Sous-menu Fournisseurs & Import -->
+    <menuitem id="menu_pool_import"
+              name="Fournisseurs &amp; Import"
+              parent="menu_pool_root"
+              sequence="20"/>
+
+    <menuitem id="menu_pool_suppliers"
+              name="Fournisseurs"
+              parent="menu_pool_import"
+              action="action_pool_supplier"
+              sequence="10"/>
+
+    <menuitem id="menu_pool_import_history"
+              name="Historique des imports"
+              parent="menu_pool_import"
+              action="action_pool_import_log"
+              sequence="20"/>
+
+    <!-- Sous-menu Configuration -->
+    <menuitem id="menu_pool_config"
+              name="Configuration"
+              parent="menu_pool_root"
+              sequence="90"
+              groups="lolirine_pool.group_pool_manager"/>
+
+    <menuitem id="menu_pool_config_attributes"
+              name="Attributs techniques"
+              parent="menu_pool_config"
+              action="action_pool_product_attribute"
+              sequence="10"/>
+
+    <!-- Action Attributs techniques -->
+    <record id="action_pool_product_attribute" model="ir.actions.act_window">
+        <field name="name">Attributs techniques</field>
+        <field name="res_model">pool.product.attribute</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Définissez les attributs techniques des produits
+            </p>
+            <p>
+                Puissance, débit, volume recommandé, garantie, etc.
+            </p>
+        </field>
+    </record>
+
+</odoo>

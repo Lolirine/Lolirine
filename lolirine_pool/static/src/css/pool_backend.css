@@ -1,0 +1,51 @@
+/*
+ * Lolirine Pool - CSS Backend
+ * ===========================
+ */
+
+/* Couleurs spécifiques au module Piscine dans le backend */
+.o_pool_supplier_view .o_form_sheet {
+    background: linear-gradient(to bottom, #f0f9ff 0%, #ffffff 100px);
+}
+
+/* Statistiques colorées */
+.o_pool_supplier_view .o_stat_info .o_stat_value {
+    color: #0077B6;
+}
+
+/* Tableau des mappings */
+.o_pool_mapping_tree .o_data_row:hover {
+    background-color: #e6f3ff;
+}
+
+/* Status badges */
+.o_pool_import_log .badge-created {
+    background-color: #28a745;
+}
+
+.o_pool_import_log .badge-updated {
+    background-color: #17a2b8;
+}
+
+.o_pool_import_log .badge-error {
+    background-color: #dc3545;
+}
+
+.o_pool_import_log .badge-skipped {
+    background-color: #6c757d;
+}
+
+/* Preview HTML dans le wizard d'import */
+.o_pool_import_wizard .preview_html table {
+    font-size: 0.85rem;
+}
+
+.o_pool_import_wizard .preview_html th {
+    background-color: #0077B6 !important;
+    color: white !important;
+}
+
+/* Icône du module */
+.o_app[data-menu-xmlid^="lolirine_pool"] .o_app_icon {
+    background-color: #0077B6;
+}

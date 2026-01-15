@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vue formulaire Wizard Import -->
+    <record id="pool_import_wizard_view_form" model="ir.ui.view">
+        <field name="name">pool.import.wizard.form</field>
+        <field name="model">pool.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import de produits piscine">
+                <group>
+                    <group>
+                        <field name="supplier_id" readonly="context.get('default_supplier_id')"/>
+                        <field name="import_method"/>
+                    </group>
+                </group>
+                
+                <!-- Configuration CSV -->
+                <group string="Fichier CSV/Excel" invisible="import_method != 'csv'">
+                    <group>
+                        <field name="csv_file" filename="csv_filename"/>
+                        <field name="csv_filename" invisible="1"/>
+                    </group>
+                    <group>
+                        <field name="csv_delimiter"/>
+                        <field name="csv_encoding"/>
+                        <field name="csv_skip_header"/>
+                    </group>
+                </group>
+                
+                <!-- Configuration API -->
+                <group string="Configuration API" invisible="import_method != 'api'">
+                    <field name="api_endpoint"/>
+                    <field name="api_params"/>
+                </group>
+                
+                <!-- Configuration OCR -->
+                <group string="Fichier PDF" invisible="import_method != 'ocr'">
+                    <field name="pdf_file" filename="pdf_filename"/>
+                    <field name="pdf_filename" invisible="1"/>
+                    <field name="ocr_pages"/>
+                </group>
+                
+                <!-- Options -->
+                <group string="Options">
+                    <group>
+                        <field name="update_existing"/>
+                        <field name="create_category"/>
+                    </group>
+                    <group>
+                        <field name="import_images"/>
+                        <field name="test_mode"/>
+                    </group>
+                </group>
+                
+                <!-- Mapping des colonnes (CSV) -->
+                <group string="Mapping des colonnes" invisible="import_method != 'csv' or not csv_file">
+                    <button name="action_detect_columns" type="object" 
+                            string="Détecter les colonnes" class="btn-secondary mb-3"
+                            invisible="mapping_ids"/>
+                    <field name="mapping_ids" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="source_column"/>
+                            <field name="target_field"/>
+                        </tree>
+                    </field>
+                </group>
+                
+                <!-- Aperçu -->
+                <group string="Aperçu du fichier" invisible="import_method != 'csv' or not csv_file">
+                    <field name="preview_html" nolabel="1"/>
+                </group>
+                
+                <footer>
+                    <button name="action_import" type="object" string="Importer" 
+                            class="btn-primary" invisible="test_mode"/>
+                    <button name="action_test_import" type="object" string="Tester l'import" 
+                            class="btn-warning" invisible="not test_mode"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action Wizard Import -->
+    <record id="action_pool_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import de produits</field>
+        <field name="res_model">pool.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

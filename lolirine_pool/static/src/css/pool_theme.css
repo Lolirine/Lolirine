@@ -1,0 +1,493 @@
+/*
+ * Lolirine Pool - Thème CSS pour piscine.lolirine.be
+ * =================================================
+ */
+
+/* ===========================================
+   VARIABLES & COULEURS
+   =========================================== */
+:root {
+    --pool-primary: #0077B6;
+    --pool-primary-light: #00B4D8;
+    --pool-primary-dark: #023E8A;
+    --pool-secondary: #90E0EF;
+    --pool-accent: #CAF0F8;
+    --pool-success: #2E7D32;
+    --pool-warning: #F9A825;
+    --pool-danger: #C62828;
+    --pool-dark: #1a1a2e;
+    --pool-light: #f8f9fa;
+    --pool-gradient: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-light) 100%);
+}
+
+/* ===========================================
+   GLOBAL
+   =========================================== */
+.pool-shop {
+    font-family: 'Roboto', 'Segoe UI', sans-serif;
+}
+
+.pool-shop a {
+    color: var(--pool-primary);
+    transition: color 0.2s ease;
+}
+
+.pool-shop a:hover {
+    color: var(--pool-primary-dark);
+}
+
+/* ===========================================
+   HERO SECTION
+   =========================================== */
+.pool-hero {
+    background: var(--pool-gradient);
+    position: relative;
+    overflow: hidden;
+}
+
+.pool-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('/lolirine_pool/static/src/img/wave-pattern.svg') repeat-x bottom;
+    opacity: 0.1;
+}
+
+.pool-hero h1 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ===========================================
+   CARTES CATÉGORIES
+   =========================================== */
+.pool-category-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 119, 182, 0.1);
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.pool-category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 119, 182, 0.2);
+}
+
+.pool-category-card i {
+    color: var(--pool-primary);
+    transition: transform 0.3s ease;
+}
+
+.pool-category-card:hover i {
+    transform: scale(1.1);
+}
+
+.pool-cat-card {
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.pool-cat-card:hover {
+    border-color: var(--pool-primary);
+    background: var(--pool-accent);
+}
+
+/* ===========================================
+   CARTES PRODUITS
+   =========================================== */
+.pool-product-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.pool-product-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 119, 182, 0.15);
+    transform: translateY(-3px);
+}
+
+.pool-product-card .card-img-top {
+    height: 180px;
+    object-fit: contain;
+    padding: 15px;
+    background: #f8f9fa;
+}
+
+.pool-product-card .card-title {
+    font-size: 0.95rem;
+    line-height: 1.3;
+    height: 2.6em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.pool-product-card .card-footer {
+    border-top: 1px solid rgba(0, 119, 182, 0.1);
+}
+
+/* Badge promo */
+.pool-product-card .badge-promo {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--pool-danger);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+/* Badge stock */
+.pool-product-card .badge-stock {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+}
+
+.badge-stock.in-stock {
+    background: var(--pool-success);
+    color: white;
+}
+
+.badge-stock.low-stock {
+    background: var(--pool-warning);
+    color: black;
+}
+
+.badge-stock.out-of-stock {
+    background: var(--pool-danger);
+    color: white;
+}
+
+/* ===========================================
+   BOUTONS
+   =========================================== */
+.pool-shop .btn-primary {
+    background: var(--pool-primary);
+    border-color: var(--pool-primary);
+}
+
+.pool-shop .btn-primary:hover {
+    background: var(--pool-primary-dark);
+    border-color: var(--pool-primary-dark);
+}
+
+.pool-shop .btn-outline-primary {
+    color: var(--pool-primary);
+    border-color: var(--pool-primary);
+}
+
+.pool-shop .btn-outline-primary:hover {
+    background: var(--pool-primary);
+    color: white;
+}
+
+/* Bouton panier */
+.btn-add-cart {
+    background: var(--pool-success);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-add-cart:hover {
+    background: #1B5E20;
+    transform: scale(1.02);
+}
+
+.btn-add-cart i {
+    margin-right: 8px;
+}
+
+/* ===========================================
+   NAVIGATION & HEADER
+   =========================================== */
+.pool-shop .navbar {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pool-shop .navbar-brand img {
+    max-height: 50px;
+}
+
+.pool-shop .nav-link {
+    font-weight: 500;
+    padding: 10px 15px !important;
+}
+
+.pool-shop .nav-link:hover {
+    color: var(--pool-primary) !important;
+}
+
+/* Mega menu catégories */
+.pool-mega-menu {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+}
+
+/* ===========================================
+   FILTRES SIDEBAR
+   =========================================== */
+.pool-filters .card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+}
+
+.pool-filters .card-header {
+    background: var(--pool-light);
+    border-bottom: none;
+    font-weight: 600;
+    color: var(--pool-dark);
+}
+
+.pool-filters .form-check-label {
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.pool-filters .form-check-label:hover {
+    color: var(--pool-primary);
+}
+
+.pool-filters .form-range::-webkit-slider-thumb {
+    background: var(--pool-primary);
+}
+
+/* ===========================================
+   PAGE PRODUIT
+   =========================================== */
+.pool-product-detail .product-image {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.pool-product-detail .product-image img {
+    max-height: 500px;
+    object-fit: contain;
+}
+
+.pool-product-detail .product-thumbnails img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+.pool-product-detail .product-thumbnails img:hover,
+.pool-product-detail .product-thumbnails img.active {
+    border-color: var(--pool-primary);
+}
+
+.pool-product-detail .product-price {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--pool-primary);
+}
+
+.pool-product-detail .product-price-old {
+    font-size: 1.2rem;
+    color: #999;
+    text-decoration: line-through;
+}
+
+/* Caractéristiques techniques */
+.pool-specs {
+    background: var(--pool-light);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.pool-specs table {
+    margin-bottom: 0;
+}
+
+.pool-specs th {
+    width: 40%;
+    color: #666;
+    font-weight: 500;
+}
+
+.pool-specs td {
+    font-weight: 600;
+}
+
+/* ===========================================
+   PANIER
+   =========================================== */
+.pool-cart .cart-item {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.pool-cart .cart-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.pool-cart .cart-summary {
+    background: var(--pool-light);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* ===========================================
+   FOOTER
+   =========================================== */
+.pool-footer {
+    background: var(--pool-dark);
+    color: #ccc;
+}
+
+.pool-footer h5 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.pool-footer a {
+    color: #aaa;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.pool-footer a:hover {
+    color: var(--pool-secondary);
+}
+
+.pool-footer .social-links a {
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+.pool-footer .social-links a:hover {
+    background: var(--pool-primary);
+    color: white;
+}
+
+/* ===========================================
+   SECTIONS PROMOTIONNELLES
+   =========================================== */
+.s_pool_promo {
+    position: relative;
+    overflow: hidden;
+}
+
+.s_pool_promo::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.s_pool_advantages .fa {
+    color: var(--pool-primary);
+}
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+@media (max-width: 768px) {
+    .pool-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .pool-product-card .card-img-top {
+        height: 140px;
+    }
+    
+    .pool-product-detail .product-price {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .pool-category-card {
+        padding: 15px !important;
+    }
+    
+    .pool-category-card i {
+        font-size: 2rem !important;
+    }
+    
+    .pool-category-card h5 {
+        font-size: 0.9rem;
+    }
+}
+
+/* ===========================================
+   ANIMATIONS
+   =========================================== */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pool-product-card.new::before {
+    content: 'Nouveau';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--pool-primary);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    animation: pulse 2s infinite;
+}
+
+/* ===========================================
+   UTILITAIRES
+   =========================================== */
+.text-pool-primary {
+    color: var(--pool-primary) !important;
+}
+
+.bg-pool-primary {
+    background-color: var(--pool-primary) !important;
+}
+
+.bg-pool-gradient {
+    background: var(--pool-gradient) !important;
+}
+
+.border-pool {
+    border-color: var(--pool-primary) !important;
+}
