@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Configuration des paramètres OCR -->
+    <record id="res_config_settings_view_form_pool" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.pool</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Piscine" string="Piscine" name="lolirine_pool_import" groups="base.group_system">
+                    <block title="Extraction IA (OCR)" name="pool_ocr_settings">
+                        <setting string="Clé API Claude" help="Configurez votre clé API Anthropic Claude pour l'extraction OCR">
+                            <div class="content-group">
+                                <div class="row mt-2">
+                                    <label for="pool_claude_api_key" class="col-lg-3"/>
+                                    <field name="pool_claude_api_key" class="col-lg-6" password="True"/>
+                                </div>
+                                <div class="text-muted mt-2">
+                                    Obtenez votre clé API sur <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
