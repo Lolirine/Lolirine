@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Root Pool Category -->
+        <record id="product_category_pool" model="product.category">
+            <field name="name">Piscine</field>
+            <field name="parent_id" ref="product.product_category_all"/>
+        </record>
+
+        <!-- Pool Subcategories -->
+        <record id="product_category_pool_pvc" model="product.category">
+            <field name="name">PVC / Raccords</field>
+            <field name="parent_id" ref="product_category_pool"/>
+        </record>
+
+        <record id="product_category_pool_lighting" model="product.category">
+            <field name="name">Éclairage</field>
+            <field name="parent_id" ref="product_category_pool"/>
+        </record>
+
+        <record id="product_category_pool_pumps" model="product.category">
+            <field name="name">Pompes</field>
+            <field name="parent_id" ref="product_category_pool"/>
+        </record>
+
+        <record id="product_category_pool_filtration" model="product.category">
+            <field name="name">Filtration</field>
+            <field name="parent_id" ref="product_category_pool"/>
+        </record>
+
+        <record id="product_category_pool_heating" model="product.category">
+            <field name="name">Chauffage / PAC</field>
+            <field name="parent_id" ref="product_category_pool"/>
+        </record>
+
+        <record id="product_category_pool_treatment" model="product.category">
+            <field name="name">Traitement de l'eau</field>
+            <field name="parent_id" ref="product_category_pool"/>
+        </record>
+
+        <record id="product_category_pool_equipment" model="product.category">
+            <field name="name">Équipements</field>
+            <field name="parent_id" ref="product_category_pool"/>
+        </record>
+
+        <record id="product_category_pool_irrigation" model="product.category">
+            <field name="name">Irrigation</field>
+            <field name="parent_id" ref="product_category_pool"/>
+        </record>
+
+        <record id="product_category_pool_accessories" model="product.category">
+            <field name="name">Accessoires</field>
+            <field name="parent_id" ref="product_category_pool"/>
+        </record>
+
+        <!-- Fluidra Supplier -->
+        <record id="pool_supplier_fluidra" model="pool.supplier">
+            <field name="name">SIBO Fluidra Benelux</field>
+            <field name="code">fluidra</field>
+            <field name="website">https://sibo.nl</field>
+            <field name="catalog_url">https://sibo.nl/catalogus/2026/fr-be/</field>
+            <field name="default_margin">35</field>
+            <field name="min_margin">20</field>
+            <field name="price_rounding">0.99</field>
+        </record>
+
+        <!-- Fluidra Brands -->
+        <record id="pool_brand_astralpool" model="pool.supplier.brand">
+            <field name="name">AstralPool</field>
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+        </record>
+
+        <record id="pool_brand_zodiac" model="pool.supplier.brand">
+            <field name="name">Zodiac</field>
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+        </record>
+
+        <record id="pool_brand_aquaforte" model="pool.supplier.brand">
+            <field name="name">AquaForte</field>
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+        </record>
+
+        <record id="pool_brand_cepex" model="pool.supplier.brand">
+            <field name="name">Cepex</field>
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+        </record>
+
+        <record id="pool_brand_fluidra" model="pool.supplier.brand">
+            <field name="name">Fluidra</field>
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+        </record>
+
+        <!-- Category Mappings -->
+        <record id="mapping_pvc" model="pool.supplier.category.mapping">
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+            <field name="supplier_category">PVC</field>
+            <field name="supplier_prefix">1-</field>
+            <field name="odoo_category_id" ref="product_category_pool_pvc"/>
+        </record>
+
+        <record id="mapping_eclairage" model="pool.supplier.category.mapping">
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+            <field name="supplier_category">ECLAIRAGE</field>
+            <field name="supplier_prefix">2-</field>
+            <field name="odoo_category_id" ref="product_category_pool_lighting"/>
+        </record>
+
+        <record id="mapping_pompes" model="pool.supplier.category.mapping">
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+            <field name="supplier_category">POMPES</field>
+            <field name="supplier_prefix">3-</field>
+            <field name="odoo_category_id" ref="product_category_pool_pumps"/>
+        </record>
+
+        <record id="mapping_filtration" model="pool.supplier.category.mapping">
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+            <field name="supplier_category">FILTRATION</field>
+            <field name="supplier_prefix">4-</field>
+            <field name="odoo_category_id" ref="product_category_pool_filtration"/>
+        </record>
+
+        <record id="mapping_chauffage" model="pool.supplier.category.mapping">
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+            <field name="supplier_category">CHAUFFAGE</field>
+            <field name="supplier_prefix">5-</field>
+            <field name="odoo_category_id" ref="product_category_pool_heating"/>
+        </record>
+
+        <record id="mapping_traitement" model="pool.supplier.category.mapping">
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+            <field name="supplier_category">TRAITEMENT</field>
+            <field name="supplier_prefix">6-</field>
+            <field name="odoo_category_id" ref="product_category_pool_treatment"/>
+        </record>
+
+        <record id="mapping_equipements" model="pool.supplier.category.mapping">
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+            <field name="supplier_category">EQUIPEMENTS</field>
+            <field name="supplier_prefix">7-</field>
+            <field name="odoo_category_id" ref="product_category_pool_equipment"/>
+        </record>
+
+        <record id="mapping_irrigation" model="pool.supplier.category.mapping">
+            <field name="supplier_id" ref="pool_supplier_fluidra"/>
+            <field name="supplier_category">IRRIGATION</field>
+            <field name="supplier_prefix">8-</field>
+            <field name="odoo_category_id" ref="product_category_pool_irrigation"/>
+        </record>
+
+        <!-- Sequence for Import Log -->
+        <record id="sequence_pool_import_log" model="ir.sequence">
+            <field name="name">Pool Import Log</field>
+            <field name="code">pool.import.log</field>
+            <field name="prefix">IMP/</field>
+            <field name="padding">5</field>
+        </record>
+    </data>
+</odoo>
