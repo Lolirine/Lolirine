@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vue pour le mapping des champs (modèle séparé) -->
+    <record id="pool_supplier_field_mapping_view_tree" model="ir.ui.view">
+        <field name="name">pool.supplier.field.mapping.tree</field>
+        <field name="model">pool.supplier.field.mapping</field>
+        <field name="arch" type="xml">
+            <list string="Mapping des champs" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="source_field"/>
+                <field name="target_field"/>
+                <field name="transformation"/>
+                <field name="default_value"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue formulaire fournisseur -->
+    <record id="pool_supplier_view_form" model="ir.ui.view">
+        <field name="name">pool.supplier.form</field>
+        <field name="model">pool.supplier</field>
+        <field name="arch" type="xml">
+            <form string="Fournisseur Piscine">
+                <header>
+                    <button name="action_import_products" 
+                            type="object" 
+                            string="Importer des produits" 
+                            class="btn-primary"
+                            icon="fa-download"/>
+                    <button name="action_view_products" 
+                            type="object" 
+                            string="Voir les produits" 
+                            icon="fa-cubes"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_products" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-cubes">
+                            <field name="product_count" widget="statinfo" string="Produits"/>
+                        </button>
+                        <button name="action_view_import_logs" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-history">
+                            <span class="o_stat_text">Imports</span>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archivé" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nom du fournisseur"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informations générales">
+                            <field name="code"/>
+                            <field name="supplier_type"/>
+                            <field name="partner_id"/>
+                            <field name="active" invisible="1"/>
+                            <field name="sequence" groups="base.group_no_one"/>
+                        </group>
+                        <group string="Contact">
+                            <field name="website_url" widget="url"/>
+                            <field name="catalog_url" widget="url"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Import" name="import">
+                            <group>
+                                <group string="Méthode d'import">
+                                    <field name="import_method"/>
+                                    <field name="last_import_date" readonly="1"/>
+                                    <field name="last_import_count" readonly="1"/>
+                                </group>
+                                <group string="Configuration CSV" invisible="import_method != 'csv'">
+                                    <field name="csv_delimiter"/>
+                                    <field name="csv_encoding"/>
+                                    <field name="csv_skip_lines"/>
+                                </group>
+                                <group string="Configuration API" invisible="import_method != 'api'">
+                                    <field name="api_endpoint"/>
+                                    <field name="api_key" password="True"/>
+                                    <field name="api_secret" password="True"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Prix et marge" name="pricing">
+                            <group>
+                                <group string="Configuration des prix">
+                                    <field name="price_field"/>
+                                    <field name="margin_type"/>
+                                    <field name="default_margin" invisible="margin_type != 'percentage'"/>
+                                    <field name="fixed_margin" invisible="margin_type != 'fixed'"/>
+                                </group>
+                                <group string="Catégorie par défaut">
+                                    <field name="default_category_id"/>
+                                </group>
+                            </group>
+                            <group string="Formule personnalisée" invisible="margin_type != 'formula'">
+                                <field name="margin_formula" nolabel="1" placeholder="cost * 1.3 if cost &lt; 100 else cost * 1.25"/>
+                            </group>
+                        </page>
+                        <page string="Mapping des champs" name="mapping">
+                            <field name="field_mapping_ids" nolabel="1"/>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue liste fournisseurs -->
+    <record id="pool_supplier_view_tree" model="ir.ui.view">
+        <field name="name">pool.supplier.tree</field>
+        <field name="model">pool.supplier</field>
+        <field name="arch" type="xml">
+            <list string="Fournisseurs Piscine">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="supplier_type"/>
+                <field name="import_method"/>
+                <field name="default_margin"/>
+                <field name="product_count"/>
+                <field name="last_import_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue recherche fournisseurs -->
+    <record id="pool_supplier_view_search" model="ir.ui.view">
+        <field name="name">pool.supplier.search</field>
+        <field name="model">pool.supplier</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Archivés" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="false" string="Grouper par">
+                    <filter string="Type" name="group_type" context="{'group_by': 'supplier_type'}"/>
+                    <filter string="Méthode import" name="group_method" context="{'group_by': 'import_method'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action fournisseurs -->
+    <record id="pool_supplier_action" model="ir.actions.act_window">
+        <field name="name">Fournisseurs</field>
+        <field name="res_model">pool.supplier</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer votre premier fournisseur piscine
+            </p>
+            <p>
+                Configurez vos fournisseurs pour importer automatiquement leurs catalogues.
+            </p>
+        </field>
+    </record>
+
+</odoo>

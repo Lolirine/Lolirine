@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Séquence pour les imports -->
+        <record id="sequence_pool_import_log" model="ir.sequence">
+            <field name="name">Import Piscine</field>
+            <field name="code">pool.import.log</field>
+            <field name="prefix">IMP/POOL/</field>
+            <field name="padding">5</field>
+        </record>
+
+        <!-- Fournisseur Fluidra -->
+        <record id="pool_supplier_fluidra" model="pool.supplier">
+            <field name="name">Fluidra</field>
+            <field name="code">FLUIDRA</field>
+            <field name="sequence">10</field>
+            <field name="supplier_type">fluidra</field>
+            <field name="import_method">csv</field>
+            <field name="website_url">https://www.fluidra.com</field>
+            <field name="catalog_url">https://catalog.fluidra.com</field>
+            <field name="csv_delimiter">;</field>
+            <field name="csv_encoding">utf-8</field>
+            <field name="price_field">cost</field>
+            <field name="margin_type">percentage</field>
+            <field name="default_margin">35.0</field>
+            <field name="default_category_id" ref="product_category_pool"/>
+            <field name="notes"><![CDATA[
+<h4>Fluidra - Leader mondial des équipements piscine</h4>
+<p><strong>Marques :</strong> AstralPool, Zodiac, Jandy, Polaris, etc.</p>
+<h5>Instructions d'import :</h5>
+<ol>
+    <li>Se connecter sur le portail pro Fluidra</li>
+    <li>Télécharger le catalogue au format Excel/CSV</li>
+    <li>Utiliser l'assistant d'import avec le mapping automatique</li>
+</ol>
+]]></field>
+        </record>
+
+        <!-- Fournisseur SCP -->
+        <record id="pool_supplier_scp" model="pool.supplier">
+            <field name="name">SCP Bénélux</field>
+            <field name="code">SCP</field>
+            <field name="sequence">20</field>
+            <field name="supplier_type">scp</field>
+            <field name="import_method">csv</field>
+            <field name="website_url">https://www.scppool.com</field>
+            <field name="csv_delimiter">;</field>
+            <field name="csv_encoding">utf-8</field>
+            <field name="price_field">cost</field>
+            <field name="margin_type">percentage</field>
+            <field name="default_margin">30.0</field>
+            <field name="default_category_id" ref="product_category_pool"/>
+            <field name="notes"><![CDATA[
+<h4>SCP Bénélux - Distributeur multimarques</h4>
+<p><strong>Marques :</strong> Hayward, Pentair, Dolphin, Sta-Rite, etc.</p>
+]]></field>
+        </record>
+
+        <!-- Fournisseur Allforpools -->
+        <record id="pool_supplier_allforpools" model="pool.supplier">
+            <field name="name">Allforpools</field>
+            <field name="code">AFP</field>
+            <field name="sequence">30</field>
+            <field name="supplier_type">allforpools</field>
+            <field name="import_method">csv</field>
+            <field name="website_url">https://www.allforpools.be</field>
+            <field name="csv_delimiter">;</field>
+            <field name="csv_encoding">utf-8</field>
+            <field name="price_field">cost</field>
+            <field name="margin_type">percentage</field>
+            <field name="default_margin">28.0</field>
+            <field name="default_category_id" ref="product_category_pool"/>
+        </record>
+
+        <!-- Fournisseur MyPiscine -->
+        <record id="pool_supplier_mypiscine" model="pool.supplier">
+            <field name="name">MyPiscine.com</field>
+            <field name="code">MYP</field>
+            <field name="sequence">40</field>
+            <field name="supplier_type">mypiscine</field>
+            <field name="import_method">csv</field>
+            <field name="website_url">https://www.mypiscine.com</field>
+            <field name="csv_delimiter">;</field>
+            <field name="csv_encoding">utf-8</field>
+            <field name="price_field">cost</field>
+            <field name="margin_type">percentage</field>
+            <field name="default_margin">25.0</field>
+            <field name="default_category_id" ref="product_category_pool"/>
+        </record>
+
+        <!-- Template fournisseur générique -->
+        <record id="pool_supplier_generic" model="pool.supplier">
+            <field name="name">Autre fournisseur</field>
+            <field name="code">OTHER</field>
+            <field name="sequence">100</field>
+            <field name="supplier_type">generic</field>
+            <field name="import_method">csv</field>
+            <field name="csv_delimiter">;</field>
+            <field name="csv_encoding">utf-8</field>
+            <field name="price_field">cost</field>
+            <field name="margin_type">percentage</field>
+            <field name="default_margin">30.0</field>
+            <field name="default_category_id" ref="product_category_pool"/>
+            <field name="notes"><![CDATA[
+<h4>Template pour autres fournisseurs</h4>
+<p>Configurez le mapping des colonnes selon votre fichier CSV.</p>
+]]></field>
+        </record>
+
+    </data>
+</odoo>

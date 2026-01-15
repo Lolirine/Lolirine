@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- 
+        Groupes de sécurité pour Lolirine Pool
+        
+        IMPORTANT - Odoo 19 Compatibility:
+        - Le champ 'category_id' a été SUPPRIMÉ de res.groups en Odoo 19
+        - Les catégories de modules ne sont plus utilisées pour les groupes
+        - Utiliser 'implied_ids' pour la hiérarchie des groupes
+    -->
+    
+    <!-- Groupe Utilisateur Piscine - Accès lecture -->
+    <record id="group_pool_user" model="res.groups">
+        <field name="name">Utilisateur Piscine</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Accès en lecture au catalogue piscine et aux fonctionnalités de base</field>
+    </record>
+
+    <!-- Groupe Gestionnaire Piscine - Accès complet -->
+    <record id="group_pool_manager" model="res.groups">
+        <field name="name">Responsable Piscine</field>
+        <field name="implied_ids" eval="[(4, ref('lolirine_pool.group_pool_user'))]"/>
+        <field name="comment">Gestion complète du catalogue piscine : imports, fournisseurs, configuration</field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- RÈGLES D'ACCÈS AUX ENREGISTREMENTS (ir.rule) -->
+    <!-- ============================================ -->
+    
+    <!-- Fournisseurs : Lecture globale pour utilisateurs -->
+    <record id="pool_supplier_rule_read" model="ir.rule">
+        <field name="name">Fournisseurs piscine: Lecture utilisateurs</field>
+        <field name="model_id" ref="model_pool_supplier"/>
+        <field name="domain_force">[('active', '=', True)]</field>
+        <field name="groups" eval="[(4, ref('group_pool_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Fournisseurs : Accès complet pour managers -->
+    <record id="pool_supplier_rule_manager" model="ir.rule">
+        <field name="name">Fournisseurs piscine: Managers</field>
+        <field name="model_id" ref="model_pool_supplier"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_pool_manager'))]"/>
+    </record>
+
+    <!-- Logs d'import : Managers uniquement -->
+    <record id="pool_import_log_rule_manager" model="ir.rule">
+        <field name="name">Logs import piscine: Managers</field>
+        <field name="model_id" ref="model_pool_import_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_pool_manager'))]"/>
+    </record>
+
+    <!-- Lignes d'import : Managers uniquement -->
+    <record id="pool_import_line_rule_manager" model="ir.rule">
+        <field name="name">Lignes import piscine: Managers</field>
+        <field name="model_id" ref="model_pool_import_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_pool_manager'))]"/>
+    </record>
+
+    <!-- Mapping champs : Managers uniquement -->
+    <record id="pool_supplier_mapping_rule_manager" model="ir.rule">
+        <field name="name">Mapping champs: Managers</field>
+        <field name="model_id" ref="model_pool_supplier_field_mapping"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_pool_manager'))]"/>
+    </record>
+
+    <!-- Catégories piscine : Lecture pour tous -->
+    <record id="pool_category_rule_read" model="ir.rule">
+        <field name="name">Catégories piscine: Lecture</field>
+        <field name="model_id" ref="model_pool_product_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Catégories piscine : Gestion pour managers -->
+    <record id="pool_category_rule_manager" model="ir.rule">
+        <field name="name">Catégories piscine: Managers</field>
+        <field name="model_id" ref="model_pool_product_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_pool_manager'))]"/>
+    </record>
+
+    <!-- Marques : Lecture pour tous -->
+    <record id="pool_brand_rule_read" model="ir.rule">
+        <field name="name">Marques piscine: Lecture</field>
+        <field name="model_id" ref="model_pool_brand"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Marques : Gestion pour managers -->
+    <record id="pool_brand_rule_manager" model="ir.rule">
+        <field name="name">Marques piscine: Managers</field>
+        <field name="model_id" ref="model_pool_brand"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_pool_manager'))]"/>
+    </record>
+
+</odoo>
