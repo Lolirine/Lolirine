@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vue formulaire wizard d'import -->
+    <record id="pool_import_wizard_view_form" model="ir.ui.view">
+        <field name="name">pool.import.wizard.form</field>
+        <field name="model">pool.import.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <!-- État: Chargement -->
+                <group invisible="state != 'upload'">
+                    <group string="Fournisseur">
+                        <field name="supplier_id"/>
+                        <field name="import_method"/>
+                    </group>
+                    <group string="Fichier" invisible="import_method != 'csv'">
+                        <field name="file_data" filename="file_name"/>
+                        <field name="file_name" invisible="1"/>
+                    </group>
+                    <group string="Options">
+                        <field name="update_existing"/>
+                        <field name="create_category"/>
+                        <field name="import_images"/>
+                    </group>
+                </group>
+
+                <!-- État: Aperçu -->
+                <group invisible="state != 'preview'">
+                    <group>
+                        <field name="supplier_id" readonly="1"/>
+                        <field name="preview_count" readonly="1"/>
+                    </group>
+                    <group string="Aperçu des 10 premières lignes">
+                        <field name="preview_line_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="product_ref"/>
+                                <field name="product_name"/>
+                                <field name="cost_price"/>
+                            </list>
+                        </field>
+                    </group>
+                </group>
+
+                <!-- État: Terminé -->
+                <group invisible="state != 'done'">
+                    <div class="alert alert-success">
+                        <h4>Import terminé avec succès !</h4>
+                        <p>Consultez le log d'import pour voir les détails.</p>
+                    </div>
+                    <field name="import_log_id" readonly="1"/>
+                </group>
+
+                <field name="state" invisible="1"/>
+                
+                <footer>
+                    <button string="Analyser le fichier" 
+                            name="action_preview" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="state != 'upload'"/>
+                    <button string="Lancer l'import" 
+                            name="action_import" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="state != 'preview'"/>
+                    <button string="Retour" 
+                            name="action_back" 
+                            type="object"
+                            invisible="state != 'preview'"/>
+                    <button string="Fermer" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action pour ouvrir le wizard -->
+    <record id="pool_import_wizard_action" model="ir.actions.act_window">
+        <field name="name">Importer des produits</field>
+        <field name="res_model">pool.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
