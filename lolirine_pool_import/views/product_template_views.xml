@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Product Template Form Extension -->
+    <record id="product_template_form_pool" model="ir.ui.view">
+        <field name="name">product.template.form.pool</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_information']" position="after">
+                <page string="Piscine" name="pool_info">
+                    <group>
+                        <group string="Fournisseur">
+                            <field name="x_pool_supplier_id"/>
+                            <field name="x_pool_supplier_ref"/>
+                            <field name="x_pool_brand"/>
+                            <field name="x_pool_category"/>
+                            <field name="x_pool_subcategory"/>
+                        </group>
+                        <group string="Rentabilité">
+                            <field name="x_purchase_margin" widget="percentage"/>
+                            <field name="x_profit_amount"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Spécifications Techniques">
+                        <group>
+                            <field name="x_power_kw"/>
+                            <field name="x_power_cv"/>
+                            <field name="x_voltage"/>
+                            <field name="x_flow_rate"/>
+                        </group>
+                        <group>
+                            <field name="x_diameter_mm"/>
+                            <field name="x_filter_area"/>
+                            <field name="x_cop"/>
+                            <field name="x_noise_level"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Descriptions">
+                        <field name="x_description_fr" colspan="2"/>
+                        <field name="x_description_nl" colspan="2"/>
+                    </group>
+                    
+                    <group string="Import">
+                        <field name="x_pool_import_date" readonly="1"/>
+                        <field name="x_pool_import_source" readonly="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Product Template Tree Extension -->
+    <record id="product_template_tree_pool" model="ir.ui.view">
+        <field name="name">product.template.tree.pool</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="x_pool_supplier_id" optional="hide"/>
+                <field name="x_pool_brand" optional="hide"/>
+                <field name="x_purchase_margin" widget="percentage" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Search View Extension -->
+    <record id="product_template_search_pool" model="ir.ui.view">
+        <field name="name">product.template.search.pool</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='consumable']" position="after">
+                <separator/>
+                <filter name="pool_products" string="Produits Piscine" domain="[('x_pool_supplier_id', '!=', False)]"/>
+                <filter name="low_margin" string="Marge faible (&lt;25%)" domain="[('x_purchase_margin', '&lt;', 25)]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter name="group_pool_supplier" string="Fournisseur Piscine" context="{'group_by': 'x_pool_supplier_id'}"/>
+                <filter name="group_pool_brand" string="Marque" context="{'group_by': 'x_pool_brand'}"/>
+                <filter name="group_pool_category" string="Catégorie Catalogue" context="{'group_by': 'x_pool_category'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Pool Products Action -->
+    <record id="action_pool_products" model="ir.actions.act_window">
+        <field name="name">Produits Piscine</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="domain">[('x_pool_supplier_id', '!=', False)]</field>
+        <field name="context">{'search_default_pool_products': 1}</field>
+    </record>
+</odoo>
