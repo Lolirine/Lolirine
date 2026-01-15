@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================ -->
+    <!-- POOL CATALOG VIEWS                          -->
+    <!-- ============================================ -->
+
+    <!-- Catalog List View -->
+    <record id="pool_catalog_view_list" model="ir.ui.view">
+        <field name="name">pool.catalog.list</field>
+        <field name="model">pool.catalog</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'" decoration-success="state == 'imported'" decoration-warning="state == 'loaded'">
+                <field name="name"/>
+                <field name="supplier_id"/>
+                <field name="source_filename"/>
+                <field name="item_count"/>
+                <field name="item_to_import_count"/>
+                <field name="item_imported_count"/>
+                <field name="load_date"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state in ('loaded', 'validated')" decoration-success="state == 'imported'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Catalog Form View - Style Comptabilité -->
+    <record id="pool_catalog_view_form" model="ir.ui.view">
+        <field name="name">pool.catalog.form</field>
+        <field name="model">pool.catalog</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_load_file" string="Charger le fichier" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_validate" string="Valider" type="object" class="btn-primary" invisible="state != 'loaded'"/>
+                    <button name="action_import" string="Importer" type="object" class="btn-primary" invisible="state != 'validated'"/>
+                    <button name="action_select_all" string="Tout sélectionner" type="object" invisible="state not in ('loaded', 'validated')"/>
+                    <button name="action_deselect_all" string="Tout désélectionner" type="object" invisible="state not in ('loaded', 'validated')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,loaded,validated,imported"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_import" icon="fa-download" invisible="item_to_import_count == 0">
+                            <field name="item_to_import_count" widget="statinfo" string="À importer"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-check" invisible="item_imported_count == 0">
+                            <field name="item_imported_count" widget="statinfo" string="Importés"/>
+                        </button>
+                    </div>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nom du catalogue"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="Source">
+                            <field name="supplier_id"/>
+                            <field name="source_type"/>
+                            <field name="source_file" filename="source_filename"/>
+                            <field name="source_filename" invisible="1"/>
+                        </group>
+                        <group string="Options">
+                            <field name="update_existing"/>
+                            <field name="recalculate_prices"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Statistiques" invisible="state == 'draft'">
+                        <group>
+                            <field name="item_count"/>
+                            <field name="load_date"/>
+                        </group>
+                        <group>
+                            <field name="item_skipped_count"/>
+                            <field name="import_date"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Éléments du catalogue - Vue style facture -->
+                    <notebook invisible="state == 'draft'">
+                        <page string="Éléments du catalogue" name="items">
+                            <field name="item_ids" nolabel="1" context="{'default_catalog_id': id}">
+                                <list editable="bottom" decoration-success="state == 'imported'" decoration-danger="state == 'error'" decoration-muted="state == 'skipped'" decoration-info="state == 'exists'">
+                                    <field name="selected" widget="boolean_toggle" optional="show"/>
+                                    <field name="supplier_ref"/>
+                                    <field name="name"/>
+                                    <field name="brand" optional="show"/>
+                                    <field name="category" optional="show"/>
+                                    <field name="purchase_price" sum="Total"/>
+                                    <field name="selling_price" sum="Total"/>
+                                    <field name="margin" widget="percentage" optional="hide"/>
+                                    <field name="is_template" optional="hide"/>
+                                    <field name="variants_count" optional="hide"/>
+                                    <field name="existing_product_id" optional="show"/>
+                                    <field name="state" widget="badge"/>
+                                    <button name="action_skip" type="object" icon="fa-ban" title="Ignorer" invisible="state != 'to_import'"/>
+                                    <button name="action_reset" type="object" icon="fa-refresh" title="Réinitialiser" invisible="state not in ('skipped', 'error')"/>
+                                    <button name="action_view_product" type="object" icon="fa-external-link" title="Voir le produit" invisible="not existing_product_id and not created_product_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" nolabel="1" placeholder="Notes et commentaires..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Catalog Search View -->
+    <record id="pool_catalog_view_search" model="ir.ui.view">
+        <field name="name">pool.catalog.search</field>
+        <field name="model">pool.catalog</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="supplier_id"/>
+                <filter name="draft" string="Brouillon" domain="[('state', '=', 'draft')]"/>
+                <filter name="loaded" string="Chargé" domain="[('state', '=', 'loaded')]"/>
+                <filter name="validated" string="Validé" domain="[('state', '=', 'validated')]"/>
+                <filter name="imported" string="Importé" domain="[('state', '=', 'imported')]"/>
+                <separator/>
+                <filter name="group_supplier" string="Fournisseur" context="{'group_by': 'supplier_id'}"/>
+                <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Catalog Action -->
+    <record id="action_pool_catalog" model="ir.actions.act_window">
+        <field name="name">Catalogues</field>
+        <field name="res_model">pool.catalog</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre premier catalogue
+            </p>
+            <p>
+                Importez des fichiers JSON ou CSV depuis vos fournisseurs piscine.
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- POOL CATALOG ITEM VIEWS                     -->
+    <!-- ============================================ -->
+
+    <!-- Item List View (standalone) -->
+    <record id="pool_catalog_item_view_list" model="ir.ui.view">
+        <field name="name">pool.catalog.item.list</field>
+        <field name="model">pool.catalog.item</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'imported'" decoration-danger="state == 'error'" decoration-muted="state == 'skipped'" decoration-info="state == 'exists'">
+                <field name="catalog_id"/>
+                <field name="supplier_ref"/>
+                <field name="name"/>
+                <field name="brand"/>
+                <field name="category"/>
+                <field name="purchase_price"/>
+                <field name="selling_price"/>
+                <field name="margin" widget="percentage"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Item Form View -->
+    <record id="pool_catalog_item_view_form" model="ir.ui.view">
+        <field name="name">pool.catalog.item.form</field>
+        <field name="model">pool.catalog.item</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_skip" string="Ignorer" type="object" invisible="state != 'to_import'"/>
+                    <button name="action_reset" string="Réinitialiser" type="object" invisible="state not in ('skipped', 'error')"/>
+                    <button name="action_view_product" string="Voir le produit" type="object" class="btn-primary" invisible="not existing_product_id and not created_product_id"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Identification">
+                            <field name="catalog_id"/>
+                            <field name="supplier_ref"/>
+                            <field name="name"/>
+                            <field name="brand"/>
+                        </group>
+                        <group string="Classification">
+                            <field name="category"/>
+                            <field name="subcategory"/>
+                            <field name="is_template"/>
+                            <field name="variants_count" invisible="not is_template"/>
+                            <field name="attributes_info" invisible="not is_template"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="Prix">
+                            <field name="purchase_price"/>
+                            <field name="selling_price"/>
+                            <field name="margin" widget="percentage"/>
+                        </group>
+                        <group string="Lien Odoo">
+                            <field name="existing_product_id"/>
+                            <field name="created_product_id"/>
+                            <field name="selected"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Descriptions" name="descriptions">
+                            <group>
+                                <field name="description_fr"/>
+                                <field name="description_nl"/>
+                            </group>
+                        </page>
+                        <page string="Image" name="image" invisible="not image_url">
+                            <field name="image_url" widget="url"/>
+                        </page>
+                        <page string="Données brutes" name="raw">
+                            <field name="raw_data" readonly="1"/>
+                        </page>
+                        <page string="Erreur" name="error" invisible="not error_message">
+                            <field name="error_message" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Item Search View -->
+    <record id="pool_catalog_item_view_search" model="ir.ui.view">
+        <field name="name">pool.catalog.item.search</field>
+        <field name="model">pool.catalog.item</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="supplier_ref"/>
+                <field name="brand"/>
+                <field name="category"/>
+                <filter name="to_import" string="À importer" domain="[('state', '=', 'to_import')]"/>
+                <filter name="imported" string="Importés" domain="[('state', '=', 'imported')]"/>
+                <filter name="exists" string="Existants" domain="[('state', '=', 'exists')]"/>
+                <filter name="errors" string="Erreurs" domain="[('state', '=', 'error')]"/>
+                <separator/>
+                <filter name="templates" string="Templates" domain="[('is_template', '=', True)]"/>
+                <filter name="products" string="Produits simples" domain="[('is_template', '=', False)]"/>
+                <separator/>
+                <filter name="group_catalog" string="Catalogue" context="{'group_by': 'catalog_id'}"/>
+                <filter name="group_brand" string="Marque" context="{'group_by': 'brand'}"/>
+                <filter name="group_category" string="Catégorie" context="{'group_by': 'category'}"/>
+                <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Item Action -->
+    <record id="action_pool_catalog_item" model="ir.actions.act_window">
+        <field name="name">Éléments de catalogue</field>
+        <field name="res_model">pool.catalog.item</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_to_import': 1}</field>
+    </record>
+
+</odoo>
