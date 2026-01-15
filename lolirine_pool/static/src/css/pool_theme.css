@@ -1,0 +1,210 @@
+/* ===========================================
+   LOLIRINE POOL - THÈME PISCINE
+   =========================================== */
+
+/* Variables CSS */
+:root {
+    --pool-primary: #0077B6;
+    --pool-primary-light: #00B4D8;
+    --pool-primary-dark: #023E8A;
+    --pool-secondary: #90E0EF;
+    --pool-accent: #CAF0F8;
+    --pool-text: #03045E;
+    --pool-white: #FFFFFF;
+}
+
+/* ===========================================
+   GÉNÉRAL
+   =========================================== */
+
+.pool-homepage {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* ===========================================
+   HERO SECTION
+   =========================================== */
+
+.pool-hero {
+    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
+    color: var(--pool-white);
+    padding: 80px 0;
+}
+
+.pool-hero h1 {
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.pool-hero .btn-primary {
+    background-color: var(--pool-white);
+    color: var(--pool-primary);
+    border: none;
+    padding: 15px 40px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.pool-hero .btn-primary:hover {
+    background-color: var(--pool-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* ===========================================
+   CATÉGORIES
+   =========================================== */
+
+.pool-category-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.pool-category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 119, 182, 0.15);
+}
+
+.pool-category-card i {
+    color: var(--pool-primary);
+}
+
+.pool-category-card .btn-outline-primary {
+    border-color: var(--pool-primary);
+    color: var(--pool-primary);
+}
+
+.pool-category-card .btn-outline-primary:hover {
+    background-color: var(--pool-primary);
+    color: var(--pool-white);
+}
+
+/* ===========================================
+   MARQUES
+   =========================================== */
+
+.pool-brands {
+    background-color: var(--pool-white);
+}
+
+.pool-brand-logo {
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.pool-brand-logo:hover {
+    filter: grayscale(0%);
+    opacity: 1;
+}
+
+/* ===========================================
+   AVANTAGES
+   =========================================== */
+
+.pool-advantages {
+    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-light) 100%);
+}
+
+.pool-advantages i {
+    opacity: 0.9;
+}
+
+/* ===========================================
+   BOUTIQUE / SHOP
+   =========================================== */
+
+.oe_website_sale .oe_product {
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.oe_website_sale .oe_product:hover {
+    box-shadow: 0 5px 20px rgba(0, 119, 182, 0.15);
+}
+
+.oe_website_sale .oe_product .oe_product_image {
+    background-color: var(--pool-accent);
+}
+
+/* Badge "Piscine" sur les produits */
+.pool-product-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: var(--pool-primary);
+    color: var(--pool-white);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ===========================================
+   SNIPPETS
+   =========================================== */
+
+.s_pool_promo_banner {
+    background: linear-gradient(90deg, var(--pool-primary) 0%, var(--pool-primary-light) 100%);
+}
+
+.s_pool_category_grid .pool-cat-card {
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.s_pool_category_grid .pool-cat-card:hover {
+    border-color: var(--pool-primary);
+}
+
+.s_pool_contact_cta {
+    background: linear-gradient(135deg, var(--pool-primary-dark) 0%, var(--pool-primary) 100%);
+}
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+
+@media (max-width: 768px) {
+    .pool-hero {
+        padding: 50px 0;
+    }
+    
+    .pool-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .pool-advantages .col-md-3 {
+        margin-bottom: 30px;
+    }
+}
+
+/* ===========================================
+   ANIMATIONS
+   =========================================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pool-category-card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.pool-category-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.pool-category-card:nth-child(3) {
+    animation-delay: 0.2s;
+}
