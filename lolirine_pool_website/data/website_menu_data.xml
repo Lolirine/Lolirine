@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Menu principal du site Pool Store -->
+    
+    <!-- Menu Accueil -->
+    <record id="menu_pool_home" model="website.menu">
+        <field name="name">Accueil</field>
+        <field name="url">/</field>
+        <field name="sequence">10</field>
+        <field name="website_id" ref="website_pool"/>
+    </record>
+    
+    <!-- Menu Boutique -->
+    <record id="menu_pool_shop" model="website.menu">
+        <field name="name">Boutique</field>
+        <field name="url">/shop</field>
+        <field name="sequence">20</field>
+        <field name="website_id" ref="website_pool"/>
+    </record>
+    
+    <!-- Menu Catégories (parent) -->
+    <record id="menu_pool_categories" model="website.menu">
+        <field name="name">Catégories</field>
+        <field name="url">#</field>
+        <field name="sequence">30</field>
+        <field name="website_id" ref="website_pool"/>
+    </record>
+    
+    <!-- Sous-menus catégories -->
+    <record id="menu_pool_cat_pac" model="website.menu">
+        <field name="name">Pompes à chaleur</field>
+        <field name="url">/shop/category/pompes-a-chaleur</field>
+        <field name="sequence">31</field>
+        <field name="parent_id" ref="menu_pool_categories"/>
+        <field name="website_id" ref="website_pool"/>
+    </record>
+    
+    <record id="menu_pool_cat_filtration" model="website.menu">
+        <field name="name">Filtration</field>
+        <field name="url">/shop/category/filtration</field>
+        <field name="sequence">32</field>
+        <field name="parent_id" ref="menu_pool_categories"/>
+        <field name="website_id" ref="website_pool"/>
+    </record>
+    
+    <record id="menu_pool_cat_pumps" model="website.menu">
+        <field name="name">Pompes</field>
+        <field name="url">/shop/category/pompes</field>
+        <field name="sequence">33</field>
+        <field name="parent_id" ref="menu_pool_categories"/>
+        <field name="website_id" ref="website_pool"/>
+    </record>
+    
+    <record id="menu_pool_cat_robots" model="website.menu">
+        <field name="name">Robots nettoyeurs</field>
+        <field name="url">/shop/category/robots-nettoyeurs</field>
+        <field name="sequence">34</field>
+        <field name="parent_id" ref="menu_pool_categories"/>
+        <field name="website_id" ref="website_pool"/>
+    </record>
+    
+    <record id="menu_pool_cat_treatment" model="website.menu">
+        <field name="name">Traitement de l'eau</field>
+        <field name="url">/shop/category/traitement-eau</field>
+        <field name="sequence">35</field>
+        <field name="parent_id" ref="menu_pool_categories"/>
+        <field name="website_id" ref="website_pool"/>
+    </record>
+    
+    <!-- Menu À propos -->
+    <record id="menu_pool_about" model="website.menu">
+        <field name="name">À propos</field>
+        <field name="url">/about</field>
+        <field name="sequence">40</field>
+        <field name="website_id" ref="website_pool"/>
+    </record>
+    
+    <!-- Menu Contact -->
+    <record id="menu_pool_contact" model="website.menu">
+        <field name="name">Contact</field>
+        <field name="url">/contactus</field>
+        <field name="sequence">50</field>
+        <field name="website_id" ref="website_pool"/>
+    </record>
+    
+</odoo>
