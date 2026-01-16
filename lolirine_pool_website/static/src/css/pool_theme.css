@@ -1,0 +1,295 @@
+/* ============================================ */
+/* LOLIRINE POOL STORE - THEME CSS             */
+/* ============================================ */
+
+/* Variables */
+:root {
+    --pool-primary: #0ea5e9;
+    --pool-primary-dark: #0284c7;
+    --pool-secondary: #06b6d4;
+    --pool-accent: #38bdf8;
+    --pool-dark: #0c4a6e;
+    --pool-light: #f0f9ff;
+}
+
+/* ============================================ */
+/* GLOBAL STYLES                               */
+/* ============================================ */
+
+/* Liens et boutons principaux */
+.o_website_pool a:not(.btn):not(.dropdown-item) {
+    color: var(--pool-primary);
+}
+
+.o_website_pool a:not(.btn):not(.dropdown-item):hover {
+    color: var(--pool-primary-dark);
+}
+
+/* Boutons primaires */
+.o_website_pool .btn-primary {
+    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
+    border: none;
+}
+
+.o_website_pool .btn-primary:hover {
+    background: linear-gradient(135deg, var(--pool-primary-dark) 0%, var(--pool-dark) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+}
+
+/* ============================================ */
+/* HEADER / NAVIGATION                         */
+/* ============================================ */
+
+.o_website_pool header {
+    background: linear-gradient(135deg, var(--pool-dark) 0%, #1e3a5f 100%);
+}
+
+.o_website_pool header .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+}
+
+.o_website_pool header .nav-link:hover {
+    color: var(--pool-accent) !important;
+}
+
+.o_website_pool header .navbar-brand {
+    color: white !important;
+    font-weight: bold;
+}
+
+/* ============================================ */
+/* HERO SECTION                                */
+/* ============================================ */
+
+.pool-hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.pool-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(12, 74, 110, 0.8) 0%, rgba(14, 165, 233, 0.4) 100%);
+    z-index: 1;
+}
+
+.pool-hero .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* ============================================ */
+/* CATEGORY CARDS                              */
+/* ============================================ */
+
+.category-card,
+.pool-category-card {
+    transition: all 0.3s ease;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.category-card:hover,
+.pool-category-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.category-card .card-title,
+.pool-category-card .card-title {
+    color: #1e293b;
+}
+
+.category-card:hover .card-title,
+.pool-category-card:hover .card-title {
+    color: var(--pool-primary);
+}
+
+/* ============================================ */
+/* PRODUCT CARDS (SHOP)                        */
+/* ============================================ */
+
+.o_website_pool .oe_product_cart {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.o_website_pool .oe_product_cart:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.o_website_pool .oe_product_cart .oe_product_image {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.o_website_pool .oe_product_cart .product_price {
+    color: var(--pool-primary);
+    font-weight: 700;
+}
+
+.o_website_pool .oe_product_cart .btn-primary {
+    background: var(--pool-primary);
+    border-color: var(--pool-primary);
+    border-radius: 8px;
+}
+
+/* ============================================ */
+/* SHOP PAGE                                   */
+/* ============================================ */
+
+.o_website_pool #products_grid_before {
+    background: var(--pool-light);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.o_website_pool .o_wsale_products_searchbar_form .btn {
+    background: var(--pool-primary);
+    border-color: var(--pool-primary);
+}
+
+/* ============================================ */
+/* PRODUCT PAGE                                */
+/* ============================================ */
+
+.o_website_pool #product_detail .product_price {
+    color: var(--pool-primary);
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.o_website_pool #product_detail .css_quantity {
+    border-color: var(--pool-primary);
+}
+
+.o_website_pool #product_detail #add_to_cart {
+    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
+    border: none;
+    padding: 12px 32px;
+    font-size: 1.1rem;
+    border-radius: 50px;
+}
+
+.o_website_pool #product_detail #add_to_cart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+}
+
+/* Product attributes */
+.o_website_pool .js_product .css_attribute_color {
+    border: 2px solid transparent;
+}
+
+.o_website_pool .js_product .css_attribute_color.active {
+    border-color: var(--pool-primary);
+}
+
+/* ============================================ */
+/* FOOTER                                      */
+/* ============================================ */
+
+.o_website_pool footer {
+    background: linear-gradient(135deg, var(--pool-dark) 0%, #0f172a 100%);
+}
+
+.o_website_pool footer h5 {
+    color: var(--pool-accent);
+}
+
+.o_website_pool footer a {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.o_website_pool footer a:hover {
+    color: var(--pool-accent);
+}
+
+/* ============================================ */
+/* CART / CHECKOUT                             */
+/* ============================================ */
+
+.o_website_pool .oe_cart {
+    border-radius: 12px;
+}
+
+.o_website_pool .oe_cart .btn-primary {
+    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
+    border: none;
+    border-radius: 8px;
+}
+
+/* ============================================ */
+/* ANIMATIONS                                  */
+/* ============================================ */
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.pool-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* ============================================ */
+/* UTILITIES                                   */
+/* ============================================ */
+
+.bg-pool-gradient {
+    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
+}
+
+.bg-pool-dark {
+    background: var(--pool-dark);
+}
+
+.text-pool {
+    color: var(--pool-primary);
+}
+
+.border-pool {
+    border-color: var(--pool-primary) !important;
+}
+
+/* ============================================ */
+/* RESPONSIVE                                  */
+/* ============================================ */
+
+@media (max-width: 768px) {
+    .pool-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .category-card,
+    .pool-category-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* ============================================ */
+/* WAVE DECORATION                             */
+/* ============================================ */
+
+.pool-wave {
+    position: relative;
+}
+
+.pool-wave::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='%23ffffff' d='M0,30 C240,60 480,0 720,30 C960,60 1200,0 1440,30 L1440,60 L0,60 Z'/%3E%3C/svg%3E");
+    background-size: cover;
+}
