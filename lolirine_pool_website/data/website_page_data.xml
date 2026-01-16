@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Page d'accueil Pool Store -->
+    <record id="page_pool_homepage" model="website.page">
+        <field name="name">Accueil Pool Store</field>
+        <field name="url">/</field>
+        <field name="website_id" ref="website_pool"/>
+        <field name="is_published">True</field>
+        <field name="view_id" ref="view_pool_homepage"/>
+    </record>
+    
+    <!-- Page À propos -->
+    <record id="page_pool_about" model="website.page">
+        <field name="name">À propos</field>
+        <field name="url">/about</field>
+        <field name="website_id" ref="website_pool"/>
+        <field name="is_published">True</field>
+        <field name="view_id" ref="view_pool_about"/>
+    </record>
+    
+</odoo>
