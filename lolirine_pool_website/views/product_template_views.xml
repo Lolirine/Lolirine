@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ============================================ -->
+    <!-- EXTENSION VUES PRODUIT                      -->
+    <!-- ============================================ -->
+    
+    <!-- Extension de la vue formulaire produit - Ajout checkbox -->
+    <record id="product_template_form_view_pool" model="ir.ui.view">
+        <field name="name">product.template.form.pool</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sale_ok']" position="after">
+                <field name="is_pool_product"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Extension de la vue formulaire produit - Catégorie piscine -->
+    <record id="product_template_form_view_pool_cat" model="ir.ui.view">
+        <field name="name">product.template.form.pool.category</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="pool_category_id" 
+                       invisible="not is_pool_product"
+                       options="{'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- ============================================ -->
+    <!-- VUES POUR CATÉGORIES PISCINE               -->
+    <!-- ============================================ -->
+    
+    <!-- Vue formulaire catégorie piscine (simplifiée) -->
+    <record id="pool_website_category_form" model="ir.ui.view">
+        <field name="name">pool.website.category.form</field>
+        <field name="model">pool.website.category</field>
+        <field name="arch" type="xml">
+            <form string="Catégorie Piscine">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="action_view_products" 
+                                class="oe_stat_button" icon="fa-cubes">
+                            <field name="product_count" widget="statinfo" string="Produits"/>
+                        </button>
+                    </div>
+                    <field name="image" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Nom de la catégorie"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="parent_id"/>
+                            <field name="sequence"/>
+                            <field name="website_published"/>
+                        </group>
+                        <group>
+                            <field name="icon" placeholder="fa-tint"/>
+                            <field name="color" widget="color"/>
+                        </group>
+                    </group>
+                    <group string="Description">
+                        <field name="description" nolabel="1" placeholder="Description de la catégorie..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Vue tree catégorie piscine -->
+    <record id="pool_website_category_tree" model="ir.ui.view">
+        <field name="name">pool.website.category.tree</field>
+        <field name="model">pool.website.category</field>
+        <field name="arch" type="xml">
+            <tree string="Catégories Piscine">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="parent_id"/>
+                <field name="icon"/>
+                <field name="product_count"/>
+                <field name="website_published"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Action catégories piscine -->
+    <record id="pool_website_category_action" model="ir.actions.act_window">
+        <field name="name">Catégories Piscine</field>
+        <field name="res_model">pool.website.category</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre première catégorie piscine
+            </p>
+            <p>
+                Les catégories permettent d'organiser vos produits sur le site Pool Store.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Menu catégories -->
+    <menuitem id="menu_pool_website_categories" 
+              name="Catégories Site Web"
+              parent="website.menu_website_configuration"
+              action="pool_website_category_action"
+              sequence="50"/>
+    
+</odoo>
