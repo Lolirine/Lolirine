@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Snippet Grille de Catégories Pool -->
+    <template id="s_pool_categories_grid" name="Pool Categories Grid">
+        <section class="s_pool_categories py-5">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="display-6 fw-bold">Nos Catégories</h2>
+                    <p class="lead text-muted">Trouvez l'équipement qu'il vous faut</p>
+                </div>
+                <div class="row g-4">
+                    <t t-foreach="request.website._get_pool_categories()" t-as="category">
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <a t-attf-href="/shop/category/#{category.name | slug}" class="text-decoration-none">
+                                <div class="card h-100 border-0 shadow-sm pool-category-card">
+                                    <div class="card-body text-center p-4">
+                                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                             t-attf-style="width: 70px; height: 70px; background-color: #{category.color};">
+                                            <i t-attf-class="fa #{category.icon} fa-2x text-white"/>
+                                        </div>
+                                        <h5 class="card-title fw-bold" t-field="category.name"/>
+                                        <p class="card-text text-muted small" t-field="category.description"/>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </section>
+    </template>
+    
+</odoo>
