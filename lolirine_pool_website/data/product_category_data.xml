@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Catégories principales du site Pool Store -->
+    
+    <record id="pool_cat_pac" model="pool.website.category">
+        <field name="name">Pompes à chaleur</field>
+        <field name="sequence">10</field>
+        <field name="icon">fa-thermometer-half</field>
+        <field name="color">#ef4444</field>
+        <field name="description">Chauffez votre piscine efficacement avec nos pompes à chaleur Inverter. Économiques et écologiques.</field>
+    </record>
+    
+    <record id="pool_cat_filtration" model="pool.website.category">
+        <field name="name">Filtration</field>
+        <field name="sequence">20</field>
+        <field name="icon">fa-filter</field>
+        <field name="color">#3b82f6</field>
+        <field name="description">Filtres à sable, cartouche et diatomées. Gardez une eau cristalline toute la saison.</field>
+    </record>
+    
+    <record id="pool_cat_pumps" model="pool.website.category">
+        <field name="name">Pompes</field>
+        <field name="sequence">30</field>
+        <field name="icon">fa-cogs</field>
+        <field name="color">#8b5cf6</field>
+        <field name="description">Pompes de circulation, pompes à vitesse variable. Performance et silence garantis.</field>
+    </record>
+    
+    <record id="pool_cat_robots" model="pool.website.category">
+        <field name="name">Robots nettoyeurs</field>
+        <field name="sequence">40</field>
+        <field name="icon">fa-android</field>
+        <field name="color">#10b981</field>
+        <field name="description">Robots hydrauliques et électriques. Nettoyage automatique de votre bassin.</field>
+    </record>
+    
+    <record id="pool_cat_treatment" model="pool.website.category">
+        <field name="name">Traitement de l'eau</field>
+        <field name="sequence">50</field>
+        <field name="icon">fa-tint</field>
+        <field name="color">#06b6d4</field>
+        <field name="description">Électrolyseurs, régulateurs de pH, UV. Traitez votre eau de manière automatique.</field>
+    </record>
+    
+    <record id="pool_cat_lighting" model="pool.website.category">
+        <field name="name">Éclairage</field>
+        <field name="sequence">60</field>
+        <field name="icon">fa-lightbulb-o</field>
+        <field name="color">#f59e0b</field>
+        <field name="description">Projecteurs LED, spots subaquatiques. Illuminez vos soirées piscine.</field>
+    </record>
+    
+    <record id="pool_cat_covers" model="pool.website.category">
+        <field name="name">Couvertures &amp; Bâches</field>
+        <field name="sequence">70</field>
+        <field name="icon">fa-shield</field>
+        <field name="color">#64748b</field>
+        <field name="description">Bâches à bulles, couvertures d'hivernage, volets. Protégez votre piscine.</field>
+    </record>
+    
+    <record id="pool_cat_accessories" model="pool.website.category">
+        <field name="name">Accessoires</field>
+        <field name="sequence">80</field>
+        <field name="icon">fa-life-ring</field>
+        <field name="color">#ec4899</field>
+        <field name="description">Échelles, plongeoirs, douches, thermomètres. Tout pour profiter de votre piscine.</field>
+    </record>
+    
+    <!-- Sous-catégories Filtration -->
+    <record id="pool_cat_filtration_sand" model="pool.website.category">
+        <field name="name">Filtres à sable</field>
+        <field name="sequence">21</field>
+        <field name="parent_id" ref="pool_cat_filtration"/>
+        <field name="icon">fa-circle</field>
+    </record>
+    
+    <record id="pool_cat_filtration_cartridge" model="pool.website.category">
+        <field name="name">Filtres à cartouche</field>
+        <field name="sequence">22</field>
+        <field name="parent_id" ref="pool_cat_filtration"/>
+        <field name="icon">fa-square</field>
+    </record>
+    
+    <!-- Sous-catégories Pompes à chaleur -->
+    <record id="pool_cat_pac_inverter" model="pool.website.category">
+        <field name="name">Inverter</field>
+        <field name="sequence">11</field>
+        <field name="parent_id" ref="pool_cat_pac"/>
+        <field name="icon">fa-bolt</field>
+    </record>
+    
+    <record id="pool_cat_pac_full_inverter" model="pool.website.category">
+        <field name="name">Full Inverter</field>
+        <field name="sequence">12</field>
+        <field name="parent_id" ref="pool_cat_pac"/>
+        <field name="icon">fa-flash</field>
+    </record>
+    
+</odoo>
