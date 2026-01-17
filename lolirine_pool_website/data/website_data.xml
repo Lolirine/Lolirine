@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- 
+        Configuration Lolirine Pool Store
+        Le site existe déjà, ce fichier ajoute juste un marqueur de configuration
+    -->
+    
+    <record id="pool_store_configured" model="ir.config_parameter" forcecreate="True">
+        <field name="key">lolirine_pool_website.version</field>
+        <field name="value">2.0.0</field>
+    </record>
+    
+</odoo>

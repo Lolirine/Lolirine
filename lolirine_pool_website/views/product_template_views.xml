@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- 
+        Filtrage des produits sur le site Pool Store
+        Les produits avec is_pool_product = True seront visibles sur le Pool Store
+        Les produits avec website_id = Pool Store seront exclusifs à ce site
+    -->
+    
+    <!-- Extension de la vue shop pour filtrer les produits piscine -->
+    <template id="pool_shop_products_filter" inherit_id="website_sale.products" name="Pool Store - Filtre produits">
+        <!-- Ce template peut être utilisé pour personnaliser l'affichage des produits sur le Pool Store -->
+    </template>
+    
+</odoo>

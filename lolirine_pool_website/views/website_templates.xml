@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ============================================ -->
+    <!-- HEADER PERSONNALISÉ POOL STORE              -->
+    <!-- ============================================ -->
+    
+    <template id="pool_header_contact_info" inherit_id="website.layout" name="Pool Store - Contact Header">
+        <xpath expr="//header" position="before">
+            <!-- Barre de contact en haut (visible uniquement sur Pool Store) -->
+            <t t-if="website.is_pool_website">
+                <div class="pool-top-bar py-2" style="background-color: #0ea5e9; color: white;">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <span class="me-4">
+                                    <i class="fa fa-phone me-1"/>
+                                    <a href="tel:+32497444146" style="color: white; text-decoration: none;">+32 497 44 41 46</a>
+                                </span>
+                                <span>
+                                    <i class="fa fa-envelope me-1"/>
+                                    <a href="mailto:info@lolirinepoolstore.be" style="color: white; text-decoration: none;">info@lolirinepoolstore.be</a>
+                                </span>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <span class="text-white-50">Livraison en Belgique | Conseils d'experts</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+    
+    <!-- ============================================ -->
+    <!-- FOOTER PERSONNALISÉ POOL STORE              -->
+    <!-- ============================================ -->
+    
+    <template id="pool_footer_custom" inherit_id="website.footer_default" name="Pool Store - Footer">
+        <xpath expr="//footer" position="attributes">
+            <attribute name="t-attf-class">#{website.is_pool_website and 'pool-footer' or ''}</attribute>
+        </xpath>
+    </template>
+    
+    <!-- ============================================ -->
+    <!-- PAGE D'ACCUEIL POOL STORE                   -->
+    <!-- ============================================ -->
+    
+    <template id="pool_homepage" name="Pool Store - Page d'accueil">
+        <t t-call="website.layout">
+            <t t-set="pageName" t-value="'homepage'"/>
+            
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- Hero Section -->
+                <section class="pool-hero py-5" style="background: linear-gradient(135deg, #0c4a6e 0%, #0ea5e9 100%); min-height: 500px;">
+                    <div class="container">
+                        <div class="row align-items-center py-5">
+                            <div class="col-lg-7 text-white">
+                                <h1 class="display-3 fw-bold mb-4">
+                                    Votre Expert Piscine en Belgique
+                                </h1>
+                                <p class="lead mb-4" style="font-size: 1.4rem; opacity: 0.95;">
+                                    Pompes à chaleur, filtration, robots nettoyeurs et accessoires.
+                                    Des équipements premium aux meilleurs prix.
+                                </p>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <a href="/shop" class="btn btn-light btn-lg px-4 py-3" style="border-radius: 50px;">
+                                        <i class="fa fa-shopping-cart me-2"/>Voir nos produits
+                                    </a>
+                                    <a href="tel:+32497444146" class="btn btn-outline-light btn-lg px-4 py-3" style="border-radius: 50px;">
+                                        <i class="fa fa-phone me-2"/>+32 497 44 41 46
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 text-center mt-4 mt-lg-0">
+                                <div class="p-4" style="background: rgba(255,255,255,0.1); border-radius: 20px;">
+                                    <i class="fa fa-swimming-pool" style="font-size: 150px; color: rgba(255,255,255,0.8);"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Avantages -->
+                <section class="py-5 bg-light">
+                    <div class="container">
+                        <div class="row g-4 text-center">
+                            <div class="col-md-3">
+                                <div class="p-4">
+                                    <i class="fa fa-truck fa-3x mb-3" style="color: #0ea5e9;"/>
+                                    <h5 class="fw-bold">Livraison Belgique</h5>
+                                    <p class="text-muted mb-0">Livraison rapide partout en Belgique</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-4">
+                                    <i class="fa fa-certificate fa-3x mb-3" style="color: #0ea5e9;"/>
+                                    <h5 class="fw-bold">Marques Premium</h5>
+                                    <p class="text-muted mb-0">Fluidra, Astral, Hayward...</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-4">
+                                    <i class="fa fa-headset fa-3x mb-3" style="color: #0ea5e9;"/>
+                                    <h5 class="fw-bold">Conseils Experts</h5>
+                                    <p class="text-muted mb-0">Une équipe à votre écoute</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-4">
+                                    <i class="fa fa-euro-sign fa-3x mb-3" style="color: #0ea5e9;"/>
+                                    <h5 class="fw-bold">Meilleurs Prix</h5>
+                                    <p class="text-muted mb-0">Tarifs compétitifs garantis</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Catégories -->
+                <section class="py-5">
+                    <div class="container">
+                        <h2 class="text-center fw-bold mb-5">Nos Catégories</h2>
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                                    <div class="card-body text-center p-4">
+                                        <i class="fa fa-thermometer-half fa-4x mb-3" style="color: #ef4444;"/>
+                                        <h4 class="fw-bold">Pompes à Chaleur</h4>
+                                        <p class="text-muted">Chauffez votre piscine efficacement avec nos PAC Inverter</p>
+                                        <a href="/shop?category=pac" class="btn btn-outline-primary">Découvrir</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                                    <div class="card-body text-center p-4">
+                                        <i class="fa fa-filter fa-4x mb-3" style="color: #3b82f6;"/>
+                                        <h4 class="fw-bold">Filtration</h4>
+                                        <p class="text-muted">Filtres à sable, cartouche et pompes de circulation</p>
+                                        <a href="/shop?category=filtration" class="btn btn-outline-primary">Découvrir</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                                    <div class="card-body text-center p-4">
+                                        <i class="fa fa-robot fa-4x mb-3" style="color: #10b981;"/>
+                                        <h4 class="fw-bold">Robots Nettoyeurs</h4>
+                                        <p class="text-muted">Robots hydrauliques et électriques pour un nettoyage parfait</p>
+                                        <a href="/shop?category=robots" class="btn btn-outline-primary">Découvrir</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- CTA Contact -->
+                <section class="py-5" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+                    <div class="container text-center text-white">
+                        <h2 class="display-6 fw-bold mb-3">Besoin de conseils ?</h2>
+                        <p class="lead mb-4">Notre équipe d'experts est à votre disposition pour vous accompagner.</p>
+                        <div class="d-flex justify-content-center gap-3 flex-wrap">
+                            <a href="tel:+32497444146" class="btn btn-lg btn-light px-5 py-3" style="border-radius: 50px;">
+                                <i class="fa fa-phone me-2"/>+32 497 44 41 46
+                            </a>
+                            <a href="mailto:info@lolirinepoolstore.be" class="btn btn-lg btn-outline-light px-5 py-3" style="border-radius: 50px;">
+                                <i class="fa fa-envelope me-2"/>Nous écrire
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                
+            </div>
+        </t>
+    </template>
+    
+    <!-- ============================================ -->
+    <!-- PAGE À PROPOS                               -->
+    <!-- ============================================ -->
+    
+    <template id="pool_about_page" name="Pool Store - À propos">
+        <t t-call="website.layout">
+            <t t-set="pageName" t-value="'about'"/>
+            
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- Header -->
+                <section class="py-5" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+                    <div class="container text-center text-white py-4">
+                        <h1 class="display-4 fw-bold">À propos de Lolirine Pool Store</h1>
+                        <p class="lead">Votre partenaire de confiance pour l'équipement de piscine en Belgique</p>
+                    </div>
+                </section>
+                
+                <!-- Contenu -->
+                <section class="py-5">
+                    <div class="container">
+                        <div class="row g-5">
+                            <div class="col-lg-6">
+                                <h2 class="fw-bold mb-4">Notre Histoire</h2>
+                                <p class="text-muted">
+                                    Lolirine Pool Store est une division de <strong>Lolirine SPRL</strong>, 
+                                    entreprise belge spécialisée dans les services aux particuliers et professionnels.
+                                </p>
+                                <p class="text-muted">
+                                    Forts de notre expertise et de notre réseau de fournisseurs premium comme 
+                                    <strong>Fluidra</strong> et <strong>SCP Benelux</strong>, nous proposons une 
+                                    sélection rigoureuse d'équipements de piscine de haute qualité.
+                                </p>
+                                <p class="text-muted">
+                                    Notre mission : rendre accessible à tous des équipements professionnels 
+                                    à des prix compétitifs, avec un service client de qualité.
+                                </p>
+                            </div>
+                            <div class="col-lg-6">
+                                <h2 class="fw-bold mb-4">Nos Engagements</h2>
+                                <ul class="list-unstyled">
+                                    <li class="d-flex mb-3">
+                                        <i class="fa fa-check-circle fa-2x me-3" style="color: #10b981;"/>
+                                        <div>
+                                            <strong>Qualité garantie</strong>
+                                            <p class="text-muted mb-0">Uniquement des marques reconnues et fiables</p>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex mb-3">
+                                        <i class="fa fa-check-circle fa-2x me-3" style="color: #10b981;"/>
+                                        <div>
+                                            <strong>Conseils personnalisés</strong>
+                                            <p class="text-muted mb-0">Une équipe à votre écoute pour vous guider</p>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex mb-3">
+                                        <i class="fa fa-check-circle fa-2x me-3" style="color: #10b981;"/>
+                                        <div>
+                                            <strong>Prix transparents</strong>
+                                            <p class="text-muted mb-0">Pas de frais cachés, tarifs clairs</p>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex mb-3">
+                                        <i class="fa fa-check-circle fa-2x me-3" style="color: #10b981;"/>
+                                        <div>
+                                            <strong>Service belge</strong>
+                                            <p class="text-muted mb-0">Entreprise basée en Belgique, pour la Belgique</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Contact -->
+                <section class="py-5 bg-light">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 text-center">
+                                <h2 class="fw-bold mb-4">Contactez-nous</h2>
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="p-4 bg-white rounded shadow-sm">
+                                            <i class="fa fa-phone fa-2x mb-3" style="color: #0ea5e9;"/>
+                                            <h5>Téléphone</h5>
+                                            <a href="tel:+32497444146" class="text-decoration-none">+32 497 44 41 46</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-4 bg-white rounded shadow-sm">
+                                            <i class="fa fa-envelope fa-2x mb-3" style="color: #0ea5e9;"/>
+                                            <h5>Email</h5>
+                                            <a href="mailto:info@lolirinepoolstore.be" class="text-decoration-none">info@lolirinepoolstore.be</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+            </div>
+        </t>
+    </template>
+    
+</odoo>
