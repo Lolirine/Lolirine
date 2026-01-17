@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Extension de product.template pour le multi-site Pool Store
+Extension de product.template pour le module Pool Import
+Inclut tous les champs techniques et l'assignation automatique au Pool Store
 """
 
 from odoo import models, fields, api
@@ -12,25 +13,115 @@ _logger = logging.getLogger(__name__)
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
     
-    # Champ pour identifier les produits piscine
+    # ==========================================
+    # Champ pour le multi-site Pool Store
+    # ==========================================
     is_pool_product = fields.Boolean(
         string='Produit Piscine',
         default=False,
         help="Coché automatiquement pour les produits importés via le module Pool Import"
     )
     
-    # Champs pour le module pool import (référencés dans les vues)
+    # ==========================================
+    # Champs Fournisseur
+    # ==========================================
     x_pool_supplier_id = fields.Many2one(
         'pool.supplier',
         string='Fournisseur Piscine',
         help="Fournisseur piscine associé à ce produit"
     )
-    
     x_pool_supplier_ref = fields.Char(
         string='Réf. Fournisseur',
         help="Référence du produit chez le fournisseur piscine"
     )
+    x_pool_brand = fields.Char(
+        string='Marque',
+        help="Marque du produit"
+    )
+    x_pool_category = fields.Char(
+        string='Catégorie Catalogue',
+        help="Catégorie dans le catalogue fournisseur"
+    )
+    x_pool_subcategory = fields.Char(
+        string='Sous-catégorie',
+        help="Sous-catégorie dans le catalogue fournisseur"
+    )
     
+    # ==========================================
+    # Champs Rentabilité
+    # ==========================================
+    x_purchase_margin = fields.Float(
+        string='Marge achat (%)',
+        help="Pourcentage de marge sur le prix d'achat"
+    )
+    x_profit_amount = fields.Float(
+        string='Bénéfice',
+        help="Montant du bénéfice par unité"
+    )
+    
+    # ==========================================
+    # Spécifications Techniques
+    # ==========================================
+    x_power_kw = fields.Float(
+        string='Puissance (kW)',
+        help="Puissance en kilowatts"
+    )
+    x_power_cv = fields.Float(
+        string='Puissance (CV)',
+        help="Puissance en chevaux-vapeur"
+    )
+    x_voltage = fields.Char(
+        string='Tension (V)',
+        help="Tension électrique"
+    )
+    x_flow_rate = fields.Float(
+        string='Débit (m³/h)',
+        help="Débit en mètres cubes par heure"
+    )
+    x_diameter_mm = fields.Float(
+        string='Diamètre (mm)',
+        help="Diamètre en millimètres"
+    )
+    x_filter_area = fields.Float(
+        string='Surface filtration (m²)',
+        help="Surface de filtration en mètres carrés"
+    )
+    x_cop = fields.Float(
+        string='COP',
+        help="Coefficient de performance"
+    )
+    x_noise_level = fields.Float(
+        string='Niveau sonore (dB)',
+        help="Niveau sonore en décibels"
+    )
+    
+    # ==========================================
+    # Descriptions multilingues
+    # ==========================================
+    x_description_fr = fields.Text(
+        string='Description (FR)',
+        help="Description en français"
+    )
+    x_description_nl = fields.Text(
+        string='Description (NL)',
+        help="Description en néerlandais"
+    )
+    
+    # ==========================================
+    # Champs Import
+    # ==========================================
+    x_pool_import_date = fields.Datetime(
+        string="Date d'import",
+        help="Date d'importation du produit"
+    )
+    x_pool_import_source = fields.Char(
+        string="Source d'import",
+        help="Source de l'importation (catalogue, fichier, etc.)"
+    )
+    
+    # ==========================================
+    # Méthodes pour le multi-site
+    # ==========================================
     @api.model
     def _get_pool_website_id(self):
         """
