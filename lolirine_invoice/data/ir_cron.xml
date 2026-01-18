@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- ============================================= -->
+        <!-- CRON - ENVOI AUTOMATIQUE DES FACTURES -->
+        <!-- Vérifie chaque jour à 7h00 les factures       -->
+        <!-- dont la date d'envoi est atteinte             -->
+        <!-- ============================================= -->
+        <record id="ir_cron_send_scheduled_invoices" model="ir.cron">
+            <field name="name">Lolirine - Envoi emails factures planifiées</field>
+            <field name="model_id" ref="account.model_account_move"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_send_scheduled_invoices()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+        
+    </data>
+</odoo>
