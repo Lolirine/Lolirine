@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ============================================= -->
+    <!-- FACTURE - EXTENSION FORMULAIRE -->
+    <!-- ============================================= -->
+    <record id="view_move_form_email_scheduled" model="ir.ui.view">
+        <field name="name">account.move.form.email.scheduled</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Ajouter groupe dans l'onglet "Autres informations" -->
+            <xpath expr="//page[@id='other_tab']//group[@id='other_info_group']" position="after">
+                <group string="📧 Envoi Email Planifié" name="email_scheduled_group" 
+                       invisible="move_type not in ('out_invoice', 'out_refund')">
+                    <group>
+                        <field name="scheduled_email_send"/>
+                        <field name="email_send_date" invisible="not scheduled_email_send"/>
+                    </group>
+                    <group>
+                        <field name="email_pending" readonly="1" invisible="not scheduled_email_send"/>
+                        <field name="email_sent" readonly="1"/>
+                        <field name="email_sent_date" readonly="1" invisible="not email_sent"/>
+                    </group>
+                </group>
+            </xpath>
+            
+            <!-- Ajouter bouton "Envoyer Email" dans le header -->
+            <xpath expr="//button[@name='action_post']" position="after">
+                <button name="action_send_invoice_email_now" 
+                        string="📧 Envoyer Email"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state != 'posted' or email_sent or move_type not in ('out_invoice', 'out_refund')"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- ============================================= -->
+    <!-- FACTURE - EXTENSION LISTE -->
+    <!-- ============================================= -->
+    <record id="view_move_tree_email_scheduled" model="ir.ui.view">
+        <field name="name">account.move.tree.email.scheduled</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_out_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="email_pending" string="📧" optional="show" 
+                       widget="boolean_toggle" readonly="1"/>
+                <field name="email_sent" string="✅" optional="hide" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- ============================================= -->
+    <!-- FACTURE - EXTENSION RECHERCHE -->
+    <!-- ============================================= -->
+    <record id="view_move_search_email_scheduled" model="ir.ui.view">
+        <field name="name">account.move.search.email.scheduled</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='late']" position="after">
+                <separator/>
+                <filter name="email_pending" string="📧 Email en attente" 
+                        domain="[('email_pending', '=', True), ('email_sent', '=', False)]"/>
+                <filter name="email_sent" string="✅ Email envoyé" 
+                        domain="[('email_sent', '=', True)]"/>
+                <filter name="email_not_sent" string="❌ Email non envoyé" 
+                        domain="[('email_sent', '=', False), ('state', '=', 'posted')]"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- ============================================= -->
+    <!-- ACTION - FACTURES EN ATTENTE D'ENVOI -->
+    <!-- ============================================= -->
+    <record id="action_invoices_pending_email" model="ir.actions.act_window">
+        <field name="name">Factures en attente d'envoi</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[
+            ('email_pending', '=', True),
+            ('email_sent', '=', False),
+            ('move_type', 'in', ['out_invoice', 'out_refund']),
+            ('state', '=', 'posted')
+        ]</field>
+        <field name="context">{'default_move_type': 'out_invoice'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune facture en attente d'envoi
+            </p>
+            <p>
+                Les factures avec "Envoi email planifié" coché apparaîtront ici
+                jusqu'à ce que l'email soit envoyé à leur date de facturation.
+            </p>
+        </field>
+    </record>
+    
+</odoo>
