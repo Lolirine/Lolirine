@@ -67,7 +67,7 @@
 </div>
             </field>
             <field name="report_template_ids" eval="[(4, ref('account.account_invoices'))]"/>
-            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="lang">{{ object.partner_id.lang or 'fr_BE' }}</field>
             <field name="auto_delete" eval="False"/>
         </record>
         
@@ -124,7 +124,7 @@
     </div>
 </div>
             </field>
-            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="lang">{{ object.partner_id.lang or 'fr_BE' }}</field>
             <field name="auto_delete" eval="False"/>
         </record>
         
@@ -168,7 +168,7 @@
     </div>
 </div>
             </field>
-            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="lang">{{ object.partner_id.lang or 'fr_BE' }}</field>
             <field name="auto_delete" eval="False"/>
         </record>
         
