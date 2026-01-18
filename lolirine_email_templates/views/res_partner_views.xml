@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ============================================= -->
+    <!-- CONTACT - EXTENSION FORMULAIRE -->
+    <!-- ============================================= -->
+    <record id="view_partner_form_email_auto" model="ir.ui.view">
+        <field name="name">res.partner.form.email.auto</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Ajouter après le champ email -->
+            <xpath expr="//field[@name='email']" position="after">
+                <field name="auto_send_invoice_email" 
+                       string="📧 Envoi email factures auto"/>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>
