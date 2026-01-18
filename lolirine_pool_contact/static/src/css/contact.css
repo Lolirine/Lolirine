@@ -1,0 +1,590 @@
+/* ============================================
+   LOLIRINE POOL CONTACT - STYLES
+   ============================================ */
+
+/* ---------- VARIABLES ---------- */
+:root {
+    --pool-primary: #0891b2;
+    --pool-primary-dark: #0e7490;
+    --pool-primary-light: #06b6d4;
+    --pool-dark: #0f172a;
+    --pool-gray: #64748b;
+    --pool-light: #f8fafc;
+    --pool-radius: 16px;
+    --pool-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --pool-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- HERO ---------- */
+.pool-contact-hero {
+    background: linear-gradient(135deg, var(--pool-dark) 0%, var(--pool-primary) 100%);
+    color: white;
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.pool-contact-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.pool-contact-hero p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.pool-contact-hero-error {
+    background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);
+}
+
+/* ---------- FORMULAIRE SECTIONS ---------- */
+.pool-contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.pool-form-section {
+    background: white;
+    border-radius: var(--pool-radius);
+    box-shadow: var(--pool-shadow);
+    overflow: hidden;
+}
+
+.pool-form-section-header {
+    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
+    color: white;
+    padding: 1rem 1.25rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.pool-form-section-header i {
+    font-size: 1.2rem;
+}
+
+.pool-form-section-header-optional {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+}
+
+.pool-form-section-body {
+    padding: 1.5rem;
+}
+
+.pool-subsection-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--pool-gray);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ---------- RADIO CARDS ---------- */
+.pool-radio-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .pool-radio-group {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pool-radio-card {
+    position: relative;
+    cursor: pointer;
+}
+
+.pool-radio-card input {
+    position: absolute;
+    opacity: 0;
+}
+
+.pool-radio-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.pool-radio-content i {
+    font-size: 1.5rem;
+    margin-top: 0.25rem;
+}
+
+.pool-radio-content strong {
+    display: block;
+    color: var(--pool-dark);
+    margin-bottom: 0.25rem;
+}
+
+.pool-radio-content small {
+    color: var(--pool-gray);
+    font-size: 0.8rem;
+}
+
+.pool-radio-card input:checked + .pool-radio-content {
+    border-color: var(--pool-primary);
+    background: rgba(8, 145, 178, 0.05);
+}
+
+.pool-radio-card:hover .pool-radio-content {
+    border-color: var(--pool-primary-light);
+}
+
+/* ---------- TOGGLE BUTTONS ---------- */
+.pool-toggle-group {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.pool-toggle-btn {
+    cursor: pointer;
+}
+
+.pool-toggle-btn input {
+    position: absolute;
+    opacity: 0;
+}
+
+.pool-toggle-btn span {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    color: var(--pool-gray);
+}
+
+.pool-toggle-btn input:checked + span {
+    border-color: var(--pool-primary);
+    background: var(--pool-primary);
+    color: white;
+}
+
+.pool-toggle-btn:hover span {
+    border-color: var(--pool-primary-light);
+}
+
+/* ---------- PRO FIELDS ---------- */
+.pool-pro-fields {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e1;
+    margin-bottom: 1rem;
+}
+
+/* ---------- FORM INPUTS ---------- */
+.pool-contact-form .form-label {
+    font-weight: 600;
+    color: var(--pool-dark);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.pool-contact-form .form-control,
+.pool-contact-form .form-select {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.pool-contact-form .form-control:focus,
+.pool-contact-form .form-select:focus {
+    border-color: var(--pool-primary);
+    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+}
+
+.pool-contact-form textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* ---------- CHECKBOXES ---------- */
+.pool-checkbox {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+}
+
+.pool-checkbox input {
+    margin-right: 0.5rem;
+    accent-color: var(--pool-primary);
+    width: 18px;
+    height: 18px;
+}
+
+.pool-checkbox span {
+    color: var(--pool-dark);
+    font-size: 0.9rem;
+}
+
+.pool-contact-pref {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+/* ---------- SUBMIT ---------- */
+.pool-form-submit {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.pool-btn-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 3rem;
+    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pool-btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(8, 145, 178, 0.4);
+}
+
+.pool-form-note {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--pool-gray);
+}
+
+/* ---------- SIDEBAR ---------- */
+.pool-sidebar-card {
+    background: white;
+    border-radius: var(--pool-radius);
+    box-shadow: var(--pool-shadow);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.pool-sidebar-header {
+    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
+    color: white;
+    padding: 1rem 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.pool-sidebar-header-orange {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.pool-sidebar-header-green {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.pool-sidebar-body {
+    padding: 1.25rem;
+}
+
+.pool-sidebar-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--pool-dark);
+}
+
+.pool-sidebar-item:last-child {
+    margin-bottom: 0;
+}
+
+.pool-sidebar-item i {
+    color: var(--pool-primary);
+    margin-top: 0.25rem;
+    width: 20px;
+    text-align: center;
+}
+
+.pool-sidebar-item a {
+    color: var(--pool-primary);
+    text-decoration: none;
+}
+
+.pool-sidebar-item a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- SCHEDULE ---------- */
+.pool-schedule-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.pool-schedule-row:last-child {
+    border-bottom: none;
+}
+
+.pool-badge-closed {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* ---------- ADVANTAGES LIST ---------- */
+.pool-advantages-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pool-advantages-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    color: var(--pool-dark);
+}
+
+.pool-advantages-list i {
+    color: #10b981;
+    font-size: 0.9rem;
+}
+
+/* ---------- SIDEBAR CTA ---------- */
+.pool-sidebar-cta {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-radius: var(--pool-radius);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.pool-sidebar-cta > i {
+    font-size: 2rem;
+    color: #d97706;
+}
+
+.pool-sidebar-cta strong {
+    color: var(--pool-dark);
+}
+
+.pool-sidebar-cta p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--pool-gray);
+}
+
+.pool-btn-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    background: #d97706;
+    color: white !important;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.pool-btn-cta:hover {
+    background: #b45309;
+    transform: translateY(-1px);
+}
+
+/* ---------- SUCCESS / ERROR PAGES ---------- */
+.pool-success-card,
+.pool-error-card {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    background: white;
+    border-radius: var(--pool-radius);
+    box-shadow: var(--pool-shadow-lg);
+    padding: 3rem 2rem;
+}
+
+.pool-success-icon,
+.pool-error-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.pool-success-icon {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+}
+
+.pool-success-icon i {
+    font-size: 3rem;
+    color: #059669;
+}
+
+.pool-error-icon {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+}
+
+.pool-error-icon i {
+    font-size: 3rem;
+    color: #dc2626;
+}
+
+.pool-success-card h2,
+.pool-error-card h2 {
+    color: var(--pool-dark);
+    margin-bottom: 1rem;
+}
+
+.pool-success-text,
+.pool-error-text {
+    color: var(--pool-gray);
+    margin-bottom: 1.5rem;
+}
+
+.pool-success-info {
+    background: #f0fdf4;
+    padding: 1rem;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #059669;
+    margin-bottom: 2rem;
+}
+
+.pool-success-actions,
+.pool-error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.pool-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.875rem 1.5rem;
+    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
+    color: white !important;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.pool-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(8, 145, 178, 0.35);
+}
+
+.pool-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.875rem 1.5rem;
+    background: transparent;
+    color: var(--pool-primary) !important;
+    border: 2px solid var(--pool-primary);
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.pool-btn-outline:hover {
+    background: var(--pool-primary);
+    color: white !important;
+}
+
+.pool-error-contact {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.pool-error-phone,
+.pool-error-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--pool-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.pool-error-phone:hover,
+.pool-error-email:hover {
+    text-decoration: underline;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 991px) {
+    .pool-contact-hero h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .pool-contact-hero h1 {
+        font-size: 1.75rem;
+    }
+    
+    .pool-form-section-body {
+        padding: 1rem;
+    }
+    
+    .pool-toggle-group {
+        flex-direction: column;
+    }
+    
+    .pool-toggle-btn span {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .pool-btn-submit {
+        width: 100%;
+    }
+    
+    .pool-success-actions,
+    .pool-error-actions {
+        flex-direction: column;
+    }
+    
+    .pool-btn-primary,
+    .pool-btn-outline {
+        width: 100%;
+        justify-content: center;
+    }
+}
