@@ -59,6 +59,7 @@
         "report/external_layout_lolirine.xml",
         "report/report_invoice_lolirine.xml",
         # Data
+        "data/ir_cron.xml",
         "data/mail_template.xml",
         "data/reminder_templates.xml",
         "data/default_tags.xml",
