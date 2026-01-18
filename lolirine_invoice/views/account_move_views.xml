@@ -8,12 +8,12 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             
-            <!-- Boutons d'action apres Confirmer -->
+            <!-- Boutons d'action après Confirmer -->
             <xpath expr="//button[@name='action_post']" position="after">
-                <button name="action_preview_invoice" type="object" string="Apercu PDF" 
+                <button name="action_preview_invoice" type="object" string="Aperçu PDF" 
                         class="btn-secondary" icon="fa-file-pdf-o"
                         invisible="move_type not in ('out_invoice', 'out_refund')"/>
-                <button name="action_preview_invoice_html" type="object" string="Apercu Portail" 
+                <button name="action_preview_invoice_html" type="object" string="Aperçu Portail" 
                         class="btn-secondary" icon="fa-eye"
                         invisible="move_type not in ('out_invoice', 'out_refund') or state != 'posted'"/>
                 <button name="action_confirm_and_send" type="object" string="Confirmer et envoyer" 
@@ -22,6 +22,9 @@
                 <button name="action_open_send_wizard" type="object" string="Envoyer" 
                         class="btn-secondary" icon="fa-envelope"
                         invisible="state != 'posted' or move_type not in ('out_invoice', 'out_refund')"/>
+                <button name="action_send_invoice_email_now" type="object" string="📧 Envoyer Email" 
+                        class="btn-primary" icon="fa-paper-plane"
+                        invisible="state != 'posted' or move_type not in ('out_invoice', 'out_refund') or is_move_sent == True"/>
                 <button name="action_send_peppol" type="object" string="Envoyer Peppol" 
                         class="btn-secondary" icon="fa-globe"
                         invisible="state != 'posted' or move_type not in ('out_invoice', 'out_refund') or peppol_sent == True"/>
@@ -46,22 +49,30 @@
                 <button name="action_view_partner_unpaid" type="object" class="oe_stat_button" 
                         icon="fa-exclamation-triangle" invisible="move_type not in ('out_invoice', 'out_refund') or partner_unpaid_count == 0"
                         decoration-danger="partner_unpaid_count > 0">
-                    <field name="partner_unpaid_count" widget="statinfo" string="Impayees client"/>
+                    <field name="partner_unpaid_count" widget="statinfo" string="Impayées client"/>
                 </button>
             </xpath>
             
-            <!-- Tags apres le partenaire -->
+            <!-- Tags après le partenaire -->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="invoice_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"
                        placeholder="Tags..." invisible="move_type not in ('out_invoice', 'out_refund')"/>
             </xpath>
             
-            <!-- CORRECTION: Champs envoi automatique DANS Autres informations (pas après invoice_date_due) -->
+            <!-- GROUPE OPTIONS D'ENVOI dans Autres informations -->
             <xpath expr="//page[@name='other_info']//group" position="before">
                 <group string="📤 Options d'envoi" invisible="move_type not in ('out_invoice', 'out_refund')">
                     <group>
                         <field name="auto_send_invoice" string="📧 Envoi Email automatique"/>
                         <field name="auto_send_peppol" string="🔄 Envoi Peppol automatique"/>
+                    </group>
+                    <group>
+                        <field name="email_pending" readonly="1" string="⏳ En attente d'envoi"
+                               invisible="not email_pending"/>
+                        <field name="email_scheduled_date" readonly="1" string="📅 Date envoi prévue"
+                               invisible="not email_pending"/>
+                        <field name="email_sent_date" readonly="1" string="✅ Envoyé le"
+                               invisible="not email_sent_date"/>
                     </group>
                 </group>
             </xpath>
@@ -72,7 +83,7 @@
                     <field name="peppol_sent" readonly="1"/>
                     <field name="peppol_sent_date" readonly="1" invisible="not peppol_sent"/>
                 </group>
-                <group string="Echeance et retard" invisible="move_type not in ('out_invoice', 'out_refund')">
+                <group string="Échéance et retard" invisible="move_type not in ('out_invoice', 'out_refund')">
                     <field name="days_until_due" invisible="payment_state == 'paid'"/>
                     <field name="days_overdue" decoration-danger="days_overdue > 0"/>
                     <field name="is_overdue" invisible="1"/>
@@ -81,7 +92,7 @@
                            decoration-warning="overdue_level == 'warning'"
                            decoration-danger="overdue_level in ('danger', 'critical')"/>
                 </group>
-                <group string="Penalites de retard" invisible="move_type not in ('out_invoice', 'out_refund') or days_overdue == 0">
+                <group string="Pénalités de retard" invisible="move_type not in ('out_invoice', 'out_refund') or days_overdue == 0">
                     <field name="penalty_amount"/>
                     <field name="total_with_penalty"/>
                 </group>
@@ -116,7 +127,7 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//page[@name='sales_purchases']" position="after">
-                <page string="Facturation electronique" name="peppol">
+                <page string="Facturation électronique" name="peppol">
                     <group>
                         <group string="Configuration Peppol">
                             <field name="peppol_eas"/>
@@ -128,7 +139,7 @@
                         </group>
                     </group>
                     <group>
-                        <group string="Statistiques impayees">
+                        <group string="Statistiques impayées">
                             <field name="invoice_overdue_count"/>
                             <field name="invoice_overdue_amount"/>
                         </group>
@@ -137,8 +148,13 @@
                         <div class="alert alert-info" role="alert">
                             <strong>Configuration Peppol pour la Belgique :</strong>
                             <ul>
-                                <li><strong>EAS</strong> : Selectionnez "0208 - BE:EN" (numero d'entreprise belge)</li>
-                                <li><strong>Endpoint</strong> : Entrez le numero d'entreprise sans espaces (ex: 0650891279)</li>
+                                <li><strong>EAS</strong> : Sélectionnez "0208 - BE:EN" (numéro d'entreprise belge)</li>
+                                <li><strong>Endpoint</strong> : Entrez le numéro d'entreprise sans espaces (ex: 0650891279)</li>
+                            </ul>
+                            <strong>Envoi automatique :</strong>
+                            <ul>
+                                <li><strong>📧 Email</strong> : Les factures seront envoyées à la <u>date de facturation</u> (pas immédiatement)</li>
+                                <li><strong>🔄 Peppol</strong> : Les factures seront envoyées immédiatement à la confirmation</li>
                             </ul>
                         </div>
                     </group>
@@ -190,6 +206,7 @@
                        decoration-warning="payment_state == 'partial'" 
                        decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
                 <field name="is_move_sent" widget="boolean" string="Email"/>
+                <field name="email_pending" widget="boolean" string="⏳" optional="show"/>
                 <field name="peppol_sent" widget="boolean" string="Peppol"/>
                 <field name="reminder_count" string="Relances" optional="show"/>
                 <field name="internal_note_important" widget="boolean" string="!" optional="show"/>
@@ -211,6 +228,7 @@
                 <field name="state"/>
                 <field name="payment_state"/>
                 <field name="is_overdue"/>
+                <field name="email_pending"/>
                 <field name="invoice_tag_ids"/>
                 <templates>
                     <t t-name="card">
@@ -224,11 +242,12 @@
                         <div class="d-flex justify-content-between mt-2">
                             <span>Total: <field name="amount_total" widget="monetary"/></span>
                             <span t-if="record.amount_residual.raw_value > 0" class="text-danger">
-                                Du: <field name="amount_residual" widget="monetary"/>
+                                Dû: <field name="amount_residual" widget="monetary"/>
                             </span>
                         </div>
                         <field name="invoice_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
                         <div t-if="record.is_overdue.raw_value" class="badge bg-danger mt-1">En retard</div>
+                        <div t-if="record.email_pending.raw_value" class="badge bg-info mt-1">📧 Email en attente</div>
                     </t>
                 </templates>
             </kanban>
@@ -245,7 +264,7 @@
         <field name="context">{'default_move_type': 'out_invoice'}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Creer une nouvelle facture client
+                Créer une nouvelle facture client
             </p>
         </field>
     </record>
@@ -259,7 +278,7 @@
     </record>
     
     <record id="action_lolirine_invoices_unpaid" model="ir.actions.act_window">
-        <field name="name">Non payees</field>
+        <field name="name">Non payées</field>
         <field name="res_model">account.move</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial'))]</field>
@@ -275,15 +294,32 @@
     </record>
     
     <record id="action_lolirine_invoices_not_sent" model="ir.actions.act_window">
-        <field name="name">Non envoyees (email)</field>
+        <field name="name">Non envoyées (email)</field>
         <field name="res_model">account.move</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('is_move_sent', '=', False)]</field>
         <field name="context">{'default_move_type': 'out_invoice'}</field>
     </record>
     
+    <record id="action_lolirine_invoices_email_pending" model="ir.actions.act_window">
+        <field name="name">📧 En attente d'envoi</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('email_pending', '=', True)]</field>
+        <field name="context">{'default_move_type': 'out_invoice'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune facture en attente d'envoi
+            </p>
+            <p>
+                Les factures avec "Envoi Email automatique" coché et une date de facturation future
+                apparaîtront ici. Le cron les enverra automatiquement à la date prévue.
+            </p>
+        </field>
+    </record>
+    
     <record id="action_lolirine_invoices_peppol_pending" model="ir.actions.act_window">
-        <field name="name">A envoyer Peppol</field>
+        <field name="name">À envoyer Peppol</field>
         <field name="res_model">account.move</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('peppol_sent', '=', False), ('partner_id.peppol_endpoint', '!=', False)]</field>
@@ -291,7 +327,7 @@
     </record>
     
     <record id="action_lolirine_invoices_peppol_sent" model="ir.actions.act_window">
-        <field name="name">Envoyees Peppol</field>
+        <field name="name">Envoyées Peppol</field>
         <field name="res_model">account.move</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('peppol_sent', '=', True)]</field>
