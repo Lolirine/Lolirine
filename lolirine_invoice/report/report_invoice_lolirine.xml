@@ -241,25 +241,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <t t-foreach="o.invoice_line_ids" t-as="line">
-                        <tr t-if="line.display_type == False">
-                            <td>
-                                <t t-esc="line.name or line.product_id.name or '-'"/>
-                            </td>
-                            <td style="text-align: center;">
-                                <t t-esc="'%.2f' % line.quantity"/> <t t-if="line.product_uom_id"><t t-esc="line.product_uom_id.name"/></t>
-                            </td>
-                            <td style="text-align: right;">
-                                <t t-esc="'%.2f' % line.price_unit"/> €
-                            </td>
-                            <td style="text-align: center;">
-                                <t t-esc="', '.join(line.tax_ids.mapped('name'))"/>
-                            </td>
-                            <td style="text-align: right;">
-                                <t t-esc="'%.2f' % line.price_subtotal"/> €
-                            </td>
-                        </tr>
-                    </t>
+                    <tr t-foreach="o.invoice_line_ids.filtered(lambda l: l.product_id)" t-as="line">
+                        <td><t t-esc="line.name or line.product_id.name or '-'"/></td>
+                        <td style="text-align: center;"><t t-esc="line.quantity"/> <t t-esc="line.product_uom_id.name or ''"/></td>
+                        <td style="text-align: right;"><t t-esc="'%.2f' % line.price_unit"/> €</td>
+                        <td style="text-align: center;"><t t-esc="', '.join(line.tax_ids.mapped('name'))"/></td>
+                        <td style="text-align: right;"><t t-esc="'%.2f' % line.price_subtotal"/> €</td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -318,7 +306,7 @@
 
             <!-- Conditions générales -->
             <div class="lolirine-conditions">
-                Conditions générales : <a t-att-href="'https://' + (o.company_id.website or 'lolirine-lolirine.odoo.com') + '/terms'">https://<t t-esc="o.company_id.website or 'lolirine-lolirine.odoo.com'"/>/terms</a>
+                Conditions générales : <a href="https://lolirine-lolirine.odoo.com/terms">https://lolirine-lolirine.odoo.com/terms</a>
             </div>
 
             <!-- Zone signature -->
