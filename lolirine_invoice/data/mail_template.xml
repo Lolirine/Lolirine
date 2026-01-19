@@ -2,14 +2,15 @@
 <odoo>
     <data noupdate="1">
         
-        <!-- Template email personnalisé Lolirine -->
+        <!-- Template email personnalisé Lolirine avec rapport forcé -->
         <record id="email_template_invoice_lolirine" model="mail.template">
             <field name="name">Lolirine - Facture mensuelle</field>
             <field name="model_id" ref="account.model_account_move"/>
             <field name="email_from">{{ (object.company_id.email or 'gardemeublelolirine@gmail.com') }}</field>
             <field name="email_to">{{ object.partner_id.email }}</field>
             <field name="subject">{{ object.company_id.name }} - Facture {{ object.name or 'Brouillon' }}</field>
-            <field name="report_template_ids" eval="[(4, ref('account.account_invoices'))]"/>
+            <!-- FORCER le rapport Lolirine -->
+            <field name="report_template_ids" eval="[(4, ref('lolirine_invoice.action_report_invoice_lolirine'))]"/>
             <field name="lang">{{ object.partner_id.lang or 'fr_BE' }}</field>
             <field name="auto_delete" eval="False"/>
             <field name="body_html" type="html">
