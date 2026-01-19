@@ -20,7 +20,6 @@ class AccountMove(models.Model):
         help="Si activé, la facture sera envoyée automatiquement via Peppol après confirmation"
     )
     
-    # Champs pour l'envoi planifié
     email_scheduled_date = fields.Date(
         string="Date d'envoi email",
         help="Date à laquelle l'email sera envoyé. Si vide, utilise la date de facturation."
@@ -38,7 +37,6 @@ class AccountMove(models.Model):
         help="Date et heure de l'envoi effectif de l'email"
     )
     
-    # Champ pour les factures en retard
     is_overdue = fields.Boolean(
         string="En retard",
         compute="_compute_is_overdue",
@@ -99,7 +97,7 @@ class AccountMove(models.Model):
         return res
 
     def _send_invoice_auto(self):
-        """Envoyer la facture automatiquement par email avec le template standard Odoo"""
+        """Envoyer la facture automatiquement par email"""
         self.ensure_one()
         
         if not self.partner_id.email:
@@ -184,6 +182,35 @@ class AccountMove(models.Model):
                 'url': '/report/html/account.report_invoice/%s' % self.id,
                 'target': 'new',
             }
+
+    def action_confirm_and_send(self):
+        """Confirmer la facture et ouvrir le wizard d'envoi"""
+        self.ensure_one()
+        
+        if self.state == 'draft':
+            self.action_post()
+        
+        return self.action_open_send_wizard()
+
+    def action_open_send_wizard(self):
+        """Ouvrir le wizard d'envoi de facture"""
+        self.ensure_one()
+        
+        if self.state != 'posted':
+            raise UserError(_("La facture doit être confirmée avant d'être envoyée."))
+        
+        return {
+            'name': _('Envoyer la facture'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'lolirine.invoice.send.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_invoice_id': self.id,
+                'default_partner_id': self.partner_id.id,
+                'default_email': self.partner_id.email,
+            },
+        }
 
     def action_send_invoice_email(self):
         """Envoyer la facture par email avec le composer standard"""
