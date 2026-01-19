@@ -91,6 +91,17 @@ class AccountMove(models.Model):
         string="Dernière relance",
         help="Date de la dernière relance envoyée"
     )
+    
+    reminder_ids = fields.One2many(
+        'lolirine.invoice.reminder',
+        'invoice_id',
+        string="Relances"
+    )
+    
+    reminder_count = fields.Integer(
+        string="Nombre de relances",
+        compute="_compute_reminder_count"
+    )
 
     # =============================================
     # COMPUTE METHODS
@@ -110,6 +121,13 @@ class AccountMove(models.Model):
             else:
                 move.is_overdue = False
                 move.days_overdue = 0
+
+    def _compute_reminder_count(self):
+        for move in self:
+            if hasattr(self.env, 'lolirine.invoice.reminder'):
+                move.reminder_count = self.env['lolirine.invoice.reminder'].search_count([('invoice_id', '=', move.id)])
+            else:
+                move.reminder_count = 0
 
     # =============================================
     # ONCHANGE METHODS
@@ -372,7 +390,6 @@ class AccountMove(models.Model):
         if self.payment_state == 'paid':
             raise UserError(_("Cette facture est déjà payée."))
         
-        # Incrémenter le niveau de relance
         current_level = int(self.reminder_level or '0')
         new_level = min(current_level + 1, 4)
         
@@ -397,65 +414,4 @@ class AccountMove(models.Model):
             }
         }
 
-    def action_smart_duplicate(self):
-        """Dupliquer la facture intelligemment avec mise à jour des dates"""
-        self.ensure_one()
-        
-        # Copier la facture
-        new_invoice = self.copy({
-            'invoice_date': fields.Date.context_today(self),
-            'date': fields.Date.context_today(self),
-            'state': 'draft',
-            'name': '/',
-            'payment_state': 'not_paid',
-            'is_move_sent': False,
-            'peppol_sent': False,
-            'email_pending': False,
-            'email_sent_date': False,
-            'peppol_sent_date': False,
-            'reminder_level': '0',
-            'last_reminder_date': False,
-        })
-        
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
-            'res_id': new_invoice.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
-
-    def action_manual_send_email(self):
-        """Bouton pour envoyer manuellement l'email"""
-        self.ensure_one()
-        return self._send_invoice_auto()
-
-    # =============================================
-    # CRON METHODS
-    # =============================================
-
-    @api.model
-    def _cron_send_pending_emails(self):
-        """Cron pour envoyer les factures en attente"""
-        today = fields.Date.context_today(self)
-        
-        pending_invoices = self.search([
-            ('email_pending', '=', True),
-            ('state', '=', 'posted'),
-            ('move_type', 'in', ['out_invoice', 'out_refund']),
-            '|',
-            ('email_scheduled_date', '<=', today),
-            '&',
-            ('email_scheduled_date', '=', False),
-            ('invoice_date', '<=', today)
-        ])
-        
-        _logger.info(f"Cron envoi emails: {len(pending_invoices)} factures à traiter")
-        
-        for invoice in pending_invoices:
-            try:
-                invoice._send_invoice_auto()
-            except Exception as e:
-                _logger.error(f"Erreur cron envoi facture {invoice.name}: {e}")
-        
-        return True
+    def action_view_reminders(self):
