@@ -308,7 +308,7 @@ class AccountMove(models.Model):
         return res
 
     def _send_invoice_auto(self):
-        """Envoyer la facture automatiquement par email"""
+        """Envoyer la facture automatiquement par email avec le rapport Lolirine"""
         self.ensure_one()
         
         if not self.partner_id.email:
@@ -318,10 +318,11 @@ class AccountMove(models.Model):
             )
             return False
         
+        # Chercher le template d'email
         template = None
         template_refs = [
+            'lolirine_invoice.email_template_invoice_lolirine',  # Notre template personnalisé
             'account.email_template_edi_invoice',
-            'sale.email_template_edi_invoice',
         ]
         
         for ref in template_refs:
@@ -338,7 +339,23 @@ class AccountMove(models.Model):
         
         if template:
             try:
-                template.send_mail(self.id, force_send=True)
+                # Forcer l'utilisation du rapport Lolirine
+                lolirine_report = self.env.ref('lolirine_invoice.action_report_invoice_lolirine', raise_if_not_found=False)
+                
+                if lolirine_report:
+                    # Temporairement modifier le template pour utiliser notre rapport
+                    original_report_ids = template.report_template_ids.ids
+                    template.write({'report_template_ids': [(6, 0, [lolirine_report.id])]})
+                    
+                    try:
+                        template.send_mail(self.id, force_send=True)
+                    finally:
+                        # Restaurer le rapport original
+                        template.write({'report_template_ids': [(6, 0, original_report_ids)]})
+                else:
+                    # Fallback si le rapport Lolirine n'existe pas
+                    template.send_mail(self.id, force_send=True)
+                
                 self.write({
                     'is_move_sent': True,
                     'email_pending': False,
@@ -364,14 +381,15 @@ class AccountMove(models.Model):
             return False
 
     def action_preview_invoice(self):
-        """Ouvrir un aperçu PDF de la facture"""
+        """Ouvrir un aperçu PDF de la facture avec le template Lolirine"""
         self.ensure_one()
         if self.move_type not in ('out_invoice', 'out_refund'):
             raise UserError(_("Cette action est uniquement disponible pour les factures clients."))
         
+        # Forcer l'utilisation du rapport Lolirine
         return {
             'type': 'ir.actions.act_url',
-            'url': '/report/pdf/account.report_invoice/%s' % self.id,
+            'url': '/report/pdf/lolirine_invoice.report_invoice_lolirine/%s' % self.id,
             'target': 'new',
         }
 
@@ -388,9 +406,10 @@ class AccountMove(models.Model):
                 'target': 'new',
             }
         else:
+            # Utiliser le rapport Lolirine en HTML
             return {
                 'type': 'ir.actions.act_url',
-                'url': '/report/html/account.report_invoice/%s' % self.id,
+                'url': '/report/html/lolirine_invoice.report_invoice_lolirine/%s' % self.id,
                 'target': 'new',
             }
 
