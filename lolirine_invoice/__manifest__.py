@@ -46,6 +46,7 @@
     "license": "LGPL-3",
     "depends": [
         "account",
+        "portal",
         "sale_subscription",
         "project_sale_subscription",
         "sale_subscription_partnership",
