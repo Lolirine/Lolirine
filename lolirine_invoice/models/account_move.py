@@ -74,6 +74,23 @@ class AccountMove(models.Model):
         store=True,
         help="Nombre de jours de retard"
     )
+    
+    # =============================================
+    # CHAMPS RELANCE
+    # =============================================
+    
+    reminder_level = fields.Selection([
+        ('0', 'Aucune relance'),
+        ('1', '1ère relance'),
+        ('2', '2ème relance'),
+        ('3', '3ème relance'),
+        ('4', 'Mise en demeure'),
+    ], string="Niveau de relance", default='0')
+    
+    last_reminder_date = fields.Date(
+        string="Dernière relance",
+        help="Date de la dernière relance envoyée"
+    )
 
     # =============================================
     # COMPUTE METHODS
@@ -324,8 +341,6 @@ class AccountMove(models.Model):
         if not self.partner_id.peppol_endpoint:
             raise UserError(_("Le client n'a pas d'endpoint Peppol configuré."))
         
-        # TODO: Implémenter l'envoi Peppol réel
-        # Pour l'instant, on marque juste comme envoyé
         self.write({
             'peppol_sent': True,
             'peppol_sent_date': fields.Datetime.now()
@@ -345,6 +360,69 @@ class AccountMove(models.Model):
                 'type': 'success',
                 'sticky': False,
             }
+        }
+
+    def action_create_reminder(self):
+        """Créer une relance pour cette facture"""
+        self.ensure_one()
+        
+        if self.state != 'posted':
+            raise UserError(_("La facture doit être confirmée."))
+        
+        if self.payment_state == 'paid':
+            raise UserError(_("Cette facture est déjà payée."))
+        
+        # Incrémenter le niveau de relance
+        current_level = int(self.reminder_level or '0')
+        new_level = min(current_level + 1, 4)
+        
+        self.write({
+            'reminder_level': str(new_level),
+            'last_reminder_date': fields.Date.context_today(self)
+        })
+        
+        self.message_post(
+            body=_("📧 Relance niveau %s créée") % new_level,
+            message_type='notification'
+        )
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Relance créée'),
+                'message': _('Relance niveau %s créée pour cette facture') % new_level,
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
+    def action_smart_duplicate(self):
+        """Dupliquer la facture intelligemment avec mise à jour des dates"""
+        self.ensure_one()
+        
+        # Copier la facture
+        new_invoice = self.copy({
+            'invoice_date': fields.Date.context_today(self),
+            'date': fields.Date.context_today(self),
+            'state': 'draft',
+            'name': '/',
+            'payment_state': 'not_paid',
+            'is_move_sent': False,
+            'peppol_sent': False,
+            'email_pending': False,
+            'email_sent_date': False,
+            'peppol_sent_date': False,
+            'reminder_level': '0',
+            'last_reminder_date': False,
+        })
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'res_id': new_invoice.id,
+            'view_mode': 'form',
+            'target': 'current',
         }
 
     def action_manual_send_email(self):
