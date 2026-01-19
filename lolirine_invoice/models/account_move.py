@@ -83,20 +83,17 @@ class AccountMove(models.Model):
         
         for move in self:
             if move.move_type in ('out_invoice', 'out_refund'):
-                # Déterminer si l'envoi doit être immédiat ou planifié
                 send_date = move.email_scheduled_date or move.invoice_date
                 today = fields.Date.context_today(self)
                 
                 if move.auto_send_invoice:
                     if send_date and send_date > today:
-                        # Envoi planifié pour plus tard
                         move.email_pending = True
                         move.message_post(
                             body=_("📅 Envoi email planifié pour le %s") % send_date,
                             message_type='notification'
                         )
                     else:
-                        # Envoi immédiat
                         move._send_invoice_auto()
         
         return res
@@ -112,7 +109,6 @@ class AccountMove(models.Model):
             )
             return False
         
-        # Chercher le template standard d'Odoo pour les factures
         template = None
         template_refs = [
             'account.email_template_edi_invoice',
@@ -158,6 +154,37 @@ class AccountMove(models.Model):
             )
             return False
 
+    def action_preview_invoice(self):
+        """Ouvrir un aperçu PDF de la facture"""
+        self.ensure_one()
+        if self.move_type not in ('out_invoice', 'out_refund'):
+            raise UserError(_("Cette action est uniquement disponible pour les factures clients."))
+        
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/report/pdf/account.report_invoice/%s' % self.id,
+            'target': 'new',
+        }
+
+    def action_preview_invoice_html(self):
+        """Ouvrir un aperçu HTML de la facture dans le portail"""
+        self.ensure_one()
+        if self.move_type not in ('out_invoice', 'out_refund'):
+            raise UserError(_("Cette action est uniquement disponible pour les factures clients."))
+        
+        if self.state == 'posted':
+            return {
+                'type': 'ir.actions.act_url',
+                'url': '/my/invoices/%s' % self.id,
+                'target': 'new',
+            }
+        else:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': '/report/html/account.report_invoice/%s' % self.id,
+                'target': 'new',
+            }
+
     def action_send_invoice_email(self):
         """Envoyer la facture par email avec le composer standard"""
         self.ensure_one()
@@ -168,7 +195,7 @@ class AccountMove(models.Model):
         template = self.env.ref('account.email_template_edi_invoice', raise_if_not_found=False)
         
         if not template:
-            template = self.env.ref('lolirine_invoice.email_template_invoice', raise_if_not_found=False)
+            template = self.env.ref('lolirine_invoice.email_template_invoice_lolirine', raise_if_not_found=False)
         
         compose_form = self.env.ref('mail.email_compose_message_wizard_form', raise_if_not_found=False)
         
