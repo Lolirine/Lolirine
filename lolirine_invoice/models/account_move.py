@@ -300,7 +300,7 @@ class AccountMove(models.Model):
                     if send_date and send_date > today:
                         move.email_pending = True
                         move.message_post(
-                            body=_("📅 Envoi email planifié pour le %s") % send_date,
+                            body="📅 Envoi email planifié pour le %s" % send_date,
                             message_type='notification'
                         )
                     else:
@@ -314,31 +314,12 @@ class AccountMove(models.Model):
         
         if not self.partner_id.email:
             self.message_post(
-                body=_("⚠️ Envoi automatique impossible : le client n'a pas d'adresse email configurée."),
+                body="⚠️ Envoi automatique impossible : le client n'a pas d'adresse email configurée.",
                 message_type='notification'
             )
             return False
         
         try:
-            # Chercher le template d'email Lolirine
-            template = self.env.ref('lolirine_invoice.email_template_invoice_lolirine', raise_if_not_found=False)
-            
-            if not template:
-                template = self.env['mail.template'].search([
-                    ('model_id.model', '=', 'account.move'),
-                    ('name', '=', 'Lolirine - Facture mensuelle')
-                ], limit=1)
-            
-            if not template:
-                template = self.env.ref('account.email_template_edi_invoice', raise_if_not_found=False)
-            
-            if not template:
-                self.message_post(
-                    body=_("⚠️ Aucun template d'email trouvé."),
-                    message_type='notification'
-                )
-                return False
-            
             # Récupérer le rapport Lolirine
             lolirine_report = self.env.ref('lolirine_invoice.action_report_invoice_lolirine', raise_if_not_found=False)
             
@@ -367,16 +348,75 @@ class AccountMove(models.Model):
                         'mimetype': 'application/pdf',
                     })
             
-            # Envoyer l'email avec l'attachement
-            email_values = {}
-            if attachment:
-                email_values['attachment_ids'] = [(4, attachment.id)]
+            # Construire le corps de l'email manuellement
+            body_html = f"""
+<div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
+    <p>Bonjour {self.partner_id.name or ''},</p>
+    
+    <p>Veuillez trouver en pièce jointe votre facture mensuelle relative à la location de votre box au sein de notre site Lolirine.</p>
+    
+    <p>Cette facture correspond à la période de location en cours et reprend le détail des prestations facturées, conformément aux conditions prévues dans votre contrat de garde-meubles. Nous vous invitons à en prendre connaissance et à procéder au règlement selon les modalités indiquées sur le document.</p>
+    
+    <p>Sauf disposition contraire, le paiement est attendu à la date d'échéance mentionnée sur la facture. En cas de retard de paiement, des pénalités pourront être appliquées conformément aux conditions contractuelles.</p>
+    
+    <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 400px;">
+        <tr style="background-color: #f5f5f5;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numéro de facture</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{self.name or ''}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date de facturation</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{self.invoice_date or ''}</td>
+        </tr>
+        <tr style="background-color: #f5f5f5;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'échéance</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{self.invoice_date_due or ''}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant total</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>{self.amount_total:.2f} EUR</strong></td>
+        </tr>
+    </table>
+    
+    <p><strong>Modalités de paiement :</strong></p>
+    <ul>
+        <li>Communication structurée : {self.payment_reference or self.name or ''}</li>
+        <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
+    </ul>
+    
+    <p>Pour toute question concernant cette facture, votre contrat ou les modalités de paiement, vous pouvez nous contacter à l'adresse suivante : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a> ou par téléphone au 0497/44 41 46 ou 0498/52 11 31.</p>
+    
+    <p>Nous vous remercions de votre confiance et restons à votre disposition.</p>
+    
+    <p>Cordialement,</p>
+    
+    <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+        <p style="margin: 0;">
+            <strong style="color: #495057;">Lolirine Garde-Meubles</strong><br/>
+            <span style="color: #6c757d;">Feron Rodney</span><br/>
+            <span style="color: #6c757d;">Tél. : 0497/44 41 46 - 0498/52 11 31</span><br/>
+            <span style="color: #6c757d;">Email : <a href="mailto:gardemeublelolirine@gmail.com" style="color: #007bff;">gardemeublelolirine@gmail.com</a></span>
+        </p>
+    </div>
+</div>
+"""
             
-            template.send_mail(
-                self.id, 
-                force_send=True,
-                email_values=email_values
-            )
+            # Créer et envoyer l'email directement
+            mail_values = {
+                'subject': f"{self.company_id.name or 'Lolirine'} - Facture {self.name or 'Brouillon'}",
+                'body_html': body_html,
+                'email_from': self.company_id.email or 'gardemeublelolirine@gmail.com',
+                'email_to': self.partner_id.email,
+                'model': 'account.move',
+                'res_id': self.id,
+                'auto_delete': False,
+            }
+            
+            if attachment:
+                mail_values['attachment_ids'] = [(4, attachment.id)]
+            
+            mail = self.env['mail.mail'].sudo().create(mail_values)
+            mail.send()
             
             self.write({
                 'is_move_sent': True,
@@ -385,7 +425,7 @@ class AccountMove(models.Model):
             })
             
             self.message_post(
-                body=_("✅ Facture envoyée par email à %s (PDF Lolirine attaché)") % self.partner_id.email,
+                body="✅ Facture envoyée par email à %s avec PDF Lolirine attaché" % self.partner_id.email,
                 message_type='notification'
             )
             return True
@@ -393,7 +433,7 @@ class AccountMove(models.Model):
         except Exception as e:
             _logger.error(f"Erreur envoi email facture {self.name}: {e}")
             self.message_post(
-                body=_("❌ Erreur lors de l'envoi : %s") % str(e),
+                body="❌ Erreur lors de l'envoi : %s" % str(e),
                 message_type='notification'
             )
             return False
@@ -542,7 +582,7 @@ class AccountMove(models.Model):
         })
         
         self.message_post(
-            body=_("📤 Facture envoyée via Peppol à %s") % self.partner_id.peppol_endpoint,
+            body="📤 Facture envoyée via Peppol à %s" % self.partner_id.peppol_endpoint,
             message_type='notification'
         )
         
@@ -577,7 +617,7 @@ class AccountMove(models.Model):
         })
         
         self.message_post(
-            body=_("📧 Relance niveau %s créée") % new_level,
+            body="📧 Relance niveau %s créée" % new_level,
             message_type='notification'
         )
         
