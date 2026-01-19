@@ -1,5 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from dateutil.relativedelta import relativedelta
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -58,21 +59,53 @@ class AccountMove(models.Model):
     )
     
     # =============================================
-    # CHAMPS RETARD
+    # CHAMPS RETARD ET ECHEANCE
     # =============================================
     
     is_overdue = fields.Boolean(
         string="En retard",
-        compute="_compute_is_overdue",
+        compute="_compute_overdue_info",
         store=True,
         help="Indique si la facture est en retard de paiement"
     )
     
     days_overdue = fields.Integer(
         string="Jours de retard",
-        compute="_compute_is_overdue",
+        compute="_compute_overdue_info",
         store=True,
         help="Nombre de jours de retard"
+    )
+    
+    days_until_due = fields.Integer(
+        string="Jours avant échéance",
+        compute="_compute_overdue_info",
+        store=True,
+        help="Nombre de jours avant l'échéance"
+    )
+    
+    overdue_level = fields.Selection([
+        ('ok', 'OK'),
+        ('warning', 'Attention'),
+        ('danger', 'En retard'),
+        ('critical', 'Critique'),
+    ], string="Niveau de retard", compute="_compute_overdue_info", store=True)
+    
+    # =============================================
+    # CHAMPS PENALITES
+    # =============================================
+    
+    penalty_amount = fields.Monetary(
+        string="Pénalités de retard",
+        compute="_compute_penalty",
+        currency_field='currency_id',
+        help="Montant des pénalités de retard calculées"
+    )
+    
+    total_with_penalty = fields.Monetary(
+        string="Total avec pénalités",
+        compute="_compute_penalty",
+        currency_field='currency_id',
+        help="Montant total incluant les pénalités de retard"
     )
     
     # =============================================
@@ -92,9 +125,63 @@ class AccountMove(models.Model):
         help="Date de la dernière relance envoyée"
     )
     
+    last_reminder_type = fields.Selection([
+        ('email', 'Email'),
+        ('letter', 'Courrier'),
+        ('phone', 'Téléphone'),
+    ], string="Type dernière relance")
+    
+    next_reminder_date = fields.Date(
+        string="Prochaine relance",
+        compute="_compute_next_reminder",
+        store=True,
+        help="Date suggérée pour la prochaine relance"
+    )
+    
     reminder_count = fields.Integer(
         string="Nombre de relances",
         compute="_compute_reminder_count"
+    )
+    
+    # =============================================
+    # CHAMPS TAGS
+    # =============================================
+    
+    invoice_tag_ids = fields.Many2many(
+        'lolirine.invoice.tag',
+        'account_move_tag_rel',
+        'move_id',
+        'tag_id',
+        string="Tags"
+    )
+    
+    # =============================================
+    # CHAMPS NOTES INTERNES
+    # =============================================
+    
+    internal_note = fields.Text(
+        string="Note interne",
+        help="Note visible uniquement en interne (non imprimée)"
+    )
+    
+    internal_note_important = fields.Boolean(
+        string="Note importante",
+        default=False,
+        help="Marquer cette note comme importante"
+    )
+    
+    # =============================================
+    # CHAMPS STATISTIQUES PARTENAIRE
+    # =============================================
+    
+    partner_invoice_count = fields.Integer(
+        string="Factures du client",
+        compute="_compute_partner_stats"
+    )
+    
+    partner_unpaid_count = fields.Integer(
+        string="Impayées du client",
+        compute="_compute_partner_stats"
     )
 
     # =============================================
@@ -102,19 +189,60 @@ class AccountMove(models.Model):
     # =============================================
 
     @api.depends('invoice_date_due', 'state', 'payment_state')
-    def _compute_is_overdue(self):
+    def _compute_overdue_info(self):
         today = fields.Date.context_today(self)
         for move in self:
             if move.move_type in ('out_invoice', 'out_refund') and move.state == 'posted' and move.payment_state not in ('paid', 'in_payment', 'reversed'):
-                if move.invoice_date_due and move.invoice_date_due < today:
-                    move.is_overdue = True
-                    move.days_overdue = (today - move.invoice_date_due).days
+                if move.invoice_date_due:
+                    delta = (today - move.invoice_date_due).days
+                    if delta > 0:
+                        move.is_overdue = True
+                        move.days_overdue = delta
+                        move.days_until_due = 0
+                        if delta > 60:
+                            move.overdue_level = 'critical'
+                        elif delta > 30:
+                            move.overdue_level = 'danger'
+                        elif delta > 14:
+                            move.overdue_level = 'warning'
+                        else:
+                            move.overdue_level = 'warning'
+                    else:
+                        move.is_overdue = False
+                        move.days_overdue = 0
+                        move.days_until_due = abs(delta)
+                        move.overdue_level = 'ok'
                 else:
                     move.is_overdue = False
                     move.days_overdue = 0
+                    move.days_until_due = 0
+                    move.overdue_level = 'ok'
             else:
                 move.is_overdue = False
                 move.days_overdue = 0
+                move.days_until_due = 0
+                move.overdue_level = 'ok'
+
+    def _compute_penalty(self):
+        # Taux légal belge (à ajuster selon le taux en vigueur)
+        annual_rate = 0.08  # 8% par an
+        for move in self:
+            if move.is_overdue and move.days_overdue > 0:
+                daily_rate = annual_rate / 365
+                move.penalty_amount = move.amount_residual * daily_rate * move.days_overdue
+                move.total_with_penalty = move.amount_residual + move.penalty_amount
+            else:
+                move.penalty_amount = 0
+                move.total_with_penalty = move.amount_residual
+
+    @api.depends('last_reminder_date', 'reminder_level')
+    def _compute_next_reminder(self):
+        for move in self:
+            if move.last_reminder_date and move.payment_state not in ('paid', 'reversed'):
+                # Suggérer une relance 14 jours après la dernière
+                move.next_reminder_date = move.last_reminder_date + relativedelta(days=14)
+            else:
+                move.next_reminder_date = False
 
     def _compute_reminder_count(self):
         for move in self:
@@ -122,6 +250,24 @@ class AccountMove(models.Model):
                 move.reminder_count = self.env['lolirine.invoice.reminder'].search_count([('invoice_id', '=', move.id)])
             except Exception:
                 move.reminder_count = 0
+
+    def _compute_partner_stats(self):
+        for move in self:
+            if move.partner_id:
+                move.partner_invoice_count = self.search_count([
+                    ('partner_id', '=', move.partner_id.id),
+                    ('move_type', 'in', ['out_invoice', 'out_refund']),
+                    ('state', '=', 'posted')
+                ])
+                move.partner_unpaid_count = self.search_count([
+                    ('partner_id', '=', move.partner_id.id),
+                    ('move_type', 'in', ['out_invoice', 'out_refund']),
+                    ('state', '=', 'posted'),
+                    ('payment_state', 'in', ['not_paid', 'partial'])
+                ])
+            else:
+                move.partner_invoice_count = 0
+                move.partner_unpaid_count = 0
 
     # =============================================
     # ONCHANGE METHODS
@@ -389,7 +535,8 @@ class AccountMove(models.Model):
         
         self.write({
             'reminder_level': str(new_level),
-            'last_reminder_date': fields.Date.context_today(self)
+            'last_reminder_date': fields.Date.context_today(self),
+            'last_reminder_type': 'email',
         })
         
         self.message_post(
@@ -424,6 +571,47 @@ class AccountMove(models.Model):
             },
         }
 
+    def action_view_partner_invoices(self):
+        """Voir toutes les factures du partenaire"""
+        self.ensure_one()
+        
+        return {
+            'name': _('Factures du client'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'view_mode': 'list,form',
+            'domain': [
+                ('partner_id', '=', self.partner_id.id),
+                ('move_type', 'in', ['out_invoice', 'out_refund']),
+                ('state', '=', 'posted')
+            ],
+            'context': {
+                'default_partner_id': self.partner_id.id,
+                'default_move_type': 'out_invoice',
+            },
+        }
+
+    def action_view_partner_unpaid(self):
+        """Voir les factures impayées du partenaire"""
+        self.ensure_one()
+        
+        return {
+            'name': _('Factures impayées du client'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'view_mode': 'list,form',
+            'domain': [
+                ('partner_id', '=', self.partner_id.id),
+                ('move_type', 'in', ['out_invoice', 'out_refund']),
+                ('state', '=', 'posted'),
+                ('payment_state', 'in', ['not_paid', 'partial'])
+            ],
+            'context': {
+                'default_partner_id': self.partner_id.id,
+                'default_move_type': 'out_invoice',
+            },
+        }
+
     def action_smart_duplicate(self):
         """Dupliquer la facture intelligemment avec mise à jour des dates"""
         self.ensure_one()
@@ -441,6 +629,7 @@ class AccountMove(models.Model):
             'peppol_sent_date': False,
             'reminder_level': '0',
             'last_reminder_date': False,
+            'last_reminder_type': False,
         })
         
         return {
