@@ -61,6 +61,7 @@
         # Data
         "data/ir_cron.xml",
         "data/mail_template.xml",
+        "views/portal_templates.xml",
         "data/reminder_templates.xml",
         "data/default_tags.xml",
         # Wizards (doit etre charge AVANT les menus)
