@@ -2,6 +2,7 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from dateutil.relativedelta import relativedelta
 import logging
+import base64
 
 _logger = logging.getLogger(__name__)
 
@@ -308,7 +309,7 @@ class AccountMove(models.Model):
         return res
 
     def _send_invoice_auto(self):
-        """Envoyer la facture automatiquement par email avec le rapport Lolirine"""
+        """Envoyer la facture automatiquement par email avec le rapport Lolirine attaché"""
         self.ensure_one()
         
         if not self.partner_id.email:
@@ -318,43 +319,67 @@ class AccountMove(models.Model):
             )
             return False
         
-        # Chercher le template d'email
-        template = None
-        template_refs = [
-            'lolirine_invoice.email_template_invoice_lolirine',  # Notre template personnalisé
-            'account.email_template_edi_invoice',
-        ]
-        
-        for ref in template_refs:
-            template = self.env.ref(ref, raise_if_not_found=False)
+        try:
+            # Récupérer le rapport Lolirine
+            lolirine_report = self.env.ref('lolirine_invoice.action_report_invoice_lolirine', raise_if_not_found=False)
+            
+            if not lolirine_report:
+                # Fallback sur le rapport standard
+                lolirine_report = self.env.ref('account.account_invoices', raise_if_not_found=False)
+            
+            # Générer le PDF
+            pdf_content = None
+            pdf_name = f"Facture_{(self.name or 'Brouillon').replace('/', '_')}.pdf"
+            
+            if lolirine_report:
+                pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
+                    lolirine_report.report_name,
+                    [self.id]
+                )
+            
+            # Chercher le template d'email
+            template = self.env.ref('lolirine_invoice.email_template_invoice_lolirine', raise_if_not_found=False)
+            
+            if not template:
+                template = self.env['mail.template'].search([
+                    ('model_id.model', '=', 'account.move'),
+                    ('name', '=', 'Lolirine - Facture mensuelle')
+                ], limit=1)
+            
+            if not template:
+                template = self.env.ref('account.email_template_edi_invoice', raise_if_not_found=False)
+            
             if template:
-                _logger.info(f"Template trouvé: {ref}")
-                break
-        
-        if not template:
-            template = self.env['mail.template'].search([
-                ('model_id.model', '=', 'account.move'),
-                ('name', 'ilike', 'facture')
-            ], limit=1)
-        
-        if template:
-            try:
-                # Forcer l'utilisation du rapport Lolirine
-                lolirine_report = self.env.ref('lolirine_invoice.action_report_invoice_lolirine', raise_if_not_found=False)
+                # Préparer les valeurs de l'email
+                email_values = template.generate_email(self.id, ['subject', 'body_html', 'email_from', 'email_to', 'reply_to', 'scheduled_date'])
                 
-                if lolirine_report:
-                    # Temporairement modifier le template pour utiliser notre rapport
-                    original_report_ids = template.report_template_ids.ids
-                    template.write({'report_template_ids': [(6, 0, [lolirine_report.id])]})
-                    
-                    try:
-                        template.send_mail(self.id, force_send=True)
-                    finally:
-                        # Restaurer le rapport original
-                        template.write({'report_template_ids': [(6, 0, original_report_ids)]})
-                else:
-                    # Fallback si le rapport Lolirine n'existe pas
-                    template.send_mail(self.id, force_send=True)
+                # Créer l'attachement si le PDF a été généré
+                attachment_ids = []
+                if pdf_content:
+                    attachment = self.env['ir.attachment'].create({
+                        'name': pdf_name,
+                        'type': 'binary',
+                        'datas': base64.b64encode(pdf_content),
+                        'res_model': 'account.move',
+                        'res_id': self.id,
+                        'mimetype': 'application/pdf',
+                    })
+                    attachment_ids.append(attachment.id)
+                
+                # Créer et envoyer l'email
+                mail_values = {
+                    'subject': email_values.get('subject', f'Facture {self.name}'),
+                    'body_html': email_values.get('body_html', ''),
+                    'email_from': email_values.get('email_from') or self.company_id.email or 'gardemeublelolirine@gmail.com',
+                    'email_to': self.partner_id.email,
+                    'model': 'account.move',
+                    'res_id': self.id,
+                    'attachment_ids': [(6, 0, attachment_ids)],
+                    'auto_delete': False,
+                }
+                
+                mail = self.env['mail.mail'].sudo().create(mail_values)
+                mail.send()
                 
                 self.write({
                     'is_move_sent': True,
@@ -362,20 +387,21 @@ class AccountMove(models.Model):
                     'email_sent_date': fields.Datetime.now()
                 })
                 self.message_post(
-                    body=_("✅ Facture envoyée automatiquement par email à %s") % self.partner_id.email,
+                    body=_("✅ Facture envoyée par email à %s (PDF Lolirine attaché)") % self.partner_id.email,
                     message_type='notification'
                 )
                 return True
-            except Exception as e:
-                _logger.error(f"Erreur envoi email facture {self.name}: {e}")
+            else:
                 self.message_post(
-                    body=_("❌ Erreur lors de l'envoi automatique : %s") % str(e),
+                    body=_("⚠️ Aucun template d'email trouvé."),
                     message_type='notification'
                 )
                 return False
-        else:
+                
+        except Exception as e:
+            _logger.error(f"Erreur envoi email facture {self.name}: {e}")
             self.message_post(
-                body=_("⚠️ Aucun template d'email trouvé pour l'envoi automatique."),
+                body=_("❌ Erreur lors de l'envoi : %s") % str(e),
                 message_type='notification'
             )
             return False
@@ -692,4 +718,4 @@ class AccountMove(models.Model):
             except Exception as e:
                 _logger.error(f"Erreur cron envoi facture {invoice.name}: {e}")
         
-        return True
+        return TrueTrue
