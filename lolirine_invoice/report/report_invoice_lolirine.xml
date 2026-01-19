@@ -242,25 +242,23 @@
                 </thead>
                 <tbody>
                     <t t-foreach="o.invoice_line_ids" t-as="line">
-                        <t t-if="not line.display_type">
-                            <tr>
-                                <td>
-                                    <t t-esc="line.name or line.product_id.name or '-'"/>
-                                </td>
-                                <td style="text-align: center;">
-                                    <t t-esc="'%.2f' % line.quantity"/> <t t-if="line.product_uom_id"><t t-esc="line.product_uom_id.name"/></t>
-                                </td>
-                                <td style="text-align: right;">
-                                    <t t-esc="'%.2f' % line.price_unit"/> €
-                                </td>
-                                <td style="text-align: center;">
-                                    <t t-esc="', '.join(line.tax_ids.mapped('name'))"/>
-                                </td>
-                                <td style="text-align: right;">
-                                    <t t-esc="'%.2f' % line.price_subtotal"/> €
-                                </td>
-                            </tr>
-                        </t>
+                        <tr t-if="line.display_type == False">
+                            <td>
+                                <t t-esc="line.name or line.product_id.name or '-'"/>
+                            </td>
+                            <td style="text-align: center;">
+                                <t t-esc="'%.2f' % line.quantity"/> <t t-if="line.product_uom_id"><t t-esc="line.product_uom_id.name"/></t>
+                            </td>
+                            <td style="text-align: right;">
+                                <t t-esc="'%.2f' % line.price_unit"/> €
+                            </td>
+                            <td style="text-align: center;">
+                                <t t-esc="', '.join(line.tax_ids.mapped('name'))"/>
+                            </td>
+                            <td style="text-align: right;">
+                                <t t-esc="'%.2f' % line.price_subtotal"/> €
+                            </td>
+                        </tr>
                     </t>
                 </tbody>
             </table>
