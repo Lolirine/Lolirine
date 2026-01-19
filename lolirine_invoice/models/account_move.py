@@ -37,6 +37,36 @@ class AccountMove(models.Model):
         readonly=True,
         help="Date et heure de l'envoi effectif de l'email"
     )
+    
+    # Champ pour les factures en retard
+    is_overdue = fields.Boolean(
+        string="En retard",
+        compute="_compute_is_overdue",
+        store=True,
+        help="Indique si la facture est en retard de paiement"
+    )
+    
+    days_overdue = fields.Integer(
+        string="Jours de retard",
+        compute="_compute_is_overdue",
+        store=True,
+        help="Nombre de jours de retard"
+    )
+
+    @api.depends('invoice_date_due', 'state', 'payment_state')
+    def _compute_is_overdue(self):
+        today = fields.Date.context_today(self)
+        for move in self:
+            if move.move_type in ('out_invoice', 'out_refund') and move.state == 'posted' and move.payment_state not in ('paid', 'in_payment', 'reversed'):
+                if move.invoice_date_due and move.invoice_date_due < today:
+                    move.is_overdue = True
+                    move.days_overdue = (today - move.invoice_date_due).days
+                else:
+                    move.is_overdue = False
+                    move.days_overdue = 0
+            else:
+                move.is_overdue = False
+                move.days_overdue = 0
 
     @api.onchange('partner_id')
     def _onchange_partner_auto_send(self):
@@ -83,11 +113,10 @@ class AccountMove(models.Model):
             return False
         
         # Chercher le template standard d'Odoo pour les factures
-        # On essaie plusieurs templates possibles dans l'ordre de préférence
         template = None
         template_refs = [
-            'account.email_template_edi_invoice',  # Template standard factures
-            'sale.email_template_edi_invoice',     # Template ventes
+            'account.email_template_edi_invoice',
+            'sale.email_template_edi_invoice',
         ]
         
         for ref in template_refs:
@@ -97,7 +126,6 @@ class AccountMove(models.Model):
                 break
         
         if not template:
-            # Fallback: chercher par nom
             template = self.env['mail.template'].search([
                 ('model_id.model', '=', 'account.move'),
                 ('name', 'ilike', 'facture')
@@ -137,11 +165,9 @@ class AccountMove(models.Model):
         if self.state != 'posted':
             raise UserError(_("La facture doit être confirmée avant d'être envoyée."))
         
-        # Utiliser le template standard d'Odoo
         template = self.env.ref('account.email_template_edi_invoice', raise_if_not_found=False)
         
         if not template:
-            # Fallback sur notre template personnalisé
             template = self.env.ref('lolirine_invoice.email_template_invoice', raise_if_not_found=False)
         
         compose_form = self.env.ref('mail.email_compose_message_wizard_form', raise_if_not_found=False)
