@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Remplacer l'iframe HTML par une iframe PDF -->
+    <template id="portal_invoice_page_pdf" inherit_id="account.portal_invoice_page" priority="20">
+        <!-- Remplacer l'iframe HTML par une iframe qui charge le PDF -->
+        <xpath expr="//iframe[@id='invoice_html']" position="replace">
+            <iframe id="invoice_pdf" 
+                    class="position-relative d-block" 
+                    width="100%" 
+                    height="100%" 
+                    frameborder="0" 
+                    style="min-height: 800px;"
+                    t-att-src="invoice.get_portal_url(report_type='pdf')"/>
+        </xpath>
+        
+        <!-- Supprimer le loader qui ne sert plus -->
+        <xpath expr="//div[hasclass('o_portal_html_loader')]" position="replace">
+            <div class="text-center text-muted p-2" style="font-size: 12px;">
+                <i class="fa fa-file-pdf-o me-1"/> Aperçu de votre facture
+            </div>
+        </xpath>
+    </template>
+</odoo>
