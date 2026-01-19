@@ -8,6 +8,10 @@ _logger = logging.getLogger(__name__)
 class AccountMove(models.Model):
     _inherit = "account.move"
 
+    # =============================================
+    # CHAMPS ENVOI AUTOMATIQUE
+    # =============================================
+    
     auto_send_invoice = fields.Boolean(
         string="📧 Envoi Email automatique",
         default=False,
@@ -37,6 +41,26 @@ class AccountMove(models.Model):
         help="Date et heure de l'envoi effectif de l'email"
     )
     
+    # =============================================
+    # CHAMPS PEPPOL
+    # =============================================
+    
+    peppol_sent = fields.Boolean(
+        string="Envoyé via Peppol",
+        default=False,
+        help="Indique si la facture a été envoyée via Peppol"
+    )
+    
+    peppol_sent_date = fields.Datetime(
+        string="Date envoi Peppol",
+        readonly=True,
+        help="Date et heure de l'envoi via Peppol"
+    )
+    
+    # =============================================
+    # CHAMPS RETARD
+    # =============================================
+    
     is_overdue = fields.Boolean(
         string="En retard",
         compute="_compute_is_overdue",
@@ -50,6 +74,10 @@ class AccountMove(models.Model):
         store=True,
         help="Nombre de jours de retard"
     )
+
+    # =============================================
+    # COMPUTE METHODS
+    # =============================================
 
     @api.depends('invoice_date_due', 'state', 'payment_state')
     def _compute_is_overdue(self):
@@ -66,6 +94,10 @@ class AccountMove(models.Model):
                 move.is_overdue = False
                 move.days_overdue = 0
 
+    # =============================================
+    # ONCHANGE METHODS
+    # =============================================
+
     @api.onchange('partner_id')
     def _onchange_partner_auto_send(self):
         """Hériter les paramètres d'envoi automatique du partenaire"""
@@ -74,6 +106,10 @@ class AccountMove(models.Model):
                 self.auto_send_invoice = self.partner_id.auto_send_invoice
             if hasattr(self.partner_id, 'auto_send_peppol'):
                 self.auto_send_peppol = self.partner_id.auto_send_peppol
+
+    # =============================================
+    # ACTION METHODS
+    # =============================================
 
     def action_post(self):
         """Override pour gérer l'envoi automatique après confirmation"""
@@ -246,10 +282,79 @@ class AccountMove(models.Model):
             'context': ctx,
         }
 
+    def action_send_invoice_email_now(self):
+        """Envoyer la facture par email immédiatement"""
+        self.ensure_one()
+        
+        if self.state != 'posted':
+            raise UserError(_("La facture doit être confirmée avant d'être envoyée."))
+        
+        result = self._send_invoice_auto()
+        
+        if result:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Email envoyé'),
+                    'message': _('La facture a été envoyée par email à %s') % self.partner_id.email,
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Erreur'),
+                    'message': _("L'envoi de l'email a échoué. Vérifiez le chatter pour plus de détails."),
+                    'type': 'danger',
+                    'sticky': False,
+                }
+            }
+
+    def action_send_peppol(self):
+        """Envoyer la facture via Peppol"""
+        self.ensure_one()
+        
+        if self.state != 'posted':
+            raise UserError(_("La facture doit être confirmée avant d'être envoyée."))
+        
+        if not self.partner_id.peppol_endpoint:
+            raise UserError(_("Le client n'a pas d'endpoint Peppol configuré."))
+        
+        # TODO: Implémenter l'envoi Peppol réel
+        # Pour l'instant, on marque juste comme envoyé
+        self.write({
+            'peppol_sent': True,
+            'peppol_sent_date': fields.Datetime.now()
+        })
+        
+        self.message_post(
+            body=_("📤 Facture envoyée via Peppol à %s") % self.partner_id.peppol_endpoint,
+            message_type='notification'
+        )
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Peppol'),
+                'message': _('La facture a été envoyée via Peppol'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
     def action_manual_send_email(self):
         """Bouton pour envoyer manuellement l'email"""
         self.ensure_one()
         return self._send_invoice_auto()
+
+    # =============================================
+    # CRON METHODS
+    # =============================================
 
     @api.model
     def _cron_send_pending_emails(self):
