@@ -72,6 +72,7 @@
         "views/invoice_reminder_views.xml",
         "views/invoice_dashboard_views.xml",
         "views/account_move_views.xml",
+        "views/mail_views.xml",
         # Menus (en dernier)
         "views/menu_views.xml",
     ],
