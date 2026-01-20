@@ -1,47 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- VUE LISTE EMAILS AMELIOREE -->
+    <!-- VUE LISTE EMAILS - Ajouter des colonnes -->
     <record id="view_mail_mail_tree_lolirine" model="ir.ui.view">
         <field name="name">mail.mail.tree.lolirine</field>
         <field name="model">mail.mail</field>
         <field name="inherit_id" ref="mail.view_mail_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//list" position="replace">
-                <list string="Emails" create="false" default_order="date desc">
-                    <field name="date" string="Date"/>
-                    <field name="subject" string="Sujet"/>
-                    <field name="email_to" string="Destinataire"/>
-                    <field name="email_from" string="Expediteur"/>
-                    <field name="model" string="Modele" optional="show"/>
-                    <field name="author_id" string="Utilisateur"/>
-                    <field name="state" string="Statut" widget="badge"/>
-                    <field name="failure_reason" string="Erreur" optional="show"/>
-                </list>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- VUE RECHERCHE EMAILS AMELIOREE -->
-    <record id="view_mail_mail_search_lolirine" model="ir.ui.view">
-        <field name="name">mail.mail.search.lolirine</field>
-        <field name="model">mail.mail</field>
-        <field name="inherit_id" ref="mail.view_mail_search"/>
-        <field name="arch" type="xml">
-            <xpath expr="//search" position="inside">
+            <xpath expr="//field[@name='subject']" position="after">
                 <field name="email_to" string="Destinataire"/>
                 <field name="email_from" string="Expediteur"/>
-                <separator/>
-                <filter name="filter_invoices" string="Factures" domain="[('model', '=', 'account.move')]"/>
-                <filter name="filter_sent" string="Envoyes" domain="[('state', '=', 'sent')]"/>
-                <filter name="filter_failed" string="Echoues" domain="[('state', '=', 'exception')]"/>
-                <filter name="filter_outgoing" string="En attente" domain="[('state', '=', 'outgoing')]"/>
-                <separator/>
-                <group expand="0" string="Grouper par">
-                    <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
-                    <filter name="group_model" string="Modele" context="{'group_by': 'model'}"/>
-                    <filter name="group_date" string="Date" context="{'group_by': 'date:day'}"/>
-                </group>
+                <field name="model" string="Modele" optional="show"/>
+            </xpath>
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="failure_reason" string="Erreur" optional="show"/>
             </xpath>
         </field>
     </record>
