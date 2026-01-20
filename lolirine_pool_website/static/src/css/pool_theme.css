@@ -5,9 +5,10 @@
 /* avec .o_website_pool pour ne s'appliquer    */
 /* qu'au site Pool Store et non au site        */
 /* Garde-Meubles.                              */
+/* La classe peut être sur html ou body.       */
 /* ============================================ */
 
-/* Variables */
+/* Variables - disponibles globalement */
 :root {
     --pool-primary: #0ea5e9;
     --pool-primary-dark: #0284c7;
