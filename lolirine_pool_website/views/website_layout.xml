@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ============================================ -->
+    <!-- CLASSE CONDITIONNELLE POUR LE SITE POOL     -->
+    <!-- ============================================ -->
+    
+    <!-- 
+        Ce template ajoute la classe 'o_website_pool' au body 
+        UNIQUEMENT lorsque le visiteur est sur le site Pool Store.
+        Cela permet d'isoler les styles CSS du site Pool.
+    -->
+    <template id="pool_website_body_class" inherit_id="website.layout" name="Pool Website Body Class" priority="100">
+        <xpath expr="//body" position="attributes">
+            <attribute name="t-attf-class" add="#{'o_website_pool' if request and request.website and request.website.id == env.ref('lolirine_pool_website.pool_website', raise_if_not_found=False).id else ''}" separator=" "/>
+        </xpath>
+    </template>
+    
+</odoo>
