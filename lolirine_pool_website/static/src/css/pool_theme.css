@@ -1,14 +1,12 @@
 /* ============================================ */
 /* LOLIRINE POOL STORE - THEME CSS             */
 /* ============================================ */
-/* IMPORTANT: Tous les styles sont préfixés    */
-/* avec .o_website_pool pour ne s'appliquer    */
-/* qu'au site Pool Store et non au site        */
-/* Garde-Meubles.                              */
-/* La classe peut être sur html ou body.       */
+/* Ce CSS est chargé UNIQUEMENT sur le site    */
+/* Pool Store via un template conditionnel.    */
+/* Pas besoin de préfixes de scope.            */
 /* ============================================ */
 
-/* Variables - disponibles globalement */
+/* Variables */
 :root {
     --pool-primary: #0ea5e9;
     --pool-primary-dark: #0284c7;
@@ -23,58 +21,36 @@
 /* ============================================ */
 
 /* Liens et boutons principaux */
-.o_website_pool a:not(.btn):not(.dropdown-item) {
+a:not(.btn):not(.dropdown-item):not(.nav-link) {
     color: var(--pool-primary);
 }
 
-.o_website_pool a:not(.btn):not(.dropdown-item):hover {
+a:not(.btn):not(.dropdown-item):not(.nav-link):hover {
     color: var(--pool-primary-dark);
 }
 
 /* Boutons primaires */
-.o_website_pool .btn-primary {
-    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
-    border: none;
+.btn-primary {
+    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%) !important;
+    border: none !important;
 }
 
-.o_website_pool .btn-primary:hover {
-    background: linear-gradient(135deg, var(--pool-primary-dark) 0%, var(--pool-dark) 100%);
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--pool-primary-dark) 0%, var(--pool-dark) 100%) !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
-}
-
-/* ============================================ */
-/* HEADER / NAVIGATION                         */
-/* ============================================ */
-
-.o_website_pool header {
-    background: linear-gradient(135deg, var(--pool-dark) 0%, #1e3a5f 100%);
-}
-
-.o_website_pool header .nav-link {
-    color: rgba(255, 255, 255, 0.9) !important;
-    font-weight: 500;
-}
-
-.o_website_pool header .nav-link:hover {
-    color: var(--pool-accent) !important;
-}
-
-.o_website_pool header .navbar-brand {
-    color: white !important;
-    font-weight: bold;
 }
 
 /* ============================================ */
 /* HERO SECTION                                */
 /* ============================================ */
 
-.o_website_pool .pool-hero {
+.pool-hero {
     position: relative;
     overflow: hidden;
 }
 
-.o_website_pool .pool-hero::before {
+.pool-hero::before {
     content: '';
     position: absolute;
     top: 0;
@@ -85,7 +61,7 @@
     z-index: 1;
 }
 
-.o_website_pool .pool-hero .container {
+.pool-hero .container {
     position: relative;
     z-index: 2;
 }
@@ -94,26 +70,26 @@
 /* CATEGORY CARDS                              */
 /* ============================================ */
 
-.o_website_pool .category-card,
-.o_website_pool .pool-category-card {
+.category-card,
+.pool-category-card {
     transition: all 0.3s ease;
     border-radius: 16px;
     overflow: hidden;
 }
 
-.o_website_pool .category-card:hover,
-.o_website_pool .pool-category-card:hover {
+.category-card:hover,
+.pool-category-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
-.o_website_pool .category-card .card-title,
-.o_website_pool .pool-category-card .card-title {
+.category-card .card-title,
+.pool-category-card .card-title {
     color: #1e293b;
 }
 
-.o_website_pool .category-card:hover .card-title,
-.o_website_pool .pool-category-card:hover .card-title {
+.category-card:hover .card-title,
+.pool-category-card:hover .card-title {
     color: var(--pool-primary);
 }
 
@@ -121,44 +97,38 @@
 /* PRODUCT CARDS (SHOP)                        */
 /* ============================================ */
 
-.o_website_pool .oe_product_cart {
+.oe_product_cart {
     border-radius: 12px;
     overflow: hidden;
     transition: all 0.3s ease;
 }
 
-.o_website_pool .oe_product_cart:hover {
+.oe_product_cart:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
-.o_website_pool .oe_product_cart .oe_product_image {
+.oe_product_cart .oe_product_image {
     border-radius: 8px;
     overflow: hidden;
 }
 
-.o_website_pool .oe_product_cart .product_price {
+.oe_product_cart .product_price {
     color: var(--pool-primary);
     font-weight: 700;
-}
-
-.o_website_pool .oe_product_cart .btn-primary {
-    background: var(--pool-primary);
-    border-color: var(--pool-primary);
-    border-radius: 8px;
 }
 
 /* ============================================ */
 /* SHOP PAGE                                   */
 /* ============================================ */
 
-.o_website_pool #products_grid_before {
+#products_grid_before {
     background: var(--pool-light);
     border-radius: 12px;
     padding: 1rem;
 }
 
-.o_website_pool .o_wsale_products_searchbar_form .btn {
+.o_wsale_products_searchbar_form .btn {
     background: var(--pool-primary);
     border-color: var(--pool-primary);
 }
@@ -167,17 +137,17 @@
 /* PRODUCT PAGE                                */
 /* ============================================ */
 
-.o_website_pool #product_detail .product_price {
+#product_detail .product_price {
     color: var(--pool-primary);
     font-size: 2rem;
     font-weight: 700;
 }
 
-.o_website_pool #product_detail .css_quantity {
+#product_detail .css_quantity {
     border-color: var(--pool-primary);
 }
 
-.o_website_pool #product_detail #add_to_cart {
+#product_detail #add_to_cart {
     background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
     border: none;
     padding: 12px 32px;
@@ -185,52 +155,26 @@
     border-radius: 50px;
 }
 
-.o_website_pool #product_detail #add_to_cart:hover {
+#product_detail #add_to_cart:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
 }
 
 /* Product attributes */
-.o_website_pool .js_product .css_attribute_color {
+.js_product .css_attribute_color {
     border: 2px solid transparent;
 }
 
-.o_website_pool .js_product .css_attribute_color.active {
+.js_product .css_attribute_color.active {
     border-color: var(--pool-primary);
-}
-
-/* ============================================ */
-/* FOOTER                                      */
-/* ============================================ */
-
-.o_website_pool footer {
-    background: linear-gradient(135deg, var(--pool-dark) 0%, #0f172a 100%);
-}
-
-.o_website_pool footer h5 {
-    color: var(--pool-accent);
-}
-
-.o_website_pool footer a {
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.o_website_pool footer a:hover {
-    color: var(--pool-accent);
 }
 
 /* ============================================ */
 /* CART / CHECKOUT                             */
 /* ============================================ */
 
-.o_website_pool .oe_cart {
+.oe_cart {
     border-radius: 12px;
-}
-
-.o_website_pool .oe_cart .btn-primary {
-    background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
-    border: none;
-    border-radius: 8px;
 }
 
 /* ============================================ */
@@ -242,7 +186,7 @@
     50% { transform: translateY(-10px); }
 }
 
-.o_website_pool .pool-float {
+.pool-float {
     animation: pool-float 3s ease-in-out infinite;
 }
 
@@ -250,19 +194,19 @@
 /* UTILITIES                                   */
 /* ============================================ */
 
-.o_website_pool .bg-pool-gradient {
+.bg-pool-gradient {
     background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
 }
 
-.o_website_pool .bg-pool-dark {
+.bg-pool-dark {
     background: var(--pool-dark);
 }
 
-.o_website_pool .text-pool {
+.text-pool {
     color: var(--pool-primary);
 }
 
-.o_website_pool .border-pool {
+.border-pool {
     border-color: var(--pool-primary) !important;
 }
 
@@ -271,12 +215,12 @@
 /* ============================================ */
 
 @media (max-width: 768px) {
-    .o_website_pool .pool-hero h1 {
+    .pool-hero h1 {
         font-size: 2rem;
     }
     
-    .o_website_pool .category-card,
-    .o_website_pool .pool-category-card {
+    .category-card,
+    .pool-category-card {
         margin-bottom: 1rem;
     }
 }
@@ -285,11 +229,11 @@
 /* WAVE DECORATION                             */
 /* ============================================ */
 
-.o_website_pool .pool-wave {
+.pool-wave {
     position: relative;
 }
 
-.o_website_pool .pool-wave::after {
+.pool-wave::after {
     content: '';
     position: absolute;
     bottom: 0;
