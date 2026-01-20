@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool Store - Website',
-    'version': '19.0.1.0.6',
+    'version': '19.0.1.0.7',
     'category': 'Website/Website',
     'summary': 'Site e-commerce Lolirine Pool Store - Matériel de piscine',
     'description': """
@@ -29,6 +29,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/product_template_views.xml',
+        'views/website_layout.xml',
         'views/website_templates.xml',
         'data/website_data.xml',
         'data/product_category_data.xml',
