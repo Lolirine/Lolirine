@@ -6,12 +6,11 @@
     <record id="view_mail_mail_tree_lolirine" model="ir.ui.view">
         <field name="name">mail.mail.tree.lolirine</field>
         <field name="model">mail.mail</field>
-        <field name="inherit_id" ref="mail.view_mail_mail_tree"/>
-        <field name="priority">20</field>
+        <field name="inherit_id" ref="mail.view_mail_tree"/>
         <field name="arch" type="xml">
             <!-- Remplacer le contenu du tree -->
             <xpath expr="//tree" position="replace">
-                <tree string="Emails" create="false">
+                <tree string="Emails" create="false" default_order="date desc">
                     <field name="date" string="Date"/>
                     <field name="subject" string="Sujet"/>
                     <field name="email_to" string="Destinataire"/>
@@ -35,8 +34,7 @@
     <record id="view_mail_mail_search_lolirine" model="ir.ui.view">
         <field name="name">mail.mail.search.lolirine</field>
         <field name="model">mail.mail</field>
-        <field name="inherit_id" ref="mail.view_mail_mail_search"/>
-        <field name="priority">20</field>
+        <field name="inherit_id" ref="mail.view_mail_search"/>
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
                 <!-- Champs de recherche -->
@@ -46,12 +44,16 @@
                 <separator/>
                 
                 <!-- Filtres temporels -->
-                <filter name="filter_today" string="Aujourd'hui" 
-                        domain="[('date', '&gt;=', (context_today()).strftime('%Y-%m-%d 00:00:00')),
-                                 ('date', '&lt;=', (context_today()).strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter name="filter_today" string="📅 Aujourd'hui" 
+                        domain="[('date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0)).strftime('%Y-%m-%d %H:%M:%S')),
+                                 ('date', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)).strftime('%Y-%m-%d %H:%M:%S'))]"/>
                 
-                <filter name="filter_this_week" string="Cette semaine"
-                        domain="[('date', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_yesterday" string="📅 Hier"
+                        domain="[('date', '&gt;=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d 00:00:00')),
+                                 ('date', '&lt;=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d 23:59:59'))]"/>
+                
+                <filter name="filter_this_week" string="📅 Cette semaine"
+                        domain="[('date', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d 00:00:00'))]"/>
                 
                 <separator/>
                 
@@ -87,4 +89,33 @@
         </field>
     </record>
 
+    <!-- ==================== VUE FORMULAIRE EMAILS AMELIOREE ==================== -->
+    
+    <record id="view_mail_mail_form_lolirine" model="ir.ui.view">
+        <field name="name">mail.mail.form.lolirine</field>
+        <field name="model">mail.mail</field>
+        <field name="inherit_id" ref="mail.view_mail_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_related_document" 
+                            type="object" 
+                            class="oe_stat_button" 
+                            icon="fa-file-text-o"
+                            invisible="not res_id">
+                        <span>Voir Document</span>
+                    </button>
+                    <button name="action_retry_send"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-refresh"
+                            invisible="state != 'exception'">
+                        <span>Réessayer</span>
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
 </odoo>
