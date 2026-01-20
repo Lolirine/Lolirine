@@ -2,23 +2,18 @@
 <odoo>
     
     <!-- ============================================ -->
-    <!-- CLASSE CONDITIONNELLE POUR LE SITE POOL     -->
+    <!-- CHARGEMENT CONDITIONNEL DU CSS POOL         -->
     <!-- ============================================ -->
     
     <!-- 
-        Ajoute la classe 'o_website_pool' via JavaScript
-        uniquement sur le site Pool Store.
-        Le script s'exécute immédiatement pour éviter le flash.
+        Ce template charge le CSS du thème Pool uniquement
+        lorsque le visiteur est sur le site Pool Store.
+        Le CSS n'est plus chargé globalement via le manifest.
     -->
-    <template id="pool_website_body_class" inherit_id="website.layout" name="Pool Website Body Class">
+    <template id="pool_website_assets" inherit_id="website.layout" name="Pool Website Assets">
         <xpath expr="//head" position="inside">
             <t t-if="website and 'Pool' in (website.name or '')">
-                <script>
-                    (function() {
-                        document.documentElement.classList.add('o_website_pool');
-                        if (document.body) document.body.classList.add('o_website_pool');
-                    })();
-                </script>
+                <link rel="stylesheet" type="text/css" href="/lolirine_pool_website/static/src/css/pool_theme.css"/>
             </t>
         </xpath>
     </template>
