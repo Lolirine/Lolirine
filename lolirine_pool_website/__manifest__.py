@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool Store - Website',
-    'version': '19.0.1.0.8',
+    'version': '19.0.1.0.9',
     'category': 'Website/Website',
     'summary': 'Site e-commerce Lolirine Pool Store - Matériel de piscine',
     'description': """
@@ -17,6 +17,9 @@
         - Clients partagés avec le site principal
         
         Compatible avec lolirine_pool_import pour l'import des produits.
+        
+        Note: Le CSS est chargé conditionnellement via template,
+        uniquement pour le site Pool Store.
     """,
     'author': 'Lolirine SPRL',
     'website': 'https://lolirine-pool.be',
@@ -35,11 +38,9 @@
         'data/product_category_data.xml',
         'data/website_menu_data.xml',
     ],
-    'assets': {
-        'web.assets_frontend': [
-            'lolirine_pool_website/static/src/css/pool_theme.css',
-        ],
-    },
+    # CSS chargé conditionnellement via views/website_layout.xml
+    # pour ne s'appliquer qu'au site Pool Store
+    'assets': {},
     'installable': True,
     'application': False,
     'auto_install': False,
