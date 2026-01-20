@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool Store - Website',
-    'version': '19.0.1.0.7',
+    'version': '19.0.1.0.8',
     'category': 'Website/Website',
     'summary': 'Site e-commerce Lolirine Pool Store - Matériel de piscine',
     'description': """
