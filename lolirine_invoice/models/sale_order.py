@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import api, fields, models, _
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class SaleOrder(models.Model):
@@ -37,3 +40,56 @@ class SaleOrder(models.Model):
                 })
         
         return moves
+
+    # =============================================
+    # PATCH: Correction bug Odoo Enterprise set_close()
+    # =============================================
+    
+    def set_close(self, close_reason_id=None, renew=False, **kwargs):
+        """
+        PATCH CRITIQUE: Corrige le bug Odoo Enterprise où set_close() a des 
+        signatures incompatibles entre les modules:
+        - sale_subscription: set_close(self) - 1 argument
+        - project_sale_subscription: appelle super().set_close(close_reason_id, renew) - 3 arguments
+        - sale_subscription_partnership: passe *args, **kwargs
+        
+        Résultat: TypeError: takes 1 positional argument but 3 were given
+        
+        SOLUTION: Cette méthode n'appelle PAS super() pour éviter la chaîne 
+        d'héritage bugguée. Elle implémente directement la logique de fermeture.
+        """
+        for subscription in self:
+            # Ne traiter que les abonnements (pas les commandes normales)
+            if hasattr(subscription, 'is_subscription') and not subscription.is_subscription:
+                continue
+            
+            # Préparer les valeurs de mise à jour
+            vals = {
+                'subscription_state': '6_churn',  # État "Churned" / Résilié
+            }
+            
+            # Ajouter la raison de clôture si fournie
+            if close_reason_id:
+                vals['close_reason_id'] = close_reason_id
+            
+            # Mettre à jour l'abonnement
+            subscription.write(vals)
+            
+            # Poster un message dans le chatter
+            msg = _("Abonnement clôturé.")
+            if close_reason_id:
+                try:
+                    reason = self.env['sale.order.close.reason'].browse(close_reason_id)
+                    if reason.exists():
+                        msg = _("Abonnement clôturé. Raison: %s") % reason.name
+                except Exception:
+                    pass
+            
+            subscription.message_post(
+                body=msg,
+                message_type='notification'
+            )
+            
+            _logger.info(f"Abonnement {subscription.name} clôturé via patch set_close()")
+        
+        return True
