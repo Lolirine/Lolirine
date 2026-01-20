@@ -1,6 +1,11 @@
 /* ============================================ */
 /* LOLIRINE POOL STORE - THEME CSS             */
 /* ============================================ */
+/* IMPORTANT: Tous les styles sont préfixés    */
+/* avec .o_website_pool pour ne s'appliquer    */
+/* qu'au site Pool Store et non au site        */
+/* Garde-Meubles.                              */
+/* ============================================ */
 
 /* Variables */
 :root {
@@ -63,12 +68,12 @@
 /* HERO SECTION                                */
 /* ============================================ */
 
-.pool-hero {
+.o_website_pool .pool-hero {
     position: relative;
     overflow: hidden;
 }
 
-.pool-hero::before {
+.o_website_pool .pool-hero::before {
     content: '';
     position: absolute;
     top: 0;
@@ -79,7 +84,7 @@
     z-index: 1;
 }
 
-.pool-hero .container {
+.o_website_pool .pool-hero .container {
     position: relative;
     z-index: 2;
 }
@@ -88,26 +93,26 @@
 /* CATEGORY CARDS                              */
 /* ============================================ */
 
-.category-card,
-.pool-category-card {
+.o_website_pool .category-card,
+.o_website_pool .pool-category-card {
     transition: all 0.3s ease;
     border-radius: 16px;
     overflow: hidden;
 }
 
-.category-card:hover,
-.pool-category-card:hover {
+.o_website_pool .category-card:hover,
+.o_website_pool .pool-category-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
-.category-card .card-title,
-.pool-category-card .card-title {
+.o_website_pool .category-card .card-title,
+.o_website_pool .pool-category-card .card-title {
     color: #1e293b;
 }
 
-.category-card:hover .card-title,
-.pool-category-card:hover .card-title {
+.o_website_pool .category-card:hover .card-title,
+.o_website_pool .pool-category-card:hover .card-title {
     color: var(--pool-primary);
 }
 
@@ -231,32 +236,32 @@
 /* ANIMATIONS                                  */
 /* ============================================ */
 
-@keyframes float {
+@keyframes pool-float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
 }
 
-.pool-float {
-    animation: float 3s ease-in-out infinite;
+.o_website_pool .pool-float {
+    animation: pool-float 3s ease-in-out infinite;
 }
 
 /* ============================================ */
 /* UTILITIES                                   */
 /* ============================================ */
 
-.bg-pool-gradient {
+.o_website_pool .bg-pool-gradient {
     background: linear-gradient(135deg, var(--pool-primary) 0%, var(--pool-primary-dark) 100%);
 }
 
-.bg-pool-dark {
+.o_website_pool .bg-pool-dark {
     background: var(--pool-dark);
 }
 
-.text-pool {
+.o_website_pool .text-pool {
     color: var(--pool-primary);
 }
 
-.border-pool {
+.o_website_pool .border-pool {
     border-color: var(--pool-primary) !important;
 }
 
@@ -265,12 +270,12 @@
 /* ============================================ */
 
 @media (max-width: 768px) {
-    .pool-hero h1 {
+    .o_website_pool .pool-hero h1 {
         font-size: 2rem;
     }
     
-    .category-card,
-    .pool-category-card {
+    .o_website_pool .category-card,
+    .o_website_pool .pool-category-card {
         margin-bottom: 1rem;
     }
 }
@@ -279,11 +284,11 @@
 /* WAVE DECORATION                             */
 /* ============================================ */
 
-.pool-wave {
+.o_website_pool .pool-wave {
     position: relative;
 }
 
-.pool-wave::after {
+.o_website_pool .pool-wave::after {
     content: '';
     position: absolute;
     bottom: 0;
