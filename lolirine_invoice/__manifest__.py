@@ -69,6 +69,7 @@
         "wizard/invoice_wizard_views.xml",
         # Views
         "views/invoice_tag_views.xml",
+        "views/sale_order_views.xml",
         "views/invoice_reminder_views.xml",
         "views/invoice_dashboard_views.xml",
         "views/account_move_views.xml",
