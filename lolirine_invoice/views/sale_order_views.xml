@@ -5,7 +5,7 @@
     <record id="sale_order_view_form_subscription_prorata" model="ir.ui.view">
         <field name="name">sale.order.form.subscription.prorata</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale_subscription.sale_subscription_order_form"/>
+        <field name="inherit_id" ref="sale_subscription.sale_subscription_order_view_form"/>
         <field name="priority">100</field>
         <field name="arch" type="xml">
             <!-- Ajouter les boutons après le bouton "Renouveler" -->
