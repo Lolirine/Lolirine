@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
+from odoo.exceptions import UserError
+from datetime import date
 import logging
-
 _logger = logging.getLogger(__name__)
 
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
-
+    
     # =============================================
     # CHAMPS ENVOI AUTOMATIQUE SUR ABONNEMENT
     # =============================================
@@ -40,7 +41,7 @@ class SaleOrder(models.Model):
                 })
         
         return moves
-
+    
     # =============================================
     # PATCH: Correction bug Odoo Enterprise set_close()
     # =============================================
@@ -93,3 +94,102 @@ class SaleOrder(models.Model):
             _logger.info(f"Abonnement {subscription.name} clôturé via patch set_close()")
         
         return True
+    
+    # =============================================
+    # RÉSILIATION AVEC PRORATA
+    # =============================================
+    
+    def action_terminate_with_prorata(self):
+        """
+        Résilier l'abonnement avec facturation prorata.
+        Calcule les jours restants et génère une facture finale.
+        """
+        self.ensure_one()
+        
+        if not self.is_subscription:
+            raise UserError(_("Cette action est uniquement disponible pour les abonnements."))
+        
+        if self.subscription_state != '3_progress':
+            raise UserError(_("L'abonnement doit être en cours pour être résilié."))
+        
+        if not self.end_date:
+            raise UserError(_("Veuillez d'abord définir une date de fin (end_date) pour l'abonnement."))
+        
+        # Date de début de la période = dernière facture ou start_date
+        last_invoice_date = self.last_invoice_date or self.start_date
+        end_date = self.end_date
+        
+        if end_date <= last_invoice_date:
+            raise UserError(_("La date de fin doit être postérieure à la dernière date de facturation (%s).") % last_invoice_date)
+        
+        days_used = (end_date - last_invoice_date).days
+        days_in_month = 30  # Base 30 jours
+        
+        # Créer les lignes de facture prorata
+        invoice_lines = []
+        for line in self.order_line:
+            if line.product_uom_qty <= 0:
+                continue
+                
+            # Calculer le montant prorata
+            monthly_price = line.price_unit
+            prorata_price = round((days_used / days_in_month) * monthly_price, 2)
+            
+            invoice_lines.append((0, 0, {
+                'name': f"{line.name}\nProrata du {last_invoice_date} au {end_date} ({days_used} jours)",
+                'product_id': line.product_id.id,
+                'quantity': line.product_uom_qty,
+                'price_unit': prorata_price,
+                'tax_ids': [(6, 0, line.tax_ids.ids)],
+            }))
+        
+        if not invoice_lines:
+            raise UserError(_("Aucune ligne à facturer."))
+        
+        # Créer la facture prorata
+        invoice_vals = {
+            'move_type': 'out_invoice',
+            'partner_id': self.partner_id.id,
+            'invoice_date': date.today(),
+            'invoice_origin': self.name,
+            'narration': f"Facture de résiliation - Prorata {days_used} jours",
+            'invoice_line_ids': invoice_lines,
+        }
+        
+        invoice = self.env['account.move'].sudo().create(invoice_vals)
+        
+        # Poster un message
+        self.message_post(
+            body=_("📄 Facture prorata de résiliation créée: %s (%.2f€ TTC pour %d jours)") % (
+                invoice.name or 'Brouillon',
+                invoice.amount_total,
+                days_used
+            ),
+            message_type='notification'
+        )
+        
+        _logger.info(f"Facture prorata créée pour {self.name}: {invoice.amount_total}€ TTC ({days_used} jours)")
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Facture Prorata'),
+            'res_model': 'account.move',
+            'res_id': invoice.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+    
+    def action_terminate_and_close(self):
+        """
+        Résilier l'abonnement avec prorata ET clôturer l'abonnement.
+        """
+        self.ensure_one()
+        
+        # Créer la facture prorata
+        result = self.action_terminate_with_prorata()
+        
+        # Clôturer l'abonnement
+        close_reason = self.env['sale.order.close.reason'].search([('name', 'ilike', 'Fin du contrat')], limit=1)
+        self.set_close(close_reason_id=close_reason.id if close_reason else None)
+        
+        return result
