@@ -15,13 +15,13 @@
                         string="Résilier avec Prorata" 
                         class="btn-secondary"
                         invisible="not is_subscription or subscription_state != '3_progress' or not end_date"
-                        confirm="Êtes-vous sûr de vouloir créer une facture prorata pour cet abonnement ?"/>
+                        confirm="Créer une facture prorata et clôturer l'abonnement ?"/>
                 <button name="action_terminate_and_close" 
                         type="object" 
-                        string="Résilier + Clôturer" 
+                        string="Clôturer sans Prorata" 
                         class="btn-warning"
-                        invisible="not is_subscription or subscription_state != '3_progress' or not end_date"
-                        confirm="Êtes-vous sûr de vouloir créer une facture prorata ET clôturer définitivement cet abonnement ?"/>
+                        invisible="not is_subscription or subscription_state != '3_progress'"
+                        confirm="Clôturer l'abonnement SANS facture prorata ?"/>
             </xpath>
         </field>
     </record>
