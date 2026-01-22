@@ -3,6 +3,7 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from datetime import date
 import logging
+
 _logger = logging.getLogger(__name__)
 
 
@@ -101,8 +102,8 @@ class SaleOrder(models.Model):
     
     def action_terminate_with_prorata(self):
         """
-        Résilier l'abonnement avec facturation prorata.
-        Calcule les jours restants et génère une facture finale.
+        Résilier l'abonnement avec facturation prorata + clôture automatique.
+        Calcule les jours utilisés et génère une facture finale.
         """
         self.ensure_one()
         
@@ -158,9 +159,13 @@ class SaleOrder(models.Model):
         
         invoice = self.env['account.move'].sudo().create(invoice_vals)
         
+        # Clôturer l'abonnement
+        close_reason = self.env['sale.order.close.reason'].search([('name', 'ilike', 'Fin du contrat')], limit=1)
+        self.set_close(close_reason_id=close_reason.id if close_reason else None)
+        
         # Poster un message
         self.message_post(
-            body=_("📄 Facture prorata de résiliation créée: %s (%.2f€ TTC pour %d jours)") % (
+            body=_("📄 Facture prorata de résiliation créée: %s (%.2f€ TTC pour %d jours) - Abonnement clôturé") % (
                 invoice.name or 'Brouillon',
                 invoice.amount_total,
                 days_used
@@ -168,7 +173,7 @@ class SaleOrder(models.Model):
             message_type='notification'
         )
         
-        _logger.info(f"Facture prorata créée pour {self.name}: {invoice.amount_total}€ TTC ({days_used} jours)")
+        _logger.info(f"Facture prorata créée pour {self.name}: {invoice.amount_total}€ TTC ({days_used} jours) - Abonnement clôturé")
         
         return {
             'type': 'ir.actions.act_window',
@@ -181,15 +186,35 @@ class SaleOrder(models.Model):
     
     def action_terminate_and_close(self):
         """
-        Résilier l'abonnement avec prorata ET clôturer l'abonnement.
+        Clôturer l'abonnement SANS facture prorata.
+        Utilisé quand le client a déjà payé le mois complet ou qu'on ne facture pas le prorata.
         """
         self.ensure_one()
         
-        # Créer la facture prorata
-        result = self.action_terminate_with_prorata()
+        if not self.is_subscription:
+            raise UserError(_("Cette action est uniquement disponible pour les abonnements."))
+        
+        if self.subscription_state != '3_progress':
+            raise UserError(_("L'abonnement doit être en cours pour être résilié."))
         
         # Clôturer l'abonnement
         close_reason = self.env['sale.order.close.reason'].search([('name', 'ilike', 'Fin du contrat')], limit=1)
         self.set_close(close_reason_id=close_reason.id if close_reason else None)
         
-        return result
+        self.message_post(
+            body=_("🔒 Abonnement clôturé sans facture prorata."),
+            message_type='notification'
+        )
+        
+        _logger.info(f"Abonnement {self.name} clôturé sans prorata")
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Abonnement clôturé'),
+                'message': _("L'abonnement %s a été clôturé.") % self.name,
+                'type': 'success',
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
+            }
+        }
