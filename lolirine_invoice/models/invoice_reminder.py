@@ -165,8 +165,7 @@ class InvoiceReminder(models.Model):
             template = self.env.ref(template_ref, raise_if_not_found=False)
             if template:
                 # Generer le PDF de la facture avec le rapport Lolirine
-                # Essayer d'abord le rapport personnalise Lolirine
-                report = self.env.ref('lolirine_invoice.report_invoice_lolirine', raise_if_not_found=False)
+                report = self.env.ref('lolirine_invoice.action_report_invoice_lolirine', raise_if_not_found=False)
                 if not report:
                     # Fallback sur le rapport standard
                     report = self.env.ref('account.account_invoices', raise_if_not_found=False)
@@ -230,8 +229,8 @@ class InvoiceReminder(models.Model):
         # Generer le PDF de la facture pour la previsualisation
         attachment_ids = []
         if self.invoice_id:
-            # Essayer d'abord le rapport personnalise Lolirine
-            report = self.env.ref('lolirine_invoice.report_invoice_lolirine', raise_if_not_found=False)
+            # Utiliser le rapport Lolirine
+            report = self.env.ref('lolirine_invoice.action_report_invoice_lolirine', raise_if_not_found=False)
             if not report:
                 report = self.env.ref('account.account_invoices', raise_if_not_found=False)
             
