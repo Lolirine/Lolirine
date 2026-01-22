@@ -23,7 +23,8 @@ class InvoiceReminder(models.Model):
         string='Facture',
         required=True,
         ondelete='cascade',
-        domain=[('move_type', 'in', ('out_invoice', 'out_refund')), ('state', '=', 'posted')]
+        domain=[('move_type', 'in', ('out_invoice', 'out_refund')), ('state', '=', 'posted')],
+        tracking=True
     )
     
     partner_id = fields.Many2one(
@@ -61,7 +62,8 @@ class InvoiceReminder(models.Model):
     
     amount_due = fields.Monetary(
         related='invoice_id.amount_residual',
-        string='Montant du'
+        string='Montant du',
+        store=True
     )
     
     currency_id = fields.Many2one(
@@ -70,13 +72,22 @@ class InvoiceReminder(models.Model):
     
     days_overdue = fields.Integer(
         string='Jours de retard',
-        compute='_compute_days_overdue'
+        compute='_compute_days_overdue',
+        store=True
     )
     
     penalty_amount = fields.Monetary(
         string='Penalites de retard',
         compute='_compute_penalty_amount',
+        store=True,
         help='Penalites calculees selon le taux legal belge'
+    )
+    
+    total_due = fields.Monetary(
+        string='Total du',
+        compute='_compute_penalty_amount',
+        store=True,
+        help='Montant du + penalites'
     )
     
     notes = fields.Text(string='Notes internes')
@@ -87,6 +98,8 @@ class InvoiceReminder(models.Model):
         related='invoice_id.company_id',
         store=True
     )
+
+    # ==================== COMPUTE METHODS ====================
 
     @api.depends('invoice_id', 'reminder_type', 'date')
     def _compute_name(self):
@@ -107,22 +120,26 @@ class InvoiceReminder(models.Model):
     def _compute_days_overdue(self):
         today = fields.Date.today()
         for rec in self:
-            if rec.invoice_id.invoice_date_due:
+            if rec.invoice_id and rec.invoice_id.invoice_date_due:
                 delta = today - rec.invoice_id.invoice_date_due
                 rec.days_overdue = max(0, delta.days)
             else:
                 rec.days_overdue = 0
 
-    @api.depends('invoice_id.amount_residual', 'days_overdue')
+    @api.depends('amount_due', 'days_overdue')
     def _compute_penalty_amount(self):
         """Calcul des penalites selon le taux legal belge (10.5% annuel pour 2024)"""
         annual_rate = 0.105  # Taux legal belge 2024
         for rec in self:
-            if rec.days_overdue > 0 and rec.invoice_id.amount_residual > 0:
+            if rec.days_overdue > 0 and rec.amount_due > 0:
                 # Penalites = Montant * (Taux / 365) * Jours de retard
-                rec.penalty_amount = rec.invoice_id.amount_residual * (annual_rate / 365) * rec.days_overdue
+                rec.penalty_amount = rec.amount_due * (annual_rate / 365) * rec.days_overdue
+                rec.total_due = rec.amount_due + rec.penalty_amount
             else:
                 rec.penalty_amount = 0.0
+                rec.total_due = rec.amount_due or 0.0
+
+    # ==================== ACTIONS ====================
 
     def action_send_reminder(self):
         """Envoyer la relance par email"""
@@ -144,15 +161,14 @@ class InvoiceReminder(models.Model):
             template = self.env.ref(template_ref, raise_if_not_found=False)
             if template:
                 template.send_mail(self.id, force_send=True)
+            else:
+                raise UserError(_("Le template d'email '%s' n'a pas ete trouve.") % template_ref)
         
         self.write({
             'state': 'sent',
             'send_date': fields.Datetime.now(),
             'email_sent': True,
         })
-        
-        # Mettre a jour le compteur de relances sur la facture
-        self.invoice_id._compute_reminder_count()
         
         return {
             'type': 'ir.actions.client',
@@ -165,9 +181,50 @@ class InvoiceReminder(models.Model):
             }
         }
 
+    def action_open_composer(self):
+        """Ouvrir le compositeur d'email pour previsualiser avant envoi"""
+        self.ensure_one()
+        
+        template_map = {
+            'reminder_1': 'lolirine_invoice.email_template_reminder_1',
+            'reminder_2': 'lolirine_invoice.email_template_reminder_2',
+            'reminder_3': 'lolirine_invoice.email_template_reminder_3',
+            'formal_notice': 'lolirine_invoice.email_template_formal_notice',
+        }
+        
+        template_ref = template_map.get(self.reminder_type)
+        template = self.env.ref(template_ref, raise_if_not_found=False) if template_ref else False
+        
+        ctx = {
+            'default_model': 'lolirine.invoice.reminder',
+            'default_res_ids': self.ids,
+            'default_template_id': template.id if template else False,
+            'default_composition_mode': 'comment',
+            'force_email': True,
+        }
+        
+        return {
+            'name': _('Envoyer la relance'),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'mail.compose.message',
+            'target': 'new',
+            'context': ctx,
+        }
+
     def action_mark_paid(self):
         """Marquer comme payee"""
         self.write({'state': 'paid'})
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Relance cloturee'),
+                'message': _('La relance a ete marquee comme payee.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
     def action_cancel(self):
         """Annuler la relance"""
@@ -175,7 +232,49 @@ class InvoiceReminder(models.Model):
 
     def action_reset_draft(self):
         """Remettre en brouillon"""
-        self.write({'state': 'draft'})
+        self.write({
+            'state': 'draft',
+            'send_date': False,
+            'email_sent': False,
+        })
+
+    def action_view_invoice(self):
+        """Voir la facture associee"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Facture'),
+            'res_model': 'account.move',
+            'view_mode': 'form',
+            'res_id': self.invoice_id.id,
+        }
+
+    def action_create_next_reminder(self):
+        """Creer la relance suivante"""
+        self.ensure_one()
+        
+        next_type_map = {
+            'reminder_1': 'reminder_2',
+            'reminder_2': 'reminder_3',
+            'reminder_3': 'formal_notice',
+            'formal_notice': 'lawyer',
+        }
+        
+        next_type = next_type_map.get(self.reminder_type)
+        if not next_type:
+            raise UserError(_("Aucune relance suivante disponible apres ce niveau."))
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Nouvelle relance'),
+            'res_model': 'lolirine.invoice.reminder',
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {
+                'default_invoice_id': self.invoice_id.id,
+                'default_reminder_type': next_type,
+            },
+        }
 
 
 class InvoiceReminderConfig(models.Model):
