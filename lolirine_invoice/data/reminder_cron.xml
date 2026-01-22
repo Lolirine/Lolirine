@@ -13,10 +13,8 @@
             <field name="code">model._cron_auto_reminder()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
             <field name="nextcall" eval="(DateTime.now().replace(hour=6, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')"/>
-            <field name="priority">10</field>
         </record>
         
         <!-- ============================================= -->
@@ -30,10 +28,8 @@
             <field name="code">model._cron_check_paid_invoices()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
             <field name="active">True</field>
             <field name="nextcall" eval="(DateTime.now().replace(hour=7, minute=0, second=0)).strftime('%Y-%m-%d %H:%M:%S')"/>
-            <field name="priority">15</field>
         </record>
         
     </data>
