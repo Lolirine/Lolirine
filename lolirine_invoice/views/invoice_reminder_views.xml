@@ -208,9 +208,9 @@
                 
                 <separator/>
                 
-                <filter name="filter_overdue_7" string="Retard &gt; 7j" domain="[('days_overdue', '&gt;', 7)]"/>
-                <filter name="filter_overdue_21" string="Retard &gt; 21j" domain="[('days_overdue', '&gt;', 21)]"/>
-                <filter name="filter_overdue_30" string="Retard &gt; 30j" domain="[('days_overdue', '&gt;', 30)]"/>
+                <filter name="filter_overdue_7" string="Retard 7j+" domain="[('days_overdue', '&gt;', 7)]"/>
+                <filter name="filter_overdue_21" string="Retard 21j+" domain="[('days_overdue', '&gt;', 21)]"/>
+                <filter name="filter_overdue_30" string="Retard 30j+" domain="[('days_overdue', '&gt;', 30)]"/>
                 
                 <group expand="0" string="Grouper par">
                     <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
@@ -257,7 +257,7 @@
                     
                     <group invisible="not auto_reminder">
                         <button name="action_test_auto_reminder" 
-                                string="🧪 Tester l'auto-relance maintenant" 
+                                string="Tester l'auto-relance maintenant" 
                                 type="object" 
                                 class="btn-primary"/>
                     </group>
