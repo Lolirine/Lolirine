@@ -4,3 +4,4 @@ from . import sale_order
 from . import invoice_tag
 from . import invoice_reminder
 from . import mail_mail
+from . import invoice_reminder
