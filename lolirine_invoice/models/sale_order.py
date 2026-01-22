@@ -155,6 +155,7 @@ class SaleOrder(models.Model):
             'invoice_origin': self.name,
             'narration': f"Facture de résiliation - Prorata {days_used} jours",
             'invoice_line_ids': invoice_lines,
+            'is_prorata_invoice': True,  # Marquer comme facture prorata
         }
         
         invoice = self.env['account.move'].sudo().create(invoice_vals)
