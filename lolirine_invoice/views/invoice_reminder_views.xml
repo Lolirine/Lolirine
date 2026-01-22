@@ -14,6 +14,11 @@
                             class="btn-primary"
                             invisible="state != 'draft'"/>
                     
+                    <button name="action_open_composer" 
+                            string="Previsualiser" 
+                            type="object"
+                            invisible="state != 'draft'"/>
+                    
                     <button name="action_mark_paid" 
                             string="Marquer payee" 
                             type="object" 
@@ -83,12 +88,16 @@
         </field>
     </record>
     
-    <!-- VUE LISTE RELANCES -->
+    <!-- VUE LISTE RELANCES AVEC COULEURS -->
     <record id="view_invoice_reminder_tree" model="ir.ui.view">
         <field name="name">lolirine.invoice.reminder.tree</field>
         <field name="model">lolirine.invoice.reminder</field>
         <field name="arch" type="xml">
-            <list string="Relances">
+            <list string="Relances"
+                  decoration-success="state == 'paid'"
+                  decoration-muted="state == 'cancelled'"
+                  decoration-danger="state in ('draft', 'sent') and days_overdue &gt; 21"
+                  decoration-warning="state in ('draft', 'sent') and days_overdue &gt; 7 and days_overdue &lt;= 21">
                 <field name="name"/>
                 <field name="invoice_id"/>
                 <field name="partner_id"/>
@@ -123,9 +132,16 @@
         <field name="model">lolirine.invoice.reminder.config</field>
         <field name="arch" type="xml">
             <form string="Configuration des relances">
+                <header>
+                    <button name="action_test_auto_reminder" 
+                            string="Tester auto-relance" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="not auto_reminder"/>
+                </header>
                 <sheet>
                     <group>
-                        <group string="Delais (jours)">
+                        <group string="Delais (jours apres echeance)">
                             <field name="reminder_1_days"/>
                             <field name="reminder_2_days"/>
                             <field name="reminder_3_days"/>
@@ -136,13 +152,6 @@
                             <field name="auto_reminder"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
-                    </group>
-                    <group>
-                        <button name="action_test_auto_reminder" 
-                                string="Tester auto-relance" 
-                                type="object" 
-                                class="btn-primary"
-                                invisible="not auto_reminder"/>
                     </group>
                 </sheet>
             </form>
