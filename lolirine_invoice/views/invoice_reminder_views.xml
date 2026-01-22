@@ -1,35 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
+    
+    <!-- ============================================= -->
+    <!-- VUE FORMULAIRE RELANCE                        -->
+    <!-- ============================================= -->
     <record id="view_invoice_reminder_form" model="ir.ui.view">
         <field name="name">lolirine.invoice.reminder.form</field>
         <field name="model">lolirine.invoice.reminder</field>
         <field name="arch" type="xml">
             <form string="Relance">
                 <header>
-                    <button name="action_send_reminder" type="object" string="Envoyer par email" class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="action_open_composer" type="object" string="Previsualiser" invisible="state != 'draft'"/>
-                    <button name="action_mark_paid" type="object" string="Marquer payee" class="btn-success" invisible="state not in ('draft', 'sent')"/>
-                    <button name="action_create_next_reminder" type="object" string="Relance suivante" invisible="state != 'sent' or reminder_type == 'lawyer'"/>
-                    <button name="action_cancel" type="object" string="Annuler" invisible="state in ('paid', 'cancelled')"/>
-                    <button name="action_reset_draft" type="object" string="Remettre en brouillon" invisible="state not in ('sent', 'cancelled')"/>
+                    <!-- Boutons d'actions -->
+                    <button name="action_send_reminder" 
+                            string="Envoyer par email" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            icon="fa-paper-plane"/>
+                    
+                    <button name="action_open_composer" 
+                            string="Prévisualiser" 
+                            type="object"
+                            invisible="state != 'draft'"
+                            icon="fa-eye"/>
+                    
+                    <button name="action_mark_paid" 
+                            string="Marquer payée" 
+                            type="object" 
+                            class="btn-success"
+                            invisible="state not in ('draft', 'sent')"
+                            icon="fa-check"/>
+                    
+                    <button name="action_cancel" 
+                            string="Annuler" 
+                            type="object"
+                            invisible="state not in ('draft', 'sent')"
+                            icon="fa-times"/>
+                    
+                    <button name="action_reset_draft" 
+                            string="Remettre en brouillon" 
+                            type="object"
+                            invisible="state not in ('sent', 'cancelled')"
+                            icon="fa-undo"/>
+                    
+                    <button name="action_create_next_reminder" 
+                            string="Relance suivante" 
+                            type="object"
+                            class="btn-warning"
+                            invisible="state != 'sent' or reminder_type == 'formal_notice'"
+                            icon="fa-forward"/>
+                    
+                    <!-- Statut -->
                     <field name="state" widget="statusbar" statusbar_visible="draft,sent,paid"/>
                 </header>
+                
                 <sheet>
+                    <!-- Bandeau auto-généré -->
+                    <div class="alert alert-info" role="alert" invisible="not auto_generated">
+                        <i class="fa fa-robot"/> Cette relance a été générée automatiquement par le système.
+                    </div>
+                    
+                    <!-- Bouton voir facture -->
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_invoice" type="object" class="oe_stat_button" icon="fa-file-text-o">
+                        <button name="action_view_invoice" 
+                                type="object" 
+                                class="oe_stat_button" 
+                                icon="fa-file-text-o">
                             <span class="o_stat_text">Voir Facture</span>
                         </button>
                     </div>
-                    <div class="oe_title">
-                        <h1><field name="name"/></h1>
-                    </div>
+                    
                     <group>
                         <group string="Relance">
-                            <field name="invoice_id"/>
-                            <field name="partner_id"/>
+                            <field name="invoice_id" options="{'no_create': True}"/>
+                            <field name="partner_id" readonly="1"/>
                             <field name="reminder_type"/>
                             <field name="date"/>
+                            <field name="auto_generated" invisible="1"/>
                         </group>
                         <group string="Montants">
                             <field name="amount_due"/>
@@ -39,90 +86,256 @@
                             <field name="currency_id" invisible="1"/>
                         </group>
                     </group>
-                    <group>
-                        <group string="Envoi">
+                    
+                    <group string="Envoi">
+                        <group>
                             <field name="send_date" readonly="1"/>
-                            <field name="email_sent"/>
-                        </group>
-                        <group string="Notes">
-                            <field name="notes" placeholder="Notes internes..."/>
+                            <field name="email_sent" readonly="1"/>
                         </group>
                     </group>
+                    
+                    <group string="Notes">
+                        <field name="notes" nolabel="1" placeholder="Notes internes..."/>
+                    </group>
                 </sheet>
-                <chatter/>
+                
+                <div class="oe_chatter">
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
-
-    <record id="view_invoice_reminder_list" model="ir.ui.view">
-        <field name="name">lolirine.invoice.reminder.list</field>
+    
+    <!-- ============================================= -->
+    <!-- VUE LISTE RELANCES                            -->
+    <!-- ============================================= -->
+    <record id="view_invoice_reminder_tree" model="ir.ui.view">
+        <field name="name">lolirine.invoice.reminder.tree</field>
         <field name="model">lolirine.invoice.reminder</field>
         <field name="arch" type="xml">
-            <list string="Relances" default_order="date desc">
+            <list string="Relances" decoration-danger="days_overdue &gt; 21" decoration-warning="days_overdue &gt; 7 and days_overdue &lt;= 21" decoration-muted="state == 'cancelled'" decoration-success="state == 'paid'">
                 <field name="name"/>
                 <field name="invoice_id"/>
                 <field name="partner_id"/>
-                <field name="reminder_type"/>
+                <field name="reminder_type" widget="badge" decoration-info="reminder_type == 'reminder_1'" decoration-warning="reminder_type == 'reminder_2'" decoration-danger="reminder_type in ('reminder_3', 'formal_notice')"/>
                 <field name="date"/>
+                <field name="amount_due" sum="Total"/>
                 <field name="days_overdue"/>
-                <field name="amount_due" sum="Total du"/>
-                <field name="penalty_amount" sum="Total penalites"/>
-                <field name="total_due" sum="Total"/>
-                <field name="email_sent"/>
-                <field name="state"/>
-                <field name="currency_id" column_invisible="1"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state in ('sent', 'paid')" decoration-danger="state == 'cancelled'"/>
+                <field name="auto_generated" widget="boolean" optional="hide"/>
+                <field name="send_date" optional="hide"/>
             </list>
         </field>
     </record>
-
-    <record id="action_invoice_reminders" model="ir.actions.act_window">
-        <field name="name">Relances</field>
-        <field name="res_model">lolirine.invoice.reminder</field>
-        <field name="view_mode">list,form</field>
+    
+    <!-- ============================================= -->
+    <!-- VUE KANBAN RELANCES                           -->
+    <!-- ============================================= -->
+    <record id="view_invoice_reminder_kanban" model="ir.ui.view">
+        <field name="name">lolirine.invoice.reminder.kanban</field>
+        <field name="model">lolirine.invoice.reminder</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="reminder_type"/>
+                <field name="amount_due"/>
+                <field name="days_overdue"/>
+                <field name="state"/>
+                <field name="auto_generated"/>
+                <templates>
+                    <t t-name="kanban-card">
+                        <div class="oe_kanban_content">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                                <field name="reminder_type" widget="badge"/>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <field name="partner_id"/>
+                                <div class="mt-2">
+                                    <strong><field name="amount_due"/> EUR</strong>
+                                    <span class="ms-2 text-muted">
+                                        (<field name="days_overdue"/> jours)
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <span t-if="record.auto_generated.raw_value" class="badge bg-info">Auto</span>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field name="state" widget="label_selection"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
     </record>
-
-    <record id="action_invoice_reminders_to_send" model="ir.actions.act_window">
-        <field name="name">Relances a envoyer</field>
-        <field name="res_model">lolirine.invoice.reminder</field>
-        <field name="view_mode">list,form</field>
-        <field name="domain">[('state', '=', 'draft')]</field>
+    
+    <!-- ============================================= -->
+    <!-- VUE RECHERCHE                                 -->
+    <!-- ============================================= -->
+    <record id="view_invoice_reminder_search" model="ir.ui.view">
+        <field name="name">lolirine.invoice.reminder.search</field>
+        <field name="model">lolirine.invoice.reminder</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher une relance">
+                <field name="name"/>
+                <field name="invoice_id"/>
+                <field name="partner_id"/>
+                
+                <filter name="filter_draft" string="À envoyer" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_sent" string="Envoyées" domain="[('state', '=', 'sent')]"/>
+                <filter name="filter_paid" string="Payées" domain="[('state', '=', 'paid')]"/>
+                
+                <separator/>
+                
+                <filter name="filter_reminder_1" string="1er Rappel" domain="[('reminder_type', '=', 'reminder_1')]"/>
+                <filter name="filter_reminder_2" string="2ème Rappel" domain="[('reminder_type', '=', 'reminder_2')]"/>
+                <filter name="filter_reminder_3" string="3ème Rappel" domain="[('reminder_type', '=', 'reminder_3')]"/>
+                <filter name="filter_formal_notice" string="Mise en demeure" domain="[('reminder_type', '=', 'formal_notice')]"/>
+                
+                <separator/>
+                
+                <filter name="filter_auto" string="Auto-générées" domain="[('auto_generated', '=', True)]"/>
+                <filter name="filter_manual" string="Manuelles" domain="[('auto_generated', '=', False)]"/>
+                
+                <separator/>
+                
+                <filter name="filter_overdue_7" string="Retard &gt; 7j" domain="[('days_overdue', '&gt;', 7)]"/>
+                <filter name="filter_overdue_21" string="Retard &gt; 21j" domain="[('days_overdue', '&gt;', 21)]"/>
+                <filter name="filter_overdue_30" string="Retard &gt; 30j" domain="[('days_overdue', '&gt;', 30)]"/>
+                
+                <group expand="0" string="Grouper par">
+                    <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
+                    <filter name="group_type" string="Type de relance" context="{'group_by': 'reminder_type'}"/>
+                    <filter name="group_partner" string="Client" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
     </record>
-
-    <record id="action_invoice_reminders_sent" model="ir.actions.act_window">
-        <field name="name">Relances en attente</field>
-        <field name="res_model">lolirine.invoice.reminder</field>
-        <field name="view_mode">list,form</field>
-        <field name="domain">[('state', '=', 'sent')]</field>
-    </record>
-
+    
+    <!-- ============================================= -->
+    <!-- VUE FORMULAIRE CONFIGURATION                  -->
+    <!-- ============================================= -->
     <record id="view_invoice_reminder_config_form" model="ir.ui.view">
         <field name="name">lolirine.invoice.reminder.config.form</field>
         <field name="model">lolirine.invoice.reminder.config</field>
         <field name="arch" type="xml">
-            <form string="Configuration relances">
+            <form string="Configuration des relances">
                 <sheet>
                     <group>
-                        <group string="Delais de relance">
+                        <group string="Délais de relance (jours après échéance)">
                             <field name="reminder_1_days"/>
                             <field name="reminder_2_days"/>
                             <field name="reminder_3_days"/>
                             <field name="formal_notice_days"/>
                         </group>
-                        <group string="Penalites">
+                        <group string="Paramètres">
                             <field name="penalty_rate"/>
-                            <field name="auto_reminder"/>
+                            <field name="auto_reminder" widget="boolean_toggle"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
                         </group>
+                    </group>
+                    
+                    <div class="alert alert-warning" role="alert" invisible="auto_reminder">
+                        <i class="fa fa-exclamation-triangle"/> Les relances automatiques sont <strong>désactivées</strong>. 
+                        Activez-les pour que le système génère et envoie automatiquement les relances selon les délais configurés.
+                    </div>
+                    
+                    <div class="alert alert-success" role="alert" invisible="not auto_reminder">
+                        <i class="fa fa-check"/> Les relances automatiques sont <strong>activées</strong>. 
+                        Le système génère et envoie automatiquement les relances chaque jour à 8h00.
+                    </div>
+                    
+                    <group invisible="not auto_reminder">
+                        <button name="action_test_auto_reminder" 
+                                string="🧪 Tester l'auto-relance maintenant" 
+                                type="object" 
+                                class="btn-primary"/>
                     </group>
                 </sheet>
             </form>
         </field>
     </record>
-
+    
+    <!-- ============================================= -->
+    <!-- ACTIONS                                       -->
+    <!-- ============================================= -->
+    <record id="action_invoice_reminder" model="ir.actions.act_window">
+        <field name="name">Relances</field>
+        <field name="res_model">lolirine.invoice.reminder</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_filter_draft': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune relance trouvée
+            </p>
+            <p>
+                Créez une nouvelle relance ou activez les relances automatiques dans la configuration.
+            </p>
+        </field>
+    </record>
+    
+    <record id="action_invoice_reminder_to_send" model="ir.actions.act_window">
+        <field name="name">Relances à envoyer</field>
+        <field name="res_model">lolirine.invoice.reminder</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('state', '=', 'draft')]</field>
+    </record>
+    
+    <record id="action_invoice_reminder_sent" model="ir.actions.act_window">
+        <field name="name">Relances en attente</field>
+        <field name="res_model">lolirine.invoice.reminder</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('state', '=', 'sent')]</field>
+    </record>
+    
     <record id="action_invoice_reminder_config" model="ir.actions.act_window">
         <field name="name">Configuration relances</field>
         <field name="res_model">lolirine.invoice.reminder.config</field>
         <field name="view_mode">form</field>
-        <field name="target">current</field>
+        <field name="target">inline</field>
     </record>
+    
+    <!-- ============================================= -->
+    <!-- MENUS                                         -->
+    <!-- ============================================= -->
+    <menuitem id="menu_invoice_reminder_root"
+              name="Relances"
+              parent="lolirine_invoice.menu_lolirine_invoice_root"
+              sequence="30"/>
+    
+    <menuitem id="menu_invoice_reminder_all"
+              name="Toutes les relances"
+              parent="menu_invoice_reminder_root"
+              action="action_invoice_reminder"
+              sequence="10"/>
+    
+    <menuitem id="menu_invoice_reminder_to_send"
+              name="À envoyer"
+              parent="menu_invoice_reminder_root"
+              action="action_invoice_reminder_to_send"
+              sequence="20"/>
+    
+    <menuitem id="menu_invoice_reminder_sent"
+              name="En attente de paiement"
+              parent="menu_invoice_reminder_root"
+              action="action_invoice_reminder_sent"
+              sequence="30"/>
+    
+    <menuitem id="menu_invoice_reminder_config"
+              name="Configuration"
+              parent="menu_invoice_reminder_root"
+              action="action_invoice_reminder_config"
+              sequence="100"
+              groups="base.group_system"/>
 
 </odoo>
