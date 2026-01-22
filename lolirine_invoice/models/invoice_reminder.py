@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import base64
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from datetime import timedelta
@@ -142,11 +143,14 @@ class InvoiceReminder(models.Model):
     # ==================== ACTIONS ====================
 
     def action_send_reminder(self):
-        """Envoyer la relance par email"""
+        """Envoyer la relance par email avec la facture en piece jointe"""
         self.ensure_one()
         
         if not self.partner_id.email:
             raise UserError(_("Le client n'a pas d'adresse email configuree."))
+        
+        if not self.invoice_id:
+            raise UserError(_("Aucune facture associee a cette relance."))
         
         # Selectionner le template selon le type
         template_map = {
@@ -160,7 +164,26 @@ class InvoiceReminder(models.Model):
         if template_ref:
             template = self.env.ref(template_ref, raise_if_not_found=False)
             if template:
-                template.send_mail(self.id, force_send=True)
+                # Generer le PDF de la facture
+                report = self.env.ref('account.account_invoices')
+                pdf_content, _ = report._render_qweb_pdf(report.id, [self.invoice_id.id])
+                
+                # Creer la piece jointe
+                attachment = self.env['ir.attachment'].create({
+                    'name': f"{self.invoice_id.name.replace('/', '_')}.pdf",
+                    'type': 'binary',
+                    'datas': base64.b64encode(pdf_content),
+                    'res_model': 'lolirine.invoice.reminder',
+                    'res_id': self.id,
+                    'mimetype': 'application/pdf',
+                })
+                
+                # Envoyer l'email avec la piece jointe
+                template.send_mail(
+                    self.id, 
+                    force_send=True,
+                    email_values={'attachment_ids': [attachment.id]}
+                )
             else:
                 raise UserError(_("Le template d'email '%s' n'a pas ete trouve.") % template_ref)
         
@@ -175,7 +198,7 @@ class InvoiceReminder(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': _('Relance envoyee'),
-                'message': _('Email envoye a %s') % self.partner_id.email,
+                'message': _('Email envoye a %s avec la facture en piece jointe') % self.partner_id.email,
                 'type': 'success',
                 'sticky': False,
             }
@@ -195,11 +218,28 @@ class InvoiceReminder(models.Model):
         template_ref = template_map.get(self.reminder_type)
         template = self.env.ref(template_ref, raise_if_not_found=False) if template_ref else False
         
+        # Generer le PDF de la facture pour la previsualisation
+        attachment_ids = []
+        if self.invoice_id:
+            report = self.env.ref('account.account_invoices')
+            pdf_content, _ = report._render_qweb_pdf(report.id, [self.invoice_id.id])
+            
+            attachment = self.env['ir.attachment'].create({
+                'name': f"{self.invoice_id.name.replace('/', '_')}.pdf",
+                'type': 'binary',
+                'datas': base64.b64encode(pdf_content),
+                'res_model': 'lolirine.invoice.reminder',
+                'res_id': self.id,
+                'mimetype': 'application/pdf',
+            })
+            attachment_ids = [attachment.id]
+        
         ctx = {
             'default_model': 'lolirine.invoice.reminder',
             'default_res_ids': self.ids,
             'default_template_id': template.id if template else False,
             'default_composition_mode': 'comment',
+            'default_attachment_ids': attachment_ids,
             'force_email': True,
         }
         
