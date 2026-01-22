@@ -158,8 +158,8 @@
         </field>
     </record>
     
-    <!-- ACTIONS -->
-    <record id="action_invoice_reminder" model="ir.actions.act_window">
+    <!-- ACTIONS - IDs compatibles avec menu_views.xml -->
+    <record id="action_invoice_reminders" model="ir.actions.act_window">
         <field name="name">Relances</field>
         <field name="res_model">lolirine.invoice.reminder</field>
         <field name="view_mode">list,form</field>
@@ -171,24 +171,5 @@
         <field name="view_mode">form</field>
         <field name="target">current</field>
     </record>
-    
-    <!-- MENUS -->
-    <menuitem id="menu_invoice_reminder_root"
-              name="Relances"
-              parent="lolirine_invoice.menu_lolirine_invoice_root"
-              sequence="30"/>
-    
-    <menuitem id="menu_invoice_reminder_all"
-              name="Toutes les relances"
-              parent="menu_invoice_reminder_root"
-              action="action_invoice_reminder"
-              sequence="10"/>
-    
-    <menuitem id="menu_invoice_reminder_config"
-              name="Configuration"
-              parent="menu_invoice_reminder_root"
-              action="action_invoice_reminder_config"
-              sequence="100"
-              groups="base.group_system"/>
 
 </odoo>
