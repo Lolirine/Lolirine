@@ -60,6 +60,35 @@ class AccountMove(models.Model):
     )
     
     # =============================================
+    # CHAMPS VÉRIFICATION BOX (PRORATA)
+    # =============================================
+    
+    is_prorata_invoice = fields.Boolean(
+        string="Facture Prorata",
+        default=False,
+        help="Indique si cette facture est une facture prorata de résiliation"
+    )
+    
+    box_checked = fields.Boolean(
+        string="Box vérifié",
+        default=False,
+        help="Indique si l'état du box a été vérifié après la résiliation"
+    )
+    
+    box_checked_date = fields.Datetime(
+        string="Date vérification box",
+        readonly=True,
+        help="Date et heure de la vérification du box"
+    )
+    
+    box_checked_by = fields.Many2one(
+        'res.users',
+        string="Vérifié par",
+        readonly=True,
+        help="Utilisateur ayant vérifié le box"
+    )
+    
+    # =============================================
     # CHAMPS RETARD ET ECHEANCE
     # =============================================
     
@@ -282,6 +311,62 @@ class AccountMove(models.Model):
                 self.auto_send_invoice = self.partner_id.auto_send_invoice
             if hasattr(self.partner_id, 'auto_send_peppol'):
                 self.auto_send_peppol = self.partner_id.auto_send_peppol
+
+    # =============================================
+    # ACTION METHODS - VÉRIFICATION BOX
+    # =============================================
+
+    def action_check_box(self):
+        """Marquer le box comme vérifié"""
+        self.ensure_one()
+        
+        self.write({
+            'box_checked': True,
+            'box_checked_date': fields.Datetime.now(),
+            'box_checked_by': self.env.user.id,
+        })
+        
+        self.message_post(
+            body=_("✅ Box vérifié par %s") % self.env.user.name,
+            message_type='notification'
+        )
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Box vérifié'),
+                'message': _("L'état du box a été marqué comme vérifié."),
+                'type': 'success',
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
+            }
+        }
+    
+    def action_uncheck_box(self):
+        """Annuler la vérification du box"""
+        self.ensure_one()
+        
+        self.write({
+            'box_checked': False,
+            'box_checked_date': False,
+            'box_checked_by': False,
+        })
+        
+        self.message_post(
+            body=_("⚠️ Vérification du box annulée par %s") % self.env.user.name,
+            message_type='notification'
+        )
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Vérification annulée'),
+                'message': _('La vérification du box a été annulée.'),
+                'type': 'warning',
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
+            }
+        }
 
     # =============================================
     # ACTION METHODS
@@ -707,6 +792,10 @@ class AccountMove(models.Model):
             'reminder_level': '0',
             'last_reminder_date': False,
             'last_reminder_type': False,
+            'is_prorata_invoice': False,
+            'box_checked': False,
+            'box_checked_date': False,
+            'box_checked_by': False,
         })
         
         return {
