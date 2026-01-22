@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import base64
-from odoo import models, fields, api, _
+from odoo import models, fields, api
 from odoo.exceptions import UserError
 from datetime import timedelta
 
@@ -147,10 +147,10 @@ class InvoiceReminder(models.Model):
         self.ensure_one()
         
         if not self.partner_id.email:
-            raise UserError(_("Le client n'a pas d'adresse email configuree."))
+            raise UserError("Le client n'a pas d'adresse email configuree.")
         
         if not self.invoice_id:
-            raise UserError(_("Aucune facture associee a cette relance."))
+            raise UserError("Aucune facture associee a cette relance.")
         
         # Selectionner le template selon le type
         template_map = {
@@ -164,28 +164,37 @@ class InvoiceReminder(models.Model):
         if template_ref:
             template = self.env.ref(template_ref, raise_if_not_found=False)
             if template:
-                # Generer le PDF de la facture
-                report = self.env.ref('account.account_invoices')
-                pdf_content, _ = report._render_qweb_pdf(report.id, [self.invoice_id.id])
+                # Generer le PDF de la facture avec le rapport Lolirine
+                # Essayer d'abord le rapport personnalise Lolirine
+                report = self.env.ref('lolirine_invoice.report_invoice_lolirine', raise_if_not_found=False)
+                if not report:
+                    # Fallback sur le rapport standard
+                    report = self.env.ref('account.account_invoices', raise_if_not_found=False)
                 
-                # Creer la piece jointe
-                attachment = self.env['ir.attachment'].create({
-                    'name': f"{self.invoice_id.name.replace('/', '_')}.pdf",
-                    'type': 'binary',
-                    'datas': base64.b64encode(pdf_content),
-                    'res_model': 'lolirine.invoice.reminder',
-                    'res_id': self.id,
-                    'mimetype': 'application/pdf',
-                })
-                
-                # Envoyer l'email avec la piece jointe
-                template.send_mail(
-                    self.id, 
-                    force_send=True,
-                    email_values={'attachment_ids': [attachment.id]}
-                )
+                if report:
+                    pdf_content, _ = report._render_qweb_pdf(report.id, [self.invoice_id.id])
+                    
+                    # Creer la piece jointe
+                    attachment = self.env['ir.attachment'].create({
+                        'name': f"{self.invoice_id.name.replace('/', '_')}.pdf",
+                        'type': 'binary',
+                        'datas': base64.b64encode(pdf_content),
+                        'res_model': 'lolirine.invoice.reminder',
+                        'res_id': self.id,
+                        'mimetype': 'application/pdf',
+                    })
+                    
+                    # Envoyer l'email avec la piece jointe
+                    template.send_mail(
+                        self.id, 
+                        force_send=True,
+                        email_values={'attachment_ids': [attachment.id]}
+                    )
+                else:
+                    # Envoyer sans piece jointe si pas de rapport
+                    template.send_mail(self.id, force_send=True)
             else:
-                raise UserError(_("Le template d'email '%s' n'a pas ete trouve.") % template_ref)
+                raise UserError("Le template d'email '%s' n'a pas ete trouve." % template_ref)
         
         self.write({
             'state': 'sent',
@@ -197,8 +206,8 @@ class InvoiceReminder(models.Model):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('Relance envoyee'),
-                'message': _('Email envoye a %s avec la facture en piece jointe') % self.partner_id.email,
+                'title': 'Relance envoyee',
+                'message': 'Email envoye a %s avec la facture en piece jointe' % self.partner_id.email,
                 'type': 'success',
                 'sticky': False,
             }
@@ -221,18 +230,23 @@ class InvoiceReminder(models.Model):
         # Generer le PDF de la facture pour la previsualisation
         attachment_ids = []
         if self.invoice_id:
-            report = self.env.ref('account.account_invoices')
-            pdf_content, _ = report._render_qweb_pdf(report.id, [self.invoice_id.id])
+            # Essayer d'abord le rapport personnalise Lolirine
+            report = self.env.ref('lolirine_invoice.report_invoice_lolirine', raise_if_not_found=False)
+            if not report:
+                report = self.env.ref('account.account_invoices', raise_if_not_found=False)
             
-            attachment = self.env['ir.attachment'].create({
-                'name': f"{self.invoice_id.name.replace('/', '_')}.pdf",
-                'type': 'binary',
-                'datas': base64.b64encode(pdf_content),
-                'res_model': 'lolirine.invoice.reminder',
-                'res_id': self.id,
-                'mimetype': 'application/pdf',
-            })
-            attachment_ids = [attachment.id]
+            if report:
+                pdf_content, _ = report._render_qweb_pdf(report.id, [self.invoice_id.id])
+                
+                attachment = self.env['ir.attachment'].create({
+                    'name': f"{self.invoice_id.name.replace('/', '_')}.pdf",
+                    'type': 'binary',
+                    'datas': base64.b64encode(pdf_content),
+                    'res_model': 'lolirine.invoice.reminder',
+                    'res_id': self.id,
+                    'mimetype': 'application/pdf',
+                })
+                attachment_ids = [attachment.id]
         
         ctx = {
             'default_model': 'lolirine.invoice.reminder',
@@ -244,7 +258,7 @@ class InvoiceReminder(models.Model):
         }
         
         return {
-            'name': _('Envoyer la relance'),
+            'name': 'Envoyer la relance',
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
             'res_model': 'mail.compose.message',
@@ -259,8 +273,8 @@ class InvoiceReminder(models.Model):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('Relance cloturee'),
-                'message': _('La relance a ete marquee comme payee.'),
+                'title': 'Relance cloturee',
+                'message': 'La relance a ete marquee comme payee.',
                 'type': 'success',
                 'sticky': False,
             }
@@ -283,7 +297,7 @@ class InvoiceReminder(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Facture'),
+            'name': 'Facture',
             'res_model': 'account.move',
             'view_mode': 'form',
             'res_id': self.invoice_id.id,
@@ -302,11 +316,11 @@ class InvoiceReminder(models.Model):
         
         next_type = next_type_map.get(self.reminder_type)
         if not next_type:
-            raise UserError(_("Aucune relance suivante disponible apres ce niveau."))
+            raise UserError("Aucune relance suivante disponible apres ce niveau.")
         
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Nouvelle relance'),
+            'name': 'Nouvelle relance',
             'res_model': 'lolirine.invoice.reminder',
             'view_mode': 'form',
             'target': 'current',
