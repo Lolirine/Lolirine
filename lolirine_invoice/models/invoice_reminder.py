@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 
 import base64
+import logging
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 from datetime import timedelta
 
+_logger = logging.getLogger(__name__)
+
 
 class InvoiceReminder(models.Model):
-    """Suivi des relances pour factures impayees"""
+    """Suivi des relances pour factures impayées"""
     _name = 'lolirine.invoice.reminder'
     _description = 'Relance facture'
     _order = 'date desc, id desc'
     _inherit = ['mail.thread']
 
     name = fields.Char(
-        string='Reference',
+        string='Référence',
         compute='_compute_name',
         store=True
     )
@@ -36,8 +39,8 @@ class InvoiceReminder(models.Model):
     
     reminder_type = fields.Selection([
         ('reminder_1', '1er Rappel'),
-        ('reminder_2', '2eme Rappel'),
-        ('reminder_3', '3eme Rappel'),
+        ('reminder_2', '2ème Rappel'),
+        ('reminder_3', '3ème Rappel'),
         ('formal_notice', 'Mise en demeure'),
         ('lawyer', 'Transmission avocat'),
     ], string='Type de relance', required=True, default='reminder_1', tracking=True)
@@ -56,14 +59,14 @@ class InvoiceReminder(models.Model):
     
     state = fields.Selection([
         ('draft', 'Brouillon'),
-        ('sent', 'Envoyee'),
-        ('paid', 'Payee'),
-        ('cancelled', 'Annulee'),
-    ], string='Etat', default='draft', tracking=True)
+        ('sent', 'Envoyée'),
+        ('paid', 'Payée'),
+        ('cancelled', 'Annulée'),
+    ], string='État', default='draft', tracking=True)
     
     amount_due = fields.Monetary(
         related='invoice_id.amount_residual',
-        string='Montant du',
+        string='Montant dû',
         store=True
     )
     
@@ -77,23 +80,34 @@ class InvoiceReminder(models.Model):
         store=True
     )
     
+    days_overdue_badge = fields.Char(
+        string='Retard',
+        compute='_compute_days_overdue_badge'
+    )
+    
     penalty_amount = fields.Monetary(
-        string='Penalites de retard',
+        string='Pénalités de retard',
         compute='_compute_penalty_amount',
         store=True,
-        help='Penalites calculees selon le taux legal belge'
+        help='Pénalités calculées selon le taux légal belge'
     )
     
     total_due = fields.Monetary(
-        string='Total du',
+        string='Total dû',
         compute='_compute_penalty_amount',
         store=True,
-        help='Montant du + penalites'
+        help='Montant dû + pénalités'
     )
     
     notes = fields.Text(string='Notes internes')
     
-    email_sent = fields.Boolean(string='Email envoye', default=False)
+    email_sent = fields.Boolean(string='Email envoyé', default=False)
+    
+    auto_generated = fields.Boolean(
+        string='Généré automatiquement',
+        default=False,
+        help='Indique si cette relance a été créée par le système automatique'
+    )
     
     company_id = fields.Many2one(
         related='invoice_id.company_id',
@@ -127,10 +141,22 @@ class InvoiceReminder(models.Model):
             else:
                 rec.days_overdue = 0
 
+    @api.depends('days_overdue')
+    def _compute_days_overdue_badge(self):
+        for rec in self:
+            if rec.days_overdue <= 7:
+                rec.days_overdue_badge = 'success'
+            elif rec.days_overdue <= 21:
+                rec.days_overdue_badge = 'warning'
+            else:
+                rec.days_overdue_badge = 'danger'
+
     @api.depends('amount_due', 'days_overdue')
     def _compute_penalty_amount(self):
-        """Calcul des penalites selon le taux legal belge (10.5% annuel pour 2024)"""
-        annual_rate = 0.105  # Taux legal belge 2024
+        """Calcul des pénalités selon le taux légal belge"""
+        config = self.env['lolirine.invoice.reminder.config'].search([], limit=1)
+        annual_rate = config.penalty_rate / 100 if config else 0.105
+        
         for rec in self:
             if rec.days_overdue > 0 and rec.amount_due > 0:
                 rec.penalty_amount = rec.amount_due * (annual_rate / 365) * rec.days_overdue
@@ -406,7 +432,7 @@ class InvoiceReminder(models.Model):
     # ==================== ACTIONS ====================
 
     def action_send_reminder(self):
-        """Envoyer la relance par email avec la facture en piece jointe"""
+        """Envoyer la relance par email avec la facture en pièce jointe"""
         self.ensure_one()
         
         if not self.partner_id.email:
@@ -415,26 +441,50 @@ class InvoiceReminder(models.Model):
         if not self.invoice_id:
             raise UserError("Aucune facture associée à cette relance.")
         
-        # Générer le PDF de la facture avec le rapport Lolirine
+        self._send_reminder_email()
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Relance envoyée',
+                'message': f'Email envoyé à {self.partner_id.email} avec la facture en pièce jointe',
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
+    def _send_reminder_email(self):
+        """Méthode interne pour envoyer l'email de relance"""
+        self.ensure_one()
+        
+        if not self.partner_id.email:
+            _logger.warning(f"Relance {self.name}: pas d'email pour {self.partner_id.name}")
+            return False
+        
+        # Générer le PDF de la facture
         report = self.env.ref('lolirine_invoice.action_report_invoice_lolirine', raise_if_not_found=False)
         if not report:
             report = self.env.ref('account.account_invoices', raise_if_not_found=False)
         
         attachment_ids = []
         if report:
-            pdf_content, _ = report._render_qweb_pdf(report.id, [self.invoice_id.id])
-            
-            attachment = self.env['ir.attachment'].create({
-                'name': f"{self.invoice_id.name.replace('/', '_')}.pdf",
-                'type': 'binary',
-                'datas': base64.b64encode(pdf_content),
-                'res_model': 'lolirine.invoice.reminder',
-                'res_id': self.id,
-                'mimetype': 'application/pdf',
-            })
-            attachment_ids.append(attachment.id)
+            try:
+                pdf_content, _ = report._render_qweb_pdf(report.id, [self.invoice_id.id])
+                
+                attachment = self.env['ir.attachment'].create({
+                    'name': f"{self.invoice_id.name.replace('/', '_')}.pdf",
+                    'type': 'binary',
+                    'datas': base64.b64encode(pdf_content),
+                    'res_model': 'lolirine.invoice.reminder',
+                    'res_id': self.id,
+                    'mimetype': 'application/pdf',
+                })
+                attachment_ids.append(attachment.id)
+            except Exception as e:
+                _logger.error(f"Erreur génération PDF pour relance {self.name}: {e}")
         
-        # Créer et envoyer l'email directement
+        # Créer et envoyer l'email
         mail_values = {
             'subject': self._get_email_subject(),
             'body_html': self._get_email_body(),
@@ -455,22 +505,13 @@ class InvoiceReminder(models.Model):
             'email_sent': True,
         })
         
-        # Poster un message dans le chatter
         self.message_post(
-            body=f"✅ Relance envoyée par email à {self.partner_id.email}",
+            body=f"✅ Relance envoyée automatiquement à {self.partner_id.email}",
             message_type='notification'
         )
         
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Relance envoyée',
-                'message': f'Email envoyé à {self.partner_id.email} avec la facture en pièce jointe',
-                'type': 'success',
-                'sticky': False,
-            }
-        }
+        _logger.info(f"Relance {self.name} envoyée à {self.partner_id.email}")
+        return True
 
     def action_open_composer(self):
         """Ouvrir le compositeur d'email pour prévisualiser avant envoi"""
@@ -567,6 +608,16 @@ class InvoiceReminder(models.Model):
         if not next_type:
             raise UserError("Aucune relance suivante disponible après ce niveau.")
         
+        # Vérifier si une relance de ce type existe déjà
+        existing = self.search([
+            ('invoice_id', '=', self.invoice_id.id),
+            ('reminder_type', '=', next_type),
+            ('state', '!=', 'cancelled'),
+        ], limit=1)
+        
+        if existing:
+            raise UserError(f"Une relance de type '{dict(self._fields['reminder_type'].selection).get(next_type)}' existe déjà pour cette facture.")
+        
         return {
             'type': 'ir.actions.act_window',
             'name': 'Nouvelle relance',
@@ -578,6 +629,133 @@ class InvoiceReminder(models.Model):
                 'default_reminder_type': next_type,
             },
         }
+
+    # ==================== AUTO-RELANCE CRON ====================
+
+    @api.model
+    def _cron_auto_reminder(self):
+        """Cron pour générer et envoyer automatiquement les relances"""
+        config = self.env['lolirine.invoice.reminder.config'].search([('auto_reminder', '=', True)], limit=1)
+        
+        if not config:
+            _logger.info("Auto-relance désactivée - pas de configuration active")
+            return
+        
+        _logger.info("=== Début du traitement auto-relance ===")
+        
+        today = fields.Date.today()
+        
+        # Récupérer toutes les factures clients impayées
+        overdue_invoices = self.env['account.move'].search([
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            ('payment_state', 'in', ['not_paid', 'partial']),
+            ('invoice_date_due', '<', today),
+            ('partner_id.email', '!=', False),  # Seulement si email disponible
+        ])
+        
+        _logger.info(f"Factures impayées trouvées: {len(overdue_invoices)}")
+        
+        reminders_created = 0
+        reminders_sent = 0
+        
+        for invoice in overdue_invoices:
+            days_overdue = (today - invoice.invoice_date_due).days
+            
+            # Déterminer le type de relance approprié
+            reminder_type = self._get_reminder_type_for_days(days_overdue, config)
+            
+            if not reminder_type:
+                continue
+            
+            # Vérifier si une relance de ce type existe déjà
+            existing = self.search([
+                ('invoice_id', '=', invoice.id),
+                ('reminder_type', '=', reminder_type),
+                ('state', '!=', 'cancelled'),
+            ], limit=1)
+            
+            if existing:
+                continue
+            
+            # Vérifier que la relance précédente a été envoyée (sauf pour reminder_1)
+            if reminder_type != 'reminder_1':
+                prev_type = self._get_previous_reminder_type(reminder_type)
+                prev_reminder = self.search([
+                    ('invoice_id', '=', invoice.id),
+                    ('reminder_type', '=', prev_type),
+                    ('state', '=', 'sent'),
+                ], limit=1)
+                
+                if not prev_reminder:
+                    continue
+            
+            # Créer la relance
+            try:
+                reminder = self.create({
+                    'invoice_id': invoice.id,
+                    'reminder_type': reminder_type,
+                    'auto_generated': True,
+                })
+                reminders_created += 1
+                _logger.info(f"Relance créée: {reminder.name} pour {invoice.partner_id.name}")
+                
+                # Envoyer automatiquement
+                if reminder._send_reminder_email():
+                    reminders_sent += 1
+                    
+            except Exception as e:
+                _logger.error(f"Erreur création relance pour facture {invoice.name}: {e}")
+                continue
+        
+        _logger.info(f"=== Fin auto-relance: {reminders_created} créées, {reminders_sent} envoyées ===")
+        
+        return {
+            'created': reminders_created,
+            'sent': reminders_sent,
+        }
+
+    def _get_reminder_type_for_days(self, days_overdue, config):
+        """Détermine le type de relance selon les jours de retard"""
+        if days_overdue >= config.formal_notice_days:
+            return 'formal_notice'
+        elif days_overdue >= config.reminder_3_days:
+            return 'reminder_3'
+        elif days_overdue >= config.reminder_2_days:
+            return 'reminder_2'
+        elif days_overdue >= config.reminder_1_days:
+            return 'reminder_1'
+        return None
+
+    def _get_previous_reminder_type(self, reminder_type):
+        """Retourne le type de relance précédent"""
+        prev_map = {
+            'reminder_2': 'reminder_1',
+            'reminder_3': 'reminder_2',
+            'formal_notice': 'reminder_3',
+            'lawyer': 'formal_notice',
+        }
+        return prev_map.get(reminder_type)
+
+    # ==================== MARQUER PAYÉ AUTOMATIQUEMENT ====================
+
+    @api.model
+    def _cron_check_paid_invoices(self):
+        """Cron pour marquer les relances comme payées si la facture est payée"""
+        paid_reminders = self.search([
+            ('state', 'in', ['draft', 'sent']),
+            ('invoice_id.payment_state', '=', 'paid'),
+        ])
+        
+        for reminder in paid_reminders:
+            reminder.write({'state': 'paid'})
+            reminder.message_post(
+                body="✅ Facture payée - Relance clôturée automatiquement",
+                message_type='notification'
+            )
+        
+        if paid_reminders:
+            _logger.info(f"{len(paid_reminders)} relances marquées comme payées")
 
 
 class InvoiceReminderConfig(models.Model):
@@ -617,7 +795,7 @@ class InvoiceReminderConfig(models.Model):
     auto_reminder = fields.Boolean(
         string='Relances automatiques',
         default=False,
-        help='Générer automatiquement les relances selon le calendrier'
+        help='Activer la génération et l\'envoi automatique des relances'
     )
     
     company_id = fields.Many2one(
@@ -625,3 +803,20 @@ class InvoiceReminderConfig(models.Model):
         string='Société',
         default=lambda self: self.env.company
     )
+    
+    def action_test_auto_reminder(self):
+        """Bouton pour tester l'auto-relance manuellement"""
+        self.ensure_one()
+        result = self.env['lolirine.invoice.reminder']._cron_auto_reminder()
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Test auto-relance terminé',
+                'message': f"Relances créées: {result.get('created', 0)}, envoyées: {result.get('sent', 0)}",
+                'type': 'success',
+                'sticky': True,
+            }
+        }
+        
