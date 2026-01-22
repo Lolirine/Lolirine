@@ -9,13 +9,13 @@
         <field name="arch" type="xml">
             <form string="Relance">
                 <header>
-                    <button name="action_send_reminder" type="object" string="📧 Envoyer par email"
+                    <button name="action_send_reminder" type="object" string="Envoyer par email"
                             class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="action_open_composer" type="object" string="📝 Prévisualiser"
+                    <button name="action_open_composer" type="object" string="Previsualiser"
                             invisible="state != 'draft'"/>
-                    <button name="action_mark_paid" type="object" string="✅ Marquer payée"
+                    <button name="action_mark_paid" type="object" string="Marquer payee"
                             class="btn-success" invisible="state not in ('draft', 'sent')"/>
-                    <button name="action_create_next_reminder" type="object" string="➡️ Relance suivante"
+                    <button name="action_create_next_reminder" type="object" string="Relance suivante"
                             invisible="state != 'sent' or reminder_type == 'lawyer'"/>
                     <button name="action_cancel" type="object" string="Annuler"
                             invisible="state in ('paid', 'cancelled')"/>
@@ -30,9 +30,9 @@
                             <span class="o_stat_text">Voir Facture</span>
                         </button>
                     </div>
-                    <widget name="web_ribbon" title="Envoyée" bg_color="text-bg-success" invisible="state != 'sent'"/>
-                    <widget name="web_ribbon" title="Payée" bg_color="text-bg-info" invisible="state != 'paid'"/>
-                    <widget name="web_ribbon" title="Annulée" bg_color="text-bg-danger" invisible="state != 'cancelled'"/>
+                    <widget name="web_ribbon" title="Envoyee" bg_color="text-bg-success" invisible="state != 'sent'"/>
+                    <widget name="web_ribbon" title="Payee" bg_color="text-bg-info" invisible="state != 'paid'"/>
+                    <widget name="web_ribbon" title="Annulee" bg_color="text-bg-danger" invisible="state != 'cancelled'"/>
                     
                     <div class="oe_title">
                         <h1><field name="name"/></h1>
@@ -72,9 +72,7 @@
         <field name="name">lolirine.invoice.reminder.list</field>
         <field name="model">lolirine.invoice.reminder</field>
         <field name="arch" type="xml">
-            <list string="Relances" decoration-danger="state == 'draft' and days_overdue &gt; 30"
-                  decoration-warning="state == 'draft' and days_overdue &gt; 14"
-                  decoration-success="state == 'paid'"
+            <list string="Relances" decoration-success="state == 'paid'"
                   decoration-muted="state == 'cancelled'"
                   default_order="date desc">
                 <field name="name"/>
@@ -111,22 +109,18 @@
                 <field name="partner_id"/>
                 <separator/>
                 <filter string="Brouillon" name="filter_draft" domain="[('state', '=', 'draft')]"/>
-                <filter string="Envoyées" name="filter_sent" domain="[('state', '=', 'sent')]"/>
-                <filter string="Payées" name="filter_paid" domain="[('state', '=', 'paid')]"/>
+                <filter string="Envoyees" name="filter_sent" domain="[('state', '=', 'sent')]"/>
+                <filter string="Payees" name="filter_paid" domain="[('state', '=', 'paid')]"/>
                 <separator/>
                 <filter string="1er Rappel" name="filter_reminder_1" domain="[('reminder_type', '=', 'reminder_1')]"/>
-                <filter string="2ème Rappel" name="filter_reminder_2" domain="[('reminder_type', '=', 'reminder_2')]"/>
-                <filter string="3ème Rappel" name="filter_reminder_3" domain="[('reminder_type', '=', 'reminder_3')]"/>
+                <filter string="2eme Rappel" name="filter_reminder_2" domain="[('reminder_type', '=', 'reminder_2')]"/>
+                <filter string="3eme Rappel" name="filter_reminder_3" domain="[('reminder_type', '=', 'reminder_3')]"/>
                 <filter string="Mise en demeure" name="filter_formal" domain="[('reminder_type', '=', 'formal_notice')]"/>
-                <separator/>
-                <filter string="Retard &gt; 7 jours" name="filter_overdue_7" domain="[('days_overdue', '&gt;', 7)]"/>
-                <filter string="Retard &gt; 14 jours" name="filter_overdue_14" domain="[('days_overdue', '&gt;', 14)]"/>
-                <filter string="Retard &gt; 30 jours" name="filter_overdue_30" domain="[('days_overdue', '&gt;', 30)]"/>
                 <separator/>
                 <group expand="0" string="Grouper par">
                     <filter string="Client" name="group_partner" context="{'group_by': 'partner_id'}"/>
                     <filter string="Type" name="group_type" context="{'group_by': 'reminder_type'}"/>
-                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Etat" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Date" name="group_date" context="{'group_by': 'date:month'}"/>
                 </group>
             </search>
@@ -144,20 +138,20 @@
                 Aucune relance
             </p>
             <p>
-                Les relances sont créées depuis les factures impayées.
+                Les relances sont creees depuis les factures impayees.
             </p>
         </field>
     </record>
 
-    <!-- Action relances à envoyer -->
+    <!-- Action relances a envoyer -->
     <record id="action_invoice_reminders_to_send" model="ir.actions.act_window">
-        <field name="name">Relances à envoyer</field>
+        <field name="name">Relances a envoyer</field>
         <field name="res_model">lolirine.invoice.reminder</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('state', '=', 'draft')]</field>
     </record>
 
-    <!-- Action relances envoyées -->
+    <!-- Action relances envoyees -->
     <record id="action_invoice_reminders_sent" model="ir.actions.act_window">
         <field name="name">Relances en attente</field>
         <field name="res_model">lolirine.invoice.reminder</field>
@@ -174,20 +168,20 @@
             <form string="Configuration relances">
                 <sheet>
                     <group>
-                        <group string="Délais de relance (jours après échéance)">
+                        <group string="Delais de relance (jours apres echeance)">
                             <field name="reminder_1_days"/>
                             <field name="reminder_2_days"/>
                             <field name="reminder_3_days"/>
                             <field name="formal_notice_days"/>
                         </group>
-                        <group string="Pénalités">
+                        <group string="Penalites">
                             <field name="penalty_rate"/>
                             <field name="auto_reminder"/>
                         </group>
                     </group>
                     <div class="alert alert-info">
-                        <strong>Information :</strong> Le taux légal belge pour les pénalités de retard 
-                        est de 10,5% annuel (2024). Ce taux est appliqué proportionnellement 
+                        <strong>Information :</strong> Le taux legal belge pour les penalites de retard 
+                        est de 10,5% annuel (2024). Ce taux est applique proportionnellement 
                         au nombre de jours de retard.
                     </div>
                 </sheet>
