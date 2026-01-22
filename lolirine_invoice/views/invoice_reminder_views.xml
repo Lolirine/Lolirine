@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     
-    <!-- ============================================= -->
-    <!-- VUE FORMULAIRE RELANCE                        -->
-    <!-- ============================================= -->
+    <!-- VUE FORMULAIRE RELANCE -->
     <record id="view_invoice_reminder_form" model="ir.ui.view">
         <field name="name">lolirine.invoice.reminder.form</field>
         <field name="model">lolirine.invoice.reminder</field>
@@ -16,13 +14,8 @@
                             class="btn-primary"
                             invisible="state != 'draft'"/>
                     
-                    <button name="action_open_composer" 
-                            string="Prévisualiser" 
-                            type="object"
-                            invisible="state != 'draft'"/>
-                    
                     <button name="action_mark_paid" 
-                            string="Marquer payée" 
+                            string="Marquer payee" 
                             type="object" 
                             class="btn-success"
                             invisible="state not in ('draft', 'sent')"/>
@@ -41,7 +34,7 @@
                             string="Relance suivante" 
                             type="object"
                             class="btn-warning"
-                            invisible="state != 'sent' or reminder_type == 'formal_notice'"/>
+                            invisible="state != 'sent'"/>
                     
                     <field name="state" widget="statusbar" statusbar_visible="draft,sent,paid"/>
                 </header>
@@ -58,11 +51,10 @@
                     
                     <group>
                         <group string="Relance">
-                            <field name="invoice_id" options="{'no_create': True}"/>
+                            <field name="invoice_id"/>
                             <field name="partner_id" readonly="1"/>
                             <field name="reminder_type"/>
                             <field name="date"/>
-                            <field name="auto_generated" invisible="1"/>
                         </group>
                         <group string="Montants">
                             <field name="amount_due"/>
@@ -74,14 +66,13 @@
                     </group>
                     
                     <group string="Envoi">
-                        <group>
-                            <field name="send_date" readonly="1"/>
-                            <field name="email_sent" readonly="1"/>
-                        </group>
+                        <field name="send_date" readonly="1"/>
+                        <field name="email_sent" readonly="1"/>
+                        <field name="auto_generated" readonly="1"/>
                     </group>
                     
                     <group string="Notes">
-                        <field name="notes" nolabel="1" placeholder="Notes internes..."/>
+                        <field name="notes" nolabel="1"/>
                     </group>
                 </sheet>
                 
@@ -92,9 +83,7 @@
         </field>
     </record>
     
-    <!-- ============================================= -->
-    <!-- VUE LISTE RELANCES                            -->
-    <!-- ============================================= -->
+    <!-- VUE LISTE RELANCES -->
     <record id="view_invoice_reminder_tree" model="ir.ui.view">
         <field name="name">lolirine.invoice.reminder.tree</field>
         <field name="model">lolirine.invoice.reminder</field>
@@ -108,51 +97,27 @@
                 <field name="amount_due" sum="Total"/>
                 <field name="days_overdue"/>
                 <field name="state"/>
-                <field name="auto_generated" optional="hide"/>
-                <field name="send_date" optional="hide"/>
             </list>
         </field>
     </record>
     
-    <!-- ============================================= -->
-    <!-- VUE RECHERCHE                                 -->
-    <!-- ============================================= -->
+    <!-- VUE RECHERCHE -->
     <record id="view_invoice_reminder_search" model="ir.ui.view">
         <field name="name">lolirine.invoice.reminder.search</field>
         <field name="model">lolirine.invoice.reminder</field>
         <field name="arch" type="xml">
-            <search string="Rechercher une relance">
+            <search string="Rechercher">
                 <field name="name"/>
                 <field name="invoice_id"/>
                 <field name="partner_id"/>
-                
-                <filter name="filter_draft" string="À envoyer" domain="[('state', '=', 'draft')]"/>
-                <filter name="filter_sent" string="Envoyées" domain="[('state', '=', 'sent')]"/>
-                <filter name="filter_paid" string="Payées" domain="[('state', '=', 'paid')]"/>
-                
-                <separator/>
-                
-                <filter name="filter_reminder_1" string="1er Rappel" domain="[('reminder_type', '=', 'reminder_1')]"/>
-                <filter name="filter_reminder_2" string="2eme Rappel" domain="[('reminder_type', '=', 'reminder_2')]"/>
-                <filter name="filter_reminder_3" string="3eme Rappel" domain="[('reminder_type', '=', 'reminder_3')]"/>
-                <filter name="filter_formal_notice" string="Mise en demeure" domain="[('reminder_type', '=', 'formal_notice')]"/>
-                
-                <separator/>
-                
-                <filter name="filter_auto" string="Auto-generees" domain="[('auto_generated', '=', True)]"/>
-                
-                <group expand="0" string="Grouper par">
-                    <filter name="group_state" string="Etat" context="{'group_by': 'state'}"/>
-                    <filter name="group_type" string="Type de relance" context="{'group_by': 'reminder_type'}"/>
-                    <filter name="group_partner" string="Client" context="{'group_by': 'partner_id'}"/>
-                </group>
+                <filter name="filter_draft" string="Brouillon" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_sent" string="Envoyees" domain="[('state', '=', 'sent')]"/>
+                <filter name="filter_paid" string="Payees" domain="[('state', '=', 'paid')]"/>
             </search>
         </field>
     </record>
     
-    <!-- ============================================= -->
-    <!-- VUE FORMULAIRE CONFIGURATION                  -->
-    <!-- ============================================= -->
+    <!-- VUE FORMULAIRE CONFIGURATION -->
     <record id="view_invoice_reminder_config_form" model="ir.ui.view">
         <field name="name">lolirine.invoice.reminder.config.form</field>
         <field name="model">lolirine.invoice.reminder.config</field>
@@ -160,7 +125,7 @@
             <form string="Configuration des relances">
                 <sheet>
                     <group>
-                        <group string="Delais de relance (jours apres echeance)">
+                        <group string="Delais (jours)">
                             <field name="reminder_1_days"/>
                             <field name="reminder_2_days"/>
                             <field name="reminder_3_days"/>
@@ -168,14 +133,13 @@
                         </group>
                         <group string="Parametres">
                             <field name="penalty_rate"/>
-                            <field name="auto_reminder" widget="boolean_toggle"/>
+                            <field name="auto_reminder"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                     </group>
-                    
                     <group>
                         <button name="action_test_auto_reminder" 
-                                string="Tester auto-relance maintenant" 
+                                string="Tester auto-relance" 
                                 type="object" 
                                 class="btn-primary"
                                 invisible="not auto_reminder"/>
@@ -185,33 +149,11 @@
         </field>
     </record>
     
-    <!-- ============================================= -->
-    <!-- ACTIONS                                       -->
-    <!-- ============================================= -->
+    <!-- ACTIONS -->
     <record id="action_invoice_reminder" model="ir.actions.act_window">
         <field name="name">Relances</field>
         <field name="res_model">lolirine.invoice.reminder</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'search_default_filter_draft': 1}</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Aucune relance trouvee
-            </p>
-        </field>
-    </record>
-    
-    <record id="action_invoice_reminder_to_send" model="ir.actions.act_window">
-        <field name="name">Relances a envoyer</field>
-        <field name="res_model">lolirine.invoice.reminder</field>
-        <field name="view_mode">list,form</field>
-        <field name="domain">[('state', '=', 'draft')]</field>
-    </record>
-    
-    <record id="action_invoice_reminder_sent" model="ir.actions.act_window">
-        <field name="name">Relances en attente</field>
-        <field name="res_model">lolirine.invoice.reminder</field>
-        <field name="view_mode">list,form</field>
-        <field name="domain">[('state', '=', 'sent')]</field>
     </record>
     
     <record id="action_invoice_reminder_config" model="ir.actions.act_window">
@@ -221,9 +163,7 @@
         <field name="target">inline</field>
     </record>
     
-    <!-- ============================================= -->
-    <!-- MENUS                                         -->
-    <!-- ============================================= -->
+    <!-- MENUS -->
     <menuitem id="menu_invoice_reminder_root"
               name="Relances"
               parent="lolirine_invoice.menu_lolirine_invoice_root"
@@ -234,18 +174,6 @@
               parent="menu_invoice_reminder_root"
               action="action_invoice_reminder"
               sequence="10"/>
-    
-    <menuitem id="menu_invoice_reminder_to_send"
-              name="A envoyer"
-              parent="menu_invoice_reminder_root"
-              action="action_invoice_reminder_to_send"
-              sequence="20"/>
-    
-    <menuitem id="menu_invoice_reminder_sent"
-              name="En attente de paiement"
-              parent="menu_invoice_reminder_root"
-              action="action_invoice_reminder_sent"
-              sequence="30"/>
     
     <menuitem id="menu_invoice_reminder_config"
               name="Configuration"
