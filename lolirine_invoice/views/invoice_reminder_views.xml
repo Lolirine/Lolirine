@@ -72,8 +72,8 @@
         <field name="name">lolirine.invoice.reminder.list</field>
         <field name="model">lolirine.invoice.reminder</field>
         <field name="arch" type="xml">
-            <list string="Relances" decoration-danger="state == 'draft' and days_overdue > 30"
-                  decoration-warning="state == 'draft' and days_overdue > 14"
+            <list string="Relances" decoration-danger="state == 'draft' and days_overdue &gt; 30"
+                  decoration-warning="state == 'draft' and days_overdue &gt; 14"
                   decoration-success="state == 'paid'"
                   decoration-muted="state == 'cancelled'"
                   default_order="date desc">
@@ -119,9 +119,9 @@
                 <filter string="3ème Rappel" name="filter_reminder_3" domain="[('reminder_type', '=', 'reminder_3')]"/>
                 <filter string="Mise en demeure" name="filter_formal" domain="[('reminder_type', '=', 'formal_notice')]"/>
                 <separator/>
-                <filter string="Retard > 7 jours" name="filter_overdue_7" domain="[('days_overdue', '>', 7)]"/>
-                <filter string="Retard > 14 jours" name="filter_overdue_14" domain="[('days_overdue', '>', 14)]"/>
-                <filter string="Retard > 30 jours" name="filter_overdue_30" domain="[('days_overdue', '>', 30)]"/>
+                <filter string="Retard &gt; 7 jours" name="filter_overdue_7" domain="[('days_overdue', '&gt;', 7)]"/>
+                <filter string="Retard &gt; 14 jours" name="filter_overdue_14" domain="[('days_overdue', '&gt;', 14)]"/>
+                <filter string="Retard &gt; 30 jours" name="filter_overdue_30" domain="[('days_overdue', '&gt;', 30)]"/>
                 <separator/>
                 <group expand="0" string="Grouper par">
                     <filter string="Client" name="group_partner" context="{'group_by': 'partner_id'}"/>
