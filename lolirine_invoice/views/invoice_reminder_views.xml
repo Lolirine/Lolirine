@@ -160,7 +160,7 @@
         <field name="name">Configuration relances</field>
         <field name="res_model">lolirine.invoice.reminder.config</field>
         <field name="view_mode">form</field>
-        <field name="target">inline</field>
+        <field name="target">current</field>
     </record>
     
     <!-- MENUS -->
