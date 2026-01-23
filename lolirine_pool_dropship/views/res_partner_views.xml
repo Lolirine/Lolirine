@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    <!-- ============================================ -->
+    <!-- RES.PARTNER - EXTENSION FOURNISSEUR -->
+    <!-- ============================================ -->
+
+    <record id="view_partner_form_dropship" model="ir.ui.view">
+        <field name="name">res.partner.form.dropship</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- Ajouter les boutons dans la button box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_dropship_products" type="object"
+                        class="oe_stat_button" icon="fa-cubes"
+                        invisible="not is_dropship_supplier">
+                    <field name="dropship_product_count" widget="statinfo" string="Produits"/>
+                </button>
+                <button name="action_view_dropship_orders" type="object"
+                        class="oe_stat_button" icon="fa-truck"
+                        invisible="not is_dropship_supplier">
+                    <field name="dropship_total_orders" widget="statinfo" string="Commandes"/>
+                </button>
+            </xpath>
+            
+            <!-- Ajouter l'onglet Dropshipping pour les fournisseurs -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Dropshipping" name="dropshipping" 
+                      invisible="supplier_rank == 0">
+                    
+                    <group>
+                        <group string="Capacités">
+                            <field name="is_dropship_supplier"/>
+                            <field name="dropship_certified" invisible="not is_dropship_supplier"/>
+                        </group>
+                        <group string="Performance" invisible="not is_dropship_supplier">
+                            <field name="dropship_reliability_score" widget="progressbar"/>
+                            <field name="dropship_on_time_rate" widget="progressbar"/>
+                            <field name="dropship_avg_delay"/>
+                        </group>
+                    </group>
+                    
+                    <group invisible="not is_dropship_supplier">
+                        <group string="Conditions commerciales">
+                            <field name="dropship_min_order"/>
+                            <field name="dropship_free_shipping_threshold"/>
+                            <field name="dropship_standard_delay"/>
+                        </group>
+                        <group string="SLA">
+                            <field name="sla_delivery_target"/>
+                            <field name="sla_response_time"/>
+                            <field name="sla_return_processing"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Zones desservies" invisible="not is_dropship_supplier">
+                        <field name="dropship_country_ids" widget="many2many_tags" nolabel="1"/>
+                        <field name="dropship_excluded_zones" placeholder="Ex: Corse, DOM-TOM, codes postaux spécifiques..."/>
+                    </group>
+                    
+                    <group string="Communication" invisible="not is_dropship_supplier">
+                        <group>
+                            <field name="dropship_order_email" placeholder="commandes@fournisseur.com"/>
+                            <field name="dropship_portal_url" placeholder="https://portail.fournisseur.com"/>
+                        </group>
+                        <group>
+                            <field name="dropship_api_enabled"/>
+                            <field name="dropship_api_endpoint" invisible="not dropship_api_enabled"/>
+                            <field name="dropship_api_key" invisible="not dropship_api_enabled" password="True"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Préférences" invisible="not is_dropship_supplier">
+                        <group>
+                            <field name="dropship_packing_neutral"/>
+                            <field name="dropship_include_invoice"/>
+                        </group>
+                        <group>
+                            <field name="dropship_special_instructions" placeholder="Instructions particulières pour ce fournisseur..."/>
+                        </group>
+                    </group>
+                    
+                </page>
+            </xpath>
+            
+        </field>
+    </record>
+
+    <!-- Ajouter filtre dans la recherche fournisseurs -->
+    <record id="view_partner_search_dropship" model="ir.ui.view">
+        <field name="name">res.partner.search.dropship</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='supplier']" position="after">
+                <filter string="Dropshipping" name="dropship_supplier" 
+                        domain="[('is_dropship_supplier', '=', True)]"/>
+                <filter string="Certifiés Dropship" name="dropship_certified" 
+                        domain="[('dropship_certified', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Action pour voir les fournisseurs dropshipping -->
+    <record id="action_dropship_suppliers" model="ir.actions.act_window">
+        <field name="name">Fournisseurs Dropshipping</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_dropship_supplier', '=', True)]</field>
+        <field name="context">{'search_default_dropship_supplier': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Ajoutez vos premiers fournisseurs dropshipping
+            </p>
+            <p>
+                Configurez les capacités et conditions de vos fournisseurs pour le dropshipping.
+            </p>
+        </field>
+    </record>
+
+</data>
+</odoo>
