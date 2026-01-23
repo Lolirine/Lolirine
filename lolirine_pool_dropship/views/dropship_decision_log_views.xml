@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================ -->
+    <!-- DROPSHIP DECISION LOG -->
+    <!-- ============================================ -->
+
+    <!-- Form View -->
+    <record id="view_dropship_decision_log_form" model="ir.ui.view">
+        <field name="name">dropship.decision.log.form</field>
+        <field name="model">dropship.decision.log</field>
+        <field name="arch" type="xml">
+            <form string="Décision Dropshipping" create="0" edit="0">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_sale_order" type="object"
+                                class="oe_stat_button" icon="fa-shopping-basket">
+                            <span class="o_stat_text">Commande</span>
+                        </button>
+                        <button name="action_view_supplier" type="object"
+                                class="oe_stat_button" icon="fa-truck"
+                                invisible="not selected_supplier_id">
+                            <span class="o_stat_text">Fournisseur</span>
+                        </button>
+                    </div>
+                    
+                    <group>
+                        <group string="Commande">
+                            <field name="sale_order_id"/>
+                            <field name="sale_line_id"/>
+                            <field name="product_id"/>
+                            <field name="quantity"/>
+                        </group>
+                        <group string="Décision">
+                            <field name="decision_type" widget="badge"/>
+                            <field name="decision_date"/>
+                            <field name="decision_user_id"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="Fournisseur sélectionné">
+                            <field name="selected_supplier_id"/>
+                            <field name="supplier_info_id"/>
+                            <field name="destination_country_id"/>
+                            <field name="was_urgent"/>
+                        </group>
+                        <group string="Données financières">
+                            <field name="sale_price"/>
+                            <field name="supplier_cost"/>
+                            <field name="margin_amount"/>
+                            <field name="margin_percent" widget="progressbar"/>
+                            <field name="score"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Raisons" name="reasons">
+                            <field name="reasons" nolabel="1"/>
+                        </page>
+                        <page string="Alternatives" name="alternatives">
+                            <field name="alternatives_count"/>
+                            <field name="alternative_suppliers" nolabel="1"/>
+                        </page>
+                        <page string="Configuration" name="config">
+                            <field name="config_snapshot" nolabel="1" readonly="1"/>
+                            <separator string="Règles appliquées"/>
+                            <field name="rules_applied" nolabel="1" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_dropship_decision_log_tree" model="ir.ui.view">
+        <field name="name">dropship.decision.log.list</field>
+        <field name="model">dropship.decision.log</field>
+        <field name="arch" type="xml">
+            <list string="Journal des décisions" create="0" edit="0"
+                  decoration-success="margin_percent >= 25"
+                  decoration-warning="margin_percent >= 15 and margin_percent &lt; 25"
+                  decoration-danger="margin_percent &lt; 15">
+                <field name="decision_date"/>
+                <field name="sale_order_id"/>
+                <field name="product_id"/>
+                <field name="selected_supplier_id"/>
+                <field name="decision_type" widget="badge"/>
+                <field name="sale_price" sum="Total ventes"/>
+                <field name="supplier_cost" sum="Total achats"/>
+                <field name="margin_amount" sum="Total marge"/>
+                <field name="margin_percent" widget="progressbar"/>
+                <field name="score"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_dropship_decision_log_pivot" model="ir.ui.view">
+        <field name="name">dropship.decision.log.pivot</field>
+        <field name="model">dropship.decision.log</field>
+        <field name="arch" type="xml">
+            <pivot string="Analyse des décisions">
+                <field name="selected_supplier_id" type="row"/>
+                <field name="decision_date" interval="month" type="col"/>
+                <field name="margin_amount" type="measure"/>
+                <field name="sale_price" type="measure"/>
+                <field name="supplier_cost" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_dropship_decision_log_graph" model="ir.ui.view">
+        <field name="name">dropship.decision.log.graph</field>
+        <field name="model">dropship.decision.log</field>
+        <field name="arch" type="xml">
+            <graph string="Marges par fournisseur" type="bar">
+                <field name="selected_supplier_id"/>
+                <field name="margin_amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_dropship_decision_log_search" model="ir.ui.view">
+        <field name="name">dropship.decision.log.search</field>
+        <field name="model">dropship.decision.log</field>
+        <field name="arch" type="xml">
+            <search string="Recherche décisions">
+                <field name="sale_order_id"/>
+                <field name="product_id"/>
+                <field name="selected_supplier_id"/>
+                <filter string="Aujourd'hui" name="today" 
+                        domain="[('decision_date', '>=', datetime.datetime.combine(context_today(), datetime.time(0,0,0)))]"/>
+                <filter string="Cette semaine" name="week" 
+                        domain="[('decision_date', '>=', (context_today() - relativedelta(days=7)))]"/>
+                <filter string="Ce mois" name="month" 
+                        domain="[('decision_date', '>=', (context_today() - relativedelta(months=1)))]"/>
+                <separator/>
+                <filter string="Automatique" name="auto" domain="[('decision_type', '=', 'auto')]"/>
+                <filter string="Manuel" name="manual" domain="[('decision_type', '=', 'manual')]"/>
+                <separator/>
+                <filter string="Bonne marge (>25%)" name="good_margin" domain="[('margin_percent', '>=', 25)]"/>
+                <filter string="Marge correcte (15-25%)" name="ok_margin" 
+                        domain="[('margin_percent', '>=', 15), ('margin_percent', '&lt;', 25)]"/>
+                <filter string="Marge faible (&lt;15%)" name="low_margin" domain="[('margin_percent', '&lt;', 15)]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Fournisseur" name="group_supplier" context="{'group_by': 'selected_supplier_id'}"/>
+                    <filter string="Produit" name="group_product" context="{'group_by': 'product_id'}"/>
+                    <filter string="Type" name="group_type" context="{'group_by': 'decision_type'}"/>
+                    <filter string="Mois" name="group_month" context="{'group_by': 'decision_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_dropship_decision_log" model="ir.actions.act_window">
+        <field name="name">Journal des décisions</field>
+        <field name="res_model">dropship.decision.log</field>
+        <field name="view_mode">list,form,pivot,graph</field>
+        <field name="context">{'search_default_month': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune décision enregistrée
+            </p>
+            <p>
+                Les décisions de sélection de fournisseur seront tracées ici.
+            </p>
+        </field>
+    </record>
+
+</odoo>
