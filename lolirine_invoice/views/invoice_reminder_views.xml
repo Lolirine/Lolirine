@@ -97,7 +97,11 @@
                         <field name="company_id" groups="base.group_multi_company"/>
                     </group>
                     <group invisible="not auto_reminder">
-                        <button name="action_test_auto_reminder" string="Tester auto-relance" type="object" class="btn-primary"/>
+                        <div class="alert alert-info" role="alert">
+                            <strong>Conseil :</strong> Utilisez d'abord "Simuler" pour voir ce qui serait envoye sans risque.
+                        </div>
+                        <button name="action_test_auto_reminder_dry_run" string="Simuler (sans envoyer)" type="object" class="btn-warning me-2"/>
+                        <button name="action_test_auto_reminder" string="Executer (envoie les emails!)" type="object" class="btn-danger"/>
                     </group>
                 </sheet>
             </form>
