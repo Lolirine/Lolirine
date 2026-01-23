@@ -2,9 +2,9 @@
 <odoo>
     <data noupdate="0">
         
-        <!-- Template 1er Rappel -->
+        <!-- Template 1er Rappel - Avertissement frais -->
         <record id="email_template_reminder_1" model="mail.template">
-            <field name="name">Relance: 1er Rappel</field>
+            <field name="name">Lolirine - Relance: 1er Rappel</field>
             <field name="model_id" ref="model_lolirine_invoice_reminder"/>
             <field name="subject">Rappel de paiement - Facture {{ object.invoice_id.name }}</field>
             <field name="email_from">gardemeublelolirine@gmail.com</field>
@@ -32,6 +32,10 @@
     
     <p>Nous vous remercions de bien vouloir regulariser cette situation dans les meilleurs delais.</p>
     
+    <p style="background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107;">
+        <strong>Attention :</strong> A defaut de paiement, des <strong>frais de rappel de 20 EUR</strong> pourront etre appliques conformement a nos conditions generales.
+    </p>
+    
     <p><strong>Coordonnees bancaires :</strong></p>
     <ul>
         <li>IBAN : BE07 7320 5208 0866 - CBC</li>
@@ -49,9 +53,9 @@
             <field name="auto_delete" eval="False"/>
         </record>
         
-        <!-- Template 2eme Rappel -->
+        <!-- Template 2eme Rappel - Frais 20 EUR seront appliques -->
         <record id="email_template_reminder_2" model="mail.template">
-            <field name="name">Relance: 2eme Rappel</field>
+            <field name="name">Lolirine - Relance: 2eme Rappel</field>
             <field name="model_id" ref="model_lolirine_invoice_reminder"/>
             <field name="subject">2eme Rappel - Facture {{ object.invoice_id.name }}</field>
             <field name="email_from">gardemeublelolirine@gmail.com</field>
@@ -81,7 +85,9 @@
         </tr>
     </table>
     
-    <p>Nous vous prions de bien vouloir proceder au paiement <strong>dans les 7 jours</strong>.</p>
+    <p style="background-color: #f8d7da; padding: 10px; border-left: 4px solid #dc3545;">
+        <strong>IMPORTANT :</strong> Sans paiement dans les <strong>5 jours</strong>, des <strong>frais de rappel de 20 EUR</strong> seront automatiquement ajoutes a votre facture.
+    </p>
     
     <p><strong>Coordonnees bancaires :</strong></p>
     <ul>
@@ -98,9 +104,9 @@
             <field name="auto_delete" eval="False"/>
         </record>
         
-        <!-- Template 3eme Rappel -->
+        <!-- Template 3eme Rappel - Frais 20 EUR appliques + menace 50 EUR -->
         <record id="email_template_reminder_3" model="mail.template">
-            <field name="name">Relance: 3eme Rappel - URGENT</field>
+            <field name="name">Lolirine - Relance: 3eme Rappel - URGENT</field>
             <field name="model_id" ref="model_lolirine_invoice_reminder"/>
             <field name="subject">URGENT - 3eme Rappel - Facture {{ object.invoice_id.name }}</field>
             <field name="email_from">gardemeublelolirine@gmail.com</field>
@@ -111,7 +117,7 @@
     
     <p style="color: #c0392b;"><strong>URGENT - TROISIEME ET DERNIER RAPPEL</strong></p>
     
-    <p>Malgre nos precedents rappels, la facture suivante reste impayee :</p>
+    <p>Malgre nos precedents rappels, la facture suivante reste impayee. Conformement a nos conditions generales, des frais de rappel ont ete ajoutes :</p>
     
     <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 400px;">
         <tr style="background-color: #f5f5f5;">
@@ -119,12 +125,16 @@
             <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.name }}</td>
         </tr>
         <tr>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Echeance</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.invoice_date_due }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant facture</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ "%.2f"|format(object.amount_due) }} EUR</td>
+        </tr>
+        <tr style="background-color: #fff3cd;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Frais de rappel</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">20,00 EUR</td>
         </tr>
         <tr style="background-color: #f5f5f5;">
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>{{ "%.2f"|format(object.amount_due) }} EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>TOTAL DU</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>{{ "%.2f"|format(object.amount_due + 20) }} EUR</strong></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Retard</strong></td>
@@ -132,7 +142,12 @@
         </tr>
     </table>
     
-    <p style="color: #c0392b;"><strong>Sans paiement dans les 5 jours, nous serons contraints d'engager une procedure de mise en demeure.</strong></p>
+    <p style="background-color: #f8d7da; padding: 15px; border-left: 4px solid #dc3545;">
+        <strong>DERNIER AVERTISSEMENT :</strong><br/><br/>
+        Sans paiement dans les <strong>5 jours</strong> :<br/>
+        - Des frais supplementaires de <strong>50 EUR</strong> seront appliques<br/>
+        - Nous procederons a la <strong>rupture de votre contrat</strong> conformement a nos conditions generales
+    </p>
     
     <p><strong>Coordonnees bancaires :</strong></p>
     <ul>
@@ -149,9 +164,9 @@
             <field name="auto_delete" eval="False"/>
         </record>
         
-        <!-- Template Mise en demeure -->
+        <!-- Template Mise en demeure - Frais 50 EUR + rupture contrat -->
         <record id="email_template_formal_notice" model="mail.template">
-            <field name="name">Relance: Mise en demeure</field>
+            <field name="name">Lolirine - Relance: Mise en demeure</field>
             <field name="model_id" ref="model_lolirine_invoice_reminder"/>
             <field name="subject">MISE EN DEMEURE - Facture {{ object.invoice_id.name }}</field>
             <field name="email_from">gardemeublelolirine@gmail.com</field>
@@ -170,16 +185,20 @@
             <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.name }}</td>
         </tr>
         <tr>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant principal</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant facture</strong></td>
             <td style="padding: 10px; border: 1px solid #ddd;">{{ "%.2f"|format(object.amount_due) }} EUR</td>
         </tr>
-        <tr style="background-color: #f5f5f5;">
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Penalites de retard</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ "%.2f"|format(object.penalty_amount) }} EUR</td>
+        <tr style="background-color: #fff3cd;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Frais de rappel</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">20,00 EUR</td>
+        </tr>
+        <tr style="background-color: #f8d7da;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Frais de mise en demeure</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">50,00 EUR</td>
         </tr>
         <tr style="background-color: #ffebee;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>TOTAL DU</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #c0392b;">{{ "%.2f"|format(object.total_due) }} EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #c0392b; font-size: 16px;">{{ "%.2f"|format(object.amount_due + 70) }} EUR</strong></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Retard</strong></td>
@@ -187,9 +206,15 @@
         </tr>
     </table>
     
-    <p><strong>Vous disposez d'un delai de 8 jours</strong> a compter de ce jour pour proceder au paiement.</p>
+    <p><strong>Vous disposez d'un delai de 8 jours</strong> a compter de ce jour pour proceder au paiement integral.</p>
     
-    <p>A defaut de paiement dans ce delai, nous transmettrons le dossier a notre service contentieux pour recouvrement, ce qui entrainera des frais supplementaires a votre charge.</p>
+    <p style="background-color: #f8d7da; padding: 15px; border-left: 4px solid #dc3545;">
+        <strong>A DEFAUT DE PAIEMENT :</strong><br/><br/>
+        - Votre <strong>contrat de garde-meubles sera resilie</strong> avec effet immediat<br/>
+        - Les biens stockes feront l'objet d'une <strong>retention</strong> jusqu'au paiement integral<br/>
+        - Le dossier sera transmis a notre <strong>service contentieux</strong> pour recouvrement judiciaire<br/>
+        - Des frais supplementaires seront a votre charge
+    </p>
     
     <p><strong>Coordonnees bancaires :</strong></p>
     <ul>
