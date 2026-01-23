@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dropship_config_user,dropship.config.user,model_dropship_config,group_dropship_user,1,0,0,0
+access_dropship_config_manager,dropship.config.manager,model_dropship_config,group_dropship_manager,1,1,0,0
+access_dropship_config_admin,dropship.config.admin,model_dropship_config,group_dropship_admin,1,1,1,1
+access_dropship_margin_rule_user,dropship.margin.rule.user,model_dropship_margin_rule,group_dropship_user,1,0,0,0
+access_dropship_margin_rule_manager,dropship.margin.rule.manager,model_dropship_margin_rule,group_dropship_manager,1,1,1,0
+access_dropship_margin_rule_admin,dropship.margin.rule.admin,model_dropship_margin_rule,group_dropship_admin,1,1,1,1
+access_supplier_dropship_info_user,supplier.dropship.info.user,model_supplier_dropship_info,group_dropship_user,1,0,0,0
+access_supplier_dropship_info_manager,supplier.dropship.info.manager,model_supplier_dropship_info,group_dropship_manager,1,1,1,0
+access_supplier_dropship_info_admin,supplier.dropship.info.admin,model_supplier_dropship_info,group_dropship_admin,1,1,1,1
+access_dropship_decision_log_user,dropship.decision.log.user,model_dropship_decision_log,group_dropship_user,1,0,0,0
+access_dropship_decision_log_manager,dropship.decision.log.manager,model_dropship_decision_log,group_dropship_manager,1,1,0,0
+access_dropship_decision_log_admin,dropship.decision.log.admin,model_dropship_decision_log,group_dropship_admin,1,1,1,1

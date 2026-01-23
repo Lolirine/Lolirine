@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="email_template_dropship_po" model="mail.template">
+            <field name="name">Dropshipping: Commande fournisseur</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="subject">Commande Dropshipping {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email or user.email) }}</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="body_html"><![CDATA[
+<p>Bonjour,</p>
+<p>Veuillez trouver ci-joint notre commande <strong>{{ object.name }}</strong>.</p>
+<p><strong>LIVRAISON DIRECTE CLIENT</strong></p>
+<p>{{ object.dest_address_id.name }}<br/>
+{{ object.dest_address_id.street }}<br/>
+{{ object.dest_address_id.zip }} {{ object.dest_address_id.city }}<br/>
+{{ object.dest_address_id.country_id.name }}</p>
+<p>Merci de confirmer la réception.</p>
+<p>Cordialement,<br/>{{ object.company_id.name }}</p>
+]]></field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+        <record id="email_template_dropship_shipped" model="mail.template">
+            <field name="name">Dropshipping: Notification expédition</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">Votre commande {{ object.name }} a été expédiée</field>
+            <field name="email_from">{{ (object.company_id.email or user.email) }}</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="body_html"><![CDATA[
+<p>Bonjour {{ object.partner_id.name }},</p>
+<p>Votre commande <strong>{{ object.name }}</strong> a été expédiée.</p>
+<p>Merci pour votre confiance !</p>
+<p>{{ object.company_id.name }}</p>
+]]></field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+        <record id="email_template_dropship_issue" model="mail.template">
+            <field name="name">Dropshipping: Notification problème</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">Information concernant votre commande {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email or user.email) }}</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="body_html"><![CDATA[
+<p>Bonjour {{ object.partner_id.name }},</p>
+<p>Nous vous contactons concernant votre commande <strong>{{ object.name }}</strong>.</p>
+<p>Notre équipe traite actuellement un point nécessitant notre attention.</p>
+<p>Nous vous tiendrons informé des prochaines étapes.</p>
+<p>Cordialement,<br/>{{ object.company_id.name }}</p>
+]]></field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+    </data>
+</odoo>
