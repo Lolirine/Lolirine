@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    <!-- ============================================ -->
+    <!-- PURCHASE ORDER - EXTENSION -->
+    <!-- ============================================ -->
+
+    <record id="view_purchase_order_form_dropship" model="ir.ui.view">
+        <field name="name">purchase.order.form.dropship</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- Bouton vers la commande client -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_sale_order" type="object"
+                        class="oe_stat_button" icon="fa-shopping-basket"
+                        invisible="not dropship_sale_id">
+                    <span class="o_stat_text">Commande Client</span>
+                </button>
+            </xpath>
+            
+            <!-- Badge dropship -->
+            <xpath expr="//field[@name='state']" position="before">
+                <field name="is_dropship_order" invisible="1"/>
+                <span class="badge rounded-pill text-bg-warning me-2" 
+                      invisible="not is_dropship_order">
+                    <i class="fa fa-truck"/> Dropship
+                </span>
+            </xpath>
+            
+            <!-- Actions dropship -->
+            <xpath expr="//header" position="inside">
+                <button name="action_mark_shipped" type="object"
+                        string="Marquer expédié" class="btn-primary"
+                        invisible="not is_dropship_order or dropship_status not in ('sent', 'confirmed')"/>
+                <button name="action_mark_delivered" type="object"
+                        string="Marquer livré" class="btn-success"
+                        invisible="not is_dropship_order or dropship_status != 'shipped'"/>
+                <button name="action_update_tracking" type="object"
+                        string="Mettre à jour suivi" class="btn-secondary"
+                        invisible="not is_dropship_order"/>
+                <button name="action_report_issue" type="object"
+                        string="Signaler problème" class="btn-danger"
+                        invisible="not is_dropship_order"/>
+            </xpath>
+            
+            <!-- Onglet Dropshipping -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Dropshipping" name="dropshipping" invisible="not is_dropship_order">
+                    
+                    <group>
+                        <group string="Statut &amp; Suivi">
+                            <field name="dropship_status" widget="badge"
+                                   decoration-info="dropship_status == 'draft'"
+                                   decoration-warning="dropship_status in ('sent', 'confirmed')"
+                                   decoration-success="dropship_status in ('shipped', 'delivered')"
+                                   decoration-danger="dropship_status == 'issue'"/>
+                            <field name="dropship_sale_id"/>
+                            <field name="supplier_order_ref"/>
+                            <field name="last_sent_date"/>
+                        </group>
+                        <group string="Livraison">
+                            <field name="dest_address_id"/>
+                            <field name="dropship_carrier"/>
+                            <field name="dropship_tracking_number"/>
+                            <field name="dropship_expected_delivery"/>
+                        </group>
+                    </group>
+                    
+                    <group>
+                        <group string="Dates">
+                            <field name="dropship_shipped_date"/>
+                            <field name="dropship_delivered_date"/>
+                        </group>
+                        <group string="Coûts additionnels">
+                            <field name="shipping_cost"/>
+                            <field name="handling_cost"/>
+                            <field name="total_dropship_cost"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Adresse de livraison complète -->
+                    <separator string="Adresse de livraison client final"/>
+                    <div class="o_address_format" invisible="not dest_address_id">
+                        <field name="dest_address_id" nolabel="1" 
+                               context="{'show_address_only': True}" 
+                               options="{'always_reload': True}"/>
+                    </div>
+                    
+                </page>
+            </xpath>
+            
+        </field>
+    </record>
+
+    <!-- Vue liste -->
+    <record id="view_purchase_order_tree_dropship" model="ir.ui.view">
+        <field name="name">purchase.order.list.dropship</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="before">
+                <field name="is_dropship_order" column_invisible="1"/>
+                <field name="dropship_status" optional="show"
+                       decoration-info="dropship_status == 'draft'"
+                       decoration-warning="dropship_status in ('sent', 'confirmed')"
+                       decoration-success="dropship_status in ('shipped', 'delivered')"
+                       decoration-danger="dropship_status == 'issue'"/>
+                <field name="dropship_tracking_number" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Recherche -->
+    <record id="view_purchase_order_search_dropship" model="ir.ui.view">
+        <field name="name">purchase.order.search.dropship</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_purchases']" position="after">
+                <separator/>
+                <filter string="Dropshipping" name="dropship" 
+                        domain="[('is_dropship_order', '=', True)]"/>
+                <filter string="Envoyées" name="dropship_sent" 
+                        domain="[('is_dropship_order', '=', True), ('dropship_status', '=', 'sent')]"/>
+                <filter string="Expédiées" name="dropship_shipped" 
+                        domain="[('is_dropship_order', '=', True), ('dropship_status', '=', 'shipped')]"/>
+                <filter string="Problèmes" name="dropship_issues" 
+                        domain="[('is_dropship_order', '=', True), ('dropship_status', '=', 'issue')]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Action pour les BC dropshipping -->
+    <record id="action_purchase_order_dropship" model="ir.actions.act_window">
+        <field name="name">BC Dropshipping</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,form,kanban,pivot,graph</field>
+        <field name="domain">[('is_dropship_order', '=', True)]</field>
+        <field name="context">{'search_default_dropship': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune commande fournisseur dropshipping
+            </p>
+        </field>
+    </record>
+
+</data>
+</odoo>
