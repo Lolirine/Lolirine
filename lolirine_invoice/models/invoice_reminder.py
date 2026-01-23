@@ -418,6 +418,8 @@ class InvoiceReminder(models.Model):
                     fee = config.fee_formal_notice or 50
                     
                 details.append({
+                    'invoice_id': inv.id,
+                    'partner_id': inv.partner_id.id,
                     'invoice': inv.name,
                     'partner': inv.partner_id.name,
                     'email': inv.partner_id.email,
@@ -502,33 +504,40 @@ class InvoiceReminderConfig(models.Model):
         details = result.get('details', [])
         
         if not details:
-            message = "Aucune relance a envoyer pour le moment."
-        else:
-            # Construire un resume
-            total_fees = sum(d.get('fee', 0) for d in details)
-            total_amount = sum(d.get('amount_due', 0) for d in details)
-            
-            lines = [f"SIMULATION - {len(details)} relance(s) seraient envoyees:"]
-            lines.append(f"Montant total du: {total_amount:.2f} EUR")
-            lines.append(f"Frais qui seraient factures: {total_fees:.2f} EUR")
-            lines.append("---")
-            
-            for d in details[:10]:  # Limiter a 10 pour l'affichage
-                lines.append(f"- {d['partner']} - {d['invoice']} - {d['reminder_type']} ({d['days_overdue']}j)")
-            
-            if len(details) > 10:
-                lines.append(f"... et {len(details) - 10} autre(s)")
-            
-            message = "\n".join(lines)
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Simulation terminee',
+                    'message': 'Aucune relance a envoyer pour le moment.',
+                    'type': 'info',
+                    'sticky': False,
+                }
+            }
+        
+        # Creer le wizard avec les lignes
+        wizard = self.env['lolirine.invoice.reminder.simulation.wizard'].create({})
+        
+        # Creer les lignes
+        for d in details:
+            self.env['lolirine.invoice.reminder.simulation.line'].create({
+                'wizard_id': wizard.id,
+                'invoice_id': d.get('invoice_id'),
+                'partner_id': d.get('partner_id'),
+                'invoice_name': d.get('invoice'),
+                'partner_name': d.get('partner'),
+                'partner_email': d.get('email'),
+                'amount_due': d.get('amount_due', 0),
+                'days_overdue': d.get('days_overdue', 0),
+                'reminder_type': d.get('reminder_type'),
+                'fee': d.get('fee', 0),
+            })
         
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'TEST - Simulation auto-relance',
-                'message': message,
-                'type': 'warning',
-                'sticky': True,
-            }
+            'type': 'ir.actions.act_window',
+            'name': 'Simulation des relances',
+            'res_model': 'lolirine.invoice.reminder.simulation.wizard',
+            'view_mode': 'form',
+            'res_id': wizard.id,
+            'target': 'new',
         }
-        
