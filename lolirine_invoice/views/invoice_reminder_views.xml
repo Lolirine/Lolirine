@@ -11,40 +11,34 @@
                             string="Envoyer par email" 
                             type="object" 
                             class="btn-primary"
-                            invisible="state != 'draft'"
-                            icon="fa-paper-plane"/>
+                            invisible="state != 'draft'"/>
                     
                     <button name="action_open_composer" 
                             string="Previsualiser" 
                             type="object"
-                            invisible="state != 'draft'"
-                            icon="fa-eye"/>
+                            invisible="state != 'draft'"/>
                     
                     <button name="action_mark_paid" 
                             string="Marquer payee" 
                             type="object" 
                             class="btn-success"
-                            invisible="state not in ('draft', 'sent')"
-                            icon="fa-check"/>
+                            invisible="state not in ('draft', 'sent')"/>
                     
                     <button name="action_cancel" 
                             string="Annuler" 
                             type="object"
-                            invisible="state not in ('draft', 'sent')"
-                            icon="fa-times"/>
+                            invisible="state not in ('draft', 'sent')"/>
                     
                     <button name="action_reset_draft" 
                             string="Remettre en brouillon" 
                             type="object"
-                            invisible="state not in ('sent', 'cancelled')"
-                            icon="fa-undo"/>
+                            invisible="state not in ('sent', 'cancelled')"/>
                     
                     <button name="action_create_next_reminder" 
                             string="Relance suivante" 
                             type="object"
                             class="btn-warning"
-                            invisible="state != 'sent' or reminder_type == 'formal_notice'"
-                            icon="fa-forward"/>
+                            invisible="state != 'sent' or reminder_type == 'formal_notice'"/>
                     
                     <field name="state" widget="statusbar" statusbar_visible="draft,sent,paid"/>
                 </header>
