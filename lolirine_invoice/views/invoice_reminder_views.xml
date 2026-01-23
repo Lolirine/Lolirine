@@ -31,10 +31,14 @@
                         <group string="Montants">
                             <field name="amount_due"/>
                             <field name="days_overdue"/>
-                            <field name="penalty_amount"/>
+                            <field name="reminder_fee"/>
                             <field name="total_due"/>
                             <field name="currency_id" invisible="1"/>
                         </group>
+                    </group>
+                    <group string="Frais">
+                        <field name="fee_added" readonly="1"/>
+                        <field name="fee_invoice_id" readonly="1"/>
                     </group>
                     <group string="Envoi">
                         <field name="send_date" readonly="1"/>
@@ -63,6 +67,7 @@
                 <field name="date"/>
                 <field name="amount_due" sum="Total"/>
                 <field name="days_overdue"/>
+                <field name="fee_added"/>
                 <field name="state"/>
             </list>
         </field>
@@ -82,11 +87,14 @@
                             <field name="reminder_3_days"/>
                             <field name="formal_notice_days"/>
                         </group>
-                        <group string="Parametres">
-                            <field name="penalty_rate"/>
-                            <field name="auto_reminder"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                        <group string="Frais">
+                            <field name="fee_reminder_3"/>
+                            <field name="fee_formal_notice"/>
                         </group>
+                    </group>
+                    <group string="Automatisation">
+                        <field name="auto_reminder"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
                     </group>
                     <group invisible="not auto_reminder">
                         <button name="action_test_auto_reminder" string="Tester auto-relance" type="object" class="btn-primary"/>
