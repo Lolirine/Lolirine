@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Template: Commande fournisseur dropshipping -->
+        <record id="email_template_dropship_po" model="mail.template">
+            <field name="name">Dropshipping: Commande fournisseur</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="subject">Commande Dropshipping {{ object.name }} - {{ object.company_id.name }}</field>
+            <field name="email_from">{{ (object.company_id.email or user.email) }}</field>
+            <field name="email_to">{{ object.partner_id.dropship_order_email or object.partner_id.email }}</field>
+            <field name="body_html" type="html">
+<![CDATA[
+<div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: auto; border-collapse: collapse;">
+        <tr>
+            <td style="background-color: #0891b2; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">COMMANDE DROPSHIPPING</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 20px; background-color: #f8f9fa;">
+                <p>Bonjour,</p>
+                <p>Veuillez trouver ci-dessous notre commande <strong>{{ object.name }}</strong>.</p>
+                
+                <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px;">
+                    <strong>⚠️ ATTENTION - LIVRAISON DIRECTE CLIENT</strong><br/>
+                    Cette commande doit être expédiée directement à l'adresse ci-dessous.
+                </div>
+                
+                <h3 style="color: #0891b2; border-bottom: 2px solid #0891b2; padding-bottom: 5px;">
+                    📦 ADRESSE DE LIVRAISON
+                </h3>
+                <div style="background-color: #e9ecef; padding: 15px; border-radius: 5px;">
+                    <strong>{{ object.dest_address_id.name }}</strong><br/>
+                    {% if object.dest_address_id.street %}{{ object.dest_address_id.street }}<br/>{% endif %}
+                    {% if object.dest_address_id.street2 %}{{ object.dest_address_id.street2 }}<br/>{% endif %}
+                    {{ object.dest_address_id.zip }} {{ object.dest_address_id.city }}<br/>
+                    {{ object.dest_address_id.country_id.name }}<br/>
+                    {% if object.dest_address_id.phone %}📞 {{ object.dest_address_id.phone }}{% endif %}
+                </div>
+                
+                <h3 style="color: #0891b2; border-bottom: 2px solid #0891b2; padding-bottom: 5px; margin-top: 20px;">
+                    📋 DÉTAIL DE LA COMMANDE
+                </h3>
+                <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                    <thead>
+                        <tr style="background-color: #0891b2; color: white;">
+                            <th style="padding: 10px; text-align: left; border: 1px solid #dee2e6;">Réf.</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #dee2e6;">Description</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #dee2e6;">Qté</th>
+                            <th style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">Prix unit.</th>
+                            <th style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for line in object.order_line %}
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #dee2e6;">{{ line.product_id.default_code or '-' }}</td>
+                            <td style="padding: 8px; border: 1px solid #dee2e6;">{{ line.name }}</td>
+                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">{{ line.product_qty }}</td>
+                            <td style="padding: 8px; text-align: right; border: 1px solid #dee2e6;">{{ "%.2f"|format(line.price_unit) }} €</td>
+                            <td style="padding: 8px; text-align: right; border: 1px solid #dee2e6;">{{ "%.2f"|format(line.price_subtotal) }} €</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr style="background-color: #f8f9fa; font-weight: bold;">
+                            <td colspan="4" style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">TOTAL HT</td>
+                            <td style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">{{ "%.2f"|format(object.amount_untaxed) }} €</td>
+                        </tr>
+                    </tfoot>
+                </table>
+                
+                <h3 style="color: #0891b2; border-bottom: 2px solid #0891b2; padding-bottom: 5px; margin-top: 20px;">
+                    📝 INSTRUCTIONS
+                </h3>
+                <ul style="margin: 10px 0;">
+                    <li><strong>Emballage neutre obligatoire</strong> - Pas de mention de votre société</li>
+                    <li><strong>Ne pas inclure de facture</strong> dans le colis</li>
+                    <li><strong>Merci de nous communiquer le numéro de suivi</strong> dès expédition</li>
+                </ul>
+                
+                {% if object.notes %}
+                <div style="background-color: #e9ecef; padding: 15px; margin-top: 20px; border-radius: 5px;">
+                    <strong>Notes additionnelles:</strong><br/>
+                    {{ object.notes }}
+                </div>
+                {% endif %}
+                
+                <p style="margin-top: 30px;">
+                    Merci de confirmer la réception de cette commande et de nous indiquer le délai de livraison prévu.
+                </p>
+                
+                <p>Cordialement,<br/>
+                <strong>{{ object.company_id.name }}</strong></p>
+            </td>
+        </tr>
+        <tr>
+            <td style="background-color: #343a40; color: white; padding: 15px; text-align: center; font-size: 12px;">
+                {{ object.company_id.name }} | {{ object.company_id.email }} | {{ object.company_id.phone }}
+            </td>
+        </tr>
+    </table>
+</div>
+]]>
+            </field>
+            <field name="report_template_ids" eval="[(4, ref('purchase.action_report_purchase_order'))]"/>
+            <field name="auto_delete" eval="False"/>
+        </record>
+        
+        <!-- Template: Notification expédition au client -->
+        <record id="email_template_dropship_shipped" model="mail.template">
+            <field name="name">Dropshipping: Notification expédition client</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">Votre commande {{ object.name }} a été expédiée ! 📦</field>
+            <field name="email_from">{{ (object.company_id.email or user.email) }}</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="body_html" type="html">
+<![CDATA[
+<div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: auto; border-collapse: collapse;">
+        <tr>
+            <td style="background-color: #28a745; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">📦 VOTRE COMMANDE EST EN ROUTE !</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 20px; background-color: #f8f9fa;">
+                <p>Bonjour {{ object.partner_id.name }},</p>
+                
+                <p>Excellente nouvelle ! Votre commande <strong>{{ object.name }}</strong> vient d'être expédiée.</p>
+                
+                {% set po = object.dropship_purchase_ids and object.dropship_purchase_ids[0] %}
+                {% if po and po.dropship_tracking_number %}
+                <div style="background-color: #d4edda; border: 1px solid #28a745; padding: 20px; margin: 20px 0; border-radius: 5px; text-align: center;">
+                    <p style="margin: 0; font-size: 14px;">Numéro de suivi</p>
+                    <p style="margin: 10px 0; font-size: 24px; font-weight: bold; color: #155724;">
+                        {{ po.dropship_tracking_number }}
+                    </p>
+                    {% if po.dropship_carrier %}
+                    <p style="margin: 0; font-size: 14px;">Transporteur: {{ po.dropship_carrier }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <h3>📋 Récapitulatif de votre commande</h3>
+                <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                    {% for line in object.order_line %}
+                    <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #dee2e6;">{{ line.product_id.name }}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #dee2e6; text-align: right;">x {{ line.product_uom_qty|int }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                
+                <h3>📍 Adresse de livraison</h3>
+                <p style="background-color: #e9ecef; padding: 15px; border-radius: 5px;">
+                    {{ object.partner_shipping_id.name }}<br/>
+                    {% if object.partner_shipping_id.street %}{{ object.partner_shipping_id.street }}<br/>{% endif %}
+                    {{ object.partner_shipping_id.zip }} {{ object.partner_shipping_id.city }}<br/>
+                    {{ object.partner_shipping_id.country_id.name }}
+                </p>
+                
+                <p>Vous avez des questions ? N'hésitez pas à nous contacter.</p>
+                
+                <p>Merci pour votre confiance !<br/>
+                <strong>L'équipe {{ object.company_id.name }}</strong></p>
+            </td>
+        </tr>
+        <tr>
+            <td style="background-color: #343a40; color: white; padding: 15px; text-align: center; font-size: 12px;">
+                {{ object.company_id.name }} | {{ object.company_id.email }} | {{ object.company_id.phone }}
+            </td>
+        </tr>
+    </table>
+</div>
+]]>
+            </field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+        
+        <!-- Template: Notification problème au client -->
+        <record id="email_template_dropship_issue" model="mail.template">
+            <field name="name">Dropshipping: Notification problème client</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">Information concernant votre commande {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email or user.email) }}</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="body_html" type="html">
+<![CDATA[
+<div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: auto; border-collapse: collapse;">
+        <tr>
+            <td style="background-color: #ffc107; padding: 20px; text-align: center;">
+                <h1 style="color: #212529; margin: 0;">Information importante</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 20px; background-color: #f8f9fa;">
+                <p>Bonjour {{ object.partner_id.name }},</p>
+                
+                <p>Nous vous contactons concernant votre commande <strong>{{ object.name }}</strong>.</p>
+                
+                <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px;">
+                    <p style="margin: 0;">
+                        Notre équipe a identifié un point nécessitant notre attention sur votre commande.
+                        Nous mettons tout en œuvre pour résoudre cette situation dans les meilleurs délais.
+                    </p>
+                </div>
+                
+                <p>
+                    Un membre de notre service client vous contactera très prochainement pour vous tenir informé
+                    des prochaines étapes.
+                </p>
+                
+                <p>
+                    En attendant, n'hésitez pas à nous contacter si vous avez des questions :
+                </p>
+                <ul>
+                    <li>Email : {{ object.company_id.email }}</li>
+                    {% if object.company_id.phone %}
+                    <li>Téléphone : {{ object.company_id.phone }}</li>
+                    {% endif %}
+                </ul>
+                
+                <p>Nous vous présentons nos excuses pour ce désagrément.</p>
+                
+                <p>Cordialement,<br/>
+                <strong>L'équipe {{ object.company_id.name }}</strong></p>
+            </td>
+        </tr>
+        <tr>
+            <td style="background-color: #343a40; color: white; padding: 15px; text-align: center; font-size: 12px;">
+                {{ object.company_id.name }} | {{ object.company_id.email }} | {{ object.company_id.phone }}
+            </td>
+        </tr>
+    </table>
+</div>
+]]>
+            </field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+        
+    </data>
+</odoo>

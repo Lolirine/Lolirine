@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Séquence pour les logs de décision -->
+        <record id="seq_dropship_decision_log" model="ir.sequence">
+            <field name="name">Dropship Decision Log</field>
+            <field name="code">dropship.decision.log</field>
+            <field name="prefix">DEC/</field>
+            <field name="padding">6</field>
+        </record>
+        
+    </data>
+</odoo>
