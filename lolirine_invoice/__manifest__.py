@@ -61,6 +61,7 @@
         "report/report_invoice_lolirine.xml",
         # Data
         "data/ir_cron.xml",
+        "data/reminder_cron.xml",
         "data/mail_template.xml",
         "data/default_tags.xml",
         # Wizards (doit etre charge AVANT les menus)
@@ -68,6 +69,8 @@
         "wizard/invoice_wizard_views.xml",
         # Views
         "views/invoice_tag_views.xml",
+        "views/menu_reminder.xml",
+        "views/invoice_reminder_views.xml",
         "views/sale_order_views.xml",
         "views/invoice_dashboard_views.xml",
         "views/account_move_views.xml",
