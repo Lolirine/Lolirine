@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Menu principal Relances -->
+    <menuitem id="menu_lolirine_reminders"
+              name="Relances"
+              parent="lolirine_invoice.menu_lolirine_invoice_root"
+              sequence="30"/>
+    
+    <!-- Sous-menus -->
+    <menuitem id="menu_lolirine_reminders_all"
+              name="Toutes les relances"
+              parent="menu_lolirine_reminders"
+              action="action_invoice_reminders"
+              sequence="10"/>
+    
+    <menuitem id="menu_lolirine_reminders_to_send"
+              name="A envoyer"
+              parent="menu_lolirine_reminders"
+              action="action_invoice_reminders_to_send"
+              sequence="20"/>
+    
+    <menuitem id="menu_lolirine_reminders_sent"
+              name="En attente de paiement"
+              parent="menu_lolirine_reminders"
+              action="action_invoice_reminders_sent"
+              sequence="30"/>
+    
+    <menuitem id="menu_lolirine_reminders_config"
+              name="Configuration"
+              parent="menu_lolirine_reminders"
+              action="action_invoice_reminder_config"
+              sequence="100"
+              groups="base.group_system"/>
+
+</odoo>
