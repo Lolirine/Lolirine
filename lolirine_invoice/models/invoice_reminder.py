@@ -351,10 +351,19 @@ class InvoiceReminder(models.Model):
         }
 
     @api.model
-    def _cron_auto_reminder(self):
+    def _cron_auto_reminder(self, test_mode=False):
+        """
+        Cron job pour les relances automatiques
+        
+        Args:
+            test_mode (bool): Si True, simule sans creer ni envoyer (dry run)
+        
+        Returns:
+            dict: Resultat avec compteurs et details
+        """
         config = self.env['lolirine.invoice.reminder.config'].search([('auto_reminder', '=', True)], limit=1)
         if not config:
-            return {'created': 0, 'sent': 0}
+            return {'created': 0, 'sent': 0, 'test_mode': test_mode, 'details': [], 'message': 'Auto-relance non activee dans la configuration'}
         
         today = fields.Date.today()
         invoices = self.env['account.move'].search([
@@ -366,6 +375,15 @@ class InvoiceReminder(models.Model):
         ])
         
         created = sent = 0
+        details = []  # Pour le mode test
+        
+        type_labels = {
+            'reminder_1': '1er Rappel',
+            'reminder_2': '2eme Rappel',
+            'reminder_3': '3eme Rappel (+20 EUR)',
+            'formal_notice': 'Mise en demeure (+50 EUR)',
+        }
+        
         for inv in invoices:
             days = (today - inv.invoice_date_due).days
             rtype = None
@@ -381,31 +399,66 @@ class InvoiceReminder(models.Model):
             if not rtype:
                 continue
             
+            # Verifier si relance existe deja
             if self.search([('invoice_id', '=', inv.id), ('reminder_type', '=', rtype), ('state', '!=', 'cancelled')], limit=1):
                 continue
             
+            # Verifier que la relance precedente a ete envoyee
             if rtype != 'reminder_1':
                 prev = {'reminder_2': 'reminder_1', 'reminder_3': 'reminder_2', 'formal_notice': 'reminder_3'}.get(rtype)
                 if not self.search([('invoice_id', '=', inv.id), ('reminder_type', '=', prev), ('state', '=', 'sent')], limit=1):
                     continue
             
+            # Mode test : on enregistre ce qui serait fait sans le faire
+            if test_mode:
+                fee = 0
+                if rtype == 'reminder_3':
+                    fee = config.fee_reminder_3 or 20
+                elif rtype == 'formal_notice':
+                    fee = config.fee_formal_notice or 50
+                    
+                details.append({
+                    'invoice': inv.name,
+                    'partner': inv.partner_id.name,
+                    'email': inv.partner_id.email,
+                    'amount_due': inv.amount_residual,
+                    'days_overdue': days,
+                    'reminder_type': type_labels.get(rtype, rtype),
+                    'fee': fee,
+                })
+                created += 1
+                sent += 1
+                continue
+            
+            # Mode reel : creer et envoyer
             try:
                 reminder = self.create({'invoice_id': inv.id, 'reminder_type': rtype, 'auto_generated': True})
                 created += 1
                 
                 # Ajouter frais si necessaire
                 if rtype == 'reminder_3':
-                    reminder._add_fee_to_invoice(20.0, f"Frais de rappel - {inv.name}")
+                    reminder._add_fee_to_invoice(config.fee_reminder_3 or 20.0, f"Frais de rappel - {inv.name}")
                 elif rtype == 'formal_notice':
-                    reminder._add_fee_to_invoice(50.0, f"Frais de mise en demeure - {inv.name}")
+                    reminder._add_fee_to_invoice(config.fee_formal_notice or 50.0, f"Frais de mise en demeure - {inv.name}")
                 
                 if reminder._send_reminder_email():
                     sent += 1
             except Exception as e:
                 _logger.error(f"Erreur auto-relance: {e}")
         
-        _logger.info(f"Auto-relance: {created} creees, {sent} envoyees")
-        return {'created': created, 'sent': sent}
+        result = {
+            'created': created,
+            'sent': sent,
+            'test_mode': test_mode,
+            'details': details,
+        }
+        
+        if test_mode:
+            _logger.info(f"[TEST MODE] Auto-relance: {created} seraient creees et envoyees")
+        else:
+            _logger.info(f"Auto-relance: {created} creees, {sent} envoyees")
+        
+        return result
 
     @api.model
     def _cron_check_paid(self):
@@ -429,14 +482,52 @@ class InvoiceReminderConfig(models.Model):
     company_id = fields.Many2one('res.company', default=lambda self: self.env.company)
 
     def action_test_auto_reminder(self):
-        result = self.env['lolirine.invoice.reminder']._cron_auto_reminder()
+        """Execute les relances automatiques (MODE REEL - envoie des emails!)"""
+        result = self.env['lolirine.invoice.reminder']._cron_auto_reminder(test_mode=False)
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': 'Test termine',
+                'title': 'Relances envoyees',
                 'message': f"Creees: {result.get('created', 0)}, Envoyees: {result.get('sent', 0)}",
                 'type': 'success',
+                'sticky': True,
+            }
+        }
+
+    def action_test_auto_reminder_dry_run(self):
+        """Simule les relances automatiques SANS envoyer d'emails (mode test)"""
+        result = self.env['lolirine.invoice.reminder']._cron_auto_reminder(test_mode=True)
+        
+        details = result.get('details', [])
+        
+        if not details:
+            message = "Aucune relance a envoyer pour le moment."
+        else:
+            # Construire un resume
+            total_fees = sum(d.get('fee', 0) for d in details)
+            total_amount = sum(d.get('amount_due', 0) for d in details)
+            
+            lines = [f"SIMULATION - {len(details)} relance(s) seraient envoyees:"]
+            lines.append(f"Montant total du: {total_amount:.2f} EUR")
+            lines.append(f"Frais qui seraient factures: {total_fees:.2f} EUR")
+            lines.append("---")
+            
+            for d in details[:10]:  # Limiter a 10 pour l'affichage
+                lines.append(f"- {d['partner']} - {d['invoice']} - {d['reminder_type']} ({d['days_overdue']}j)")
+            
+            if len(details) > 10:
+                lines.append(f"... et {len(details) - 10} autre(s)")
+            
+            message = "\n".join(lines)
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'TEST - Simulation auto-relance',
+                'message': message,
+                'type': 'warning',
                 'sticky': True,
             }
         }
