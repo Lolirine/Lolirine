@@ -49,12 +49,14 @@ class InvoiceReminder(models.Model):
     
     days_overdue = fields.Integer(string='Jours de retard', compute='_compute_days_overdue', store=True)
     
-    penalty_amount = fields.Monetary(string='Penalites', compute='_compute_penalty_amount', store=True)
-    total_due = fields.Monetary(string='Total du', compute='_compute_penalty_amount', store=True)
+    reminder_fee = fields.Monetary(string='Frais de rappel', default=0.0)
+    total_due = fields.Monetary(string='Total du', compute='_compute_total_due', store=True)
     
     notes = fields.Text(string='Notes internes')
     email_sent = fields.Boolean(string='Email envoye', default=False)
     auto_generated = fields.Boolean(string='Auto-genere', default=False)
+    fee_added = fields.Boolean(string='Frais ajoutes', default=False)
+    fee_invoice_id = fields.Many2one('account.move', string='Facture frais')
     company_id = fields.Many2one(related='invoice_id.company_id', store=True)
 
     @api.depends('invoice_id', 'reminder_type')
@@ -76,17 +78,49 @@ class InvoiceReminder(models.Model):
             else:
                 rec.days_overdue = 0
 
-    @api.depends('amount_due', 'days_overdue')
-    def _compute_penalty_amount(self):
-        config = self.env['lolirine.invoice.reminder.config'].search([], limit=1)
-        annual_rate = config.penalty_rate / 100 if config else 0.105
+    @api.depends('amount_due', 'reminder_fee')
+    def _compute_total_due(self):
         for rec in self:
-            if rec.days_overdue > 0 and rec.amount_due > 0:
-                rec.penalty_amount = rec.amount_due * (annual_rate / 365) * rec.days_overdue
-                rec.total_due = rec.amount_due + rec.penalty_amount
-            else:
-                rec.penalty_amount = 0.0
-                rec.total_due = rec.amount_due or 0.0
+            rec.total_due = (rec.amount_due or 0.0) + (rec.reminder_fee or 0.0)
+
+    def _add_fee_to_invoice(self, amount, description):
+        """Cree une facture de frais de rappel"""
+        self.ensure_one()
+        if amount <= 0 or self.fee_added:
+            return False
+        
+        invoice = self.invoice_id
+        
+        # Chercher un produit "Frais de rappel"
+        product = self.env['product.product'].search([('default_code', '=', 'FRAIS_RAPPEL')], limit=1)
+        if not product:
+            product = self.env['product.product'].search([('name', 'ilike', 'frais de rappel')], limit=1)
+        
+        # Creer une facture pour les frais
+        fee_invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': invoice.partner_id.id,
+            'invoice_date': fields.Date.today(),
+            'invoice_date_due': fields.Date.today(),
+            'ref': f"Frais - {invoice.name}",
+            'invoice_line_ids': [(0, 0, {
+                'name': description,
+                'quantity': 1,
+                'price_unit': amount,
+                'product_id': product.id if product else False,
+            })],
+        })
+        fee_invoice.action_post()
+        
+        self.write({
+            'fee_added': True,
+            'reminder_fee': amount,
+            'fee_invoice_id': fee_invoice.id,
+        })
+        self.message_post(body=f"Facture de frais creee: {fee_invoice.name} - {amount:.2f} EUR")
+        
+        _logger.info(f"Frais de rappel {amount} EUR - Facture {fee_invoice.name}")
+        return fee_invoice
 
     def _get_email_subject(self):
         self.ensure_one()
@@ -100,11 +134,94 @@ class InvoiceReminder(models.Model):
 
     def _get_email_body(self):
         self.ensure_one()
+        
+        fee_20 = 20.0 if self.reminder_type in ['reminder_3', 'formal_notice'] else 0.0
+        fee_50 = 50.0 if self.reminder_type == 'formal_notice' else 0.0
+        total_fees = fee_20 + fee_50
+        total_due = self.amount_due + total_fees
+        
+        if self.reminder_type == 'reminder_1':
+            warning = """
+            <p style="background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107;">
+                <strong>Attention :</strong> A defaut de paiement, des <strong>frais de rappel de 20 EUR</strong> pourront etre appliques conformement a nos conditions generales.
+            </p>
+            """
+            amount_section = f"""
+            <tr style="background-color: #f5f5f5;">
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>{self.amount_due:.2f} EUR</strong></td>
+            </tr>
+            """
+        elif self.reminder_type == 'reminder_2':
+            warning = """
+            <p style="background-color: #f8d7da; padding: 10px; border-left: 4px solid #dc3545;">
+                <strong>IMPORTANT :</strong> Sans paiement dans les <strong>5 jours</strong>, des <strong>frais de rappel de 20 EUR</strong> seront automatiquement ajoutes a votre facture.
+            </p>
+            """
+            amount_section = f"""
+            <tr style="background-color: #f5f5f5;">
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>{self.amount_due:.2f} EUR</strong></td>
+            </tr>
+            """
+        elif self.reminder_type == 'reminder_3':
+            warning = """
+            <p style="background-color: #f8d7da; padding: 15px; border-left: 4px solid #dc3545;">
+                <strong>DERNIER AVERTISSEMENT :</strong><br/><br/>
+                Sans paiement dans les <strong>5 jours</strong> :<br/>
+                - Des frais supplementaires de <strong>50 EUR</strong> seront appliques<br/>
+                - Nous procederons a la <strong>rupture de votre contrat</strong> conformement a nos conditions generales
+            </p>
+            """
+            amount_section = f"""
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant facture</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{self.amount_due:.2f} EUR</td>
+            </tr>
+            <tr style="background-color: #fff3cd;">
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Frais de rappel</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">20,00 EUR</td>
+            </tr>
+            <tr style="background-color: #f5f5f5;">
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>TOTAL DU</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>{total_due:.2f} EUR</strong></td>
+            </tr>
+            """
+        else:
+            warning = """
+            <p style="background-color: #f8d7da; padding: 15px; border-left: 4px solid #dc3545;">
+                <strong>A DEFAUT DE PAIEMENT :</strong><br/><br/>
+                - Votre <strong>contrat de garde-meubles sera resilie</strong> avec effet immediat<br/>
+                - Les biens stockes feront l'objet d'une <strong>retention</strong> jusqu'au paiement integral<br/>
+                - Le dossier sera transmis a notre <strong>service contentieux</strong> pour recouvrement judiciaire
+            </p>
+            """
+            amount_section = f"""
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant facture</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{self.amount_due:.2f} EUR</td>
+            </tr>
+            <tr style="background-color: #fff3cd;">
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Frais de rappel</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">20,00 EUR</td>
+            </tr>
+            <tr style="background-color: #f8d7da;">
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Frais mise en demeure</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;">50,00 EUR</td>
+            </tr>
+            <tr style="background-color: #ffebee;">
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong>TOTAL DU</strong></td>
+                <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #c0392b; font-size: 16px;">{total_due:.2f} EUR</strong></td>
+            </tr>
+            """
+        
+        intro = 'Sauf erreur de notre part, nous navons pas encore recu le paiement de la facture suivante :' if self.reminder_type == 'reminder_1' else 'Malgre nos precedents rappels, la facture suivante reste impayee :'
+        
         return f"""
 <div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
     <p>Bonjour {self.partner_id.name or ''},</p>
     
-    <p>Sauf erreur de notre part, nous n'avons pas encore recu le paiement de la facture suivante :</p>
+    <p>{intro}</p>
     
     <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 400px;">
         <tr style="background-color: #f5f5f5;">
@@ -115,20 +232,19 @@ class InvoiceReminder(models.Model):
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Echeance</strong></td>
             <td style="padding: 10px; border: 1px solid #ddd;">{self.invoice_id.invoice_date_due or ''}</td>
         </tr>
-        <tr style="background-color: #f5f5f5;">
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>{self.amount_due:.2f} EUR</strong></td>
-        </tr>
+        {amount_section}
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Retard</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{self.days_overdue} jours</td>
+            <td style="padding: 10px; border: 1px solid #ddd; color: #c0392b;">{self.days_overdue} jours</td>
         </tr>
     </table>
     
-    <p><strong>Paiement :</strong></p>
+    {warning}
+    
+    <p><strong>Coordonnees bancaires :</strong></p>
     <ul>
-        <li>Communication : {self.invoice_id.payment_reference or self.invoice_id.name}</li>
         <li>IBAN : BE07 7320 5208 0866 - CBC</li>
+        <li>Communication : {self.invoice_id.payment_reference or self.invoice_id.name}</li>
     </ul>
     
     <p>Cordialement,</p>
@@ -140,6 +256,13 @@ class InvoiceReminder(models.Model):
         self.ensure_one()
         if not self.partner_id.email:
             raise UserError("Le client n'a pas d'adresse email.")
+        
+        # Ajouter les frais si necessaire
+        if self.reminder_type == 'reminder_3' and not self.fee_added:
+            self._add_fee_to_invoice(20.0, f"Frais de rappel - {self.invoice_id.name}")
+        elif self.reminder_type == 'formal_notice' and not self.fee_added:
+            self._add_fee_to_invoice(50.0, f"Frais de mise en demeure - {self.invoice_id.name}")
+        
         self._send_reminder_email()
         return {
             'type': 'ir.actions.client',
@@ -231,7 +354,7 @@ class InvoiceReminder(models.Model):
     def _cron_auto_reminder(self):
         config = self.env['lolirine.invoice.reminder.config'].search([('auto_reminder', '=', True)], limit=1)
         if not config:
-            return
+            return {'created': 0, 'sent': 0}
         
         today = fields.Date.today()
         invoices = self.env['account.move'].search([
@@ -269,6 +392,13 @@ class InvoiceReminder(models.Model):
             try:
                 reminder = self.create({'invoice_id': inv.id, 'reminder_type': rtype, 'auto_generated': True})
                 created += 1
+                
+                # Ajouter frais si necessaire
+                if rtype == 'reminder_3':
+                    reminder._add_fee_to_invoice(20.0, f"Frais de rappel - {inv.name}")
+                elif rtype == 'formal_notice':
+                    reminder._add_fee_to_invoice(50.0, f"Frais de mise en demeure - {inv.name}")
+                
                 if reminder._send_reminder_email():
                     sent += 1
             except Exception as e:
@@ -293,7 +423,8 @@ class InvoiceReminderConfig(models.Model):
     reminder_2_days = fields.Integer(string='2eme rappel (jours)', default=14)
     reminder_3_days = fields.Integer(string='3eme rappel (jours)', default=21)
     formal_notice_days = fields.Integer(string='Mise en demeure (jours)', default=30)
-    penalty_rate = fields.Float(string='Taux penalite (%)', default=10.5)
+    fee_reminder_3 = fields.Float(string='Frais 3eme rappel (EUR)', default=20.0)
+    fee_formal_notice = fields.Float(string='Frais mise en demeure (EUR)', default=50.0)
     auto_reminder = fields.Boolean(string='Auto-relance active', default=False)
     company_id = fields.Many2one('res.company', default=lambda self: self.env.company)
 
