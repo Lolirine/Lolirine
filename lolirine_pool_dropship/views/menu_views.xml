@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    <!-- ============================================ -->
+    <!-- MENUS DROPSHIPPING -->
+    <!-- ============================================ -->
+
+    <!-- Menu principal -->
+    <menuitem id="menu_dropship_root"
+              name="Dropshipping"
+              web_icon="lolirine_pool_dropship,static/description/icon.png"
+              sequence="25"/>
+
+    <!-- Tableau de bord -->
+    <menuitem id="menu_dropship_dashboard"
+              name="Tableau de bord"
+              parent="menu_dropship_root"
+              action="action_dropship_dashboard"
+              sequence="10"/>
+
+    <!-- Commandes -->
+    <menuitem id="menu_dropship_orders"
+              name="Commandes"
+              parent="menu_dropship_root"
+              sequence="20"/>
+
+    <menuitem id="menu_dropship_sale_orders"
+              name="Commandes clients"
+              parent="menu_dropship_orders"
+              action="action_sale_order_dropship"
+              sequence="10"/>
+
+    <menuitem id="menu_dropship_purchase_orders"
+              name="BC Fournisseurs"
+              parent="menu_dropship_orders"
+              action="action_purchase_order_dropship"
+              sequence="20"/>
+
+    <!-- Catalogue -->
+    <menuitem id="menu_dropship_catalog"
+              name="Catalogue"
+              parent="menu_dropship_root"
+              sequence="30"/>
+
+    <menuitem id="menu_dropship_suppliers"
+              name="Fournisseurs produits"
+              parent="menu_dropship_catalog"
+              action="action_supplier_dropship_info"
+              sequence="10"/>
+
+    <menuitem id="menu_dropship_suppliers_partners"
+              name="Fournisseurs (partenaires)"
+              parent="menu_dropship_catalog"
+              action="action_dropship_suppliers"
+              sequence="20"/>
+
+    <!-- Rapports -->
+    <menuitem id="menu_dropship_reports"
+              name="Rapports"
+              parent="menu_dropship_root"
+              sequence="40"/>
+
+    <menuitem id="menu_dropship_decision_log"
+              name="Journal des décisions"
+              parent="menu_dropship_reports"
+              action="action_dropship_decision_log"
+              sequence="10"/>
+
+    <menuitem id="menu_dropship_margin_analysis"
+              name="Analyse des marges"
+              parent="menu_dropship_reports"
+              action="action_dropship_margin_analysis"
+              sequence="20"/>
+
+    <menuitem id="menu_dropship_supplier_performance"
+              name="Performance fournisseurs"
+              parent="menu_dropship_reports"
+              action="action_dropship_supplier_performance"
+              sequence="30"/>
+
+    <!-- Configuration -->
+    <menuitem id="menu_dropship_config"
+              name="Configuration"
+              parent="menu_dropship_root"
+              sequence="90"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_dropship_config_settings"
+              name="Paramètres"
+              parent="menu_dropship_config"
+              action="action_dropship_config"
+              sequence="10"/>
+
+</data>
+</odoo>
