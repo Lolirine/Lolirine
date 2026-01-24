@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- ============================================ -->
+    <!-- PAGE D'ACCUEIL POOL STORE - ÉDITABLE       -->
+    <!-- ============================================ -->
+    
+    <template id="view_pool_homepage" name="Pool Store - Accueil">
+        <t t-call="website.layout">
+            <t t-set="pageName" t-value="'homepage'"/>
+            
+            <div id="wrap">
+                <div class="oe_structure oe_empty">
+                
+                    <!-- ========== HERO SECTION - Structure éditable ========== -->
+                    <section class="s_cover parallax s_parallax_is_fixed pt120 pb120 o_cc o_cc1" 
+                             data-scroll-background-ratio="1"
+                             data-snippet="s_cover"
+                             data-name="Couverture">
+                        <span class="s_parallax_bg_wrap" data-snippet="s_parallax_bg">
+                            <span class="s_parallax_bg oe_img_bg oe_custom_bg o_bg_img_center" style="background-image: url('/web/image/website.library_image_10'); background-position: 50% 50%;"/>
+                        </span>
+                        <div class="o_we_bg_filter bg-black-50"/>
+                        <div class="container s_allow_columns">
+                            <div class="row s_nb_column_fixed">
+                                <div class="col-lg-8 pt48 pb48">
+                                    <h1 class="display-3 fw-bold mb-4 o_default_snippet_text">
+                                        <span style="color: #38bdf8;">Lolirine</span> Pool Store
+                                    </h1>
+                                    <p class="lead mb-4 o_default_snippet_text" style="font-size: 1.5rem;">
+                                        Votre expert en équipements de piscine en Belgique
+                                    </p>
+                                    <p class="mb-5 o_default_snippet_text" style="font-size: 1.1rem;">
+                                        Pompes à chaleur, filtration, robots nettoyeurs et accessoires. 
+                                        Des marques premium aux meilleurs prix.
+                                    </p>
+                                    <div class="d-flex gap-3 flex-wrap">
+                                        <a href="/shop" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
+                                            <i class="fa fa-shopping-cart me-2"/>
+                                            Découvrir la boutique
+                                        </a>
+                                        <a href="#categories" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill">
+                                            Nos catégories
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                
+                <!-- ========== AVANTAGES - SECTION ÉDITABLE ========== -->
+                <section class="s_text_block py-5 bg-light" data-snippet="s_text_block" data-name="Avantages">
+                    <div class="container">
+                        <div class="row text-center g-4 oe_structure" data-name="Grille avantages">
+                            <div class="col-md-3">
+                                <div class="p-4">
+                                    <i class="fa fa-truck fa-3x mb-3" style="color: #0ea5e9;"/>
+                                    <h5 class="fw-bold">Livraison Belgique</h5>
+                                    <p class="text-muted mb-0">Livraison rapide partout en Belgique</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-4">
+                                    <i class="fa fa-shield fa-3x mb-3" style="color: #0ea5e9;"/>
+                                    <h5 class="fw-bold">Garantie incluse</h5>
+                                    <p class="text-muted mb-0">Tous nos produits sont garantis</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-4">
+                                    <i class="fa fa-headphones fa-3x mb-3" style="color: #0ea5e9;"/>
+                                    <h5 class="fw-bold">Conseil expert</h5>
+                                    <p class="text-muted mb-0">Notre équipe vous accompagne</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-4">
+                                    <i class="fa fa-euro fa-3x mb-3" style="color: #0ea5e9;"/>
+                                    <h5 class="fw-bold">Meilleurs prix</h5>
+                                    <p class="text-muted mb-0">Prix compétitifs garantis</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ========== CATÉGORIES - SECTION ÉDITABLE ========== -->
+                <section id="categories" class="s_text_block py-5" data-snippet="s_text_block" data-name="Catégories">
+                    <div class="container">
+                        <div class="text-center mb-5 oe_structure" data-name="Titre catégories">
+                            <h2 class="display-5 fw-bold">Nos Catégories</h2>
+                            <p class="lead text-muted">Tout l'équipement pour votre piscine</p>
+                        </div>
+                        
+                        <!-- Zone éditable pour les cartes catégories -->
+                        <div class="row g-4 oe_structure" data-name="Grille catégories">
+                            <!-- Pompes à chaleur -->
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <a href="/shop/category/pompes-a-chaleur" class="text-decoration-none">
+                                    <div class="card h-100 border-0 shadow-sm category-card" 
+                                         style="transition: all 0.3s ease;">
+                                        <div class="card-body text-center p-4">
+                                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 80px; height: 80px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                                                <i class="fa fa-thermometer-half fa-2x text-white"/>
+                                            </div>
+                                            <h5 class="card-title fw-bold">Pompes à chaleur</h5>
+                                            <p class="card-text text-muted small">Chauffage efficace et économique</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <!-- Filtration -->
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <a href="/shop/category/filtration" class="text-decoration-none">
+                                    <div class="card h-100 border-0 shadow-sm category-card">
+                                        <div class="card-body text-center p-4">
+                                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 80px; height: 80px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                                                <i class="fa fa-filter fa-2x text-white"/>
+                                            </div>
+                                            <h5 class="card-title fw-bold">Filtration</h5>
+                                            <p class="card-text text-muted small">Eau cristalline garantie</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <!-- Robots -->
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <a href="/shop/category/robots" class="text-decoration-none">
+                                    <div class="card h-100 border-0 shadow-sm category-card">
+                                        <div class="card-body text-center p-4">
+                                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 80px; height: 80px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                                <i class="fa fa-robot fa-2x text-white"/>
+                                            </div>
+                                            <h5 class="card-title fw-bold">Robots nettoyeurs</h5>
+                                            <p class="card-text text-muted small">Nettoyage automatique</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <!-- Traitement eau -->
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <a href="/shop/category/traitement-eau" class="text-decoration-none">
+                                    <div class="card h-100 border-0 shadow-sm category-card">
+                                        <div class="card-body text-center p-4">
+                                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 80px; height: 80px; background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+                                                <i class="fa fa-tint fa-2x text-white"/>
+                                            </div>
+                                            <h5 class="card-title fw-bold">Traitement de l'eau</h5>
+                                            <p class="card-text text-muted small">Produits chimiques et sel</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <!-- Wellness -->
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <a href="/univers/wellness" class="text-decoration-none">
+                                    <div class="card h-100 border-0 shadow-sm category-card">
+                                        <div class="card-body text-center p-4">
+                                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 80px; height: 80px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                                                <i class="fa fa-hot-tub fa-2x text-white"/>
+                                            </div>
+                                            <h5 class="card-title fw-bold">Espace Wellness</h5>
+                                            <p class="card-text text-muted small">Spa, jacuzzi et bien-être</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <!-- Accessoires -->
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <a href="/shop/category/accessoires" class="text-decoration-none">
+                                    <div class="card h-100 border-0 shadow-sm category-card">
+                                        <div class="card-body text-center p-4">
+                                            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 80px; height: 80px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                                                <i class="fa fa-life-ring fa-2x text-white"/>
+                                            </div>
+                                            <h5 class="card-title fw-bold">Accessoires</h5>
+                                            <p class="card-text text-muted small">Équipements et fournitures</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ========== ZONE LIBRE ÉDITABLE ========== -->
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable"/>
+                
+                <!-- ========== MARQUES - SECTION ÉDITABLE ========== -->
+                <section class="s_text_block py-4 bg-light" data-snippet="s_text_block" data-name="Marques">
+                    <div class="container">
+                        <div class="text-center mb-4">
+                            <p class="text-muted fw-bold text-uppercase small">Nos marques partenaires</p>
+                        </div>
+                        <div class="row align-items-center justify-content-center g-4 text-center oe_structure" data-name="Liste marques">
+                            <div class="col-4 col-md-2">
+                                <span class="text-muted fw-bold" style="font-size: 1.2rem;">Hayward</span>
+                            </div>
+                            <div class="col-4 col-md-2">
+                                <span class="text-muted fw-bold" style="font-size: 1.2rem;">Zodiac</span>
+                            </div>
+                            <div class="col-4 col-md-2">
+                                <span class="text-muted fw-bold" style="font-size: 1.2rem;">Astral</span>
+                            </div>
+                            <div class="col-4 col-md-2">
+                                <span class="text-muted fw-bold" style="font-size: 1.2rem;">Aqua Forte</span>
+                            </div>
+                            <div class="col-4 col-md-2">
+                                <span class="text-muted fw-bold" style="font-size: 1.2rem;">Fluidra</span>
+                            </div>
+                            <div class="col-4 col-md-2">
+                                <span class="text-muted fw-bold" style="font-size: 1.2rem;">Pentair</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ========== CTA CONTACT - SECTION ÉDITABLE ========== -->
+                <section class="s_cover py-5 o_cc o_cc1" 
+                         data-snippet="s_cover" 
+                         data-name="Appel à l'action"
+                         style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+                    <div class="container text-center text-white oe_structure" data-name="Contenu CTA">
+                        <h2 class="display-6 fw-bold mb-3">Besoin de conseils ?</h2>
+                        <p class="lead mb-4">Notre équipe d'experts est à votre disposition pour vous accompagner dans votre projet piscine.</p>
+                        <a href="/contactus" class="btn btn-lg btn-light px-5 py-3" style="border-radius: 50px;">
+                            <i class="fa fa-phone me-2"/>
+                            Contactez-nous
+                        </a>
+                    </div>
+                </section>
+                
+                </div>
+            </div>
+        </t>
+    </template>
+    
+    <!-- ============================================ -->
+    <!-- PAGE À PROPOS - ÉDITABLE                   -->
+    <!-- ============================================ -->
+    
+    <template id="view_pool_about" name="Pool Store - À propos">
+        <t t-call="website.layout">
+            <t t-set="pageName" t-value="'about'"/>
+            
+            <div id="wrap">
+                <div class="oe_structure oe_empty">
+                
+                    <!-- ========== HERO ABOUT - Structure éditable ========== -->
+                    <section class="s_cover parallax s_parallax_is_fixed pt80 pb80 o_cc o_cc1" 
+                             data-snippet="s_cover" 
+                             data-name="Couverture">
+                        <span class="s_parallax_bg_wrap" data-snippet="s_parallax_bg">
+                            <span class="s_parallax_bg oe_img_bg oe_custom_bg o_bg_img_center" style="background-image: url('/web/image/website.library_image_08'); background-position: 50% 50%;"/>
+                        </span>
+                        <div class="o_we_bg_filter bg-black-50"/>
+                        <div class="container s_allow_columns">
+                            <div class="row s_nb_column_fixed">
+                                <div class="col-12 text-center text-white py-4">
+                                    <h1 class="display-4 fw-bold o_default_snippet_text">À propos de Lolirine Pool Store</h1>
+                                    <p class="lead o_default_snippet_text">Votre partenaire de confiance pour l'équipement de piscine en Belgique</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                
+                    <!-- ========== CONTENU ABOUT ÉDITABLE ========== -->
+                    <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Contenu À propos">
+                        <div class="container">
+                            <div class="row g-5">
+                                <div class="col-lg-6">
+                                    <h2 class="fw-bold mb-4 o_default_snippet_text">Notre Histoire</h2>
+                                    <p class="text-muted o_default_snippet_text">
+                                        Lolirine Pool Store est une division de Lolirine SPRL, entreprise belge 
+                                        spécialisée dans les services aux particuliers et professionnels.
+                                    </p>
+                                    <p class="text-muted o_default_snippet_text">
+                                        Forts de notre expérience dans le domaine du stockage et de la logistique, 
+                                        nous avons décidé d'élargir notre offre pour répondre aux besoins des 
+                                        propriétaires de piscine en Belgique.
+                                    </p>
+                                    <p class="text-muted o_default_snippet_text">
+                                        Notre mission : vous proposer les meilleurs équipements de piscine 
+                                        aux prix les plus compétitifs, avec un service client irréprochable.
+                                    </p>
+                                </div>
+                                <div class="col-lg-6">
+                                    <h2 class="fw-bold mb-4 o_default_snippet_text">Nos Engagements</h2>
+                                    <ul class="list-unstyled o_default_snippet_text">
+                                        <li class="mb-3 d-flex">
+                                            <i class="fa fa-check-circle fa-lg me-3" style="color: #10b981;"/>
+                                            <div>
+                                                <strong>Qualité garantie</strong><br/>
+                                                <span class="text-muted">Produits sélectionnés auprès des meilleures marques</span>
+                                            </div>
+                                        </li>
+                                        <li class="mb-3 d-flex">
+                                            <i class="fa fa-check-circle fa-lg me-3" style="color: #10b981;"/>
+                                            <div>
+                                                <strong>Prix compétitifs</strong><br/>
+                                                <span class="text-muted">Les meilleurs tarifs du marché belge</span>
+                                            </div>
+                                        </li>
+                                        <li class="mb-3 d-flex">
+                                            <i class="fa fa-check-circle fa-lg me-3" style="color: #10b981;"/>
+                                            <div>
+                                                <strong>Conseil expert</strong><br/>
+                                                <span class="text-muted">Une équipe à votre écoute pour vous guider</span>
+                                            </div>
+                                        </li>
+                                        <li class="mb-3 d-flex">
+                                            <i class="fa fa-check-circle fa-lg me-3" style="color: #10b981;"/>
+                                            <div>
+                                                <strong>Livraison rapide</strong><br/>
+                                                <span class="text-muted">Expédition sous 24-48h en Belgique</span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                
+                    <!-- ========== CTA CONTACT ABOUT ========== -->
+                    <section class="s_text_block py-5 bg-light" data-snippet="s_text_block" data-name="CTA Contact About">
+                        <div class="container text-center">
+                            <h3 class="fw-bold mb-3 o_default_snippet_text">Une question ? Un projet ?</h3>
+                            <p class="text-muted mb-4 o_default_snippet_text">N'hésitez pas à nous contacter, nous sommes là pour vous aider.</p>
+                            <a href="/contactus" class="btn btn-primary btn-lg px-5">
+                                <i class="fa fa-envelope me-2"/>
+                                Nous contacter
+                            </a>
+                        </div>
+                    </section>
+                
+                </div>
+            </div>
+        </t>
+    </template>
+    
+</odoo>
