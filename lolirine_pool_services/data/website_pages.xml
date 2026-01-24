@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Page: Nos Services -->
+        <record id="page_services" model="website.page">
+            <field name="name">Nos Services</field>
+            <field name="url">/services</field>
+            <field name="view_id" ref="lolirine_pool_services.page_nos_services"/>
+            <field name="website_indexed">True</field>
+            <field name="is_published">True</field>
+        </record>
+
+        <!-- Page: Entretien -->
+        <record id="page_service_entretien" model="website.page">
+            <field name="name">Entretien &amp; Réparation</field>
+            <field name="url">/services/entretien-reparation</field>
+            <field name="view_id" ref="lolirine_pool_services.page_entretien"/>
+            <field name="website_indexed">True</field>
+            <field name="is_published">True</field>
+        </record>
+
+        <!-- Page: Construction -->
+        <record id="page_service_construction" model="website.page">
+            <field name="name">Construction &amp; Rénovation</field>
+            <field name="url">/services/construction-renovation</field>
+            <field name="view_id" ref="lolirine_pool_services.page_construction"/>
+            <field name="website_indexed">True</field>
+            <field name="is_published">True</field>
+        </record>
+
+        <!-- Page: Analyse -->
+        <record id="page_service_analyse" model="website.page">
+            <field name="name">Analyse de l'eau</field>
+            <field name="url">/services/analyse-eau</field>
+            <field name="view_id" ref="lolirine_pool_services.page_analyse"/>
+            <field name="website_indexed">True</field>
+            <field name="is_published">True</field>
+        </record>
+
+        <!-- Page: Hivernage -->
+        <record id="page_service_hivernage" model="website.page">
+            <field name="name">Hivernage &amp; Estivage</field>
+            <field name="url">/services/hivernage-estivage</field>
+            <field name="view_id" ref="lolirine_pool_services.page_hivernage"/>
+            <field name="website_indexed">True</field>
+            <field name="is_published">True</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- PAGE CONTACTEZ-NOUS - POOL STORE           -->
+    <!-- ============================================ -->
+    
+    <template id="page_pool_contact" name="Pool Store - Contactez-nous">
+        <t t-call="website.layout">
+            <div id="wrap" class="pool-contact-wrap">
+                
+                <!-- HERO -->
+                <section class="pool-contact-hero">
+                    <div class="container py-5">
+                        <h1>Contactez-nous</h1>
+                        <p>Une question ? Un projet ? Notre équipe est à votre écoute</p>
+                    </div>
+                </section>
+                
+                <!-- CONTENU PRINCIPAL -->
+                <section class="py-5">
+                    <div class="container">
+                        <div class="row g-4">
+                            
+                            <!-- FORMULAIRE (gauche) -->
+                            <div class="col-lg-8">
+                                <form action="/pool/contact/submit" method="POST" class="pool-contact-form">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    
+                                    <!-- SECTION 1: Type de demande -->
+                                    <div class="pool-form-section">
+                                        <div class="pool-form-section-header">
+                                            <i class="fa fa-question-circle"/>
+                                            <span>Type de demande</span>
+                                        </div>
+                                        <div class="pool-form-section-body">
+                                            <div class="pool-radio-group">
+                                                <label class="pool-radio-card">
+                                                    <input type="radio" name="request_type" value="product" required="required"/>
+                                                    <div class="pool-radio-content">
+                                                        <i class="fa fa-box text-primary"/>
+                                                        <div>
+                                                            <strong>Question sur un produit</strong>
+                                                            <small>Disponibilité, caractéristiques, conseils...</small>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                                <label class="pool-radio-card">
+                                                    <input type="radio" name="request_type" value="service"/>
+                                                    <div class="pool-radio-content">
+                                                        <i class="fa fa-tools text-success"/>
+                                                        <div>
+                                                            <strong>Demande de service</strong>
+                                                            <small>Entretien, construction, réparation...</small>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                                <label class="pool-radio-card">
+                                                    <input type="radio" name="request_type" value="quote"/>
+                                                    <div class="pool-radio-content">
+                                                        <i class="fa fa-file-invoice-dollar text-warning"/>
+                                                        <div>
+                                                            <strong>Demande de devis</strong>
+                                                            <small>Estimation pour un projet</small>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                                <label class="pool-radio-card">
+                                                    <input type="radio" name="request_type" value="general"/>
+                                                    <div class="pool-radio-content">
+                                                        <i class="fa fa-comment-dots text-info"/>
+                                                        <div>
+                                                            <strong>Question générale</strong>
+                                                            <small>Autre demande d'information</small>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- SECTION 2: Vos informations -->
+                                    <div class="pool-form-section">
+                                        <div class="pool-form-section-header">
+                                            <i class="fa fa-user"/>
+                                            <span>Vos informations</span>
+                                        </div>
+                                        <div class="pool-form-section-body">
+                                            
+                                            <!-- Particulier / Professionnel -->
+                                            <div class="pool-subsection-title">
+                                                <i class="fa fa-id-card text-muted"/>
+                                                Vous êtes
+                                            </div>
+                                            <div class="pool-toggle-group mb-4">
+                                                <label class="pool-toggle-btn">
+                                                    <input type="radio" name="client_type" value="particular" checked="checked"/>
+                                                    <span><i class="fa fa-user me-2"/>Particulier</span>
+                                                </label>
+                                                <label class="pool-toggle-btn">
+                                                    <input type="radio" name="client_type" value="professional"/>
+                                                    <span><i class="fa fa-building me-2"/>Professionnel</span>
+                                                </label>
+                                            </div>
+                                            
+                                            <!-- Champs Professionnel (hidden par défaut) -->
+                                            <div id="professional_fields" class="pool-pro-fields" style="display: none;">
+                                                <div class="row g-3 mb-3">
+                                                    <div class="col-md-8">
+                                                        <label class="form-label">Nom de l'entreprise <span class="text-danger">*</span></label>
+                                                        <input type="text" name="company_name" class="form-control" placeholder="Ma Société SPRL"/>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label class="form-label">N° TVA</label>
+                                                        <input type="text" name="vat_number" class="form-control" placeholder="BE0123456789"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Informations personnelles -->
+                                            <div class="pool-subsection-title">
+                                                <i class="fa fa-address-card text-muted"/>
+                                                Informations de contact
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Nom complet <span class="text-danger">*</span></label>
+                                                    <input type="text" name="name" class="form-control" placeholder="Jean Dupont" required="required"/>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                                    <input type="email" name="email" class="form-control" placeholder="jean.dupont@email.com" required="required"/>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Téléphone <span class="text-danger">*</span></label>
+                                                    <input type="tel" name="phone" class="form-control" placeholder="0475/12 34 56" required="required"/>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Code postal</label>
+                                                    <input type="text" name="zip_code" class="form-control" placeholder="4000"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- SECTION 3: Votre piscine (optionnel) -->
+                                    <div class="pool-form-section">
+                                        <div class="pool-form-section-header pool-form-section-header-optional">
+                                            <i class="fa fa-swimming-pool"/>
+                                            <span>Votre piscine</span>
+                                            <small class="ms-2 fw-normal">(optionnel)</small>
+                                        </div>
+                                        <div class="pool-form-section-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Type de piscine</label>
+                                                    <select name="pool_type" class="form-select">
+                                                        <option value="">-- Sélectionner --</option>
+                                                        <option value="enterree">Enterrée</option>
+                                                        <option value="hors_sol">Hors-sol</option>
+                                                        <option value="semi_enterree">Semi-enterrée</option>
+                                                        <option value="interieure">Intérieure</option>
+                                                        <option value="spa">Spa / Jacuzzi</option>
+                                                        <option value="autre">Autre</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Traitement actuel</label>
+                                                    <select name="pool_treatment" class="form-select">
+                                                        <option value="">-- Sélectionner --</option>
+                                                        <option value="chlore">Chlore</option>
+                                                        <option value="sel">Électrolyse au sel</option>
+                                                        <option value="brome">Brome</option>
+                                                        <option value="oxygene">Oxygène actif</option>
+                                                        <option value="uv">UV</option>
+                                                        <option value="inconnu">Je ne sais pas</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label class="form-label">Dimensions approximatives</label>
+                                                    <input type="text" name="pool_dimensions" class="form-control" placeholder="Ex: 8m x 4m, environ 50m³..."/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- SECTION 4: Votre message -->
+                                    <div class="pool-form-section">
+                                        <div class="pool-form-section-header">
+                                            <i class="fa fa-envelope"/>
+                                            <span>Votre message</span>
+                                        </div>
+                                        <div class="pool-form-section-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Sujet <span class="text-danger">*</span></label>
+                                                <input type="text" name="subject" class="form-control" placeholder="Ex: Question sur robot Dolphin" required="required"/>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Votre message <span class="text-danger">*</span></label>
+                                                <textarea name="message" class="form-control" rows="5" placeholder="Décrivez votre demande en détail..." required="required"></textarea>
+                                            </div>
+                                            
+                                            <!-- Préférence de contact -->
+                                            <div class="pool-contact-pref">
+                                                <label class="form-label mb-2">Préférence de contact</label>
+                                                <div class="d-flex gap-3 flex-wrap">
+                                                    <label class="pool-checkbox">
+                                                        <input type="checkbox" name="pref_email" value="1" checked="checked"/>
+                                                        <span><i class="fa fa-envelope me-1"/>Email</span>
+                                                    </label>
+                                                    <label class="pool-checkbox">
+                                                        <input type="checkbox" name="pref_phone" value="1"/>
+                                                        <span><i class="fa fa-phone me-1"/>Téléphone</span>
+                                                    </label>
+                                                    <label class="pool-checkbox">
+                                                        <input type="checkbox" name="pref_whatsapp" value="1"/>
+                                                        <span><i class="fab fa-whatsapp me-1"/>WhatsApp</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- SUBMIT -->
+                                    <div class="pool-form-submit">
+                                        <button type="submit" class="pool-btn-submit">
+                                            <i class="fa fa-paper-plane me-2"/>Envoyer ma demande
+                                        </button>
+                                        <p class="pool-form-note">
+                                            <i class="fa fa-shield-alt me-1"/>
+                                            Vos données sont protégées et ne seront jamais partagées.
+                                        </p>
+                                    </div>
+                                    
+                                </form>
+                            </div>
+                            
+                            <!-- SIDEBAR (droite) -->
+                            <div class="col-lg-4">
+                                
+                                <!-- Infos entreprise -->
+                                <div class="pool-sidebar-card">
+                                    <div class="pool-sidebar-header">
+                                        <i class="fa fa-store"/>
+                                        <span>Pool Store Lolirine</span>
+                                    </div>
+                                    <div class="pool-sidebar-body">
+                                        <div class="pool-sidebar-item">
+                                            <i class="fa fa-map-marker-alt"/>
+                                            <span>5021 Boninne, Rue Bois D'Esneux 100</span>
+                                        </div>
+                                        <div class="pool-sidebar-item">
+                                            <i class="fa fa-phone"/>
+                                            <a href="tel:+32497444146">+32 497 44 41 46</a>
+                                        </div>
+                                        <div class="pool-sidebar-item">
+                                            <i class="fa fa-envelope"/>
+                                            <a href="mailto:info@lolirinepoolstore.be">info@lolirinepoolstore.be</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Horaires -->
+                                <div class="pool-sidebar-card">
+                                    <div class="pool-sidebar-header pool-sidebar-header-orange">
+                                        <i class="fa fa-clock"/>
+                                        <span>Horaires</span>
+                                    </div>
+                                    <div class="pool-sidebar-body">
+                                        <div class="pool-schedule-row">
+                                            <span>Lundi - Vendredi</span>
+                                            <strong>9h - 18h</strong>
+                                        </div>
+                                        <div class="pool-schedule-row">
+                                            <span>Samedi</span>
+                                            <strong>10h - 16h</strong>
+                                        </div>
+                                        <div class="pool-schedule-row">
+                                            <span>Dimanche</span>
+                                            <span class="pool-badge-closed">Fermé</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Avantages -->
+                                <div class="pool-sidebar-card">
+                                    <div class="pool-sidebar-header pool-sidebar-header-green">
+                                        <i class="fa fa-check-circle"/>
+                                        <span>Nos avantages</span>
+                                    </div>
+                                    <div class="pool-sidebar-body">
+                                        <ul class="pool-advantages-list">
+                                            <li><i class="fa fa-check"/>Réponse sous 24h</li>
+                                            <li><i class="fa fa-check"/>Conseils personnalisés</li>
+                                            <li><i class="fa fa-check"/>Devis gratuit</li>
+                                            <li><i class="fa fa-check"/>Équipe d'experts</li>
+                                            <li><i class="fa fa-check"/>Produits de qualité</li>
+                                            <li><i class="fa fa-check"/>Service après-vente</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <!-- Lien rapide devis -->
+                                <div class="pool-sidebar-cta">
+                                    <i class="fa fa-file-invoice-dollar"/>
+                                    <div>
+                                        <strong>Besoin d'un devis service ?</strong>
+                                        <p>Entretien, construction, rénovation</p>
+                                    </div>
+                                    <a href="/pool/devis" class="pool-btn-cta">
+                                        Demander un devis <i class="fa fa-arrow-right ms-1"/>
+                                    </a>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                </section>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE CONFIRMATION                          -->
+    <!-- ============================================ -->
+    
+    <template id="page_pool_contact_success" name="Pool Store - Contact Envoyé">
+        <t t-call="website.layout">
+            <div id="wrap" class="pool-contact-wrap">
+                <section class="pool-contact-hero">
+                    <div class="container py-5">
+                        <h1>Message envoyé !</h1>
+                        <p>Nous avons bien reçu votre demande</p>
+                    </div>
+                </section>
+                
+                <section class="py-5">
+                    <div class="container">
+                        <div class="pool-success-card">
+                            <div class="pool-success-icon">
+                                <i class="fa fa-check-circle"/>
+                            </div>
+                            <h2>Merci <t t-esc="name"/> !</h2>
+                            <p class="pool-success-text">
+                                Votre message a bien été envoyé à notre équipe.<br/>
+                                Nous vous répondrons dans les plus brefs délais.
+                            </p>
+                            <div class="pool-success-info">
+                                <i class="fa fa-clock"/>
+                                <span>Délai de réponse habituel : <strong>moins de 24h</strong></span>
+                            </div>
+                            <div class="pool-success-actions">
+                                <a href="/boutique" class="pool-btn-primary">
+                                    <i class="fa fa-shopping-bag me-2"/>Découvrir nos produits
+                                </a>
+                                <a href="/" class="pool-btn-outline">
+                                    <i class="fa fa-home me-2"/>Retour à l'accueil
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE ERREUR                                -->
+    <!-- ============================================ -->
+    
+    <template id="page_pool_contact_error" name="Pool Store - Erreur Contact">
+        <t t-call="website.layout">
+            <div id="wrap" class="pool-contact-wrap">
+                <section class="pool-contact-hero pool-contact-hero-error">
+                    <div class="container py-5">
+                        <h1>Oups !</h1>
+                        <p>Une erreur s'est produite</p>
+                    </div>
+                </section>
+                
+                <section class="py-5">
+                    <div class="container">
+                        <div class="pool-error-card">
+                            <div class="pool-error-icon">
+                                <i class="fa fa-exclamation-triangle"/>
+                            </div>
+                            <h2>Erreur lors de l'envoi</h2>
+                            <p class="pool-error-text">
+                                Votre message n'a pas pu être envoyé.<br/>
+                                Veuillez réessayer ou nous contacter directement.
+                            </p>
+                            <div class="pool-error-contact">
+                                <a href="tel:+32497444146" class="pool-error-phone">
+                                    <i class="fa fa-phone"/>+32 497 44 41 46
+                                </a>
+                                <a href="mailto:info@lolirinepoolstore.be" class="pool-error-email">
+                                    <i class="fa fa-envelope"/>info@lolirinepoolstore.be
+                                </a>
+                            </div>
+                            <div class="pool-error-actions">
+                                <a href="/pool/contact" class="pool-btn-primary">
+                                    <i class="fa fa-redo me-2"/>Réessayer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+</odoo>
