@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_pool_website_category_user,pool.website.category.user,model_pool_website_category,base.group_user,1,0,0,0
-access_pool_website_category_manager,pool.website.category.manager,model_pool_website_category,website.group_website_designer,1,1,1,1
