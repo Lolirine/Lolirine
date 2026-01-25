@@ -1,0 +1,559 @@
+/* ============================================
+   LOLIRINE POOL CATEGORIES - DESIGN SYSTEM
+   Style inspiré de la maquette client
+   ============================================ */
+
+/* ---------- VARIABLES ---------- */
+:root {
+    --pshop-primary: #0891b2;
+    --pshop-cyan: #06b6d4;
+    --pshop-teal: #14b8a6;
+    --pshop-gray: #64748b;
+    --pshop-orange: #d97706;
+    --pshop-dark: #0f172a;
+    --pshop-light: #f8fafc;
+    --pshop-radius: 16px;
+    --pshop-radius-sm: 12px;
+    --pshop-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --pshop-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- HERO SECTION ---------- */
+.pshop-hero {
+    background: linear-gradient(135deg, var(--pshop-dark) 0%, #1e3a5f 50%, var(--pshop-primary) 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.pshop-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 80%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.min-vh-40 {
+    min-height: 40vh;
+}
+
+.pshop-badge {
+    display: inline-block;
+    background: rgba(6, 182, 212, 0.2);
+    color: #67e8f9;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.pshop-title {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+}
+
+.pshop-highlight {
+    color: var(--pshop-cyan);
+}
+
+.pshop-subtitle {
+    font-size: 1.15rem;
+    opacity: 0.9;
+    margin-bottom: 1.75rem;
+    max-width: 520px;
+}
+
+/* ---------- PAGE HEROES ---------- */
+.pshop-page-hero {
+    color: white;
+    position: relative;
+}
+
+.pshop-page-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+}
+
+.pshop-page-hero p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 520px;
+    margin-bottom: 0;
+}
+
+.pshop-hero-cyan { background: linear-gradient(135deg, var(--pshop-dark) 0%, var(--pshop-primary) 100%); }
+.pshop-hero-gray { background: linear-gradient(135deg, var(--pshop-dark) 0%, #475569 100%); }
+.pshop-hero-orange { background: linear-gradient(135deg, var(--pshop-dark) 0%, var(--pshop-orange) 100%); }
+.pshop-hero-teal { background: linear-gradient(135deg, var(--pshop-dark) 0%, var(--pshop-teal) 100%); }
+.pshop-hero-purple { background: linear-gradient(135deg, var(--pshop-dark) 0%, #7c3aed 100%); }
+.pshop-hero-green { background: linear-gradient(135deg, var(--pshop-dark) 0%, #059669 100%); }
+
+/* ---------- BACKGROUND COLORS ---------- */
+.pshop-bg-cyan { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+.pshop-bg-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+.pshop-bg-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.pshop-bg-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+.pshop-bg-teal { background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); }
+
+.pshop-page-icon {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pshop-page-icon i {
+    font-size: 3rem;
+}
+
+.pshop-breadcrumb {
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+}
+
+.pshop-breadcrumb a {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+}
+
+.pshop-breadcrumb a:hover {
+    color: white;
+}
+
+/* ---------- BUTTONS ---------- */
+.pshop-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--pshop-primary) 0%, #0e7490 100%);
+    color: white !important;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.pshop-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(8, 145, 178, 0.35);
+    color: white !important;
+}
+
+.pshop-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 28px;
+    background: transparent;
+    color: white !important;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.pshop-btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+    color: white !important;
+}
+
+.pshop-btn-light {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.pshop-btn-light:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: white !important;
+}
+
+.pshop-btn-white {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 28px;
+    background: white;
+    color: var(--pshop-primary) !important;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.pshop-btn-white:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--pshop-shadow-lg);
+    color: var(--pshop-primary) !important;
+}
+
+/* ---------- SECTION STYLES ---------- */
+.pshop-section-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--pshop-dark);
+    margin-bottom: 0.5rem;
+}
+
+.pshop-section-subtitle {
+    color: var(--pshop-gray);
+    font-size: 1.05rem;
+}
+
+.pshop-content-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--pshop-dark);
+}
+
+.pshop-bg-light {
+    background-color: var(--pshop-light);
+}
+
+/* ============================================ */
+/* UNIVERSE CARDS (comme la maquette)          */
+/* ============================================ */
+
+.pshop-universe-card {
+    position: relative;
+    border-radius: var(--pshop-radius);
+    overflow: hidden;
+    height: 280px;
+    box-shadow: var(--pshop-shadow);
+    transition: all 0.4s ease;
+}
+
+.pshop-universe-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--pshop-shadow-lg);
+}
+
+.pshop-universe-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+.pshop-universe-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.pshop-universe-card:hover .pshop-universe-img img {
+    transform: scale(1.1);
+}
+
+/* Placeholder quand pas d'image */
+.pshop-universe-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.5s ease;
+}
+
+.pshop-universe-placeholder i {
+    font-size: 5rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.pshop-universe-card:hover .pshop-universe-placeholder {
+    transform: scale(1.05);
+}
+
+/* Overlay avec texte */
+.pshop-universe-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem;
+    background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+    color: white;
+    z-index: 2;
+}
+
+.pshop-universe-overlay h4 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.pshop-universe-link {
+    color: var(--pshop-cyan);
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.pshop-universe-card:hover .pshop-universe-link {
+    color: #67e8f9;
+}
+
+.pshop-universe-card:hover .pshop-universe-link i {
+    transform: translateX(4px);
+}
+
+.pshop-universe-link i {
+    transition: transform 0.3s ease;
+}
+
+/* ============================================ */
+/* SUBCATEGORY CARDS                           */
+/* ============================================ */
+
+.pshop-subcat-card {
+    display: flex;
+    background: white;
+    border-radius: var(--pshop-radius);
+    overflow: hidden;
+    box-shadow: var(--pshop-shadow);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.pshop-subcat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--pshop-shadow-lg);
+}
+
+.pshop-subcat-img {
+    width: 120px;
+    min-height: 140px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.pshop-subcat-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.pshop-subcat-card:hover .pshop-subcat-img img {
+    transform: scale(1.1);
+}
+
+/* Placeholder sous-catégorie */
+.pshop-subcat-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pshop-subcat-placeholder i {
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.pshop-bg-cyan { background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); }
+.pshop-bg-gray { background: linear-gradient(135deg, #64748b 0%, #475569 100%); }
+.pshop-bg-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.pshop-bg-teal { background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); }
+
+.pshop-subcat-content {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.pshop-subcat-content h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--pshop-dark);
+    margin-bottom: 0.35rem;
+}
+
+.pshop-subcat-content p {
+    font-size: 0.875rem;
+    color: var(--pshop-gray);
+    margin-bottom: 0.75rem;
+}
+
+.pshop-subcat-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--pshop-primary);
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.pshop-subcat-card:hover .pshop-subcat-link {
+    color: #0e7490;
+}
+
+.pshop-subcat-link i {
+    transition: transform 0.3s ease;
+}
+
+.pshop-subcat-card:hover .pshop-subcat-link i {
+    transform: translateX(4px);
+}
+
+/* ============================================ */
+/* ADVANTAGES SECTION                          */
+/* ============================================ */
+
+.pshop-advantage {
+    padding: 1.5rem 1rem;
+}
+
+.pshop-advantage-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--pshop-cyan) 0%, var(--pshop-primary) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.pshop-advantage-icon i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.pshop-advantage h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--pshop-dark);
+    margin-bottom: 0.35rem;
+}
+
+.pshop-advantage p {
+    font-size: 0.875rem;
+    color: var(--pshop-gray);
+    margin: 0;
+}
+
+/* ============================================ */
+/* CTA SECTION                                 */
+/* ============================================ */
+
+.pshop-cta {
+    background: linear-gradient(135deg, var(--pshop-dark) 0%, #1e3a5f 100%);
+    color: white;
+}
+
+.pshop-cta h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.pshop-cta p {
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* ============================================ */
+/* RESPONSIVE                                  */
+/* ============================================ */
+
+@media (max-width: 991px) {
+    .pshop-title {
+        font-size: 2.25rem;
+    }
+    
+    .pshop-section-title {
+        font-size: 1.75rem;
+    }
+    
+    .pshop-page-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .pshop-universe-card {
+        height: 240px;
+    }
+    
+    .pshop-subcat-img {
+        width: 100px;
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pshop-title {
+        font-size: 2rem;
+    }
+    
+    .pshop-universe-card {
+        height: 200px;
+    }
+    
+    .pshop-universe-placeholder i {
+        font-size: 3.5rem;
+    }
+    
+    .pshop-subcat-card {
+        flex-direction: column;
+    }
+    
+    .pshop-subcat-img {
+        width: 100%;
+        min-height: 140px;
+    }
+}
+
+@media (max-width: 576px) {
+    .pshop-title {
+        font-size: 1.75rem;
+    }
+    
+    .pshop-btn-primary,
+    .pshop-btn-outline {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .pshop-universe-card {
+        height: 180px;
+    }
+    
+    .pshop-advantage {
+        padding: 1rem 0.5rem;
+    }
+}

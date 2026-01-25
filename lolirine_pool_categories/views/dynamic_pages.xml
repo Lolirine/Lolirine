@@ -1,0 +1,776 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- PAGE BOUTIQUE - ÉDITABLE                   -->
+    <!-- ============================================ -->
+    
+    <template id="page_boutique_dynamic" name="Pool Store - Boutique">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE -->
+                <section class="s_cover pshop-hero pt96 pb96 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Boutique"
+                         style="min-height: 400px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/web/image/website.library_image_10'); background-position: center;"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <div class="row align-items-center min-vh-40 py-4">
+                            <div class="col-lg-7 oe_structure" data-name="Contenu Hero Boutique">
+                                <span class="pshop-badge">Boutique en ligne</span>
+                                <h1 class="pshop-title">
+                                    Tout pour votre<br/>
+                                    <span class="pshop-highlight">piscine &amp; spa</span>
+                                </h1>
+                                <p class="pshop-subtitle">
+                                    Découvrez notre sélection de produits de qualité professionnelle pour l'entretien et l'équipement de votre espace aquatique.
+                                </p>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <a href="/shop" class="pshop-btn-primary">
+                                        <i class="fa fa-shopping-bag me-2"/>Tous les produits
+                                    </a>
+                                    <a href="/pool/devis" class="pshop-btn-outline">
+                                        <i class="fa fa-headset me-2"/>Besoin de conseils ?
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- SECTION UNIVERS - Dynamique -->
+                <section class="s_text_block py-5 bg-white" data-snippet="s_text_block" data-name="Univers">
+                    <div class="container py-4">
+                        <div class="text-center mb-5 oe_structure" data-name="Titre Univers">
+                            <h2 class="pshop-section-title">Explorez nos univers</h2>
+                            <p class="pshop-section-subtitle">
+                                Trouvez tout ce dont vous avez besoin, classé par catégorie.
+                            </p>
+                        </div>
+                        
+                        <div class="row g-4">
+                            <t t-foreach="universes" t-as="universe">
+                                <div class="col-lg-3 col-md-6">
+                                    <a t-att-href="universe['page_url']" class="text-decoration-none">
+                                        <div class="pshop-universe-card">
+                                            <div class="pshop-universe-img">
+                                                <t t-if="universe.get('category') and universe['category'].image_1920">
+                                                    <img t-att-src="'/web/image/product.public.category/%s/image_1920' % universe['category'].id"
+                                                         t-att-alt="universe['name']"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="pshop-universe-placeholder" t-att-style="'background: %s;' % universe['gradient']">
+                                                        <i t-att-class="'fa %s' % universe['icon']"/>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                            <div class="pshop-universe-overlay">
+                                                <h4 t-esc="universe['name']"/>
+                                                <span class="pshop-universe-link">Découvrir <i class="fa fa-arrow-right ms-1"/></span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- AVANTAGES -->
+                <section class="s_text_block py-5 pshop-bg-light" data-snippet="s_text_block" data-name="Avantages Boutique">
+                    <div class="container">
+                        <div class="row g-4 text-center oe_structure" data-name="Grille Avantages">
+                            <div class="col-md-3 col-6">
+                                <div class="pshop-advantage">
+                                    <div class="pshop-advantage-icon">
+                                        <i class="fa fa-truck"/>
+                                    </div>
+                                    <h5>Livraison rapide</h5>
+                                    <p>Expédition sous 24-48h</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="pshop-advantage">
+                                    <div class="pshop-advantage-icon">
+                                        <i class="fa fa-shield-alt"/>
+                                    </div>
+                                    <h5>Paiement sécurisé</h5>
+                                    <p>CB, Bancontact, PayPal</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="pshop-advantage">
+                                    <div class="pshop-advantage-icon">
+                                        <i class="fa fa-headset"/>
+                                    </div>
+                                    <h5>Conseils experts</h5>
+                                    <p>Une équipe à votre écoute</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="pshop-advantage">
+                                    <div class="pshop-advantage-icon">
+                                        <i class="fa fa-medal"/>
+                                    </div>
+                                    <h5>Qualité pro</h5>
+                                    <p>Produits sélectionnés</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ZONE ÉDITABLE -->
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable Boutique"/>
+                
+                <!-- CTA -->
+                <section class="s_cover pshop-cta py-5 o_cc o_cc1" 
+                         data-snippet="s_cover" 
+                         data-name="CTA Boutique">
+                    <div class="container py-4">
+                        <div class="row align-items-center oe_structure" data-name="Contenu CTA">
+                            <div class="col-lg-8 mb-4 mb-lg-0">
+                                <h2>Besoin d'un conseil personnalisé ?</h2>
+                                <p>Notre équipe d'experts est là pour vous accompagner dans vos choix.</p>
+                            </div>
+                            <div class="col-lg-4 text-lg-end">
+                                <a href="tel:+32497444146" class="pshop-btn-white">
+                                    <i class="fa fa-phone me-2"/>+32 497 44 41 46
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE TRAITEMENT DE L'EAU - ÉDITABLE        -->
+    <!-- ============================================ -->
+    
+    <template id="page_traitement_eau" name="Pool Store - Traitement de l'eau">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE -->
+                <section class="s_cover pshop-page-hero pshop-hero-cyan pt96 pb96 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Traitement Eau"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/web/image/website.library_image_13'); background-position: center;"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pshop-breadcrumb oe_structure" data-name="Breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/boutique">Boutique</a> / <span>Traitement de l'eau</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero">
+                                <h1>Traitement de l'eau</h1>
+                                <p>Tous les produits pour maintenir une eau saine, claire et parfaitement équilibrée.</p>
+                                <a href="/shop" class="pshop-btn-light mt-3">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits
+                                </a>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pshop-page-icon">
+                                    <i class="fa fa-tint text-white"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- CATÉGORIES ÉDITABLES -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Catégories Traitement">
+                    <div class="container">
+                        <div class="oe_structure" data-name="Titre Section">
+                            <h2 class="pshop-content-title mb-4">Parcourir les catégories</h2>
+                        </div>
+                        
+                        <div class="row g-4 oe_structure" data-name="Grille Catégories">
+                            <!-- Chlore & Brome -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-cyan">
+                                            <i class="fa fa-vial"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Chlore &amp; Brome</h4>
+                                        <p>Désinfectants pour une eau pure</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- pH & Alcalinité -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-cyan">
+                                            <i class="fa fa-balance-scale"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>pH &amp; Alcalinité</h4>
+                                        <p>Équilibre parfait de l'eau</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Anti-algues -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-cyan">
+                                            <i class="fa fa-leaf"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Anti-algues</h4>
+                                        <p>Prévention et traitement</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Analyse & Tests -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-cyan">
+                                            <i class="fa fa-flask"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Analyse &amp; Tests</h4>
+                                        <p>Kits et bandelettes de test</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Traitement choc -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-cyan">
+                                            <i class="fa fa-bolt"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Traitement choc</h4>
+                                        <p>Rattrapage eau verte</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Électrolyse sel -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-cyan">
+                                            <i class="fa fa-microchip"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Électrolyse au sel</h4>
+                                        <p>Traitement automatique</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-5 oe_structure" data-name="Bouton CTA">
+                            <a href="/shop" class="pshop-btn-primary">
+                                <i class="fa fa-th me-2"/>Voir tous les produits Traitement de l'eau
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ZONE ÉDITABLE -->
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable"/>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE NETTOYAGE &amp; ROBOTS - ÉDITABLE          -->
+    <!-- ============================================ -->
+    
+    <template id="page_nettoyage_robots" name="Pool Store - Nettoyage et Robots">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE -->
+                <section class="s_cover pshop-page-hero pshop-hero-gray pt96 pb96 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Nettoyage"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/web/image/website.library_image_08'); background-position: center;"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pshop-breadcrumb oe_structure" data-name="Breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/boutique">Boutique</a> / <span>Nettoyage &amp; Robots</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero">
+                                <h1>Nettoyage &amp; Robots</h1>
+                                <p>Robots automatiques, aspirateurs et accessoires pour une piscine impeccable sans effort.</p>
+                                <a href="/shop" class="pshop-btn-light mt-3">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits
+                                </a>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pshop-page-icon">
+                                    <i class="fa fa-robot text-white"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- CATÉGORIES ÉDITABLES -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Catégories Nettoyage">
+                    <div class="container">
+                        <div class="oe_structure" data-name="Titre Section">
+                            <h2 class="pshop-content-title mb-4">Parcourir les catégories</h2>
+                        </div>
+                        
+                        <div class="row g-4 oe_structure" data-name="Grille Catégories">
+                            <!-- Robots automatiques -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-gray">
+                                            <i class="fa fa-robot"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Robots automatiques</h4>
+                                        <p>Nettoyage sans effort</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Aspirateurs & Balais -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-gray">
+                                            <i class="fa fa-broom"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Aspirateurs &amp; Balais</h4>
+                                        <p>Nettoyage manuel efficace</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Épuisettes & Brosses -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-gray">
+                                            <i class="fa fa-hand-sparkles"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Épuisettes &amp; Brosses</h4>
+                                        <p>Accessoires indispensables</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Manches & Tuyaux -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-gray">
+                                            <i class="fa fa-grip-lines"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Manches &amp; Tuyaux</h4>
+                                        <p>Raccordements et manches</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Accessoires nettoyage -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-gray">
+                                            <i class="fa fa-tools"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Accessoires nettoyage</h4>
+                                        <p>Compléments et pièces</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-5 oe_structure" data-name="Bouton CTA">
+                            <a href="/shop" class="pshop-btn-primary">
+                                <i class="fa fa-th me-2"/>Voir tous les produits Nettoyage &amp; Robots
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ZONE ÉDITABLE -->
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable"/>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE ÉQUIPEMENTS &amp; PIÈCES - ÉDITABLE        -->
+    <!-- ============================================ -->
+    
+    <template id="page_equipements_pieces" name="Pool Store - Equipements et Pieces">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE -->
+                <section class="s_cover pshop-page-hero pshop-hero-teal pt96 pb96 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Equipements"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/web/image/website.library_image_05'); background-position: center;"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pshop-breadcrumb oe_structure" data-name="Breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/boutique">Boutique</a> / <span>Équipements &amp; Pièces</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero">
+                                <h1>Équipements &amp; Pièces</h1>
+                                <p>Pompes, filtres, chauffage, éclairage et toutes les pièces détachées pour votre installation.</p>
+                                <a href="/shop" class="pshop-btn-light mt-3">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits
+                                </a>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pshop-page-icon">
+                                    <i class="fa fa-cogs text-white"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- CATÉGORIES ÉDITABLES -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Catégories Équipements">
+                    <div class="container">
+                        <div class="oe_structure" data-name="Titre Section">
+                            <h2 class="pshop-content-title mb-4">Parcourir les catégories</h2>
+                        </div>
+                        
+                        <div class="row g-4 oe_structure" data-name="Grille Catégories">
+                            <!-- Pompes -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-teal">
+                                            <i class="fa fa-sync-alt"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Pompes</h4>
+                                        <p>Pompes de filtration et circulation</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Filtres -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-teal">
+                                            <i class="fa fa-filter"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Filtres</h4>
+                                        <p>Sable, cartouche, diatomées</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Chauffage -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-teal">
+                                            <i class="fa fa-thermometer-half"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Chauffage &amp; PAC</h4>
+                                        <p>Pompes à chaleur et réchauffeurs</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Éclairage -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-teal">
+                                            <i class="fa fa-lightbulb"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Éclairage LED</h4>
+                                        <p>Projecteurs et spots LED</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Bâches -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-teal">
+                                            <i class="fa fa-shield-alt"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Bâches &amp; Couvertures</h4>
+                                        <p>Protection et sécurité</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pièces détachées -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-teal">
+                                            <i class="fa fa-puzzle-piece"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Pièces détachées</h4>
+                                        <p>Joints, vannes, accessoires</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-5 oe_structure" data-name="Bouton CTA">
+                            <a href="/shop" class="pshop-btn-primary">
+                                <i class="fa fa-th me-2"/>Voir tous les produits Équipements
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ZONE ÉDITABLE -->
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable"/>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE ESPACE WELLNESS - ÉDITABLE            -->
+    <!-- ============================================ -->
+    
+    <template id="page_wellness" name="Pool Store - Espace Wellness">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE -->
+                <section class="s_cover pshop-page-hero pshop-hero-orange pt96 pb96 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Wellness"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/web/image/website.library_image_03'); background-position: center;"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pshop-breadcrumb oe_structure" data-name="Breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/boutique">Boutique</a> / <span>Espace Wellness</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero">
+                                <h1>Espace Wellness</h1>
+                                <p>Spas, jacuzzis, saunas et accessoires pour créer votre espace bien-être à domicile.</p>
+                                <a href="/shop" class="pshop-btn-light mt-3">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits
+                                </a>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pshop-page-icon">
+                                    <i class="fa fa-hot-tub text-white"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- CATÉGORIES ÉDITABLES -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Catégories Wellness">
+                    <div class="container">
+                        <div class="oe_structure" data-name="Titre Section">
+                            <h2 class="pshop-content-title mb-4">Parcourir les catégories</h2>
+                        </div>
+                        
+                        <div class="row g-4 oe_structure" data-name="Grille Catégories">
+                            <!-- Spas & Jacuzzis -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-orange">
+                                            <i class="fa fa-hot-tub"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Spas &amp; Jacuzzis</h4>
+                                        <p>Bains à remous et spas</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Spas gonflables -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-orange">
+                                            <i class="fa fa-wind"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Spas gonflables</h4>
+                                        <p>Solution pratique et mobile</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Saunas -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-orange">
+                                            <i class="fa fa-fire"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Saunas</h4>
+                                        <p>Traditionnels et infrarouge</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Accessoires spa -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-orange">
+                                            <i class="fa fa-couch"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Accessoires spa</h4>
+                                        <p>Confort et équipements</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Traitement spa -->
+                            <div class="col-lg-4 col-md-6">
+                                <div class="pshop-subcat-card">
+                                    <div class="pshop-subcat-img">
+                                        <div class="pshop-subcat-placeholder pshop-bg-orange">
+                                            <i class="fa fa-flask"/>
+                                        </div>
+                                    </div>
+                                    <div class="pshop-subcat-content">
+                                        <h4>Traitement spa</h4>
+                                        <p>Produits d'entretien spécialisés</p>
+                                        <a href="/shop" class="pshop-subcat-link">Voir les produits <i class="fa fa-arrow-right ms-1"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-5 oe_structure" data-name="Bouton CTA">
+                            <a href="/shop" class="pshop-btn-primary">
+                                <i class="fa fa-th me-2"/>Voir tous les produits Wellness
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- CTA WELLNESS -->
+                <section class="s_cover py-5 o_cc o_cc1" 
+                         data-snippet="s_cover" 
+                         data-name="CTA Wellness"
+                         style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%);">
+                    <div class="container text-center text-white py-4 oe_structure" data-name="Contenu CTA">
+                        <h2 class="display-6 fw-bold mb-3">Envie de vous faire conseiller ?</h2>
+                        <p class="lead mb-4">Nos experts wellness sont à votre disposition pour vous guider vers la solution idéale.</p>
+                        <a href="/pool/devis" class="btn btn-lg btn-light px-5 py-3" style="border-radius: 50px;">
+                            <i class="fa fa-paper-plane me-2"/>Demander un devis
+                        </a>
+                    </div>
+                </section>
+                
+                <!-- ZONE ÉDITABLE -->
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable"/>
+                
+            </div>
+        </t>
+    </template>
+
+</odoo>
