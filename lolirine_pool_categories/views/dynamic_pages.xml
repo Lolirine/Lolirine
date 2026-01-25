@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- PAGE BOUTIQUE DYNAMIQUE - ÉDITABLE         -->
+    <!-- ============================================ -->
+    
+    <template id="page_boutique_dynamic" name="Pool Store - Boutique (Dynamic)">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE -->
+                <section class="s_cover pshop-hero o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Boutique"
+                         style="min-height: 400px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/lolirine_pool_categories/static/src/img/boutique-hero.jpg');"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <div class="row align-items-center min-vh-40 py-4">
+                            <div class="col-lg-7 oe_structure" data-name="Contenu Hero Boutique">
+                                <span class="pshop-badge">Boutique en ligne</span>
+                                <h1 class="pshop-title">
+                                    Tout pour votre<br/>
+                                    <span class="pshop-highlight">piscine &amp; spa</span>
+                                </h1>
+                                <p class="pshop-subtitle">
+                                    Découvrez notre sélection de produits de qualité professionnelle pour l'entretien et l'équipement de votre espace aquatique.
+                                </p>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <a href="/shop" class="pshop-btn-primary">
+                                        <i class="fa fa-shopping-bag me-2"/>Tous les produits
+                                    </a>
+                                    <a href="/pool/devis" class="pshop-btn-outline">
+                                        <i class="fa fa-headset me-2"/>Besoin de conseils ?
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- SECTION: EXPLOREZ NOS UNIVERS -->
+                <section class="s_text_block py-5 bg-white" data-snippet="s_text_block" data-name="Univers">
+                    <div class="container py-4">
+                        <div class="text-center mb-5 oe_structure" data-name="Titre Univers">
+                            <h2 class="pshop-section-title">Explorez nos univers</h2>
+                            <p class="pshop-section-subtitle">
+                                Trouvez tout ce dont vous avez besoin, classé par catégorie.
+                            </p>
+                        </div>
+                        
+                        <div class="row g-4">
+                            <!-- Boucle sur les univers -->
+                            <t t-foreach="universes" t-as="universe">
+                                <div class="col-lg-3 col-md-6">
+                                    <a t-att-href="universe['page_url']" class="text-decoration-none">
+                                        <div class="pshop-universe-card">
+                                            <div class="pshop-universe-img">
+                                                <!-- Image de catégorie si disponible -->
+                                                <t t-if="universe.get('category') and universe['category'].image_1920">
+                                                    <img t-att-src="'/web/image/product.public.category/%s/image_1920' % universe['category'].id"
+                                                         t-att-alt="universe['name']"/>
+                                                </t>
+                                                <!-- Sinon placeholder -->
+                                                <t t-else="">
+                                                    <div class="pshop-universe-placeholder" t-att-style="'background: %s;' % universe['gradient']">
+                                                        <i t-att-class="'fa %s' % universe['icon']"/>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                            <div class="pshop-universe-overlay">
+                                                <h4 t-esc="universe['name']"/>
+                                                <span class="pshop-universe-link">Découvrir <i class="fa fa-arrow-right ms-1"/></span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- SECTION: AVANTAGES ÉDITABLE -->
+                <section class="s_text_block py-5 pshop-bg-light" data-snippet="s_text_block" data-name="Avantages Boutique">
+                    <div class="container">
+                        <div class="row g-4 text-center oe_structure" data-name="Grille Avantages">
+                            <div class="col-md-3 col-6">
+                                <div class="pshop-advantage">
+                                    <div class="pshop-advantage-icon">
+                                        <i class="fa fa-truck"/>
+                                    </div>
+                                    <h5>Livraison rapide</h5>
+                                    <p>Expédition sous 24-48h</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="pshop-advantage">
+                                    <div class="pshop-advantage-icon">
+                                        <i class="fa fa-shield-alt"/>
+                                    </div>
+                                    <h5>Paiement sécurisé</h5>
+                                    <p>CB, Bancontact, PayPal</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="pshop-advantage">
+                                    <div class="pshop-advantage-icon">
+                                        <i class="fa fa-headset"/>
+                                    </div>
+                                    <h5>Conseils experts</h5>
+                                    <p>Une équipe à votre écoute</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="pshop-advantage">
+                                    <div class="pshop-advantage-icon">
+                                        <i class="fa fa-medal"/>
+                                    </div>
+                                    <h5>Qualité pro</h5>
+                                    <p>Produits sélectionnés</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ZONE ÉDITABLE -->
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable Boutique"/>
+                
+                <!-- CTA ÉDITABLE -->
+                <section class="s_cover pshop-cta o_cc o_cc1" 
+                         data-snippet="s_cover" 
+                         data-name="CTA Boutique"
+                         style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);">
+                    <div class="container py-5 oe_structure" data-name="Contenu CTA Boutique">
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 mb-4 mb-lg-0">
+                                <h2>Besoin d'un conseil personnalisé ?</h2>
+                                <p>Notre équipe d'experts est là pour vous accompagner dans vos choix.</p>
+                            </div>
+                            <div class="col-lg-4 text-lg-end">
+                                <a href="tel:+32497444146" class="pshop-btn-white">
+                                    <i class="fa fa-phone me-2"/>+32 497 44 41 46
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE TRAITEMENT DE L'EAU - ÉDITABLE        -->
+    <!-- ============================================ -->
+    
+    <template id="page_traitement_eau" name="Pool Store - Traitement de l'eau">
+        <t t-call="website.layout">
+            <!-- Chargement des données dynamiques -->
+            <t t-set="pool_data" t-value="website.get_pool_subcategories('traitement_eau')"/>
+            <t t-set="parent_url" t-value="pool_data['parent_url']"/>
+            <t t-set="subcategories" t-value="pool_data['subcategories']"/>
+            
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE avec image personnalisable -->
+                <section class="s_cover pshop-page-hero pshop-hero-cyan py-5 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Traitement Eau"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/lolirine_pool_categories/static/src/img/traitement-eau-hero.jpg');"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pshop-breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/boutique">Boutique</a> / <span>Traitement de l'eau</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero Traitement">
+                                <h1>Traitement de l'eau</h1>
+                                <p class="lead">Tous les produits pour maintenir une eau saine, claire et parfaitement équilibrée.</p>
+                                <a t-att-href="parent_url" class="pshop-btn-light mt-3">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits
+                                </a>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pshop-page-icon pshop-icon-cyan">
+                                    <i class="fa fa-tint"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- SOUS-CATÉGORIES DYNAMIQUES -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Sous-catégories">
+                    <div class="container">
+                        <h2 class="pshop-content-title mb-4">Parcourir les catégories</h2>
+                        
+                        <div class="row g-4">
+                            <t t-foreach="subcategories" t-as="subcat">
+                                <div class="col-lg-4 col-md-6">
+                                    <a t-att-href="subcat['url']" class="text-decoration-none">
+                                        <div class="pshop-subcat-card">
+                                            <div class="pshop-subcat-img">
+                                                <t t-if="subcat.get('image')">
+                                                    <img t-att-src="'/web/image/product.public.category/%s/image_1920' % subcat['id']"
+                                                         t-att-alt="subcat['name']"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="pshop-subcat-placeholder pshop-bg-cyan">
+                                                        <i t-att-class="'fa %s' % subcat.get('icon', 'fa-box')"/>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                            <div class="pshop-subcat-content">
+                                                <h4 t-esc="subcat['name']"/>
+                                                <p t-if="subcat.get('description')" t-esc="subcat['description']"/>
+                                                <span class="pshop-subcat-link">
+                                                    Voir les produits <i class="fa fa-arrow-right ms-1"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+                        
+                        <t t-if="subcategories">
+                            <div class="text-center mt-5">
+                                <a t-att-href="parent_url" class="pshop-btn-primary">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits Traitement de l'eau
+                                </a>
+                            </div>
+                        </t>
+                        
+                        <div class="oe_structure oe_empty mt-5" data-name="Zone personnalisable"/>
+                    </div>
+                </section>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE NETTOYAGE &amp; ROBOTS - ÉDITABLE          -->
+    <!-- ============================================ -->
+    
+    <template id="page_nettoyage_robots" name="Pool Store - Nettoyage et Robots">
+        <t t-call="website.layout">
+            <!-- Chargement des données dynamiques -->
+            <t t-set="pool_data" t-value="website.get_pool_subcategories('nettoyage')"/>
+            <t t-set="parent_url" t-value="pool_data['parent_url']"/>
+            <t t-set="subcategories" t-value="pool_data['subcategories']"/>
+            
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE avec image personnalisable -->
+                <section class="s_cover pshop-page-hero pshop-hero-gray py-5 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Nettoyage"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/lolirine_pool_categories/static/src/img/nettoyage-hero.jpg');"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pshop-breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/boutique">Boutique</a> / <span>Nettoyage &amp; Robots</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero Nettoyage">
+                                <h1>Nettoyage &amp; Robots</h1>
+                                <p class="lead">Robots automatiques, aspirateurs et accessoires pour une piscine impeccable sans effort.</p>
+                                <a t-att-href="parent_url" class="pshop-btn-light mt-3">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits
+                                </a>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pshop-page-icon pshop-icon-gray">
+                                    <i class="fa fa-robot"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- SOUS-CATÉGORIES DYNAMIQUES -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Sous-catégories">
+                    <div class="container">
+                        <h2 class="pshop-content-title mb-4">Parcourir les catégories</h2>
+                        
+                        <div class="row g-4">
+                            <t t-foreach="subcategories" t-as="subcat">
+                                <div class="col-lg-4 col-md-6">
+                                    <a t-att-href="subcat['url']" class="text-decoration-none">
+                                        <div class="pshop-subcat-card">
+                                            <div class="pshop-subcat-img">
+                                                <t t-if="subcat.get('image')">
+                                                    <img t-att-src="'/web/image/product.public.category/%s/image_1920' % subcat['id']"
+                                                         t-att-alt="subcat['name']"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="pshop-subcat-placeholder pshop-bg-gray">
+                                                        <i t-att-class="'fa %s' % subcat.get('icon', 'fa-box')"/>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                            <div class="pshop-subcat-content">
+                                                <h4 t-esc="subcat['name']"/>
+                                                <p t-if="subcat.get('description')" t-esc="subcat['description']"/>
+                                                <span class="pshop-subcat-link">
+                                                    Voir les produits <i class="fa fa-arrow-right ms-1"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+                        
+                        <t t-if="subcategories">
+                            <div class="text-center mt-5">
+                                <a t-att-href="parent_url" class="pshop-btn-primary">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits Nettoyage &amp; Robots
+                                </a>
+                            </div>
+                        </t>
+                        
+                        <div class="oe_structure oe_empty mt-5" data-name="Zone personnalisable"/>
+                    </div>
+                </section>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE ÉQUIPEMENTS &amp; PIÈCES - ÉDITABLE        -->
+    <!-- ============================================ -->
+    
+    <template id="page_equipements_pieces" name="Pool Store - Equipements et Pieces">
+        <t t-call="website.layout">
+            <!-- Chargement des données dynamiques -->
+            <t t-set="pool_data" t-value="website.get_pool_subcategories('equipements')"/>
+            <t t-set="parent_url" t-value="pool_data['parent_url']"/>
+            <t t-set="subcategories" t-value="pool_data['subcategories']"/>
+            
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE avec image personnalisable -->
+                <section class="s_cover pshop-page-hero pshop-hero-teal py-5 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Equipements"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/lolirine_pool_categories/static/src/img/equipements-hero.jpg');"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pshop-breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/boutique">Boutique</a> / <span>Équipements &amp; Pièces</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero Equipements">
+                                <h1>Équipements &amp; Pièces</h1>
+                                <p class="lead">Pompes, filtres, chauffage, éclairage et toutes les pièces détachées pour votre installation.</p>
+                                <a t-att-href="parent_url" class="pshop-btn-light mt-3">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits
+                                </a>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pshop-page-icon pshop-icon-teal">
+                                    <i class="fa fa-cogs"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- SOUS-CATÉGORIES DYNAMIQUES -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Sous-catégories">
+                    <div class="container">
+                        <h2 class="pshop-content-title mb-4">Parcourir les catégories</h2>
+                        
+                        <div class="row g-4">
+                            <t t-foreach="subcategories" t-as="subcat">
+                                <div class="col-lg-4 col-md-6">
+                                    <a t-att-href="subcat['url']" class="text-decoration-none">
+                                        <div class="pshop-subcat-card">
+                                            <div class="pshop-subcat-img">
+                                                <t t-if="subcat.get('image')">
+                                                    <img t-att-src="'/web/image/product.public.category/%s/image_1920' % subcat['id']"
+                                                         t-att-alt="subcat['name']"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="pshop-subcat-placeholder pshop-bg-teal">
+                                                        <i t-att-class="'fa %s' % subcat.get('icon', 'fa-box')"/>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                            <div class="pshop-subcat-content">
+                                                <h4 t-esc="subcat['name']"/>
+                                                <p t-if="subcat.get('description')" t-esc="subcat['description']"/>
+                                                <span class="pshop-subcat-link">
+                                                    Voir les produits <i class="fa fa-arrow-right ms-1"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+                        
+                        <t t-if="subcategories">
+                            <div class="text-center mt-5">
+                                <a t-att-href="parent_url" class="pshop-btn-primary">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits Équipements &amp; Pièces
+                                </a>
+                            </div>
+                        </t>
+                        
+                        <div class="oe_structure oe_empty mt-5" data-name="Zone personnalisable"/>
+                    </div>
+                </section>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE ESPACE WELLNESS - ÉDITABLE            -->
+    <!-- ============================================ -->
+    
+    <template id="page_wellness" name="Pool Store - Espace Wellness">
+        <t t-call="website.layout">
+            <!-- Chargement des données dynamiques -->
+            <t t-set="pool_data" t-value="website.get_pool_subcategories('wellness')"/>
+            <t t-set="parent_url" t-value="pool_data['parent_url']"/>
+            <t t-set="subcategories" t-value="pool_data['subcategories']"/>
+            
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE avec image personnalisable -->
+                <section class="s_cover pshop-page-hero pshop-hero-orange py-5 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Wellness"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/lolirine_pool_categories/static/src/img/wellness-hero.jpg');"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pshop-breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/boutique">Boutique</a> / <span>Espace Wellness</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero Wellness">
+                                <h1>Espace Wellness</h1>
+                                <p class="lead">Spas, jacuzzis, saunas et accessoires pour créer votre espace bien-être à domicile.</p>
+                                <a t-att-href="parent_url" class="pshop-btn-light mt-3">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits
+                                </a>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pshop-page-icon pshop-icon-orange">
+                                    <i class="fa fa-hot-tub"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- SOUS-CATÉGORIES DYNAMIQUES -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Sous-catégories">
+                    <div class="container">
+                        <h2 class="pshop-content-title mb-4">Parcourir les catégories</h2>
+                        
+                        <div class="row g-4">
+                            <t t-foreach="subcategories" t-as="subcat">
+                                <div class="col-lg-4 col-md-6">
+                                    <a t-att-href="subcat['url']" class="text-decoration-none">
+                                        <div class="pshop-subcat-card">
+                                            <div class="pshop-subcat-img">
+                                                <t t-if="subcat.get('image')">
+                                                    <img t-att-src="'/web/image/product.public.category/%s/image_1920' % subcat['id']"
+                                                         t-att-alt="subcat['name']"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="pshop-subcat-placeholder pshop-bg-orange">
+                                                        <i t-att-class="'fa %s' % subcat.get('icon', 'fa-box')"/>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                            <div class="pshop-subcat-content">
+                                                <h4 t-esc="subcat['name']"/>
+                                                <p t-if="subcat.get('description')" t-esc="subcat['description']"/>
+                                                <span class="pshop-subcat-link">
+                                                    Voir les produits <i class="fa fa-arrow-right ms-1"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+                        
+                        <t t-if="subcategories">
+                            <div class="text-center mt-5">
+                                <a t-att-href="parent_url" class="pshop-btn-primary">
+                                    <i class="fa fa-th me-2"/>Voir tous les produits Wellness
+                                </a>
+                            </div>
+                        </t>
+                        
+                        <div class="oe_structure oe_empty mt-5" data-name="Zone personnalisable"/>
+                    </div>
+                </section>
+                
+                <!-- CTA WELLNESS -->
+                <section class="s_cover py-5 o_cc o_cc1" 
+                         data-snippet="s_cover" 
+                         data-name="CTA Wellness"
+                         style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%);">
+                    <div class="container text-center text-white py-4 oe_structure" data-name="Contenu CTA Wellness">
+                        <h2 class="display-6 fw-bold mb-3">Envie de vous faire conseiller ?</h2>
+                        <p class="lead mb-4">Nos experts wellness sont à votre disposition pour vous guider vers la solution idéale.</p>
+                        <a href="/pool/devis" class="btn btn-lg btn-light px-5 py-3" style="border-radius: 50px;">
+                            <i class="fa fa-paper-plane me-2"/>Demander un devis
+                        </a>
+                    </div>
+                </section>
+                
+            </div>
+        </t>
+    </template>
+
+</odoo>
