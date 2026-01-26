@@ -5,7 +5,7 @@ from odoo.exceptions import UserError
 from datetime import date, timedelta
 import logging
 
-_logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name_)
 
 
 class AccountMove(models.Model):
