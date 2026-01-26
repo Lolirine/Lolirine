@@ -1,19 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Définition du rapport -->
-    <record id="action_report_invoice_lolirine" model="ir.actions.report">
-        <field name="name">Facture Lolirine</field>
-        <field name="model">account.move</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">lolirine_invoice.report_invoice_lolirine</field>
-        <field name="report_file">lolirine_invoice.report_invoice_lolirine</field>
-        <field name="print_report_name">'Facture_%s' % (object.name or 'Brouillon').replace('/','_')</field>
-        <field name="binding_model_id" ref="account.model_account_move"/>
-        <field name="binding_type">report</field>
-        <field name="paperformat_id" ref="lolirine_invoice.paperformat_lolirine"/>
-    </record>
-
-    <!-- Format de papier personnalisé avec marges réduites -->
+    <!-- Format de papier personnalisé avec marges réduites - DOIT ETRE EN PREMIER -->
     <record id="paperformat_lolirine" model="report.paperformat">
         <field name="name">Lolirine A4</field>
         <field name="default" eval="False"/>
@@ -26,6 +13,19 @@
         <field name="header_line" eval="False"/>
         <field name="header_spacing">0</field>
         <field name="dpi">90</field>
+    </record>
+
+    <!-- Définition du rapport - APRES le paperformat -->
+    <record id="action_report_invoice_lolirine" model="ir.actions.report">
+        <field name="name">Facture Lolirine</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">lolirine_invoice.report_invoice_lolirine</field>
+        <field name="report_file">lolirine_invoice.report_invoice_lolirine</field>
+        <field name="print_report_name">'Facture_%s' % (object.name or 'Brouillon').replace('/','_')</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="lolirine_invoice.paperformat_lolirine"/>
     </record>
 
     <!-- Template principal -->
