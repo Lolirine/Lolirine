@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="#c0392b"/>
+  
+  <!-- Document/Invoice shape -->
+  <rect x="25" y="15" width="50" height="65" rx="3" fill="white"/>
+  
+  <!-- Document fold corner -->
+  <path d="M65 15 L75 25 L65 25 Z" fill="#e8e8e8"/>
+  <path d="M65 15 L75 25" stroke="#ccc" stroke-width="0.5" fill="none"/>
+  
+  <!-- Euro symbol -->
+  <text x="50" y="45" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#c0392b" text-anchor="middle">€</text>
+  
+  <!-- Lines representing text -->
+  <rect x="32" y="52" width="36" height="3" rx="1" fill="#ddd"/>
+  <rect x="32" y="58" width="28" height="3" rx="1" fill="#ddd"/>
+  <rect x="32" y="64" width="32" height="3" rx="1" fill="#ddd"/>
+  
+  <!-- Checkmark at bottom -->
+  <circle cx="50" cy="72" r="5" fill="#27ae60"/>
+  <path d="M47 72 L49 74 L53 70" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
