@@ -56,10 +56,19 @@
                        placeholder="Tags..." invisible="move_type not in ('out_invoice', 'out_refund')"/>
             </xpath>
             
-            <!-- Champs envoi automatique -->
-            <xpath expr="//field[@name='invoice_date_due']" position="after">
-                <field name="auto_send_invoice" invisible="move_type not in ('out_invoice', 'out_refund')"/>
-                <field name="auto_send_peppol" invisible="move_type not in ('out_invoice', 'out_refund')"/>
+            <!-- ============================================= -->
+            <!-- SUPPRIME: Les champs auto_send apres invoice_date_due -->
+            <!-- Ils sont maintenant dans Autres informations -->
+            <!-- ============================================= -->
+            
+            <!-- GROUPE OPTIONS D'ENVOI dans Autres informations (AVANT les autres groupes) -->
+            <xpath expr="//page[@name='other_info']//group" position="before">
+                <group string="Options d'envoi" invisible="move_type not in ('out_invoice', 'out_refund')">
+                    <group>
+                        <field name="auto_send_invoice" string="Envoi Email automatique"/>
+                        <field name="auto_send_peppol" string="Envoi Peppol automatique"/>
+                    </group>
+                </group>
             </xpath>
             
             <!-- Groupe Peppol et relances dans autres informations -->
@@ -151,7 +160,8 @@
         <field name="inherit_id" ref="sale_subscription.sale_subscription_primary_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='payment_token_id']" position="after">
-                <field name="auto_send_peppol"/>
+                <field name="auto_send_invoice" string="Envoi Email automatique"/>
+                <field name="auto_send_peppol" string="Envoi Peppol automatique"/>
             </xpath>
         </field>
     </record>
@@ -292,5 +302,4 @@
         <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('peppol_sent', '=', True)]</field>
         <field name="context">{'default_move_type': 'out_invoice'}</field>
     </record>
-
 </odoo>
