@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Format de papier personnalisé avec marges réduites - DOIT ETRE EN PREMIER -->
+    <!-- Format de papier personnalisé -->
     <record id="paperformat_lolirine" model="report.paperformat">
         <field name="name">Lolirine A4</field>
         <field name="default" eval="False"/>
@@ -15,7 +15,7 @@
         <field name="dpi">90</field>
     </record>
 
-    <!-- Définition du rapport - APRES le paperformat -->
+    <!-- Définition du rapport -->
     <record id="action_report_invoice_lolirine" model="ir.actions.report">
         <field name="name">Facture Lolirine</field>
         <field name="model">account.move</field>
@@ -191,7 +191,7 @@
         </style>
 
         <div class="lolirine-invoice">
-            <!-- En-tête -->
+            <!-- En-tete -->
             <table style="width: 100%; margin-bottom: 5px;">
                 <tr>
                     <td style="width: 50%; vertical-align: top;">
@@ -201,7 +201,7 @@
                         </div>
                     </td>
                     <td style="width: 50%; vertical-align: top;" class="lolirine-company-info">
-                        <strong>Société <t t-esc="o.company_id.name"/></strong><br/>
+                        <strong>Soci&#233;t&#233; <t t-esc="o.company_id.name"/></strong><br/>
                         <t t-if="o.company_id.street"><t t-esc="o.company_id.street"/><br/></t>
                         <t t-if="o.company_id.street2"><t t-esc="o.company_id.street2"/><br/></t>
                         <t t-if="o.company_id.zip"><t t-esc="o.company_id.zip"/> </t>
@@ -240,7 +240,7 @@
                         <t t-else="">-</t>
                     </td>
                     <td style="width: 50%;">
-                        <span class="label">Date d'échéance</span><br/>
+                        <span class="label">Date d'&#233;ch&#233;ance</span><br/>
                         <t t-if="o.invoice_date_due"><t t-esc="o.invoice_date_due" t-options="{'widget': 'date'}"/></t>
                         <t t-else="">-</t>
                     </td>
@@ -252,7 +252,7 @@
                 <thead>
                     <tr>
                         <th style="width: 50%;">DESCRIPTION</th>
-                        <th style="width: 12%; text-align: center;">QUANTITÉ</th>
+                        <th style="width: 12%; text-align: center;">QUANTIT&#201;</th>
                         <th style="width: 15%; text-align: right;">PRIX UNIT.</th>
                         <th style="width: 8%; text-align: center;">TAXES</th>
                         <th style="width: 15%; text-align: right;">MONTANT</th>
@@ -262,9 +262,9 @@
                     <tr t-foreach="o.invoice_line_ids.filtered(lambda l: l.product_id)" t-as="line">
                         <td><t t-esc="line.name or line.product_id.name or '-'"/></td>
                         <td style="text-align: center;"><t t-esc="line.quantity"/> <t t-esc="line.product_uom_id.name or ''"/></td>
-                        <td style="text-align: right;"><t t-esc="'%.2f' % line.price_unit"/> €</td>
+                        <td style="text-align: right;"><t t-esc="'%.2f' % line.price_unit"/> &#8364;</td>
                         <td style="text-align: center;"><t t-esc="', '.join(line.tax_ids.mapped('name'))"/></td>
-                        <td style="text-align: right;"><t t-esc="'%.2f' % line.price_subtotal"/> €</td>
+                        <td style="text-align: right;"><t t-esc="'%.2f' % line.price_subtotal"/> &#8364;</td>
                     </tr>
                 </tbody>
             </table>
@@ -302,15 +302,15 @@
                         <table class="lolirine-totals-table">
                             <tr>
                                 <td class="label-cell">Montant hors taxes</td>
-                                <td class="value-cell"><t t-esc="'%.2f' % o.amount_untaxed"/> €</td>
+                                <td class="value-cell"><t t-esc="'%.2f' % o.amount_untaxed"/> &#8364;</td>
                             </tr>
                             <tr>
                                 <td class="label-cell">TVA 21%</td>
-                                <td class="value-cell"><t t-esc="'%.2f' % o.amount_tax"/> €</td>
+                                <td class="value-cell"><t t-esc="'%.2f' % o.amount_tax"/> &#8364;</td>
                             </tr>
                             <tr class="total-row">
                                 <td>Total</td>
-                                <td class="value-cell"><t t-esc="'%.2f' % o.amount_total"/> €</td>
+                                <td class="value-cell"><t t-esc="'%.2f' % o.amount_total"/> &#8364;</td>
                             </tr>
                         </table>
                         <!-- Montant en lettres -->
@@ -322,14 +322,14 @@
                 </tr>
             </table>
 
-            <!-- Conditions générales -->
+            <!-- Conditions generales -->
             <div class="lolirine-conditions">
-                Conditions générales : <a href="https://lolirine-lolirine.odoo.com/terms">https://lolirine-lolirine.odoo.com/terms</a>
+                Conditions g&#233;n&#233;rales : <a href="https://lolirine-lolirine.odoo.com/terms">https://lolirine-lolirine.odoo.com/terms</a>
             </div>
 
             <!-- Zone signature -->
             <div class="lolirine-signature">
-                Signataire autorisé
+                Signataire autoris&#233;
             </div>
 
             <!-- Pied de page -->
