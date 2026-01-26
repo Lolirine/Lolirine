@@ -281,7 +281,7 @@ class AccountMove(models.Model):
         return res
 
     def _send_invoice_auto(self):
-        """Envoyer la facture automatiquement par email"""
+        """Envoyer la facture automatiquement par email avec le rapport Lolirine attache"""
         self.ensure_one()
         
         if not self.partner_id.email:
@@ -291,16 +291,97 @@ class AccountMove(models.Model):
             )
             return False
         
-        template = self.env.ref('lolirine_invoice.email_template_invoice', raise_if_not_found=False)
-        if template:
-            template.send_mail(self.id, force_send=True)
+        try:
+            import base64
+            
+            # Recuperer le rapport Lolirine
+            lolirine_report = self.env.ref('lolirine_invoice.action_report_invoice_lolirine', raise_if_not_found=False)
+            
+            if not lolirine_report:
+                lolirine_report = self.env.ref('account.account_invoices', raise_if_not_found=False)
+            
+            # Generer le PDF manuellement
+            pdf_content = None
+            attachment = None
+            
+            if lolirine_report:
+                pdf_content, _ = self.env['ir.actions.report'].sudo()._render_qweb_pdf(
+                    lolirine_report.report_name,
+                    [self.id]
+                )
+                
+                if pdf_content:
+                    # Creer l'attachement
+                    pdf_name = f"Facture_{(self.name or 'Brouillon').replace('/', '_')}.pdf"
+                    attachment = self.env['ir.attachment'].sudo().create({
+                        'name': pdf_name,
+                        'type': 'binary',
+                        'datas': base64.b64encode(pdf_content),
+                        'res_model': 'account.move',
+                        'res_id': self.id,
+                        'mimetype': 'application/pdf',
+                    })
+            
+            # Construire le corps de l'email manuellement
+            body_html = f"""
+<div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
+    <p>Bonjour {self.partner_id.name or ''},</p>
+    
+    <p>Veuillez trouver en piece jointe votre facture mensuelle relative a la location de votre box au sein de notre site Lolirine.</p>
+    
+    <p>Cette facture correspond a la periode de location en cours et reprend le detail des prestations facturees, conformement aux conditions prevues dans votre contrat de garde-meubles. Nous vous invitons a en prendre connaissance et a proceder au reglement selon les modalites indiquees sur le document.</p>
+    
+    <p>Sauf disposition contraire, le paiement est attendu a la date d'echeance mentionnee sur la facture.</p>
+    
+    <p>En cas de question ou pour toute demande d'information complementaire, n'hesitez pas a nous contacter.</p>
+    
+    <p>Nous vous remercions pour votre confiance.</p>
+    
+    <p>Cordialement,</p>
+    
+    <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+        <p style="margin: 0;">
+            <strong style="color: #495057;">Lolirine Garde-Meubles</strong><br/>
+            <span style="color: #6c757d;">Feron Rodney</span><br/>
+            <span style="color: #6c757d;">Tel. : 0497/44 41 46 - 0498/52 11 31</span><br/>
+            <span style="color: #6c757d;">Email : <a href="mailto:gardemeublelolirine@gmail.com" style="color: #007bff;">gardemeublelolirine@gmail.com</a></span>
+        </p>
+    </div>
+</div>
+"""
+            
+            # Creer et envoyer l'email directement
+            mail_values = {
+                'subject': f"{self.company_id.name or 'Lolirine'} - Facture {self.name or 'Brouillon'}",
+                'body_html': body_html,
+                'email_from': self.company_id.email or 'gardemeublelolirine@gmail.com',
+                'email_to': self.partner_id.email,
+                'model': 'account.move',
+                'res_id': self.id,
+                'auto_delete': False,
+            }
+            
+            if attachment:
+                mail_values['attachment_ids'] = [(4, attachment.id)]
+            
+            mail = self.env['mail.mail'].sudo().create(mail_values)
+            mail.send()
+            
             self.write({'is_move_sent': True})
+            
             self.message_post(
-                body=_("Facture envoyee automatiquement par email a %s") % self.partner_id.email,
+                body=_("Facture envoyee par email a %s avec PDF Lolirine attache") % self.partner_id.email,
                 message_type='notification'
             )
             return True
-        return False
+            
+        except Exception as e:
+            _logger.error(f"Erreur envoi email facture {self.name}: {e}")
+            self.message_post(
+                body=_("Erreur lors de l'envoi : %s") % str(e),
+                message_type='notification'
+            )
+            return False
 
     def _send_invoice_peppol_auto(self):
         """Envoyer la facture automatiquement via Peppol"""
