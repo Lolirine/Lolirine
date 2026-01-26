@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== DASHBOARD FACTURES ==================== -->
+    
+    <!-- Vue pivot pour analyse -->
+    <record id="view_invoice_pivot_lolirine" model="ir.ui.view">
+        <field name="name">account.move.pivot.lolirine</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <pivot string="Analyse Factures" sample="1">
+                <field name="invoice_date" type="row" interval="month"/>
+                <field name="partner_id" type="row"/>
+                <field name="amount_total" type="measure"/>
+                <field name="amount_residual" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- Vue graphique -->
+    <record id="view_invoice_graph_lolirine" model="ir.ui.view">
+        <field name="name">account.move.graph.lolirine</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <graph string="Evolution CA" type="bar" sample="1">
+                <field name="invoice_date" type="row" interval="month"/>
+                <field name="amount_total" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Vue graphique par client -->
+    <record id="view_invoice_graph_partner_lolirine" model="ir.ui.view">
+        <field name="name">account.move.graph.partner.lolirine</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <graph string="CA par client" type="pie" sample="1">
+                <field name="partner_id" type="row"/>
+                <field name="amount_total" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    
+    <!-- Action Dashboard -->
+    <record id="action_lolirine_dashboard" model="ir.actions.act_window">
+        <field name="name">Tableau de bord</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]</field>
+        <field name="context">{'default_move_type': 'out_invoice'}</field>
+    </record>
+    
+    <!-- Action CA par client -->
+    <record id="action_lolirine_ca_by_partner" model="ir.actions.act_window">
+        <field name="name">CA par client</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]</field>
+        <field name="context">{'default_move_type': 'out_invoice'}</field>
+    </record>
+
+</odoo>
