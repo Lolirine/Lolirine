@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Définition du rapport -->
+    <!-- Definition du rapport -->
     <record id="action_report_invoice_lolirine" model="ir.actions.report">
         <field name="name">Facture Lolirine</field>
         <field name="model">account.move</field>
@@ -25,63 +25,58 @@
     <!-- Document de facture -->
     <template id="report_invoice_lolirine_document">
         <div class="article" style="font-family: Arial, sans-serif; font-size: 9pt; padding: 0; margin: 0;">
-            <!-- Style CSS optimise -->
+            <!-- Style CSS -->
             <style>
                 @page {
-                    margin: 10mm;
-                    margin-top: 5mm;
-                    margin-bottom: 15mm;
+                    margin: 8mm;
+                    margin-bottom: 12mm;
                 }
                 .lolirine-invoice {
                     font-family: Arial, sans-serif;
                     font-size: 9pt;
                     color: #333;
-                    padding: 0;
-                    margin: 0;
                 }
                 .lolirine-logo {
-                    max-height: 50px;
-                    max-width: 150px;
-                }
-                .lolirine-company-info {
-                    text-align: right;
-                    font-size: 8pt;
-                    line-height: 1.3;
+                    max-height: 55px;
+                    max-width: 160px;
                 }
                 .lolirine-slogan {
                     color: #c0392b;
                     font-style: italic;
                     font-size: 9pt;
                     margin-top: 3px;
+                    line-height: 1.3;
                 }
-                .lolirine-client-block {
-                    margin: 10px 0;
-                    font-size: 9pt;
+                .lolirine-company-info {
+                    text-align: right;
+                    font-size: 8pt;
+                    line-height: 1.3;
                 }
                 .lolirine-title {
                     color: #c0392b;
                     font-size: 16pt;
                     font-weight: bold;
-                    margin: 10px 0;
+                    margin: 12px 0;
                 }
                 .lolirine-dates-table {
                     width: 100%;
                     margin: 8px 0;
                     font-size: 8pt;
+                    border-collapse: collapse;
                 }
                 .lolirine-dates-table td {
-                    padding: 3px 8px;
+                    padding: 4px 8px;
                     border: 1px solid #ddd;
                 }
                 .lolirine-dates-table .label {
                     background-color: #f8f9fa;
                     font-weight: bold;
-                    width: 30%;
+                    width: 25%;
                 }
                 .lolirine-lines-table {
                     width: 100%;
                     border-collapse: collapse;
-                    margin: 10px 0;
+                    margin: 8px 0;
                     font-size: 8pt;
                 }
                 .lolirine-lines-table th {
@@ -98,33 +93,76 @@
                 .lolirine-lines-table tr:nth-child(even) {
                     background-color: #f9f9f9;
                 }
-                .lolirine-totals {
-                    width: 40%;
-                    float: right;
-                    margin-top: 10px;
-                    font-size: 9pt;
+                .lolirine-payment-info {
+                    font-size: 8pt;
+                    margin-bottom: 8px;
                 }
-                .lolirine-totals td {
+                .lolirine-qr-code {
+                    margin-top: 8px;
+                    text-align: center;
+                }
+                .lolirine-qr-code img {
+                    max-width: 80px;
+                    max-height: 80px;
+                }
+                .lolirine-qr-code-label {
+                    font-size: 7pt;
+                    color: #666;
+                    margin-top: 3px;
+                }
+                .lolirine-totals-table {
+                    width: 100%;
+                    font-size: 8pt;
+                    border-collapse: collapse;
+                }
+                .lolirine-totals-table td {
                     padding: 4px 8px;
+                    border: 1px solid #ddd;
                 }
-                .lolirine-totals .total-line {
+                .lolirine-totals-table .label-cell {
+                    background-color: #f8f9fa;
+                    width: 60%;
+                }
+                .lolirine-totals-table .value-cell {
+                    text-align: right;
                     font-weight: bold;
-                    font-size: 11pt;
+                }
+                .lolirine-totals-table .total-row {
                     background-color: #c0392b;
                     color: white;
+                    font-weight: bold;
                 }
-                .lolirine-payment-info {
-                    clear: both;
-                    margin-top: 15px;
-                    padding: 8px;
-                    background-color: #f8f9fa;
-                    border-left: 3px solid #c0392b;
+                .lolirine-totals-table .total-row td {
+                    border-color: #c0392b;
+                }
+                .lolirine-amount-words {
+                    font-size: 8pt;
+                    margin-top: 8px;
+                    text-align: right;
+                }
+                .lolirine-conditions {
+                    margin-top: 12px;
+                    padding-top: 8px;
+                    border-top: 1px solid #c0392b;
                     font-size: 8pt;
                 }
-                .lolirine-footer {
+                .lolirine-conditions a {
+                    color: #c0392b;
+                }
+                .lolirine-signature {
                     margin-top: 15px;
+                    text-align: right;
+                    font-size: 8pt;
+                    padding-top: 30px;
+                    border-top: 1px solid #333;
+                    width: 200px;
+                    float: right;
+                }
+                .lolirine-footer {
+                    clear: both;
+                    margin-top: 20px;
                     padding-top: 8px;
-                    border-top: 1px solid #ddd;
+                    border-top: 1px solid #c0392b;
                     font-size: 7pt;
                     color: #666;
                     text-align: center;
@@ -139,36 +177,30 @@
                             <t t-if="o.company_id.logo">
                                 <img t-att-src="image_data_uri(o.company_id.logo)" class="lolirine-logo"/>
                             </t>
-                            <div class="lolirine-slogan">Votre espace, notre priorite</div>
+                            <div class="lolirine-slogan">
+                                La fonctionnalite sans confort est monotone.<br/>
+                                Clients satisfaits, biens en securites, esprit tranquille !
+                            </div>
                         </td>
                         <td style="width: 50%; vertical-align: top;" class="lolirine-company-info">
-                            <strong><t t-esc="o.company_id.name"/></strong><br/>
+                            <strong>Societe Srl Lolirine</strong><br/>
                             <t t-if="o.company_id.street"><t t-esc="o.company_id.street"/><br/></t>
+                            <t t-if="o.company_id.street2"><t t-esc="o.company_id.street2"/><br/></t>
                             <t t-if="o.company_id.zip or o.company_id.city">
                                 <t t-esc="o.company_id.zip"/> <t t-esc="o.company_id.city"/><br/>
                             </t>
-                            <t t-if="o.company_id.phone">Tel: <t t-esc="o.company_id.phone"/><br/></t>
-                            <t t-if="o.company_id.email"><t t-esc="o.company_id.email"/><br/></t>
-                            <t t-if="o.company_id.vat">TVA: <t t-esc="o.company_id.vat"/></t>
+                            <t t-if="o.company_id.country_id"><t t-esc="o.company_id.country_id.name"/></t>
                         </td>
                     </tr>
                 </table>
 
-                <!-- Bloc client - CORRIGE: suppression de partner_id.title -->
-                <div class="lolirine-client-block">
-                    <table style="width: 100%;">
-                        <tr>
-                            <td style="width: 60%;"></td>
-                            <td style="width: 40%; border: 1px solid #ddd; padding: 10px; background-color: #fafafa;">
-                                <strong><t t-esc="o.partner_id.name"/></strong><br/>
-                                <t t-if="o.partner_id.street"><t t-esc="o.partner_id.street"/><br/></t>
-                                <t t-if="o.partner_id.street2"><t t-esc="o.partner_id.street2"/><br/></t>
-                                <t t-esc="o.partner_id.zip"/> <t t-esc="o.partner_id.city"/><br/>
-                                <t t-if="o.partner_id.country_id"><t t-esc="o.partner_id.country_id.name"/><br/></t>
-                                <t t-if="o.partner_id.vat">TVA: <t t-esc="o.partner_id.vat"/></t>
-                            </td>
-                        </tr>
-                    </table>
+                <!-- Bloc client -->
+                <div style="margin: 10px 0;">
+                    <strong><t t-esc="o.partner_id.name"/></strong><br/>
+                    <t t-if="o.partner_id.street"><t t-esc="o.partner_id.street"/><br/></t>
+                    <t t-if="o.partner_id.street2"><t t-esc="o.partner_id.street2"/><br/></t>
+                    <t t-esc="o.partner_id.zip"/> <t t-esc="o.partner_id.city"/><br/>
+                    <t t-if="o.partner_id.country_id"><t t-esc="o.partner_id.country_id.name"/></t>
                 </div>
 
                 <!-- Titre facture -->
@@ -185,18 +217,10 @@
                 <!-- Tableau des dates -->
                 <table class="lolirine-dates-table">
                     <tr>
-                        <td class="label">Date de facture</td>
+                        <td class="label">Date de facturation</td>
                         <td><t t-esc="o.invoice_date" t-options='{"widget": "date"}'/></td>
                         <td class="label">Date d'echeance</td>
                         <td><t t-esc="o.invoice_date_due" t-options='{"widget": "date"}'/></td>
-                    </tr>
-                    <tr t-if="o.invoice_origin">
-                        <td class="label">Reference</td>
-                        <td colspan="3"><t t-esc="o.invoice_origin"/></td>
-                    </tr>
-                    <tr t-if="o.ref">
-                        <td class="label">Communication</td>
-                        <td colspan="3"><t t-esc="o.ref"/></td>
                     </tr>
                 </table>
 
@@ -204,92 +228,112 @@
                 <table class="lolirine-lines-table">
                     <thead>
                         <tr>
-                            <th style="width: 45%;">Description</th>
-                            <th style="width: 10%; text-align: center;">Qte</th>
-                            <th style="width: 15%; text-align: right;">Prix unit.</th>
-                            <th style="width: 10%; text-align: center;">TVA</th>
-                            <th style="width: 20%; text-align: right;">Total HT</th>
+                            <th style="width: 45%;">DESCRIPTION</th>
+                            <th style="width: 12%; text-align: center;">QUANTITE</th>
+                            <th style="width: 15%; text-align: right;">PRIX UNIT.</th>
+                            <th style="width: 10%; text-align: center;">TAXES</th>
+                            <th style="width: 18%; text-align: right;">MONTANT</th>
                         </tr>
                     </thead>
                     <tbody>
                         <t t-foreach="o.invoice_line_ids.filtered(lambda l: not l.display_type)" t-as="line">
                             <tr>
                                 <td>
-                                    <strong><t t-esc="line.product_id.name or line.name"/></strong>
-                                    <t t-if="line.name and line.name != line.product_id.name">
-                                        <br/><span style="font-size: 7pt; color: #666;"><t t-esc="line.name"/></span>
+                                    <t t-if="line.product_id">
+                                        [<t t-esc="line.product_id.default_code or ''"/>] <t t-esc="line.product_id.name"/>
+                                    </t>
+                                    <t t-else="">
+                                        <t t-esc="line.name"/>
                                     </t>
                                 </td>
-                                <td style="text-align: center;"><t t-esc="line.quantity"/> <t t-esc="line.product_uom_id.name"/></td>
-                                <td style="text-align: right;"><t t-esc="line.price_unit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
                                 <td style="text-align: center;">
-                                    <t t-foreach="line.tax_ids" t-as="tax">
-                                        <t t-esc="tax.amount"/>%
-                                    </t>
+                                    <t t-esc="line.quantity"/> <t t-esc="line.product_uom_id.name"/>
                                 </td>
-                                <td style="text-align: right;"><t t-esc="line.price_subtotal" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                <td style="text-align: right;">
+                                    <t t-esc="'%.2f' % line.price_unit"/> €
+                                </td>
+                                <td style="text-align: center;">
+                                    <t t-esc="', '.join(line.tax_ids.mapped('name'))"/>
+                                </td>
+                                <td style="text-align: right;">
+                                    <t t-esc="'%.2f' % line.price_subtotal"/> €
+                                </td>
                             </tr>
                         </t>
                     </tbody>
                 </table>
 
-                <!-- Totaux -->
-                <table class="lolirine-totals">
+                <!-- Section paiement et totaux cote a cote -->
+                <table style="width: 100%;">
                     <tr>
-                        <td>Total HT</td>
-                        <td style="text-align: right;"><t t-esc="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
-                    </tr>
-                    <t t-foreach="o.amount_by_group" t-as="amount_by_group">
-                        <tr>
-                            <td><t t-esc="amount_by_group[0]"/></td>
-                            <td style="text-align: right;"><t t-esc="amount_by_group[1]" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
-                        </tr>
-                    </t>
-                    <tr class="total-line">
-                        <td>TOTAL TTC</td>
-                        <td style="text-align: right;"><t t-esc="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
-                    </tr>
-                    <tr t-if="o.amount_residual and o.amount_residual != o.amount_total">
-                        <td>Reste a payer</td>
-                        <td style="text-align: right;"><t t-esc="o.amount_residual" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                        <td style="width: 55%; vertical-align: top;">
+                            <!-- Communication de paiement -->
+                            <div class="lolirine-payment-info">
+                                <t t-if="o.payment_reference">
+                                    <strong>Communication de paiement :</strong><br/>
+                                    <span style="font-weight: bold;"><t t-esc="o.payment_reference"/></span><br/>
+                                </t>
+                                <t t-if="o.partner_bank_id">
+                                    <strong>sur ce compte : </strong>
+                                    <span style="font-weight: bold;"><t t-esc="o.partner_bank_id.acc_number"/></span>
+                                    <t t-if="o.partner_bank_id.bank_id"> - <t t-esc="o.partner_bank_id.bank_id.name"/></t>
+                                </t>
+                            </div>
+                            
+                            <!-- QR Code SEPA -->
+                            <t t-if="o.display_qr_code and o.partner_bank_id">
+                                <div class="lolirine-qr-code">
+                                    <t t-set="qr_code_url" t-value="o.partner_bank_id.build_qr_code_url(o.amount_residual or o.amount_total, o.ref or o.name, o.payment_reference, o.currency_id, o.partner_id)"/>
+                                    <img t-if="qr_code_url" t-att-src="qr_code_url" alt="QR Code SEPA"/>
+                                    <div class="lolirine-qr-code-label">
+                                        Scannez pour payer par virement SEPA
+                                    </div>
+                                </div>
+                            </t>
+                        </td>
+                        <td style="width: 45%; vertical-align: top;">
+                            <!-- Totaux -->
+                            <table class="lolirine-totals-table">
+                                <tr>
+                                    <td class="label-cell">Montant hors taxes</td>
+                                    <td class="value-cell"><t t-esc="'%.2f' % o.amount_untaxed"/> €</td>
+                                </tr>
+                                <tr>
+                                    <td class="label-cell">TVA 21%</td>
+                                    <td class="value-cell"><t t-esc="'%.2f' % o.amount_tax"/> €</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>Total</td>
+                                    <td class="value-cell"><t t-esc="'%.2f' % o.amount_total"/> €</td>
+                                </tr>
+                            </table>
+
+                            <!-- Montant en lettres -->
+                            <div class="lolirine-amount-words">
+                                <strong>Montant total en toutes lettres :</strong><br/>
+                                <t t-esc="o.currency_id.amount_to_text(o.amount_total)"/>
+                            </div>
+                        </td>
                     </tr>
                 </table>
 
-                <!-- Informations de paiement -->
-                <div class="lolirine-payment-info">
-                    <strong>Modalites de paiement :</strong><br/>
-                    Paiement a effectuer avant le <t t-esc="o.invoice_date_due" t-options='{"widget": "date"}'/><br/>
-                    <t t-if="o.company_id.partner_id.bank_ids">
-                        <t t-set="bank" t-value="o.company_id.partner_id.bank_ids[0]"/>
-                        Compte bancaire : <strong><t t-esc="bank.acc_number"/></strong>
-                        <t t-if="bank.bank_id"> - <t t-esc="bank.bank_id.name"/></t>
-                        <br/>
-                    </t>
-                    <t t-if="o.payment_reference">
-                        Communication structuree : <strong><t t-esc="o.payment_reference"/></strong>
-                    </t>
+                <!-- Conditions generales -->
+                <div class="lolirine-conditions">
+                    Conditions generales : <a t-att-href="'https://' + (o.company_id.website or 'lolirine-lolirine.odoo.com') + '/terms'">https://<t t-esc="o.company_id.website or 'lolirine-lolirine.odoo.com'"/>/terms</a>
                 </div>
 
-                <!-- Notes -->
-                <t t-if="o.narration">
-                    <div style="margin-top: 10px; font-size: 8pt;">
-                        <strong>Notes :</strong><br/>
-                        <t t-raw="o.narration"/>
-                    </div>
-                </t>
+                <!-- Zone signature -->
+                <div class="lolirine-signature">
+                    Signataire autorise
+                </div>
 
-                <!-- Footer -->
+                <!-- Pied de page -->
                 <div class="lolirine-footer">
-                    <t t-esc="o.company_id.name"/> - 
-                    <t t-if="o.company_id.street"><t t-esc="o.company_id.street"/>, </t>
-                    <t t-esc="o.company_id.zip"/> <t t-esc="o.company_id.city"/>
-                    <t t-if="o.company_id.phone"> - Tel: <t t-esc="o.company_id.phone"/></t>
-                    <t t-if="o.company_id.email"> - <t t-esc="o.company_id.email"/></t>
-                    <t t-if="o.company_id.website"> - <t t-esc="o.company_id.website"/></t>
-                    <br/>
-                    <t t-if="o.company_id.vat">TVA: <t t-esc="o.company_id.vat"/></t>
+                    <t t-if="o.company_id.email">Email: <t t-esc="o.company_id.email"/> | </t>
+                    <t t-if="o.company_id.website">Site: http://<t t-esc="o.company_id.website"/> | </t>
+                    <t t-if="o.company_id.vat">TVA: <t t-esc="o.company_id.vat"/> | </t>
                     <t t-if="o.company_id.partner_id.bank_ids">
-                         | <t t-esc="o.company_id.partner_id.bank_ids[0].bank_id.name or ''"/>: <t t-esc="o.company_id.partner_id.bank_ids[0].acc_number"/>
+                        <t t-esc="o.company_id.partner_id.bank_ids[0].bank_id.name or ''"/>: <t t-esc="o.company_id.partner_id.bank_ids[0].acc_number"/>
                     </t>
                 </div>
             </div>
