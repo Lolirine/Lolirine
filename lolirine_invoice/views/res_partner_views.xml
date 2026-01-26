@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extension de la vue formulaire des contacts pour Peppol -->
+    <record id="view_partner_form_lolirine_invoice" model="ir.ui.view">
+        <field name="name">res.partner.form.lolirine.invoice</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases']" position="after">
+                <page string="Facturation electronique" name="peppol">
+                    <group>
+                        <group string="Configuration Peppol">
+                            <field name="peppol_eas"/>
+                            <field name="peppol_endpoint" placeholder="Ex: 0650891279"/>
+                        </group>
+                        <group string="Envoi automatique">
+                            <field name="auto_send_invoice"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

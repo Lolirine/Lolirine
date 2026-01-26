@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu principal -->
+    <menuitem id="menu_lolirine_invoice_root"
+              name="Factures Lolirine"
+              web_icon="lolirine_invoice,static/description/icon.png"
+              sequence="25"/>
+    
+    <!-- Sous-menu Factures -->
+    <menuitem id="menu_lolirine_invoices"
+              name="Factures"
+              parent="menu_lolirine_invoice_root"
+              sequence="10"/>
+    
+    <menuitem id="menu_lolirine_invoices_all"
+              name="Toutes les factures"
+              parent="menu_lolirine_invoices"
+              action="action_lolirine_invoices"
+              sequence="10"/>
+    
+    <menuitem id="menu_lolirine_invoices_draft"
+              name="Brouillons"
+              parent="menu_lolirine_invoices"
+              action="action_lolirine_invoices_draft"
+              sequence="20"/>
+    
+    <menuitem id="menu_lolirine_invoices_not_sent"
+              name="Non envoyees"
+              parent="menu_lolirine_invoices"
+              action="action_lolirine_invoices_not_sent"
+              sequence="30"/>
+    
+    <menuitem id="menu_lolirine_invoices_unpaid"
+              name="Non payees"
+              parent="menu_lolirine_invoices"
+              action="action_lolirine_invoices_unpaid"
+              sequence="40"/>
+</odoo>
