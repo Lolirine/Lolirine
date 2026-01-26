@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue formulaire du wizard d'envoi -->
+    <record id="lolirine_invoice_send_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.invoice.send.wizard.form</field>
+        <field name="model">lolirine.invoice.send.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Envoyer la facture">
+                <group>
+                    <group string="Facture">
+                        <field name="invoice_id" readonly="1"/>
+                        <field name="partner_id"/>
+                    </group>
+                    <group string="Methode d'envoi">
+                        <field name="send_method" widget="radio"/>
+                    </group>
+                </group>
+                
+                <group invisible="send_method == 'peppol'">
+                    <group string="Configuration Email">
+                        <field name="email" placeholder="email@exemple.com"/>
+                        <field name="include_attachment"/>
+                    </group>
+                </group>
+                
+                <group invisible="send_method == 'email'">
+                    <group string="Configuration Peppol">
+                        <field name="peppol_available" invisible="1"/>
+                        <field name="peppol_eas" readonly="1"/>
+                        <field name="peppol_endpoint" readonly="1"/>
+                    </group>
+                </group>
+                
+                <div class="alert alert-success" role="alert" invisible="send_method == 'email' or not peppol_available">
+                    <i class="fa fa-check-circle"/> <strong>Peppol configure</strong> - Le client est enregistre sur le reseau Peppol.
+                </div>
+                
+                <div class="alert alert-warning" role="alert" invisible="send_method == 'email' or peppol_available">
+                    <i class="fa fa-exclamation-triangle"/> <strong>Peppol non configure</strong> - 
+                    Configurez l'EAS et l'endpoint Peppol dans l'onglet "Facturation electronique" de la fiche client.
+                </div>
+                
+                <footer>
+                    <button name="action_preview" string="Apercu" type="object" class="btn-secondary" icon="fa-eye"/>
+                    <button name="action_send_and_close" string="Envoyer" type="object" class="btn-primary" icon="fa-paper-plane"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
