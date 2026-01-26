@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_lolirine_subscription_sequence_wizard,lolirine.subscription.sequence.wizard,model_lolirine_subscription_sequence_wizard,base.group_system,1,1,1,1
+access_lolirine_change_subscription_number_wizard,lolirine.change.subscription.number.wizard,model_lolirine_change_subscription_number_wizard,sales_team.group_sale_manager,1,1,1,1
+access_lolirine_change_subscription_number_wizard_user,lolirine.change.subscription.number.wizard.user,model_lolirine_change_subscription_number_wizard,sales_team.group_sale_salesman,1,1,1,1
