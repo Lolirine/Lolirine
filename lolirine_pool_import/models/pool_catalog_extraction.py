@@ -1907,7 +1907,7 @@ class PoolCatalogExtractionProduct(models.Model):
                 vals['categ_id'] = category.id
                 _logger.info(f"Catégorie assignée: {category.name} (ID: {category.id})")
         
-        # Catégorie piscine (pool.product.category) pour le site Pool Store
+        # Catégorie piscine (product.public.category) pour le site Pool Store
         if self.category and 'pool_category_id' in ProductTemplate._fields:
             pool_cat = self._get_pool_category()
             if pool_cat:
@@ -2239,7 +2239,7 @@ class PoolCatalogExtractionProduct(models.Model):
     
     def _get_pool_category(self):
         """
-        Retourne la catégorie pool.product.category correspondant à la catégorie extraite.
+        Retourne la catégorie product.public.category correspondant à la catégorie extraite.
         Utilise un mapping pour convertir les catégories du catalogue vers les catégories piscine.
         """
         self.ensure_one()
@@ -2247,7 +2247,7 @@ class PoolCatalogExtractionProduct(models.Model):
         if not self.category:
             return False
         
-        # Mapping catégorie extraite → pool.product.category
+        # Mapping catégorie extraite → product.public.category (catégories e-commerce)
         category_mapping = {
             'pompes à chaleur': 'Chauffage',
             'pompe à chaleur': 'Chauffage',
@@ -2258,9 +2258,9 @@ class PoolCatalogExtractionProduct(models.Model):
             'filter': 'Filtration',
             'pompe': 'Pompes',
             'pump': 'Pompes',
-            'robot': 'Robots & Nettoyage',
-            'nettoyage': 'Robots & Nettoyage',
-            'cleaner': 'Robots & Nettoyage',
+            'robot': 'Robots électriques',
+            'nettoyage': 'Robots électriques',
+            'cleaner': 'Robots électriques',
             'traitement': 'Traitement de l\'eau',
             'chimie': 'Traitement de l\'eau',
             'chemical': 'Traitement de l\'eau',
@@ -2290,10 +2290,11 @@ class PoolCatalogExtractionProduct(models.Model):
                 break
         
         if pool_cat_name:
-            pool_cat = self.env['pool.product.category'].search([('name', '=', pool_cat_name)], limit=1)
+            # Utiliser product.public.category (catégories e-commerce) avec sudo() pour éviter ACL
+            pool_cat = self.env['product.public.category'].sudo().search([('name', 'ilike', pool_cat_name)], limit=1)
             if pool_cat:
                 return pool_cat
-            _logger.warning(f"Catégorie pool '{pool_cat_name}' non trouvée")
+            _logger.warning(f"Catégorie e-commerce '{pool_cat_name}' non trouvée dans product.public.category")
         else:
             _logger.info(f"Pas de mapping pour la catégorie extraite: {self.category}")
         
