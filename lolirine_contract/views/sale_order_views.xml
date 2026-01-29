@@ -49,7 +49,9 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
+                <button name="action_preview_quotation" type="object" string="Aperçu devis" class="btn-secondary" invisible="not is_subscription or state == 'sale'"/>
                 <button name="action_send_quotation" type="object" string="Envoyer le devis" class="btn-secondary" invisible="not is_subscription or state == 'sale'"/>
+                <button name="action_preview_contract" type="object" string="Aperçu contrat" class="btn-secondary" invisible="state != 'sale' or not is_subscription"/>
                 <button name="action_send_contract" type="object" string="Envoyer le contrat" class="btn-secondary" invisible="state != 'sale' or not is_subscription"/>
             </xpath>
         </field>
