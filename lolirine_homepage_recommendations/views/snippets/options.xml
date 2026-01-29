@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Options pour les snippets de recommandation - Compatible Odoo 19 -->
+    <template id="homepage_recommendations_options" inherit_id="website.snippet_options" name="Homepage Recommendations Options - Lolirine Pool">
+        <xpath expr="." position="inside">
+            
+            <!-- Options pour la section recommandations générique -->
+            <div data-selector=".s_recommendations_section" data-js="RecommendationsSection">
+                <!-- Choix du type de section -->
+                <we-select string="Type de recommandation" 
+                           data-name="sectionType"
+                           data-attribute-name="data-section-type">
+                    <we-button data-select-data-attribute="best_sellers">Meilleures ventes</we-button>
+                    <we-button data-select-data-attribute="recently_viewed">Récemment consultés</we-button>
+                    <we-button data-select-data-attribute="continue_shopping">Continuez vos achats</we-button>
+                    <we-button data-select-data-attribute="top_rated">Les mieux notés</we-button>
+                    <we-button data-select-data-attribute="promotions">Offres/Promotions</we-button>
+                    <we-button data-select-data-attribute="new_arrivals">Nouveautés</we-button>
+                    <we-button data-select-data-attribute="related_to_viewed">En lien avec consultations</we-button>
+                    <we-button data-select-data-attribute="for_category">Par catégorie</we-button>
+                </we-select>
+                
+                <!-- Nombre de produits -->
+                <we-input string="Nombre de produits" 
+                          data-name="limit"
+                          data-select-data-attribute="12"/>
+                
+                <!-- Masquer si vide -->
+                <we-checkbox string="Masquer si aucun produit" 
+                             data-name="hideIfEmpty"/>
+            </div>
+            
+            <!-- Options pour la grille de catégories -->
+            <div data-selector=".s_preferred_categories" data-js="PreferredCategoriesSection">
+                <we-input string="Nombre de catégories" 
+                          data-name="limit"
+                          data-select-data-attribute="6"/>
+            </div>
+            
+        </xpath>
+    </template>
+    
+</odoo>

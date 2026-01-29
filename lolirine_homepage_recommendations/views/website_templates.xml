@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Injection du tracking sur les pages produit -->
+    <template id="product_tracking_injection" inherit_id="website_sale.product" name="Product View Tracking">
+        <xpath expr="//div[@id='product_detail']" position="attributes">
+            <attribute name="data-product-id" t-esc="product.id"/>
+            <attribute name="data-track-view">true</attribute>
+        </xpath>
+    </template>
+    
+    <!-- Template pour une carte produit dans les recommandations -->
+    <template id="recommendation_product_card" name="Recommendation Product Card">
+        <div class="recommendation-card" t-att-data-product-id="product.id">
+            <a t-att-href="product_href" class="recommendation-card-link">
+                <!-- Image -->
+                <div class="recommendation-card-image">
+                    <img t-att-src="'/web/image/product.product/%s/image_512' % product.id"
+                         t-att-alt="product.name"
+                         loading="lazy"
+                         class="img-fluid"/>
+                    
+                    <!-- Badge (promo, nouveau, etc.) -->
+                    <span t-if="badge" class="recommendation-badge" t-att-class="badge_class">
+                        <t t-esc="badge"/>
+                    </span>
+                    
+                    <!-- Réduction -->
+                    <span t-if="discount_pct" class="discount-badge">
+                        -<t t-esc="discount_pct"/>%
+                    </span>
+                </div>
+                
+                <!-- Infos produit -->
+                <div class="recommendation-card-body">
+                    <h6 class="recommendation-card-title" t-esc="product.name"/>
+                    
+                    <!-- Rating -->
+                    <div t-if="product.rating_count" class="recommendation-rating">
+                        <span class="rating-stars">
+                            <t t-foreach="range(5)" t-as="star">
+                                <i t-att-class="'fa fa-star' + (' text-warning' if star &lt; int(product.rating_avg) else ' text-muted')"/>
+                            </t>
+                        </span>
+                        <span class="rating-count text-muted">(<t t-esc="product.rating_count"/>)</span>
+                    </div>
+                    
+                    <!-- Prix -->
+                    <div class="recommendation-price">
+                        <span class="current-price" t-esc="combination_info.get('price', 0)" 
+                              t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                        <span t-if="combination_info.get('compare_list_price') and combination_info.get('compare_list_price') > combination_info.get('price', 0)" 
+                              class="old-price text-muted text-decoration-line-through ms-2"
+                              t-esc="combination_info.get('compare_list_price')"
+                              t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Actions rapides -->
+            <div class="recommendation-card-actions">
+                <button type="button" class="btn btn-sm btn-primary add-to-cart-quick" 
+                        t-att-data-product-id="product.id"
+                        title="Ajouter au panier">
+                    <i class="fa fa-cart-plus"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary add-to-wishlist" 
+                        t-att-data-product-id="product.id"
+                        title="Ajouter aux favoris">
+                    <i class="fa fa-heart-o"></i>
+                </button>
+            </div>
+        </div>
+    </template>
+    
+</odoo>
