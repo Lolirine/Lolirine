@@ -10,16 +10,16 @@
         <field name="body_html" type="html">
 <div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
 <p>Bonjour,</p>
-<p>Veuillez trouver en piece jointe votre contrat de garde-meubles relatif a la location de votre box au sein de notre site Lolirine.</p>
-<p>Ce document reprend l'ensemble des conditions applicables a votre location (references du contrat, caracteristiques de la box, modalites financieres, duree, conditions d'acces et de resiliation, etc.). Nous vous invitons a en prendre connaissance attentivement et a nous le retourner dument signe, selon les modalites indiquees dans le contrat ou dans le message de signature electronique.</p>
-<p>Pour rappel, votre contrat ne sera pleinement effectif qu'apres reception de la version signee et, le cas echeant, du paiement des premiers frais mentionnes.</p>
-<p>Pour toute question concernant le contenu du contrat, vos dates d'entree/sortie, l'acces a votre box ou toute autre information pratique, vous pouvez nous contacter a l'adresse suivante : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a> ou par telephone au 0497/44 41 46.</p>
-<p>Nous vous remercions de votre confiance et restons a votre disposition.</p>
+<p>Veuillez trouver en pièce jointe votre contrat de garde-meubles relatif à la location de votre box au sein de notre site Lolirine.</p>
+<p>Ce document reprend l'ensemble des conditions applicables à votre location (références du contrat, caractéristiques de la box, modalités financières, durée, conditions d'accès et de résiliation, etc.). Nous vous invitons à en prendre connaissance attentivement et à nous le retourner dûment signé, selon les modalités indiquées dans le contrat ou dans le message de signature électronique.</p>
+<p>Pour rappel, votre contrat ne sera pleinement effectif qu'après réception de la version signée et, le cas échéant, du paiement des premiers frais mentionnés.</p>
+<p>Pour toute question concernant le contenu du contrat, vos dates d'entrée/sortie, l'accès à votre box ou toute autre information pratique, vous pouvez nous contacter à l'adresse suivante : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a> ou par téléphone au 0497/44 41 46.</p>
+<p>Nous vous remercions de votre confiance et restons à votre disposition.</p>
 <p>Cordialement,</p>
 <p style="margin-top: 20px;">
 <strong>Lolirine Garde-Meubles</strong><br/>
 Feron Rodney<br/>
-Tel. : 0497/44 41 46<br/>
+Tél. : 0497/44 41 46<br/>
 Email : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a>
 </p>
 </div>
@@ -38,16 +38,16 @@ Email : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail
         <field name="body_html" type="html">
 <div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
 <p>Bonjour {{ object.partner_id.name }},</p>
-<p>Veuillez trouver en piece jointe votre devis de garde-meubles relatif a la location d'un box au sein de notre site Lolirine.</p>
-<p>Ce devis reprend les elements principaux de votre demande, notamment les caracteristiques du box propose, les conditions financieres, la duree envisagee ainsi que les modalites d'acces et de location. Nous vous invitons a en prendre connaissance attentivement.</p>
-<p>Si ce devis correspond a vos attentes, vous pouvez nous le retourner signe ou le valider selon les modalites indiquees afin de proceder a l'etablissement du contrat de garde-meubles. La location ne sera effective qu'apres validation du devis et, le cas echeant, reception des premiers frais mentionnes.</p>
-<p>Pour toute question concernant ce devis, vos dates d'entree prevues, le choix du box ou toute information complementaire, vous pouvez nous contacter a l'adresse suivante : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a> ou par telephone au 0497/44 41 46.</p>
-<p>Nous vous remercions de l'interet que vous portez a nos services et restons a votre entiere disposition.</p>
+<p>Veuillez trouver en pièce jointe votre devis de garde-meubles relatif à la location d'un box au sein de notre site Lolirine.</p>
+<p>Ce devis reprend les éléments principaux de votre demande, notamment les caractéristiques du box proposé, les conditions financières, la durée envisagée ainsi que les modalités d'accès et de location. Nous vous invitons à en prendre connaissance attentivement.</p>
+<p>Si ce devis correspond à vos attentes, vous pouvez nous le retourner signé ou le valider selon les modalités indiquées afin de procéder à l'établissement du contrat de garde-meubles. La location ne sera effective qu'après validation du devis et, le cas échéant, réception des premiers frais mentionnés.</p>
+<p>Pour toute question concernant ce devis, vos dates d'entrée prévues, le choix du box ou toute information complémentaire, vous pouvez nous contacter à l'adresse suivante : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a> ou par téléphone au 0497/44 41 46.</p>
+<p>Nous vous remercions de l'intérêt que vous portez à nos services et restons à votre entière disposition.</p>
 <p>Cordialement,</p>
 <p style="margin-top: 20px;">
 <strong>Lolirine Garde-Meubles</strong><br/>
 Feron Rodney<br/>
-Tel. : 0497/44 41 46<br/>
+Tél. : 0497/44 41 46<br/>
 Email : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a>
 </p>
 </div>
