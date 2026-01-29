@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_contract_fields" model="ir.ui.view">
+        <field name="name">sale.order.form.contract.fields</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='order_lines']" position="after">
+                <page string="Contrat" name="contract_info" invisible="not is_subscription">
+                    <group>
+                        <group string="Codes">
+                            <field name="contract_access_code"/>
+                            <field name="contract_forklift_code"/>
+                        </group>
+                        <group string="Dates">
+                            <field name="contract_signature_date"/>
+                            <field name="contract_deposit_date"/>
+                            <field name="contract_signature_location"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Montants">
+                            <field name="contract_monthly_rent" readonly="1"/>
+                            <field name="contract_dossier_fees" readonly="1"/>
+                            <field name="contract_deposit_amount" readonly="1"/>
+                        </group>
+                    </group>
+                    <separator string="Carte d'identité du client"/>
+                    <group>
+                        <group string="Recto">
+                            <field name="partner_id_card_recto" widget="image" options="{'size': [250, 160]}" readonly="1" string=""/>
+                        </group>
+                        <group string="Verso">
+                            <field name="partner_id_card_verso" widget="image" options="{'size': [250, 160]}" readonly="1" string=""/>
+                        </group>
+                    </group>
+                    <div class="alert alert-warning" role="alert" invisible="partner_id_card_uploaded">
+                        <strong>Attention:</strong> Le client n'a pas encore fourni sa carte d'identité.
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Boutons Envoyer le contrat et Envoyer le devis -->
+    <record id="view_order_form_contract_button" model="ir.ui.view">
+        <field name="name">sale.order.form.contract.button</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_send_quotation" type="object" string="Envoyer le devis" class="btn-secondary" invisible="not is_subscription or state == 'sale'"/>
+                <button name="action_send_contract" type="object" string="Envoyer le contrat" class="btn-secondary" invisible="state != 'sale' or not is_subscription"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
