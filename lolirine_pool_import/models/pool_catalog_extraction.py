@@ -2241,6 +2241,20 @@ class PoolCatalogExtractionProduct(models.Model):
         """
         Retourne la catégorie product.public.category correspondant à la catégorie extraite.
         Utilise un mapping pour convertir les catégories du catalogue vers les catégories piscine.
+        
+        Catégories e-commerce disponibles:
+        01. ROBOTS DE PISCINE
+        02. CONSTRUCTION
+        03. ÉCLAIRAGE
+        04. POMPES
+        05. FILTRATION
+        06. CHAUFFAGE
+        07. TECHNIQUE DE MESURE ET DE CONTRÔLE / PRODUITS CHIMIQUES
+        08. TECHNIQUE DE TRAITEMENT DE L'EAU
+        09. COUVERTURES
+        10. MAINTENANCE ET ACCESSOIRES
+        11. MATÉRIAUX DE CONNEXION
+        12. IRRIGATION
         """
         self.ensure_one()
         
@@ -2248,51 +2262,260 @@ class PoolCatalogExtractionProduct(models.Model):
             return False
         
         # Mapping catégorie extraite → product.public.category (catégories e-commerce)
-        category_mapping = {
-            'pompes à chaleur': 'Chauffage',
-            'pompe à chaleur': 'Chauffage',
-            'chauffage': 'Chauffage',
-            'heat pump': 'Chauffage',
-            'filtration': 'Filtration',
-            'filtre': 'Filtration',
-            'filter': 'Filtration',
-            'pompe': 'Pompes',
-            'pump': 'Pompes',
-            'robot': 'Robots électriques',
-            'nettoyage': 'Robots électriques',
-            'cleaner': 'Robots électriques',
-            'traitement': 'Traitement de l\'eau',
-            'chimie': 'Traitement de l\'eau',
-            'chemical': 'Traitement de l\'eau',
-            'couverture': 'Couvertures & Volets',
-            'volet': 'Couvertures & Volets',
-            'cover': 'Couvertures & Volets',
-            'bâche': 'Couvertures & Volets',
-            'spa': 'Spa & Bien-être',
-            'jacuzzi': 'Spa & Bien-être',
-            'wellness': 'Spa & Bien-être',
-            'accessoire': 'Accessoires',
-            'accessory': 'Accessoires',
-            'échelle': 'Accessoires',
-            'ladder': 'Accessoires',
-            'liner': 'Construction & Rénovation',
-            'construction': 'Construction & Rénovation',
-            'rénovation': 'Construction & Rénovation',
-        }
+        # IMPORTANT: L'ordre compte ! Les termes plus spécifiques doivent être en premier
+        # Format: (terme_recherché, nom_catégorie_ecommerce)
+        category_mapping = [
+            # ============================================
+            # 01. ROBOTS DE PISCINE
+            # ============================================
+            ('robot', 'ROBOTS DE PISCINE'),
+            ('nettoyeur automatique', 'ROBOTS DE PISCINE'),
+            ('aspirateur piscine', 'ROBOTS DE PISCINE'),
+            ('cleaner', 'ROBOTS DE PISCINE'),
+            ('polaris', 'ROBOTS DE PISCINE'),
+            ('zodiac mx', 'ROBOTS DE PISCINE'),
+            ('dolphin', 'ROBOTS DE PISCINE'),
+            ('hayward', 'ROBOTS DE PISCINE'),  # souvent robots
+            
+            # ============================================
+            # 02. CONSTRUCTION
+            # ============================================
+            ('liner', 'CONSTRUCTION'),
+            ('construction', 'CONSTRUCTION'),
+            ('rénovation', 'CONSTRUCTION'),
+            ('membrane', 'CONSTRUCTION'),
+            ('pièce à sceller', 'CONSTRUCTION'),
+            ('skimmer', 'CONSTRUCTION'),
+            ('bonde de fond', 'CONSTRUCTION'),
+            ('refoulement', 'CONSTRUCTION'),
+            ('bride', 'CONSTRUCTION'),
+            ('traverse', 'CONSTRUCTION'),
+            ('margelle', 'CONSTRUCTION'),
+            ('escalier piscine', 'CONSTRUCTION'),
+            ('coque', 'CONSTRUCTION'),
+            ('béton', 'CONSTRUCTION'),
+            ('coffrage', 'CONSTRUCTION'),
+            ('ferraillage', 'CONSTRUCTION'),
+            ('étanchéité', 'CONSTRUCTION'),
+            
+            # ============================================
+            # 03. ÉCLAIRAGE
+            # ============================================
+            ('éclairage', 'ÉCLAIRAGE'),
+            ('eclairage', 'ÉCLAIRAGE'),
+            ('projecteur', 'ÉCLAIRAGE'),
+            ('spot', 'ÉCLAIRAGE'),
+            ('led piscine', 'ÉCLAIRAGE'),
+            ('lampe piscine', 'ÉCLAIRAGE'),
+            ('ampoule piscine', 'ÉCLAIRAGE'),
+            ('luminaire', 'ÉCLAIRAGE'),
+            ('niche', 'ÉCLAIRAGE'),  # niche de projecteur
+            ('transformateur', 'ÉCLAIRAGE'),
+            
+            # ============================================
+            # 04. POMPES
+            # ============================================
+            ('pompe de circulation', 'POMPES'),
+            ('pompe de filtration', 'POMPES'),
+            ('pompe à vitesse variable', 'POMPES'),
+            ('pompe auto-amorçante', 'POMPES'),
+            ('surpresseur', 'POMPES'),
+            ('pompe doseuse', 'POMPES'),
+            # "pompe" seul en dernier pour éviter confusion avec "pompe à chaleur"
+            
+            # ============================================
+            # 05. FILTRATION
+            # ============================================
+            ('préfiltre', 'FILTRATION'),
+            ('pré-filtre', 'FILTRATION'),
+            ('multicyclone', 'FILTRATION'),
+            ('hydrospin', 'FILTRATION'),
+            ('filtre à sable', 'FILTRATION'),
+            ('filtre à cartouche', 'FILTRATION'),
+            ('filtre à diatomées', 'FILTRATION'),
+            ('filtration', 'FILTRATION'),
+            ('média filtrant', 'FILTRATION'),
+            ('verre filtrant', 'FILTRATION'),
+            ('zéolite', 'FILTRATION'),
+            ('sable filtration', 'FILTRATION'),
+            ('cartouche filtrante', 'FILTRATION'),
+            ('filtre', 'FILTRATION'),
+            ('vanne multivoies', 'FILTRATION'),
+            ('vanne 6 voies', 'FILTRATION'),
+            ('crépine', 'FILTRATION'),
+            ('collecteur', 'FILTRATION'),
+            ('manomètre', 'FILTRATION'),
+            ('purge', 'FILTRATION'),
+            
+            # ============================================
+            # 06. CHAUFFAGE
+            # ============================================
+            ('pompe à chaleur', 'CHAUFFAGE'),
+            ('pompes à chaleur', 'CHAUFFAGE'),
+            ('pac piscine', 'CHAUFFAGE'),
+            ('heat pump', 'CHAUFFAGE'),
+            ('réchauffeur', 'CHAUFFAGE'),
+            ('échangeur thermique', 'CHAUFFAGE'),
+            ('échangeur de chaleur', 'CHAUFFAGE'),
+            ('chauffage solaire', 'CHAUFFAGE'),
+            ('capteur solaire', 'CHAUFFAGE'),
+            ('panneau solaire piscine', 'CHAUFFAGE'),
+            ('chauffage', 'CHAUFFAGE'),
+            ('chaudière piscine', 'CHAUFFAGE'),
+            
+            # ============================================
+            # 07. TECHNIQUE DE MESURE ET DE CONTRÔLE / PRODUITS CHIMIQUES
+            # ============================================
+            ('testeur', 'TECHNIQUE DE MESURE'),
+            ('analyse', 'TECHNIQUE DE MESURE'),
+            ('photomètre', 'TECHNIQUE DE MESURE'),
+            ('bandelette', 'TECHNIQUE DE MESURE'),
+            ('trousse analyse', 'TECHNIQUE DE MESURE'),
+            ('ph-mètre', 'TECHNIQUE DE MESURE'),
+            ('orp', 'TECHNIQUE DE MESURE'),
+            ('redox', 'TECHNIQUE DE MESURE'),
+            ('sonde', 'TECHNIQUE DE MESURE'),
+            ('capteur ph', 'TECHNIQUE DE MESURE'),
+            ('régulateur', 'TECHNIQUE DE MESURE'),
+            ('contrôleur', 'TECHNIQUE DE MESURE'),
+            ('domotique piscine', 'TECHNIQUE DE MESURE'),
+            ('automatisme', 'TECHNIQUE DE MESURE'),
+            ('coffret électrique', 'TECHNIQUE DE MESURE'),
+            ('chlore', 'TECHNIQUE DE MESURE'),
+            ('brome', 'TECHNIQUE DE MESURE'),
+            ('oxygène actif', 'TECHNIQUE DE MESURE'),
+            ('algicide', 'TECHNIQUE DE MESURE'),
+            ('floculant', 'TECHNIQUE DE MESURE'),
+            ('ph+', 'TECHNIQUE DE MESURE'),
+            ('ph-', 'TECHNIQUE DE MESURE'),
+            ('produit chimique', 'TECHNIQUE DE MESURE'),
+            ('chimie', 'TECHNIQUE DE MESURE'),
+            ('chemical', 'TECHNIQUE DE MESURE'),
+            ('désinfectant', 'TECHNIQUE DE MESURE'),
+            ('anti-calcaire', 'TECHNIQUE DE MESURE'),
+            ('clarifiant', 'TECHNIQUE DE MESURE'),
+            
+            # ============================================
+            # 08. TECHNIQUE DE TRAITEMENT DE L'EAU
+            # ============================================
+            ('électrolyseur', 'TRAITEMENT DE L\'EAU'),
+            ('électrolyse', 'TRAITEMENT DE L\'EAU'),
+            ('cellule électrolyse', 'TRAITEMENT DE L\'EAU'),
+            ('sel piscine', 'TRAITEMENT DE L\'EAU'),
+            ('traitement au sel', 'TRAITEMENT DE L\'EAU'),
+            ('uv piscine', 'TRAITEMENT DE L\'EAU'),
+            ('stérilisateur', 'TRAITEMENT DE L\'EAU'),
+            ('ozonateur', 'TRAITEMENT DE L\'EAU'),
+            ('ozone', 'TRAITEMENT DE L\'EAU'),
+            ('ioniseur', 'TRAITEMENT DE L\'EAU'),
+            ('traitement', 'TRAITEMENT DE L\'EAU'),
+            
+            # ============================================
+            # 09. COUVERTURES
+            # ============================================
+            ('couverture', 'COUVERTURES'),
+            ('bâche', 'COUVERTURES'),
+            ('volet', 'COUVERTURES'),
+            ('volet roulant', 'COUVERTURES'),
+            ('abri piscine', 'COUVERTURES'),
+            ('cover', 'COUVERTURES'),
+            ('enrouleur', 'COUVERTURES'),
+            ('bâche à bulles', 'COUVERTURES'),
+            ('bâche hiver', 'COUVERTURES'),
+            ('filet', 'COUVERTURES'),
+            ('sangle', 'COUVERTURES'),
+            ('sandow', 'COUVERTURES'),
+            
+            # ============================================
+            # 10. MAINTENANCE ET ACCESSOIRES
+            # ============================================
+            ('épuisette', 'MAINTENANCE ET ACCESSOIRES'),
+            ('brosse', 'MAINTENANCE ET ACCESSOIRES'),
+            ('balai', 'MAINTENANCE ET ACCESSOIRES'),
+            ('manche téléscopique', 'MAINTENANCE ET ACCESSOIRES'),
+            ('perche', 'MAINTENANCE ET ACCESSOIRES'),
+            ('tuyau flottant', 'MAINTENANCE ET ACCESSOIRES'),
+            ('aspirateur manuel', 'MAINTENANCE ET ACCESSOIRES'),
+            ('thermomètre', 'MAINTENANCE ET ACCESSOIRES'),
+            ('échelle', 'MAINTENANCE ET ACCESSOIRES'),
+            ('escalier amovible', 'MAINTENANCE ET ACCESSOIRES'),
+            ('main courante', 'MAINTENANCE ET ACCESSOIRES'),
+            ('plongeoir', 'MAINTENANCE ET ACCESSOIRES'),
+            ('toboggan', 'MAINTENANCE ET ACCESSOIRES'),
+            ('jeux piscine', 'MAINTENANCE ET ACCESSOIRES'),
+            ('bouée', 'MAINTENANCE ET ACCESSOIRES'),
+            ('matelas', 'MAINTENANCE ET ACCESSOIRES'),
+            ('accessoire', 'MAINTENANCE ET ACCESSOIRES'),
+            ('maintenance', 'MAINTENANCE ET ACCESSOIRES'),
+            ('entretien', 'MAINTENANCE ET ACCESSOIRES'),
+            ('hivernage', 'MAINTENANCE ET ACCESSOIRES'),
+            ('gizzmo', 'MAINTENANCE ET ACCESSOIRES'),
+            ('flotteur', 'MAINTENANCE ET ACCESSOIRES'),
+            ('douche', 'MAINTENANCE ET ACCESSOIRES'),
+            ('lave-pieds', 'MAINTENANCE ET ACCESSOIRES'),
+            ('alarme piscine', 'MAINTENANCE ET ACCESSOIRES'),
+            ('sécurité piscine', 'MAINTENANCE ET ACCESSOIRES'),
+            ('barrière', 'MAINTENANCE ET ACCESSOIRES'),
+            
+            # ============================================
+            # 11. MATÉRIAUX DE CONNEXION
+            # ============================================
+            ('pvc pression', 'MATÉRIAUX DE CONNEXION'),
+            ('raccord', 'MATÉRIAUX DE CONNEXION'),
+            ('coude', 'MATÉRIAUX DE CONNEXION'),
+            ('té pvc', 'MATÉRIAUX DE CONNEXION'),
+            ('manchon', 'MATÉRIAUX DE CONNEXION'),
+            ('réduction', 'MATÉRIAUX DE CONNEXION'),
+            ('union', 'MATÉRIAUX DE CONNEXION'),
+            ('vanne', 'MATÉRIAUX DE CONNEXION'),
+            ('clapet', 'MATÉRIAUX DE CONNEXION'),
+            ('tuyau pvc', 'MATÉRIAUX DE CONNEXION'),
+            ('tube pvc', 'MATÉRIAUX DE CONNEXION'),
+            ('colle pvc', 'MATÉRIAUX DE CONNEXION'),
+            ('joint', 'MATÉRIAUX DE CONNEXION'),
+            ('flexible', 'MATÉRIAUX DE CONNEXION'),
+            ('connexion', 'MATÉRIAUX DE CONNEXION'),
+            ('plomberie', 'MATÉRIAUX DE CONNEXION'),
+            ('canalisation', 'MATÉRIAUX DE CONNEXION'),
+            
+            # ============================================
+            # 12. IRRIGATION
+            # ============================================
+            ('irrigation', 'IRRIGATION'),
+            ('arrosage', 'IRRIGATION'),
+            ('goutte à goutte', 'IRRIGATION'),
+            ('asperseur', 'IRRIGATION'),
+            ('programmateur arrosage', 'IRRIGATION'),
+            ('tuyau jardin', 'IRRIGATION'),
+            ('pompe arrosage', 'IRRIGATION'),
+            
+            # ============================================
+            # POMPES (en dernier pour éviter faux positifs avec PAC)
+            # ============================================
+            ('pompe', 'POMPES'),
+            ('pump', 'POMPES'),
+        ]
         
-        cat_extraite = self.category.lower()
+        cat_extraite = self.category.lower() if self.category else ''
+        
+        # Aussi vérifier le nom du produit pour plus de contexte
+        product_name = (self.name or '').lower()
+        combined_text = f"{cat_extraite} {product_name}"
+        
         pool_cat_name = None
         
-        # Chercher une correspondance
-        for key, value in category_mapping.items():
-            if key in cat_extraite:
+        # Chercher une correspondance (ordre de priorité respecté)
+        for key, value in category_mapping:
+            if key in combined_text:
                 pool_cat_name = value
                 break
         
         if pool_cat_name:
             # Utiliser product.public.category (catégories e-commerce) avec sudo() pour éviter ACL
+            # Recherche flexible avec ilike pour gérer les numéros de préfixe (01., 02., etc.)
             pool_cat = self.env['product.public.category'].sudo().search([('name', 'ilike', pool_cat_name)], limit=1)
             if pool_cat:
+                _logger.info(f"Catégorie '{self.category}' mappée vers '{pool_cat.name}'")
                 return pool_cat
             _logger.warning(f"Catégorie e-commerce '{pool_cat_name}' non trouvée dans product.public.category")
         else:
