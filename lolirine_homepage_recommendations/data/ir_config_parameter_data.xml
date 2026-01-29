@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        
+        <!-- 
+            Paramètre système pour identifier le site Lolirine Pool.
+            À CONFIGURER après installation avec l'ID correct du website.
+            
+            Pour trouver l'ID du website Lolirine Pool:
+            1. Allez dans Website > Configuration > Websites
+            2. Ouvrez le site Lolirine Pool
+            3. L'ID est dans l'URL: /web#id=X&model=website
+        -->
+        <record id="config_lolirine_pool_website_id" model="ir.config_parameter">
+            <field name="key">lolirine_pool.website_id</field>
+            <field name="value">0</field>
+        </record>
+        
+        <!-- 
+            Nom du domaine pour validation supplémentaire (optionnel).
+            Permet de vérifier qu'on est bien sur le bon site.
+        -->
+        <record id="config_lolirine_pool_domain" model="ir.config_parameter">
+            <field name="key">lolirine_pool.domain</field>
+            <field name="value">pool.lolirine.be</field>
+        </record>
+        
+    </data>
+</odoo>
