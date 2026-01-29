@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Cron pour nettoyer les anciennes activités -->
+        <record id="ir_cron_cleanup_visitor_activities" model="ir.cron">
+            <field name="name">Recommandations: Nettoyage anciennes activités</field>
+            <field name="model_id" ref="model_visitor_product_activity"/>
+            <field name="state">code</field>
+            <field name="code">model.cleanup_old_activities(days=90)</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">weeks</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+        </record>
+        
+        <!-- Cron pour recalculer les préférences de catégorie -->
+        <record id="ir_cron_compute_category_preferences" model="ir.cron">
+            <field name="name">Recommandations: Calcul préférences catégories</field>
+            <field name="model_id" ref="model_visitor_category_preference"/>
+            <field name="state">code</field>
+            <field name="code">
+# Recalculer pour tous les visiteurs actifs des 7 derniers jours
+from datetime import datetime, timedelta
+cutoff = datetime.now() - timedelta(days=7)
+activities = env['visitor.product.activity'].search([('create_date', '>=', cutoff)])
+visitors = activities.mapped('visitor_id')
+partners = activities.mapped('partner_id')
+
+for visitor in visitors:
+    if visitor:
+        model.compute_preferences(visitor_id=visitor.id)
+
+for partner in partners:
+    if partner:
+        model.compute_preferences(partner_id=partner.id)
+            </field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+        </record>
+        
+    </data>
+</odoo>
