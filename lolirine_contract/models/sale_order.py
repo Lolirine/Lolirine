@@ -56,6 +56,24 @@ class SaleOrder(models.Model):
             "context": ctx,
         }
 
+    def action_preview_contract(self):
+        """Aperçu du contrat en HTML sans téléchargement"""
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_url",
+            "url": "/report/html/lolirine_contract.report_contract_document/%s" % self.id,
+            "target": "new",
+        }
+
+    def action_preview_quotation(self):
+        """Aperçu du devis en HTML sans téléchargement"""
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_url",
+            "url": "/report/html/lolirine_contract.report_lolirine_quotation_document/%s" % self.id,
+            "target": "new",
+        }
+
     def action_send_quotation(self):
         """Envoyer le devis par email avec le PDF en pièce jointe"""
         self.ensure_one()
