@@ -1,6 +1,6 @@
 {
     "name": "Lolirine Contrat Garde-Meubles",
-    "version": "19.0.1.8.0",
+    "version": "19.0.2.0.0",
     "category": "Sales/Subscriptions",
     "summary": "Generation de contrats/devis PDF et gestion carte identite",
     "author": "Lolirine SPRL",
