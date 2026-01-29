@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Ajouter le lien dans le menu Mon Compte -->
+    <template id="portal_my_home_id_card" name="Portal My Home: ID Card" inherit_id="portal.portal_my_home" priority="40">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-id-card"></i> Carte d'identite
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Pour finaliser votre dossier, veuillez telecharger une photo recto et verso de votre carte d'identite.</p>
+                            <a href="/my/id_card" class="btn btn-primary">
+                                <i class="fa fa-upload"></i> Gerer ma carte d'identite
+                            </a>
+                            <t t-if="request.env.user.partner_id.id_card_uploaded">
+                                <span class="badge bg-success ms-2">
+                                    <i class="fa fa-check"></i> Documents fournis
+                                </span>
+                            </t>
+                            <t t-else="">
+                                <span class="badge bg-warning ms-2">
+                                    <i class="fa fa-exclamation-triangle"></i> Documents manquants
+                                </span>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Page de gestion de la carte d'identite -->
+    <template id="portal_my_id_card" name="My ID Card">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Carte d'identite</t>
+            </t>
+
+            <div class="container py-4">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="mb-4">
+                            <i class="fa fa-id-card"></i> Ma carte d'identite
+                        </h3>
+                        
+                        <t t-if="error">
+                            <div class="alert alert-danger" role="alert">
+                                <i class="fa fa-exclamation-circle"></i> <t t-esc="error"/>
+                            </div>
+                        </t>
+                        
+                        <t t-if="success">
+                            <div class="alert alert-success" role="alert">
+                                <i class="fa fa-check-circle"></i> Vos documents ont ete enregistres avec succes !
+                            </div>
+                        </t>
+
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Telecharger votre carte d'identite</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">
+                                    Veuillez telecharger une photo claire du recto et du verso de votre carte d'identite.
+                                    Formats acceptes: JPG, PNG, PDF (max 10 MB par fichier).
+                                </p>
+                                
+                                <form action="/my/id_card/upload" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-image"></i> Recto de la carte
+                                            </label>
+                                            <input type="file" name="id_card_recto" class="form-control" accept="image/*,.pdf"/>
+                                            <t t-if="partner.id_card_recto">
+                                                <div class="mt-2 p-2 bg-light rounded">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa fa-check"></i> Document present
+                                                    </span>
+                                                    <span class="text-muted ms-2" t-if="partner.id_card_recto_filename">
+                                                        <t t-esc="partner.id_card_recto_filename"/>
+                                                    </span>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <img t-att-src="'/web/image/res.partner/%s/id_card_recto' % partner.id" 
+                                                         class="img-thumbnail" style="max-width: 200px; max-height: 150px;"
+                                                         onerror="this.style.display='none'"/>
+                                                </div>
+                                            </t>
+                                            <t t-else="">
+                                                <div class="mt-2">
+                                                    <span class="badge bg-warning">
+                                                        <i class="fa fa-exclamation-triangle"></i> Non fourni
+                                                    </span>
+                                                </div>
+                                            </t>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-image"></i> Verso de la carte
+                                            </label>
+                                            <input type="file" name="id_card_verso" class="form-control" accept="image/*,.pdf"/>
+                                            <t t-if="partner.id_card_verso">
+                                                <div class="mt-2 p-2 bg-light rounded">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa fa-check"></i> Document present
+                                                    </span>
+                                                    <span class="text-muted ms-2" t-if="partner.id_card_verso_filename">
+                                                        <t t-esc="partner.id_card_verso_filename"/>
+                                                    </span>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <img t-att-src="'/web/image/res.partner/%s/id_card_verso' % partner.id" 
+                                                         class="img-thumbnail" style="max-width: 200px; max-height: 150px;"
+                                                         onerror="this.style.display='none'"/>
+                                                </div>
+                                            </t>
+                                            <t t-else="">
+                                                <div class="mt-2">
+                                                    <span class="badge bg-warning">
+                                                        <i class="fa fa-exclamation-triangle"></i> Non fourni
+                                                    </span>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-upload"></i> Enregistrer
+                                        </button>
+                                        <a href="/my/home" class="btn btn-secondary ms-2">
+                                            <i class="fa fa-arrow-left"></i> Retour
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="fa fa-info-circle"></i> Pourquoi fournir ma carte d'identite ?</h6>
+                            <p class="mb-0">
+                                La copie de votre carte d'identite est necessaire pour la signature de votre contrat de location.
+                                Vos donnees sont traitees de maniere confidentielle et securisee.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
