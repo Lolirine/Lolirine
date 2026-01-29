@@ -1907,12 +1907,7 @@ class PoolCatalogExtractionProduct(models.Model):
                 vals['categ_id'] = category.id
                 _logger.info(f"Catégorie assignée: {category.name} (ID: {category.id})")
         
-        # Catégorie piscine (product.public.category) pour le site Pool Store
-        if self.category and 'pool_category_id' in ProductTemplate._fields:
-            pool_cat = self._get_pool_category()
-            if pool_cat:
-                vals['pool_category_id'] = pool_cat.id
-                _logger.info(f"Catégorie piscine assignée: {pool_cat.name} (ID: {pool_cat.id})")
+        # NOTE: La catégorie e-commerce (public_categ_ids) est déjà assignée plus haut via _get_public_category_ids()
         
         # Ajouter les attributs si le produit a une capacité ou variante
         # (seulement pour les nouveaux produits, pas les mises à jour)
@@ -2275,7 +2270,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('polaris', 'ROBOTS DE PISCINE'),
             ('zodiac mx', 'ROBOTS DE PISCINE'),
             ('dolphin', 'ROBOTS DE PISCINE'),
-            ('hayward', 'ROBOTS DE PISCINE'),  # souvent robots
             
             # ============================================
             # 02. CONSTRUCTION
@@ -2288,14 +2282,8 @@ class PoolCatalogExtractionProduct(models.Model):
             ('skimmer', 'CONSTRUCTION'),
             ('bonde de fond', 'CONSTRUCTION'),
             ('refoulement', 'CONSTRUCTION'),
-            ('bride', 'CONSTRUCTION'),
-            ('traverse', 'CONSTRUCTION'),
             ('margelle', 'CONSTRUCTION'),
             ('escalier piscine', 'CONSTRUCTION'),
-            ('coque', 'CONSTRUCTION'),
-            ('béton', 'CONSTRUCTION'),
-            ('coffrage', 'CONSTRUCTION'),
-            ('ferraillage', 'CONSTRUCTION'),
             ('étanchéité', 'CONSTRUCTION'),
             
             # ============================================
@@ -2309,11 +2297,10 @@ class PoolCatalogExtractionProduct(models.Model):
             ('lampe piscine', 'ÉCLAIRAGE'),
             ('ampoule piscine', 'ÉCLAIRAGE'),
             ('luminaire', 'ÉCLAIRAGE'),
-            ('niche', 'ÉCLAIRAGE'),  # niche de projecteur
             ('transformateur', 'ÉCLAIRAGE'),
             
             # ============================================
-            # 04. POMPES
+            # 04. POMPES (spécifiques avant générique)
             # ============================================
             ('pompe de circulation', 'POMPES'),
             ('pompe de filtration', 'POMPES'),
@@ -2321,7 +2308,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('pompe auto-amorçante', 'POMPES'),
             ('surpresseur', 'POMPES'),
             ('pompe doseuse', 'POMPES'),
-            # "pompe" seul en dernier pour éviter confusion avec "pompe à chaleur"
             
             # ============================================
             # 05. FILTRATION
@@ -2336,16 +2322,11 @@ class PoolCatalogExtractionProduct(models.Model):
             ('filtration', 'FILTRATION'),
             ('média filtrant', 'FILTRATION'),
             ('verre filtrant', 'FILTRATION'),
-            ('zéolite', 'FILTRATION'),
-            ('sable filtration', 'FILTRATION'),
             ('cartouche filtrante', 'FILTRATION'),
             ('filtre', 'FILTRATION'),
             ('vanne multivoies', 'FILTRATION'),
-            ('vanne 6 voies', 'FILTRATION'),
             ('crépine', 'FILTRATION'),
-            ('collecteur', 'FILTRATION'),
             ('manomètre', 'FILTRATION'),
-            ('purge', 'FILTRATION'),
             
             # ============================================
             # 06. CHAUFFAGE
@@ -2359,9 +2340,7 @@ class PoolCatalogExtractionProduct(models.Model):
             ('échangeur de chaleur', 'CHAUFFAGE'),
             ('chauffage solaire', 'CHAUFFAGE'),
             ('capteur solaire', 'CHAUFFAGE'),
-            ('panneau solaire piscine', 'CHAUFFAGE'),
             ('chauffage', 'CHAUFFAGE'),
-            ('chaudière piscine', 'CHAUFFAGE'),
             
             # ============================================
             # 07. TECHNIQUE DE MESURE ET DE CONTRÔLE / PRODUITS CHIMIQUES
@@ -2370,30 +2349,20 @@ class PoolCatalogExtractionProduct(models.Model):
             ('analyse', 'TECHNIQUE DE MESURE'),
             ('photomètre', 'TECHNIQUE DE MESURE'),
             ('bandelette', 'TECHNIQUE DE MESURE'),
-            ('trousse analyse', 'TECHNIQUE DE MESURE'),
             ('ph-mètre', 'TECHNIQUE DE MESURE'),
-            ('orp', 'TECHNIQUE DE MESURE'),
-            ('redox', 'TECHNIQUE DE MESURE'),
             ('sonde', 'TECHNIQUE DE MESURE'),
-            ('capteur ph', 'TECHNIQUE DE MESURE'),
             ('régulateur', 'TECHNIQUE DE MESURE'),
             ('contrôleur', 'TECHNIQUE DE MESURE'),
-            ('domotique piscine', 'TECHNIQUE DE MESURE'),
-            ('automatisme', 'TECHNIQUE DE MESURE'),
             ('coffret électrique', 'TECHNIQUE DE MESURE'),
             ('chlore', 'TECHNIQUE DE MESURE'),
             ('brome', 'TECHNIQUE DE MESURE'),
-            ('oxygène actif', 'TECHNIQUE DE MESURE'),
             ('algicide', 'TECHNIQUE DE MESURE'),
             ('floculant', 'TECHNIQUE DE MESURE'),
             ('ph+', 'TECHNIQUE DE MESURE'),
             ('ph-', 'TECHNIQUE DE MESURE'),
             ('produit chimique', 'TECHNIQUE DE MESURE'),
             ('chimie', 'TECHNIQUE DE MESURE'),
-            ('chemical', 'TECHNIQUE DE MESURE'),
             ('désinfectant', 'TECHNIQUE DE MESURE'),
-            ('anti-calcaire', 'TECHNIQUE DE MESURE'),
-            ('clarifiant', 'TECHNIQUE DE MESURE'),
             
             # ============================================
             # 08. TECHNIQUE DE TRAITEMENT DE L'EAU
@@ -2402,7 +2371,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('électrolyse', 'TRAITEMENT DE L\'EAU'),
             ('cellule électrolyse', 'TRAITEMENT DE L\'EAU'),
             ('sel piscine', 'TRAITEMENT DE L\'EAU'),
-            ('traitement au sel', 'TRAITEMENT DE L\'EAU'),
             ('uv piscine', 'TRAITEMENT DE L\'EAU'),
             ('stérilisateur', 'TRAITEMENT DE L\'EAU'),
             ('ozonateur', 'TRAITEMENT DE L\'EAU'),
@@ -2422,9 +2390,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('enrouleur', 'COUVERTURES'),
             ('bâche à bulles', 'COUVERTURES'),
             ('bâche hiver', 'COUVERTURES'),
-            ('filet', 'COUVERTURES'),
-            ('sangle', 'COUVERTURES'),
-            ('sandow', 'COUVERTURES'),
             
             # ============================================
             # 10. MAINTENANCE ET ACCESSOIRES
@@ -2438,24 +2403,14 @@ class PoolCatalogExtractionProduct(models.Model):
             ('aspirateur manuel', 'MAINTENANCE ET ACCESSOIRES'),
             ('thermomètre', 'MAINTENANCE ET ACCESSOIRES'),
             ('échelle', 'MAINTENANCE ET ACCESSOIRES'),
-            ('escalier amovible', 'MAINTENANCE ET ACCESSOIRES'),
-            ('main courante', 'MAINTENANCE ET ACCESSOIRES'),
             ('plongeoir', 'MAINTENANCE ET ACCESSOIRES'),
-            ('toboggan', 'MAINTENANCE ET ACCESSOIRES'),
-            ('jeux piscine', 'MAINTENANCE ET ACCESSOIRES'),
-            ('bouée', 'MAINTENANCE ET ACCESSOIRES'),
-            ('matelas', 'MAINTENANCE ET ACCESSOIRES'),
             ('accessoire', 'MAINTENANCE ET ACCESSOIRES'),
             ('maintenance', 'MAINTENANCE ET ACCESSOIRES'),
             ('entretien', 'MAINTENANCE ET ACCESSOIRES'),
             ('hivernage', 'MAINTENANCE ET ACCESSOIRES'),
-            ('gizzmo', 'MAINTENANCE ET ACCESSOIRES'),
-            ('flotteur', 'MAINTENANCE ET ACCESSOIRES'),
             ('douche', 'MAINTENANCE ET ACCESSOIRES'),
-            ('lave-pieds', 'MAINTENANCE ET ACCESSOIRES'),
             ('alarme piscine', 'MAINTENANCE ET ACCESSOIRES'),
             ('sécurité piscine', 'MAINTENANCE ET ACCESSOIRES'),
-            ('barrière', 'MAINTENANCE ET ACCESSOIRES'),
             
             # ============================================
             # 11. MATÉRIAUX DE CONNEXION
@@ -2476,7 +2431,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('flexible', 'MATÉRIAUX DE CONNEXION'),
             ('connexion', 'MATÉRIAUX DE CONNEXION'),
             ('plomberie', 'MATÉRIAUX DE CONNEXION'),
-            ('canalisation', 'MATÉRIAUX DE CONNEXION'),
             
             # ============================================
             # 12. IRRIGATION
@@ -2486,7 +2440,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('goutte à goutte', 'IRRIGATION'),
             ('asperseur', 'IRRIGATION'),
             ('programmateur arrosage', 'IRRIGATION'),
-            ('tuyau jardin', 'IRRIGATION'),
             ('pompe arrosage', 'IRRIGATION'),
             
             # ============================================
@@ -3087,393 +3040,312 @@ class PoolCatalogExtractionProduct(models.Model):
     
     def _get_public_category_ids(self, category_name):
         """
-        Trouve les catégories e-commerce publiques correspondant à la catégorie détectée.
-        Retourne une liste d'IDs de product.public.category.
+        Trouve ou crée les catégories e-commerce publiques correspondant à la catégorie détectée.
+        
+        Stratégie:
+        1. Identifier la catégorie PRINCIPALE parmi les 12 existantes
+        2. Si pertinent, créer une SOUS-CATÉGORIE plus spécifique
+        3. Retourner l'ID de la sous-catégorie (ou de la principale si pas de sous-cat)
+        
+        Catégories principales existantes:
+        01. ROBOTS DE PISCINE
+        02. CONSTRUCTION
+        03. ÉCLAIRAGE
+        04. POMPES
+        05. FILTRATION
+        06. CHAUFFAGE
+        07. TECHNIQUE DE MESURE ET DE CONTRÔLE / PRODUITS CHIMIQUES
+        08. TECHNIQUE DE TRAITEMENT DE L'EAU
+        09. COUVERTURES
+        10. MAINTENANCE ET ACCESSOIRES
+        11. MATÉRIAUX DE CONNEXION
+        12. IRRIGATION
         """
         if not category_name:
             return []
         
         PublicCategory = self.env['product.public.category'].sudo()
-        category_ids = []
         
-        # Mapping complet des catégories OCR vers catégories e-commerce
-        category_mapping = {
-            # =============================================
-            # POMPES À CHALEUR & CHAUFFAGE
-            # =============================================
-            'pompe à chaleur': ['Pompes à chaleur', 'Chauffage & PAC', 'Chauffage'],
-            'pompes à chaleur': ['Pompes à chaleur', 'Chauffage & PAC', 'Chauffage'],
-            'pac': ['Pompes à chaleur', 'Chauffage & PAC'],
-            'réchauffeur': ['Réchauffeurs électriques', 'Chauffage'],
-            'réchauffeur électrique': ['Réchauffeurs électriques', 'Chauffage'],
-            'échangeur': ['Échangeurs thermiques', 'Chauffage'],
-            'échangeur thermique': ['Échangeurs thermiques', 'Chauffage'],
-            'chauffage': ['Chauffage', 'Chauffage & PAC'],
-            
-            # =============================================
-            # POMPES DE FILTRATION
-            # =============================================
-            'pompe de filtration': ['Pompes de filtration', 'Pompes', 'Filtration'],
-            'pompe filtration': ['Pompes de filtration', 'Pompes'],
-            'pompe de circulation': ['Pompes de filtration', 'Pompes'],
-            'pompe à vitesse variable': ['Pompes de filtration', 'Pompes'],
-            'pompe nage contre-courant': ['Pompes nage contre-courant', 'Pompes'],
-            'nage contre courant': ['Pompes nage contre-courant', 'Pompes'],
-            'pompe doseuse': ['Pompes doseuses', 'Traitement de l\'eau'],
-            'pompe': ['Pompes', 'Équipements'],
-            
-            # =============================================
-            # FILTRATION
-            # =============================================
-            'filtre à sable': ['Filtres à sable', 'Filtration'],
-            'filtre sable': ['Filtres à sable', 'Filtration'],
-            'filtre à cartouche': ['Filtres à cartouche', 'Filtration'],
-            'filtre cartouche': ['Filtres à cartouche', 'Filtration'],
-            'filtre à diatomée': ['Filtres à diatomée', 'Filtration'],
-            'filtre diatomée': ['Filtres à diatomée', 'Filtration'],
-            'filtre à verre': ['Filtres à sable', 'Filtration'],  # Même catégorie
-            'filtration': ['Filtration', 'Filtres & Média filtrant'],
-            'filtre': ['Filtration', 'Filtres & Média filtrant'],
-            'média filtrant': ['Média filtrant', 'Filtration'],
-            'sable filtrant': ['Média filtrant', 'Filtration'],
-            'verre filtrant': ['Média filtrant', 'Filtration'],
-            'zeolite': ['Média filtrant', 'Filtration'],
-            'afm': ['Média filtrant', 'Filtration'],
-            'cartouche': ['Cartouches filtrantes', 'Filtration'],
-            
-            # =============================================
-            # ROBOTS NETTOYEURS
-            # =============================================
-            'robot électrique': ['Robots électriques', 'Robots automatiques', 'Nettoyage & Robots'],
-            'robot nettoyeur': ['Robots automatiques', 'Nettoyage & Robots'],
-            'robot piscine': ['Robots automatiques', 'Nettoyage & Robots'],
-            'robot hydraulique': ['Robots hydrauliques', 'Robots automatiques'],
-            'robot à pression': ['Robots à pression', 'Robots automatiques'],
-            'robot': ['Robots automatiques', 'Nettoyage & Robots'],
-            'balai automatique': ['Robots automatiques', 'Nettoyage & Robots'],
-            
-            # =============================================
-            # NETTOYAGE MANUEL
-            # =============================================
-            'nettoyage manuel': ['Nettoyage manuel', 'Nettoyage & Robots'],
-            'épuisette': ['Nettoyage manuel', 'Accessoires nettoyage'],
-            'brosse': ['Nettoyage manuel', 'Accessoires nettoyage'],
-            'balai': ['Nettoyage manuel', 'Accessoires nettoyage'],
-            'aspirateur manuel': ['Nettoyage manuel', 'Accessoires nettoyage'],
-            'manche télescopique': ['Nettoyage manuel', 'Accessoires nettoyage'],
-            'nettoyage': ['Nettoyage & Robots', 'Accessoires nettoyage'],
-            
-            # =============================================
-            # TRAITEMENT DE L'EAU
-            # =============================================
-            'électrolyseur': ['Électrolyseurs au sel', 'Traitement de l\'eau'],
-            'électrolyseur au sel': ['Électrolyseurs au sel', 'Traitement de l\'eau'],
-            'électrolyse': ['Électrolyseurs au sel', 'Traitement de l\'eau'],
-            'sel': ['Électrolyseurs au sel', 'Traitement de l\'eau'],
-            'régulateur ph': ['Régulateurs pH', 'Traitement de l\'eau'],
-            'régulateur chlore': ['Régulateurs chlore', 'Traitement de l\'eau'],
-            'régulateur': ['Traitement de l\'eau', 'Régulation automatique'],
-            'traitement uv': ['Traitement UV', 'Traitement de l\'eau'],
-            'stérilisateur uv': ['Traitement UV', 'Traitement de l\'eau'],
-            'uv': ['Traitement UV', 'Traitement de l\'eau'],
-            'ozonateur': ['Traitement ozone', 'Traitement de l\'eau'],
-            'ozone': ['Traitement ozone', 'Traitement de l\'eau'],
-            'chlorinateur': ['Traitement de l\'eau', 'Chlore & Brome'],
-            'traitement': ['Traitement de l\'eau', 'Produits traitement'],
-            
-            # =============================================
-            # PRODUITS CHIMIQUES
-            # =============================================
-            'chlore': ['Chlore & Brome', 'Produits chimiques'],
-            'brome': ['Chlore & Brome', 'Produits chimiques'],
-            'ph+': ['Équilibre pH', 'Produits chimiques'],
-            'ph-': ['Équilibre pH', 'Produits chimiques'],
-            'ph moins': ['Équilibre pH', 'Produits chimiques'],
-            'ph plus': ['Équilibre pH', 'Produits chimiques'],
-            'algicide': ['Anti-algues', 'Produits chimiques'],
-            'anti-algue': ['Anti-algues', 'Produits chimiques'],
-            'floculant': ['Floculants', 'Produits chimiques'],
-            'clarifiant': ['Floculants', 'Produits chimiques'],
-            'oxygène actif': ['Oxygène actif', 'Produits chimiques'],
-            'produit chimique': ['Produits chimiques', 'Traitement de l\'eau'],
-            'chimique': ['Produits chimiques', 'Traitement de l\'eau'],
-            
-            # =============================================
-            # ÉCLAIRAGE
-            # =============================================
-            'projecteur led': ['Projecteurs LED', 'Éclairage'],
-            'projecteur piscine': ['Projecteurs LED', 'Éclairage'],
-            'spot encastré': ['Spots encastrés', 'Éclairage'],
-            'spot piscine': ['Spots encastrés', 'Éclairage'],
-            'éclairage flottant': ['Éclairage flottant', 'Éclairage'],
-            'lampe flottante': ['Éclairage flottant', 'Éclairage'],
-            'éclairage': ['Éclairage', 'Éclairage LED'],
-            'led': ['Éclairage LED', 'Éclairage'],
-            'ampoule': ['Éclairage', 'Éclairage LED'],
-            
-            # =============================================
-            # COUVERTURES & BÂCHES
-            # =============================================
-            'couverture à barres': ['Couvertures à barres', 'Bâches & Couvertures'],
-            'bâche à barres': ['Couvertures à barres', 'Bâches & Couvertures'],
-            'bâche à bulles': ['Bâches à bulles', 'Bâches & Couvertures'],
-            'bâche été': ['Bâches à bulles', 'Bâches & Couvertures'],
-            'bâche hiver': ['Bâches hivernage', 'Bâches & Couvertures'],
-            'volet roulant': ['Volets roulants', 'Couvertures automatiques'],
-            'volet': ['Volets roulants', 'Couvertures automatiques'],
-            'couverture automatique': ['Couvertures automatiques', 'Bâches & Couvertures'],
-            'couverture': ['Bâches & Couvertures', 'Couvertures'],
-            'bâche': ['Bâches & Couvertures', 'Couvertures'],
-            
-            # =============================================
-            # ACCESSOIRES PISCINE
-            # =============================================
-            'échelle inox': ['Échelles inox', 'Échelles & Plongeoirs'],
-            'échelle amovible': ['Échelles amovibles', 'Échelles & Plongeoirs'],
-            'échelle': ['Échelles & Plongeoirs', 'Accessoires'],
-            'plongeoir': ['Plongeoirs', 'Échelles & Plongeoirs'],
-            'skimmer': ['Skimmers', 'Pièces à sceller'],
-            'buse de refoulement': ['Buses de refoulement', 'Pièces à sceller'],
-            'buse': ['Buses de refoulement', 'Pièces à sceller'],
-            'bonde de fond': ['Bondes de fond', 'Pièces à sceller'],
-            'prise balai': ['Prises balai', 'Pièces à sceller'],
-            'pièce à sceller': ['Pièces à sceller', 'Construction'],
-            
-            # =============================================
-            # LINER & REVÊTEMENTS
-            # =============================================
-            'liner': ['Liners', 'Liners & Revêtements'],
-            'membrane pvc': ['Membranes PVC', 'Liners & Revêtements'],
-            'revêtement': ['Liners & Revêtements', 'Construction'],
-            
-            # =============================================
-            # SÉCURITÉ
-            # =============================================
-            'alarme immersion': ['Alarmes immersion', 'Sécurité piscine'],
-            'alarme périmétrique': ['Alarmes périmétrique', 'Sécurité piscine'],
-            'alarme': ['Sécurité piscine', 'Alarmes'],
-            'barrière sécurité': ['Barrières de sécurité', 'Sécurité piscine'],
-            'barrière': ['Barrières de sécurité', 'Sécurité piscine'],
-            'sécurité': ['Sécurité piscine'],
-            
-            # =============================================
-            # DOUCHES & PÉDILUVES
-            # =============================================
-            'douche solaire': ['Douches solaires', 'Douches & Pédiluves'],
-            'douche inox': ['Douches inox', 'Douches & Pédiluves'],
-            'douche': ['Douches & Pédiluves', 'Accessoires'],
-            'pédiluve': ['Pédiluves', 'Douches & Pédiluves'],
-            'lave-pieds': ['Pédiluves', 'Douches & Pédiluves'],
-            
-            # =============================================
-            # SPAS & JACUZZIS
-            # =============================================
-            'spa gonflable': ['Spas gonflables', 'Spas & Jacuzzis'],
-            'spa encastrable': ['Spas encastrables', 'Spas & Jacuzzis'],
-            'spa': ['Spas & Jacuzzis', 'Espace Wellness'],
-            'jacuzzi': ['Spas & Jacuzzis', 'Espace Wellness'],
-            'accessoire spa': ['Accessoires spa', 'Spas & Jacuzzis'],
-            'wellness': ['Espace Wellness', 'Spas & Jacuzzis'],
-            'sauna': ['Saunas', 'Espace Wellness'],
-            'hammam': ['Hammams', 'Espace Wellness'],
-            
-            # =============================================
-            # LOCAL TECHNIQUE
-            # =============================================
-            'coffret électrique': ['Coffrets électriques', 'Local technique'],
-            'tableau électrique': ['Coffrets électriques', 'Local technique'],
-            'vanne': ['Vannes', 'Local technique'],
-            'vanne multivoie': ['Vannes', 'Local technique'],
-            'raccord': ['Raccords & Tuyauterie', 'Local technique'],
-            'tuyau': ['Raccords & Tuyauterie', 'Local technique'],
-            'tuyauterie': ['Raccords & Tuyauterie', 'Local technique'],
-            'local technique': ['Local technique', 'Équipements'],
-            
-            # =============================================
-            # CONSTRUCTION & BLOCS
-            # =============================================
-            'bloc polystyrène': ['Blocs polystyrène', 'Construction'],
-            'bloc piscine': ['Blocs polystyrène', 'Construction'],
-            'polystyrène': ['Blocs polystyrène', 'Construction'],
-            'margelle': ['Margelles & Dalles', 'Construction'],
-            'dalle': ['Margelles & Dalles', 'Construction'],
-            'margelles et dalles': ['Margelles & Dalles', 'Construction'],
-            'copings': ['Margelles & Dalles', 'Construction'],
-            'débordement': ['Système de débordement', 'Construction'],
-            'système débordement': ['Système de débordement', 'Construction'],
-            'goulotte': ['Système de débordement', 'Construction'],
-            'construction': ['Construction', 'Équipements'],
-            'outils construction': ['Outils construction', 'Construction'],
-            
-            # =============================================
-            # PIÈCES À SCELLER (étendu)
-            # =============================================
-            'traverse paroi': ['Traverses de paroi', 'Pièces à sceller'],
-            'traversée paroi': ['Traverses de paroi', 'Pièces à sceller'],
-            'prise balai': ['Prises balai', 'Pièces à sceller'],
-            'refoulement': ['Buses de refoulement', 'Pièces à sceller'],
-            
-            # =============================================
-            # TUYAUTERIE & PLOMBERIE
-            # =============================================
-            'tuyauterie pvc': ['Tuyauterie PVC', 'Tuyauterie & Plomberie'],
-            'tube pvc': ['Tuyauterie PVC', 'Tuyauterie & Plomberie'],
-            'raccord pvc': ['Raccords PVC', 'Tuyauterie & Plomberie'],
-            'raccord union': ['Raccords union', 'Tuyauterie & Plomberie'],
-            'vanne': ['Vannes', 'Tuyauterie & Plomberie'],
-            'vanne multivoie': ['Vannes', 'Tuyauterie & Plomberie'],
-            'clapet': ['Clapets & Voyants', 'Tuyauterie & Plomberie'],
-            'voyant': ['Clapets & Voyants', 'Tuyauterie & Plomberie'],
-            'colle pvc': ['Colles PVC', 'Tuyauterie & Plomberie'],
-            'colle': ['Colles PVC', 'Tuyauterie & Plomberie'],
-            'plomberie': ['Tuyauterie & Plomberie', 'Local technique'],
-            
-            # =============================================
-            # ÉTANCHÉITÉ & LINERS (étendu)
-            # =============================================
-            'liner armé': ['Liner armé', 'Étanchéité'],
-            'liner pvc': ['Liner armé', 'Étanchéité'],
-            'liner étang': ['Liner étang', 'Étanchéité'],
-            'bâche étang': ['Liner étang', 'Étanchéité'],
-            'accrochage liner': ['Accrochage liner', 'Étanchéité'],
-            'profilé liner': ['Accrochage liner', 'Étanchéité'],
-            'hung': ['Accrochage liner', 'Étanchéité'],
-            'feutre': ['Feutre géotextile', 'Étanchéité'],
-            'géotextile': ['Feutre géotextile', 'Étanchéité'],
-            'isolant': ['Feutre géotextile', 'Étanchéité'],
-            'étanchéité': ['Étanchéité', 'Construction'],
-            
-            # =============================================
-            # ÉCLAIRAGE (étendu)
-            # =============================================
-            'ampoule': ['Ampoules de remplacement', 'Éclairage'],
-            'ampoule remplacement': ['Ampoules de remplacement', 'Éclairage'],
-            'transformateur': ['Transformateurs éclairage', 'Éclairage'],
-            'transformateur éclairage': ['Transformateurs éclairage', 'Éclairage'],
-            'télécommande éclairage': ['Transformateurs éclairage', 'Éclairage'],
-            'boîte connexion': ['Boîtes de connexion', 'Éclairage'],
-            'boîte de connexion': ['Boîtes de connexion', 'Éclairage'],
-            'enjoliveur': ['Enjoliveurs projecteurs', 'Éclairage'],
-            'enjoliveur projecteur': ['Enjoliveurs projecteurs', 'Éclairage'],
-            'projecteur 300w': ['Projecteurs 300W', 'Éclairage'],
-            'projecteur halogène': ['Projecteurs 300W', 'Éclairage'],
-            
-            # =============================================
-            # ÉLECTRICITÉ & COMMANDE
-            # =============================================
-            'coffret électrique': ['Coffrets électriques', 'Local technique'],
-            'tableau électrique': ['Tableaux de commande', 'Local technique'],
-            'tableau de commande': ['Tableaux de commande', 'Local technique'],
-            'armoire électrique': ['Coffrets électriques', 'Local technique'],
-            'programmateur': ['Tableaux de commande', 'Local technique'],
-            
-            # =============================================
-            # DIVERS
-            # =============================================
-            'thermomètre': ['Thermomètres', 'Accessoires'],
-            'analyse eau': ['Analyse de l\'eau', 'Accessoires'],
-            'testeur': ['Analyse de l\'eau', 'Accessoires'],
-            'photomètre': ['Analyse de l\'eau', 'Accessoires'],
-            'accessoire': ['Accessoires piscine', 'Accessoires'],
-            'jouet': ['Jeux aquatiques', 'Accessoires'],
-            'jeu': ['Jeux aquatiques', 'Accessoires'],
-            'bouée': ['Jeux aquatiques', 'Accessoires'],
-            'matelas': ['Jeux aquatiques', 'Accessoires'],
-        }
+        # Normaliser et combiner catégorie + nom produit pour meilleure détection
+        cat_lower = category_name.lower() if category_name else ''
+        product_name = (self.name or '').lower()
+        combined_text = f"{cat_lower} {product_name}"
         
-        # Normaliser le nom de la catégorie
-        cat_lower = category_name.lower()
+        # Mapping: (mot-clé, catégorie_principale, sous_catégorie_à_créer)
+        # Si sous_catégorie est None, on utilise uniquement la catégorie principale
+        category_mapping = [
+            # ============================================
+            # 01. ROBOTS DE PISCINE
+            # ============================================
+            ('robot électrique', 'ROBOTS DE PISCINE', 'Robots électriques'),
+            ('robot hydraulique', 'ROBOTS DE PISCINE', 'Robots hydrauliques'),
+            ('robot à pression', 'ROBOTS DE PISCINE', 'Robots à pression'),
+            ('robot', 'ROBOTS DE PISCINE', None),
+            ('nettoyeur automatique', 'ROBOTS DE PISCINE', None),
+            ('aspirateur piscine', 'ROBOTS DE PISCINE', 'Aspirateurs'),
+            ('cleaner', 'ROBOTS DE PISCINE', None),
+            ('dolphin', 'ROBOTS DE PISCINE', 'Robots électriques'),
+            ('polaris', 'ROBOTS DE PISCINE', 'Robots à pression'),
+            ('zodiac', 'ROBOTS DE PISCINE', None),
+            
+            # ============================================
+            # 02. CONSTRUCTION
+            # ============================================
+            ('liner', 'CONSTRUCTION', 'Liners'),
+            ('membrane', 'CONSTRUCTION', 'Membranes & Étanchéité'),
+            ('skimmer', 'CONSTRUCTION', 'Pièces à sceller'),
+            ('bonde de fond', 'CONSTRUCTION', 'Pièces à sceller'),
+            ('refoulement', 'CONSTRUCTION', 'Pièces à sceller'),
+            ('buse', 'CONSTRUCTION', 'Pièces à sceller'),
+            ('prise balai', 'CONSTRUCTION', 'Pièces à sceller'),
+            ('pièce à sceller', 'CONSTRUCTION', 'Pièces à sceller'),
+            ('margelle', 'CONSTRUCTION', 'Margelles & Dalles'),
+            ('dalle', 'CONSTRUCTION', 'Margelles & Dalles'),
+            ('escalier piscine', 'CONSTRUCTION', 'Escaliers'),
+            ('bloc polystyrène', 'CONSTRUCTION', 'Blocs & Structure'),
+            ('coffrage', 'CONSTRUCTION', 'Blocs & Structure'),
+            ('construction', 'CONSTRUCTION', None),
+            ('rénovation', 'CONSTRUCTION', None),
+            ('étanchéité', 'CONSTRUCTION', 'Membranes & Étanchéité'),
+            
+            # ============================================
+            # 03. ÉCLAIRAGE
+            # ============================================
+            ('projecteur led', 'ÉCLAIRAGE', 'Projecteurs LED'),
+            ('projecteur', 'ÉCLAIRAGE', 'Projecteurs'),
+            ('spot', 'ÉCLAIRAGE', 'Spots encastrés'),
+            ('ampoule', 'ÉCLAIRAGE', 'Ampoules & Pièces'),
+            ('transformateur', 'ÉCLAIRAGE', 'Transformateurs'),
+            ('niche', 'ÉCLAIRAGE', 'Niches & Supports'),
+            ('éclairage', 'ÉCLAIRAGE', None),
+            ('eclairage', 'ÉCLAIRAGE', None),
+            ('led piscine', 'ÉCLAIRAGE', 'Projecteurs LED'),
+            ('luminaire', 'ÉCLAIRAGE', None),
+            
+            # ============================================
+            # 04. POMPES
+            # ============================================
+            ('pompe de filtration', 'POMPES', 'Pompes de filtration'),
+            ('pompe filtration', 'POMPES', 'Pompes de filtration'),
+            ('pompe de circulation', 'POMPES', 'Pompes de circulation'),
+            ('pompe à vitesse variable', 'POMPES', 'Pompes à vitesse variable'),
+            ('pompe variable', 'POMPES', 'Pompes à vitesse variable'),
+            ('pompe auto-amorçante', 'POMPES', 'Pompes auto-amorçantes'),
+            ('surpresseur', 'POMPES', 'Surpresseurs'),
+            ('pompe doseuse', 'POMPES', 'Pompes doseuses'),
+            ('nage contre courant', 'POMPES', 'Nage contre-courant'),
+            ('contre-courant', 'POMPES', 'Nage contre-courant'),
+            
+            # ============================================
+            # 05. FILTRATION
+            # ============================================
+            ('préfiltre', 'FILTRATION', 'Préfiltres'),
+            ('pré-filtre', 'FILTRATION', 'Préfiltres'),
+            ('multicyclone', 'FILTRATION', 'Préfiltres'),
+            ('hydrospin', 'FILTRATION', 'Préfiltres'),
+            ('filtre à sable', 'FILTRATION', 'Filtres à sable'),
+            ('filtre sable', 'FILTRATION', 'Filtres à sable'),
+            ('filtre à cartouche', 'FILTRATION', 'Filtres à cartouche'),
+            ('filtre cartouche', 'FILTRATION', 'Filtres à cartouche'),
+            ('filtre à diatomées', 'FILTRATION', 'Filtres à diatomées'),
+            ('filtre diatomée', 'FILTRATION', 'Filtres à diatomées'),
+            ('verre filtrant', 'FILTRATION', 'Média filtrant'),
+            ('média filtrant', 'FILTRATION', 'Média filtrant'),
+            ('zéolite', 'FILTRATION', 'Média filtrant'),
+            ('sable filtration', 'FILTRATION', 'Média filtrant'),
+            ('cartouche filtrante', 'FILTRATION', 'Cartouches filtrantes'),
+            ('vanne multivoies', 'FILTRATION', 'Vannes & Accessoires'),
+            ('vanne 6 voies', 'FILTRATION', 'Vannes & Accessoires'),
+            ('crépine', 'FILTRATION', 'Pièces détachées filtration'),
+            ('manomètre', 'FILTRATION', 'Pièces détachées filtration'),
+            ('filtration', 'FILTRATION', None),
+            ('filtre', 'FILTRATION', None),
+            
+            # ============================================
+            # 06. CHAUFFAGE
+            # ============================================
+            ('pompe à chaleur', 'CHAUFFAGE', 'Pompes à chaleur'),
+            ('pompes à chaleur', 'CHAUFFAGE', 'Pompes à chaleur'),
+            ('pac', 'CHAUFFAGE', 'Pompes à chaleur'),
+            ('heat pump', 'CHAUFFAGE', 'Pompes à chaleur'),
+            ('réchauffeur électrique', 'CHAUFFAGE', 'Réchauffeurs électriques'),
+            ('réchauffeur', 'CHAUFFAGE', 'Réchauffeurs électriques'),
+            ('échangeur thermique', 'CHAUFFAGE', 'Échangeurs thermiques'),
+            ('échangeur', 'CHAUFFAGE', 'Échangeurs thermiques'),
+            ('chauffage solaire', 'CHAUFFAGE', 'Chauffage solaire'),
+            ('capteur solaire', 'CHAUFFAGE', 'Chauffage solaire'),
+            ('chauffage', 'CHAUFFAGE', None),
+            
+            # ============================================
+            # 07. TECHNIQUE DE MESURE ET DE CONTRÔLE / PRODUITS CHIMIQUES
+            # ============================================
+            ('testeur', 'TECHNIQUE DE MESURE', 'Analyse & Test'),
+            ('photomètre', 'TECHNIQUE DE MESURE', 'Analyse & Test'),
+            ('bandelette', 'TECHNIQUE DE MESURE', 'Analyse & Test'),
+            ('trousse analyse', 'TECHNIQUE DE MESURE', 'Analyse & Test'),
+            ('analyse', 'TECHNIQUE DE MESURE', 'Analyse & Test'),
+            ('ph-mètre', 'TECHNIQUE DE MESURE', 'Sondes & Capteurs'),
+            ('sonde', 'TECHNIQUE DE MESURE', 'Sondes & Capteurs'),
+            ('capteur', 'TECHNIQUE DE MESURE', 'Sondes & Capteurs'),
+            ('régulateur', 'TECHNIQUE DE MESURE', 'Régulateurs automatiques'),
+            ('contrôleur', 'TECHNIQUE DE MESURE', 'Régulateurs automatiques'),
+            ('domotique', 'TECHNIQUE DE MESURE', 'Domotique piscine'),
+            ('coffret électrique', 'TECHNIQUE DE MESURE', 'Coffrets électriques'),
+            ('chlore', 'TECHNIQUE DE MESURE', 'Produits chimiques'),
+            ('brome', 'TECHNIQUE DE MESURE', 'Produits chimiques'),
+            ('algicide', 'TECHNIQUE DE MESURE', 'Produits chimiques'),
+            ('floculant', 'TECHNIQUE DE MESURE', 'Produits chimiques'),
+            ('ph+', 'TECHNIQUE DE MESURE', 'Produits chimiques'),
+            ('ph-', 'TECHNIQUE DE MESURE', 'Produits chimiques'),
+            ('produit chimique', 'TECHNIQUE DE MESURE', 'Produits chimiques'),
+            ('chimie', 'TECHNIQUE DE MESURE', 'Produits chimiques'),
+            
+            # ============================================
+            # 08. TECHNIQUE DE TRAITEMENT DE L'EAU
+            # ============================================
+            ('électrolyseur', 'TRAITEMENT DE L\'EAU', 'Électrolyseurs au sel'),
+            ('électrolyse', 'TRAITEMENT DE L\'EAU', 'Électrolyseurs au sel'),
+            ('cellule', 'TRAITEMENT DE L\'EAU', 'Cellules & Pièces'),
+            ('sel piscine', 'TRAITEMENT DE L\'EAU', 'Électrolyseurs au sel'),
+            ('uv piscine', 'TRAITEMENT DE L\'EAU', 'Traitement UV'),
+            ('stérilisateur', 'TRAITEMENT DE L\'EAU', 'Traitement UV'),
+            ('ozonateur', 'TRAITEMENT DE L\'EAU', 'Traitement ozone'),
+            ('ozone', 'TRAITEMENT DE L\'EAU', 'Traitement ozone'),
+            ('ioniseur', 'TRAITEMENT DE L\'EAU', 'Ioniseurs'),
+            ('traitement', 'TRAITEMENT DE L\'EAU', None),
+            
+            # ============================================
+            # 09. COUVERTURES
+            # ============================================
+            ('volet roulant', 'COUVERTURES', 'Volets roulants'),
+            ('volet', 'COUVERTURES', 'Volets roulants'),
+            ('bâche à bulles', 'COUVERTURES', 'Bâches à bulles'),
+            ('bâche été', 'COUVERTURES', 'Bâches à bulles'),
+            ('bâche hiver', 'COUVERTURES', 'Bâches hivernage'),
+            ('bâche à barres', 'COUVERTURES', 'Couvertures à barres'),
+            ('couverture à barres', 'COUVERTURES', 'Couvertures à barres'),
+            ('enrouleur', 'COUVERTURES', 'Enrouleurs'),
+            ('abri piscine', 'COUVERTURES', 'Abris'),
+            ('couverture', 'COUVERTURES', None),
+            ('bâche', 'COUVERTURES', None),
+            ('cover', 'COUVERTURES', None),
+            
+            # ============================================
+            # 10. MAINTENANCE ET ACCESSOIRES
+            # ============================================
+            ('épuisette', 'MAINTENANCE ET ACCESSOIRES', 'Nettoyage manuel'),
+            ('brosse', 'MAINTENANCE ET ACCESSOIRES', 'Nettoyage manuel'),
+            ('balai', 'MAINTENANCE ET ACCESSOIRES', 'Nettoyage manuel'),
+            ('manche téléscopique', 'MAINTENANCE ET ACCESSOIRES', 'Nettoyage manuel'),
+            ('perche', 'MAINTENANCE ET ACCESSOIRES', 'Nettoyage manuel'),
+            ('aspirateur manuel', 'MAINTENANCE ET ACCESSOIRES', 'Nettoyage manuel'),
+            ('échelle', 'MAINTENANCE ET ACCESSOIRES', 'Échelles & Plongeoirs'),
+            ('plongeoir', 'MAINTENANCE ET ACCESSOIRES', 'Échelles & Plongeoirs'),
+            ('main courante', 'MAINTENANCE ET ACCESSOIRES', 'Échelles & Plongeoirs'),
+            ('thermomètre', 'MAINTENANCE ET ACCESSOIRES', 'Accessoires divers'),
+            ('douche', 'MAINTENANCE ET ACCESSOIRES', 'Douches & Pédiluves'),
+            ('lave-pieds', 'MAINTENANCE ET ACCESSOIRES', 'Douches & Pédiluves'),
+            ('pédiluve', 'MAINTENANCE ET ACCESSOIRES', 'Douches & Pédiluves'),
+            ('alarme', 'MAINTENANCE ET ACCESSOIRES', 'Sécurité piscine'),
+            ('barrière', 'MAINTENANCE ET ACCESSOIRES', 'Sécurité piscine'),
+            ('sécurité', 'MAINTENANCE ET ACCESSOIRES', 'Sécurité piscine'),
+            ('hivernage', 'MAINTENANCE ET ACCESSOIRES', 'Hivernage'),
+            ('gizzmo', 'MAINTENANCE ET ACCESSOIRES', 'Hivernage'),
+            ('flotteur', 'MAINTENANCE ET ACCESSOIRES', 'Hivernage'),
+            ('jeux', 'MAINTENANCE ET ACCESSOIRES', 'Jeux & Loisirs'),
+            ('bouée', 'MAINTENANCE ET ACCESSOIRES', 'Jeux & Loisirs'),
+            ('matelas', 'MAINTENANCE ET ACCESSOIRES', 'Jeux & Loisirs'),
+            ('accessoire', 'MAINTENANCE ET ACCESSOIRES', None),
+            ('maintenance', 'MAINTENANCE ET ACCESSOIRES', None),
+            ('entretien', 'MAINTENANCE ET ACCESSOIRES', None),
+            
+            # ============================================
+            # 11. MATÉRIAUX DE CONNEXION
+            # ============================================
+            ('tuyau pvc', 'MATÉRIAUX DE CONNEXION', 'Tuyauterie PVC'),
+            ('tube pvc', 'MATÉRIAUX DE CONNEXION', 'Tuyauterie PVC'),
+            ('pvc pression', 'MATÉRIAUX DE CONNEXION', 'Tuyauterie PVC'),
+            ('raccord', 'MATÉRIAUX DE CONNEXION', 'Raccords'),
+            ('coude', 'MATÉRIAUX DE CONNEXION', 'Raccords'),
+            ('manchon', 'MATÉRIAUX DE CONNEXION', 'Raccords'),
+            ('réduction', 'MATÉRIAUX DE CONNEXION', 'Raccords'),
+            ('union', 'MATÉRIAUX DE CONNEXION', 'Raccords'),
+            ('té pvc', 'MATÉRIAUX DE CONNEXION', 'Raccords'),
+            ('vanne', 'MATÉRIAUX DE CONNEXION', 'Vannes'),
+            ('clapet', 'MATÉRIAUX DE CONNEXION', 'Vannes'),
+            ('colle pvc', 'MATÉRIAUX DE CONNEXION', 'Colles & Joints'),
+            ('joint', 'MATÉRIAUX DE CONNEXION', 'Colles & Joints'),
+            ('flexible', 'MATÉRIAUX DE CONNEXION', 'Flexibles'),
+            ('connexion', 'MATÉRIAUX DE CONNEXION', None),
+            ('plomberie', 'MATÉRIAUX DE CONNEXION', None),
+            
+            # ============================================
+            # 12. IRRIGATION
+            # ============================================
+            ('arrosage', 'IRRIGATION', 'Arrosage'),
+            ('goutte à goutte', 'IRRIGATION', 'Goutte à goutte'),
+            ('asperseur', 'IRRIGATION', 'Asperseurs'),
+            ('programmateur arrosage', 'IRRIGATION', 'Programmateurs'),
+            ('irrigation', 'IRRIGATION', None),
+            
+            # ============================================
+            # POMPES (en dernier pour éviter faux positifs avec PAC)
+            # ============================================
+            ('pompe', 'POMPES', None),
+            ('pump', 'POMPES', None),
+        ]
         
-        # Chercher dans le mapping - format: 'mot clé': ['sous-catégorie', 'catégorie parente']
-        matched_categories = []
-        for key, values in category_mapping.items():
-            if key in cat_lower:
-                # values = [sous-catégorie, catégorie parente]
-                if len(values) >= 2:
-                    matched_categories.append((values[0], values[1]))
-                elif len(values) == 1:
-                    matched_categories.append((values[0], None))
-                break  # Prendre le premier match
+        main_category_name = None
+        sub_category_name = None
         
-        # Si pas de match, utiliser le nom de catégorie directement
-        if not matched_categories:
-            matched_categories.append((category_name, 'Équipements piscine'))
+        # Chercher une correspondance
+        for keyword, main_cat, sub_cat in category_mapping:
+            if keyword in combined_text:
+                main_category_name = main_cat
+                sub_category_name = sub_cat
+                break
         
-        # Créer ou récupérer les catégories
-        for subcategory_name, parent_name in matched_categories:
-            category_id = self._get_or_create_public_category(subcategory_name, parent_name)
-            if category_id and category_id not in category_ids:
-                category_ids.append(category_id)
+        # Si pas de match, utiliser MAINTENANCE ET ACCESSOIRES par défaut
+        if not main_category_name:
+            main_category_name = 'MAINTENANCE ET ACCESSOIRES'
+            _logger.info(f"Pas de mapping pour '{category_name}', utilisation de la catégorie par défaut")
         
-        return category_ids
-    
-    def _get_or_create_public_category(self, category_name, parent_name=None):
-        """
-        Récupère ou crée une catégorie e-commerce publique.
-        Crée aussi la catégorie parente si nécessaire.
+        # 1. Trouver la catégorie PRINCIPALE (doit exister)
+        main_category = PublicCategory.search([('name', 'ilike', main_category_name)], limit=1)
         
-        Args:
-            category_name: Nom de la catégorie à créer/récupérer
-            parent_name: Nom de la catégorie parente (optionnel)
+        if not main_category:
+            _logger.warning(f"Catégorie principale '{main_category_name}' non trouvée !")
+            return []
         
-        Returns:
-            ID de la catégorie créée/trouvée
-        """
-        PublicCategory = self.env['product.public.category'].sudo()
+        _logger.info(f"Catégorie principale trouvée: '{main_category.name}' (ID: {main_category.id})")
         
-        parent_id = None
-        
-        # Si on a un parent, le chercher ou le créer
-        if parent_name:
-            parent_cat = PublicCategory.search([
-                ('name', '=', parent_name),
-                ('parent_id', '=', False),  # Catégorie racine
+        # 2. Si on a une sous-catégorie à créer/trouver
+        if sub_category_name:
+            # Chercher si la sous-catégorie existe déjà
+            sub_category = PublicCategory.search([
+                ('name', '=', sub_category_name),
+                ('parent_id', '=', main_category.id)
             ], limit=1)
             
-            if not parent_cat:
-                # Créer la catégorie parente
+            if not sub_category:
+                # Créer la sous-catégorie
                 try:
-                    parent_cat = PublicCategory.create({
-                        'name': parent_name,
-                        'parent_id': False,
+                    sub_category = PublicCategory.create({
+                        'name': sub_category_name,
+                        'parent_id': main_category.id,
                     })
-                    _logger.info(f"✅ Catégorie parente créée: {parent_name} (ID: {parent_cat.id})")
+                    _logger.info(f"✅ Sous-catégorie créée: '{sub_category_name}' sous '{main_category.name}' (ID: {sub_category.id})")
                 except Exception as e:
-                    _logger.warning(f"Impossible de créer la catégorie parente {parent_name}: {e}")
-                    parent_cat = None
+                    _logger.warning(f"Impossible de créer la sous-catégorie '{sub_category_name}': {e}")
+                    # Fallback: utiliser la catégorie principale
+                    return [main_category.id]
+            else:
+                _logger.info(f"Sous-catégorie existante: '{sub_category.name}' (ID: {sub_category.id})")
             
-            if parent_cat:
-                parent_id = parent_cat.id
+            return [sub_category.id]
         
-        # Chercher la catégorie (sous-catégorie)
-        domain = [('name', '=', category_name)]
-        if parent_id:
-            domain.append(('parent_id', '=', parent_id))
-        
-        category = PublicCategory.search(domain, limit=1)
-        
-        if not category:
-            # Chercher sans contrainte de parent (peut-être existe ailleurs)
-            category = PublicCategory.search([('name', '=', category_name)], limit=1)
-        
-        if not category:
-            # Créer la catégorie
-            try:
-                vals = {
-                    'name': category_name,
-                }
-                if parent_id:
-                    vals['parent_id'] = parent_id
-                
-                category = PublicCategory.create(vals)
-                _logger.info(f"✅ Sous-catégorie créée: {category_name} (ID: {category.id}, Parent: {parent_name or 'Aucun'})")
-            except Exception as e:
-                _logger.warning(f"Impossible de créer la catégorie {category_name}: {e}")
-                return None
-        else:
-            _logger.info(f"Catégorie existante: {category.name} (ID: {category.id})")
-        
-        return category.id if category else None
+        # Pas de sous-catégorie, retourner la catégorie principale
+        return [main_category.id]
     
     @api.model
     def search_images_custom_query(self, product_id, query):
