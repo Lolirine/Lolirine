@@ -167,6 +167,21 @@ class PoolCatalogExtraction(models.Model):
 
 IMPORTANT: Détecte s'il s'agit d'un produit unique, d'un produit avec variantes (tableau avec différentes tailles/capacités/prix), ou de plusieurs produits distincts.
 
+EXTRACTION DES PRIX - TRÈS IMPORTANT:
+- Les prix sont souvent dans une colonne nommée "EURO", "PRIX", "€", "PVP", "TARIF" ou similaire
+- Pour chaque ligne d'un tableau, extrais le prix correspondant
+- Le prix doit être un NOMBRE sans symbole € (ex: 0.34, 12.25, 690)
+- Si le prix est formaté avec virgule européenne (ex: "€0,34"), convertis en point décimal (0.34)
+- Si plusieurs colonnes de prix existent (HT/TTC), prends le prix HT
+- Ne laisse JAMAIS purchase_price à 0 si un prix est visible dans le tableau !
+
+TABLEAUX DE VARIANTES (Raccords PVC, accessoires, etc.):
+- Souvent organisés en colonnes: DIMENSION | RÉF. | PN | EURO
+- Chaque ligne du tableau = une variante avec son propre prix
+- La dimension (32mm, 40mm, 50mm, 63mm, 75mm, 110mm...) va dans "capacity" ou "variant_name"
+- La référence (AA808, AA809...) va dans "reference"
+- Le prix de la colonne EURO va dans "purchase_price"
+
 Extrais les informations au format JSON suivant:
 
 {
@@ -207,6 +222,7 @@ Extrais les informations au format JSON suivant:
         "color_temperature_k": null,
         "lifespan_hours": null,
         "pressure_bar": null,
+        "pressure_pn": null,
         "suction_flow_m3h": null,
         "autonomy_hours": null,
         "battery_voltage": null,
@@ -280,10 +296,10 @@ Extrais les informations au format JSON suivant:
     "products": [
         {
             "type_code": "code type/modèle",
-            "reference": "référence fournisseur",
+            "reference": "référence fournisseur (ex: AA808, AA809)",
             "variant_name": "nom de la variante si applicable",
-            "capacity": "capacité si applicable",
-            "purchase_price": 0,
+            "capacity": "capacité/dimension si applicable (ex: 32mm, 40mm, 50mm)",
+            "purchase_price": 0.34,
             "selling_price": 0,
             "specifications": {
                 "power_kw": null,
@@ -294,7 +310,9 @@ Extrais les informations au format JSON suivant:
                 "pool_volume_max": null,
                 "cable_length_m": null,
                 "cycle_time_hours": null,
-                "coverage_m2": null
+                "coverage_m2": null,
+                "diameter_mm": null,
+                "pressure_pn": null
             }
         }
     ]
@@ -361,18 +379,25 @@ CATÉGORIES DE PRODUITS (utiliser ces valeurs exactes):
 - Outils construction
 - Tuyauterie PVC
 - Raccords PVC
+- Manchons PVC
+- Coudes PVC
+- Tés PVC
+- Réductions PVC
 - Vannes
 - Clapets et voyants
 - Colles PVC
 - Raccords union
 - Coffrets électriques
 - Tableaux de commande
+- Préfiltres
 
 Notes:
 - Pour un tableau de variantes, crée un objet dans "products" pour chaque ligne
-- Les prix doivent être des nombres (pas de symboles € ou espaces)
+- OBLIGATOIRE: Les prix doivent être des nombres décimaux (0.34 pas "€0,34")
+- Convertis les virgules européennes en points décimaux (1,49 → 1.49)
 - Si tu ne trouves pas une information, utilise null
 - Adapte les spécifications extraites au type de produit détecté
+- Pour les raccords PVC: extrais TOUTES les lignes du tableau avec dimension, référence et prix
 - Pour les robots: privilégie cable_length, cycle_time, coverage, wall_climbing
 - Pour les filtres: privilégie filter_area, filter_capacity, fineness_microns
 - Pour l'éclairage: privilégie lumens, color_temperature, ip_rating, rgb_led
@@ -380,6 +405,14 @@ Notes:
 - Pour les liners: privilégie thickness_mm, dimensions, color
 - Pour la tuyauterie: privilégie diameter_mm, pressure_bar, material
 - Pour les pièces à sceller: privilégie diameter_mm, flow_rate, material
+
+EXEMPLE pour un tableau de raccords PVC:
+Si tu vois un tableau avec colonnes DIMENSION|RÉF.|PN|EURO:
+32mm | AA808 | 10 | €0,34
+40mm | AA809 | 10 | €0,69
+50mm | AA810 | 10 | €0,88
+
+Tu dois créer 3 entrées dans "products" avec purchase_price: 0.34, 0.69, 0.88 respectivement.
 
 Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire ni backticks."""
 
