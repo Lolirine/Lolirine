@@ -1727,7 +1727,15 @@ class PoolCatalogExtractionProduct(models.Model):
             supplier = rec.extraction_id.supplier_id if rec.extraction_id else False
             catalog_price = rec.purchase_price or 0
             
-            if supplier and supplier.discount_ids and catalog_price > 0:
+            # Vérifier si le fournisseur a une grille de remises (nouveau champ)
+            has_discounts = (
+                supplier and 
+                hasattr(supplier, 'discount_ids') and 
+                supplier.discount_ids and 
+                catalog_price > 0
+            )
+            
+            if has_discounts:
                 # Utiliser la méthode du fournisseur pour calculer les prix
                 price_info = supplier.calculate_prices(
                     catalog_price=catalog_price,
@@ -1787,8 +1795,16 @@ class PoolCatalogExtractionProduct(models.Model):
         catalog_price = float(self.purchase_price or 0)
         selling_price = float(self.selling_price or 0)
         
+        # Vérifier si le fournisseur a une grille de remises (nouveau champ)
+        has_discounts = (
+            supplier and 
+            hasattr(supplier, 'discount_ids') and 
+            supplier.discount_ids and 
+            catalog_price > 0
+        )
+        
         # Appliquer la remise fournisseur si disponible
-        if supplier and supplier.discount_ids and catalog_price > 0:
+        if has_discounts:
             price_info = supplier.calculate_prices(
                 catalog_price=catalog_price,
                 category_name=self.category,
