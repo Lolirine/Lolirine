@@ -123,6 +123,32 @@ class SaleOrder(models.Model):
             )
             return False
 
+    def action_switch_to_location(self):
+        """Passer du modèle Réservation au modèle Location (sans conditions générales)"""
+        self.ensure_one()
+        
+        # Chercher le modèle "Location de box mensuelle"
+        location_template = self.env['sale.order.template'].search([
+            ('name', '=', 'Location de box mensuelle')
+        ], limit=1)
+        
+        if not location_template:
+            # Fallback sur ID 2
+            location_template = self.env['sale.order.template'].browse(2)
+        
+        # Changer le modèle et vider la note
+        self.write({
+            'sale_order_template_id': location_template.id,
+            'note': False,
+        })
+        
+        self.message_post(
+            body="✅ Modèle changé vers 'Location de box mensuelle' - Conditions générales retirées",
+            message_type='notification'
+        )
+        
+        return True
+
     def action_send_contract(self):
         self.ensure_one()
         template = self.env.ref("lolirine_contract.email_template_contract", raise_if_not_found=False)
