@@ -106,6 +106,14 @@ class PoolCatalogExtraction(models.Model):
     product_image_detected = fields.Boolean(string='Image détectée', default=False)
     product_image_position = fields.Char(string='Position image')
     
+    # Images multiples détectées dans le catalogue
+    detected_images_data = fields.Text(string='Images détectées (JSON)', help='Coordonnées des images détectées par OCR')
+    catalog_image_ids = fields.One2many(
+        'pool.catalog.extraction.image',
+        'extraction_id',
+        string='Images du catalogue'
+    )
+    
     @api.depends('supplier_id', 'create_date')
     def _compute_name(self):
         for rec in self:
@@ -288,11 +296,17 @@ Extrais les informations au format JSON suivant:
         "transformer_included": true/false,
         "mounting_type": "type de montage (encastré, saillie, sur paroi, etc.)"
     },
-    "product_image": {
-        "detected": true/false,
-        "position": "position de l'image (coin inférieur gauche, centre, etc.)",
-        "description": "description courte de l'image du produit"
-    },
+    "detected_images": [
+        {
+            "reference": "référence du produit associé (ou null si image générale)",
+            "type_code": "code type si applicable",
+            "description": "description courte de l'image",
+            "x_percent": 5,
+            "y_percent": 10,
+            "width_percent": 20,
+            "height_percent": 25
+        }
+    ],
     "products": [
         {
             "type_code": "code type/modèle",
@@ -391,6 +405,15 @@ CATÉGORIES DE PRODUITS (utiliser ces valeurs exactes):
 - Tableaux de commande
 - Préfiltres
 
+DÉTECTION DES IMAGES PRODUITS - TRÈS IMPORTANT:
+Pour chaque image de produit visible dans le catalogue, indique ses coordonnées en POURCENTAGE de l'image totale.
+- x_percent: position horizontale du coin supérieur gauche (0 = bord gauche, 100 = bord droit)
+- y_percent: position verticale du coin supérieur gauche (0 = haut, 100 = bas)
+- width_percent: largeur de l'image en % de la largeur totale
+- height_percent: hauteur de l'image en % de la hauteur totale
+- Associe chaque image à sa référence produit si visible (ou null si image générale/ambiguë)
+- Détecte TOUTES les photos de produits, même les petites vignettes
+
 Notes:
 - Pour un tableau de variantes, crée un objet dans "products" pour chaque ligne
 - OBLIGATOIRE: Les prix doivent être des nombres décimaux (0.34 pas "€0,34")
@@ -413,6 +436,16 @@ Si tu vois un tableau avec colonnes DIMENSION|RÉF.|PN|EURO:
 50mm | AA810 | 10 | €0,88
 
 Tu dois créer 3 entrées dans "products" avec purchase_price: 0.34, 0.69, 0.88 respectivement.
+
+EXEMPLE pour les images détectées:
+Si tu vois 2 photos de produits sur la page:
+- Une photo de refoulement en haut à gauche (référence WEL-250-0106 visible)
+- Une photo d'accessoire au milieu (référence 64170 visible)
+
+"detected_images": [
+    {"reference": "WEL-250-0106", "type_code": null, "description": "Refoulement blanc", "x_percent": 2, "y_percent": 5, "width_percent": 15, "height_percent": 20},
+    {"reference": "64170", "type_code": null, "description": "Accessoire couleur", "x_percent": 2, "y_percent": 45, "width_percent": 12, "height_percent": 15}
+]
 
 Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire ni backticks."""
 
@@ -511,23 +544,37 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire ni backticks."""
         extraction_type = data.get('extraction_type', 'single')
         self.extraction_type = extraction_type
         
-        # Supprimer les anciens produits extraits
+        # Supprimer les anciens produits extraits et images
         self.extracted_product_ids.unlink()
+        if hasattr(self, 'catalog_image_ids'):
+            self.catalog_image_ids.unlink()
         
         # Informations de base du produit
         base_product = data.get('base_product', {})
         base_specs = data.get('specifications', {})
         info_attrs = data.get('informative_attributes', {})
-        product_image_info = data.get('product_image', {})
         
         # Stocker les attributs informatifs au niveau de l'extraction
         self._process_informative_attributes(info_attrs)
         
-        # Stocker les informations sur l'image produit
-        if product_image_info.get('detected'):
+        # =============================================
+        # TRAITEMENT DES IMAGES DÉTECTÉES
+        # =============================================
+        detected_images = data.get('detected_images', [])
+        if detected_images:
+            self.detected_images_data = json.dumps(detected_images, ensure_ascii=False)
+            self.product_image_detected = True
+            _logger.info(f"📸 {len(detected_images)} image(s) détectée(s) dans le catalogue")
+            
+            # Découper et stocker les images
+            self._process_detected_images(detected_images)
+        
+        # Rétrocompatibilité avec l'ancien format "product_image"
+        product_image_info = data.get('product_image', {})
+        if product_image_info.get('detected') and not detected_images:
             self.product_image_detected = True
             self.product_image_position = product_image_info.get('position', '')
-            _logger.info(f"Image produit détectée: {product_image_info.get('description', '')}")
+            _logger.info(f"Image produit détectée (ancien format): {product_image_info.get('description', '')}")
         
         # Créer les produits extraits
         products_data = data.get('products', [])
@@ -940,6 +987,89 @@ Réponds UNIQUEMENT avec le JSON."""
             _logger.warning("PIL non disponible pour découpe d'image")
         except Exception as e:
             _logger.error(f"Erreur découpe image: {str(e)}")
+    
+    def _process_detected_images(self, detected_images):
+        """
+        Découpe et stocke toutes les images détectées dans le catalogue.
+        
+        Args:
+            detected_images: Liste des images avec coordonnées en pourcentage
+        """
+        self.ensure_one()
+        
+        if not self.image or not detected_images:
+            return
+        
+        try:
+            from PIL import Image
+            import io
+            
+            # Décoder l'image source
+            image_bytes = base64.b64decode(self.image)
+            img = Image.open(io.BytesIO(image_bytes))
+            width, height = img.size
+            
+            _logger.info(f"📐 Image source: {width}x{height}px, {len(detected_images)} zones à découper")
+            
+            CatalogImage = self.env['pool.catalog.extraction.image']
+            
+            for idx, img_data in enumerate(detected_images):
+                try:
+                    # Extraire les coordonnées
+                    x_pct = img_data.get('x_percent', 0) or 0
+                    y_pct = img_data.get('y_percent', 0) or 0
+                    w_pct = img_data.get('width_percent', 20) or 20
+                    h_pct = img_data.get('height_percent', 20) or 20
+                    
+                    # Calculer les pixels
+                    x = int(width * x_pct / 100)
+                    y = int(height * y_pct / 100)
+                    w = int(width * w_pct / 100)
+                    h = int(height * h_pct / 100)
+                    
+                    # Vérifier les limites
+                    x = max(0, min(x, width - 10))
+                    y = max(0, min(y, height - 10))
+                    w = max(10, min(w, width - x))
+                    h = max(10, min(h, height - y))
+                    
+                    # Découper
+                    cropped = img.crop((x, y, x + w, y + h))
+                    
+                    # Convertir en base64
+                    output = io.BytesIO()
+                    cropped.save(output, format='PNG', optimize=True)
+                    output.seek(0)
+                    image_base64 = base64.b64encode(output.getvalue())
+                    
+                    # Créer l'enregistrement
+                    CatalogImage.create({
+                        'extraction_id': self.id,
+                        'sequence': idx,
+                        'reference': img_data.get('reference') or '',
+                        'type_code': img_data.get('type_code') or '',
+                        'description': img_data.get('description') or f'Image {idx + 1}',
+                        'image': image_base64,
+                        'x_percent': x_pct,
+                        'y_percent': y_pct,
+                        'width_percent': w_pct,
+                        'height_percent': h_pct,
+                    })
+                    
+                    _logger.info(f"✂️ Image {idx + 1} découpée: {w}x{h}px, ref={img_data.get('reference')}")
+                    
+                except Exception as e:
+                    _logger.warning(f"Erreur découpe image {idx + 1}: {str(e)}")
+                    continue
+            
+            # Stocker la première image comme image principale de l'extraction
+            if self.catalog_image_ids:
+                self.extracted_product_image = self.catalog_image_ids[0].image
+                
+        except ImportError:
+            _logger.warning("PIL non disponible pour découpe d'images multiples")
+        except Exception as e:
+            _logger.error(f"Erreur traitement images catalogue: {str(e)}")
     
     def _parse_price(self, value):
         """Parse un prix en float, gère différents formats"""
@@ -1522,6 +1652,89 @@ Réponds UNIQUEMENT avec le JSON."""
             _logger.error(f"Erreur dans create_from_upload: {str(e)}")
             _logger.exception("Traceback:")
             raise
+
+
+class PoolCatalogExtractionImage(models.Model):
+    """
+    Image découpée depuis une capture de catalogue.
+    Permet de stocker plusieurs images par extraction avec leurs coordonnées.
+    """
+    _name = 'pool.catalog.extraction.image'
+    _description = 'Image catalogue extraite'
+    _order = 'extraction_id, sequence'
+
+    extraction_id = fields.Many2one(
+        'pool.catalog.extraction',
+        string='Extraction',
+        required=True,
+        ondelete='cascade'
+    )
+    sequence = fields.Integer(default=10)
+    
+    # Identification
+    reference = fields.Char(string='Référence produit', help='Référence du produit associé à cette image')
+    type_code = fields.Char(string='Code type')
+    description = fields.Char(string='Description')
+    
+    # Image
+    image = fields.Binary(string='Image', attachment=True)
+    
+    # Coordonnées de découpe (pour référence)
+    x_percent = fields.Float(string='X (%)')
+    y_percent = fields.Float(string='Y (%)')
+    width_percent = fields.Float(string='Largeur (%)')
+    height_percent = fields.Float(string='Hauteur (%)')
+    
+    # Lien avec le produit extrait (calculé)
+    extracted_product_id = fields.Many2one(
+        'pool.catalog.extraction.product',
+        string='Produit extrait',
+        compute='_compute_extracted_product',
+        store=True
+    )
+    
+    # État
+    assigned = fields.Boolean(string='Assignée', default=False, help='Image déjà assignée à un produit Odoo')
+    
+    @api.depends('reference', 'type_code', 'extraction_id.extracted_product_ids')
+    def _compute_extracted_product(self):
+        """Associe automatiquement l'image au produit extrait correspondant."""
+        for img in self:
+            product = False
+            if img.extraction_id and (img.reference or img.type_code):
+                # Chercher par référence
+                if img.reference:
+                    product = img.extraction_id.extracted_product_ids.filtered(
+                        lambda p: p.reference == img.reference or p.type_code == img.reference
+                    )
+                # Sinon par type_code
+                if not product and img.type_code:
+                    product = img.extraction_id.extracted_product_ids.filtered(
+                        lambda p: p.type_code == img.type_code or p.reference == img.type_code
+                    )
+            img.extracted_product_id = product[0].id if product else False
+    
+    def get_matching_products(self):
+        """
+        Retourne tous les produits extraits qui pourraient correspondre à cette image.
+        Utile quand une image peut s'appliquer à plusieurs variantes.
+        """
+        self.ensure_one()
+        if not self.extraction_id:
+            return self.env['pool.catalog.extraction.product']
+        
+        # Si pas de référence, l'image peut s'appliquer à tous les produits
+        if not self.reference and not self.type_code:
+            return self.extraction_id.extracted_product_ids
+        
+        # Sinon, chercher les correspondances
+        matching = self.extraction_id.extracted_product_ids.filtered(
+            lambda p: (
+                (self.reference and (p.reference == self.reference or p.type_code == self.reference)) or
+                (self.type_code and (p.type_code == self.type_code or p.reference == self.type_code))
+            )
+        )
+        return matching if matching else self.extraction_id.extracted_product_ids
 
 
 class PoolCatalogExtractionProduct(models.Model):
@@ -2211,35 +2424,109 @@ class PoolCatalogExtractionProduct(models.Model):
                 _logger.warning(f"Impossible d'ajouter l'attribut {attr_name}: {str(e)}")
     
     def _add_product_image(self, product):
-        """Ajoute l'image produit extraite au produit Odoo"""
+        """
+        Ajoute les images extraites au produit Odoo :
+        - Image principale depuis l'extraction
+        - Images secondaires depuis le catalogue (images découpées)
+        """
         self.ensure_one()
         
+        ProductImage = self.env['product.image']
+        images_added = 0
+        
+        # =============================================
+        # 1. IMAGE PRINCIPALE
+        # =============================================
+        
         # Essayer d'abord l'image extraite du produit
-        image_data = self.product_image
+        main_image = self.product_image
+        
+        # Sinon, chercher dans les images du catalogue qui correspondent
+        if not main_image and hasattr(self.extraction_id, 'catalog_image_ids'):
+            matching_images = self.extraction_id.catalog_image_ids.filtered(
+                lambda img: (
+                    (img.reference and (img.reference == self.reference or img.reference == self.type_code)) or
+                    (img.type_code and (img.type_code == self.type_code or img.type_code == self.reference))
+                )
+            )
+            if matching_images:
+                main_image = matching_images[0].image
         
         # Sinon, utiliser l'image extraite de l'extraction parent
-        if not image_data and self.extraction_id.extracted_product_image:
-            image_data = self.extraction_id.extracted_product_image
+        if not main_image and self.extraction_id.extracted_product_image:
+            main_image = self.extraction_id.extracted_product_image
         
-        if not image_data:
-            return
+        # Ajouter l'image principale
+        if main_image:
+            try:
+                if not product.image_1920:
+                    product.image_1920 = main_image
+                    images_added += 1
+                    _logger.info(f"📸 Image principale ajoutée au produit {product.id}")
+                else:
+                    # Ajouter comme image supplémentaire
+                    ProductImage.create({
+                        'product_tmpl_id': product.id,
+                        'name': f"Image catalogue - {self.name}",
+                        'image_1920': main_image,
+                    })
+                    images_added += 1
+                    _logger.info(f"📸 Image catalogue ajoutée comme secondaire au produit {product.id}")
+            except Exception as e:
+                _logger.warning(f"Impossible d'ajouter l'image principale: {str(e)}")
         
-        try:
-            # Ajouter comme image principale si pas d'image
-            if not product.image_1920:
-                product.image_1920 = image_data
-                _logger.info(f"Image principale ajoutée au produit {product.id}")
-            else:
-                # Ajouter comme image supplémentaire
-                self.env['product.image'].create({
-                    'product_tmpl_id': product.id,
-                    'name': f"Image catalogue - {self.name}",
-                    'image_1920': image_data,
-                })
-                _logger.info(f"Image supplémentaire ajoutée au produit {product.id}")
-                
-        except Exception as e:
-            _logger.warning(f"Impossible d'ajouter l'image: {str(e)}")
+        # =============================================
+        # 2. IMAGES SECONDAIRES DU CATALOGUE
+        # =============================================
+        
+        if hasattr(self.extraction_id, 'catalog_image_ids') and self.extraction_id.catalog_image_ids:
+            # Trouver toutes les images qui correspondent à ce produit
+            matching_images = self.extraction_id.catalog_image_ids.filtered(
+                lambda img: (
+                    not img.assigned and  # Pas encore assignée
+                    (
+                        # Correspondance par référence
+                        (img.reference and (img.reference == self.reference or img.reference == self.type_code)) or
+                        (img.type_code and (img.type_code == self.type_code or img.type_code == self.reference)) or
+                        # Ou image sans référence (générale) - on l'ajoute à tous
+                        (not img.reference and not img.type_code)
+                    )
+                )
+            )
+            
+            # Exclure l'image déjà utilisée comme principale
+            if main_image and matching_images:
+                matching_images = matching_images.filtered(lambda img: img.image != main_image)
+            
+            for catalog_img in matching_images:
+                if not catalog_img.image:
+                    continue
+                    
+                try:
+                    # Vérifier si l'image n'existe pas déjà sur le produit
+                    existing = ProductImage.search([
+                        ('product_tmpl_id', '=', product.id),
+                        ('name', '=', f"Catalogue - {catalog_img.description or catalog_img.reference}")
+                    ], limit=1)
+                    
+                    if not existing:
+                        ProductImage.create({
+                            'product_tmpl_id': product.id,
+                            'name': f"Catalogue - {catalog_img.description or catalog_img.reference or 'Image'}",
+                            'image_1920': catalog_img.image,
+                        })
+                        images_added += 1
+                        
+                        # Marquer l'image comme assignée
+                        catalog_img.assigned = True
+                        
+                        _logger.info(f"📸 Image secondaire '{catalog_img.description}' ajoutée au produit {product.id}")
+                        
+                except Exception as e:
+                    _logger.warning(f"Impossible d'ajouter l'image secondaire: {str(e)}")
+        
+        if images_added > 0:
+            _logger.info(f"✅ {images_added} image(s) ajoutée(s) au produit {product.name}")
     
     def _create_dropship_info(self, product):
         """Crée les informations dropshipping pour un produit importé"""
