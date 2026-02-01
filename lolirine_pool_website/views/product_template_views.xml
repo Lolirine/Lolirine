@@ -7,7 +7,8 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='sale_ok']" position="after">
+            <!-- CORRECTIF: Ajouter après le type de produit, pas après sale_ok -->
+            <xpath expr="//field[@name='type']" position="after">
                 <field name="is_pool_product"/>
             </xpath>
         </field>
@@ -87,7 +88,7 @@
         </field>
     </record>
     
-    <!-- Vue list catégorie piscine (Odoo 19: list au lieu de tree) -->
+    <!-- Vue list catégorie piscine -->
     <record id="pool_website_category_list" model="ir.ui.view">
         <field name="name">pool.website.category.list</field>
         <field name="model">pool.website.category</field>
