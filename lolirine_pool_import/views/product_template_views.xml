@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+    
+    <!-- ================================================
+         CORRECTIF: Cacher is_storable orphelin
+         Priorité haute (99) pour s'exécuter en dernier
+         ================================================ -->
+    <record id="product_template_form_fix_is_storable" model="ir.ui.view">
+        <field name="name">product.template.form.fix.is_storable</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <!-- Cacher le champ is_storable s'il est mal positionné (orphelin) -->
+            <xpath expr="//field[@name='is_storable'][not(ancestor::div[contains(@class,'oe_button_box')])]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+    
     <!-- Product Template Form Extension -->
     <record id="product_template_form_pool" model="ir.ui.view">
         <field name="name">product.template.form.pool</field>
@@ -99,5 +117,6 @@
         <field name="domain">[('x_pool_supplier_id', '!=', False)]</field>
         <field name="context">{'search_default_pool_products': 1}</field>
     </record>
-</data>
+
+    </data>
 </odoo>
