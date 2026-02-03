@@ -276,7 +276,7 @@
                 <separator/>
                 <filter string="A traiter" name="to_process" domain="[('state', 'in', ('draft', 'scanned', 'extracted', 'validated'))]"/>
                 <separator/>
-                <filter string="Ce mois" name="this_month" domain="[('create_date', '>=', (context_today() - relativedelta(day=1)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Ce mois" name="this_month" domain="[('create_date', '>=', (context_today()).strftime('%Y-%m-01'))]"/>
                 <separator/>
                 <group expand="0" string="Grouper par">
                     <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
