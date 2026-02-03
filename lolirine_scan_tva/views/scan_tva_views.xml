@@ -1,143 +1,84 @@
+cat > /home/odoo/src/user/lolirine_scan_tva/views/scan_tva_views.xml << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vue formulaire principale -->
     <record id="view_lolirine_scan_tva_form" model="ir.ui.view">
         <field name="name">lolirine.scan.tva.form</field>
         <field name="model">lolirine.scan.tva</field>
         <field name="arch" type="xml">
             <form string="Scan TVA">
                 <header>
-                    <button name="action_scan_ocr" 
-                            type="object" 
-                            string="Extraire (OCR)" 
-                            class="btn-primary"
-                            icon="fa-magic"
-                            invisible="state not in ('draft', 'scanned')"/>
-                    <button name="action_manual_extract" 
-                            type="object" 
-                            string="Extraction manuelle" 
-                            class="btn-secondary"
-                            icon="fa-pencil"
-                            invisible="state not in ('draft', 'scanned', 'extracted')"/>
-                    <button name="action_validate" 
-                            type="object" 
-                            string="Valider" 
-                            class="btn-primary"
-                            icon="fa-check"
-                            invisible="state != 'extracted'"/>
-                    <button name="action_create_invoice" 
-                            type="object" 
-                            string="Creer la facture" 
-                            class="btn-primary"
-                            icon="fa-file-text-o"
-                            invisible="state != 'validated'"/>
-                    <button name="action_view_invoice" 
-                            type="object" 
-                            string="Voir la facture" 
-                            class="btn-secondary"
-                            icon="fa-external-link"
-                            invisible="state != 'invoiced'"/>
-                    <button name="action_reset_draft" 
-                            type="object" 
-                            string="Remettre en brouillon" 
-                            invisible="state in ('draft', 'invoiced')"/>
-                    <button name="action_cancel" 
-                            type="object" 
-                            string="Annuler" 
-                            invisible="state in ('cancelled', 'invoiced')"/>
+                    <button name="action_scan_ocr" type="object" string="Extraire OCR" class="btn-primary" invisible="not document or state not in ('draft', 'scanned')"/>
+                    <button name="action_manual_extract" type="object" string="Saisie manuelle" class="btn-secondary" invisible="state not in ('draft', 'scanned', 'extracted')"/>
+                    <button name="action_validate" type="object" string="Valider" class="btn-primary" invisible="state != 'extracted'"/>
+                    <button name="action_create_invoice" type="object" string="Creer facture" class="btn-primary" invisible="state != 'validated'"/>
+                    <button name="action_view_invoice" type="object" string="Voir facture" invisible="state != 'invoiced'"/>
+                    <button name="action_archive_document" type="object" string="Archiver document" invisible="not document"/>
+                    <button name="action_reset_draft" type="object" string="Brouillon" invisible="state in ('draft', 'invoiced')"/>
+                    <button name="action_cancel" type="object" string="Annuler" invisible="state in ('cancelled', 'invoiced')"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,scanned,extracted,validated,invoiced"/>
                 </header>
-                
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_view_invoice" 
-                                type="object" 
-                                class="oe_stat_button" 
-                                icon="fa-file-text-o"
-                                invisible="not invoice_id">
+                        <button name="action_view_invoice" type="object" class="oe_stat_button" icon="fa-file-text-o" invisible="not invoice_id">
                             <field name="invoice_id" widget="statinfo" string="Facture"/>
                         </button>
                     </div>
-                    
-                    <div class="oe_title">
-                        <h1>
-                            <field name="name" readonly="1"/>
-                        </h1>
-                    </div>
-                    
-                    <group>
-                        <group string="Document">
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group string="Document">
+                        <group>
                             <field name="document" filename="document_filename" widget="binary"/>
                             <field name="document_filename" invisible="1"/>
                             <field name="document_type"/>
                         </group>
-                        <group string="Apercu">
-                            <field name="document_preview" widget="image" class="oe_avatar" 
-                                   options="{'size': [300, 400]}" invisible="not document"/>
-                            <div invisible="document" class="text-muted">
-                                <i class="fa fa-upload fa-3x"/>
-                                <p>Uploadez un document pour voir l'apercu</p>
-                            </div>
+                        <group>
+                            <field name="document_preview" widget="image" options="{'size': [300, 400]}" invisible="not document"/>
                         </group>
                     </group>
-                    
-                    <notebook>
-                        <page string="Informations extraites" name="extracted">
-                            <group>
-                                <group string="Fournisseur">
-                                    <field name="supplier_vat" placeholder="BE0123456789"/>
-                                    <field name="partner_exists" invisible="1"/>
-                                    <div colspan="2" class="alert alert-success" role="alert" 
-                                         invisible="not partner_exists">
-                                        <i class="fa fa-check-circle"/> Fournisseur trouve dans la base
-                                    </div>
-                                    <div colspan="2" class="alert alert-info" role="alert" 
-                                         invisible="partner_exists or not supplier_vat">
-                                        <i class="fa fa-info-circle"/> Nouveau fournisseur - sera cree automatiquement
-                                    </div>
-                                    <field name="partner_id" domain="[('supplier_rank', '>', 0)]"/>
-                                    <field name="supplier_name"/>
-                                    <field name="supplier_street"/>
-                                    <field name="supplier_zip"/>
-                                    <field name="supplier_city"/>
-                                    <field name="supplier_country_id"/>
-                                    <field name="supplier_phone"/>
-                                    <field name="supplier_email"/>
-                                </group>
-                                <group string="Facture">
-                                    <field name="invoice_number"/>
-                                    <field name="invoice_date"/>
-                                    <field name="tax_rate"/>
-                                    <field name="currency_id" groups="base.group_multi_currency"/>
-                                    <field name="amount_untaxed"/>
-                                    <field name="amount_tax"/>
-                                    <field name="amount_total"/>
-                                </group>
-                            </group>
-                            
-                            <group string="Comptabilite">
-                                <group>
-                                    <field name="account_id" 
-                                           domain="[('account_type', 'in', ('expense', 'expense_direct_cost'))]"
-                                           options="{'no_create': True}"/>
-                                </group>
-                                <group>
-                                    <field name="company_id" groups="base.group_multi_company"/>
-                                    <field name="user_id"/>
-                                </group>
-                            </group>
-                        </page>
-                        
-                        <page string="Texte OCR" name="ocr">
-                            <field name="ocr_text" readonly="1" placeholder="Le texte extrait par OCR apparaitra ici..."/>
-                        </page>
-                        
-                        <page string="Notes" name="notes">
-                            <field name="notes" placeholder="Notes supplementaires..."/>
-                        </page>
-                    </notebook>
+                    <group string="Texte OCR" invisible="not ocr_text">
+                        <field name="ocr_text" readonly="1" nolabel="1"/>
+                    </group>
+                    <group string="Fournisseur">
+                        <group>
+                            <field name="supplier_vat"/>
+                            <field name="partner_id"/>
+                            <field name="partner_exists" invisible="1"/>
+                            <field name="supplier_name"/>
+                        </group>
+                        <group>
+                            <field name="supplier_street"/>
+                            <field name="supplier_zip"/>
+                            <field name="supplier_city"/>
+                            <field name="supplier_country_id"/>
+                            <field name="supplier_phone"/>
+                            <field name="supplier_email"/>
+                        </group>
+                    </group>
+                    <group string="Facture">
+                        <group>
+                            <field name="invoice_number"/>
+                            <field name="invoice_date"/>
+                            <field name="tax_rate"/>
+                        </group>
+                        <group>
+                            <field name="amount_untaxed"/>
+                            <field name="amount_tax"/>
+                            <field name="amount_total"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                        </group>
+                    </group>
+                    <group string="Comptabilite">
+                        <group>
+                            <field name="account_id"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="user_id"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1"/>
+                    </group>
                 </sheet>
-                
                 <div class="oe_chatter">
                     <field name="message_follower_ids"/>
                     <field name="activity_ids"/>
@@ -146,146 +87,55 @@
             </form>
         </field>
     </record>
-    
-    <!-- Vue liste -->
     <record id="view_lolirine_scan_tva_list" model="ir.ui.view">
         <field name="name">lolirine.scan.tva.list</field>
         <field name="model">lolirine.scan.tva</field>
         <field name="arch" type="xml">
-            <list string="Scans TVA" decoration-info="state == 'draft'" decoration-warning="state == 'extracted'" decoration-success="state == 'invoiced'" decoration-muted="state == 'cancelled'">
+            <list>
                 <field name="name"/>
-                <field name="create_date" string="Date scan"/>
+                <field name="create_date"/>
                 <field name="supplier_vat"/>
                 <field name="supplier_name"/>
                 <field name="partner_id"/>
-                <field name="invoice_number"/>
                 <field name="invoice_date"/>
                 <field name="amount_total" sum="Total"/>
-                <field name="state" widget="badge" 
-                       decoration-info="state == 'draft'"
-                       decoration-warning="state in ('scanned', 'extracted')"
-                       decoration-success="state in ('validated', 'invoiced')"
-                       decoration-danger="state == 'cancelled'"/>
-                <field name="invoice_id" optional="show"/>
+                <field name="state"/>
             </list>
         </field>
     </record>
-    
-    <!-- Vue kanban -->
-    <record id="view_lolirine_scan_tva_kanban" model="ir.ui.view">
-        <field name="name">lolirine.scan.tva.kanban</field>
-        <field name="model">lolirine.scan.tva</field>
-        <field name="arch" type="xml">
-            <kanban class="o_kanban_mobile" default_group_by="state">
-                <field name="name"/>
-                <field name="supplier_name"/>
-                <field name="supplier_vat"/>
-                <field name="amount_total"/>
-                <field name="state"/>
-                <field name="document"/>
-                <templates>
-                    <t t-name="kanban-box">
-                        <div class="oe_kanban_card oe_kanban_global_click">
-                            <div class="row">
-                                <div class="col-4">
-                                    <field name="document" widget="image" 
-                                           options="{'size': [80, 100]}"
-                                           class="oe_kanban_image"/>
-                                </div>
-                                <div class="col-8">
-                                    <strong><field name="name"/></strong>
-                                    <div><field name="supplier_name"/></div>
-                                    <div class="text-muted"><field name="supplier_vat"/></div>
-                                    <div class="mt-2">
-                                        <strong><field name="amount_total" widget="monetary"/></strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </t>
-                </templates>
-            </kanban>
-        </field>
-    </record>
-    
-    <!-- Vue recherche -->
     <record id="view_lolirine_scan_tva_search" model="ir.ui.view">
         <field name="name">lolirine.scan.tva.search</field>
         <field name="model">lolirine.scan.tva</field>
         <field name="arch" type="xml">
-            <search string="Recherche scans TVA">
+            <search>
                 <field name="name"/>
                 <field name="supplier_vat"/>
                 <field name="supplier_name"/>
-                <field name="partner_id"/>
-                <field name="invoice_number"/>
-                <separator/>
-                <filter string="Brouillons" name="draft" domain="[('state', '=', 'draft')]"/>
-                <filter string="Scannes" name="scanned" domain="[('state', '=', 'scanned')]"/>
-                <filter string="Extraits" name="extracted" domain="[('state', '=', 'extracted')]"/>
-                <filter string="Valides" name="validated" domain="[('state', '=', 'validated')]"/>
-                <filter string="Factures" name="invoiced" domain="[('state', '=', 'invoiced')]"/>
-                <separator/>
-                <filter string="A traiter" name="to_process" domain="[('state', 'in', ('draft', 'scanned', 'extracted', 'validated'))]"/>
-                <separator/>
-
-                <separator/>
-                <group expand="0" string="Grouper par">
-                    <filter string="Etat" name="group_state" context="{'group_by': 'state'}"/>
-                    <filter string="Fournisseur" name="group_partner" context="{'group_by': 'partner_id'}"/>
-                    <filter string="Mois" name="group_month" context="{'group_by': 'create_date:month'}"/>
-                </group>
             </search>
         </field>
     </record>
-    
-    <!-- Action principale -->
     <record id="action_lolirine_scan_tva" model="ir.actions.act_window">
         <field name="name">Scans TVA</field>
         <field name="res_model">lolirine.scan.tva</field>
-        <field name="view_mode">list,kanban,form</field>
-        <field name="context">{'search_default_to_process': 1}</field>
-        <field name="search_view_id" ref="view_lolirine_scan_tva_search"/>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Scanner une nouvelle souche TVA
-            </p>
-            <p>
-                Uploadez ou scannez vos tickets et factures fournisseurs pour extraire
-                automatiquement les informations et creer les ecritures comptables.
-            </p>
-        </field>
+        <field name="view_mode">list,form</field>
     </record>
-    
-    <!-- Action pour créer un nouveau scan -->
     <record id="action_lolirine_scan_tva_new" model="ir.actions.act_window">
         <field name="name">Nouveau scan</field>
         <field name="res_model">lolirine.scan.tva.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
-    
-    <!-- Extension de la vue partenaire -->
     <record id="view_partner_form_scan_tva" model="ir.ui.view">
         <field name="name">res.partner.form.scan.tva</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_view_scan_tva" 
-                        type="object" 
-                        class="oe_stat_button" 
-                        icon="fa-qrcode"
-                        invisible="supplier_rank == 0">
+                <button name="action_view_scan_tva" type="object" class="oe_stat_button" icon="fa-qrcode" invisible="supplier_rank == 0">
                     <field name="scan_tva_count" widget="statinfo" string="Scans TVA"/>
                 </button>
-            </xpath>
-            <xpath expr="//page[@name='accounting']" position="inside">
-                <group string="Compte de charge par defaut" invisible="supplier_rank == 0">
-                    <field name="property_account_expense_id" 
-                           domain="[('account_type', 'in', ('expense', 'expense_direct_cost'))]"/>
-                </group>
             </xpath>
         </field>
     </record>
 </odoo>
+EOF
