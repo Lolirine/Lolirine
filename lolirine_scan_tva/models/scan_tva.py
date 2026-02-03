@@ -2,9 +2,12 @@ import base64
 import re
 import logging
 from datetime import datetime, date
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
+
 _logger = logging.getLogger(__name__)
+
 # Essayer d'importer les bibliothèques OCR
 try:
     import pytesseract
@@ -14,15 +17,19 @@ try:
 except ImportError:
     OCR_AVAILABLE = False
     _logger.warning("pytesseract ou PIL non disponible. L'OCR ne fonctionnera pas.")
+
 try:
     from pdf2image import convert_from_bytes
     PDF_AVAILABLE = True
 except ImportError:
     PDF_AVAILABLE = False
     _logger.warning("pdf2image non disponible. La conversion PDF ne fonctionnera pas.")
+
+
 class LolirineScanTva(models.Model):
     _name = "lolirine.scan.tva"
     _description = "Scan de souche TVA"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "create_date desc"
 
     name = fields.Char(
@@ -40,9 +47,9 @@ class LolirineScanTva(models.Model):
         ('validated', 'Valide'),
         ('invoiced', 'Facture creee'),
         ('cancelled', 'Annule'),
-    ], string="Etat", default='draft')
+    ], string="Etat", default='draft', tracking=True)
     
-    # Document source (attachment=False pour éviter intégration automatique module Documents)
+    # Document source
     document_type = fields.Selection([
         ('image', 'Image'),
         ('pdf', 'PDF'),
@@ -50,7 +57,7 @@ class LolirineScanTva(models.Model):
     
     document = fields.Binary(
         string="Document",
-        attachment=False,
+        attachment=True,
         help="Image ou PDF de la souche TVA"
     )
     document_filename = fields.Char(string="Nom du fichier")
@@ -71,12 +78,12 @@ class LolirineScanTva(models.Model):
     # Informations extraites - Fournisseur
     supplier_vat = fields.Char(
         string="Numero TVA",
-        
+        tracking=True,
         help="Numero de TVA du fournisseur (format BE0123456789)"
     )
     supplier_name = fields.Char(
         string="Nom du fournisseur",
-        
+        tracking=True
     )
     supplier_street = fields.Char(string="Adresse")
     supplier_zip = fields.Char(string="Code postal")
@@ -94,7 +101,7 @@ class LolirineScanTva(models.Model):
         "res.partner",
         string="Fournisseur",
         domain="[('supplier_rank', '>', 0)]",
-        
+        tracking=True
     )
     partner_exists = fields.Boolean(
         string="Fournisseur existant",
@@ -104,29 +111,29 @@ class LolirineScanTva(models.Model):
     # Informations facture
     invoice_number = fields.Char(
         string="Numero facture/ticket",
-        
+        tracking=True
     )
     invoice_date = fields.Date(
         string="Date de facture",
         default=fields.Date.today,
-        
+        tracking=True
     )
     
     # Montants
     amount_untaxed = fields.Monetary(
         string="Montant HT",
         currency_field='currency_id',
-        
+        tracking=True
     )
     amount_tax = fields.Monetary(
         string="Montant TVA",
         currency_field='currency_id',
-        
+        tracking=True
     )
     amount_total = fields.Monetary(
         string="Montant TTC",
         currency_field='currency_id',
-        
+        tracking=True
     )
     tax_rate = fields.Selection([
         ('0', '0%'),
@@ -343,7 +350,10 @@ class LolirineScanTva(models.Model):
             _logger.info("Contenu:\n%s", ocr_text[:2000] if ocr_text else "(vide)")
             
             if not ocr_text.strip():
-                _logger.warning("Aucun texte n'a pu etre extrait du document.")
+                self.message_post(
+                    body=_("Aucun texte n'a pu etre extrait du document. Essayez avec une meilleure qualite d'image."),
+                    message_type='notification'
+                )
                 self.state = 'scanned'
                 return
             
@@ -351,7 +361,11 @@ class LolirineScanTva(models.Model):
             self._extract_data_from_ocr(ocr_text)
             
             self.state = 'extracted'
-            _logger.info("Document scanne et donnees extraites avec succes.")
+            
+            self.message_post(
+                body=_("Document scanne et donnees extraites avec succes."),
+                message_type='notification'
+            )
             
         except UserError:
             raise
@@ -397,63 +411,26 @@ class LolirineScanTva(models.Model):
         _logger.info("Type de document detecte: %s", doc_type)
         
         # ========================================
-        # EXTRACTION DU NUMÉRO DE TVA BELGE (FOURNISSEUR)
+        # EXTRACTION DU NUMÉRO DE TVA BELGE
         # ========================================
-        # IMPORTANT: Identifier la section "Client" pour l'exclure
-        # Le TVA après "Client:" est celui du CLIENT, pas du fournisseur
-        client_section_start = -1
-        for marker in ['CLIENT:', 'CLIENT :', 'KLANT:', 'KLANT :', 'CLIENT\n', 'KLANT\n']:
-            pos = text_upper.find(marker)
-            if pos != -1:
-                client_section_start = pos
-                _logger.info("Section client trouvee a position %d", pos)
-                break
-        
-        # Texte à analyser pour le fournisseur (AVANT la section client)
-        if client_section_start > 0:
-            supplier_text_upper = text_upper[:client_section_start]
-            supplier_text = text[:client_section_start]
-        else:
-            supplier_text_upper = text_upper
-            supplier_text = text
-        
-        _logger.info("Texte fournisseur (avant section client): %d caracteres", len(supplier_text_upper))
-        
-        # Patterns TVA améliorés pour gérer les erreurs OCR courantes
-        # TV4 au lieu de TVA, virgules au lieu de points, espaces, etc.
         vat_patterns = [
-            # Pattern standard
-            r'TVA?\s*:?\s*(BE\s*0?\d{3}[\.\s,]?\d{3}[\.\s,]?\d{3})',
-            # TV4, TV8 (erreurs OCR courantes)
-            r'TV[A48]\s*:?\s*(BE\s*0?\d{3}[\.\s,]?\d{3}[\.\s,]?\d{3})',
-            # BTW (néerlandais)
-            r'BTW\s*:?\s*(BE\s*0?\d{3}[\.\s,]?\d{3}[\.\s,]?\d{3})',
-            # Numéro entreprise/TVA
-            r'N[°o]?\s*(?:TVA|ENTREPRISE)\s*:?\s*(BE\s*0?\d{3}[\.\s,]?\d{3}[\.\s,]?\d{3})',
-            # BE suivi de chiffres avec séparateurs variés
-            r'(BE\s*0\d{3}[\.\s,]?\d{3}[\.\s,]?\d{3})',
-            # Format compact
+            r'TVA\s*:?\s*(BE\s*0?\d{3}[\.\s]?\d{3}[\.\s]?\d{3})',
+            r'BTW\s*:?\s*(BE\s*0?\d{3}[\.\s]?\d{3}[\.\s]?\d{3})',
+            r'N[°o]?\s*(?:TVA|ENTREPRISE)\s*:?\s*(BE\s*0?\d{3}[\.\s]?\d{3}[\.\s]?\d{3})',
+            r'(BE\s*0\d{3}[\.\s]?\d{3}[\.\s]?\d{3})',
             r'(BE0\d{9})',
         ]
-        
         for pattern in vat_patterns:
-            match = re.search(pattern, supplier_text_upper)
+            match = re.search(pattern, text_upper)
             if match:
                 vat = match.group(1) if match.lastindex else match.group(0)
-                # Nettoyer : enlever espaces, points, virgules
-                vat = re.sub(r'[\s\.,]', '', vat)
+                vat = re.sub(r'[\s\.]', '', vat)
                 if not vat.startswith('BE'):
                     vat = 'BE' + vat
-                # Valider le format final
                 if re.match(r'^BE0\d{9}$', vat):
                     self.supplier_vat = vat
-                    _logger.info("TVA fournisseur trouvee: %s (pattern: %s)", vat, pattern)
+                    _logger.info("TVA trouvee: %s", vat)
                     break
-                else:
-                    _logger.warning("TVA invalide apres nettoyage: %s", vat)
-        
-        if not self.supplier_vat:
-            _logger.warning("Aucun TVA fournisseur trouve dans la section fournisseur")
         
         # ========================================
         # EXTRACTION DU NOM DU FOURNISSEUR
@@ -469,25 +446,21 @@ class LolirineScanTva(models.Model):
             'ORANGE': 'Orange',
             'TOTAL ENERGIES': 'TotalEnergies',
             'TOTALENERGIES': 'TotalEnergies',
-            'TOTAL BOUGE': 'TotalEnergies Bouge',
             'SHELL': 'Shell',
             'TEXACO': 'Texaco',
             'Q8': 'Q8',
             'LUKOIL': 'Lukoil',
             'ESSO': 'Esso',
-            'DEBE SERVICES': 'DEBE Services SRL',
         }
         
         for key, name in known_suppliers.items():
-            if key in supplier_text_upper:
+            if key in text_upper:
                 self.supplier_name = name
                 _logger.info("Fournisseur connu: %s", name)
                 break
         
         if not self.supplier_name:
-            # Chercher un nom de société (SRL, SPRL, SA, etc.) dans la section fournisseur
-            supplier_lines = supplier_text.split('\n')
-            for line in supplier_lines[:15]:  # Premières 15 lignes
+            for line in text_lines[:10]:
                 line = line.strip()
                 if line and len(line) > 3:
                     skip_keywords = ['TVA', 'BTW', 'FACTURE', 'DATE', 'TOTAL', 'CLIENT', 
@@ -499,21 +472,14 @@ class LolirineScanTva(models.Model):
                         continue
                     if re.match(r'^\d{4}\s+\w+$', line):
                         continue
-                    # Priorité aux lignes avec forme juridique
                     if re.search(r'\b(SRL|SPRL|SA|NV|BVBA|BV)\b', line.upper()):
                         self.supplier_name = line.strip()
-                        _logger.info("Nom fournisseur (forme juridique): %s", self.supplier_name)
                         break
-            
-            # Si toujours pas trouvé, prendre la première ligne significative
-            if not self.supplier_name:
-                for line in supplier_lines[:10]:
-                    line = line.strip()
-                    if line and len(line) > 5 and not any(kw in line.upper() for kw in ['TVA', 'BTW', 'FACTURE', 'DATE']):
-                        if not re.match(r'^[\d\s\-\.\,\/\:]+$', line):
-                            self.supplier_name = line
-                            _logger.info("Nom fournisseur (premiere ligne): %s", self.supplier_name)
-                            break
+                    if len(line) > 5:
+                        self.supplier_name = line
+                        break
+            if self.supplier_name:
+                _logger.info("Nom fournisseur: %s", self.supplier_name)
         
         # ========================================
         # EXTRACTION DE L'ADRESSE
@@ -559,33 +525,21 @@ class LolirineScanTva(models.Model):
         # --- STATION ESSENCE ---
         elif doc_type == 'station':
             # Format tableau: taux% Net TVA
-            # Le texte OCR peut avoir des espaces et caractères parasites : "Ï 21.00 € 58 98 € 12.38"
-            # Patterns avec espaces optionnels dans les nombres
-            tva_table_patterns = [
-                # Pattern avec espaces dans les montants : "21.00 € 58 98 € 12.38"
-                r'[^\d]*(\d{1,2})[\.,]00\s*€?\s*(\d+)\s+(\d{2})\s*€?\s*(\d+)[\.,](\d{2})',
-                # Pattern standard : "21.00 € 58.98 € 12.38"
-                r'[^\d]*(\d{1,2})[\.,]00\s*€?\s*(\d+)[\.,](\d{2})\s*€?\s*(\d+)[\.,](\d{2})',
-            ]
-            for pattern in tva_table_patterns:
-                match = re.search(pattern, text)
-                if match:
-                    groups = match.groups()
-                    rate = groups[0]
-                    self.amount_untaxed = float(f"{groups[1]}.{groups[2]}")
-                    self.amount_tax = float(f"{groups[3]}.{groups[4]}")
-                    self.amount_total = round(self.amount_untaxed + self.amount_tax, 2)
-                    if rate in ('0', '6', '12', '21'):
-                        self.tax_rate = rate
-                    _logger.info("Station tableau: rate=%s, HT=%s, TVA=%s, TTC=%s", 
-                                rate, self.amount_untaxed, self.amount_tax, self.amount_total)
-                    break
-            
-            # Si pas trouvé via tableau, chercher TOTAL seul
+            tva_table = r'(\d{1,2})[\.,]00\s*€?\s*(\d+[\.,]\d{2})\s*€?\s*(\d+[\.,]\d{2})'
+            match = re.search(tva_table, text)
+            if match:
+                rate = match.group(1)
+                self.amount_untaxed = float(match.group(2).replace(',', '.'))
+                self.amount_tax = float(match.group(3).replace(',', '.'))
+                self.amount_total = round(self.amount_untaxed + self.amount_tax, 2)
+                if rate in ('0', '6', '12', '21'):
+                    self.tax_rate = rate
+                _logger.info("Station tableau: HT=%s, TVA=%s, TTC=%s", 
+                            self.amount_untaxed, self.amount_tax, self.amount_total)
             if not self.amount_total:
-                match = re.search(r'TOTAL\s*[€:]?\s*(\d+)[\.,](\d{2})', text_upper)
+                match = re.search(r'TOTAL\s*€?\s*(\d+[\.,]\d{2})', text_upper)
                 if match:
-                    self.amount_total = float(f"{match.group(1)}.{match.group(2)}")
+                    self.amount_total = float(match.group(1).replace(',', '.'))
         
         # --- TELECOM (Proximus, Orange) ---
         elif doc_type == 'telecom':
@@ -729,7 +683,11 @@ class LolirineScanTva(models.Model):
             self._create_or_find_partner()
         
         self.state = 'validated'
-        _logger.info("Donnees validees pour %s", self.name)
+        
+        self.message_post(
+            body=_("Donnees validees. Pret pour la creation de la facture."),
+            message_type='notification'
+        )
 
     def _create_or_find_partner(self):
         """Créer ou trouver le fournisseur"""
@@ -771,7 +729,11 @@ class LolirineScanTva(models.Model):
         }
         
         self.partner_id = Partner.create(partner_vals)
-        _logger.info("Nouveau fournisseur cree: %s", self.partner_id.name)
+        
+        self.message_post(
+            body=_("Nouveau fournisseur cree: %s") % self.partner_id.name,
+            message_type='notification'
+        )
 
     def action_create_invoice(self):
         """Créer la facture fournisseur"""
@@ -784,16 +746,11 @@ class LolirineScanTva(models.Model):
             raise UserError(_("Veuillez selectionner ou creer un fournisseur."))
         
         if not self.account_id:
-            # Chercher un compte de charge par défaut (Odoo 18: pas de company_id sur account.account)
+            # Chercher un compte de charge par défaut
             self.account_id = self.env['account.account'].search([
                 ('account_type', '=', 'expense'),
+                ('company_id', '=', self.company_id.id)
             ], limit=1)
-            
-            if not self.account_id:
-                # Essayer avec un autre type de compte de charge
-                self.account_id = self.env['account.account'].search([
-                    ('account_type', 'in', ['expense', 'expense_direct_cost', 'expense_depreciation']),
-                ], limit=1)
             
             if not self.account_id:
                 raise UserError(_("Veuillez selectionner un compte de charge."))
@@ -802,6 +759,7 @@ class LolirineScanTva(models.Model):
         tax = self.env['account.tax'].search([
             ('type_tax_use', '=', 'purchase'),
             ('amount', '=', float(self.tax_rate)),
+            ('company_id', '=', self.company_id.id)
         ], limit=1)
         
         # Créer la facture fournisseur
@@ -833,7 +791,11 @@ class LolirineScanTva(models.Model):
         
         self.invoice_id = invoice
         self.state = 'invoiced'
-        _logger.info("Facture fournisseur creee: %s", invoice.name)
+        
+        self.message_post(
+            body=_("Facture fournisseur creee: %s") % invoice.name,
+            message_type='notification'
+        )
         
         # Ouvrir la facture
         return {
@@ -881,4 +843,52 @@ class LolirineScanTva(models.Model):
                 'default_scan_id': self.id,
                 'default_ocr_text': self.ocr_text,
             },
+        }
+
+    def action_archive_document(self):
+        """Archiver le document dans les pièces jointes (comme dans les factures)"""
+        self.ensure_one()
+        
+        if not self.document:
+            raise UserError(_("Aucun document à archiver."))
+        
+        # Vérifier si le document n'est pas déjà archivé
+        existing = self.env['ir.attachment'].search([
+            ('res_model', '=', 'lolirine.scan.tva'),
+            ('res_id', '=', self.id),
+            ('name', '=', self.document_filename or 'scan_tva.jpg'),
+        ], limit=1)
+        
+        if existing:
+            self.message_post(
+                body=_("Le document est déjà archivé dans les pièces jointes."),
+                message_type='notification'
+            )
+            return
+        
+        # Créer la pièce jointe
+        attachment = self.env['ir.attachment'].create({
+            'name': self.document_filename or 'scan_tva_%s.jpg' % self.name,
+            'type': 'binary',
+            'datas': self.document,
+            'res_model': 'lolirine.scan.tva',
+            'res_id': self.id,
+            'mimetype': 'image/jpeg' if not self.document_filename or not self.document_filename.lower().endswith('.pdf') else 'application/pdf',
+        })
+        
+        self.message_post(
+            body=_("Document archivé: %s") % attachment.name,
+            message_type='notification',
+            attachment_ids=[attachment.id]
+        )
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Document archivé'),
+                'message': _('Le document a été ajouté aux pièces jointes.'),
+                'type': 'success',
+                'sticky': False,
+            }
         }
