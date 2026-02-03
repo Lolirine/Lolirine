@@ -11,48 +11,40 @@
                             type="object" 
                             string="Extraire (OCR)" 
                             class="btn-primary"
-                            invisible="not document or state not in ('draft', 'scanned')"/>
-                    
+                            icon="fa-magic"
+                            invisible="state not in ('draft', 'scanned')"/>
                     <button name="action_manual_extract" 
                             type="object" 
-                            string="Saisie manuelle" 
+                            string="Extraction manuelle" 
                             class="btn-secondary"
+                            icon="fa-pencil"
                             invisible="state not in ('draft', 'scanned', 'extracted')"/>
-                    
                     <button name="action_validate" 
                             type="object" 
                             string="Valider" 
                             class="btn-primary"
+                            icon="fa-check"
                             invisible="state != 'extracted'"/>
-                    
                     <button name="action_create_invoice" 
                             type="object" 
                             string="Creer la facture" 
                             class="btn-primary"
+                            icon="fa-file-text-o"
                             invisible="state != 'validated'"/>
-                    
                     <button name="action_view_invoice" 
                             type="object" 
                             string="Voir la facture" 
                             class="btn-secondary"
+                            icon="fa-external-link"
                             invisible="state != 'invoiced'"/>
-                    
-                    <button name="action_archive_document" 
-                            type="object" 
-                            string="Archiver dans documents" 
-                            class="btn-secondary"
-                            invisible="not document"/>
-                    
                     <button name="action_reset_draft" 
                             type="object" 
                             string="Remettre en brouillon" 
                             invisible="state in ('draft', 'invoiced')"/>
-                    
                     <button name="action_cancel" 
                             type="object" 
                             string="Annuler" 
                             invisible="state in ('cancelled', 'invoiced')"/>
-                    
                     <field name="state" widget="statusbar" statusbar_visible="draft,scanned,extracted,validated,invoiced"/>
                 </header>
                 
@@ -73,98 +65,77 @@
                         </h1>
                     </div>
                     
-                    <group string="Document scanne">
-                        <group>
-                            <field name="document" filename="document_filename" widget="binary" string="Charger le fichier"/>
+                    <group>
+                        <group string="Document">
+                            <field name="document" filename="document_filename" widget="binary"/>
                             <field name="document_filename" invisible="1"/>
-                            <field name="document_type" readonly="1"/>
+                            <field name="document_type"/>
                         </group>
-                        <group>
-                            <div invisible="not document" class="text-center">
-                                <field name="document_preview" widget="image" 
-                                       options="{'size': [400, 500]}"
-                                       class="img-fluid border rounded"/>
-                            </div>
-                            <div invisible="document" class="text-center text-muted p-4" style="border: 2px dashed #ccc; border-radius: 8px;">
-                                <i class="fa fa-cloud-upload fa-3x mb-2"/><br/>
-                                <span>Uploadez un ticket ou une facture</span><br/>
-                                <small>JPG, PNG ou PDF</small>
+                        <group string="Apercu">
+                            <field name="document_preview" widget="image" class="oe_avatar" 
+                                   options="{'size': [300, 400]}" invisible="not document"/>
+                            <div invisible="document" class="text-muted">
+                                <i class="fa fa-upload fa-3x"/>
+                                <p>Uploadez un document pour voir l'apercu</p>
                             </div>
                         </group>
                     </group>
                     
-                    <group string="Texte OCR extrait" invisible="not ocr_text">
-                        <field name="ocr_text" readonly="1" nolabel="1"/>
-                    </group>
-                    
-                    <group string="Fournisseur">
-                        <group>
-                            <field name="supplier_vat" placeholder="BE0123456789"/>
-                            <field name="partner_id" domain="[('supplier_rank', '>', 0)]"/>
-                            <field name="partner_exists" invisible="1"/>
-                        </group>
-                        <group>
-                            <field name="supplier_name" placeholder="Nom du fournisseur"/>
-                            <field name="supplier_phone"/>
-                            <field name="supplier_email"/>
-                        </group>
-                    </group>
-                    
-                    <div class="alert alert-success py-2 mx-3" role="alert" invisible="not partner_exists">
-                        <i class="fa fa-check-circle"/> Fournisseur trouve dans la base
-                    </div>
-                    <div class="alert alert-info py-2 mx-3" role="alert" invisible="partner_exists or not supplier_vat">
-                        <i class="fa fa-info-circle"/> Nouveau fournisseur
-                    </div>
-                    
-                    <group string="Adresse" name="address">
-                        <group>
-                            <field name="supplier_street" placeholder="Rue et numero"/>
-                            <field name="supplier_zip" placeholder="Code postal"/>
-                        </group>
-                        <group>
-                            <field name="supplier_city" placeholder="Ville"/>
-                            <field name="supplier_country_id"/>
-                        </group>
-                    </group>
-                    
-                    <group string="Facture / Ticket">
-                        <group>
-                            <field name="invoice_number" placeholder="No facture ou ticket"/>
-                            <field name="invoice_date"/>
-                        </group>
-                        <group>
-                            <field name="tax_rate"/>
-                            <field name="currency_id" groups="base.group_multi_currency"/>
-                        </group>
-                    </group>
-                    
-                    <group string="Montants">
-                        <group>
-                            <field name="amount_untaxed"/>
-                            <field name="amount_tax"/>
-                        </group>
-                        <group>
-                            <field name="amount_total"/>
-                        </group>
-                    </group>
-                    
-                    <group string="Comptabilite">
-                        <group>
-                            <field name="account_id" 
-                                   domain="[('account_type', 'in', ('expense', 'expense_direct_cost'))]"
-                                   options="{'no_create': True}"
-                                   placeholder="Compte de charge"/>
-                        </group>
-                        <group>
-                            <field name="company_id" groups="base.group_multi_company"/>
-                            <field name="user_id"/>
-                        </group>
-                    </group>
-                    
-                    <group string="Notes">
-                        <field name="notes" nolabel="1" placeholder="Notes supplementaires..."/>
-                    </group>
+                    <notebook>
+                        <page string="Informations extraites" name="extracted">
+                            <group>
+                                <group string="Fournisseur">
+                                    <field name="supplier_vat" placeholder="BE0123456789"/>
+                                    <field name="partner_exists" invisible="1"/>
+                                    <div colspan="2" class="alert alert-success" role="alert" 
+                                         invisible="not partner_exists">
+                                        <i class="fa fa-check-circle"/> Fournisseur trouve dans la base
+                                    </div>
+                                    <div colspan="2" class="alert alert-info" role="alert" 
+                                         invisible="partner_exists or not supplier_vat">
+                                        <i class="fa fa-info-circle"/> Nouveau fournisseur - sera cree automatiquement
+                                    </div>
+                                    <field name="partner_id" domain="[('supplier_rank', '>', 0)]"/>
+                                    <field name="supplier_name"/>
+                                    <field name="supplier_street"/>
+                                    <field name="supplier_zip"/>
+                                    <field name="supplier_city"/>
+                                    <field name="supplier_country_id"/>
+                                    <field name="supplier_phone"/>
+                                    <field name="supplier_email"/>
+                                </group>
+                                <group string="Facture">
+                                    <field name="invoice_number"/>
+                                    <field name="invoice_date"/>
+                                    <field name="tax_rate"/>
+                                    <field name="currency_id" groups="base.group_multi_currency"/>
+                                    <field name="amount_untaxed"/>
+                                    <field name="amount_tax"/>
+                                    <field name="amount_total"/>
+                                </group>
+                            </group>
+                            
+                            <group string="Comptabilite">
+                                <group>
+                                    <field name="account_id" 
+                                           domain="[('account_type', 'in', ('expense', 'expense_direct_cost'))]"
+                                           options="{'no_create': True}"/>
+                                </group>
+                                <group>
+                                    <field name="company_id" groups="base.group_multi_company"/>
+                                    <field name="user_id"/>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <page string="Texte OCR" name="ocr">
+                            <field name="ocr_text" readonly="1" placeholder="Le texte extrait par OCR apparaitra ici..."/>
+                        </page>
+                        
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Notes supplementaires..."/>
+                        </page>
+                    </notebook>
                 </sheet>
                 
                 <div class="oe_chatter">
@@ -257,6 +228,8 @@
                 <separator/>
                 <filter string="A traiter" name="to_process" domain="[('state', 'in', ('draft', 'scanned', 'extracted', 'validated'))]"/>
                 <separator/>
+
+                <separator/>
                 <group expand="0" string="Grouper par">
                     <filter string="Etat" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Fournisseur" name="group_partner" context="{'group_by': 'partner_id'}"/>
@@ -278,13 +251,13 @@
                 Scanner une nouvelle souche TVA
             </p>
             <p>
-                Uploadez vos tickets et factures fournisseurs pour extraire
+                Uploadez ou scannez vos tickets et factures fournisseurs pour extraire
                 automatiquement les informations et creer les ecritures comptables.
             </p>
         </field>
     </record>
     
-    <!-- Action pour creer un nouveau scan -->
+    <!-- Action pour créer un nouveau scan -->
     <record id="action_lolirine_scan_tva_new" model="ir.actions.act_window">
         <field name="name">Nouveau scan</field>
         <field name="res_model">lolirine.scan.tva.wizard</field>
@@ -306,6 +279,12 @@
                         invisible="supplier_rank == 0">
                     <field name="scan_tva_count" widget="statinfo" string="Scans TVA"/>
                 </button>
+            </xpath>
+            <xpath expr="//page[@name='accounting']" position="inside">
+                <group string="Compte de charge par defaut" invisible="supplier_rank == 0">
+                    <field name="property_account_expense_id" 
+                           domain="[('account_type', 'in', ('expense', 'expense_direct_cost'))]"/>
+                </group>
             </xpath>
         </field>
     </record>
