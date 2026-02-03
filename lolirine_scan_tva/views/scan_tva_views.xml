@@ -7,45 +7,39 @@
         <field name="arch" type="xml">
             <form string="Scan TVA">
                 <header>
-                    <!-- Bouton Extraire OCR - visible quand document uploadé et état draft/scanned -->
                     <button name="action_scan_ocr" 
                             type="object" 
-                            string="🔍 Extraire (OCR)" 
+                            string="Extraire (OCR)" 
                             class="btn-primary"
                             invisible="not document or state not in ('draft', 'scanned')"/>
                     
-                    <!-- Bouton Extraction manuelle -->
                     <button name="action_manual_extract" 
                             type="object" 
-                            string="✏️ Saisie manuelle" 
+                            string="Saisie manuelle" 
                             class="btn-secondary"
                             invisible="state not in ('draft', 'scanned', 'extracted')"/>
                     
-                    <!-- Bouton Valider -->
                     <button name="action_validate" 
                             type="object" 
-                            string="✓ Valider" 
+                            string="Valider" 
                             class="btn-primary"
                             invisible="state != 'extracted'"/>
                     
-                    <!-- Bouton Créer facture -->
                     <button name="action_create_invoice" 
                             type="object" 
-                            string="📄 Créer la facture" 
+                            string="Creer la facture" 
                             class="btn-primary"
                             invisible="state != 'validated'"/>
                     
-                    <!-- Bouton Voir facture -->
                     <button name="action_view_invoice" 
                             type="object" 
                             string="Voir la facture" 
                             class="btn-secondary"
                             invisible="state != 'invoiced'"/>
                     
-                    <!-- Bouton Archiver document -->
                     <button name="action_archive_document" 
                             type="object" 
-                            string="📎 Archiver dans documents" 
+                            string="Archiver dans documents" 
                             class="btn-secondary"
                             invisible="not document"/>
                     
@@ -79,16 +73,13 @@
                         </h1>
                     </div>
                     
-                    <!-- SECTION 1: Upload et Aperçu du document -->
-                    <group string="📷 Document scanné">
+                    <group string="Document scanne">
                         <group>
-                            <!-- Zone d'upload -->
                             <field name="document" filename="document_filename" widget="binary" string="Charger le fichier"/>
                             <field name="document_filename" invisible="1"/>
                             <field name="document_type" readonly="1"/>
                         </group>
                         <group>
-                            <!-- Aperçu de l'image -->
                             <div invisible="not document" class="text-center">
                                 <field name="document_preview" widget="image" 
                                        options="{'size': [400, 500]}"
@@ -102,15 +93,11 @@
                         </group>
                     </group>
                     
-                    <!-- SECTION 2: Texte OCR extrait -->
-                    <group string="📝 Texte OCR extrait" invisible="not ocr_text">
-                        <field name="ocr_text" readonly="1" nolabel="1" 
-                               placeholder="Le texte extrait apparaîtra ici après l'extraction OCR..."
-                               style="font-family: monospace; font-size: 11px; background: #f5f5f5; padding: 10px; border-radius: 4px; max-height: 200px; overflow-y: auto;"/>
+                    <group string="Texte OCR extrait" invisible="not ocr_text">
+                        <field name="ocr_text" readonly="1" nolabel="1"/>
                     </group>
                     
-                    <!-- SECTION 3: Informations fournisseur -->
-                    <group string="🏢 Fournisseur">
+                    <group string="Fournisseur">
                         <group>
                             <field name="supplier_vat" placeholder="BE0123456789"/>
                             <field name="partner_id" domain="[('supplier_rank', '>', 0)]"/>
@@ -123,18 +110,16 @@
                         </group>
                     </group>
                     
-                    <!-- Alertes fournisseur -->
                     <div class="alert alert-success py-2 mx-3" role="alert" invisible="not partner_exists">
-                        <i class="fa fa-check-circle"/> Fournisseur trouvé dans la base de données
+                        <i class="fa fa-check-circle"/> Fournisseur trouve dans la base
                     </div>
                     <div class="alert alert-info py-2 mx-3" role="alert" invisible="partner_exists or not supplier_vat">
-                        <i class="fa fa-info-circle"/> Nouveau fournisseur - sera créé lors de la validation
+                        <i class="fa fa-info-circle"/> Nouveau fournisseur
                     </div>
                     
-                    <!-- SECTION 4: Adresse -->
-                    <group string="📍 Adresse" name="address">
+                    <group string="Adresse" name="address">
                         <group>
-                            <field name="supplier_street" placeholder="Rue et numéro"/>
+                            <field name="supplier_street" placeholder="Rue et numero"/>
                             <field name="supplier_zip" placeholder="Code postal"/>
                         </group>
                         <group>
@@ -143,10 +128,9 @@
                         </group>
                     </group>
                     
-                    <!-- SECTION 5: Informations facture -->
-                    <group string="🧾 Facture / Ticket">
+                    <group string="Facture / Ticket">
                         <group>
-                            <field name="invoice_number" placeholder="N° facture ou ticket"/>
+                            <field name="invoice_number" placeholder="No facture ou ticket"/>
                             <field name="invoice_date"/>
                         </group>
                         <group>
@@ -155,19 +139,17 @@
                         </group>
                     </group>
                     
-                    <!-- SECTION 6: Montants -->
-                    <group string="💶 Montants">
+                    <group string="Montants">
                         <group>
                             <field name="amount_untaxed"/>
                             <field name="amount_tax"/>
                         </group>
                         <group>
-                            <field name="amount_total" class="fw-bold" style="font-size: 1.2em;"/>
+                            <field name="amount_total"/>
                         </group>
                     </group>
                     
-                    <!-- SECTION 7: Comptabilité -->
-                    <group string="📚 Comptabilité">
+                    <group string="Comptabilite">
                         <group>
                             <field name="account_id" 
                                    domain="[('account_type', 'in', ('expense', 'expense_direct_cost'))]"
@@ -180,9 +162,8 @@
                         </group>
                     </group>
                     
-                    <!-- SECTION 8: Notes -->
-                    <group string="📝 Notes">
-                        <field name="notes" nolabel="1" placeholder="Notes supplémentaires..."/>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1" placeholder="Notes supplementaires..."/>
                     </group>
                 </sheet>
                 
@@ -269,17 +250,15 @@
                 <field name="invoice_number"/>
                 <separator/>
                 <filter string="Brouillons" name="draft" domain="[('state', '=', 'draft')]"/>
-                <filter string="Scannés" name="scanned" domain="[('state', '=', 'scanned')]"/>
+                <filter string="Scannes" name="scanned" domain="[('state', '=', 'scanned')]"/>
                 <filter string="Extraits" name="extracted" domain="[('state', '=', 'extracted')]"/>
-                <filter string="Validés" name="validated" domain="[('state', '=', 'validated')]"/>
-                <filter string="Facturés" name="invoiced" domain="[('state', '=', 'invoiced')]"/>
+                <filter string="Valides" name="validated" domain="[('state', '=', 'validated')]"/>
+                <filter string="Factures" name="invoiced" domain="[('state', '=', 'invoiced')]"/>
                 <separator/>
                 <filter string="A traiter" name="to_process" domain="[('state', 'in', ('draft', 'scanned', 'extracted', 'validated'))]"/>
                 <separator/>
-                <filter string="Ce mois" name="this_month" domain="[('create_date', '>=', (context_today()).strftime('%Y-%m-01'))]"/>
-                <separator/>
                 <group expand="0" string="Grouper par">
-                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Etat" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Fournisseur" name="group_partner" context="{'group_by': 'partner_id'}"/>
                     <filter string="Mois" name="group_month" context="{'group_by': 'create_date:month'}"/>
                 </group>
@@ -299,13 +278,13 @@
                 Scanner une nouvelle souche TVA
             </p>
             <p>
-                Uploadez ou scannez vos tickets et factures fournisseurs pour extraire
-                automatiquement les informations et créer les écritures comptables.
+                Uploadez vos tickets et factures fournisseurs pour extraire
+                automatiquement les informations et creer les ecritures comptables.
             </p>
         </field>
     </record>
     
-    <!-- Action pour créer un nouveau scan -->
+    <!-- Action pour creer un nouveau scan -->
     <record id="action_lolirine_scan_tva_new" model="ir.actions.act_window">
         <field name="name">Nouveau scan</field>
         <field name="res_model">lolirine.scan.tva.wizard</field>
