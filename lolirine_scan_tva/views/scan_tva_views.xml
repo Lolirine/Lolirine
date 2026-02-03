@@ -7,39 +7,58 @@
         <field name="arch" type="xml">
             <form string="Scan TVA">
                 <header>
+                    <!-- Bouton Extraire OCR - visible quand document uploadé et état draft/scanned -->
                     <button name="action_scan_ocr" 
                             type="object" 
-                            string="Extraire (OCR)" 
+                            string="🔍 Extraire (OCR)" 
                             class="btn-primary"
-                            invisible="state not in ('draft', 'scanned')"/>
+                            invisible="not document or state not in ('draft', 'scanned')"/>
+                    
+                    <!-- Bouton Extraction manuelle -->
                     <button name="action_manual_extract" 
                             type="object" 
-                            string="Extraction manuelle" 
+                            string="✏️ Saisie manuelle" 
                             class="btn-secondary"
                             invisible="state not in ('draft', 'scanned', 'extracted')"/>
+                    
+                    <!-- Bouton Valider -->
                     <button name="action_validate" 
                             type="object" 
-                            string="Valider" 
+                            string="✓ Valider" 
                             class="btn-primary"
                             invisible="state != 'extracted'"/>
+                    
+                    <!-- Bouton Créer facture -->
                     <button name="action_create_invoice" 
                             type="object" 
-                            string="Creer la facture" 
+                            string="📄 Créer la facture" 
                             class="btn-primary"
                             invisible="state != 'validated'"/>
+                    
+                    <!-- Bouton Voir facture -->
                     <button name="action_view_invoice" 
                             type="object" 
                             string="Voir la facture" 
                             class="btn-secondary"
                             invisible="state != 'invoiced'"/>
+                    
+                    <!-- Bouton Archiver document -->
+                    <button name="action_archive_document" 
+                            type="object" 
+                            string="📎 Archiver dans documents" 
+                            class="btn-secondary"
+                            invisible="not document"/>
+                    
                     <button name="action_reset_draft" 
                             type="object" 
                             string="Remettre en brouillon" 
                             invisible="state in ('draft', 'invoiced')"/>
+                    
                     <button name="action_cancel" 
                             type="object" 
                             string="Annuler" 
                             invisible="state in ('cancelled', 'invoiced')"/>
+                    
                     <field name="state" widget="statusbar" statusbar_visible="draft,scanned,extracted,validated,invoiced"/>
                 </header>
                 
@@ -60,63 +79,118 @@
                         </h1>
                     </div>
                     
-                    <group>
-                        <group string="Document">
-                            <field name="document" filename="document_filename" widget="binary"/>
+                    <!-- SECTION 1: Upload et Aperçu du document -->
+                    <group string="📷 Document scanné">
+                        <group>
+                            <!-- Zone d'upload -->
+                            <field name="document" filename="document_filename" widget="binary" string="Charger le fichier"/>
                             <field name="document_filename" invisible="1"/>
-                            <field name="document_type"/>
+                            <field name="document_type" readonly="1"/>
                         </group>
-                        <group string="Apercu">
-                            <field name="document_preview" widget="image" options="{'size': [200, 250]}" invisible="not document"/>
+                        <group>
+                            <!-- Aperçu de l'image -->
+                            <div invisible="not document" class="text-center">
+                                <field name="document_preview" widget="image" 
+                                       options="{'size': [400, 500]}"
+                                       class="img-fluid border rounded"/>
+                            </div>
+                            <div invisible="document" class="text-center text-muted p-4" style="border: 2px dashed #ccc; border-radius: 8px;">
+                                <i class="fa fa-cloud-upload fa-3x mb-2"/><br/>
+                                <span>Uploadez un ticket ou une facture</span><br/>
+                                <small>JPG, PNG ou PDF</small>
+                            </div>
                         </group>
                     </group>
                     
-                    <notebook>
-                        <page string="Informations extraites" name="extracted">
-                            <group>
-                                <group string="Fournisseur">
-                                    <field name="supplier_vat" placeholder="BE0123456789"/>
-                                    <field name="partner_exists" invisible="1"/>
-                                    <field name="partner_id" domain="[('supplier_rank', '>', 0)]"/>
-                                    <field name="supplier_name"/>
-                                    <field name="supplier_street"/>
-                                    <field name="supplier_zip"/>
-                                    <field name="supplier_city"/>
-                                    <field name="supplier_country_id"/>
-                                </group>
-                                <group string="Facture">
-                                    <field name="invoice_number"/>
-                                    <field name="invoice_date"/>
-                                    <field name="tax_rate"/>
-                                    <field name="amount_untaxed"/>
-                                    <field name="amount_tax"/>
-                                    <field name="amount_total"/>
-                                </group>
-                            </group>
-                            
-                            <group string="Comptabilite">
-                                <group>
-                                    <field name="account_id" 
-                                           domain="[('account_type', 'in', ('expense', 'expense_direct_cost'))]"
-                                           options="{'no_create': True}"/>
-                                </group>
-                                <group>
-                                    <field name="company_id" groups="base.group_multi_company"/>
-                                    <field name="user_id"/>
-                                    <field name="currency_id" groups="base.group_multi_currency"/>
-                                </group>
-                            </group>
-                        </page>
-                        
-                        <page string="Texte OCR" name="ocr">
-                            <field name="ocr_text" readonly="1" placeholder="Le texte extrait par OCR apparaitra ici..."/>
-                        </page>
-                        
-                        <page string="Notes" name="notes">
-                            <field name="notes" placeholder="Notes supplementaires..."/>
-                        </page>
-                    </notebook>
+                    <!-- SECTION 2: Texte OCR extrait -->
+                    <group string="📝 Texte OCR extrait" invisible="not ocr_text">
+                        <field name="ocr_text" readonly="1" nolabel="1" 
+                               placeholder="Le texte extrait apparaîtra ici après l'extraction OCR..."
+                               style="font-family: monospace; font-size: 11px; background: #f5f5f5; padding: 10px; border-radius: 4px; max-height: 200px; overflow-y: auto;"/>
+                    </group>
+                    
+                    <!-- SECTION 3: Informations fournisseur -->
+                    <group string="🏢 Fournisseur">
+                        <group>
+                            <field name="supplier_vat" placeholder="BE0123456789"/>
+                            <field name="partner_id" domain="[('supplier_rank', '>', 0)]"/>
+                            <field name="partner_exists" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="supplier_name" placeholder="Nom du fournisseur"/>
+                            <field name="supplier_phone"/>
+                            <field name="supplier_email"/>
+                        </group>
+                    </group>
+                    
+                    <!-- Alertes fournisseur -->
+                    <div class="alert alert-success py-2 mx-3" role="alert" invisible="not partner_exists">
+                        <i class="fa fa-check-circle"/> Fournisseur trouvé dans la base de données
+                    </div>
+                    <div class="alert alert-info py-2 mx-3" role="alert" invisible="partner_exists or not supplier_vat">
+                        <i class="fa fa-info-circle"/> Nouveau fournisseur - sera créé lors de la validation
+                    </div>
+                    
+                    <!-- SECTION 4: Adresse -->
+                    <group string="📍 Adresse" name="address">
+                        <group>
+                            <field name="supplier_street" placeholder="Rue et numéro"/>
+                            <field name="supplier_zip" placeholder="Code postal"/>
+                        </group>
+                        <group>
+                            <field name="supplier_city" placeholder="Ville"/>
+                            <field name="supplier_country_id"/>
+                        </group>
+                    </group>
+                    
+                    <!-- SECTION 5: Informations facture -->
+                    <group string="🧾 Facture / Ticket">
+                        <group>
+                            <field name="invoice_number" placeholder="N° facture ou ticket"/>
+                            <field name="invoice_date"/>
+                        </group>
+                        <group>
+                            <field name="tax_rate"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                        </group>
+                    </group>
+                    
+                    <!-- SECTION 6: Montants -->
+                    <group string="💶 Montants">
+                        <group>
+                            <field name="amount_untaxed"/>
+                            <field name="amount_tax"/>
+                        </group>
+                        <group>
+                            <field name="amount_total" class="fw-bold" style="font-size: 1.2em;"/>
+                        </group>
+                    </group>
+                    
+                    <!-- SECTION 7: Comptabilité -->
+                    <group string="📚 Comptabilité">
+                        <group>
+                            <field name="account_id" 
+                                   domain="[('account_type', 'in', ('expense', 'expense_direct_cost'))]"
+                                   options="{'no_create': True}"
+                                   placeholder="Compte de charge"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="user_id"/>
+                        </group>
+                    </group>
+                    
+                    <!-- SECTION 8: Notes -->
+                    <group string="📝 Notes">
+                        <field name="notes" nolabel="1" placeholder="Notes supplémentaires..."/>
+                    </group>
                 </sheet>
+                
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
@@ -182,19 +256,51 @@
         </field>
     </record>
     
-    <!-- Action principale - Liste des scans -->
-    <record id="action_lolirine_scan_tva_main" model="ir.actions.act_window">
+    <!-- Vue recherche -->
+    <record id="view_lolirine_scan_tva_search" model="ir.ui.view">
+        <field name="name">lolirine.scan.tva.search</field>
+        <field name="model">lolirine.scan.tva</field>
+        <field name="arch" type="xml">
+            <search string="Recherche scans TVA">
+                <field name="name"/>
+                <field name="supplier_vat"/>
+                <field name="supplier_name"/>
+                <field name="partner_id"/>
+                <field name="invoice_number"/>
+                <separator/>
+                <filter string="Brouillons" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Scannés" name="scanned" domain="[('state', '=', 'scanned')]"/>
+                <filter string="Extraits" name="extracted" domain="[('state', '=', 'extracted')]"/>
+                <filter string="Validés" name="validated" domain="[('state', '=', 'validated')]"/>
+                <filter string="Facturés" name="invoiced" domain="[('state', '=', 'invoiced')]"/>
+                <separator/>
+                <filter string="A traiter" name="to_process" domain="[('state', 'in', ('draft', 'scanned', 'extracted', 'validated'))]"/>
+                <separator/>
+                <filter string="Ce mois" name="this_month" domain="[('create_date', '>=', (context_today() - relativedelta(day=1)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Fournisseur" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Mois" name="group_month" context="{'group_by': 'create_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- Action principale -->
+    <record id="action_lolirine_scan_tva" model="ir.actions.act_window">
         <field name="name">Scans TVA</field>
         <field name="res_model">lolirine.scan.tva</field>
         <field name="view_mode">list,kanban,form</field>
-        <field name="target">main</field>
-        <field name="context">{'clear_breadcrumbs': True}</field>
+        <field name="context">{'search_default_to_process': 1}</field>
+        <field name="search_view_id" ref="view_lolirine_scan_tva_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Aucun scan TVA
+                Scanner une nouvelle souche TVA
             </p>
             <p>
-                Cliquez sur "Nouveau" pour scanner une souche TVA fournisseur.
+                Uploadez ou scannez vos tickets et factures fournisseurs pour extraire
+                automatiquement les informations et créer les écritures comptables.
             </p>
         </field>
     </record>
@@ -202,35 +308,6 @@
     <!-- Action pour créer un nouveau scan -->
     <record id="action_lolirine_scan_tva_new" model="ir.actions.act_window">
         <field name="name">Nouveau scan</field>
-        <field name="res_model">lolirine.scan.tva</field>
-        <field name="view_mode">form</field>
-        <field name="target">main</field>
-        <field name="context">{'default_state': 'draft', 'clear_breadcrumbs': True}</field>
-    </record>
-    
-    <!-- Action A traiter -->
-    <record id="action_lolirine_scan_tva_to_process" model="ir.actions.act_window">
-        <field name="name">A traiter</field>
-        <field name="res_model">lolirine.scan.tva</field>
-        <field name="view_mode">list,kanban,form</field>
-        <field name="target">main</field>
-        <field name="domain">[('state', 'in', ('draft', 'scanned', 'extracted', 'validated'))]</field>
-        <field name="context">{'clear_breadcrumbs': True}</field>
-    </record>
-    
-    <!-- Action Facturés -->
-    <record id="action_lolirine_scan_tva_invoiced" model="ir.actions.act_window">
-        <field name="name">Factures creees</field>
-        <field name="res_model">lolirine.scan.tva</field>
-        <field name="view_mode">list,form</field>
-        <field name="target">main</field>
-        <field name="domain">[('state', '=', 'invoiced')]</field>
-        <field name="context">{'clear_breadcrumbs': True}</field>
-    </record>
-    
-    <!-- Action pour le wizard (popup) -->
-    <record id="action_lolirine_scan_tva_wizard" model="ir.actions.act_window">
-        <field name="name">Scanner un document</field>
         <field name="res_model">lolirine.scan.tva.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
@@ -250,12 +327,6 @@
                         invisible="supplier_rank == 0">
                     <field name="scan_tva_count" widget="statinfo" string="Scans TVA"/>
                 </button>
-            </xpath>
-            <xpath expr="//page[@name='accounting']" position="inside">
-                <group string="Compte de charge par defaut" invisible="supplier_rank == 0">
-                    <field name="property_account_expense_id" 
-                           domain="[('account_type', 'in', ('expense', 'expense_direct_cost'))]"/>
-                </group>
             </xpath>
         </field>
     </record>
