@@ -12,8 +12,10 @@ import { _t } from "@web/core/l10n/translation";
 export class CatalogExtractorView extends Component {
     static template = "lolirine_pool_import.CatalogExtractorView";
     static props = {
-        action: { type: Object },
+        action: { type: Object, optional: true },
         actionId: { type: Number, optional: true },
+        updateActionState: { type: Function, optional: true },
+        className: { type: String, optional: true },
     };
 
     setup() {
