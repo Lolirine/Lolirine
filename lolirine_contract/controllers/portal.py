@@ -24,23 +24,21 @@ class PortalIdCard(http.Controller):
         values = {}
         error = None
         
-        # Traiter le recto
         if 'id_card_recto' in request.httprequest.files:
             file_recto = request.httprequest.files['id_card_recto']
             if file_recto and file_recto.filename:
                 file_content = file_recto.read()
-                if len(file_content) > 10 * 1024 * 1024:  # 10 MB max
+                if len(file_content) > 10 * 1024 * 1024:
                     error = "Le fichier recto est trop volumineux (max 10 MB)"
                 else:
                     values['id_card_recto'] = base64.b64encode(file_content)
                     values['id_card_recto_filename'] = file_recto.filename
 
-        # Traiter le verso
         if 'id_card_verso' in request.httprequest.files:
             file_verso = request.httprequest.files['id_card_verso']
             if file_verso and file_verso.filename:
                 file_content = file_verso.read()
-                if len(file_content) > 10 * 1024 * 1024:  # 10 MB max
+                if len(file_content) > 10 * 1024 * 1024:
                     error = "Le fichier verso est trop volumineux (max 10 MB)"
                 else:
                     values['id_card_verso'] = base64.b64encode(file_content)
@@ -55,6 +53,14 @@ class PortalIdCard(http.Controller):
 
 
 class CustomerPortalSubscription(SubscriptionPortal):
-    """Override pour filtrer les abonnements par website dans le portail client"""
 
-    def _get_subscriptio
+    def _get_subscription_domain(self, partner):
+        domain = super()._get_subscription_domain(partner)
+        current_website = request.website
+        if current_website:
+            domain += [
+                '|',
+                ('website_id', '=', current_website.id),
+                ('website_id', '=', False),
+            ]
+        return domain
