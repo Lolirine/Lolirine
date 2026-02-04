@@ -2,7 +2,7 @@
 import base64
 from odoo import http
 from odoo.http import request
-from odoo.addons.sale_subscription.controllers.portal import CustomerPortal
+from odoo.addons.sale_subscription.controllers.portal import CustomerPortal as SubscriptionPortal
 
 
 class PortalIdCard(http.Controller):
@@ -54,32 +54,7 @@ class PortalIdCard(http.Controller):
         return request.redirect('/my/id_card')
 
 
-class CustomerPortalSubscription(CustomerPortal):
-    """Filtre les abonnements par website dans le portail client"""
+class CustomerPortalSubscription(SubscriptionPortal):
+    """Override pour filtrer les abonnements par website dans le portail client"""
 
-    def _prepare_home_portal_values(self, counters):
-        values = super()._prepare_home_portal_values(counters)
-        if 'subscription_count' in counters:
-            current_website = request.website
-            domain = [
-                ('is_subscription', '=', True),
-                ('subscription_state', 'in', ['3_progress', '4_paused']),
-                ('partner_id', '=', request.env.user.partner_id.id),
-                '|',
-                ('website_id', '=', current_website.id),
-                ('website_id', '=', False),
-            ]
-            values['subscription_count'] = request.env['sale.order'].sudo().search_count(domain)
-        return values
-
-    def _get_subscription_domain(self, partner):
-        """Override pour filtrer par website"""
-        domain = super()._get_subscription_domain(partner)
-        current_website = request.website
-        # Ajouter filtre website
-        domain += [
-            '|',
-            ('website_id', '=', current_website.id),
-            ('website_id', '=', False),
-        ]
-        return domain
+    def _get_subscriptio
