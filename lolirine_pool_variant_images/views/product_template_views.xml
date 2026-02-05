@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ============================================================ -->
+    <!-- Onglet "Visuels des variantes" sur la fiche produit          -->
+    <!-- Cible //notebook pour compatibilité maximale Odoo 19         -->
+    <!-- ============================================================ -->
+    <record id="product_template_form_view_visual_tab" model="ir.ui.view">
+        <field name="name">product.template.form.visual.tab</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Visuels variantes" name="variant_visuals"
+                      invisible="not has_visual_attributes">
+                    <field name="has_visual_attributes" invisible="1"/>
+                    
+                    <!-- Section 1 : Visuels des sélecteurs d'attributs -->
+                    <div class="alert alert-light mb-3">
+                        <p class="mb-1">
+                            <strong>1. Vignettes des sélecteurs</strong> — 
+                            Images/couleurs affichées dans les boutons de sélection d'attribut.
+                        </p>
+                    </div>
+
+                    <field name="attribute_line_ids" nolabel="1" readonly="1">
+                        <list create="0" delete="0">
+                            <field name="attribute_id" string="Attribut"/>
+                            <field name="value_ids" widget="many2many_tags" string="Valeurs"/>
+                            <button name="action_manage_visuals"
+                                    type="object"
+                                    string="Modifier les visuels"
+                                    class="btn-primary btn-sm"
+                                    icon="fa-paint-brush"/>
+                        </list>
+                    </field>
+
+                    <separator/>
+
+                    <!-- Section 2 : Images principales par combinaison de variante -->
+                    <div class="alert alert-warning mb-3">
+                        <p class="mb-1">
+                            <strong>2. Images principales par variante</strong> — 
+                            Pour que l'image principale change quand le client 
+                            sélectionne une combinaison, assignez une image à chaque variante.
+                        </p>
+                        <p class="mb-0 text-muted small">
+                            Ex: Meuble BUTTERFLY + Cuve Blanc = photo du spa avec meuble butterfly et cuve blanche.
+                        </p>
+                    </div>
+
+                    <button name="action_manage_variant_images"
+                            type="object"
+                            string="Assigner les images aux variantes"
+                            class="btn-primary mb-3"
+                            icon="fa-images"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
