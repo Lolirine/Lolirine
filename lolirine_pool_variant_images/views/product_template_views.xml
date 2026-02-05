@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ============================================================ -->
+    <!-- Étendre la fiche produit pour ajouter le bouton "Visuels"    -->
+    <!-- sur les lignes d'attributs dans l'onglet Variantes           -->
+    <!-- ============================================================ -->
+    
+    <!-- Extension du formulaire product.template -->
+    <record id="product_template_form_view_variant_images" model="ir.ui.view">
+        <field name="name">product.template.form.variant.images</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <!-- Ajouter un bouton "Gérer les visuels" dans la liste des lignes d'attribut -->
+            <xpath expr="//field[@name='attribute_line_ids']//list" position="inside">
+                <field name="is_visual" column_invisible="1"/>
+                <field name="display_type" column_invisible="1"/>
+                <button name="action_manage_visuals" 
+                        type="object"
+                        string="🎨 Visuels"
+                        class="btn-link"
+                        title="Gérer les images et couleurs de cet attribut"
+                        icon="fa-paint-brush"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Vue alternative : Onglet dédié "Visuels" sur la fiche produit -->
+    <!-- ============================================================ -->
+    <record id="product_template_form_view_visual_tab" model="ir.ui.view">
+        <field name="name">product.template.form.visual.tab</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="priority">60</field>
+        <field name="arch" type="xml">
+            <!-- Ajouter un onglet "Visuels des variantes" après l'onglet variantes -->
+            <xpath expr="//page[@name='variants']" position="after">
+                <page string="🎨 Visuels des variantes" name="variant_visuals"
+                      invisible="not has_visual_attributes">
+                    <field name="has_visual_attributes" invisible="1"/>
+                    
+                    <div class="alert alert-light mb-3">
+                        <p class="mb-1">
+                            <strong>Configuration des visuels</strong> — 
+                            Gérez ici les images et couleurs associées aux valeurs d'attributs visuels 
+                            (Meuble, Couleur Cuve, etc.)
+                        </p>
+                        <p class="mb-0 text-muted small">
+                            💡 L'image a priorité sur la couleur HTML. Le client verra le changement 
+                            de visuel en temps réel sur le site web lorsqu'il sélectionne une variante.
+                        </p>
+                    </div>
+
+                    <!-- Afficher chaque attribut visuel et ses valeurs -->
+                    <field name="attribute_line_ids" readonly="1" nolabel="1">
+                        <list>
+                            <field name="attribute_id" string="Attribut"/>
+                            <field name="display_type" string="Mode"/>
+                            <field name="value_ids" widget="many2many_tags" string="Valeurs"/>
+                            <button name="action_manage_visuals"
+                                    type="object"
+                                    string="🎨 Modifier les visuels"
+                                    class="btn-primary btn-sm"
+                                    icon="fa-paint-brush"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
