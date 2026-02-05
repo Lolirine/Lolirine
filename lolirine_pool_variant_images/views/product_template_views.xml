@@ -1,33 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <!-- ============================================================ -->
-    <!-- Étendre la fiche produit pour ajouter le bouton "Visuels"    -->
-    <!-- sur les lignes d'attributs dans l'onglet Variantes           -->
-    <!-- ============================================================ -->
-    
-    <!-- Extension du formulaire product.template -->
-    <record id="product_template_form_view_variant_images" model="ir.ui.view">
-        <field name="name">product.template.form.variant.images</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_form_view"/>
-        <field name="priority">50</field>
-        <field name="arch" type="xml">
-            <!-- Ajouter un bouton "Gérer les visuels" dans la liste des lignes d'attribut -->
-            <xpath expr="//field[@name='attribute_line_ids']//list" position="inside">
-                <field name="is_visual" column_invisible="1"/>
-                <field name="display_type" column_invisible="1"/>
-                <button name="action_manage_visuals" 
-                        type="object"
-                        string="🎨 Visuels"
-                        class="btn-link"
-                        title="Gérer les images et couleurs de cet attribut"
-                        icon="fa-paint-brush"/>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- ============================================================ -->
-    <!-- Vue alternative : Onglet dédié "Visuels" sur la fiche produit -->
+    <!-- Onglet dédié "Visuels des variantes" sur la fiche produit    -->
+    <!-- Approche sûre : ajout d'un onglet séparé sans toucher        -->
+    <!-- à la structure existante des lignes d'attribut                -->
     <!-- ============================================================ -->
     <record id="product_template_form_view_visual_tab" model="ir.ui.view">
         <field name="name">product.template.form.visual.tab</field>
@@ -53,11 +29,12 @@
                         </p>
                     </div>
 
-                    <!-- Afficher chaque attribut visuel et ses valeurs -->
-                    <field name="attribute_line_ids" readonly="1" nolabel="1">
-                        <list>
+                    <!-- Liste des attributs visuels avec bouton d'édition -->
+                    <field name="attribute_line_ids" nolabel="1" readonly="1"
+                           context="{'show_visual_button': True}">
+                        <list create="0" delete="0">
                             <field name="attribute_id" string="Attribut"/>
-                            <field name="display_type" string="Mode"/>
+                            <field name="display_type" string="Mode" optional="show"/>
                             <field name="value_ids" widget="many2many_tags" string="Valeurs"/>
                             <button name="action_manage_visuals"
                                     type="object"
