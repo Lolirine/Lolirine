@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Pas d'héritage risqué - juste une action de menu rapide -->
+    <!-- pour accéder aux attributs visuels -->
+    
+    <record id="action_visual_attributes" model="ir.actions.act_window">
+        <field name="name">Attributs visuels</field>
+        <field name="res_model">product.attribute</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('display_type', 'in', ['color', 'image'])]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun attribut visuel configuré
+            </p>
+            <p>
+                Changez le "Type d'affichage" d'un attribut en "Couleur" ou "Image"
+                pour le voir apparaître ici.
+            </p>
+        </field>
+    </record>
+</odoo>
