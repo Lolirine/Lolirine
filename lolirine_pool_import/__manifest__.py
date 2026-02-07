@@ -107,6 +107,7 @@
         'web.assets_backend': [
             'lolirine_pool_import/static/src/css/catalog_extractor.css',
             'lolirine_pool_import/static/src/js/catalog_extractor.js',
+            'lolirine_pool_import/static/src/js/variant_image_switcher.js',
             'lolirine_pool_import/static/src/xml/catalog_extractor.xml',
         ],
     },
