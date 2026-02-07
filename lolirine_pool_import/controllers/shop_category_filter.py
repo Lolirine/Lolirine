@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Filtre les attributs du shop par catégorie.
-Quand un client navigue dans une catégorie, seuls les attributs
-réellement présents sur les produits de cette catégorie s'affichent.
+Filtre les attributs du shop par catégorie ET par website.
+- Dans une catégorie : seuls les attributs des produits de cette catégorie
+- Sans catégorie : seuls les attributs des produits publiés sur CE website
 """
 
 from odoo.addons.website_sale.controllers.main import WebsiteSale
@@ -14,38 +14,37 @@ class WebsiteSaleCategoryFilter(WebsiteSale):
 
     @http.route()
     def shop(self, page=0, category=None, search='', min_price=0.0, max_price=0.0, ppg=False, **post):
-        # Appeler le shop standard
         response = super().shop(
             page=page, category=category, search=search,
             min_price=min_price, max_price=max_price, ppg=ppg, **post
         )
 
-        # Si on est dans une catégorie, filtrer les attributs
-        if category and hasattr(response, 'qcontext'):
-            cat_obj = response.qcontext.get('category')
-            if cat_obj and hasattr(cat_obj, 'id') and cat_obj.id:
-                try:
-                    self._filter_attributes_by_category(response, cat_obj)
-                except Exception:
-                    pass  # En cas d'erreur, on laisse les filtres par défaut
+        if hasattr(response, 'qcontext') and 'attributes' in response.qcontext:
+            try:
+                cat_obj = response.qcontext.get('category')
+                cat_id = cat_obj.id if cat_obj and hasattr(cat_obj, 'id') else 0
+                self._filter_attributes_for_context(response, cat_id)
+            except Exception:
+                pass  # En cas d'erreur, on laisse les filtres par défaut
 
         return response
 
-    def _filter_attributes_by_category(self, response, category):
-        """Remplace la liste d'attributs par ceux de la catégorie uniquement."""
-        # Trouver tous les produits publiés dans cette catégorie et ses enfants
-        cat_ids = category.ids
-        child_cats = request.env['product.public.category'].sudo().search([
-            ('id', 'child_of', cat_ids)
-        ])
-        all_cat_ids = child_cats.ids or cat_ids
-
-        # Produits publiés de la catégorie
+    def _filter_attributes_for_context(self, response, category_id):
+        """Filtre les attributs selon la catégorie et le website courant."""
+        # Domaine de base : produits publiés sur ce website
         base_domain = request.website.sale_product_domain()
-        domain = base_domain + [('public_categ_ids', 'in', all_cat_ids)]
-        products = request.env['product.template'].sudo().search(domain)
+
+        if category_id:
+            # Sous-catégories incluses
+            child_cats = request.env['product.public.category'].sudo().search([
+                ('id', 'child_of', [category_id])
+            ])
+            base_domain += [('public_categ_ids', 'in', child_cats.ids)]
+
+        products = request.env['product.template'].sudo().search(base_domain)
 
         if not products:
+            response.qcontext['attributes'] = response.qcontext['attributes'].browse([])
             return
 
         # Attributs réellement utilisés par ces produits
@@ -54,12 +53,11 @@ class WebsiteSaleCategoryFilter(WebsiteSale):
         ).ids
 
         if not used_attribute_ids:
+            response.qcontext['attributes'] = response.qcontext['attributes'].browse([])
             return
 
-        # Filtrer les attributs dans le qcontext
-        if 'attributes' in response.qcontext:
-            original_attrs = response.qcontext['attributes']
-            filtered = original_attrs.filtered(
-                lambda a: a.id in used_attribute_ids
-            )
-            response.qcontext['attributes'] = filtered
+        # Ne garder que les attributs pertinents
+        original_attrs = response.qcontext['attributes']
+        response.qcontext['attributes'] = original_attrs.filtered(
+            lambda a: a.id in used_attribute_ids
+        )
