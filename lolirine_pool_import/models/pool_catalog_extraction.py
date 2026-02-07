@@ -114,6 +114,16 @@ class PoolCatalogExtraction(models.Model):
         string='Images du catalogue'
     )
     
+    # Source du catalogue et fournisseur auto-détecté
+    catalog_source_url = fields.Char(
+        string='URL du catalogue',
+        help='URL du catalogue source (ex: Fluidra France 2026)'
+    )
+    catalog_brand = fields.Char(
+        string='Marque catalogue',
+        help='Marque détectée dans le catalogue (ex: CEPEX, AstralPool)'
+    )
+    
     # Variantes multi-dimensionnelles (spas, etc.)
     furniture_variants_data = fields.Text(
         string='Variantes meubles (JSON)',
@@ -140,6 +150,73 @@ class PoolCatalogExtraction(models.Model):
         for rec in self:
             rec.product_count = len(rec.extracted_product_ids)
             rec.imported_count = len(rec.extracted_product_ids.filtered(lambda p: p.state == 'imported'))
+    
+    # =============================================
+    # AUTO-DÉTECTION FOURNISSEUR FLUIDRA
+    # =============================================
+    
+    FLUIDRA_BRANDS = [
+        'cepex', 'astralpool', 'astral pool', 'zodiac', 'fluidra',
+        'ctx', 'certikin', 'gre', 'bayrol', 'polaris', 'jandy',
+        'sibo', 'century', 'aquasphere', 'hth', 'flovil',
+        'nature2', 'aquachek', 'spa sensations', 'covervalet',
+        'ccei', 'hayward', 'weltico', 'procopi', 'aquaforte',
+        'bwt', 'flexinox', 'inter water', 'interwater',
+        'astrapool', 'pool fluidra', 'poolfluidra',
+    ]
+    
+    def _auto_detect_supplier(self, brand_name=None, catalog_url=None):
+        """
+        Détecte automatiquement le fournisseur à partir de la marque extraite
+        ou de l'URL du catalogue.
+        Mapping: CEPEX, AstralPool, Zodiac, etc. → Fluidra
+        """
+        self.ensure_one()
+        
+        search_text = ''
+        if brand_name:
+            search_text += brand_name.lower()
+        if catalog_url:
+            search_text += ' ' + catalog_url.lower()
+        if self.catalog_brand:
+            search_text += ' ' + self.catalog_brand.lower()
+        if self.catalog_source_url:
+            search_text += ' ' + self.catalog_source_url.lower()
+        
+        if not search_text.strip():
+            return False
+        
+        # Vérifier si c'est une marque Fluidra
+        is_fluidra = any(brand in search_text for brand in self.FLUIDRA_BRANDS)
+        
+        if is_fluidra:
+            # Chercher le fournisseur Fluidra dans pool.supplier
+            fluidra_supplier = self.env['pool.supplier'].search([
+                '|', '|', '|',
+                ('name', 'ilike', 'fluidra'),
+                ('name', 'ilike', 'sibo'),
+                ('name', 'ilike', 'pool fluidra'),
+                ('name', 'ilike', 'fluidra france'),
+            ], limit=1)
+            
+            if fluidra_supplier:
+                _logger.info(f"🏭 Fournisseur auto-détecté: {fluidra_supplier.name} (marque: {brand_name})")
+                return fluidra_supplier
+            else:
+                # Créer le fournisseur Fluidra s'il n'existe pas
+                _logger.info("🏭 Création du fournisseur Fluidra...")
+                try:
+                    fluidra_supplier = self.env['pool.supplier'].create({
+                        'name': 'Fluidra',
+                    })
+                    _logger.info(f"✅ Fournisseur Fluidra créé (ID: {fluidra_supplier.id})")
+                    return fluidra_supplier
+                except Exception as e:
+                    _logger.warning(f"Impossible de créer le fournisseur Fluidra: {e}")
+                    return False
+        
+        _logger.info(f"Aucun fournisseur auto-détecté pour: {search_text[:100]}")
+        return False
     
     def action_extract(self):
         """Lance l'extraction OCR sur l'image"""
@@ -604,6 +681,21 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire ni backticks."""
         base_specs = data.get('specifications', {})
         info_attrs = data.get('informative_attributes', {})
         
+        # =============================================
+        # AUTO-DÉTECTION DU FOURNISSEUR
+        # =============================================
+        detected_brand = base_product.get('brand', '')
+        if detected_brand:
+            self.catalog_brand = detected_brand
+        
+        # Si pas de fournisseur défini, essayer de le détecter automatiquement
+        if not self.supplier_id and detected_brand:
+            auto_supplier = self._auto_detect_supplier(brand_name=detected_brand)
+            if auto_supplier:
+                self.supplier_id = auto_supplier
+                _logger.info(f"🏭 Fournisseur auto-assigné: {auto_supplier.name}")
+        # =============================================
+        
         # Stocker les attributs informatifs au niveau de l'extraction
         self._process_informative_attributes(info_attrs)
         
@@ -816,9 +908,136 @@ Réponds UNIQUEMENT avec le JSON, sans texte supplémentaire ni backticks."""
         # Reset l'index courant
         self.current_product_index = 0
         
-        # Lancer l'extraction d'image si détectée
-        if self.product_image_detected:
+        # =============================================
+        # ASSOCIER LES IMAGES AUX PRODUITS EXTRAITS
+        # =============================================
+        if self.catalog_image_ids and self.extracted_product_ids:
+            self._match_images_to_products()
+        
+        # Lancer l'extraction d'image si détectée (fallback ancien système)
+        if self.product_image_detected and not self.catalog_image_ids:
             self._extract_product_image()
+    
+    def _match_images_to_products(self):
+        """
+        Associe intelligemment les images découpées aux produits extraits.
+        
+        Stratégies de matching (par ordre de priorité):
+        1. Correspondance exacte par référence
+        2. Correspondance par description d'image <-> nom de produit
+        3. Association par position verticale (image au-dessus du tableau)
+        """
+        self.ensure_one()
+        
+        if not self.catalog_image_ids or not self.extracted_product_ids:
+            return
+        
+        _logger.info(f"🔗 Association images-produits: {len(self.catalog_image_ids)} images, {len(self.extracted_product_ids)} produits")
+        
+        # Trier les images par position Y (haut -> bas)
+        images_sorted = self.catalog_image_ids.sorted(key=lambda i: i.y_percent)
+        
+        # Grouper les produits par "famille" (même nom de base sans variante)
+        product_families = {}
+        for prod in self.extracted_product_ids:
+            base_name = prod.name
+            if prod.capacity and prod.capacity in base_name:
+                base_name = base_name.replace(f" - {prod.capacity}", "").replace(f"- {prod.capacity}", "")
+                base_name = base_name.replace(f" ({prod.capacity})", "").replace(f"({prod.capacity})", "")
+            base_name = base_name.strip()
+            
+            if base_name not in product_families:
+                product_families[base_name] = []
+            product_families[base_name].append(prod)
+        
+        _logger.info(f"Familles de produits: {list(product_families.keys())}")
+        
+        matched_count = 0
+        used_image_ids = set()
+        
+        for img in images_sorted:
+            if img.id in used_image_ids:
+                continue
+            
+            matched = False
+            
+            # Stratégie 1: Correspondance exacte par référence
+            if img.reference:
+                matching = self.extracted_product_ids.filtered(
+                    lambda p: p.reference == img.reference or p.type_code == img.reference
+                )
+                if matching:
+                    for prod in matching:
+                        if not prod.product_image:
+                            prod.product_image = img.image
+                            matched_count += 1
+                    used_image_ids.add(img.id)
+                    matched = True
+                    _logger.info(f"  ✅ Image '{img.description}' -> {len(matching)} produit(s) (par ref)")
+            
+            # Stratégie 2: Correspondance par description <-> nom de famille
+            if not matched and img.description:
+                desc_lower = img.description.lower()
+                best_match_family = None
+                best_score = 0
+                
+                for family_name, family_products in product_families.items():
+                    family_lower = family_name.lower()
+                    score = 0
+                    
+                    # Mots-clés de type produit
+                    type_keywords = [
+                        'coude', 'té', 'manchon', 'réduction', 'bouchon', 'embout',
+                        'vanne', 'union', 'raccord', 'clapet', 'flexible',
+                        'pompe', 'filtre', 'robot', 'éclairage', 'projecteur',
+                        'couverture', 'échelle', 'escalier', 'douche', 'alarme',
+                    ]
+                    for kw in type_keywords:
+                        if kw in desc_lower and kw in family_lower:
+                            score += 3
+                    
+                    # Mots communs significatifs
+                    stopwords = {'de', 'du', 'le', 'la', 'les', 'à', 'en', 'et', 'pour', 'avec', 'sans', '-'}
+                    desc_words = set(desc_lower.split()) - stopwords
+                    family_words = set(family_lower.split()) - stopwords
+                    common = desc_words & family_words
+                    score += len(common)
+                    
+                    if score > best_score:
+                        best_score = score
+                        best_match_family = family_products
+                
+                if best_match_family and best_score >= 1:
+                    for prod in best_match_family:
+                        if not prod.product_image:
+                            prod.product_image = img.image
+                            matched_count += 1
+                    used_image_ids.add(img.id)
+                    matched = True
+                    _logger.info(f"  ✅ Image '{img.description}' -> {len(best_match_family)} produits (score={best_score})")
+        
+        # Stratégie 3: Assigner les images restantes par position Y
+        remaining_images = [img for img in images_sorted if img.id not in used_image_ids and img.image]
+        unmatched_products = self.extracted_product_ids.filtered(lambda p: not p.product_image)
+        
+        if remaining_images and unmatched_products:
+            # Diviser les produits en groupes et assigner chaque image à un groupe
+            products_per_image = max(1, len(unmatched_products) // len(remaining_images))
+            unmatched_list = list(unmatched_products)
+            
+            for i, img in enumerate(remaining_images):
+                start = i * products_per_image
+                end = start + products_per_image if i < len(remaining_images) - 1 else len(unmatched_list)
+                group = unmatched_list[start:end]
+                
+                for prod in group:
+                    if not prod.product_image:
+                        prod.product_image = img.image
+                        matched_count += 1
+                
+                _logger.info(f"  📍 Image '{img.description}' -> {len(group)} produits (par position)")
+        
+        _logger.info(f"🔗 Résultat: {matched_count} associations image-produit créées")
     
     def _process_informative_attributes(self, info_attrs):
         """Stocke les attributs informatifs au niveau de l'extraction"""
@@ -2054,15 +2273,17 @@ Réponds UNIQUEMENT avec le JSON."""
         return self.action_extract()
     
     @api.model
-    def create_from_upload(self, image_base64, supplier_id=None, auto_extract=True):
+    def create_from_upload(self, image_base64, supplier_id=None, auto_extract=True, catalog_url=None):
         """
         Crée une extraction depuis une image uploadée.
         Utilisé par le composant JavaScript.
         
+        :param catalog_url: URL du catalogue source (ex: Fluidra France 2026)
         :return: ID de l'extraction créée (int)
         """
         _logger.info("=== create_from_upload appelé ===")
         _logger.info(f"supplier_id reçu: {supplier_id}, type: {type(supplier_id)}")
+        _logger.info(f"catalog_url: {catalog_url}")
         
         vals = {
             'image': image_base64,
@@ -2072,9 +2293,20 @@ Réponds UNIQUEMENT avec le JSON."""
         if supplier_id and isinstance(supplier_id, int) and supplier_id > 0:
             vals['supplier_id'] = supplier_id
         
+        # Stocker l'URL du catalogue si fournie
+        if catalog_url:
+            vals['catalog_source_url'] = catalog_url
+        
         try:
             extraction = self.create(vals)
             _logger.info(f"Extraction créée avec ID: {extraction.id}")
+            
+            # Auto-détection du fournisseur depuis l'URL du catalogue
+            if not extraction.supplier_id and catalog_url:
+                auto_supplier = extraction._auto_detect_supplier(catalog_url=catalog_url)
+                if auto_supplier:
+                    extraction.supplier_id = auto_supplier
+                    _logger.info(f"🏭 Fournisseur auto-détecté depuis URL: {auto_supplier.name}")
             
             if auto_extract:
                 _logger.info("Lancement auto_extract...")
@@ -2333,6 +2565,9 @@ class PoolCatalogExtractionProduct(models.Model):
     pool_type = fields.Char(string='Type piscine', help="enterrée, hors-sol, tous types")
     pool_liner_compatible = fields.Boolean(string='Compatible liner', default=True)
     
+    # Pression nominale PVC
+    pressure_pn = fields.Char(string='Pression nominale (PN)')
+    
     # =============================================
     
     # Image produit extraite
@@ -2375,7 +2610,6 @@ class PoolCatalogExtractionProduct(models.Model):
             supplier = rec.extraction_id.supplier_id if rec.extraction_id else False
             catalog_price = rec.purchase_price or 0
             
-            # Vérifier si le fournisseur a une grille de remises (nouveau champ)
             has_discounts = (
                 supplier and 
                 hasattr(supplier, 'discount_ids') and 
@@ -2384,7 +2618,6 @@ class PoolCatalogExtractionProduct(models.Model):
             )
             
             if has_discounts:
-                # Utiliser la méthode du fournisseur pour calculer les prix
                 price_info = supplier.calculate_prices(
                     catalog_price=catalog_price,
                     category_name=rec.category,
@@ -2393,7 +2626,6 @@ class PoolCatalogExtractionProduct(models.Model):
                 rec.purchase_price_net = price_info['purchase_price']
                 rec.selling_price_calculated = price_info['selling_price']
             else:
-                # Pas de grille de remise, prix = catalogue
                 rec.discount_percent = 0
                 rec.purchase_price_net = catalog_price
                 rec.selling_price_calculated = catalog_price * 1.35 if catalog_price > 0 else 0
@@ -2431,7 +2663,6 @@ class PoolCatalogExtractionProduct(models.Model):
         supplier = self.extraction_id.supplier_id
         ProductTemplate = self.env['product.template']
         
-        # Préparer les valeurs de base (champs standard Odoo uniquement)
         ref_code = self.reference or self.type_code or str(self.id)
         
         _logger.info(f"Prix extraits (catalogue) - Achat: {self.purchase_price}, Vente: {self.selling_price}")
@@ -2443,7 +2674,6 @@ class PoolCatalogExtractionProduct(models.Model):
         catalog_price = float(self.purchase_price or 0)
         selling_price = float(self.selling_price or 0)
         
-        # Vérifier si le fournisseur a une grille de remises (nouveau champ)
         has_discounts = (
             supplier and 
             hasattr(supplier, 'discount_ids') and 
@@ -2451,7 +2681,6 @@ class PoolCatalogExtractionProduct(models.Model):
             catalog_price > 0
         )
         
-        # Appliquer la remise fournisseur si disponible
         if has_discounts:
             price_info = supplier.calculate_prices(
                 catalog_price=catalog_price,
@@ -2469,7 +2698,6 @@ class PoolCatalogExtractionProduct(models.Model):
             _logger.info(f"📈 Marge appliquée: {margin_percent}%")
             _logger.info(f"🏷️ Prix de vente calculé: {calculated_selling_price}€")
             
-            # Utiliser le prix de vente extrait si défini, sinon calculer
             if selling_price > 0:
                 final_selling_price = selling_price
                 _logger.info(f"→ Prix de vente extrait utilisé: {final_selling_price}€")
@@ -2477,7 +2705,6 @@ class PoolCatalogExtractionProduct(models.Model):
                 final_selling_price = calculated_selling_price
                 _logger.info(f"→ Prix de vente calculé utilisé: {final_selling_price}€")
         else:
-            # Pas de grille de remise, utiliser les prix extraits tels quels
             purchase_price_net = catalog_price
             final_selling_price = selling_price if selling_price > 0 else catalog_price * 1.35
             _logger.info(f"Pas de grille de remise, prix utilisés tels quels")
@@ -2494,33 +2721,27 @@ class PoolCatalogExtractionProduct(models.Model):
             'purchase_ok': True,
         }
         
-        # Ajouter la description pour le site web e-commerce
         if 'website_description' in ProductTemplate._fields and self.description_fr:
-            # Formater la description en HTML pour le site web
             description_html = self._format_website_description()
             vals['website_description'] = description_html
             _logger.info("Description website ajoutée")
         
-        # Marquer comme produit piscine (pour le multi-site)
         if 'is_pool_product' in ProductTemplate._fields:
             vals['is_pool_product'] = True
         
         # =============================================
-        # PUBLICATION E-COMMERCE - NOUVEAU
+        # PUBLICATION E-COMMERCE
         # =============================================
         
-        # Publier le produit sur le site e-commerce
         if 'is_published' in ProductTemplate._fields:
             vals['is_published'] = True
             _logger.info("Produit marqué comme publié (is_published=True)")
         
-        # Assigner au website Pool Store
         pool_website = self._get_pool_store_website()
         if pool_website and 'website_id' in ProductTemplate._fields:
             vals['website_id'] = pool_website.id
             _logger.info(f"Produit assigné au website: {pool_website.name} (ID: {pool_website.id})")
         
-        # Assigner aux catégories e-commerce publiques
         public_categ_ids = self._get_public_category_ids(self.category)
         if public_categ_ids and 'public_categ_ids' in ProductTemplate._fields:
             vals['public_categ_ids'] = [(6, 0, public_categ_ids)]
@@ -2530,12 +2751,9 @@ class PoolCatalogExtractionProduct(models.Model):
         
         _logger.info(f"Valeurs de base: {vals}")
         
-        # Déterminer le bon type de produit
-        # 'product' (stockable) nécessite le module stock, sinon utiliser 'consu' (consommable)
-        product_type = 'consu'  # Valeur par défaut sûre
+        product_type = 'consu'
         
         if 'detailed_type' in ProductTemplate._fields:
-            # Vérifier si 'product' est disponible (module stock installé)
             field_def = ProductTemplate._fields['detailed_type']
             if hasattr(field_def, 'selection'):
                 selection = field_def.selection
@@ -2552,11 +2770,9 @@ class PoolCatalogExtractionProduct(models.Model):
                     _logger.info(f"Types disponibles: {valid_types}, utilisation de detailed_type=consu")
             vals['detailed_type'] = product_type
         elif 'type' in ProductTemplate._fields:
-            # Odoo < 15
             vals['type'] = product_type
             _logger.info(f"Utilisation de type={product_type}")
         
-        # Ajouter les champs personnalisés UN PAR UN s'ils existent
         custom_fields_mapping = [
             ('x_pool_supplier_ref', ref_code),
             ('x_pool_brand', self.brand or ''),
@@ -2572,10 +2788,9 @@ class PoolCatalogExtractionProduct(models.Model):
                 _logger.debug(f"Ajout champ {field_name}={field_value}")
         
         # =============================================
-        # CHAMPS SPÉCIFICATIONS TECHNIQUES (onglet Piscine)
+        # CHAMPS SPÉCIFICATIONS TECHNIQUES
         # =============================================
         
-        # Champs numériques personnalisés (Float)
         numeric_fields = [
             ('x_power_kw', self.power_kw),
             ('x_flow_rate', self.flow_rate),
@@ -2593,7 +2808,6 @@ class PoolCatalogExtractionProduct(models.Model):
                 vals[field_name] = float(field_value)
                 _logger.info(f"Spec numérique: {field_name}={field_value}")
         
-        # Champs entiers personnalisés (Integer)
         int_fields = [
             ('x_voltage', self.voltage),
             ('x_diameter_mm', self.diameter_mm),
@@ -2609,7 +2823,6 @@ class PoolCatalogExtractionProduct(models.Model):
                 vals[field_name] = int(field_value)
                 _logger.info(f"Spec entier: {field_name}={field_value}")
         
-        # Champs texte personnalisés (Char)
         char_fields = [
             ('x_power_cv', self.power_cv if hasattr(self, 'power_cv') else None),
             ('x_dimensions', self.dimensions if hasattr(self, 'dimensions') else None),
@@ -2626,22 +2839,18 @@ class PoolCatalogExtractionProduct(models.Model):
                 vals[field_name] = str(field_value)
                 _logger.info(f"Spec texte: {field_name}={field_value}")
         
-        # Champ booléen WiFi
         if 'x_wifi_compatible' in ProductTemplate._fields and hasattr(self, 'wifi_compatible'):
             vals['x_wifi_compatible'] = self.wifi_compatible
         
         # =============================================
         
-        # Date d'import
         if 'x_pool_import_date' in ProductTemplate._fields:
             vals['x_pool_import_date'] = fields.Datetime.now()
         
-        # Fournisseur
         if supplier and 'x_pool_supplier_id' in ProductTemplate._fields:
             vals['x_pool_supplier_id'] = supplier.id
             _logger.info(f"Fournisseur: {supplier.name}")
         
-        # Catégorie
         if self.category:
             _logger.info(f"Recherche catégorie: {self.category}")
             category = self.env['product.category'].search([
@@ -2649,9 +2858,7 @@ class PoolCatalogExtractionProduct(models.Model):
             ], limit=1)
             
             if not category:
-                # Créer la catégorie si elle n'existe pas
                 _logger.info(f"Catégorie non trouvée, création de: {self.category}")
-                # Chercher une catégorie parente "Piscine" ou "All"
                 parent_category = self.env['product.category'].search([
                     '|',
                     ('name', 'ilike', 'piscine'),
@@ -2671,10 +2878,6 @@ class PoolCatalogExtractionProduct(models.Model):
                 vals['categ_id'] = category.id
                 _logger.info(f"Catégorie assignée: {category.name} (ID: {category.id})")
         
-        # NOTE: La catégorie e-commerce (public_categ_ids) est déjà assignée plus haut via _get_public_category_ids()
-        
-        # Ajouter les attributs si le produit a une capacité ou variante
-        # (seulement pour les nouveaux produits, pas les mises à jour)
         if not self.existing_product_id and (self.capacity or self.variant_name):
             attribute_line = self._create_product_attribute()
             if attribute_line:
@@ -2693,13 +2896,9 @@ class PoolCatalogExtractionProduct(models.Model):
                 product = ProductTemplate.create(vals)
                 _logger.info(f"Produit créé avec ID={product.id}")
             
-            # Ajouter les attributs informatifs (non-variants)
             self._add_informative_attributes(product)
-            
-            # Ajouter l'image produit extraite
             self._add_product_image(product)
             
-            # Créer les infos dropshipping (toujours essayer, le champ est True par défaut)
             _logger.info(f"=== Tentative création dropship info ===")
             _logger.info(f"is_dropship_product = {self.is_dropship_product}")
             try:
@@ -2728,7 +2927,6 @@ class PoolCatalogExtractionProduct(models.Model):
                 'state': 'error',
                 'error_message': error_msg,
             })
-            # Ne pas lever d'exception pour éviter l'erreur serveur côté client
             return False
     
     def _add_informative_attributes(self, product):
@@ -2738,97 +2936,54 @@ class PoolCatalogExtractionProduct(models.Model):
         ProductAttribute = self.env['product.attribute']
         ProductAttributeValue = self.env['product.attribute.value']
         
-        # Liste des attributs informatifs à créer
         informative_attrs = []
         
-        # =============================================
-        # SPÉCIFICATIONS TECHNIQUES
-        # =============================================
-        
-        # Puissance kW
         if self.power_kw:
             informative_attrs.append(('Puissance', f"{self.power_kw} kW"))
-        
-        # Débit
         if self.flow_rate:
             informative_attrs.append(('Débit', f"{self.flow_rate} m³/h"))
-        
-        # Surface filtrante
         if self.filter_area:
             informative_attrs.append(('Surface filtrante', f"{self.filter_area} m²"))
-        
-        # Tension
         if self.voltage:
             informative_attrs.append(('Tension', f"{self.voltage} V"))
-        
-        # Diamètre
         if self.diameter_mm:
             informative_attrs.append(('Diamètre', f"{self.diameter_mm} mm"))
-        
-        # COP
         if self.cop:
             informative_attrs.append(('COP', str(self.cop)))
-        
-        # Niveau sonore
         if self.noise_level:
             informative_attrs.append(('Niveau sonore', f"{self.noise_level} dB(A)"))
-        
-        # =============================================
-        # ATTRIBUTS INFORMATIFS ADDITIONNELS
-        # =============================================
-        
-        # Gaz réfrigérant
         if self.refrigerant_gas:
             informative_attrs.append(('Gaz réfrigérant', self.refrigerant_gas))
-        
-        # Alimentation
         if self.power_supply:
             informative_attrs.append(('Alimentation', self.power_supply))
-        
-        # Volume piscine
         if self.pool_volume_min or self.pool_volume_max:
             vol_str = f"{self.pool_volume_min or '?'} - {self.pool_volume_max or '?'} m³"
             informative_attrs.append(('Volume piscine conseillé', vol_str))
-        
-        # Température fonctionnement
         if self.operating_temp_min is not None or self.operating_temp_max is not None:
             temp_str = f"{self.operating_temp_min or '?'}°C à {self.operating_temp_max or '?'}°C"
             informative_attrs.append(('Température fonctionnement', temp_str))
-        
-        # Connexion eau
         if self.water_connection:
             informative_attrs.append(('Connexion eau', self.water_connection))
-        
-        # Classe énergétique
         if self.energy_class:
             informative_attrs.append(('Classe énergétique', self.energy_class))
-        
-        # Type de produit
         if self.product_type:
             informative_attrs.append(('Technologie', self.product_type))
-        
-        # Installation
         if self.installation_type:
             informative_attrs.append(('Installation', self.installation_type))
-        
-        # WiFi
         if self.wifi_compatible:
             informative_attrs.append(('Connectivité', 'WiFi'))
         
-        # Créer les attributs sur le produit
         for attr_name, attr_value in informative_attrs:
             try:
-                # Chercher ou créer l'attribut
                 attribute = ProductAttribute.search([('name', '=', attr_name)], limit=1)
                 if not attribute:
                     attribute = ProductAttribute.create({
                         'name': attr_name,
                         'display_type': 'radio',
-                        'create_variant': 'no_variant',  # Important: pas de variante
+                        'create_variant': 'no_variant',
                     })
                     _logger.info(f"Attribut informatif créé: {attr_name}")
                 
-                # Chercher ou créer la valeur
                 attr_val = ProductAttributeValue.search([
                     ('attribute_id', '=', attribute.id),
                     ('name', '=', attr_value)
@@ -2840,13 +2995,11 @@ class PoolCatalogExtractionProduct(models.Model):
                         'name': attr_value,
                     })
                 
-                # Vérifier si l'attribut est déjà sur le produit
                 existing_line = product.attribute_line_ids.filtered(
                     lambda l: l.attribute_id.id == attribute.id
                 )
                 
                 if not existing_line:
-                    # Ajouter l'attribut au produit
                     product.write({
                         'attribute_line_ids': [(0, 0, {
                             'attribute_id': attribute.id,
@@ -2861,8 +3014,9 @@ class PoolCatalogExtractionProduct(models.Model):
     def _add_product_image(self, product):
         """
         Ajoute les images extraites au produit Odoo :
-        - Image principale depuis l'extraction
+        - Image principale depuis l'extraction (product_image du produit extrait)
         - Images secondaires depuis le catalogue (images découpées)
+        - Matching amélioré par nom de famille de produit et mots-clés
         """
         self.ensure_one()
         
@@ -2870,14 +3024,18 @@ class PoolCatalogExtractionProduct(models.Model):
         images_added = 0
         
         # =============================================
-        # 1. IMAGE PRINCIPALE
+        # 1. IMAGE PRINCIPALE (PRIORITÉ)
         # =============================================
         
-        # Essayer d'abord l'image extraite du produit
-        main_image = self.product_image
+        main_image = None
         
-        # Sinon, chercher dans les images du catalogue qui correspondent
-        if not main_image and hasattr(self.extraction_id, 'catalog_image_ids'):
+        # A. Image directement sur le produit extrait (pré-matchée par _match_images_to_products)
+        if self.product_image:
+            main_image = self.product_image
+            _logger.info(f"📸 Image principale trouvée sur le produit extrait")
+        
+        # B. Chercher dans les images du catalogue par référence
+        if not main_image and hasattr(self.extraction_id, 'catalog_image_ids') and self.extraction_id.catalog_image_ids:
             matching_images = self.extraction_id.catalog_image_ids.filtered(
                 lambda img: (
                     (img.reference and (img.reference == self.reference or img.reference == self.type_code)) or
@@ -2886,10 +3044,31 @@ class PoolCatalogExtractionProduct(models.Model):
             )
             if matching_images:
                 main_image = matching_images[0].image
+                _logger.info(f"📸 Image trouvée par référence dans le catalogue")
         
-        # Sinon, utiliser l'image extraite de l'extraction parent
+        # C. Chercher par mot-clé similaire dans les images du catalogue
+        if not main_image and hasattr(self.extraction_id, 'catalog_image_ids') and self.extraction_id.catalog_image_ids:
+            name_lower = (self.name or '').lower()
+            type_keywords = [
+                'coude', 'té', 'manchon', 'réduction', 'bouchon', 'embout',
+                'vanne', 'union', 'raccord', 'clapet', 'pompe', 'filtre',
+                'robot', 'projecteur', 'couverture', 'échelle', 'escalier',
+            ]
+            for cat_img in self.extraction_id.catalog_image_ids:
+                if cat_img.description:
+                    desc_lower = cat_img.description.lower()
+                    for kw in type_keywords:
+                        if kw in desc_lower and kw in name_lower:
+                            main_image = cat_img.image
+                            _logger.info(f"📸 Image trouvée par mot-clé '{kw}'")
+                            break
+                if main_image:
+                    break
+        
+        # D. Fallback: utiliser l'image extraite de l'extraction parent
         if not main_image and self.extraction_id.extracted_product_image:
             main_image = self.extraction_id.extracted_product_image
+            _logger.info(f"📸 Image fallback depuis l'extraction parent")
         
         # Ajouter l'image principale
         if main_image:
@@ -2897,16 +3076,16 @@ class PoolCatalogExtractionProduct(models.Model):
                 if not product.image_1920:
                     product.image_1920 = main_image
                     images_added += 1
-                    _logger.info(f"📸 Image principale ajoutée au produit {product.id}")
+                    _logger.info(f"📸 Image principale assignée au produit {product.id}")
                 else:
-                    # Ajouter comme image supplémentaire
-                    ProductImage.create({
-                        'product_tmpl_id': product.id,
-                        'name': f"Image catalogue - {self.name}",
-                        'image_1920': main_image,
-                    })
-                    images_added += 1
-                    _logger.info(f"📸 Image catalogue ajoutée comme secondaire au produit {product.id}")
+                    if product.image_1920 != main_image:
+                        ProductImage.create({
+                            'product_tmpl_id': product.id,
+                            'name': f"Image catalogue - {self.name}",
+                            'image_1920': main_image,
+                        })
+                        images_added += 1
+                        _logger.info(f"📸 Image catalogue ajoutée comme secondaire au produit {product.id}")
             except Exception as e:
                 _logger.warning(f"Impossible d'ajouter l'image principale: {str(e)}")
         
@@ -2915,21 +3094,17 @@ class PoolCatalogExtractionProduct(models.Model):
         # =============================================
         
         if hasattr(self.extraction_id, 'catalog_image_ids') and self.extraction_id.catalog_image_ids:
-            # Trouver toutes les images qui correspondent à ce produit
             matching_images = self.extraction_id.catalog_image_ids.filtered(
                 lambda img: (
-                    not img.assigned and  # Pas encore assignée
+                    not img.assigned and
                     (
-                        # Correspondance par référence
                         (img.reference and (img.reference == self.reference or img.reference == self.type_code)) or
                         (img.type_code and (img.type_code == self.type_code or img.type_code == self.reference)) or
-                        # Ou image sans référence (générale) - on l'ajoute à tous
                         (not img.reference and not img.type_code)
                     )
                 )
             )
             
-            # Exclure l'image déjà utilisée comme principale
             if main_image and matching_images:
                 matching_images = matching_images.filtered(lambda img: img.image != main_image)
             
@@ -2938,7 +3113,6 @@ class PoolCatalogExtractionProduct(models.Model):
                     continue
                     
                 try:
-                    # Vérifier si l'image n'existe pas déjà sur le produit
                     existing = ProductImage.search([
                         ('product_tmpl_id', '=', product.id),
                         ('name', '=', f"Catalogue - {catalog_img.description or catalog_img.reference}")
@@ -2951,10 +3125,7 @@ class PoolCatalogExtractionProduct(models.Model):
                             'image_1920': catalog_img.image,
                         })
                         images_added += 1
-                        
-                        # Marquer l'image comme assignée
                         catalog_img.assigned = True
-                        
                         _logger.info(f"📸 Image secondaire '{catalog_img.description}' ajoutée au produit {product.id}")
                         
                 except Exception as e:
@@ -2977,12 +3148,10 @@ class PoolCatalogExtractionProduct(models.Model):
         
         _logger.info(f"Fournisseur: {supplier.name} (ID: {supplier.id})")
         
-        # Récupérer le partenaire lié au fournisseur pool
         partner = supplier.partner_id
         _logger.info(f"Partner existant: {partner}")
         
         if not partner:
-            # Créer automatiquement un partenaire si nécessaire
             _logger.info(f"Création d'un nouveau partenaire pour {supplier.name}")
             try:
                 partner = self.env['res.partner'].create({
@@ -2990,7 +3159,6 @@ class PoolCatalogExtractionProduct(models.Model):
                     'is_company': True,
                     'supplier_rank': 1,
                 })
-                # Ajouter les champs dropship si ils existent
                 if 'is_dropship_supplier' in self.env['res.partner']._fields:
                     partner.is_dropship_supplier = True
                 if 'dropship_certified' in self.env['res.partner']._fields:
@@ -3003,7 +3171,6 @@ class PoolCatalogExtractionProduct(models.Model):
                 return False
         else:
             _logger.info(f"Partenaire existant: {partner.name} (ID: {partner.id})")
-            # S'assurer que le partenaire est marqué comme fournisseur dropship
             try:
                 if 'is_dropship_supplier' in self.env['res.partner']._fields:
                     if not partner.is_dropship_supplier:
@@ -3015,12 +3182,10 @@ class PoolCatalogExtractionProduct(models.Model):
             except Exception as e:
                 _logger.warning(f"Impossible de marquer le partenaire comme dropship: {e}")
         
-        # Vérifier si le modèle supplier.dropship.info existe
         if 'supplier.dropship.info' not in self.env:
             _logger.error("Le modèle supplier.dropship.info n'existe pas ! Le module lolirine_pool_dropship est-il installé ?")
             return False
         
-        # Vérifier si une entrée dropship existe déjà
         DropshipInfo = self.env['supplier.dropship.info']
         existing = DropshipInfo.search([
             ('supplier_id', '=', partner.id),
@@ -3028,7 +3193,6 @@ class PoolCatalogExtractionProduct(models.Model):
         ], limit=1)
         _logger.info(f"Entrée dropship existante: {existing}")
         
-        # Préparer les valeurs
         ref_code = self.reference or self.type_code or str(self.id)
         
         dropship_vals = {
@@ -3056,7 +3220,6 @@ class PoolCatalogExtractionProduct(models.Model):
                 result = DropshipInfo.create(dropship_vals)
                 _logger.info(f"Info dropship CRÉÉE: ID={result.id}")
             
-            # Marquer le produit comme produit dropshipping
             if 'is_dropship_product' in product._fields:
                 if not product.is_dropship_product:
                     product.is_dropship_product = True
@@ -3071,36 +3234,13 @@ class PoolCatalogExtractionProduct(models.Model):
             return False
     
     def _get_pool_category(self):
-        """
-        Retourne la catégorie product.public.category correspondant à la catégorie extraite.
-        Utilise un mapping pour convertir les catégories du catalogue vers les catégories piscine.
-        
-        Catégories e-commerce disponibles:
-        01. ROBOTS DE PISCINE
-        02. CONSTRUCTION
-        03. ÉCLAIRAGE
-        04. POMPES
-        05. FILTRATION
-        06. CHAUFFAGE
-        07. TECHNIQUE DE MESURE ET DE CONTRÔLE / PRODUITS CHIMIQUES
-        08. TECHNIQUE DE TRAITEMENT DE L'EAU
-        09. COUVERTURES
-        10. MAINTENANCE ET ACCESSOIRES
-        11. MATÉRIAUX DE CONNEXION
-        12. IRRIGATION
-        """
+        """Retourne la catégorie product.public.category correspondant à la catégorie extraite."""
         self.ensure_one()
         
         if not self.category:
             return False
         
-        # Mapping catégorie extraite → product.public.category (catégories e-commerce)
-        # IMPORTANT: L'ordre compte ! Les termes plus spécifiques doivent être en premier
-        # Format: (terme_recherché, nom_catégorie_ecommerce)
         category_mapping = [
-            # ============================================
-            # 01. ROBOTS DE PISCINE
-            # ============================================
             ('robot', 'ROBOTS DE PISCINE'),
             ('nettoyeur automatique', 'ROBOTS DE PISCINE'),
             ('aspirateur piscine', 'ROBOTS DE PISCINE'),
@@ -3108,10 +3248,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('polaris', 'ROBOTS DE PISCINE'),
             ('zodiac mx', 'ROBOTS DE PISCINE'),
             ('dolphin', 'ROBOTS DE PISCINE'),
-            
-            # ============================================
-            # 02. CONSTRUCTION
-            # ============================================
             ('liner', 'CONSTRUCTION'),
             ('construction', 'CONSTRUCTION'),
             ('rénovation', 'CONSTRUCTION'),
@@ -3123,10 +3259,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('margelle', 'CONSTRUCTION'),
             ('escalier piscine', 'CONSTRUCTION'),
             ('étanchéité', 'CONSTRUCTION'),
-            
-            # ============================================
-            # 03. ÉCLAIRAGE
-            # ============================================
             ('éclairage', 'ÉCLAIRAGE'),
             ('eclairage', 'ÉCLAIRAGE'),
             ('projecteur', 'ÉCLAIRAGE'),
@@ -3136,20 +3268,12 @@ class PoolCatalogExtractionProduct(models.Model):
             ('ampoule piscine', 'ÉCLAIRAGE'),
             ('luminaire', 'ÉCLAIRAGE'),
             ('transformateur', 'ÉCLAIRAGE'),
-            
-            # ============================================
-            # 04. POMPES (spécifiques avant générique)
-            # ============================================
             ('pompe de circulation', 'POMPES'),
             ('pompe de filtration', 'POMPES'),
             ('pompe à vitesse variable', 'POMPES'),
             ('pompe auto-amorçante', 'POMPES'),
             ('surpresseur', 'POMPES'),
             ('pompe doseuse', 'POMPES'),
-            
-            # ============================================
-            # 05. FILTRATION
-            # ============================================
             ('préfiltre', 'FILTRATION'),
             ('pré-filtre', 'FILTRATION'),
             ('multicyclone', 'FILTRATION'),
@@ -3165,10 +3289,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('vanne multivoies', 'FILTRATION'),
             ('crépine', 'FILTRATION'),
             ('manomètre', 'FILTRATION'),
-            
-            # ============================================
-            # 06. CHAUFFAGE
-            # ============================================
             ('pompe à chaleur', 'CHAUFFAGE'),
             ('pompes à chaleur', 'CHAUFFAGE'),
             ('pac piscine', 'CHAUFFAGE'),
@@ -3179,10 +3299,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('chauffage solaire', 'CHAUFFAGE'),
             ('capteur solaire', 'CHAUFFAGE'),
             ('chauffage', 'CHAUFFAGE'),
-            
-            # ============================================
-            # 07. TECHNIQUE DE MESURE ET DE CONTRÔLE / PRODUITS CHIMIQUES
-            # ============================================
             ('testeur', 'TECHNIQUE DE MESURE'),
             ('analyse', 'TECHNIQUE DE MESURE'),
             ('photomètre', 'TECHNIQUE DE MESURE'),
@@ -3201,24 +3317,16 @@ class PoolCatalogExtractionProduct(models.Model):
             ('produit chimique', 'TECHNIQUE DE MESURE'),
             ('chimie', 'TECHNIQUE DE MESURE'),
             ('désinfectant', 'TECHNIQUE DE MESURE'),
-            
-            # ============================================
-            # 08. TECHNIQUE DE TRAITEMENT DE L'EAU
-            # ============================================
-            ('électrolyseur', 'TRAITEMENT DE L\'EAU'),
-            ('électrolyse', 'TRAITEMENT DE L\'EAU'),
-            ('cellule électrolyse', 'TRAITEMENT DE L\'EAU'),
-            ('sel piscine', 'TRAITEMENT DE L\'EAU'),
-            ('uv piscine', 'TRAITEMENT DE L\'EAU'),
-            ('stérilisateur', 'TRAITEMENT DE L\'EAU'),
-            ('ozonateur', 'TRAITEMENT DE L\'EAU'),
-            ('ozone', 'TRAITEMENT DE L\'EAU'),
-            ('ioniseur', 'TRAITEMENT DE L\'EAU'),
-            ('traitement', 'TRAITEMENT DE L\'EAU'),
-            
-            # ============================================
-            # 09. COUVERTURES
-            # ============================================
+            ('électrolyseur', "TRAITEMENT DE L'EAU"),
+            ('électrolyse', "TRAITEMENT DE L'EAU"),
+            ('cellule électrolyse', "TRAITEMENT DE L'EAU"),
+            ('sel piscine', "TRAITEMENT DE L'EAU"),
+            ('uv piscine', "TRAITEMENT DE L'EAU"),
+            ('stérilisateur', "TRAITEMENT DE L'EAU"),
+            ('ozonateur', "TRAITEMENT DE L'EAU"),
+            ('ozone', "TRAITEMENT DE L'EAU"),
+            ('ioniseur', "TRAITEMENT DE L'EAU"),
+            ('traitement', "TRAITEMENT DE L'EAU"),
             ('couverture', 'COUVERTURES'),
             ('bâche', 'COUVERTURES'),
             ('volet', 'COUVERTURES'),
@@ -3228,10 +3336,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('enrouleur', 'COUVERTURES'),
             ('bâche à bulles', 'COUVERTURES'),
             ('bâche hiver', 'COUVERTURES'),
-            
-            # ============================================
-            # 10. MAINTENANCE ET ACCESSOIRES
-            # ============================================
             ('épuisette', 'MAINTENANCE ET ACCESSOIRES'),
             ('brosse', 'MAINTENANCE ET ACCESSOIRES'),
             ('balai', 'MAINTENANCE ET ACCESSOIRES'),
@@ -3249,10 +3353,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('douche', 'MAINTENANCE ET ACCESSOIRES'),
             ('alarme piscine', 'MAINTENANCE ET ACCESSOIRES'),
             ('sécurité piscine', 'MAINTENANCE ET ACCESSOIRES'),
-            
-            # ============================================
-            # 11. MATÉRIAUX DE CONNEXION
-            # ============================================
             ('pvc pression', 'MATÉRIAUX DE CONNEXION'),
             ('raccord', 'MATÉRIAUX DE CONNEXION'),
             ('coude', 'MATÉRIAUX DE CONNEXION'),
@@ -3269,41 +3369,27 @@ class PoolCatalogExtractionProduct(models.Model):
             ('flexible', 'MATÉRIAUX DE CONNEXION'),
             ('connexion', 'MATÉRIAUX DE CONNEXION'),
             ('plomberie', 'MATÉRIAUX DE CONNEXION'),
-            
-            # ============================================
-            # 12. IRRIGATION
-            # ============================================
             ('irrigation', 'IRRIGATION'),
             ('arrosage', 'IRRIGATION'),
             ('goutte à goutte', 'IRRIGATION'),
             ('asperseur', 'IRRIGATION'),
             ('programmateur arrosage', 'IRRIGATION'),
             ('pompe arrosage', 'IRRIGATION'),
-            
-            # ============================================
-            # POMPES (en dernier pour éviter faux positifs avec PAC)
-            # ============================================
             ('pompe', 'POMPES'),
             ('pump', 'POMPES'),
         ]
         
         cat_extraite = self.category.lower() if self.category else ''
-        
-        # Aussi vérifier le nom du produit pour plus de contexte
         product_name = (self.name or '').lower()
         combined_text = f"{cat_extraite} {product_name}"
         
         pool_cat_name = None
-        
-        # Chercher une correspondance (ordre de priorité respecté)
         for key, value in category_mapping:
             if key in combined_text:
                 pool_cat_name = value
                 break
         
         if pool_cat_name:
-            # Utiliser product.public.category (catégories e-commerce) avec sudo() pour éviter ACL
-            # Recherche flexible avec ilike pour gérer les numéros de préfixe (01., 02., etc.)
             pool_cat = self.env['product.public.category'].sudo().search([('name', 'ilike', pool_cat_name)], limit=1)
             if pool_cat:
                 _logger.info(f"Catégorie '{self.category}' mappée vers '{pool_cat.name}'")
@@ -3315,22 +3401,17 @@ class PoolCatalogExtractionProduct(models.Model):
         return False
     
     def _create_product_attribute(self):
-        """
-        Crée un attribut et une valeur pour ce produit.
-        Retourne un tuple pour attribute_line_ids ou None.
-        """
+        """Crée un attribut et une valeur pour ce produit."""
         self.ensure_one()
         
         ProductAttribute = self.env['product.attribute']
         ProductAttributeValue = self.env['product.attribute.value']
         
-        # Déterminer le nom de l'attribut et la valeur
         value_name = self.capacity or self.variant_name
         if not value_name:
             return None
         
-        # Déterminer le type d'attribut
-        attribute_name = "Capacité"  # Par défaut
+        attribute_name = "Capacité"
         value_lower = value_name.lower()
         
         if 'kw' in value_lower or 'watt' in value_lower:
@@ -3346,7 +3427,6 @@ class PoolCatalogExtractionProduct(models.Model):
         
         _logger.info(f"Création attribut: {attribute_name} = {value_name}")
         
-        # Créer ou récupérer l'attribut
         attribute = ProductAttribute.search([('name', '=', attribute_name)], limit=1)
         if not attribute:
             attribute = ProductAttribute.create({
@@ -3356,7 +3436,6 @@ class PoolCatalogExtractionProduct(models.Model):
             })
             _logger.info(f"Attribut créé: {attribute.name} (ID: {attribute.id})")
         
-        # Créer ou récupérer la valeur d'attribut
         attr_value = ProductAttributeValue.search([
             ('attribute_id', '=', attribute.id),
             ('name', '=', value_name)
@@ -3369,7 +3448,6 @@ class PoolCatalogExtractionProduct(models.Model):
             })
             _logger.info(f"Valeur d'attribut créée: {attr_value.name}")
         
-        # Retourner le tuple pour attribute_line_ids
         return (0, 0, {
             'attribute_id': attribute.id,
             'value_ids': [(6, 0, [attr_value.id])],
@@ -3402,14 +3480,9 @@ class PoolCatalogExtractionProduct(models.Model):
     # ==================== Image Search Methods ====================
     
     def action_search_images(self):
-        """
-        Recherche des images du produit via Google Custom Search API.
-        Appelé depuis le frontend JavaScript.
-        Retourne une liste d'URLs d'images.
-        """
+        """Recherche des images du produit via Google Custom Search API."""
         self.ensure_one()
         
-        # Récupérer les clés API
         ICP = self.env['ir.config_parameter'].sudo()
         api_key = ICP.get_param('pool.google_api_key')
         search_engine_id = ICP.get_param('pool.google_search_engine_id')
@@ -3420,12 +3493,10 @@ class PoolCatalogExtractionProduct(models.Model):
                 'error': "API Google non configurée. Allez dans Configuration > Paramètres > Piscine.",
             }
         
-        # Construire la requête de recherche
         search_query = self._build_image_search_query()
         _logger.info(f"Recherche d'images Google: {search_query}")
         
         try:
-            # Appeler l'API Google Custom Search
             import urllib.parse
             
             params = {
@@ -3433,8 +3504,8 @@ class PoolCatalogExtractionProduct(models.Model):
                 'cx': search_engine_id,
                 'q': search_query,
                 'searchType': 'image',
-                'num': 10,  # Nombre d'images à retourner (max 10 par requête)
-                'imgSize': 'large',  # Préférer les grandes images
+                'num': 10,
+                'imgSize': 'large',
                 'safe': 'active',
             }
             
@@ -3490,25 +3561,19 @@ class PoolCatalogExtractionProduct(models.Model):
         
         parts = []
         
-        # Marque en premier (important pour la pertinence)
         if self.brand:
             parts.append(self.brand)
         
-        # Nom du produit (nettoyer les infos redondantes)
         name = self.name or ''
-        # Retirer la marque si déjà présente dans le nom
         if self.brand and self.brand.lower() in name.lower():
             name = name.lower().replace(self.brand.lower(), '').strip()
-        # Retirer la capacité si présente
         if self.capacity and self.capacity in name:
             name = name.replace(self.capacity, '').strip()
         
         if name:
             parts.append(name)
         
-        # Ajouter la catégorie pour contexte
         if self.category:
-            # Simplifier certaines catégories
             cat_lower = self.category.lower()
             if 'pompe' in cat_lower and 'chaleur' in cat_lower:
                 parts.append('pompe chaleur piscine')
@@ -3519,23 +3584,14 @@ class PoolCatalogExtractionProduct(models.Model):
             else:
                 parts.append(self.category)
         else:
-            parts.append('piscine')  # Contexte par défaut
+            parts.append('piscine')
         
         return ' '.join(parts)
     
     def action_import_images_from_urls(self, image_urls):
-        """
-        Importe une liste d'images depuis leurs URLs et les ajoute au produit.
-        
-        Args:
-            image_urls: Liste de dictionnaires {'url': '...', 'title': '...'}
-        
-        Returns:
-            dict avec success et message
-        """
+        """Importe une liste d'images depuis leurs URLs et les ajoute au produit."""
         self.ensure_one()
         
-        # Déterminer le produit cible
         product = self.product_id or self.existing_product_id
         
         if not product:
@@ -3555,28 +3611,22 @@ class PoolCatalogExtractionProduct(models.Model):
                 continue
             
             try:
-                # Télécharger l'image
                 response = requests.get(url, timeout=15, headers={
                     'User-Agent': 'Mozilla/5.0 (compatible; OdooBot/1.0)'
                 })
                 
                 if response.status_code == 200:
-                    # Vérifier que c'est bien une image
                     content_type = response.headers.get('Content-Type', '')
                     if 'image' not in content_type:
                         errors.append(f"URL non image: {url[:50]}...")
                         continue
                     
-                    # Encoder en base64
                     image_base64 = base64.b64encode(response.content)
                     
-                    # Ajouter comme image secondaire
                     if not product.image_1920:
-                        # Première image = image principale
                         product.image_1920 = image_base64
                         _logger.info(f"Image principale ajoutée depuis {url[:50]}")
                     else:
-                        # Images suivantes = images secondaires
                         self.env['product.image'].create({
                             'product_tmpl_id': product.id,
                             'name': title[:100],
@@ -3602,9 +3652,7 @@ class PoolCatalogExtractionProduct(models.Model):
     
     @api.model
     def search_images_for_product(self, product_id):
-        """
-        Méthode appelable depuis JavaScript pour rechercher des images.
-        """
+        """Méthode appelable depuis JavaScript pour rechercher des images."""
         product = self.browse(product_id)
         if product.exists():
             return product.action_search_images()
@@ -3612,26 +3660,16 @@ class PoolCatalogExtractionProduct(models.Model):
     
     @api.model
     def import_images_for_product(self, product_id, image_urls):
-        """
-        Méthode appelable depuis JavaScript pour importer des images.
-        
-        Args:
-            product_id: ID du pool.catalog.extraction.product
-            image_urls: Liste de {'url': '...', 'title': '...'}
-        """
+        """Méthode appelable depuis JavaScript pour importer des images."""
         product = self.browse(product_id)
         if product.exists():
             return product.action_import_images_from_urls(image_urls)
         return {'success': False, 'error': 'Produit non trouvé'}
     
     def _get_pool_store_website(self):
-        """
-        Récupère le website Pool Store.
-        Recherche par nom contenant 'pool' ou par domaine.
-        """
+        """Récupère le website Pool Store."""
         Website = self.env['website'].sudo()
         
-        # Chercher par nom
         pool_website = Website.search([
             '|', '|', '|',
             ('name', 'ilike', 'pool store'),
@@ -3643,7 +3681,6 @@ class PoolCatalogExtractionProduct(models.Model):
         if pool_website:
             return pool_website
         
-        # Si pas trouvé, chercher un website avec "lolirine" et "pool" dans le nom
         pool_website = Website.search([
             ('name', 'ilike', 'lolirine'),
             ('name', 'ilike', 'pool'),
@@ -3656,26 +3693,18 @@ class PoolCatalogExtractionProduct(models.Model):
         return False
     
     def _format_website_description(self):
-        """
-        Formate la description pour le site web e-commerce.
-        Crée un HTML structuré avec description + spécifications techniques adaptées à la catégorie.
-        """
+        """Formate la description pour le site web e-commerce."""
         self.ensure_one()
         
         html_parts = []
         
-        # Description principale
         if self.description_fr:
             html_parts.append(f'<div class="product-description">')
             html_parts.append(f'<p>{self.description_fr}</p>')
             html_parts.append('</div>')
         
-        # Collecter toutes les spécifications disponibles
         specs = []
         
-        # =============================================
-        # SPÉCIFICATIONS GÉNÉRALES (tous produits)
-        # =============================================
         if self.power_kw:
             specs.append(('Puissance', f'{self.power_kw} kW'))
         if hasattr(self, 'power_watts') and self.power_watts:
@@ -3690,10 +3719,6 @@ class PoolCatalogExtractionProduct(models.Model):
             specs.append(('Poids', f'{self.weight} kg'))
         if hasattr(self, 'warranty_years') and self.warranty_years:
             specs.append(('Garantie', f'{self.warranty_years} ans'))
-        
-        # =============================================
-        # POMPES À CHALEUR
-        # =============================================
         if self.cop:
             specs.append(('COP', str(self.cop)))
         if hasattr(self, 'eer') and self.eer:
@@ -3713,10 +3738,6 @@ class PoolCatalogExtractionProduct(models.Model):
             specs.append(('Dégivrage auto', 'Oui'))
         if hasattr(self, 'exchanger_material') and self.exchanger_material:
             specs.append(('Échangeur', self.exchanger_material))
-        
-        # =============================================
-        # POMPES DE FILTRATION
-        # =============================================
         if self.flow_rate:
             specs.append(('Débit', f'{self.flow_rate} m³/h'))
         if hasattr(self, 'head_pressure_m') and self.head_pressure_m:
@@ -3725,10 +3746,6 @@ class PoolCatalogExtractionProduct(models.Model):
             specs.append(('Débit aspiration', f'{self.suction_flow_m3h} m³/h'))
         if hasattr(self, 'trap_volume_l') and self.trap_volume_l:
             specs.append(('Volume préfiltre', f'{self.trap_volume_l} L'))
-        
-        # =============================================
-        # FILTRES
-        # =============================================
         if self.filter_area:
             specs.append(('Surface filtrante', f'{self.filter_area} m²'))
         if hasattr(self, 'filter_capacity_kg') and self.filter_capacity_kg:
@@ -3743,10 +3760,6 @@ class PoolCatalogExtractionProduct(models.Model):
             specs.append(('Pression max', f'{self.pressure_bar} bar'))
         if hasattr(self, 'backwash_auto') and self.backwash_auto:
             specs.append(('Contre-lavage auto', 'Oui'))
-        
-        # =============================================
-        # ROBOTS NETTOYEURS
-        # =============================================
         if hasattr(self, 'cable_length_m') and self.cable_length_m:
             specs.append(('Longueur câble', f'{self.cable_length_m} m'))
         if hasattr(self, 'cycle_time_hours') and self.cycle_time_hours:
@@ -3765,10 +3778,6 @@ class PoolCatalogExtractionProduct(models.Model):
             specs.append(('Type de fond', self.pool_bottom_type))
         if hasattr(self, 'pool_surface') and self.pool_surface:
             specs.append(('Revêtements compatibles', self.pool_surface))
-        
-        # =============================================
-        # TRAITEMENT DE L'EAU
-        # =============================================
         if hasattr(self, 'production_clh_gh') and self.production_clh_gh:
             specs.append(('Production chlore', f'{self.production_clh_gh} g/h'))
         if hasattr(self, 'salt_concentration_gl') and self.salt_concentration_gl:
@@ -3783,10 +3792,6 @@ class PoolCatalogExtractionProduct(models.Model):
             specs.append(('Production ozone', f'{self.ozone_production_gh} g/h'))
         if hasattr(self, 'uv_treatment') and self.uv_treatment:
             specs.append(('Traitement UV', 'Oui'))
-        
-        # =============================================
-        # ÉCLAIRAGE
-        # =============================================
         if hasattr(self, 'lumens') and self.lumens:
             specs.append(('Flux lumineux', f'{self.lumens} lm'))
         if hasattr(self, 'color_temperature_k') and self.color_temperature_k:
@@ -3803,10 +3808,6 @@ class PoolCatalogExtractionProduct(models.Model):
             specs.append(('Transformateur', 'Inclus'))
         if hasattr(self, 'mounting_type') and self.mounting_type:
             specs.append(('Type de montage', self.mounting_type))
-        
-        # =============================================
-        # ACCESSOIRES (ÉCHELLES, PLONGEOIRS, etc.)
-        # =============================================
         if hasattr(self, 'material') and self.material:
             specs.append(('Matériau', self.material))
         if hasattr(self, 'steps_count') and self.steps_count:
@@ -3817,10 +3818,6 @@ class PoolCatalogExtractionProduct(models.Model):
             specs.append(('Épaisseur', f'{self.thickness_mm} mm'))
         if hasattr(self, 'color') and self.color:
             specs.append(('Couleur', self.color))
-        
-        # =============================================
-        # CONNECTIVITÉ & COMPATIBILITÉ
-        # =============================================
         if self.wifi_compatible:
             specs.append(('WiFi', 'Compatible'))
         if hasattr(self, 'bluetooth_compatible') and self.bluetooth_compatible:
@@ -3831,10 +3828,6 @@ class PoolCatalogExtractionProduct(models.Model):
             specs.append(('Télécommande', 'Incluse'))
         if hasattr(self, 'programmable') and self.programmable:
             specs.append(('Programmable', 'Oui'))
-        
-        # =============================================
-        # PISCINE COMPATIBLE
-        # =============================================
         if self.pool_volume_min or self.pool_volume_max:
             vol_str = f"{self.pool_volume_min or '?'} - {self.pool_volume_max or '?'} m³"
             specs.append(('Volume piscine', vol_str))
@@ -3853,12 +3846,9 @@ class PoolCatalogExtractionProduct(models.Model):
             specs.append(('Technologie', self.product_type))
         if self.installation_type:
             specs.append(('Installation', self.installation_type))
-        
-        # Certifications
         if hasattr(self, 'safety_certified') and self.safety_certified:
             specs.append(('Certifications', self.safety_certified))
         
-        # Créer le tableau si on a des specs
         if specs:
             html_parts.append('<div class="product-specifications mt-4">')
             html_parts.append('<h4>Caractéristiques techniques</h4>')
@@ -3870,51 +3860,23 @@ class PoolCatalogExtractionProduct(models.Model):
             html_parts.append('</table>')
             html_parts.append('</div>')
         
-        # Marque si disponible
         if self.brand:
             html_parts.append(f'<p class="text-muted mt-3"><small>Marque : {self.brand}</small></p>')
         
         return '\n'.join(html_parts) if html_parts else self.description_fr or ''
     
     def _get_public_category_ids(self, category_name):
-        """
-        Trouve ou crée les catégories e-commerce publiques correspondant à la catégorie détectée.
-        
-        Stratégie:
-        1. Identifier la catégorie PRINCIPALE parmi les 12 existantes
-        2. Si pertinent, créer une SOUS-CATÉGORIE plus spécifique
-        3. Retourner l'ID de la sous-catégorie (ou de la principale si pas de sous-cat)
-        
-        Catégories principales existantes:
-        01. ROBOTS DE PISCINE
-        02. CONSTRUCTION
-        03. ÉCLAIRAGE
-        04. POMPES
-        05. FILTRATION
-        06. CHAUFFAGE
-        07. TECHNIQUE DE MESURE ET DE CONTRÔLE / PRODUITS CHIMIQUES
-        08. TECHNIQUE DE TRAITEMENT DE L'EAU
-        09. COUVERTURES
-        10. MAINTENANCE ET ACCESSOIRES
-        11. MATÉRIAUX DE CONNEXION
-        12. IRRIGATION
-        """
+        """Trouve ou crée les catégories e-commerce publiques correspondant à la catégorie détectée."""
         if not category_name:
             return []
         
         PublicCategory = self.env['product.public.category'].sudo()
         
-        # Normaliser et combiner catégorie + nom produit pour meilleure détection
         cat_lower = category_name.lower() if category_name else ''
         product_name = (self.name or '').lower()
         combined_text = f"{cat_lower} {product_name}"
         
-        # Mapping: (mot-clé, catégorie_principale, sous_catégorie_à_créer)
-        # Si sous_catégorie est None, on utilise uniquement la catégorie principale
         category_mapping = [
-            # ============================================
-            # 01. ROBOTS DE PISCINE
-            # ============================================
             ('robot électrique', 'ROBOTS DE PISCINE', 'Robots électriques'),
             ('robot hydraulique', 'ROBOTS DE PISCINE', 'Robots hydrauliques'),
             ('robot à pression', 'ROBOTS DE PISCINE', 'Robots à pression'),
@@ -3925,10 +3887,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('dolphin', 'ROBOTS DE PISCINE', 'Robots électriques'),
             ('polaris', 'ROBOTS DE PISCINE', 'Robots à pression'),
             ('zodiac', 'ROBOTS DE PISCINE', None),
-            
-            # ============================================
-            # 02. CONSTRUCTION
-            # ============================================
             ('liner', 'CONSTRUCTION', 'Liners'),
             ('membrane', 'CONSTRUCTION', 'Membranes & Étanchéité'),
             ('skimmer', 'CONSTRUCTION', 'Pièces à sceller'),
@@ -3945,10 +3903,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('construction', 'CONSTRUCTION', None),
             ('rénovation', 'CONSTRUCTION', None),
             ('étanchéité', 'CONSTRUCTION', 'Membranes & Étanchéité'),
-            
-            # ============================================
-            # 03. ÉCLAIRAGE
-            # ============================================
             ('projecteur led', 'ÉCLAIRAGE', 'Projecteurs LED'),
             ('projecteur', 'ÉCLAIRAGE', 'Projecteurs'),
             ('spot', 'ÉCLAIRAGE', 'Spots encastrés'),
@@ -3959,10 +3913,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('eclairage', 'ÉCLAIRAGE', None),
             ('led piscine', 'ÉCLAIRAGE', 'Projecteurs LED'),
             ('luminaire', 'ÉCLAIRAGE', None),
-            
-            # ============================================
-            # 04. POMPES
-            # ============================================
             ('pompe de filtration', 'POMPES', 'Pompes de filtration'),
             ('pompe filtration', 'POMPES', 'Pompes de filtration'),
             ('pompe de circulation', 'POMPES', 'Pompes de circulation'),
@@ -3973,10 +3923,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('pompe doseuse', 'POMPES', 'Pompes doseuses'),
             ('nage contre courant', 'POMPES', 'Nage contre-courant'),
             ('contre-courant', 'POMPES', 'Nage contre-courant'),
-            
-            # ============================================
-            # 05. FILTRATION
-            # ============================================
             ('préfiltre', 'FILTRATION', 'Préfiltres'),
             ('pré-filtre', 'FILTRATION', 'Préfiltres'),
             ('multicyclone', 'FILTRATION', 'Préfiltres'),
@@ -3998,10 +3944,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('manomètre', 'FILTRATION', 'Pièces détachées filtration'),
             ('filtration', 'FILTRATION', None),
             ('filtre', 'FILTRATION', None),
-            
-            # ============================================
-            # 06. CHAUFFAGE
-            # ============================================
             ('pompe à chaleur', 'CHAUFFAGE', 'Pompes à chaleur'),
             ('pompes à chaleur', 'CHAUFFAGE', 'Pompes à chaleur'),
             ('pac', 'CHAUFFAGE', 'Pompes à chaleur'),
@@ -4013,10 +3955,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('chauffage solaire', 'CHAUFFAGE', 'Chauffage solaire'),
             ('capteur solaire', 'CHAUFFAGE', 'Chauffage solaire'),
             ('chauffage', 'CHAUFFAGE', None),
-            
-            # ============================================
-            # 07. TECHNIQUE DE MESURE ET DE CONTRÔLE / PRODUITS CHIMIQUES
-            # ============================================
             ('testeur', 'TECHNIQUE DE MESURE', 'Analyse & Test'),
             ('photomètre', 'TECHNIQUE DE MESURE', 'Analyse & Test'),
             ('bandelette', 'TECHNIQUE DE MESURE', 'Analyse & Test'),
@@ -4037,24 +3975,16 @@ class PoolCatalogExtractionProduct(models.Model):
             ('ph-', 'TECHNIQUE DE MESURE', 'Produits chimiques'),
             ('produit chimique', 'TECHNIQUE DE MESURE', 'Produits chimiques'),
             ('chimie', 'TECHNIQUE DE MESURE', 'Produits chimiques'),
-            
-            # ============================================
-            # 08. TECHNIQUE DE TRAITEMENT DE L'EAU
-            # ============================================
-            ('électrolyseur', 'TRAITEMENT DE L\'EAU', 'Électrolyseurs au sel'),
-            ('électrolyse', 'TRAITEMENT DE L\'EAU', 'Électrolyseurs au sel'),
-            ('cellule', 'TRAITEMENT DE L\'EAU', 'Cellules & Pièces'),
-            ('sel piscine', 'TRAITEMENT DE L\'EAU', 'Électrolyseurs au sel'),
-            ('uv piscine', 'TRAITEMENT DE L\'EAU', 'Traitement UV'),
-            ('stérilisateur', 'TRAITEMENT DE L\'EAU', 'Traitement UV'),
-            ('ozonateur', 'TRAITEMENT DE L\'EAU', 'Traitement ozone'),
-            ('ozone', 'TRAITEMENT DE L\'EAU', 'Traitement ozone'),
-            ('ioniseur', 'TRAITEMENT DE L\'EAU', 'Ioniseurs'),
-            ('traitement', 'TRAITEMENT DE L\'EAU', None),
-            
-            # ============================================
-            # 09. COUVERTURES
-            # ============================================
+            ('électrolyseur', "TRAITEMENT DE L'EAU", 'Électrolyseurs au sel'),
+            ('électrolyse', "TRAITEMENT DE L'EAU", 'Électrolyseurs au sel'),
+            ('cellule', "TRAITEMENT DE L'EAU", 'Cellules & Pièces'),
+            ('sel piscine', "TRAITEMENT DE L'EAU", 'Électrolyseurs au sel'),
+            ('uv piscine', "TRAITEMENT DE L'EAU", 'Traitement UV'),
+            ('stérilisateur', "TRAITEMENT DE L'EAU", 'Traitement UV'),
+            ('ozonateur', "TRAITEMENT DE L'EAU", 'Traitement ozone'),
+            ('ozone', "TRAITEMENT DE L'EAU", 'Traitement ozone'),
+            ('ioniseur', "TRAITEMENT DE L'EAU", 'Ioniseurs'),
+            ('traitement', "TRAITEMENT DE L'EAU", None),
             ('volet roulant', 'COUVERTURES', 'Volets roulants'),
             ('volet', 'COUVERTURES', 'Volets roulants'),
             ('bâche à bulles', 'COUVERTURES', 'Bâches à bulles'),
@@ -4067,10 +3997,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('couverture', 'COUVERTURES', None),
             ('bâche', 'COUVERTURES', None),
             ('cover', 'COUVERTURES', None),
-            
-            # ============================================
-            # 10. MAINTENANCE ET ACCESSOIRES
-            # ============================================
             ('épuisette', 'MAINTENANCE ET ACCESSOIRES', 'Nettoyage manuel'),
             ('brosse', 'MAINTENANCE ET ACCESSOIRES', 'Nettoyage manuel'),
             ('balai', 'MAINTENANCE ET ACCESSOIRES', 'Nettoyage manuel'),
@@ -4096,10 +4022,6 @@ class PoolCatalogExtractionProduct(models.Model):
             ('accessoire', 'MAINTENANCE ET ACCESSOIRES', None),
             ('maintenance', 'MAINTENANCE ET ACCESSOIRES', None),
             ('entretien', 'MAINTENANCE ET ACCESSOIRES', None),
-            
-            # ============================================
-            # 11. MATÉRIAUX DE CONNEXION
-            # ============================================
             ('tuyau pvc', 'MATÉRIAUX DE CONNEXION', 'Tuyauterie PVC'),
             ('tube pvc', 'MATÉRIAUX DE CONNEXION', 'Tuyauterie PVC'),
             ('pvc pression', 'MATÉRIAUX DE CONNEXION', 'Tuyauterie PVC'),
@@ -4116,19 +4038,11 @@ class PoolCatalogExtractionProduct(models.Model):
             ('flexible', 'MATÉRIAUX DE CONNEXION', 'Flexibles'),
             ('connexion', 'MATÉRIAUX DE CONNEXION', None),
             ('plomberie', 'MATÉRIAUX DE CONNEXION', None),
-            
-            # ============================================
-            # 12. IRRIGATION
-            # ============================================
             ('arrosage', 'IRRIGATION', 'Arrosage'),
             ('goutte à goutte', 'IRRIGATION', 'Goutte à goutte'),
             ('asperseur', 'IRRIGATION', 'Asperseurs'),
             ('programmateur arrosage', 'IRRIGATION', 'Programmateurs'),
             ('irrigation', 'IRRIGATION', None),
-            
-            # ============================================
-            # POMPES (en dernier pour éviter faux positifs avec PAC)
-            # ============================================
             ('pompe', 'POMPES', None),
             ('pump', 'POMPES', None),
         ]
@@ -4136,19 +4050,16 @@ class PoolCatalogExtractionProduct(models.Model):
         main_category_name = None
         sub_category_name = None
         
-        # Chercher une correspondance
         for keyword, main_cat, sub_cat in category_mapping:
             if keyword in combined_text:
                 main_category_name = main_cat
                 sub_category_name = sub_cat
                 break
         
-        # Si pas de match, utiliser MAINTENANCE ET ACCESSOIRES par défaut
         if not main_category_name:
             main_category_name = 'MAINTENANCE ET ACCESSOIRES'
             _logger.info(f"Pas de mapping pour '{category_name}', utilisation de la catégorie par défaut")
         
-        # 1. Trouver la catégorie PRINCIPALE (doit exister)
         main_category = PublicCategory.search([('name', 'ilike', main_category_name)], limit=1)
         
         if not main_category:
@@ -4157,16 +4068,13 @@ class PoolCatalogExtractionProduct(models.Model):
         
         _logger.info(f"Catégorie principale trouvée: '{main_category.name}' (ID: {main_category.id})")
         
-        # 2. Si on a une sous-catégorie à créer/trouver
         if sub_category_name:
-            # Chercher si la sous-catégorie existe déjà
             sub_category = PublicCategory.search([
                 ('name', '=', sub_category_name),
                 ('parent_id', '=', main_category.id)
             ], limit=1)
             
             if not sub_category:
-                # Créer la sous-catégorie
                 try:
                     sub_category = PublicCategory.create({
                         'name': sub_category_name,
@@ -4175,26 +4083,17 @@ class PoolCatalogExtractionProduct(models.Model):
                     _logger.info(f"✅ Sous-catégorie créée: '{sub_category_name}' sous '{main_category.name}' (ID: {sub_category.id})")
                 except Exception as e:
                     _logger.warning(f"Impossible de créer la sous-catégorie '{sub_category_name}': {e}")
-                    # Fallback: utiliser la catégorie principale
                     return [main_category.id]
             else:
                 _logger.info(f"Sous-catégorie existante: '{sub_category.name}' (ID: {sub_category.id})")
             
             return [sub_category.id]
         
-        # Pas de sous-catégorie, retourner la catégorie principale
         return [main_category.id]
     
     @api.model
     def search_images_custom_query(self, product_id, query):
-        """
-        Recherche d'images avec une requête personnalisée.
-        
-        Args:
-            product_id: ID du pool.catalog.extraction.product (pour contexte)
-            query: Requête de recherche personnalisée
-        """
-        # Récupérer les clés API
+        """Recherche d'images avec une requête personnalisée."""
         ICP = self.env['ir.config_parameter'].sudo()
         api_key = ICP.get_param('pool.google_api_key')
         search_engine_id = ICP.get_param('pool.google_search_engine_id')
