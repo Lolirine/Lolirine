@@ -15,3 +15,13 @@ class ProductTemplateAttributeValueImage(models.Model):
         max_width=128, max_height=128,
         store=True,
     )
+
+
+class ProductTemplateVariantImages(models.Model):
+    _inherit = 'product.template'
+
+    variant_images_configured = fields.Boolean(
+        string='Images variantes configurées',
+        default=False,
+        copy=False,
+    )
