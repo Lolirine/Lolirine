@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         1. EXTENSION FORMULAIRE PRODUCT.TEMPLATE
+         ============================================================ -->
+
+    <record id="view_product_template_variant_images_form" model="ir.ui.view">
+        <field name="name">product.template.form.variant.images</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <!-- Ajouter un onglet "Images Variantes" après les attributs -->
+            <xpath expr="//page[@name='variants']" position="after">
+                <page string="Images Variantes" name="variant_images"
+                      invisible="product_variant_count &lt;= 1">
+                    <group>
+                        <group>
+                            <field name="variant_images_configured" readonly="1"/>
+                        </group>
+                        <group>
+                            <div class="d-flex gap-2">
+                                <button name="action_auto_assign_variant_images"
+                                        type="object"
+                                        string="🖼️ Auto-assigner"
+                                        class="btn btn-primary"
+                                        title="Assigne automatiquement les images aux variantes par matching intelligent"/>
+                                <button name="action_distribute_images_round_robin"
+                                        type="object"
+                                        string="↻ Distribuer"
+                                        class="btn btn-secondary"
+                                        title="Distribue séquentiellement les images non-assignées"/>
+                                <button name="action_reset_variant_images"
+                                        type="object"
+                                        string="✕ Reset"
+                                        class="btn btn-outline-danger"
+                                        confirm="Supprimer toutes les assignations d'images variantes ?"/>
+                            </div>
+                        </group>
+                    </group>
+
+                    <!-- Tableau des PTAV avec images -->
+                    <field name="attribute_line_ids" mode="tree" readonly="1">
+                        <list string="Attributs et images">
+                            <field name="attribute_id"/>
+                            <field name="value_ids" widget="many2many_tags"/>
+                        </list>
+                    </field>
+
+                    <!-- Aperçu des images par PTAV -->
+                    <div class="mt-3">
+                        <h4>Aperçu des images par valeur d'attribut</h4>
+                        <field name="attribute_line_ids" readonly="1" widget="one2many">
+                            <list string="Images variantes" editable="bottom">
+                                <field name="attribute_id" readonly="1"/>
+                                <field name="product_template_value_ids" readonly="1"
+                                       widget="many2many_tags"/>
+                            </list>
+                        </field>
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         2. VUE FORMULAIRE PTAV ÉTENDU (pour uploader les images)
+         ============================================================ -->
+
+    <record id="view_ptav_variant_image_form" model="ir.ui.view">
+        <field name="name">product.template.attribute.value.form.variant.image</field>
+        <field name="model">product.template.attribute.value</field>
+        <field name="inherit_id" ref="product.product_template_attribute_value_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="after">
+                <group string="Image variante (affichée sur le site)">
+                    <field name="variant_image" widget="image" class="oe_avatar"/>
+                    <field name="variant_image_url"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vue tree PTAV avec aperçu image -->
+    <record id="view_ptav_variant_image_tree" model="ir.ui.view">
+        <field name="name">product.template.attribute.value.tree.variant.image</field>
+        <field name="model">product.template.attribute.value</field>
+        <field name="inherit_id" ref="product.product_template_attribute_value_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='price_extra']" position="after">
+                <field name="variant_image" widget="image" width="40"
+                       options='{"size": [40, 40]}'/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         3. ACTION SERVEUR : Batch depuis le menu
+         ============================================================ -->
+
+    <record id="action_batch_assign_variant_images" model="ir.actions.server">
+        <field name="name">🖼️ Assigner images variantes (tous produits)</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+records.action_auto_assign_variant_images()
+        </field>
+    </record>
+
+    <!-- Action globale (menu) -->
+    <record id="action_batch_all_variant_images" model="ir.actions.server">
+        <field name="name">🖼️ Batch : images variantes (tous)</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="state">code</field>
+        <field name="code">
+result = env['product.template'].cron_assign_all_variant_images()
+if result:
+    msg = "Traités: %d, Images: %d, Erreurs: %d" % (
+        result.get('processed', 0),
+        result.get('assigned', 0),
+        len(result.get('errors', [])),
+    )
+    raise Warning(msg)
+        </field>
+    </record>
+
+    <!-- ============================================================
+         4. CRON : Assignation automatique périodique
+         ============================================================ -->
+
+    <record id="ir_cron_assign_variant_images" model="ir.cron">
+        <field name="name">Pool : Assigner images variantes</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_assign_all_variant_images()</field>
+        <field name="interval_type">days</field>
+        <field name="interval_number">1</field>
+        <field name="numbercall">-1</field>
+        <field name="active">False</field>
+        <field name="doall" eval="False"/>
+    </record>
+
+    <!-- ============================================================
+         5. MENU ENTRY (sous Configuration piscine)
+         ============================================================ -->
+
+    <menuitem id="menu_batch_variant_images"
+              name="Batch images variantes"
+              parent="lolirine_pool_import.menu_pool_config"
+              action="action_batch_all_variant_images"
+              sequence="90"/>
+
+</odoo>
