@@ -506,7 +506,7 @@ class PoolCatalogExtractionVariantImageInteg(models.Model):
         count = 0
 
         # Furniture variants avec images
-        if self.furniture_variants_data:
+        if hasattr(self, 'furniture_variants_data') and self.furniture_variants_data:
             try:
                 fv_list = json.loads(self.furniture_variants_data)
                 for fv in fv_list:
@@ -526,7 +526,7 @@ class PoolCatalogExtractionVariantImageInteg(models.Model):
                 pass
 
         # Shell colors avec images
-        if self.shell_colors_data:
+        if hasattr(self, 'shell_colors_data') and self.shell_colors_data:
             try:
                 sc_list = json.loads(self.shell_colors_data)
                 for sc in sc_list:
