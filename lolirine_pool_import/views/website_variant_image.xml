@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         OVERRIDE PAGE PRODUIT : injecter template ID + CSS
+         ============================================================ -->
+
+    <template id="pool_variant_image_data" inherit_id="website_sale.product"
+              name="Pool Variant Image Data" priority="99">
+
+        <!-- Injecter le product_template_id en data-attribute pour le JS -->
+        <xpath expr="//div[@id='product_detail']" position="attributes">
+            <attribute name="data-product-template-id">
+                <t t-esc="product.product_tmpl_id.id"/>
+            </attribute>
+        </xpath>
+
+    </template>
+
+    <!-- ============================================================
+         CSS POUR LES VIGNETTES VARIANTES
+         ============================================================ -->
+
+    <template id="pool_variant_image_assets"
+              inherit_id="website.assets_frontend"
+              name="Pool Variant Image Assets">
+        <xpath expr="." position="inside">
+            <style>
+                /* ── Vignettes sur les sélecteurs d'attributs ── */
+                .pool-variant-thumb {
+                    width: 32px;
+                    height: 32px;
+                    object-fit: cover;
+                    border-radius: 4px;
+                    margin-right: 6px;
+                    vertical-align: middle;
+                    border: 1px solid #ddd;
+                    transition: border-color 0.2s, box-shadow 0.2s;
+                }
+                .pool-variant-thumb:hover {
+                    border-color: #3aadaa;
+                    box-shadow: 0 0 0 2px rgba(58, 173, 170, 0.25);
+                }
+
+                /* ── Transition fluide sur l'image principale ── */
+                .product_detail_img,
+                .o_wsale_product_main_image img,
+                #o-carousel-product .carousel-item img {
+                    transition: opacity 0.25s ease;
+                }
+
+                /* ── Sélecteurs couleur avec image ── */
+                .css_attribute_color .pool-variant-thumb {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                }
+
+                /* ── Indicateur visuel sur les labels avec image ── */
+                label:has(.pool-variant-thumb) {
+                    display: inline-flex !important;
+                    align-items: center;
+                    padding: 4px 8px;
+                    border-radius: 6px;
+                    transition: background-color 0.2s;
+                }
+                label:has(.pool-variant-thumb):hover {
+                    background-color: rgba(58, 173, 170, 0.08);
+                }
+
+                /* ── Variante sélectionnée ── */
+                input:checked + label .pool-variant-thumb,
+                .btn.active .pool-variant-thumb {
+                    border-color: #3aadaa;
+                    box-shadow: 0 0 0 2px rgba(58, 173, 170, 0.4);
+                }
+
+                /* ── Mode grille pour les attributs avec images ── */
+                .pool-variant-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                    gap: 8px;
+                    margin-top: 8px;
+                }
+                .pool-variant-grid .pool-variant-card {
+                    border: 2px solid #e9ecef;
+                    border-radius: 8px;
+                    padding: 8px;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .pool-variant-grid .pool-variant-card:hover {
+                    border-color: #3aadaa;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                }
+                .pool-variant-grid .pool-variant-card.active {
+                    border-color: #3aadaa;
+                    background: rgba(58, 173, 170, 0.05);
+                }
+                .pool-variant-grid .pool-variant-card img {
+                    width: 100%;
+                    height: 80px;
+                    object-fit: contain;
+                    margin-bottom: 4px;
+                }
+                .pool-variant-grid .pool-variant-card span {
+                    font-size: 0.8rem;
+                    color: #495057;
+                }
+            </style>
+        </xpath>
+    </template>
+
+    <!-- ============================================================
+         CHARGEMENT DU JS FRONTEND
+         ============================================================ -->
+
+    <template id="pool_variant_image_js_assets"
+              inherit_id="website.assets_frontend"
+              name="Pool Variant Image JS">
+        <xpath expr="." position="inside">
+            <script type="text/javascript"
+                    src="/lolirine_pool_import/static/src/js/variant_image_switcher.js"/>
+        </xpath>
+    </template>
+
+</odoo>
