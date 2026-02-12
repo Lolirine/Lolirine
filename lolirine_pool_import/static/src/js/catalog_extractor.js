@@ -4,13 +4,16 @@ import { registry } from "@web/core/registry";
 import { Component, useState, onWillStart, onMounted } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
+import { ImageCropSelector } from "./image_crop_selector";
 
 /**
  * Composant pour visualiser un catalogue avec formulaire d'extraction OCR amélioré.
  * Supporte l'extraction de produits simples et variantes, avec historique des captures.
+ * Intègre ImageCropSelector pour la sélection interactive de zones d'image.
  */
 export class CatalogExtractorView extends Component {
     static template = "lolirine_pool_import.CatalogExtractorView";
+    static components = { ImageCropSelector };
     static props = {
         action: { type: Object, optional: true },
         actionId: { type: Number, optional: true },
@@ -38,6 +41,9 @@ export class CatalogExtractorView extends Component {
             ocrPreview: null,
             ocrLoading: false,
             ocrError: null,
+            
+            // Images extraites via ImageCropSelector
+            extractedImages: [],
             
             // Produits extraits (depuis la dernière extraction)
             extractedProducts: [],
@@ -250,6 +256,7 @@ export class CatalogExtractorView extends Component {
         this.state.extractionId = null;
         this.state.ocrPreview = null;
         this.state.ocrFile = null;
+        this.state.extractedImages = [];
         
         // Clear file input
         const fileInput = document.getElementById("ocr-file-input");
@@ -418,6 +425,83 @@ export class CatalogExtractorView extends Component {
             };
             reader.onerror = (error) => reject(error);
         });
+    }
+
+    // ==================== ImageCropSelector Callbacks ====================
+
+    /**
+     * Appelé quand l'utilisateur confirme ses sélections de zones
+     * depuis le composant ImageCropSelector.
+     * Reçoit un tableau de régions avec les images découpées en base64.
+     */
+    onImageRegionsSelected(regions) {
+        // Stocker les images extraites
+        this.state.extractedImages = regions;
+        
+        // Envoyer les images au backend pour les associer à l'extraction courante
+        if (this.state.extractionId && regions.length > 0) {
+            this._saveExtractedImagesToBackend(regions);
+        }
+
+        this.notification.add(
+            _t(`${regions.length} image(s) extraite(s) depuis la capture`),
+            { type: "success" }
+        );
+    }
+
+    /**
+     * Sauvegarde les images découpées dans le backend (pool.catalog.extraction.image).
+     */
+    async _saveExtractedImagesToBackend(regions) {
+        try {
+            const imageDataList = regions.map((region, idx) => ({
+                sequence: idx,
+                label: region.label || `Image ${idx + 1}`,
+                base64: region.base64 || (region.croppedDataUrl ? region.croppedDataUrl.split(',')[1] : ''),
+                x_percent: region.x_percent || 0,
+                y_percent: region.y_percent || 0,
+                width_percent: region.width_percent || 0,
+                height_percent: region.height_percent || 0,
+            }));
+
+            await this.orm.call(
+                "pool.catalog.extraction",
+                "save_cropped_images",
+                [[this.state.extractionId], imageDataList]
+            );
+            console.log(`${regions.length} images sauvegardées pour l'extraction ${this.state.extractionId}`);
+        } catch (error) {
+            console.error("Erreur sauvegarde images découpées:", error);
+        }
+    }
+
+    /**
+     * Appelé par le bouton "Auto-Détecter" du composant ImageCropSelector.
+     * Envoie l'image au backend pour détection IA des zones produit via Claude.
+     * Retourne un tableau de zones détectées.
+     */
+    async onAutoDetectImages(imageSrc) {
+        // Extraire le base64 pur (enlever le préfixe data:image/...)
+        const base64Data = imageSrc.includes(',') ? imageSrc.split(',')[1] : imageSrc;
+        const mediaType = imageSrc.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+        
+        try {
+            // Appel RPC au backend
+            const result = await this.orm.call(
+                'pool.catalog.extraction',
+                'detect_product_images',
+                [base64Data, mediaType]
+            );
+            
+            return result || [];
+        } catch (error) {
+            console.error("Erreur auto-détection images:", error);
+            this.notification.add(
+                _t("Erreur lors de la détection automatique des images"),
+                { type: "danger" }
+            );
+            return [];
+        }
     }
 
     // ==================== Import Methods ====================
