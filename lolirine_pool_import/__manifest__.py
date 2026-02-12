@@ -82,7 +82,7 @@
         Compatible avec tous catalogues fournisseurs piscine.
     """,
     'author': 'Lolirine SPRL',
-    'website': 'https://lolirine.be'
+    'website': 'https://lolirine.be',
     'license': 'LGPL-3',
     'depends': [
         'base',
