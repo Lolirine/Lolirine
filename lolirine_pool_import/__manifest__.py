@@ -1,8 +1,8 @@
 {
     'name': 'Lolirine Pool Import - Fluidra',
-    'version': '19.0.6.0.0',
+    'version': '19.0.6.1.0',
     'category': 'Sales/Sales',
-    'summary': 'Import produits piscine - OCR IA avec remises fournisseur automatiques',
+    'summary': 'Import produits piscine - OCR IA avec remises fournisseur automatiques + sélection images interactive',
     'description': """
         Module d'import pour catalogues piscine (Fluidra, etc.)
         =======================================================
@@ -15,7 +15,15 @@
         - Support des produits simples, variantes et tableaux
         - Recherche d'images Google automatique
         
-        **CRÉATION AUTOMATIQUE DES CATÉGORIES E-COMMERCE** ✨ NOUVEAU
+        **SÉLECTION INTERACTIVE D'IMAGES** ✨ NOUVEAU v6.1
+        - Canvas interactif pour sélection manuelle de zones d'image
+        - Auto-détection IA des zones produit via Claude
+        - Multi-sélection (jusqu'à 10 zones par capture)
+        - Zoom / pan avec molette et raccourcis clavier
+        - Mode plein écran pour un travail de précision
+        - Découpe automatique des bordures blanches
+        
+        **CRÉATION AUTOMATIQUE DES CATÉGORIES E-COMMERCE** ✨
         - Détection de la catégorie depuis le catalogue
         - Création automatique de la catégorie parente si inexistante
         - Création automatique de la sous-catégorie si inexistante
@@ -106,8 +114,11 @@
     'assets': {
         'web.assets_backend': [
             'lolirine_pool_import/static/src/css/catalog_extractor.css',
+            'lolirine_pool_import/static/src/css/image_crop_selector.css',
+            'lolirine_pool_import/static/src/js/image_crop_selector.js',
             'lolirine_pool_import/static/src/js/catalog_extractor.js',
             'lolirine_pool_import/static/src/js/variant_image_switcher.js',
+            'lolirine_pool_import/static/src/xml/image_crop_selector.xml',
             'lolirine_pool_import/static/src/xml/catalog_extractor.xml',
         ],
     },
