@@ -365,12 +365,23 @@
                                         </button>
                                     </div>
                                     
-                                    <!-- Preview & Navigation -->
+                                    <!-- ═══ ImageCropSelector (remplace l'ancienne preview) ═══ -->
                                     <t t-if="state.ocrPreview">
                                         <div class="mb-3">
-                                            <img t-att-src="state.ocrPreview" 
-                                                 class="img-fluid rounded border" 
-                                                 style="max-height: 150px;"/>
+                                            <ImageCropSelector
+                                                imageSrc="state.ocrPreview"
+                                                onRegionsSelected.bind="onImageRegionsSelected"
+                                                onAutoDetect.bind="onAutoDetectImages"
+                                                maxSelections="10"
+                                                showAutoDetect="true"/>
+                                        </div>
+                                    </t>
+
+                                    <!-- Extracted images summary -->
+                                    <t t-if="state.extractedImages.length > 0">
+                                        <div class="alert alert-success py-2 mb-3">
+                                            <i class="fa fa-check-circle me-1"/>
+                                            <strong><t t-esc="state.extractedImages.length"/></strong> image(s) découpée(s) depuis la capture
                                         </div>
                                     </t>
                                     
