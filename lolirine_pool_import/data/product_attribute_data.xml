@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    <data noupdate="1">
+        <!-- Product Attributes for Pool Products -->
+        
+        <!-- Power (kW) -->
+        <record id="product_attribute_power_kw" model="product.attribute">
+            <field name="name">Puissance (kW)</field>
+            <field name="display_type">radio</field>
+            <field name="create_variant">always</field>
+        </record>
+
+        <!-- Power (CV) -->
+        <record id="product_attribute_power_cv" model="product.attribute">
+            <field name="name">Puissance (CV)</field>
+            <field name="display_type">radio</field>
+            <field name="create_variant">always</field>
+        </record>
+
+        <!-- Voltage -->
+        <record id="product_attribute_voltage" model="product.attribute">
+            <field name="name">Tension (V)</field>
+            <field name="display_type">radio</field>
+            <field name="create_variant">always</field>
+        </record>
+
+        <!-- Phase -->
+        <record id="product_attribute_phase" model="product.attribute">
+            <field name="name">Phase</field>
+            <field name="display_type">radio</field>
+            <field name="create_variant">always</field>
+        </record>
+
+        <!-- Flow Rate -->
+        <record id="product_attribute_flow" model="product.attribute">
+            <field name="name">Débit (m³/h)</field>
+            <field name="display_type">radio</field>
+            <field name="create_variant">always</field>
+        </record>
+
+        <!-- Diameter -->
+        <record id="product_attribute_diameter" model="product.attribute">
+            <field name="name">Diamètre (mm)</field>
+            <field name="display_type">radio</field>
+            <field name="create_variant">always</field>
+        </record>
+
+        <!-- Filter Area -->
+        <record id="product_attribute_filter_area" model="product.attribute">
+            <field name="name">Surface filtrante (m²)</field>
+            <field name="display_type">radio</field>
+            <field name="create_variant">always</field>
+        </record>
+
+        <!-- Material -->
+        <record id="product_attribute_material" model="product.attribute">
+            <field name="name">Matériau</field>
+            <field name="display_type">radio</field>
+            <field name="create_variant">always</field>
+        </record>
+
+        <!-- Steps (for ladders) -->
+        <record id="product_attribute_steps" model="product.attribute">
+            <field name="name">Nombre de marches</field>
+            <field name="display_type">radio</field>
+            <field name="create_variant">always</field>
+        </record>
+
+        <!-- Color -->
+        <record id="product_attribute_color" model="product.attribute">
+            <field name="name">Couleur</field>
+            <field name="display_type">color</field>
+            <field name="create_variant">always</field>
+        </record>
+
+        <!-- Common Attribute Values -->
+        
+        <!-- Voltages -->
+        <record id="product_attribute_value_230v" model="product.attribute.value">
+            <field name="name">230V</field>
+            <field name="attribute_id" ref="product_attribute_voltage"/>
+        </record>
+        <record id="product_attribute_value_400v" model="product.attribute.value">
+            <field name="name">400V</field>
+            <field name="attribute_id" ref="product_attribute_voltage"/>
+        </record>
+
+        <!-- Phases -->
+        <record id="product_attribute_value_mono" model="product.attribute.value">
+            <field name="name">Monophasé</field>
+            <field name="attribute_id" ref="product_attribute_phase"/>
+        </record>
+        <record id="product_attribute_value_tri" model="product.attribute.value">
+            <field name="name">Triphasé</field>
+            <field name="attribute_id" ref="product_attribute_phase"/>
+        </record>
+
+        <!-- Materials -->
+        <record id="product_attribute_value_inox_304" model="product.attribute.value">
+            <field name="name">Inox 304</field>
+            <field name="attribute_id" ref="product_attribute_material"/>
+        </record>
+        <record id="product_attribute_value_inox_316" model="product.attribute.value">
+            <field name="name">Inox 316</field>
+            <field name="attribute_id" ref="product_attribute_material"/>
+        </record>
+        <record id="product_attribute_value_abs" model="product.attribute.value">
+            <field name="name">ABS</field>
+            <field name="attribute_id" ref="product_attribute_material"/>
+        </record>
+        <record id="product_attribute_value_pvc" model="product.attribute.value">
+            <field name="name">PVC</field>
+            <field name="attribute_id" ref="product_attribute_material"/>
+        </record>
+
+        <!-- Steps -->
+        <record id="product_attribute_value_3_steps" model="product.attribute.value">
+            <field name="name">3 marches</field>
+            <field name="attribute_id" ref="product_attribute_steps"/>
+        </record>
+        <record id="product_attribute_value_4_steps" model="product.attribute.value">
+            <field name="name">4 marches</field>
+            <field name="attribute_id" ref="product_attribute_steps"/>
+        </record>
+        <record id="product_attribute_value_5_steps" model="product.attribute.value">
+            <field name="name">5 marches</field>
+            <field name="attribute_id" ref="product_attribute_steps"/>
+        </record>
+
+        <!-- Common Diameters -->
+        <record id="product_attribute_value_d50" model="product.attribute.value">
+            <field name="name">50 mm</field>
+            <field name="attribute_id" ref="product_attribute_diameter"/>
+        </record>
+        <record id="product_attribute_value_d63" model="product.attribute.value">
+            <field name="name">63 mm</field>
+            <field name="attribute_id" ref="product_attribute_diameter"/>
+        </record>
+        <record id="product_attribute_value_d75" model="product.attribute.value">
+            <field name="name">75 mm</field>
+            <field name="attribute_id" ref="product_attribute_diameter"/>
+        </record>
+        <record id="product_attribute_value_d90" model="product.attribute.value">
+            <field name="name">90 mm</field>
+            <field name="attribute_id" ref="product_attribute_diameter"/>
+        </record>
+        <record id="product_attribute_value_d110" model="product.attribute.value">
+            <field name="name">110 mm</field>
+            <field name="attribute_id" ref="product_attribute_diameter"/>
+        </record>
+    </data>
+</data>
+</odoo>
