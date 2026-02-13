@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lolirine_pool_import.ImageCropSelector">
+        <div class="lpi-crop-selector">
+
+            <!-- ═══ TOOLBAR ═══ -->
+            <div class="lpi-crop-toolbar d-flex align-items-center gap-2 p-2 rounded-top">
+                <!-- Tools -->
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button"
+                            t-attf-class="btn {{ state.tool === 'select' ? 'btn-primary' : 'btn-outline-secondary' }}"
+                            t-on-click="onToolSelect"
+                            title="Sélection (S)">
+                        <i class="fa fa-crop"/> Sélection
+                    </button>
+                    <button type="button"
+                            t-attf-class="btn {{ state.tool === 'pan' ? 'btn-primary' : 'btn-outline-secondary' }}"
+                            t-on-click="onToolPan"
+                            title="Déplacer (Espace)">
+                        <i class="fa fa-hand-paper-o"/> Pan
+                    </button>
+                </div>
+
+                <div class="vr mx-1"/>
+
+                <!-- Zoom -->
+                <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-outline-secondary" t-on-click="onZoomOut" title="Zoom -">
+                        <i class="fa fa-search-minus"/>
+                    </button>
+                    <button class="btn btn-outline-secondary disabled" style="min-width:55px;">
+                        <t t-esc="zoomPercent"/>%
+                    </button>
+                    <button class="btn btn-outline-secondary" t-on-click="onZoomIn" title="Zoom +">
+                        <i class="fa fa-search-plus"/>
+                    </button>
+                    <button class="btn btn-outline-secondary" t-on-click="onZoomFit" title="Ajuster">
+                        <i class="fa fa-expand"/>
+                    </button>
+                </div>
+
+                <div class="vr mx-1"/>
+
+                <!-- Auto-detect -->
+                <t t-if="props.showAutoDetect">
+                    <button class="btn btn-sm btn-warning"
+                            t-on-click="onAutoDetect"
+                            t-att-disabled="state.autoDetecting">
+                        <t t-if="state.autoDetecting">
+                            <i class="fa fa-spinner fa-spin me-1"/>
+                            Détection...
+                        </t>
+                        <t t-else="">
+                            <i class="fa fa-magic me-1"/>
+                            Auto-détecter
+                        </t>
+                    </button>
+                </t>
+
+                <!-- Spacer -->
+                <div class="flex-grow-1"/>
+
+                <!-- Region actions -->
+                <t t-if="hasRegions">
+                    <button class="btn btn-sm btn-outline-danger" t-on-click="onClearAll" title="Tout supprimer">
+                        <i class="fa fa-trash"/> Tout effacer
+                    </button>
+                </t>
+
+                <!-- Fullscreen -->
+                <button class="btn btn-sm btn-outline-dark" t-on-click="onOpenModal" title="Plein écran">
+                    <i class="fa fa-arrows-alt"/>
+                </button>
+            </div>
+
+            <!-- ═══ CANVAS (INLINE) ═══ -->
+            <div class="lpi-crop-canvas-container" t-ref="container"
+                 style="position:relative; height:400px; border:1px solid #dee2e6; border-top:none; background:#f8f9fa; overflow:hidden;">
+                
+                <t t-if="!state.imageLoaded">
+                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                        <i class="fa fa-spinner fa-spin fa-2x me-2"/>
+                        Chargement de l'image...
+                    </div>
+                </t>
+                
+                <canvas t-ref="canvas"
+                        style="position:absolute; top:0; left:0; width:100%; height:100%;"
+                        t-on-mousedown="onCanvasMouseDown"
+                        t-on-mousemove="onCanvasMouseMove"
+                        t-on-mouseup="onCanvasMouseUp"
+                        t-on-wheel="onCanvasWheel"
+                        t-on-mouseleave="onCanvasMouseUp"
+                        t-att-class="state.imageLoaded ? '' : 'd-none'"/>
+                
+                <!-- Help overlay -->
+                <t t-if="state.imageLoaded and !hasRegions and !state.isDrawing">
+                    <div class="lpi-crop-help" style="
+                        position:absolute; bottom:12px; left:50%; transform:translateX(-50%);
+                        background:rgba(0,0,0,0.7); color:#fff; padding:6px 16px; border-radius:20px;
+                        font-size:12px; pointer-events:none; white-space:nowrap;">
+                        <i class="fa fa-info-circle me-1"/>
+                        Dessinez un rectangle sur l'image pour sélectionner une zone · Molette = zoom · Espace = pan
+                    </div>
+                </t>
+            </div>
+
+            <!-- ═══ REGIONS PREVIEW LIST ═══ -->
+            <t t-if="hasRegions">
+                <div class="lpi-crop-regions p-2" style="border:1px solid #dee2e6; border-top:none; background:#fff;">
+                    <div class="d-flex align-items-center mb-2">
+                        <strong class="flex-grow-1">
+                            <i class="fa fa-th-large me-1"/>
+                            Zones sélectionnées (<t t-esc="state.regions.length"/>)
+                        </strong>
+                        <button class="btn btn-sm btn-success" t-on-click="onConfirmSelection">
+                            <i class="fa fa-check me-1"/>
+                            Utiliser ces images
+                        </button>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <t t-foreach="state.regions" t-as="region" t-key="region_index">
+                            <div t-attf-class="lpi-region-card {{ state.activeRegionIndex === region_index ? 'active' : '' }}"
+                                 t-on-click="() => this.onSelectRegion(region_index)"
+                                 style="
+                                    position:relative; width:140px; border:2px solid #dee2e6; border-radius:8px;
+                                    overflow:hidden; cursor:pointer; transition: all 0.15s;
+                                 "
+                                 t-attf-style="border-color: {{ state.activeRegionIndex === region_index ? '#00d4aa' : '#dee2e6' }}">
+                                
+                                <!-- Preview image -->
+                                <div style="height:100px; background:#f8f8f8; display:flex; align-items:center; justify-content:center;">
+                                    <t t-if="region.croppedDataUrl">
+                                        <img t-att-src="region.croppedDataUrl"
+                                             style="max-width:100%; max-height:100%; object-fit:contain;"/>
+                                    </t>
+                                    <t t-else="">
+                                        <i class="fa fa-image text-muted fa-2x"/>
+                                    </t>
+                                </div>
+                                
+                                <!-- Label -->
+                                <div class="p-1" style="background:#fafafa; border-top:1px solid #eee;">
+                                    <input type="text"
+                                           class="form-control form-control-sm border-0 bg-transparent p-0"
+                                           style="font-size:11px; height:22px;"
+                                           t-att-value="region.label"
+                                           t-on-change="(ev) => this.onRegionLabelChange(region_index, ev)"
+                                           t-on-click.stop="() => {}"/>
+                                </div>
+
+                                <!-- Delete button -->
+                                <button class="btn btn-sm"
+                                        style="position:absolute; top:2px; right:2px; background:rgba(255,255,255,0.85);
+                                               border-radius:50%; width:22px; height:22px; padding:0;
+                                               display:flex; align-items:center; justify-content:center;
+                                               font-size:11px; color:#dc3545;"
+                                        t-on-click.stop="() => this.onRemoveRegion(region_index)"
+                                        title="Supprimer">
+                                    <i class="fa fa-times"/>
+                                </button>
+
+                                <!-- Size info -->
+                                <div style="position:absolute; bottom:26px; right:4px;
+                                            background:rgba(0,0,0,0.6); color:#fff;
+                                            font-size:9px; padding:1px 5px; border-radius:3px;">
+                                    <t t-esc="Math.round(region.w)"/>×<t t-esc="Math.round(region.h)"/>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ═══ MODAL (FULLSCREEN) ═══ -->
+            <t t-if="state.isModalOpen">
+                <div class="lpi-crop-modal"
+                     style="position:fixed; top:0; left:0; width:100vw; height:100vh;
+                            z-index:10000; background:rgba(0,0,0,0.92); display:flex; flex-direction:column;">
+                    
+                    <!-- Modal Toolbar -->
+                    <div class="d-flex align-items-center gap-2 p-2" style="background:rgba(30,30,30,0.95);">
+                        <div class="btn-group btn-group-sm">
+                            <button t-attf-class="btn {{ state.tool === 'select' ? 'btn-primary' : 'btn-outline-light' }}"
+                                    t-on-click="onToolSelect">
+                                <i class="fa fa-crop"/> Sélection
+                            </button>
+                            <button t-attf-class="btn {{ state.tool === 'pan' ? 'btn-primary' : 'btn-outline-light' }}"
+                                    t-on-click="onToolPan">
+                                <i class="fa fa-hand-paper-o"/> Pan
+                            </button>
+                        </div>
+                        <div class="vr mx-1" style="border-color:rgba(255,255,255,0.2)"/>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-light" t-on-click="onZoomOut"><i class="fa fa-search-minus"/></button>
+                            <button class="btn btn-outline-light disabled" style="min-width:55px;"><t t-esc="zoomPercent"/>%</button>
+                            <button class="btn btn-outline-light" t-on-click="onZoomIn"><i class="fa fa-search-plus"/></button>
+                            <button class="btn btn-outline-light" t-on-click="onZoomFit"><i class="fa fa-expand"/></button>
+                        </div>
+                        <div class="vr mx-1" style="border-color:rgba(255,255,255,0.2)"/>
+                        <t t-if="props.showAutoDetect">
+                            <button class="btn btn-sm btn-warning" t-on-click="onAutoDetect" t-att-disabled="state.autoDetecting">
+                                <t t-if="state.autoDetecting"><i class="fa fa-spinner fa-spin me-1"/>Détection...</t>
+                                <t t-else=""><i class="fa fa-magic me-1"/>Auto-détecter</t>
+                            </button>
+                        </t>
+                        <div class="flex-grow-1"/>
+                        <t t-if="hasRegions">
+                            <span class="text-light me-2" style="font-size:13px;">
+                                <t t-esc="state.regions.length"/> zone(s)
+                            </span>
+                            <button class="btn btn-sm btn-success me-2" t-on-click="onConfirmSelection">
+                                <i class="fa fa-check me-1"/> Utiliser
+                            </button>
+                        </t>
+                        <button class="btn btn-sm btn-outline-light" t-on-click="onCloseModal" title="Fermer (Échap)">
+                            <i class="fa fa-times"/> Fermer
+                        </button>
+                    </div>
+
+                    <!-- Modal Canvas -->
+                    <div class="flex-grow-1" t-ref="modalContainer" style="position:relative; overflow:hidden;">
+                        <canvas t-ref="modalCanvas"
+                                style="position:absolute; top:0; left:0; width:100%; height:100%;"
+                                t-on-mousedown="onCanvasMouseDown"
+                                t-on-mousemove="onCanvasMouseMove"
+                                t-on-mouseup="onCanvasMouseUp"
+                                t-on-wheel="onCanvasWheel"
+                                t-on-mouseleave="onCanvasMouseUp"/>
+                    </div>
+
+                    <!-- Modal Region Previews -->
+                    <t t-if="hasRegions">
+                        <div class="d-flex gap-2 p-2 overflow-auto" style="background:rgba(30,30,30,0.95); max-height:130px;">
+                            <t t-foreach="state.regions" t-as="region" t-key="region_index">
+                                <div t-attf-class="lpi-region-thumb {{ state.activeRegionIndex === region_index ? 'active' : '' }}"
+                                     t-on-click="() => this.onSelectRegion(region_index)"
+                                     style="
+                                        flex-shrink:0; width:100px; height:90px; border:2px solid transparent;
+                                        border-radius:6px; overflow:hidden; cursor:pointer; position:relative;
+                                        background:#1a1a1a;
+                                     "
+                                     t-attf-style="border-color: {{ state.activeRegionIndex === region_index ? '#00d4aa' : 'rgba(255,255,255,0.15)' }}">
+                                    <t t-if="region.croppedDataUrl">
+                                        <img t-att-src="region.croppedDataUrl"
+                                             style="width:100%; height:70px; object-fit:contain;"/>
+                                    </t>
+                                    <div style="font-size:10px; color:#aaa; text-align:center; padding:2px;">
+                                        <t t-esc="region.label"/>
+                                    </div>
+                                    <button style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.6);
+                                                   border:none; color:#ff6b6b; font-size:10px; width:18px; height:18px;
+                                                   border-radius:50%; padding:0; display:flex; align-items:center; justify-content:center;"
+                                            t-on-click.stop="() => this.onRemoveRegion(region_index)">
+                                        <i class="fa fa-times"/>
+                                    </button>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+            </t>
+
+        </div>
+    </t>
+
+</templates>
