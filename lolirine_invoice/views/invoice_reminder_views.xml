@@ -11,7 +11,7 @@
                 <header>
                     <button name="action_send_reminder" type="object" string="Envoyer par email"
                             class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="action_mark_paid" type="object" string="Marquer payee"
+                    <button name="action_mark_paid" type="object" string="Marquer payée"
                             class="btn-success" invisible="state not in ('draft', 'sent')"/>
                     <button name="action_cancel" type="object" string="Annuler"
                             invisible="state in ('paid', 'cancelled')"/>
@@ -66,8 +66,8 @@
                 <field name="reminder_type"/>
                 <field name="date"/>
                 <field name="days_overdue"/>
-                <field name="amount_due" sum="Total du"/>
-                <field name="penalty_amount" sum="Total penalites"/>
+                <field name="amount_due" sum="Total dû"/>
+                <field name="penalty_amount" sum="Total pénalités"/>
                 <field name="email_sent" widget="boolean"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
@@ -88,14 +88,14 @@
                 Aucune relance
             </p>
             <p>
-                Les relances sont creees depuis les factures impayees.
+                Les relances sont créées depuis les factures impayées.
             </p>
         </field>
     </record>
 
     <!-- Action relances a envoyer -->
     <record id="action_invoice_reminders_to_send" model="ir.actions.act_window">
-        <field name="name">Relances a envoyer</field>
+        <field name="name">Relances à envoyer</field>
         <field name="res_model">lolirine.invoice.reminder</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('state', '=', 'draft')]</field>
@@ -115,27 +115,27 @@
                 </header>
                 <sheet>
                     <group>
-                        <group string="Delais de relance (jours apres echeance)">
+                        <group string="Délais de relance (jours après échéance)">
                             <field name="reminder_1_days"/>
                             <field name="reminder_2_days"/>
                             <field name="reminder_3_days"/>
                             <field name="formal_notice_days"/>
                         </group>
-                        <group string="Penalites et frais">
+                        <group string="Pénalités et frais">
                             <field name="penalty_rate"/>
-                            <field name="fee_reminder_3"/>
-                            <field name="fee_formal_notice"/>
+                            <field name="fee_reminder" string="Frais de rappel (à partir R2)"/>
+                            <field name="fee_formal_notice" string="Frais mise en demeure (en plus)"/>
                             <field name="auto_reminder"/>
                         </group>
                     </group>
                     <div class="alert alert-info" invisible="not auto_reminder">
-                        <strong>Auto-relance activee :</strong> Le systeme enverra automatiquement 
-                        les relances chaque jour selon les delais configures ci-dessus.
-                        Utilisez le bouton "Tester auto-relance" pour lancer manuellement.
+                        <strong>Auto-relance activée :</strong> Le système enverra automatiquement 
+                        les relances chaque jour selon les délais configurés ci-dessus.<br/>
+                        <strong>Frais appliqués :</strong> R1 = 0€ | R2 = 20€ | R3 = 20€ | Mise en demeure = 20€ + 50€ = 70€
                     </div>
                     <div class="alert alert-warning" invisible="auto_reminder">
-                        <strong>Auto-relance desactivee :</strong> Activez le toggle ci-dessus 
-                        pour que les relances soient envoyees automatiquement.
+                        <strong>Auto-relance désactivée :</strong> Activez le toggle ci-dessus 
+                        pour que les relances soient envoyées automatiquement.
                     </div>
                 </sheet>
             </form>
