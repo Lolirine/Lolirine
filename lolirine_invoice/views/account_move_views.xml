@@ -174,7 +174,7 @@
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='payment_state']" position="after">
+            <xpath expr="//list/field[@name='state']" position="after">
                 <field name="reminder_status" widget="badge" optional="show" string="Relance"
                        decoration-info="reminder_status == 'reminder_1'"
                        decoration-warning="reminder_status in ('reminder_2', 'reminder_3')"
