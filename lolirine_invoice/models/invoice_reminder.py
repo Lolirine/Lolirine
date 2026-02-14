@@ -3,6 +3,9 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from datetime import timedelta
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class InvoiceReminder(models.Model):
@@ -119,31 +122,32 @@ class InvoiceReminder(models.Model):
         annual_rate = 0.105  # Taux legal belge 2024
         for rec in self:
             if rec.days_overdue > 0 and rec.invoice_id.amount_residual > 0:
-                # Penalites = Montant * (Taux / 365) * Jours de retard
                 rec.penalty_amount = rec.invoice_id.amount_residual * (annual_rate / 365) * rec.days_overdue
             else:
                 rec.penalty_amount = 0.0
 
+    # ==================== ENVOI EMAIL ====================
+
     def action_send_reminder(self):
-        """Envoyer la relance par email"""
+        """Envoyer la relance par email - construction directe du body HTML"""
         self.ensure_one()
         
         if not self.partner_id.email:
-            raise UserError(_("Le client n'a pas d'adresse email configuree."))
+            raise UserError(_("Le client n'a pas d'adresse email configurée."))
         
-        # Selectionner le template selon le type
-        template_map = {
-            'reminder_1': 'lolirine_invoice.email_template_reminder_1',
-            'reminder_2': 'lolirine_invoice.email_template_reminder_2',
-            'reminder_3': 'lolirine_invoice.email_template_reminder_3',
-            'formal_notice': 'lolirine_invoice.email_template_formal_notice',
-        }
+        # Construire l'email selon le type de relance
+        subject, body_html = self._build_reminder_email()
         
-        template_ref = template_map.get(self.reminder_type)
-        if template_ref:
-            template = self.env.ref(template_ref, raise_if_not_found=False)
-            if template:
-                template.send_mail(self.id, force_send=True)
+        # Créer et envoyer l'email
+        mail = self.env['mail.mail'].sudo().create({
+            'subject': subject,
+            'body_html': body_html,
+            'email_from': 'gardemeublelolirine@gmail.com',
+            'email_to': self.partner_id.email,
+            'model': 'lolirine.invoice.reminder',
+            'res_id': self.id,
+        })
+        mail.send()
         
         self.write({
             'state': 'sent',
@@ -151,19 +155,276 @@ class InvoiceReminder(models.Model):
             'email_sent': True,
         })
         
-        # Mettre a jour le compteur de relances sur la facture
-        self.invoice_id._compute_reminder_count()
+        # Log dans le chatter de la facture
+        self.invoice_id.message_post(
+            body=f"Relance {self._get_type_label()} envoyée par email à {self.partner_id.email}",
+            message_type='notification'
+        )
         
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('Relance envoyee'),
-                'message': _('Email envoye a %s') % self.partner_id.email,
+                'title': _('Relance envoyée'),
+                'message': _('Email envoyé à %s') % self.partner_id.email,
                 'type': 'success',
                 'sticky': False,
             }
         }
+
+    def _get_type_label(self):
+        """Retourne le libellé du type de relance"""
+        labels = {
+            'reminder_1': '1er Rappel',
+            'reminder_2': '2ème Rappel',
+            'reminder_3': '3ème Rappel',
+            'formal_notice': 'Mise en demeure',
+            'lawyer': 'Transmission avocat',
+        }
+        return labels.get(self.reminder_type, 'Relance')
+
+    def _build_reminder_email(self):
+        """Construit le sujet et le corps HTML de l'email selon le type"""
+        self.ensure_one()
+        
+        inv = self.invoice_id
+        partner = self.partner_id
+        amount_due = f"{inv.amount_residual:.2f}"
+        due_date = inv.invoice_date_due or ''
+        inv_name = inv.name or ''
+        payment_ref = inv.payment_reference or 'Voir facture'
+        days = self.days_overdue
+        penalty = f"{self.penalty_amount:.2f}"
+        
+        if self.reminder_type == 'reminder_1':
+            return self._build_email_reminder_1(partner, inv_name, due_date, amount_due, days, payment_ref)
+        elif self.reminder_type == 'reminder_2':
+            return self._build_email_reminder_2(partner, inv_name, due_date, amount_due, days, payment_ref)
+        elif self.reminder_type == 'reminder_3':
+            return self._build_email_reminder_3(partner, inv_name, due_date, amount_due, days, penalty, payment_ref)
+        elif self.reminder_type == 'formal_notice':
+            return self._build_email_formal_notice(partner, inv_name, due_date, amount_due, days, penalty, payment_ref)
+        else:
+            return (f"Relance - Facture {inv_name}", "<p>Relance</p>")
+
+    def _email_style(self):
+        """Style CSS commun pour tous les emails"""
+        return 'font-family: Arial, sans-serif; font-size: 13px; color: #333;'
+
+    def _email_table_row(self, label, value, bold=False, color=None):
+        """Génère une ligne de tableau HTML"""
+        style_val = ''
+        if bold:
+            style_val = ' font-weight: bold;'
+        if color:
+            style_val += f' color: {color};'
+        return f"""
+        <tr>
+            <td style="padding: 8px 12px; border: 1px solid #ddd; background-color: #f5f5f5; font-weight: bold; width: 180px;">{label}</td>
+            <td style="padding: 8px 12px; border: 1px solid #ddd;{style_val}">{value}</td>
+        </tr>"""
+
+    def _email_payment_block(self, payment_ref):
+        """Bloc modalités de paiement"""
+        return f"""
+    <p><strong>Modalités de paiement :</strong></p>
+    <ul>
+        <li>Communication structurée : {payment_ref}</li>
+        <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
+        <li>Titulaire : Lolirine SPRL</li>
+    </ul>"""
+
+    def _email_signature(self):
+        """Signature commune"""
+        return """
+    <p style="margin-top: 25px;">
+        <strong>Lolirine Garde-Meubles</strong><br/>
+        Feron Rodney<br/>
+        Tél. : 0497/44 41 46<br/>
+        Email : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a>
+    </p>"""
+
+    # -------------------- 1er RAPPEL --------------------
+
+    def _build_email_reminder_1(self, partner, inv_name, due_date, amount_due, days, payment_ref):
+        subject = f"Rappel de paiement - Facture {inv_name} impayée"
+        
+        body = f"""
+<div style="{self._email_style()}">
+    <p>Bonjour {partner.name},</p>
+    
+    <p>Sauf erreur ou omission de notre part, nous n'avons pas encore reçu le paiement de la facture mentionnée ci-dessous :</p>
+    
+    <table style="margin: 15px 0; border-collapse: collapse; width: 100%; max-width: 450px;">
+        {self._email_table_row("Numéro de facture", inv_name)}
+        {self._email_table_row("Date d'échéance", due_date)}
+        {self._email_table_row("Montant dû", f"{amount_due} EUR", bold=True)}
+        {self._email_table_row("Jours de retard", f"{days} jours")}
+    </table>
+    
+    <p>Nous vous serions reconnaissants de bien vouloir procéder au règlement de cette facture dans les meilleurs délais.</p>
+    
+    {self._email_payment_block(payment_ref)}
+    
+    <p>Si vous avez déjà effectué le paiement, nous vous prions de ne pas tenir compte de ce message.</p>
+    
+    <p>Pour toute question, n'hésitez pas à nous contacter.</p>
+    
+    <p>Cordialement,</p>
+    {self._email_signature()}
+</div>"""
+        return subject, body
+
+    # -------------------- 2ème RAPPEL (+ 20€ frais) --------------------
+
+    def _build_email_reminder_2(self, partner, inv_name, due_date, amount_due, days, payment_ref):
+        subject = f"2ème Rappel - Facture {inv_name} impayée"
+        fee = 20.00
+        total = float(amount_due) + fee
+        
+        body = f"""
+<div style="{self._email_style()}">
+    <p>Bonjour {partner.name},</p>
+    
+    <p><strong>Ceci est notre deuxième rappel concernant votre facture impayée.</strong></p>
+    
+    <p>Malgré notre précédent rappel, nous constatons que le paiement de la facture ci-dessous n'a toujours pas été effectué :</p>
+    
+    <table style="margin: 15px 0; border-collapse: collapse; width: 100%; max-width: 450px;">
+        {self._email_table_row("Numéro de facture", inv_name)}
+        {self._email_table_row("Date d'échéance", due_date)}
+        {self._email_table_row("Montant dû", f"{amount_due} EUR")}
+        {self._email_table_row("Jours de retard", f"{days} jours", color="#dc3545")}
+        {self._email_table_row("Frais de rappel", f"{fee:.2f} EUR", color="#dc3545")}
+        {self._email_table_row("TOTAL À PAYER", f"{total:.2f} EUR", bold=True, color="#dc3545")}
+    </table>
+    
+    <p>Conformément à nos conditions générales, des frais de rappel de <strong>{fee:.2f} EUR</strong> sont appliqués à partir du deuxième rappel.</p>
+    
+    <p>Nous vous prions de régulariser cette situation dans les plus brefs délais afin d'éviter des frais supplémentaires.</p>
+    
+    {self._email_payment_block(payment_ref)}
+    
+    <p>En cas de difficulté de paiement, nous vous invitons à nous contacter pour trouver une solution.</p>
+    
+    <p>Cordialement,</p>
+    {self._email_signature()}
+</div>"""
+        return subject, body
+
+    # -------------------- 3ème RAPPEL (+ 20€ frais) --------------------
+
+    def _build_email_reminder_3(self, partner, inv_name, due_date, amount_due, days, penalty, payment_ref):
+        subject = f"URGENT - 3ème Rappel - Facture {inv_name} impayée"
+        fee = 20.00
+        total = float(amount_due) + fee
+        
+        body = f"""
+<div style="{self._email_style()}">
+    <p>Bonjour {partner.name},</p>
+    
+    <p style="color: #dc3545; font-weight: bold; font-size: 14px;">TROISIÈME ET DERNIER RAPPEL AVANT MISE EN DEMEURE</p>
+    
+    <p>Malgré nos précédentes relances, votre facture reste impayée :</p>
+    
+    <table style="margin: 15px 0; border-collapse: collapse; width: 100%; max-width: 450px; border: 2px solid #dc3545;">
+        {self._email_table_row("Numéro de facture", inv_name)}
+        {self._email_table_row("Date d'échéance", due_date)}
+        {self._email_table_row("Montant dû", f"{amount_due} EUR")}
+        {self._email_table_row("Jours de retard", f"{days} jours", color="#dc3545")}
+        {self._email_table_row("Pénalités de retard", f"{penalty} EUR")}
+        {self._email_table_row("Frais de rappel", f"{fee:.2f} EUR", color="#dc3545")}
+        {self._email_table_row("TOTAL À PAYER", f"{total:.2f} EUR", bold=True, color="#dc3545")}
+    </table>
+    
+    <p><strong>Sans paiement de votre part dans les 7 jours</strong>, nous serons contraints de vous adresser une <strong>mise en demeure formelle</strong>, pouvant entraîner :</p>
+    
+    <ul>
+        <li>L'application de pénalités de retard au taux légal belge (10,5% annuel)</li>
+        <li>La suspension de l'accès à votre box</li>
+        <li>Le recours à une société de recouvrement</li>
+    </ul>
+    
+    {self._email_payment_block(payment_ref)}
+    
+    <p>Nous restons disponibles pour discuter d'un échelonnement de paiement si nécessaire.</p>
+    
+    <p>Cordialement,</p>
+    {self._email_signature()}
+</div>"""
+        return subject, body
+
+    # -------------------- MISE EN DEMEURE (20€ rappel + 50€ MED = 70€) --------------------
+
+    def _build_email_formal_notice(self, partner, inv_name, due_date, amount_due, days, penalty, payment_ref):
+        subject = f"MISE EN DEMEURE - Facture {inv_name}"
+        fee_rappel = 20.00
+        fee_med = 50.00
+        fee_total = fee_rappel + fee_med
+        total = float(amount_due) + fee_total
+        
+        partner_street = partner.street or ''
+        partner_zip = partner.zip or ''
+        partner_city = partner.city or ''
+        
+        body = f"""
+<div style="{self._email_style()}">
+    
+    <div style="background-color: #dc3545; color: white; text-align: center; padding: 15px; font-size: 18px; font-weight: bold; margin-bottom: 20px;">
+        MISE EN DEMEURE
+    </div>
+    
+    <p>
+        {partner.name}<br/>
+        {partner_street}<br/>
+        {partner_zip} {partner_city}
+    </p>
+    
+    <p><strong>Objet : Mise en demeure de payer - Facture {inv_name}</strong></p>
+    
+    <p>Madame, Monsieur,</p>
+    
+    <p>Malgré nos nombreuses relances, nous constatons que vous n'avez toujours pas procédé au règlement de la/des facture(s) relative(s) à la location de votre box au sein de notre site Lolirine.</p>
+    
+    <table style="margin: 15px 0; border-collapse: collapse; width: 100%; max-width: 500px; border: 2px solid #dc3545;">
+        {self._email_table_row("Numéro de facture", inv_name)}
+        {self._email_table_row("Date d'échéance initiale", str(due_date))}
+        {self._email_table_row("Montant facture", f"{amount_due} EUR")}
+        {self._email_table_row("Frais de rappel", f"{fee_rappel:.2f} EUR", color="#dc3545")}
+        {self._email_table_row("Frais de mise en demeure", f"{fee_med:.2f} EUR", color="#dc3545")}
+        {self._email_table_row("TOTAL DÛ", f"{total:.2f} EUR", bold=True, color="#dc3545")}
+    </table>
+    
+    <p>Par la présente, nous vous mettons en demeure de nous régler la somme totale de <strong>{total:.2f} EUR</strong> dans un délai de <strong>8 jours</strong> à compter de la réception de ce courrier.</p>
+    
+    <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 15px; margin: 15px 0;">
+        <p style="font-weight: bold; margin-top: 0;">À DÉFAUT DE PAIEMENT :</p>
+        <ul style="margin-bottom: 0;">
+            <li>Votre <strong>contrat de garde-meubles sera résilié</strong> avec effet immédiat</li>
+            <li>Les biens stockés feront l'objet d'une <strong>rétention</strong> jusqu'au paiement intégral</li>
+            <li>Le dossier sera transmis à notre <strong>service contentieux</strong> pour recouvrement judiciaire</li>
+        </ul>
+    </div>
+    
+    {self._email_payment_block(payment_ref)}
+    
+    <p><em>Cette mise en demeure vaut interpellation au sens de l'article 1153 du Code civil et fait courir les intérêts de retard au taux légal.</em></p>
+    
+    <p>Nous vous prions d'agréer, Madame, Monsieur, l'expression de nos salutations distinguées.</p>
+    
+    <p style="margin-top: 25px;">
+        <strong>Lolirine SPRL</strong><br/>
+        Feron Rodney - Gérant<br/>
+        Tél. : 0497/44 41 46<br/>
+        Email : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a>
+    </p>
+    
+    <hr style="margin-top: 30px; border: none; border-top: 1px solid #ccc;"/>
+    <p style="font-size: 11px; color: #999;">
+        Ce document constitue une mise en demeure au sens juridique du terme. Une copie de ce courrier est conservée dans nos archives.
+    </p>
+</div>"""
+        return subject, body
 
     def action_mark_paid(self):
         """Marquer comme payee"""
@@ -182,9 +443,6 @@ class InvoiceReminder(models.Model):
     @api.model
     def _cron_auto_reminder(self):
         """Cron pour generer et envoyer automatiquement les relances"""
-        import logging
-        _logger = logging.getLogger(__name__)
-        
         config = self.env['lolirine.invoice.reminder.config'].search(
             [('auto_reminder', '=', True)], limit=1
         )
@@ -314,16 +572,16 @@ class InvoiceReminderConfig(models.Model):
         help='Taux legal belge pour les penalites de retard'
     )
     
-    fee_reminder_3 = fields.Float(
-        string='Frais 3eme rappel (EUR)',
+    fee_reminder = fields.Float(
+        string='Frais de rappel (EUR)',
         default=20.0,
-        help='Frais factures automatiquement au 3eme rappel'
+        help='Frais appliques a partir du 2eme rappel'
     )
     
     fee_formal_notice = fields.Float(
         string='Frais mise en demeure (EUR)',
         default=50.0,
-        help='Frais factures automatiquement a la mise en demeure'
+        help='Frais supplementaires pour la mise en demeure (en plus des frais de rappel)'
     )
     
     auto_reminder = fields.Boolean(
@@ -345,8 +603,8 @@ class InvoiceReminderConfig(models.Model):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': 'Test auto-relance termine',
-                'message': f"Creees: {result.get('created', 0)}, Envoyees: {result.get('sent', 0)}",
+                'title': 'Test auto-relance terminé',
+                'message': f"Créées: {result.get('created', 0)}, Envoyées: {result.get('sent', 0)}",
                 'type': 'success' if result.get('created', 0) > 0 else 'warning',
                 'sticky': True,
             }
