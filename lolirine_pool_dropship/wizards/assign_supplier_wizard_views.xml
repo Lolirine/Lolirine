@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- WIZARD: ATTRIBUER FOURNISSEUR DROPSHIP -->
+    <!-- ============================================ -->
+
+    <record id="view_assign_dropship_supplier_wizard_form" model="ir.ui.view">
+        <field name="name">assign.dropship.supplier.wizard.form</field>
+        <field name="model">assign.dropship.supplier.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Attribuer fournisseur dropship">
+                <group>
+                    <group>
+                        <field name="product_count" readonly="1"/>
+                        <field name="supplier_id" options="{'no_create': True}"/>
+                        <field name="discount_percent" widget="percentage_custom"/>
+                    </group>
+                    <group>
+                        <field name="overwrite_existing"/>
+                        <div class="alert alert-info" role="alert">
+                            <strong>Info :</strong> Le prix catalogue (= prix de vente HTVA) sera repris automatiquement 
+                            depuis le prix du produit. La réduction sera appliquée pour calculer votre prix d'achat négocié.
+                        </div>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_assign_supplier" type="object" 
+                            string="Attribuer" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Server action pour le menu contextuel -->
+    <record id="action_assign_dropship_supplier" model="ir.actions.act_window">
+        <field name="name">Attribuer fournisseur dropship</field>
+        <field name="res_model">assign.dropship.supplier.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_view_types">list</field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- WIZARD: CRÉER BC FOURNISSEUR DROPSHIP -->
+    <!-- ============================================ -->
+
+    <record id="view_create_dropship_po_wizard_form" model="ir.ui.view">
+        <field name="name">create.dropship.po.wizard.form</field>
+        <field name="model">create.dropship.po.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Créer bon de commande fournisseur">
+                <sheet>
+                    <group>
+                        <field name="sale_order_id" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Lignes de commande">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="product_name" readonly="1"/>
+                                    <field name="quantity" readonly="1"/>
+                                    <field name="sale_price" readonly="1" string="Prix vente HT"/>
+                                    <field name="supplier_id" required="1" 
+                                           options="{'no_create': True}"
+                                           domain="[('is_dropship_supplier', '=', True)]"/>
+                                    <field name="catalog_price" string="Prix catalogue HT"/>
+                                    <field name="discount_percent" string="Réduction %"/>
+                                    <field name="purchase_price" readonly="1" string="Prix achat HT"/>
+                                    <field name="margin" readonly="1"/>
+                                    <field name="margin_percent" readonly="1" string="Marge %"
+                                           decoration-danger="margin_percent &lt; 15"
+                                           decoration-warning="margin_percent &gt;= 15 and margin_percent &lt; 25"
+                                           decoration-success="margin_percent &gt;= 25"/>
+                                    <field name="product_id" column_invisible="1"/>
+                                    <field name="sale_line_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button name="action_create_purchase_orders" type="object"
+                            string="Créer le(s) BC fournisseur" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_create_dropship_po_wizard" model="ir.actions.act_window">
+        <field name="name">Créer BC Dropshipping</field>
+        <field name="res_model">create.dropship.po.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
