@@ -583,7 +583,7 @@ class InvoiceReminder(models.Model):
     <p>Nous vous prions d'agréer, Madame, Monsieur, l'expression de nos salutations distinguées.</p>
     
     <p style="margin-top: 25px;">
-        <strong>Lolirine SPRL</strong><br/>
+        <strong>Lolirine SRL</strong><br/>
         Feron Rodney - Gérant<br/>
         Tél. : 0497/44 41 46<br/>
         Email : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a>
