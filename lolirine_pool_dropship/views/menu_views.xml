@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Menu racine -->
+    <menuitem id="menu_dropship_root"
+              name="Dropshipping"
+              web_icon="lolirine_pool_dropship,static/description/icon.png"
+              sequence="45"/>
+
+    <!-- COMMANDES -->
+    <menuitem id="menu_dropship_orders" name="Commandes"
+              parent="menu_dropship_root" sequence="10"/>
+
+    <menuitem id="menu_dropship_orders_to_process" name="À traiter"
+              parent="menu_dropship_orders"
+              action="action_dropship_orders_to_process" sequence="10"/>
+
+    <menuitem id="menu_dropship_orders_all" name="Toutes les commandes"
+              parent="menu_dropship_orders"
+              action="action_dropship_orders_all" sequence="20"/>
+
+    <menuitem id="menu_dropship_purchase_orders" name="BC Fournisseurs"
+              parent="menu_dropship_orders"
+              action="action_purchase_order_dropship" sequence="30"/>
+
+    <menuitem id="menu_dropship_decision_log" name="Journal des décisions"
+              parent="menu_dropship_orders"
+              action="action_dropship_decision_log" sequence="40"/>
+
+    <!-- CATALOGUE -->
+    <menuitem id="menu_dropship_catalog" name="Catalogue"
+              parent="menu_dropship_root" sequence="20"/>
+
+    <menuitem id="menu_dropship_catalog_all" name="Tous les produits"
+              parent="menu_dropship_catalog"
+              action="action_product_dropship_catalog" sequence="10"/>
+
+    <menuitem id="menu_dropship_catalog_no_supplier" name="Sans fournisseur"
+              parent="menu_dropship_catalog"
+              action="action_product_dropship_no_supplier" sequence="20"/>
+
+    <menuitem id="menu_dropship_supplier_info" name="Fiches fournisseurs"
+              parent="menu_dropship_catalog"
+              action="action_supplier_dropship_info" sequence="30"/>
+
+    <!-- CONFIGURATION -->
+    <menuitem id="menu_dropship_config" name="Configuration"
+              parent="menu_dropship_root" sequence="90"/>
+
+    <menuitem id="menu_dropship_config_settings" name="Paramètres"
+              parent="menu_dropship_config"
+              action="action_dropship_config" sequence="10"/>
+
+</odoo>

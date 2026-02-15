@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_dropship_decision_log_form" model="ir.ui.view">
+        <field name="name">dropship.decision.log.form</field>
+        <field name="model">dropship.decision.log</field>
+        <field name="arch" type="xml">
+            <form string="Décision Dropshipping" create="0" edit="0">
+                <sheet>
+                    <group>
+                        <group string="Commande">
+                            <field name="sale_order_id"/>
+                            <field name="sale_line_id"/>
+                            <field name="product_id"/>
+                        </group>
+                        <group string="Décision">
+                            <field name="selected_supplier_id"/>
+                            <field name="purchase_order_id"/>
+                            <field name="decision_type"/>
+                            <field name="user_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Prix">
+                            <field name="catalog_price"/>
+                            <field name="negotiated_price"/>
+                            <field name="margin_percent"/>
+                        </group>
+                    </group>
+                    <group string="Raison">
+                        <field name="reason" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dropship_decision_log_list" model="ir.ui.view">
+        <field name="name">dropship.decision.log.list</field>
+        <field name="model">dropship.decision.log</field>
+        <field name="arch" type="xml">
+            <list string="Journal des décisions" default_order="create_date desc" create="0">
+                <field name="create_date" string="Date"/>
+                <field name="sale_order_id" string="Commande"/>
+                <field name="product_id" string="Produit"/>
+                <field name="selected_supplier_id" string="Fournisseur"/>
+                <field name="decision_type" string="Type"/>
+                <field name="catalog_price"/>
+                <field name="negotiated_price"/>
+                <field name="margin_percent"/>
+                <field name="user_id" string="Par"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_dropship_decision_log" model="ir.actions.act_window">
+        <field name="name">Journal des décisions</field>
+        <field name="res_model">dropship.decision.log</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

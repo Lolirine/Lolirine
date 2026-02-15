@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_dropship_config_form" model="ir.ui.view">
+        <field name="name">dropship.config.form</field>
+        <field name="model">dropship.config</field>
+        <field name="arch" type="xml">
+            <form string="Configuration Dropshipping">
+                <sheet>
+                    <group>
+                        <group string="Général">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="use_neutral_packaging"/>
+                            <field name="include_delivery_note"/>
+                            <field name="auto_send_po"/>
+                        </group>
+                        <group string="Paramètres">
+                            <field name="min_margin_percent"/>
+                            <field name="default_delay"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_dropship_config" model="ir.actions.act_window">
+        <field name="name">Configuration</field>
+        <field name="res_model">dropship.config</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+    </record>
+
+</odoo>

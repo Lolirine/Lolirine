@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- EXTENSION FORMULAIRE COMMANDE CLIENT -->
+    <!-- ============================================ -->
+
+    <record id="view_sale_order_form_dropship" model="ir.ui.view">
+        <field name="name">sale.order.form.dropship</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Boutons dropship dans le header -->
+            <xpath expr="//form/header" position="inside">
+                <button name="action_open_create_dropship_po_wizard" type="object"
+                        string="📋 Créer BC Dropship" class="btn-primary"
+                        invisible="not is_dropship_order or dropship_status not in ('to_process', 'pending') or dropship_purchase_count &gt; 0"/>
+                <button name="action_mark_shipped" type="object"
+                        string="📦 Expédiée"
+                        invisible="not is_dropship_order or dropship_status != 'po_sent'"/>
+                <button name="action_mark_delivered" type="object"
+                        string="✅ Livrée"
+                        invisible="not is_dropship_order or dropship_status != 'shipped'"/>
+                <button name="action_mark_issue" type="object"
+                        string="⚠️ Problème"
+                        invisible="not is_dropship_order or dropship_status in ('pending', 'delivered')"/>
+            </xpath>
+
+            <!-- Bouton stat BC fournisseur -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_dropship_purchases" type="object"
+                        class="oe_stat_button" icon="fa-truck"
+                        invisible="not is_dropship_order or dropship_purchase_count == 0">
+                    <field name="dropship_purchase_count" widget="statinfo" string="BC Fournisseur"/>
+                </button>
+            </xpath>
+
+            <!-- Bandeau dropship -->
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-info text-center" role="alert"
+                     invisible="not dropship_needs_processing">
+                    <strong>🛒 COMMANDE DROPSHIP À TRAITER</strong> — 
+                    Cliquez sur "Créer BC Dropship" pour créer le bon de commande fournisseur.
+                </div>
+            </xpath>
+
+            <!-- Champs dropship dans un groupe -->
+            <xpath expr="//group[@name='sale_info' or @name='technical']" position="after">
+                <group string="Dropshipping" invisible="not is_dropship_order" name="dropship_info">
+                    <group>
+                        <field name="is_dropship_order" invisible="1"/>
+                        <field name="dropship_status" widget="badge" 
+                               decoration-info="dropship_status == 'to_process'"
+                               decoration-warning="dropship_status == 'po_created'"
+                               decoration-success="dropship_status in ('shipped', 'delivered')"
+                               decoration-danger="dropship_status == 'issue'"/>
+                        <field name="dropship_needs_processing" invisible="1"/>
+                    </group>
+                    <group>
+                        <field name="dropship_estimated_margin"
+                               decoration-danger="dropship_estimated_margin &lt; 0"
+                               decoration-success="dropship_estimated_margin &gt; 0"/>
+                        <field name="dropship_margin_percent" string="Marge %"
+                               decoration-danger="dropship_margin_percent &lt; 15"
+                               decoration-warning="dropship_margin_percent &gt;= 15 and dropship_margin_percent &lt; 25"
+                               decoration-success="dropship_margin_percent &gt;= 25"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- VUE LISTE: COMMANDES DROPSHIP À TRAITER -->
+    <!-- ============================================ -->
+
+    <record id="view_sale_order_dropship_list" model="ir.ui.view">
+        <field name="name">sale.order.dropship.list</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <list string="Commandes Dropship" 
+                  decoration-danger="dropship_status == 'issue'"
+                  decoration-info="dropship_status == 'to_process'"
+                  decoration-success="dropship_status in ('shipped', 'delivered')"
+                  decoration-warning="dropship_status == 'po_created'"
+                  default_order="create_date desc">
+                <field name="name" string="Commande"/>
+                <field name="create_date" string="Date"/>
+                <field name="partner_id" string="Client"/>
+                <field name="partner_shipping_id" string="Livraison"/>
+                <field name="amount_total" string="Montant TTC" sum="Total"/>
+                <field name="dropship_status" widget="badge" string="Statut"
+                       decoration-info="dropship_status == 'to_process'"
+                       decoration-warning="dropship_status == 'po_created'"
+                       decoration-success="dropship_status in ('shipped', 'delivered')"
+                       decoration-danger="dropship_status == 'issue'"/>
+                <field name="dropship_purchase_count" string="BC"/>
+                <field name="dropship_estimated_margin" string="Marge est."
+                       decoration-danger="dropship_estimated_margin &lt; 0"/>
+                <field name="dropship_margin_percent" string="Marge %"
+                       decoration-danger="dropship_margin_percent &lt; 15"/>
+                <field name="state" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- VUE KANBAN: COMMANDES DROPSHIP -->
+    <!-- ============================================ -->
+
+    <record id="view_sale_order_dropship_kanban" model="ir.ui.view">
+        <field name="name">sale.order.dropship.kanban</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="dropship_status" class="o_kanban_small_column"
+                    default_order="create_date desc">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="amount_total"/>
+                <field name="dropship_status"/>
+                <field name="dropship_purchase_count"/>
+                <field name="create_date"/>
+                <field name="currency_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_kanban_card_header">
+                            <strong><field name="name"/></strong>
+                            <span class="float-end">
+                                <field name="amount_total" widget="monetary"/>
+                            </span>
+                        </div>
+                        <div class="o_kanban_card_content">
+                            <field name="partner_id"/>
+                            <br/>
+                            <small class="text-muted">
+                                <field name="create_date" widget="date"/>
+                            </small>
+                            <div t-if="record.dropship_purchase_count.raw_value > 0" class="mt-1">
+                                <span class="badge text-bg-secondary">
+                                    <t t-esc="record.dropship_purchase_count.value"/> BC
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- FILTRE DE RECHERCHE -->
+    <!-- ============================================ -->
+
+    <record id="view_sale_order_dropship_search" model="ir.ui.view">
+        <field name="name">sale.order.dropship.search</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <search string="Commandes Dropship">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <filter string="À traiter" name="to_process"
+                        domain="[('dropship_status', '=', 'to_process')]"/>
+                <filter string="BC créé" name="po_created"
+                        domain="[('dropship_status', '=', 'po_created')]"/>
+                <filter string="BC envoyé" name="po_sent"
+                        domain="[('dropship_status', '=', 'po_sent')]"/>
+                <filter string="Expédiées" name="shipped"
+                        domain="[('dropship_status', '=', 'shipped')]"/>
+                <filter string="Livrées" name="delivered"
+                        domain="[('dropship_status', '=', 'delivered')]"/>
+                <filter string="Problèmes" name="issues"
+                        domain="[('dropship_status', '=', 'issue')]"/>
+                <separator/>
+                <filter string="Ce mois" name="this_month"
+                        domain="[('create_date', '&gt;=', (context_today() - relativedelta(day=1)).strftime('%%Y-%%m-%%d'))]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Statut" name="group_status" context="{'group_by': 'dropship_status'}"/>
+                    <filter string="Client" name="group_customer" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Mois" name="group_month" context="{'group_by': 'create_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- ACTION: COMMANDES DROPSHIP À TRAITER -->
+    <!-- ============================================ -->
+
+    <record id="action_dropship_orders_to_process" model="ir.actions.act_window">
+        <field name="name">Commandes à traiter</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('is_dropship_order', '=', True), ('state', '=', 'sale')]</field>
+        <field name="context">{'search_default_to_process': 1}</field>
+        <field name="search_view_id" ref="view_sale_order_dropship_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_sale_order_dropship_list')}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_sale_order_dropship_kanban')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune commande dropshipping à traiter
+            </p>
+            <p>Les commandes confirmées et payées apparaîtront ici automatiquement.</p>
+        </field>
+    </record>
+
+    <!-- Action: Toutes les commandes dropship -->
+    <record id="action_dropship_orders_all" model="ir.actions.act_window">
+        <field name="name">Toutes les commandes</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('is_dropship_order', '=', True)]</field>
+        <field name="search_view_id" ref="view_sale_order_dropship_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_sale_order_dropship_list')}),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_sale_order_dropship_kanban')})]"/>
+    </record>
+
+</odoo>
