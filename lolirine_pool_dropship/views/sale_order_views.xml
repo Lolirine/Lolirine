@@ -154,7 +154,7 @@
                 <filter string="Dropshipping" name="dropship" 
                         domain="[('is_dropship_order', '=', True)]"/>
                 <filter string="À traiter" name="dropship_to_process" 
-                        domain="[('is_dropship_order', '=', True), ('dropship_needs_processing', '=', True)]"/>
+                        domain="[('is_dropship_order', '=', True), ('state', '=', 'sale'), ('dropship_status', 'in', ['pending', 'to_process', 'analyzed', 'supplier_selected'])]"/>
                 <filter string="En attente d'analyse" name="dropship_pending" 
                         domain="[('dropship_status', '=', 'pending')]"/>
                 <filter string="BC à créer" name="dropship_to_create" 
