@@ -1,7 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_dropship_config_user,dropship.config.user,model_dropship_config,base.group_user,1,1,1,1
-access_supplier_dropship_info_user,supplier.dropship.info.user,model_supplier_dropship_info,base.group_user,1,1,1,1
-access_dropship_decision_log_user,dropship.decision.log.user,model_dropship_decision_log,base.group_user,1,1,1,0
-access_assign_dropship_supplier_wizard,assign.dropship.supplier.wizard,model_assign_dropship_supplier_wizard,base.group_user,1,1,1,1
-access_create_dropship_po_wizard,create.dropship.po.wizard,model_create_dropship_po_wizard,base.group_user,1,1,1,1
-access_create_dropship_po_wizard_line,create.dropship.po.wizard.line,model_create_dropship_po_wizard_line,base.group_user,1,1,1,1
