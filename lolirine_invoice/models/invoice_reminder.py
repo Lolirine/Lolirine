@@ -410,7 +410,7 @@ class InvoiceReminder(models.Model):
     <ul>
         <li>Communication structurée : {payment_ref}</li>
         <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
-        <li>Titulaire : Lolirine SPRL</li>
+        <li>Titulaire : Lolirine SRL</li>
     </ul>"""
 
     def _email_signature(self):
