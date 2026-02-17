@@ -52,6 +52,7 @@ Fonctionnalités principales :
         # Reports (must load before mail templates that reference them)
         'reports/dropship_report_templates.xml',
         'data/mail_template_data.xml',
+        'data/sale_order_template_data.xml',
         # Views
         'views/dropship_config_views.xml',
         'views/supplier_info_views.xml',
