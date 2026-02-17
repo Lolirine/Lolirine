@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="resolve_issue_wizard_form" model="ir.ui.view">
+        <field name="name">resolve.issue.wizard.form</field>
+        <field name="model">resolve.issue.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Résoudre le problème">
+                <group>
+                    <field name="sale_order_id" readonly="1"/>
+                    <field name="resolve_action" widget="radio"/>
+                    <field name="resolution_note" placeholder="Décrivez la résolution du problème..."/>
+                </group>
+                <footer>
+                    <button name="action_resolve" type="object" string="Résoudre" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
