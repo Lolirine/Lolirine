@@ -256,6 +256,24 @@ class PurchaseOrder(models.Model):
             }
 
 
+    # =========================================================
+    # FACTURATION : FORCER JOURNAL ACHATS PISCINES
+    # =========================================================
+
+    def _prepare_invoice(self):
+        """Override: forcer le journal Achats Piscines (PISC) pour les BC dropship"""
+        invoice_vals = super()._prepare_invoice()
+        if self.is_dropship_order:
+            journal = self.env['account.journal'].search([
+                ('code', '=', 'PISC'),
+                ('type', '=', 'purchase'),
+                ('company_id', '=', self.company_id.id),
+            ], limit=1)
+            if journal:
+                invoice_vals['journal_id'] = journal.id
+                _logger.info("Dropship PO %s: forced journal PISC (id=%s)", self.name, journal.id)
+        return invoice_vals
+        
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
