@@ -474,14 +474,22 @@ class SaleOrder(models.Model):
         }
 
     def action_preview_dropship_quote_pdf(self):
-        """Prévisualise le PDF du devis piscine"""
+        """Prévisualise le PDF du devis piscine dans un nouvel onglet"""
         self.ensure_one()
-        return self.env.ref('lolirine_pool_dropship.action_report_pool_devis').report_action(self)
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/report/pdf/lolirine_pool_dropship.report_pool_devis_document/%s' % self.id,
+            'target': 'new',
+        }
 
     def action_preview_dropship_order_pdf(self):
-        """Prévisualise le PDF de la commande piscine confirmée"""
+        """Prévisualise le PDF de la commande piscine dans un nouvel onglet"""
         self.ensure_one()
-        return self.env.ref('lolirine_pool_dropship.action_report_pool_order').report_action(self)
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/report/pdf/lolirine_pool_dropship.report_pool_order_document/%s' % self.id,
+            'target': 'new',
+        }
 
     # =========================================================
     # COMMUNICATION STRUCTURÉE
