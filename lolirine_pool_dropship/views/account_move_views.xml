@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_move_form_dropship" model="ir.ui.view">
+        <field name="name">account.move.form.dropship</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="before">
+                <field name="is_dropship_invoice" invisible="1"/>
+                <span class="badge rounded-pill text-bg-info me-2" invisible="not is_dropship_invoice">
+                    <i class="fa fa-truck"/> Piscine
+                </span>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_preview_pool_invoice_pdf" type="object"
+                        string="📄 Aperçu facture Piscine" class="btn-secondary"
+                        invisible="not is_dropship_invoice"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
