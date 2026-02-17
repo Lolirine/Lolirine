@@ -117,19 +117,19 @@
                                     </tr>
                                     <tr>
                                         <td style="border: none; padding: 4px 8px;"><strong>Date du devis :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;" t-field="doc.date_order" t-options='{"format": "dd/MM/yyyy"}'/>
+                                        <td style="border: none; padding: 4px 8px;"><span t-field="doc.date_order" t-options='{"format": "dd/MM/yyyy"}'/></td>
                                     </tr>
                                     <tr t-if="doc.validity_date">
                                         <td style="border: none; padding: 4px 8px;"><strong>Valide jusqu'au :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;" t-field="doc.validity_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                        <td style="border: none; padding: 4px 8px;"><span t-field="doc.validity_date" t-options='{"format": "dd/MM/yyyy"}'/></td>
                                     </tr>
                                     <tr t-if="doc.client_order_ref">
                                         <td style="border: none; padding: 4px 8px;"><strong>Votre réf. :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;" t-field="doc.client_order_ref"/>
+                                        <td style="border: none; padding: 4px 8px;"><span t-field="doc.client_order_ref"/></td>
                                     </tr>
                                     <tr>
                                         <td style="border: none; padding: 4px 8px;"><strong>Vendeur :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;" t-field="doc.user_id.name"/>
+                                        <td style="border: none; padding: 4px 8px;"><span t-field="doc.user_id.name"/></td>
                                     </tr>
                                 </table>
                             </div>
@@ -178,7 +178,7 @@
                                                 <span t-field="line.product_uom_qty"/>
                                                 <span t-field="line.product_uom" groups="uom.group_uom"/>
                                             </td>
-                                            <td class="text-end" style="padding: 8px;" t-field="line.price_unit"/>
+                                            <td class="text-end" style="padding: 8px;"><span t-field="line.price_unit"/></td>
                                             <td class="text-center" style="padding: 8px; font-size: 11px;">
                                                 <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_id))"/>
                                             </td>
@@ -212,7 +212,7 @@
                                 <table class="table table-sm" style="font-size: 13px;">
                                     <tr>
                                         <td style="border: none; padding: 4px 8px;"><strong>Sous-total HTVA</strong></td>
-                                        <td class="text-end" style="border: none; padding: 4px 8px;" t-field="doc.amount_untaxed"/>
+                                        <td class="text-end" style="border: none; padding: 4px 8px;"><span t-field="doc.amount_untaxed"/></td>
                                     </tr>
                                     <t t-set="tax_totals" t-value="doc.tax_totals"/>
                                     <t t-foreach="doc.amount_by_group" t-as="amount_by_group">
@@ -333,15 +333,15 @@
                                     </tr>
                                     <tr>
                                         <td style="border: none; padding: 4px 8px;"><strong>Date commande :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;" t-field="doc.date_order" t-options='{"format": "dd/MM/yyyy"}'/>
+                                        <td style="border: none; padding: 4px 8px;"><span t-field="doc.date_order" t-options='{"format": "dd/MM/yyyy"}'/></td>
                                     </tr>
                                     <tr>
                                         <td style="border: none; padding: 4px 8px;"><strong>N° interne :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;" t-field="doc.name"/>
+                                        <td style="border: none; padding: 4px 8px;"><span t-field="doc.name"/></td>
                                     </tr>
                                     <tr t-if="doc.client_order_ref">
                                         <td style="border: none; padding: 4px 8px;"><strong>Votre réf. :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;" t-field="doc.client_order_ref"/>
+                                        <td style="border: none; padding: 4px 8px;"><span t-field="doc.client_order_ref"/></td>
                                     </tr>
                                 </table>
                             </div>
@@ -382,8 +382,8 @@
                                     <t t-if="not line.display_type">
                                         <tr style="border-bottom: 1px solid #dee2e6;">
                                             <td style="padding: 8px 12px;"><strong t-field="line.product_id.name"/></td>
-                                            <td class="text-center" style="padding: 8px;" t-field="line.product_uom_qty"/>
-                                            <td class="text-end" style="padding: 8px;" t-field="line.price_unit"/>
+                                            <td class="text-center" style="padding: 8px;"><span t-field="line.product_uom_qty"/></td>
+                                            <td class="text-end" style="padding: 8px;"><span t-field="line.price_unit"/></td>
                                             <td class="text-center" style="padding: 8px; font-size: 11px;">
                                                 <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_id))"/>
                                             </td>
@@ -401,7 +401,7 @@
                                 <table class="table table-sm" style="font-size: 13px;">
                                     <tr>
                                         <td style="border: none; padding: 4px 8px;"><strong>Sous-total HTVA</strong></td>
-                                        <td class="text-end" style="border: none; padding: 4px 8px;" t-field="doc.amount_untaxed"/>
+                                        <td class="text-end" style="border: none; padding: 4px 8px;"><span t-field="doc.amount_untaxed"/></td>
                                     </tr>
                                     <t t-foreach="doc.amount_by_group" t-as="amount_by_group">
                                         <tr>
@@ -524,23 +524,23 @@
                                 <table class="table table-sm" style="font-size: 13px;">
                                     <tr>
                                         <td style="border: none; padding: 4px 8px;"><strong>N° facture :</strong></td>
-                                        <td style="border: none; padding: 4px 8px; color: #0078D4; font-weight: bold;" t-field="doc.name"/>
+                                        <td style="border: none; padding: 4px 8px; color: #0078D4; font-weight: bold;"><span t-field="doc.name"/></td>
                                     </tr>
                                     <tr>
                                         <td style="border: none; padding: 4px 8px;"><strong>Date facture :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;" t-field="doc.invoice_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                        <td style="border: none; padding: 4px 8px;"><span t-field="doc.invoice_date" t-options='{"format": "dd/MM/yyyy"}'/></td>
                                     </tr>
                                     <tr t-if="doc.invoice_date_due">
                                         <td style="border: none; padding: 4px 8px;"><strong>Échéance :</strong></td>
-                                        <td style="border: none; padding: 4px 8px; font-weight: bold; color: #dc3545;" t-field="doc.invoice_date_due" t-options='{"format": "dd/MM/yyyy"}'/>
+                                        <td style="border: none; padding: 4px 8px; font-weight: bold; color: #dc3545;"><span t-field="doc.invoice_date_due" t-options='{"format": "dd/MM/yyyy"}'/></td>
                                     </tr>
                                     <tr t-if="doc.ref">
                                         <td style="border: none; padding: 4px 8px;"><strong>Référence :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;" t-field="doc.ref"/>
+                                        <td style="border: none; padding: 4px 8px;"><span t-field="doc.ref"/></td>
                                     </tr>
                                     <tr t-if="doc.invoice_origin">
                                         <td style="border: none; padding: 4px 8px;"><strong>Commande :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;" t-field="doc.invoice_origin"/>
+                                        <td style="border: none; padding: 4px 8px;"><span t-field="doc.invoice_origin"/></td>
                                     </tr>
                                 </table>
                             </div>
@@ -562,8 +562,8 @@
                                     <t t-if="not line.display_type">
                                         <tr style="border-bottom: 1px solid #dee2e6;">
                                             <td style="padding: 8px 12px;"><strong t-field="line.name"/></td>
-                                            <td class="text-center" style="padding: 8px;" t-field="line.quantity"/>
-                                            <td class="text-end" style="padding: 8px;" t-field="line.price_unit"/>
+                                            <td class="text-center" style="padding: 8px;"><span t-field="line.quantity"/></td>
+                                            <td class="text-end" style="padding: 8px;"><span t-field="line.price_unit"/></td>
                                             <td class="text-center" style="padding: 8px; font-size: 11px;">
                                                 <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_ids))"/>
                                             </td>
@@ -581,7 +581,7 @@
                                 <table class="table table-sm" style="font-size: 13px;">
                                     <tr>
                                         <td style="border: none; padding: 4px 8px;"><strong>Sous-total HTVA</strong></td>
-                                        <td class="text-end" style="border: none; padding: 4px 8px;" t-field="doc.amount_untaxed"/>
+                                        <td class="text-end" style="border: none; padding: 4px 8px;"><span t-field="doc.amount_untaxed"/></td>
                                     </tr>
                                     <t t-foreach="doc.amount_by_group" t-as="amount_by_group">
                                         <tr>
@@ -611,7 +611,7 @@
                                 </tr>
                                 <tr t-if="doc.invoice_date_due">
                                     <td style="padding: 3px 15px 3px 0;"><strong>Échéance :</strong></td>
-                                    <td t-field="doc.invoice_date_due" t-options='{"format": "dd/MM/yyyy"}'/>
+                                    <td><span t-field="doc.invoice_date_due" t-options='{"format": "dd/MM/yyyy"}'/></td>
                                 </tr>
                             </table>
                         </div>
@@ -682,9 +682,9 @@
                                 </div>
                                 <div class="col-6">
                                     <table class="table table-sm">
-                                        <tr><td><strong>Date:</strong></td><td t-field="doc.date_order" t-options='{"format": "dd/MM/yyyy"}'/></tr>
-                                        <tr><td><strong>Réf.:</strong></td><td t-field="doc.name"/></tr>
-                                        <tr t-if="doc.dropship_sale_id"><td><strong>Cde client:</strong></td><td t-field="doc.dropship_sale_id.name"/></tr>
+                                        <tr><td><strong>Date:</strong></td><td><span t-field="doc.date_order" t-options='{"format": "dd/MM/yyyy"}'/></td></tr>
+                                        <tr><td><strong>Réf.:</strong></td><td><span t-field="doc.name"/></td></tr>
+                                        <tr t-if="doc.dropship_sale_id"><td><strong>Cde client:</strong></td><td><span t-field="doc.dropship_sale_id.name"/></td></tr>
                                     </table>
                                 </div>
                             </div>
@@ -718,15 +718,15 @@
                                             <span t-field="line.product_id.default_code"/>
                                             <t t-if="line.supplier_product_ref"><br/><small class="text-muted">Réf: <t t-esc="line.supplier_product_ref"/></small></t>
                                         </td>
-                                        <td t-field="line.name"/>
-                                        <td class="text-center" t-field="line.product_qty"/>
-                                        <td class="text-end" t-field="line.price_unit"/>
-                                        <td class="text-end" t-field="line.price_subtotal"/>
+                                        <td><span t-field="line.name"/></td>
+                                        <td class="text-center"><span t-field="line.product_qty"/></td>
+                                        <td class="text-end"><span t-field="line.price_unit"/></td>
+                                        <td class="text-end"><span t-field="line.price_subtotal"/></td>
                                     </tr>
                                 </tbody>
                                 <tfoot>
                                     <tr><td colspan="4" class="text-end"><strong>Total HT</strong></td><td class="text-end"><strong t-field="doc.amount_untaxed"/></td></tr>
-                                    <tr><td colspan="4" class="text-end">TVA</td><td class="text-end" t-field="doc.amount_tax"/></tr>
+                                    <tr><td colspan="4" class="text-end">TVA</td><td class="text-end"><span t-field="doc.amount_tax"/></td></tr>
                                     <tr><td colspan="4" class="text-end"><strong>Total TTC</strong></td><td class="text-end"><strong t-field="doc.amount_total"/></td></tr>
                                 </tfoot>
                             </table>
