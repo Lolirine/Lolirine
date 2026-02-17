@@ -553,6 +553,24 @@ class SaleOrder(models.Model):
                                     status_key, self.name, e)
 
 
+    # =========================================================
+    # FACTURATION : FORCER JOURNAUX PISCINE
+    # =========================================================
+
+    def _prepare_invoice(self):
+        """Override: forcer le journal Ventes Piscines (LOL) pour les commandes dropship"""
+        invoice_vals = super()._prepare_invoice()
+        if self.is_dropship_order:
+            journal = self.env['account.journal'].search([
+                ('code', '=', 'LOL'),
+                ('type', '=', 'sale'),
+                ('company_id', '=', self.company_id.id),
+            ], limit=1)
+            if journal:
+                invoice_vals['journal_id'] = journal.id
+                _logger.info("Dropship SO %s: forced journal LOL (id=%s)", self.name, journal.id)
+        return invoice_vals
+        
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
