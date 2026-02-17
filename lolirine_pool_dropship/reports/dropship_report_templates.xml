@@ -176,7 +176,7 @@
                                                 <t t-esc="'%.2f' % line.price_unit"/> €
                                             </td>
                                             <td class="text-center" style="padding: 8px; font-size: 11px;">
-                                                <t t-esc="', '.join(line.tax_id.mapped('name'))"/>
+                                                <t t-esc="', '.join(line.tax_ids.mapped('name'))"/>
                                             </td>
                                             <td class="text-end" style="padding: 8px;">
                                                 <strong><t t-esc="'%.2f' % line.price_subtotal"/> €</strong>
@@ -386,7 +386,7 @@
                                                 <t t-esc="'%.2f' % line.price_unit"/> €
                                             </td>
                                             <td class="text-center" style="padding: 8px; font-size: 11px;">
-                                                <t t-esc="', '.join(line.tax_id.mapped('name'))"/>
+                                                <t t-esc="', '.join(line.tax_ids.mapped('name'))"/>
                                             </td>
                                             <td class="text-end" style="padding: 8px;">
                                                 <strong><t t-esc="'%.2f' % line.price_subtotal"/> €</strong>
