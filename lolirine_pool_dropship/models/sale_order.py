@@ -478,7 +478,7 @@ class SaleOrder(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_url',
-            'url': '/report/pdf/lolirine_pool_dropship.report_pool_devis_document/%s' % self.id,
+            'url': '/report/pdf/sale.report_saleorder/%s' % self.id,
             'target': 'new',
         }
 
@@ -487,7 +487,7 @@ class SaleOrder(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_url',
-            'url': '/report/pdf/lolirine_pool_dropship.report_pool_order_document/%s' % self.id,
+            'url': '/report/pdf/sale.report_saleorder/%s' % self.id,
             'target': 'new',
         }
 
