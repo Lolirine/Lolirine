@@ -12,7 +12,6 @@
             <div id="wrap" class="oe_structure oe_empty">
                 
                 <!-- ========== HERO SECTION ÉDITABLE ========== -->
-                <!-- Utilise s_cover pour permettre le changement d'image de fond -->
                 <section class="s_cover parallax s_parallax_is_fixed pt96 pb96 o_cc o_cc1" 
                          data-scroll-background-ratio="1"
                          data-snippet="s_cover"
@@ -26,9 +25,25 @@
                     <div class="container s_allow_columns">
                         <div class="row s_nb_column_fixed">
                             <div class="col-lg-8 pt48 pb48 text-white oe_structure" data-name="Contenu Hero">
-                                <h1 class="display-3 fw-bold mb-4" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
-                                    <span style="color: #38bdf8;">Lolirine</span> Pool Store
-                                </h1>
+
+                                <!-- ========== TITRE LOGO + TEXTE DUO ========== -->
+                                <div class="pool-welcome-title mb-4">
+                                    <p class="eyebrow">Bienvenue chez</p>
+                                    <div class="duo-wrapper">
+                                        <img class="duo-logo"
+                                             src="/web/image/website/logo"
+                                             alt="Lolirine Pool Store"/>
+                                        <div class="duo-separator"/>
+                                        <div class="duo-text">
+                                            <span class="brand-lolirine">LOLIRINE</span>
+                                            <span class="brand-pool-store">POOL <em>STORE</em></span>
+                                        </div>
+                                    </div>
+                                    <div class="h-divider"/>
+                                    <p class="tagline">Matériels de piscine en ligne</p>
+                                </div>
+                                <!-- ========== FIN TITRE ========== -->
+
                                 <p class="lead mb-4" style="font-size: 1.5rem;">
                                     Votre expert en équipements de piscine en Belgique
                                 </p>
@@ -96,7 +111,6 @@
                             <p class="lead text-muted">Tout l'équipement pour votre piscine</p>
                         </div>
                         
-                        <!-- Zone éditable pour les cartes catégories -->
                         <div class="row g-4 oe_structure" data-name="Grille catégories">
                             <!-- Pompes à chaleur -->
                             <div class="col-lg-3 col-md-4 col-sm-6">
