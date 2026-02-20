@@ -293,3 +293,93 @@
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='%23ffffff' d='M0,30 C240,60 480,0 720,30 C960,60 1200,0 1440,30 L1440,60 L0,60 Z'/%3E%3C/svg%3E");
     background-size: cover;
 }
+
+/* ====== TITRE D'ACCUEIL - WELCOME HERO ====== */
+.pool-welcome-title .eyebrow {
+    font-family: Montserrat, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #00c8d7;
+    opacity: 0.85;
+    margin-bottom: 16px;
+}
+
+.pool-welcome-title .duo-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.pool-welcome-title .duo-logo {
+    height: 85px;
+    width: auto;
+    filter: drop-shadow(0 0 14px rgba(0, 200, 215, 0.45));
+}
+
+.pool-welcome-title .duo-separator {
+    width: 2px;
+    height: 70px;
+    background: linear-gradient(180deg, transparent, #00c8d7, transparent);
+    border-radius: 2px;
+}
+
+.pool-welcome-title .duo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+    text-align: left;
+}
+
+.pool-welcome-title .duo-text .brand-lolirine {
+    font-family: Montserrat, sans-serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #00c8d7, #0099b4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pool-welcome-title .duo-text .brand-pool-store {
+    font-family: Montserrat, sans-serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.pool-welcome-title .duo-text .brand-pool-store em {
+    font-style: normal;
+    color: #00c8d7;
+}
+
+.pool-welcome-title .h-divider {
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #00c8d7, transparent);
+    border-radius: 2px;
+    margin: 18px auto 14px auto;
+}
+
+.pool-welcome-title .tagline {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 2px;
+    font-style: italic;
+    margin: 0;
+}
+
+/* Responsive mobile */
+@media (max-width: 576px) {
+    .pool-welcome-title .duo-separator { display: none; }
+    .pool-welcome-title .duo-text { text-align: center; }
+    .pool-welcome-title .duo-text .brand-lolirine,
+    .pool-welcome-title .duo-text .brand-pool-store { font-size: 1.8rem; }
+}
