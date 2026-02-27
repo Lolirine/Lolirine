@@ -138,9 +138,10 @@ class InvoiceReminder(models.Model):
         draft/post et de total attendu).
         
         Frais appliqués :
-        - R2 : 20€ frais de rappel
-        - R3 : 20€ frais de rappel (si pas déjà ajouté par R2)
-        - MED : 20€ rappel (si pas déjà) + 50€ mise en demeure
+        - R1 : Aucun frais (avertissement uniquement)
+        - R2 : Aucun frais (avertissement : "sans paiement sous 5 jours → 20€")
+        - R3 : 20€ frais de rappel
+        - MED : 50€ frais de mise en demeure (en plus des 20€ déjà facturés au R3)
         """
         self.ensure_one()
         
@@ -150,11 +151,11 @@ class InvoiceReminder(models.Model):
         inv = self.invoice_id
         lines_to_add = []
         
-        if self.reminder_type in ('reminder_2', 'reminder_3'):
-            # Vérifier si frais de rappel déjà ajoutés par un R2 ou R3 précédent
+        if self.reminder_type == 'reminder_3':
+            # Vérifier si frais de rappel déjà ajoutés par un R3 précédent
             existing_fee = self.search([
                 ('invoice_id', '=', inv.id),
-                ('reminder_type', 'in', ['reminder_2', 'reminder_3']),
+                ('reminder_type', '=', 'reminder_3'),
                 ('fee_added', '=', True),
                 ('id', '!=', self.id),
             ], limit=1)
@@ -165,23 +166,18 @@ class InvoiceReminder(models.Model):
                 })
                 
         elif self.reminder_type == 'formal_notice':
-            # Frais de rappel (si pas déjà ajoutés)
-            existing_rappel = self.search([
+            # Frais de mise en demeure uniquement (les 20€ de rappel sont déjà facturés au R3)
+            existing_med = self.search([
                 ('invoice_id', '=', inv.id),
-                ('reminder_type', 'in', ['reminder_2', 'reminder_3', 'formal_notice']),
+                ('reminder_type', '=', 'formal_notice'),
                 ('fee_added', '=', True),
                 ('id', '!=', self.id),
             ], limit=1)
-            if not existing_rappel:
+            if not existing_med:
                 lines_to_add.append({
-                    'label': 'Frais de rappel',
-                    'amount': 20.00,
+                    'label': 'Frais de mise en demeure',
+                    'amount': 50.00,
                 })
-            # Frais de mise en demeure (toujours)
-            lines_to_add.append({
-                'label': 'Frais de mise en demeure',
-                'amount': 50.00,
-            })
         
         if not lines_to_add:
             self.fee_added = True
@@ -275,8 +271,8 @@ class InvoiceReminder(models.Model):
         if not self.partner_id.email:
             raise UserError(_("Le client n'a pas d'adresse email configurée."))
         
-        # 1. Créer une facture séparée pour les frais si R2, R3 ou MED
-        if self.reminder_type in ('reminder_2', 'reminder_3', 'formal_notice'):
+        # 1. Créer une facture séparée pour les frais si R3 ou MED
+        if self.reminder_type in ('reminder_3', 'formal_notice'):
             self._add_fee_to_invoice()
         
         # 2. Construire l'email
@@ -421,6 +417,10 @@ class InvoiceReminder(models.Model):
     
     <p>Nous vous serions reconnaissants de bien vouloir procéder au règlement de cette facture dans les meilleurs délais.</p>
     
+    <p style="background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107;">
+        <strong>Attention :</strong> À défaut de paiement, des <strong>frais de rappel de 20,00 EUR</strong> pourront être appliqués conformément à nos conditions générales.
+    </p>
+    
     {self._email_payment_block(payment_ref)}
     
     <p>Si vous avez déjà effectué le paiement, nous vous prions de ne pas tenir compte de ce message.</p>
@@ -447,14 +447,16 @@ class InvoiceReminder(models.Model):
         {self._email_table_row("Numéro de facture", inv_name)}
         {self._email_table_row("Date d'échéance", due_date)}
         {self._email_table_row("Jours de retard", f"{days} jours", color="#dc3545")}
-        {self._email_table_row("MONTANT TOTAL DÛ", f"{amount_due} EUR", bold=True, color="#dc3545")}
+        {self._email_table_row("MONTANT DÛ", f"{amount_due} EUR", bold=True, color="#dc3545")}
     </table>
     
-    <p>Conformément à nos conditions générales, des <strong>frais de rappel de 20,00 EUR</strong> ont été facturés séparément.</p>
+    <p>Vous trouverez en pièce jointe la facture concernée.</p>
     
-    <p>Vous trouverez en pièce jointe la facture originale.</p>
+    <p style="background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107;">
+        <strong>⚠️ Attention :</strong> Sans paiement de votre part dans les <strong>5 jours</strong>, des <strong>frais de rappel de 20,00 EUR</strong> seront automatiquement facturés conformément à nos conditions générales.
+    </p>
     
-    <p>Nous vous prions de régulariser cette situation dans les plus brefs délais afin d'éviter des frais supplémentaires.</p>
+    <p>Nous vous prions de régulariser cette situation dans les plus brefs délais.</p>
     
     {self._email_payment_block(payment_ref)}
     
@@ -480,17 +482,19 @@ class InvoiceReminder(models.Model):
         {self._email_table_row("Numéro de facture", inv_name)}
         {self._email_table_row("Date d'échéance", due_date)}
         {self._email_table_row("Jours de retard", f"{days} jours", color="#dc3545")}
-        {self._email_table_row("MONTANT TOTAL DÛ", f"{amount_due} EUR", bold=True, color="#dc3545")}
+        {self._email_table_row("Montant de la facture", f"{amount_due} EUR", bold=True, color="#dc3545")}
+        {self._email_table_row("Frais de rappel appliqués", "20,00 EUR", bold=True, color="#dc3545")}
     </table>
     
-    <p>Le montant ci-dessus inclut les frais de rappel facturés séparément.</p>
+    <p>Conformément à nos conditions générales, des <strong>frais de rappel de 20,00 EUR</strong> ont été facturés séparément (voir facture jointe séparée).</p>
     
-    <p><strong>Sans paiement de votre part dans les 7 jours</strong>, nous serons contraints de vous adresser une <strong>mise en demeure formelle</strong>, pouvant entraîner :</p>
+    <p><strong>Sans paiement de votre part dans les 7 jours</strong>, nous serons contraints de vous adresser une <strong>mise en demeure formelle</strong>, entraînant :</p>
     
     <ul>
-        <li>L'application de pénalités de retard au taux légal belge (10,5% annuel)</li>
-        <li>La suspension de l'accès à votre box</li>
-        <li>Le recours à une société de recouvrement</li>
+        <li>Des <strong>frais de mise en demeure supplémentaires de 50,00 EUR</strong></li>
+        <li>La <strong>rupture de votre contrat</strong> de garde-meubles</li>
+        <li>La <strong>rétention de vos biens</strong> jusqu'au paiement intégral</li>
+        <li>Le recours à une <strong>société de recouvrement</strong></li>
     </ul>
     
     {self._email_payment_block(payment_ref)}
@@ -531,12 +535,15 @@ class InvoiceReminder(models.Model):
     <table style="margin: 15px 0; border-collapse: collapse; width: 100%; max-width: 500px; border: 2px solid #dc3545;">
         {self._email_table_row("Numéro de facture", inv_name)}
         {self._email_table_row("Date d'échéance initiale", str(due_date))}
-        {self._email_table_row("MONTANT TOTAL DÛ", f"{amount_due} EUR", bold=True, color="#dc3545")}
+        {self._email_table_row("Montant de la facture", f"{amount_due} EUR", bold=True, color="#dc3545")}
+        {self._email_table_row("Frais de rappel", "20,00 EUR", bold=True)}
+        {self._email_table_row("Frais de mise en demeure", "50,00 EUR", bold=True)}
+        {self._email_table_row("TOTAL FRAIS", "70,00 EUR", bold=True, color="#dc3545")}
     </table>
     
-    <p>Le montant ci-dessus inclut les frais de rappel et de mise en demeure facturés séparément.</p>
+    <p>Les frais de rappel (20,00 EUR) et de mise en demeure (50,00 EUR) ont été facturés séparément conformément à nos conditions générales.</p>
     
-    <p>Par la présente, nous vous mettons en demeure de nous régler la somme totale de <strong>{amount_due} EUR</strong> dans un délai de <strong>8 jours</strong> à compter de la réception de ce courrier.</p>
+    <p>Par la présente, nous vous mettons en demeure de nous régler l'ensemble des sommes dues dans un délai de <strong>8 jours</strong> à compter de la réception de ce courrier.</p>
     
     <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 15px; margin: 15px 0;">
         <p style="font-weight: bold; margin-top: 0;">À DÉFAUT DE PAIEMENT :</p>
@@ -694,9 +701,9 @@ class InvoiceReminderConfig(models.Model):
     )
     
     fee_reminder = fields.Float(
-        string='Frais de rappel (EUR)',
+        string='Frais de rappel 3ème rappel (EUR)',
         default=20.0,
-        help='Frais appliques a partir du 2eme rappel'
+        help='Frais appliques au 3eme rappel'
     )
     
     fee_formal_notice = fields.Float(
