@@ -303,9 +303,11 @@ class AccountMove(models.Model):
         
         for move in self:
             if move.move_type in ('out_invoice', 'out_refund'):
-                if move.auto_send_invoice:
+                # Envoi email classique
+                if move.auto_send_invoice and not move.auto_send_peppol:
                     move._send_invoice_auto()
-                if move.auto_send_peppol:
+                # Envoi Peppol (inclut aussi l'email via le wizard)
+                elif move.auto_send_peppol:
                     move._send_invoice_peppol_auto()
         
         return res
@@ -341,7 +343,7 @@ class AccountMove(models.Model):
                 })
                 attachment_ids.append(attachment.id)
             
-            # Preparer le corps de l'email - CONTENU COMPLET AVEC ACCENTS
+            # Preparer le corps de l'email
             body_html = f"""
 <div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
     <p>Bonjour {self.partner_id.name},</p>
@@ -396,7 +398,7 @@ class AccountMove(models.Model):
             mail = self.env['mail.mail'].sudo().create({
                 'subject': f"Envoi de votre facture mensuelle {self.name} - Garde-meubles Lolirine",
                 'body_html': body_html,
-                'email_from': 'gardemeublelolirine@gmail.com',
+                'email_from': 'Srl Lolirine <gardemeublelolirine@gmail.com>',
                 'email_to': self.partner_id.email,
                 'model': 'account.move',
                 'res_id': self.id,
@@ -421,94 +423,82 @@ class AccountMove(models.Model):
             return False
 
     def _send_invoice_peppol_auto(self):
-        """Envoyer la facture automatiquement via Peppol"""
+        """Envoyer la facture automatiquement via Peppol en utilisant le wizard
+        natif Odoo 19 account.move.send.wizard.
+        
+        Ce wizard gère :
+        - La génération du PDF
+        - La génération du XML UBL
+        - L'envoi via le proxy Peppol
+        - L'envoi email en parallèle si configuré
+        """
         self.ensure_one()
         
         if not self.partner_id.peppol_eas or not self.partner_id.peppol_endpoint:
             self.message_post(
-                body=_("Envoi Peppol impossible : le client n'a pas d'identifiant Peppol configure."),
+                body=_("Envoi Peppol impossible : le client n'a pas d'identifiant Peppol configuré (EAS/Endpoint)."),
                 message_type='notification'
             )
             return False
         
         try:
-            if hasattr(self, 'edi_document_ids'):
-                peppol_format = self.env['account.edi.format'].search([
-                    ('code', 'in', ['peppol', 'ubl_bis3', 'facturx', 'ubl_2_1'])
-                ], limit=1)
-                
-                if peppol_format:
-                    self._process_edi_web_services(peppol_format)
-                    self.write({
-                        'peppol_sent': True,
-                        'peppol_sent_date': fields.Datetime.now()
-                    })
-                    self.message_post(
-                        body=_("Facture envoyee automatiquement via Peppol a %s") % self.partner_id.peppol_endpoint,
-                        message_type='notification'
-                    )
-                    return True
+            # Utiliser le wizard natif Odoo 19 pour l'envoi Peppol
+            wizard = self.env['account.move.send.wizard'].with_context(
+                active_model='account.move',
+                active_ids=self.ids,
+            ).create({})
             
-            if hasattr(self, 'action_process_edi_web_services'):
-                self.action_process_edi_web_services()
-                self.write({
-                    'peppol_sent': True,
-                    'peppol_sent_date': fields.Datetime.now()
-                })
-                self.message_post(
-                    body=_("Facture envoyee via Peppol a %s") % self.partner_id.peppol_endpoint,
-                    message_type='notification'
-                )
-                return True
-                
+            wizard.action_send_and_print()
+            
             self.message_post(
-                body=_("Module EDI Peppol non configure."),
+                body=_("Facture envoyée automatiquement via Peppol à %s (EAS: %s)") % (
+                    self.partner_id.peppol_endpoint,
+                    self.partner_id.peppol_eas,
+                ),
                 message_type='notification'
             )
-            return False
+            
+            _logger.info("Facture %s envoyée via Peppol à %s", self.name, self.partner_id.peppol_endpoint)
+            return True
             
         except Exception as e:
             _logger.error("Erreur envoi Peppol pour facture %s: %s", self.name, str(e))
             self.message_post(
-                body=_("Erreur lors de l'envoi Peppol : %s") % str(e),
+                body=_("Erreur lors de l'envoi Peppol automatique : %s") % str(e),
                 message_type='notification'
             )
             return False
 
     def action_send_peppol(self):
-        """Action manuelle pour envoyer via Peppol"""
+        """Action manuelle pour envoyer via Peppol via le wizard natif Odoo 19"""
         self.ensure_one()
         
         if self.state != 'posted':
-            raise UserError(_("La facture doit etre confirmee avant d'etre envoyee via Peppol."))
+            raise UserError(_("La facture doit être confirmée avant d'être envoyée via Peppol."))
         
         if not self.partner_id.peppol_eas or not self.partner_id.peppol_endpoint:
-            raise UserError(_("Le client n'a pas d'identifiant Peppol configure."))
+            raise UserError(_("Le client n'a pas d'identifiant Peppol configuré."))
         
-        result = self._send_invoice_peppol_auto()
-        
-        if result:
+        try:
+            wizard = self.env['account.move.send.wizard'].with_context(
+                active_model='account.move',
+                active_ids=self.ids,
+            ).create({})
+            
+            wizard.action_send_and_print()
+            
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': _('Succes'),
-                    'message': _('Facture envoyee via Peppol'),
+                    'title': _('Succès'),
+                    'message': _('Facture envoyée via Peppol à %s') % self.partner_id.peppol_endpoint,
                     'type': 'success',
                     'sticky': False,
                 }
             }
-        else:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Attention'),
-                    'message': _('Verifiez le chatter pour les details'),
-                    'type': 'warning',
-                    'sticky': False,
-                }
-            }
+        except Exception as e:
+            raise UserError(_("Erreur lors de l'envoi Peppol : %s") % str(e))
 
     def action_preview_invoice(self):
         """Ouvrir un apercu de la facture"""
