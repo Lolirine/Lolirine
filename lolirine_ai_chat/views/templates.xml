@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inject AI Chat widget on all website pages -->
+    <template id="ai_chat_widget_template" inherit_id="website.layout" name="AI Chat Widget">
+        <xpath expr="//div[@id='wrapwrap']" position="inside">
+            <div id="lolirine-ai-chat-root"></div>
+        </xpath>
+    </template>
+
+</odoo>
