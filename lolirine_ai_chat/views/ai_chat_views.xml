@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_ai_chat_conversation_tree" model="ir.ui.view">
+        <field name="name">ai.chat.conversation.list</field>
+        <field name="model">ai.chat.conversation</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="partner_id" />
+                <field name="visitor_name" />
+                <field name="state" />
+                <field name="rating" />
+                <field name="create_date" />
+            </list>
+        </field>
+    </record>
+    <record id="view_ai_chat_conversation_form" model="ir.ui.view">
+        <field name="name">ai.chat.conversation.form</field>
+        <field name="model">ai.chat.conversation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_close" type="object" string="Terminer" invisible="state != 'active'" />
+                    <button name="action_reopen" type="object" string="Reouvrir" invisible="state != 'closed'" />
+                    <field name="state" widget="statusbar" statusbar_visible="active,closed,archived" />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="partner_id" />
+                            <field name="visitor_name" />
+                            <field name="rating" />
+                        </group>
+                        <group>
+                            <field name="state" />
+                            <field name="source_url" />
+                            <field name="create_date" />
+                        </group>
+                    </group>
+                    <field name="message_ids" nolabel="1">
+                        <list create="0" edit="0">
+                            <field name="create_date" />
+                            <field name="role" />
+                            <field name="content" />
+                            <field name="has_web_search" />
+                            <field name="tokens_used" />
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_ai_chat_conversation_search" model="ir.ui.view">
+        <field name="name">ai.chat.conversation.search</field>
+        <field name="model">ai.chat.conversation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="partner_id" />
+                <filter string="Active" name="filter_active" domain="[('state','=','active')]" />
+                <filter string="Closed" name="filter_closed" domain="[('state','=','closed')]" />
+            </search>
+        </field>
+    </record>
+    <record id="action_ai_chat_conversation" model="ir.actions.act_window">
+        <field name="name">Conversations IA</field>
+        <field name="res_model">ai.chat.conversation</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+</odoo>
