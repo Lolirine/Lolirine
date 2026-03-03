@@ -3,3 +3,5 @@ access_ai_chat_conversation_admin,ai.chat.conversation.admin,model_ai_chat_conve
 access_ai_chat_conversation_user,ai.chat.conversation.user,model_ai_chat_conversation,base.group_user,1,1,0,0
 access_ai_chat_message_admin,ai.chat.message.admin,model_ai_chat_message,base.group_system,1,1,1,1
 access_ai_chat_message_user,ai.chat.message.user,model_ai_chat_message,base.group_user,1,0,0,0
+access_ai_chat_conversation_public,ai.chat.conversation.public,model_ai_chat_conversation,base.group_public,0,0,1,0
+access_ai_chat_message_public,ai.chat.message.public,model_ai_chat_message,base.group_public,0,0,1,0
