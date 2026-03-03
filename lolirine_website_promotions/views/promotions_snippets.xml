@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- Snippet : Carte Promo Produit (manuelle)     -->
+    <!-- ============================================ -->
+    <template id="s_promo_card" name="Carte Promotion Piscine">
+        <section class="s_promo_card pt32 pb32">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card shadow-sm border-0 h-100 overflow-hidden" style="border-radius: 16px;">
+                            <div class="position-relative">
+                                <img src="/web/image/website/1/logo" class="card-img-top" alt="Produit" style="height: 250px; object-fit: cover;"/>
+                                <span class="position-absolute top-0 end-0 m-3 badge rounded-pill fs-6 promo-badge">-20%</span>
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 class="card-title fw-bold">Nom du produit</h5>
+                                <p class="text-muted small">Description courte du produit</p>
+                                <div class="mb-3">
+                                    <span class="text-decoration-line-through text-muted me-2">199,99&#x20AC;</span>
+                                    <span class="fs-4 fw-bold promo-price">159,99&#x20AC;</span>
+                                </div>
+                                <a href="/shop" class="btn rounded-pill px-4 btn-promo-cta">Voir le produit</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card shadow-sm border-0 h-100 overflow-hidden" style="border-radius: 16px;">
+                            <div class="position-relative">
+                                <img src="/web/image/website/1/logo" class="card-img-top" alt="Produit" style="height: 250px; object-fit: cover;"/>
+                                <span class="position-absolute top-0 end-0 m-3 badge rounded-pill fs-6 promo-badge">-30%</span>
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 class="card-title fw-bold">Nom du produit</h5>
+                                <p class="text-muted small">Description courte du produit</p>
+                                <div class="mb-3">
+                                    <span class="text-decoration-line-through text-muted me-2">299,99&#x20AC;</span>
+                                    <span class="fs-4 fw-bold promo-price">209,99&#x20AC;</span>
+                                </div>
+                                <a href="/shop" class="btn rounded-pill px-4 btn-promo-cta">Voir le produit</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card shadow-sm border-0 h-100 overflow-hidden" style="border-radius: 16px;">
+                            <div class="position-relative">
+                                <img src="/web/image/website/1/logo" class="card-img-top" alt="Produit" style="height: 250px; object-fit: cover;"/>
+                                <span class="position-absolute top-0 end-0 m-3 badge rounded-pill fs-6 promo-badge">-15%</span>
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 class="card-title fw-bold">Nom du produit</h5>
+                                <p class="text-muted small">Description courte du produit</p>
+                                <div class="mb-3">
+                                    <span class="text-decoration-line-through text-muted me-2">149,99&#x20AC;</span>
+                                    <span class="fs-4 fw-bold promo-price">127,49&#x20AC;</span>
+                                </div>
+                                <a href="/shop" class="btn rounded-pill px-4 btn-promo-cta">Voir le produit</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- ============================================ -->
+    <!-- Snippet : Banniere Promo Pleine Largeur      -->
+    <!-- ============================================ -->
+    <template id="s_promo_banner" name="Banniere Promotion Piscine">
+        <section class="s_promo_banner pt48 pb48" style="background: linear-gradient(90deg, #0077b6, #00b4d8);">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 text-white">
+                        <h2 class="fw-bold">Offre sp&#233;ciale de la semaine</h2>
+                        <p class="lead mb-0">Profitez de r&#233;ductions exceptionnelles sur nos robots de piscine et nos syst&#232;mes de filtration.</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end text-center mt-3 mt-lg-0">
+                        <a href="/shop" class="btn btn-light btn-lg rounded-pill px-5 fw-bold shadow">En profiter &#x2192;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- ============================================ -->
+    <!-- Snippet : Categories promo avec icones       -->
+    <!-- ============================================ -->
+    <template id="s_promo_categories" name="Categories Promo Piscine">
+        <section class="s_promo_categories pt48 pb48" style="background-color: #f0f8ff;">
+            <div class="container">
+                <h3 class="text-center fw-bold mb-4" style="color: #023e8a;">Promotions par cat&#233;gorie</h3>
+                <div class="row text-center">
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <a href="/shop" class="text-decoration-none">
+                            <div class="p-4 bg-white rounded-4 shadow-sm promo-cat-card">
+                                <div style="font-size: 3rem;">&#x2699;</div>
+                                <h5 class="fw-bold mt-2" style="color: #0077b6;">Filtration</h5>
+                                <p class="text-muted small mb-0">Jusqu'&#224; -25%</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <a href="/shop" class="text-decoration-none">
+                            <div class="p-4 bg-white rounded-4 shadow-sm promo-cat-card">
+                                <div style="font-size: 3rem;">&#x1F916;</div>
+                                <h5 class="fw-bold mt-2" style="color: #0077b6;">Robots</h5>
+                                <p class="text-muted small mb-0">Jusqu'&#224; -30%</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <a href="/shop" class="text-decoration-none">
+                            <div class="p-4 bg-white rounded-4 shadow-sm promo-cat-card">
+                                <div style="font-size: 3rem;">&#x1F9EA;</div>
+                                <h5 class="fw-bold mt-2" style="color: #0077b6;">Traitement</h5>
+                                <p class="text-muted small mb-0">Jusqu'&#224; -20%</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <a href="/shop" class="text-decoration-none">
+                            <div class="p-4 bg-white rounded-4 shadow-sm promo-cat-card">
+                                <div style="font-size: 3rem;">&#x1F6C1;</div>
+                                <h5 class="fw-bold mt-2" style="color: #0077b6;">Spa</h5>
+                                <p class="text-muted small mb-0">Jusqu'&#224; -15%</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- ============================================ -->
+    <!-- Enregistrement snippets - SYNTAXE ODOO 19   -->
+    <!-- Cree un groupe custom + ajoute les snippets  -->
+    <!-- ============================================ -->
+    <template id="promotions_snippets_registration" inherit_id="website.snippets"
+              name="Lolirine Promotions - Snippets">
+
+        <!-- Creer le groupe "Promotions" dans le panneau snippets -->
+        <xpath expr="//snippets[@id='snippet_groups']/*[1]" position="before">
+            <t snippet-group="lolirine_promotions"
+               t-snippet="website.s_snippet_group"
+               string="Promotions Piscine"
+               t-thumbnail="/lolirine_website_promotions/static/src/img/s_promo_card.svg"/>
+        </xpath>
+
+        <!-- Ajouter les snippets au panneau dans le groupe "Promotions" -->
+        <xpath expr="//snippets[@id='snippet_structure']/*[1]" position="before">
+            <t t-snippet="lolirine_website_promotions.s_promo_card"
+               string="Cartes Promotion"
+               group="lolirine_promotions"
+               t-thumbnail="/lolirine_website_promotions/static/src/img/s_promo_card.svg">
+                <keywords>promotion, promo, carte, produit, piscine, reduction</keywords>
+            </t>
+            <t t-snippet="lolirine_website_promotions.s_promo_banner"
+               string="Banniere Promotion"
+               group="lolirine_promotions"
+               t-thumbnail="/lolirine_website_promotions/static/src/img/s_promo_banner.svg">
+                <keywords>promotion, banniere, offre, piscine</keywords>
+            </t>
+            <t t-snippet="lolirine_website_promotions.s_promo_categories"
+               string="Categories Promo"
+               group="lolirine_promotions"
+               t-thumbnail="/lolirine_website_promotions/static/src/img/s_promo_categories.svg">
+                <keywords>promotion, categorie, filtration, robot, spa, piscine</keywords>
+            </t>
+        </xpath>
+
+    </template>
+
+</odoo>

@@ -1,0 +1,87 @@
+/* ============================================
+   Lolirine Pool Store - Page Promotions
+   ============================================ */
+
+/* --- Cartes produits dynamiques --- */
+.promo-product-card {
+    border-radius: 16px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.promo-product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 119, 182, 0.18) !important;
+}
+
+/* --- Badge reduction --- */
+.promo-badge {
+    background-color: #e63946;
+    font-size: 1rem;
+    padding: 8px 16px;
+    font-weight: 700;
+}
+
+/* --- Prix promo --- */
+.promo-price {
+    color: #e63946;
+}
+
+/* --- Bouton CTA promo --- */
+.btn-promo-cta {
+    background-color: #0077b6;
+    color: white;
+    transition: background-color 0.2s ease;
+}
+.btn-promo-cta:hover {
+    background-color: #023e8a;
+    color: white;
+}
+
+/* --- Snippet carte promo manuelle --- */
+.s_promo_card .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 16px;
+}
+.s_promo_card .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 119, 182, 0.15) !important;
+}
+
+/* --- Snippet categories promo --- */
+.promo-cat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.promo-cat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 119, 182, 0.12) !important;
+}
+
+/* --- Bandeau urgence animation --- */
+section[style*="e63946"] h3 {
+    animation: pulse-text 2s ease-in-out infinite;
+}
+@keyframes pulse-text {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+
+/* --- Hero --- */
+.s_cover[data-snippet="s_cover"] h1 {
+    letter-spacing: -1px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .s_cover h1.display-3 {
+        font-size: 2rem;
+    }
+    .promo-product-card .card-img-top,
+    .s_promo_card .card-img-top {
+        height: 180px !important;
+    }
+}
+
+/* --- Zone de drop vide en mode edition --- */
+.oe_structure.oe_empty::before {
+    border: 2px dashed #0077b6;
+    border-radius: 8px;
+}
