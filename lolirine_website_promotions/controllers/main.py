@@ -26,7 +26,7 @@ class WebsitePromotions(http.Controller):
         website = request.website
 
         # Get current pricelist
-        pricelist = request.website._get_current_pricelist()
+        pricelist = website.pricelist_ids[:1]
 
         # Search published products on the current website
         domain = website.sale_product_domain()
