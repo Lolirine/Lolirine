@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="res_config_settings_view_form_ai_chat" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.ai_chat</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <div id="ai_chat_settings" class="app_settings_block" data-string="Assistant IA" data-key="lolirine_ai_chat">
+                    <h2>Assistant IA Chat</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane" />
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_api_key" string="Cle API Anthropic" />
+                                <div class="content-group">
+                                    <field name="ai_chat_api_key" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane" />
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_model" string="Modele IA" />
+                                <div class="content-group">
+                                    <field name="ai_chat_model" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane" />
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_max_tokens" string="Tokens max" />
+                                <div class="content-group">
+                                    <field name="ai_chat_max_tokens" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3>Fonctionnalites</h3>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="ai_chat_enabled" />
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_enabled" string="Chat IA actif" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="ai_chat_web_search" />
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_web_search" string="Recherche web" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="ai_chat_product_search" />
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_product_search" string="Recherche produits" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="ai_chat_save_conversations" />
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_save_conversations" string="Sauvegarder conversations" />
+                            </div>
+                        </div>
+                    </div>
+                    <h3>Contenu et Apparence</h3>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane" />
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_system_prompt" string="Prompt systeme" />
+                                <div class="content-group">
+                                    <field name="ai_chat_system_prompt" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane" />
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_welcome_message" string="Message de bienvenue" />
+                                <div class="content-group">
+                                    <field name="ai_chat_welcome_message" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane" />
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_primary_color" string="Couleur principale" />
+                                <div class="content-group">
+                                    <field name="ai_chat_primary_color" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane" />
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_secondary_color" string="Couleur secondaire" />
+                                <div class="content-group">
+                                    <field name="ai_chat_secondary_color" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane" />
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_position" string="Position du widget" />
+                                <div class="content-group">
+                                    <field name="ai_chat_position" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane" />
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_max_messages_session" string="Messages max/session" />
+                                <div class="content-group">
+                                    <field name="ai_chat_max_messages_session" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane" />
+                            <div class="o_setting_right_pane">
+                                <label for="ai_chat_max_sessions_day" string="Sessions max/jour" />
+                                <div class="content-group">
+                                    <field name="ai_chat_max_sessions_day" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
