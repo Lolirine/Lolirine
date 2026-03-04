@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <template id="ai_chat_widget_template" name="AI Chat Widget" inherit_id="website.layout">
+        <xpath expr="//div[@id='wrapwrap']" position="inside">
+            <t t-set="ai_ws_id" t-value="request.env['ir.config_parameter'].sudo().get_param('lolirine_ai_chat.website_id', '0')" />
+            <t t-if="ai_ws_id == '0' or str(website.id) == ai_ws_id">
+                <div id="lolirine-ai-chat-root">
+                    <link rel="stylesheet" type="text/css" href="/lolirine_ai_chat/static/src/css/ai_chat_widget.css" />
+                    <script type="text/javascript" src="/lolirine_ai_chat/static/src/js/ai_chat_widget.js"> </script>
+                </div>
+            </t>
+        </xpath>
+    </template>
+</odoo>
