@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_storage_chat_conversation_admin,storage.chat.conversation.admin,model_storage_chat_conversation,base.group_system,1,1,1,1
+access_storage_chat_conversation_user,storage.chat.conversation.user,model_storage_chat_conversation,base.group_user,1,1,0,0
+access_storage_chat_message_admin,storage.chat.message.admin,model_storage_chat_message,base.group_system,1,1,1,1
+access_storage_chat_message_user,storage.chat.message.user,model_storage_chat_message,base.group_user,1,0,0,0
+access_storage_chat_conversation_public,storage.chat.conversation.public,model_storage_chat_conversation,base.group_public,0,0,1,0
+access_storage_chat_message_public,storage.chat.message.public,model_storage_chat_message,base.group_public,0,0,1,0
