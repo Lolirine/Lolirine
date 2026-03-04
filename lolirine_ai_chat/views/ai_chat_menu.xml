@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<odoo>
-    <menuitem id="menu_ai_chat_root" name="Assistant IA" sequence="90" />
-    <menuitem id="menu_ai_chat_conv" name="Conversations" parent="menu_ai_chat_root" action="action_ai_chat_conversation" sequence="10" />
-</odoo>
