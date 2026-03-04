@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_pool_promotion_tree" model="ir.ui.view">
+        <field name="name">pool.promotion.list</field>
+        <field name="model">pool.promotion</field>
+        <field name="arch" type="xml">
+            <list string="Promotions" decoration-success="state == 'active'" decoration-muted="state == 'expired'">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="discount_text" optional="show" />
+                <field name="date_start" />
+                <field name="date_end" />
+                <field name="product_count" string="Produits" />
+                <field name="website_id" optional="show" />
+                <field name="state" widget="badge" />
+            </list>
+        </field>
+    </record>
+    <record id="view_pool_promotion_form" model="ir.ui.view">
+        <field name="name">pool.promotion.form</field>
+        <field name="model">pool.promotion</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_products" type="object" class="oe_stat_button" icon="fa-shopping-cart">
+                            <field name="product_count" widget="statinfo" string="Produits" />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Titre de la promotion" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Periode">
+                            <field name="date_start" />
+                            <field name="date_end" />
+                            <field name="active" />
+                            <field name="sequence" />
+                        </group>
+                        <group string="Affichage">
+                            <field name="subtitle" />
+                            <field name="discount_text" />
+                            <field name="banner_color" widget="color" />
+                            <field name="button_text" />
+                            <field name="button_url" />
+                            <field name="website_id" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description" name="desc">
+                            <field name="description" nolabel="1" />
+                        </page>
+                        <page string="Produits" name="products">
+                            <field name="product_ids" nolabel="1">
+                                <list>
+                                    <field name="name" />
+                                    <field name="list_price" string="Prix" />
+                                    <field name="website_published" string="Publie" optional="show" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_pool_promotion_search" model="ir.ui.view">
+        <field name="name">pool.promotion.search</field>
+        <field name="model">pool.promotion</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <filter string="En cours" name="filter_active" domain="[('state','=','active')]" />
+                <filter string="A venir" name="filter_draft" domain="[('state','=','draft')]" />
+                <filter string="Expirees" name="filter_expired" domain="[('state','=','expired')]" />
+            </search>
+        </field>
+    </record>
+    <record id="action_pool_promotion" model="ir.actions.act_window">
+        <field name="name">Promotions</field>
+        <field name="res_model">pool.promotion</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_pool_promotion_search" />
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+</odoo>
