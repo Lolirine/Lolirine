@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="res_config_settings_view_form_ai_chat" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.ai_chat</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="Assistant IA" data-string="Assistant IA" data-key="lolirine_ai_chat">
+                    <block title="Configuration API" name="ai_api">
+                        <setting string="Cle API Anthropic">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="ai_chat_api_key" class="col-lg-3 o_light_label" />
+                                    <field name="ai_chat_api_key" password="True" class="col-lg-6" />
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Modele IA">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="ai_chat_model" class="col-lg-3 o_light_label" />
+                                    <field name="ai_chat_model" class="col-lg-6" />
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Tokens max par reponse">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="ai_chat_max_tokens" class="col-lg-3 o_light_label" />
+                                    <field name="ai_chat_max_tokens" class="col-lg-3" />
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Fonctionnalites" name="ai_features">
+                        <setting string="Chat IA actif sur le site">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <field name="ai_chat_enabled" />
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Recherche web (Claude web search)">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <field name="ai_chat_web_search" />
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Recherche automatique dans le catalogue">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <field name="ai_chat_product_search" />
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Sauvegarder les conversations en base">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <field name="ai_chat_save_conversations" />
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Prompt systeme" name="ai_prompt">
+                        <setting string="Instructions IA (laisser vide = prompt par defaut)">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <field name="ai_chat_system_prompt" class="col-lg-10" />
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Apparence du widget" name="ai_appearance">
+                        <setting string="Message de bienvenue">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <field name="ai_chat_welcome_message" class="col-lg-10" />
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Couleur principale">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="ai_chat_primary_color" class="col-lg-3 o_light_label" />
+                                    <field name="ai_chat_primary_color" widget="color" class="col-lg-3" />
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Couleur secondaire">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="ai_chat_secondary_color" class="col-lg-3 o_light_label" />
+                                    <field name="ai_chat_secondary_color" widget="color" class="col-lg-3" />
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Position du widget">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="ai_chat_position" class="col-lg-3 o_light_label" />
+                                    <field name="ai_chat_position" class="col-lg-6" />
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Limites" name="ai_limits">
+                        <setting string="Messages max par session">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="ai_chat_max_messages_session" class="col-lg-3 o_light_label" />
+                                    <field name="ai_chat_max_messages_session" class="col-lg-3" />
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Sessions max par IP/jour">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="ai_chat_max_sessions_day" class="col-lg-3 o_light_label" />
+                                    <field name="ai_chat_max_sessions_day" class="col-lg-3" />
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
