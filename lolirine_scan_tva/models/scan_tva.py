@@ -136,9 +136,21 @@ class LolirineScanTva(models.Model):
     )
     tax_rate = fields.Selection([
         ('0', '0%'),
-        ('6', '6%'),
-        ('12', '12%'),
-        ('21', '21%'),
+        ('2.1', '2,1% (FR)'),
+        ('3', '3% (LU)'),
+        ('5.5', '5,5% (FR)'),
+        ('6', '6% (BE)'),
+        ('7', '7% (DE)'),
+        ('8', '8% (LU)'),
+        ('9', '9% (NL)'),
+        ('10', '10% (FR)'),
+        ('12', '12% (BE)'),
+        ('14', '14% (LU)'),
+        ('17', '17% (LU)'),
+        ('19', '19% (DE)'),
+        ('20', '20% (FR)'),
+        ('21', '21% (BE/NL)'),
+        ('multi', 'Multiple'),
     ], string="Taux TVA", default='21')
     
     currency_id = fields.Many2one(
