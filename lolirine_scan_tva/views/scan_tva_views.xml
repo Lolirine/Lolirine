@@ -111,10 +111,11 @@
                         <page string="Ventilation TVA" name="vat_lines">
                             <field name="vat_line_ids" nolabel="1">
                                 <list editable="bottom">
+                                    <field name="description" string="Description" placeholder="Ex: Alimentation, Boissons, Alcool..."/>
                                     <field name="tax_rate" string="Taux (%)"/>
-                                    <field name="base_amount" string="Base HT"/>
-                                    <field name="vat_amount" string="Montant TVA"/>
-                                    <field name="total_amount" string="Total TTC"/>
+                                    <field name="base_amount" string="Base HT" sum="Total HT"/>
+                                    <field name="vat_amount" string="Montant TVA" sum="Total TVA"/>
+                                    <field name="total_amount" string="Total TTC" sum="Total TTC"/>
                                 </list>
                             </field>
                         </page>
