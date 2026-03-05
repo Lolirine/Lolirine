@@ -3,3 +3,5 @@ access_lolirine_scan_tva_user,lolirine.scan.tva.user,model_lolirine_scan_tva,acc
 access_lolirine_scan_tva_manager,lolirine.scan.tva.manager,model_lolirine_scan_tva,account.group_account_manager,1,1,1,1
 access_lolirine_scan_tva_wizard_user,lolirine.scan.tva.wizard.user,model_lolirine_scan_tva_wizard,account.group_account_invoice,1,1,1,1
 access_lolirine_scan_tva_extract_wizard_user,lolirine.scan.tva.extract.wizard.user,model_lolirine_scan_tva_extract_wizard,account.group_account_invoice,1,1,1,1
+access_lolirine_scan_tva_line_user,lolirine.scan.tva.line.user,model_lolirine_scan_tva_line,account.group_account_invoice,1,1,1,0
+access_lolirine_scan_tva_line_manager,lolirine.scan.tva.line.manager,model_lolirine_scan_tva_line,account.group_account_manager,1,1,1,1
