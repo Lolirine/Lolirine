@@ -244,7 +244,7 @@ class LolirineScanTva(models.Model):
     @api.onchange('amount_untaxed', 'tax_rate')
     def _onchange_amounts(self):
         """Calculer les montants automatiquement"""
-        if self.amount_untaxed and self.tax_rate:
+        if self.amount_untaxed and self.tax_rate and self.tax_rate != 'multi':
             rate = float(self.tax_rate) / 100
             self.amount_tax = self.amount_untaxed * rate
             self.amount_total = self.amount_untaxed + self.amount_tax
@@ -252,7 +252,7 @@ class LolirineScanTva(models.Model):
     @api.onchange('amount_total', 'tax_rate')
     def _onchange_amount_total(self):
         """Calculer HT depuis TTC"""
-        if self.amount_total and self.tax_rate and not self.amount_untaxed:
+        if self.amount_total and self.tax_rate and self.tax_rate != 'multi' and not self.amount_untaxed:
             rate = float(self.tax_rate) / 100
             self.amount_untaxed = self.amount_total / (1 + rate)
             self.amount_tax = self.amount_total - self.amount_untaxed
