@@ -108,6 +108,17 @@
                             </group>
                         </page>
                         
+                        <page string="Ventilation TVA" name="vat_lines">
+                            <field name="vat_line_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="tax_rate" string="Taux (%)"/>
+                                    <field name="base_amount" string="Base HT"/>
+                                    <field name="vat_amount" string="Montant TVA"/>
+                                    <field name="total_amount" string="Total TTC"/>
+                                </list>
+                            </field>
+                        </page>
+                        
                         <page string="Texte OCR" name="ocr">
                             <field name="ocr_text" readonly="1" placeholder="Le texte extrait par OCR apparaitra ici..."/>
                         </page>
