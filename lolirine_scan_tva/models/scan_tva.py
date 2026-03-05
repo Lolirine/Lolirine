@@ -176,7 +176,11 @@ class LolirineScanTva(models.Model):
         string="Responsable",
         default=lambda self: self.env.user
     )
-
+    vat_line_ids = fields.One2many(
+        'lolirine.scan.tva.line', 'scan_id',
+        string='Ventilation TVA',
+    )
+    
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
