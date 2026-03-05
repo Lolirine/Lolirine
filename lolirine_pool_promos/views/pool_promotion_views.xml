@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_pool_promotion_tree" model="ir.ui.view">
+        <field name="name">pool.promotion.list</field>
+        <field name="model">pool.promotion</field>
+        <field name="arch" type="xml">
+            <list string="Promotions" decoration-success="state == 'active'" decoration-muted="state == 'expired'">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="discount_text" optional="show" />
+                <field name="date_start" />
+                <field name="date_end" />
+                <field name="product_count" string="Produits" />
+                <field name="website_id" optional="show" />
+                <field name="state" widget="badge" />
+            </list>
+        </field>
+    </record>
+    <record id="view_pool_promotion_form" model="ir.ui.view">
+        <field name="name">pool.promotion.form</field>
+        <field name="model">pool.promotion</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_apply_ribbons" type="object" string="Appliquer etiquettes" class="btn-primary" icon="fa-tags" invisible="state != 'active'" />
+                    <button name="action_remove_ribbons" type="object" string="Retirer etiquettes" class="btn-secondary" icon="fa-times" />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_products" type="object" class="oe_stat_button" icon="fa-shopping-cart">
+                            <field name="product_count" widget="statinfo" string="Produits" />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Titre de la promotion" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Periode et statut">
+                            <field name="date_start" />
+                            <field name="date_end" />
+                            <field name="active" />
+                            <field name="sequence" />
+                        </group>
+                        <group string="Affichage">
+                            <field name="subtitle" />
+                            <field name="discount_text" />
+                            <field name="banner_color" widget="color" />
+                            <field name="button_text" />
+                            <field name="button_url" />
+                            <field name="website_id" />
+                        </group>
+                    </group>
+                    <group string="Etiquettes produits">
+                        <group>
+                            <field name="default_ribbon_id" />
+                        </group>
+                        <group>
+                            <div class="text-muted">Selectionnez une etiquette par defaut (ex: PROMO, Soldes, -20%). Chaque ligne peut avoir sa propre etiquette. Cliquez 'Appliquer etiquettes' pour les placer sur les produits dans la boutique.</div>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Produits en promotion" name="products">
+                            <field name="line_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="currency_id" column_invisible="1" />
+                                    <field name="sequence" widget="handle" />
+                                    <field name="product_id" />
+                                    <field name="original_price" string="Prix initial" widget="monetary" options="{'currency_field': 'currency_id'}" />
+                                    <field name="discount_type" />
+                                    <field name="discount_value" string="Remise" />
+                                    <field name="final_price" string="Prix promo" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="1" decoration-success="1" />
+                                    <field name="savings" string="Economie" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-danger="1" />
+                                    <field name="discount_display" string="%" />
+                                    <field name="ribbon_id" string="Etiquette" optional="show" />
+                                    <field name="apply_ribbon" optional="hide" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Description" name="desc">
+                            <field name="description" nolabel="1" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_pool_promotion_search" model="ir.ui.view">
+        <field name="name">pool.promotion.search</field>
+        <field name="model">pool.promotion</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <filter string="En cours" name="filter_active" domain="[('state','=','active')]" />
+                <filter string="A venir" name="filter_draft" domain="[('state','=','draft')]" />
+                <filter string="Expirees" name="filter_expired" domain="[('state','=','expired')]" />
+            </search>
+        </field>
+    </record>
+    <record id="action_pool_promotion" model="ir.actions.act_window">
+        <field name="name">Promotions</field>
+        <field name="res_model">pool.promotion</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_pool_promotion_search" />
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+</odoo>

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pool_promotion_admin,pool.promotion.admin,model_pool_promotion,base.group_system,1,1,1,1
+access_pool_promotion_user,pool.promotion.user,model_pool_promotion,base.group_user,1,1,1,0
+access_pool_promotion_public,pool.promotion.public,model_pool_promotion,base.group_public,1,0,0,0
+access_pool_promotion_line_admin,pool.promotion.line.admin,model_pool_promotion_line,base.group_system,1,1,1,1
+access_pool_promotion_line_user,pool.promotion.line.user,model_pool_promotion_line,base.group_user,1,1,1,0
+access_pool_promotion_line_public,pool.promotion.line.public,model_pool_promotion_line,base.group_public,1,0,0,0
