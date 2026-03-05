@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<odoo>
-    <menuitem id="menu_pool_promos_root" name="Promotions Pool" sequence="92" />
-    <menuitem id="menu_pool_promos_list" name="Promotions" parent="menu_pool_promos_root" action="action_pool_promotion" sequence="10" />
-</odoo>
