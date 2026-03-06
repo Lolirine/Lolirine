@@ -1,0 +1,1271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- PAGE PRINCIPALE : NOS SERVICES - ÉDITABLE  -->
+    <!-- ============================================ -->
+    
+    <template id="page_nos_services" name="Pool Store - Nos Services">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE avec image de fond -->
+                <section class="s_cover pool-hero pt96 pb96 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Services"
+                         style="min-height: 450px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/lolirine_pool_services/static/src/img/services-hero.jpg'); background-color: rgba(15, 23, 42, 0.85);"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <div class="row align-items-center min-vh-50 py-5">
+                            <div class="col-lg-7 oe_structure" data-name="Contenu Hero Services">
+                                <span class="pool-badge">Services Professionnels</span>
+                                <h1 class="pool-title">
+                                    Tous nos services<br/>
+                                    <span class="pool-highlight">pour votre piscine</span>
+                                </h1>
+                                <p class="pool-subtitle">
+                                    De l'entretien régulier à la construction sur mesure, notre équipe de professionnels prend soin de votre piscine toute l'année.
+                                </p>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <a href="/pool/devis" class="pool-btn-primary">
+                                        <i class="fa fa-paper-plane me-2"/>Demander un devis
+                                    </a>
+                                    <a href="tel:+32497444146" class="pool-btn-outline">
+                                        <i class="fa fa-phone me-2"/>+32 497 44 41 46
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- SERVICES GRID ÉDITABLE -->
+                <section class="s_text_block py-5 bg-white" data-snippet="s_text_block" data-name="Grille Services">
+                    <div class="container py-4">
+                        <div class="text-center mb-5 oe_structure" data-name="Titre Services">
+                            <span class="pool-section-badge">Nos expertises</span>
+                            <h2 class="pool-section-title">Des services adaptés à chaque besoin</h2>
+                        </div>
+                        
+                        <div class="row g-4 oe_structure" data-name="Cartes Services">
+                            
+                            <!-- SERVICE 1: Entretien -->
+                            <div class="col-lg-6">
+                                <a href="/services/entretien-reparation" class="text-decoration-none">
+                                    <div class="pool-service-card pool-service-cyan">
+                                        <div class="pool-service-icon">
+                                            <i class="fa fa-tools"/>
+                                        </div>
+                                        <div class="pool-service-content">
+                                            <h3>Entretien &amp; Réparation</h3>
+                                            <p>Maintenance régulière, nettoyage professionnel, traitement de l'eau et dépannage de vos équipements.</p>
+                                            <span class="pool-service-link">
+                                                Découvrir <i class="fa fa-arrow-right ms-2"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <!-- SERVICE 2: Construction -->
+                            <div class="col-lg-6">
+                                <a href="/services/construction-renovation" class="text-decoration-none">
+                                    <div class="pool-service-card pool-service-purple">
+                                        <div class="pool-service-icon">
+                                            <i class="fa fa-hammer"/>
+                                        </div>
+                                        <div class="pool-service-content">
+                                            <h3>Construction &amp; Rénovation</h3>
+                                            <p>Réalisation de votre projet piscine ou modernisation complète de votre bassin existant.</p>
+                                            <span class="pool-service-link">
+                                                Découvrir <i class="fa fa-arrow-right ms-2"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <!-- SERVICE 3: Analyse -->
+                            <div class="col-lg-6">
+                                <a href="/services/analyse-eau" class="text-decoration-none">
+                                    <div class="pool-service-card pool-service-green">
+                                        <div class="pool-service-icon">
+                                            <i class="fa fa-flask"/>
+                                        </div>
+                                        <div class="pool-service-content">
+                                            <h3>Analyse de l'eau</h3>
+                                            <p>Diagnostic complet de votre eau avec conseils personnalisés pour un traitement optimal.</p>
+                                            <span class="pool-service-link">
+                                                Découvrir <i class="fa fa-arrow-right ms-2"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <!-- SERVICE 4: Hivernage -->
+                            <div class="col-lg-6">
+                                <a href="/services/hivernage-estivage" class="text-decoration-none">
+                                    <div class="pool-service-card pool-service-orange">
+                                        <div class="pool-service-icon">
+                                            <i class="fa fa-snowflake"/>
+                                        </div>
+                                        <div class="pool-service-content">
+                                            <h3>Hivernage &amp; Estivage</h3>
+                                            <p>Préparation hivernale et remise en service au printemps pour une saison sans souci.</p>
+                                            <span class="pool-service-link">
+                                                Découvrir <i class="fa fa-arrow-right ms-2"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ZONE ÉDITABLE LIBRE -->
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable Services"/>
+                
+                <!-- CTA ÉDITABLE -->
+                <section class="s_cover py-5 o_cc o_cc1" 
+                         data-snippet="s_cover" 
+                         data-name="CTA Services"
+                         style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);">
+                    <div class="container py-4 text-center text-white oe_structure" data-name="Contenu CTA Services">
+                        <h2 class="display-6 fw-bold mb-3">Prêt à démarrer votre projet ?</h2>
+                        <p class="lead mb-4">Demandez un devis gratuit et sans engagement</p>
+                        <a href="/pool/devis" class="pool-btn-white pool-btn-lg">
+                            <i class="fa fa-paper-plane me-2"/>Demander un devis
+                        </a>
+                    </div>
+                </section>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE : ENTRETIEN &amp; RÉPARATION - ÉDITABLE   -->
+    <!-- ============================================ -->
+    
+    <template id="page_entretien_reparation" name="Pool Store - Entretien &amp; Réparation">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE avec image personnalisable -->
+                <section class="s_cover pool-page-hero pool-hero-cyan py-5 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Entretien"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/lolirine_pool_services/static/src/img/entretien-hero.jpg');"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pool-breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/services">Services</a> / <span>Entretien &amp; Réparation</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero Entretien">
+                                <h1>Entretien &amp; Réparation</h1>
+                                <p>Un service complet pour maintenir votre piscine en parfait état toute l'année.</p>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pool-page-icon">
+                                    <i class="fa fa-tools"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- CONTENU ÉDITABLE -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Contenu Entretien">
+                    <div class="container">
+                        <div class="row g-5 oe_structure" data-name="Détails Entretien">
+                            <div class="col-lg-8">
+                                <h2 class="pool-content-title mb-4">Nos prestations d'entretien</h2>
+                                
+                                <a href="/services/entretien/traitement-eau" class="text-decoration-none pool-service-link-card">
+                                    <div class="pool-content-card mb-4 pool-card-hover">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h4 class="mb-0"><i class="fa fa-tint me-2" style="color: #3b82f6;"/>Traitement de l'eau</h4>
+                                            <i class="fa fa-arrow-right pool-card-arrow"/>
+                                        </div>
+                                        <p class="mb-0 mt-2">Analyse complète (pH, chlore, TAC, TH), équilibrage et traitement pour une eau parfaite.</p>
+                                    </div>
+                                </a>
+                                
+                                <a href="/services/entretien/nettoyage-bassin" class="text-decoration-none pool-service-link-card">
+                                    <div class="pool-content-card mb-4 pool-card-hover">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h4 class="mb-0"><i class="fa fa-leaf me-2" style="color: #22c55e;"/>Nettoyage du bassin</h4>
+                                            <i class="fa fa-arrow-right pool-card-arrow"/>
+                                        </div>
+                                        <p class="mb-0 mt-2">Aspiration, brossage des parois, nettoyage de la ligne d'eau et vidange des skimmers.</p>
+                                    </div>
+                                </a>
+                                
+                                <a href="/services/entretien/maintenance-technique" class="text-decoration-none pool-service-link-card">
+                                    <div class="pool-content-card mb-4 pool-card-hover">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h4 class="mb-0"><i class="fa fa-cogs me-2" style="color: #f97316;"/>Maintenance technique</h4>
+                                            <i class="fa fa-arrow-right pool-card-arrow"/>
+                                        </div>
+                                        <p class="mb-0 mt-2">Vérification pompe, filtre, chauffage et équipements automatiques.</p>
+                                    </div>
+                                </a>
+                                
+                                <a href="/services/entretien/reparations" class="text-decoration-none pool-service-link-card">
+                                    <div class="pool-content-card mb-4 pool-card-hover">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h4 class="mb-0"><i class="fa fa-wrench me-2" style="color: #ef4444;"/>Réparations</h4>
+                                            <i class="fa fa-arrow-right pool-card-arrow"/>
+                                        </div>
+                                        <p class="mb-0 mt-2">Diagnostic de pannes, réparation fuites, remplacement pièces défectueuses.</p>
+                                    </div>
+                                </a>
+                            </div>
+                            
+                            <div class="col-lg-4">
+                                <div class="pool-sidebar-card sticky-top" style="top: 100px;">
+                                    <div class="pool-sidebar-header">
+                                        <i class="fa fa-phone"/>
+                                        <span>Contactez-nous</span>
+                                    </div>
+                                    <div class="pool-sidebar-body">
+                                        <div class="pool-sidebar-item">
+                                            <i class="fa fa-phone"/>
+                                            <div>
+                                                <a href="tel:+32497444146">+32 497 44 41 46</a>
+                                            </div>
+                                        </div>
+                                        <div class="pool-sidebar-item">
+                                            <i class="fa fa-envelope"/>
+                                            <div>
+                                                <a href="mailto:info@lolirinepoolstore.be">info@lolirinepoolstore.be</a>
+                                            </div>
+                                        </div>
+                                        <hr/>
+                                        <a href="/pool/devis" class="pool-btn-primary w-100 justify-content-center">
+                                            Demander un devis
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ZONE ÉDITABLE -->
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable Entretien"/>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE : CONSTRUCTION &amp; RÉNOVATION - ÉDITABLE -->
+    <!-- ============================================ -->
+    
+    <template id="page_construction_renovation" name="Pool Store - Construction &amp; Rénovation">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE -->
+                <section class="s_cover pool-page-hero pool-hero-purple py-5 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Construction"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/lolirine_pool_services/static/src/img/construction-hero.jpg');"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pool-breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/services">Services</a> / <span>Construction &amp; Rénovation</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero Construction">
+                                <h1>Construction &amp; Rénovation</h1>
+                                <p>Donnons vie à votre projet de piscine ou modernisons votre bassin existant.</p>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pool-page-icon">
+                                    <i class="fa fa-hammer"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- CONTENU -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Contenu Construction">
+                    <div class="container">
+                        <div class="row g-5 oe_structure" data-name="Détails Construction">
+                            <div class="col-lg-8">
+                                <h2 class="pool-content-title mb-4">Notre expertise construction</h2>
+                                
+                                <div class="pool-content-card mb-4">
+                                    <h4><i class="fa fa-drafting-compass me-2" style="color: #7c3aed;"/>Étude de projet</h4>
+                                    <p>Analyse de votre terrain, conseils personnalisés et plans sur mesure.</p>
+                                </div>
+                                
+                                <div class="pool-content-card mb-4">
+                                    <h4><i class="fa fa-hard-hat me-2" style="color: #7c3aed;"/>Construction neuve</h4>
+                                    <p>Réalisation complète de votre piscine, du terrassement à la mise en eau.</p>
+                                </div>
+                                
+                                <div class="pool-content-card mb-4">
+                                    <h4><i class="fa fa-sync-alt me-2" style="color: #7c3aed;"/>Rénovation</h4>
+                                    <p>Modernisation de votre bassin : liner, margelles, local technique...</p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-4">
+                                <div class="pool-sidebar-card sticky-top" style="top: 100px;">
+                                    <div class="pool-sidebar-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                                        <i class="fa fa-phone"/>
+                                        <span>Contactez-nous</span>
+                                    </div>
+                                    <div class="pool-sidebar-body">
+                                        <div class="pool-sidebar-item">
+                                            <i class="fa fa-phone"/>
+                                            <a href="tel:+32497444146">+32 497 44 41 46</a>
+                                        </div>
+                                        <div class="pool-sidebar-item">
+                                            <i class="fa fa-envelope"/>
+                                            <a href="mailto:info@lolirinepoolstore.be">info@lolirinepoolstore.be</a>
+                                        </div>
+                                        <hr/>
+                                        <a href="/pool/devis" class="pool-btn-primary w-100 justify-content-center">
+                                            Demander un devis
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable Construction"/>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE : ANALYSE DE L'EAU - ÉDITABLE         -->
+    <!-- ============================================ -->
+    
+    <template id="page_analyse_eau" name="Pool Store - Analyse de l'eau">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE -->
+                <section class="s_cover pool-page-hero pool-hero-green py-5 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Analyse"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/lolirine_pool_services/static/src/img/analyse-hero.jpg');"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pool-breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/services">Services</a> / <span>Analyse de l'eau</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero Analyse">
+                                <h1>Analyse de l'eau</h1>
+                                <p>Diagnostic complet et conseils personnalisés pour une eau parfaitement équilibrée.</p>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pool-page-icon">
+                                    <i class="fa fa-flask"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- CONTENU -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Contenu Analyse">
+                    <div class="container">
+                        <div class="row g-5 oe_structure" data-name="Détails Analyse">
+                            <div class="col-lg-8">
+                                <h2 class="pool-content-title mb-4">Notre service d'analyse</h2>
+                                
+                                <div class="pool-content-card mb-4">
+                                    <h4><i class="fa fa-vial me-2" style="color: #059669;"/>Analyse complète</h4>
+                                    <p>Mesure du pH, chlore, TAC, TH, stabilisant et autres paramètres essentiels.</p>
+                                </div>
+                                
+                                <div class="pool-content-card mb-4">
+                                    <h4><i class="fa fa-clipboard-check me-2" style="color: #059669;"/>Rapport détaillé</h4>
+                                    <p>Résultats commentés avec recommandations de traitement personnalisées.</p>
+                                </div>
+                                
+                                <div class="pool-content-card mb-4">
+                                    <h4><i class="fa fa-shopping-cart me-2" style="color: #059669;"/>Produits adaptés</h4>
+                                    <p>Sélection des produits nécessaires disponibles dans notre boutique.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-4">
+                                <div class="pool-sidebar-card sticky-top" style="top: 100px;">
+                                    <div class="pool-sidebar-header pool-sidebar-header-green">
+                                        <i class="fa fa-phone"/>
+                                        <span>Contactez-nous</span>
+                                    </div>
+                                    <div class="pool-sidebar-body">
+                                        <div class="pool-sidebar-item">
+                                            <i class="fa fa-phone"/>
+                                            <a href="tel:+32497444146">+32 497 44 41 46</a>
+                                        </div>
+                                        <div class="pool-sidebar-item">
+                                            <i class="fa fa-envelope"/>
+                                            <a href="mailto:info@lolirinepoolstore.be">info@lolirinepoolstore.be</a>
+                                        </div>
+                                        <hr/>
+                                        <a href="/pool/devis" class="pool-btn-primary w-100 justify-content-center">
+                                            Demander un devis
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable Analyse"/>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- PAGE : HIVERNAGE &amp; ESTIVAGE - ÉDITABLE     -->
+    <!-- ============================================ -->
+    
+    <template id="page_hivernage_estivage" name="Pool Store - Hivernage &amp; Estivage">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                
+                <!-- HERO ÉDITABLE -->
+                <section class="s_cover pool-page-hero pool-hero-orange py-5 o_cc o_cc1" 
+                         data-snippet="s_cover"
+                         data-name="Hero Hivernage"
+                         style="min-height: 350px;">
+                    <span class="s_parallax_bg_wrap">
+                        <span class="s_parallax_bg oe_img_bg o_bg_img_center" 
+                              style="background-image: url('/lolirine_pool_services/static/src/img/hivernage-hero.jpg');"/>
+                    </span>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container py-5">
+                        <nav class="pool-breadcrumb">
+                            <a href="/">Accueil</a> / <a href="/services">Services</a> / <span>Hivernage &amp; Estivage</span>
+                        </nav>
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 oe_structure" data-name="Contenu Hero Hivernage">
+                                <h1>Hivernage &amp; Estivage</h1>
+                                <p>Préparation hivernale et remise en service au printemps pour une piscine impeccable.</p>
+                            </div>
+                            <div class="col-lg-4 text-center d-none d-lg-block">
+                                <div class="pool-page-icon">
+                                    <i class="fa fa-snowflake"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- CONTENU -->
+                <section class="s_text_block py-5" data-snippet="s_text_block" data-name="Contenu Hivernage">
+                    <div class="container">
+                        <div class="row g-5 oe_structure" data-name="Détails Hivernage">
+                            <div class="col-lg-8">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="pool-content-card h-100">
+                                            <h4><i class="fa fa-snowflake me-2" style="color: #d97706;"/>Hivernage</h4>
+                                            <ul class="mt-3">
+                                                <li>Nettoyage complet du bassin</li>
+                                                <li>Traitement choc de l'eau</li>
+                                                <li>Protection du local technique</li>
+                                                <li>Mise en place couverture d'hiver</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-content-card h-100">
+                                            <h4><i class="fa fa-sun me-2" style="color: #d97706;"/>Estivage</h4>
+                                            <ul class="mt-3">
+                                                <li>Remise en route du système</li>
+                                                <li>Nettoyage de printemps</li>
+                                                <li>Analyse et équilibrage de l'eau</li>
+                                                <li>Vérification des équipements</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-4">
+                                <div class="pool-sidebar-card sticky-top" style="top: 100px;">
+                                    <div class="pool-sidebar-header pool-sidebar-header-orange">
+                                        <i class="fa fa-phone"/>
+                                        <span>Contactez-nous</span>
+                                    </div>
+                                    <div class="pool-sidebar-body">
+                                        <div class="pool-sidebar-item">
+                                            <i class="fa fa-phone"/>
+                                            <a href="tel:+32497444146">+32 497 44 41 46</a>
+                                        </div>
+                                        <div class="pool-sidebar-item">
+                                            <i class="fa fa-envelope"/>
+                                            <a href="mailto:info@lolirinepoolstore.be">info@lolirinepoolstore.be</a>
+                                        </div>
+                                        <hr/>
+                                        <a href="/pool/devis" class="pool-btn-primary w-100 justify-content-center">
+                                            Demander un devis
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <div class="oe_structure oe_empty" data-name="Zone personnalisable Hivernage"/>
+                
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- SOUS-PAGE : TRAITEMENT DE L'EAU             -->
+    <!-- URL : /services/entretien/traitement-eau    -->
+    <!-- ============================================ -->
+
+    <template id="page_traitement_eau" name="Pool Store - Traitement de l'eau">
+        <t t-call="website.layout">
+            <div id="wrap">
+
+                <section class="pool-page-hero pool-hero-blue py-5" style="background: linear-gradient(135deg, #1e3a5f 0%, #0284c7 100%); min-height: 320px; display:flex; align-items:center;">
+                    <div class="container py-4">
+                        <nav class="pool-breadcrumb mb-3">
+                            <a href="/">Accueil</a> / <a href="/services">Services</a> / <a href="/services/entretien-reparation">Entretien</a> / <span>Traitement de l'eau</span>
+                        </nav>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="pool-sub-icon" style="background: rgba(59,130,246,0.3);">
+                                <i class="fa fa-tint" style="color:#93c5fd;font-size:28px;"/>
+                            </div>
+                            <h1 class="text-white mb-0" style="font-size:2.4rem;font-weight:800;">Traitement de l'eau</h1>
+                        </div>
+                        <p class="text-white mb-4" style="font-size:1.1rem;opacity:0.9;max-width:560px;">
+                            Analyse complète des paramètres, correction et suivi personnalisé pour une eau cristalline et saine toute la saison.
+                        </p>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="/pool/devis?service=entretien" class="pool-btn-primary">
+                                <i class="fa fa-paper-plane me-2"/>Demander un devis
+                            </a>
+                            <a href="tel:+32497444146" class="pool-btn-outline">
+                                <i class="fa fa-phone me-2"/>+32 497 44 41 46
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-5">
+                    <div class="container">
+                        <div class="row g-5">
+                            <div class="col-lg-8">
+
+                                <h2 class="pool-content-title mb-3">Pourquoi le traitement de l'eau est essentiel ?</h2>
+                                <p style="font-size:1.05rem;color:#475569;line-height:1.8;" class="mb-4">
+                                    L'eau de votre piscine est exposée en permanence aux UV, aux baigneurs et aux contaminants extérieurs.
+                                    Sans un traitement régulier et adapté, elle devient trouble, irritante, voire dangereuse.
+                                    Un suivi précis des paramètres garantit confort, longévité des équipements et conformité sanitaire.
+                                </p>
+
+                                <div class="pool-info-box pool-info-blue mb-5">
+                                    <strong><i class="fa fa-info-circle me-2"/>Bon à savoir :</strong>
+                                    Un déséquilibre de pH de 0,2 point peut réduire l'efficacité du chlore de 50% et provoquer des irritations oculaires.
+                                </div>
+
+                                <h3 class="pool-content-title mb-4">Les 4 paramètres clés à surveiller</h3>
+                                <div class="row g-3 mb-5">
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa fa-flask"/></div>
+                                            <h5>pH (7,2 – 7,6)</h5>
+                                            <p>L'indicateur central. Un pH trop bas corrode les équipements et irrite la peau. Trop haut, il précipite le calcaire et réduit l'action du chlore.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa fa-leaf"/></div>
+                                            <h5>Chlore actif (0,5 – 1,5 mg/L)</h5>
+                                            <p>Principal désinfectant. Insuffisant, l'eau verdit. Excessif, il irrite les yeux et la peau. Un dosage précis est indispensable.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa fa-tachometer"/></div>
+                                            <h5>TAC (80 – 120 mg/L)</h5>
+                                            <p>Stabilise le pH. Trop bas, l'eau est instable et agressive. Trop élevé, elle devient calcaire et entartre les équipements.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#dbeafe;color:#2563eb;"><i class="fa fa-th-large"/></div>
+                                            <h5>TH – Dureté (150 – 300 mg/L)</h5>
+                                            <p>Mesure le calcium et magnésium. Eau trop douce : attaque les parois. Trop dure : entartre pompe et chauffe-eau.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h3 class="pool-content-title mb-4">Notre processus d'intervention</h3>
+                                <div class="pool-steps mb-5">
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#3b82f6;">1</div>
+                                        <div><strong>Prélèvement et analyse complète</strong><br/>
+                                        <span style="color:#64748b;">Analyse immédiate des 6 paramètres : pH, chlore libre, chlore total, TAC, TH et température.</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#3b82f6;">2</div>
+                                        <div><strong>Diagnostic et recommandations</strong><br/>
+                                        <span style="color:#64748b;">Plan de correction adapté à votre bassin (volume, filtration, fréquentation).</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#3b82f6;">3</div>
+                                        <div><strong>Traitement et correction</strong><br/>
+                                        <span style="color:#64748b;">Application des produits correcteurs en quantités précises : pH+, pH−, chlore choc, algicide, floculant.</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#3b82f6;">4</div>
+                                        <div><strong>Rapport et conseils</strong><br/>
+                                        <span style="color:#64748b;">Rapport de traitement et recommandations pour maintenir l'eau équilibrée entre nos visites.</span></div>
+                                    </div>
+                                </div>
+
+                                <h3 class="pool-content-title mb-3">Produits disponibles dans notre boutique</h3>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=ph+" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-flask"/></div>
+                                            <span>pH +</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=ph-" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-flask"/></div>
+                                            <span>pH −</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=chlore+choc" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-tint"/></div>
+                                            <span>Chlore choc</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=algicide" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-leaf"/></div>
+                                            <span>Algicide</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <a href="/shop?search=traitement+eau" class="pool-btn-outline-sm mb-5">
+                                    <i class="fa fa-shopping-cart me-2"/>Voir tous les produits de traitement
+                                </a>
+
+                                <div class="pool-other-services">
+                                    <h5>Nos autres prestations</h5>
+                                    <a href="/services/entretien/nettoyage-bassin"><i class="fa fa-leaf me-2" style="color:#22c55e;"/>Nettoyage du bassin <i class="fa fa-arrow-right ms-auto"/></a>
+                                    <a href="/services/entretien/maintenance-technique"><i class="fa fa-cogs me-2" style="color:#f97316;"/>Maintenance technique <i class="fa fa-arrow-right ms-auto"/></a>
+                                    <a href="/services/entretien/reparations"><i class="fa fa-wrench me-2" style="color:#ef4444;"/>Réparations <i class="fa fa-arrow-right ms-auto"/></a>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="pool-sidebar-card sticky-top" style="top:20px;border-top:4px solid #3b82f6;">
+                                    <div class="pool-sidebar-header"><i class="fa fa-paper-plane"/><span>Devis gratuit</span></div>
+                                    <div class="pool-sidebar-body">
+                                        <p style="font-size:0.9rem;color:#64748b;">Recevez une estimation sous 24h. Nos experts se déplacent sur toute la région.</p>
+                                        <a href="/pool/devis?service=entretien" class="pool-btn-primary w-100 justify-content-center mb-3">Demander un devis</a>
+                                        <div class="pool-sidebar-item"><i class="fa fa-phone"/><a href="tel:+32497444146">+32 497 44 41 46</a></div>
+                                        <div class="pool-sidebar-item"><i class="fa fa-envelope"/><a href="mailto:info@lolirinepoolstore.be">info@lolirinepoolstore.be</a></div>
+                                        <hr/>
+                                        <div style="background:#eff6ff;border-radius:8px;padding:14px;font-size:0.85rem;">
+                                            <strong style="color:#2563eb;"><i class="fa fa-check-circle me-1"/>Inclus :</strong>
+                                            <ul class="mb-0 mt-2 ps-3" style="line-height:2.2;">
+                                                <li>Analyse 6 paramètres</li>
+                                                <li>Rapport de traitement</li>
+                                                <li>Application des correcteurs</li>
+                                                <li>Conseils personnalisés</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-5">
+                    <div class="container">
+                        <div class="pool-cta-block" style="background:linear-gradient(135deg,#1d4ed8,#0284c7);">
+                            <h2>Prêt pour une eau cristalline ?</h2>
+                            <p>Confiez le traitement à nos experts et profitez d'une baignade parfaite tout l'été.</p>
+                            <a href="/pool/devis?service=entretien" class="pool-btn-white">
+                                <i class="fa fa-paper-plane me-2"/>Contacter nos experts
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- SOUS-PAGE : NETTOYAGE DU BASSIN             -->
+    <!-- URL : /services/entretien/nettoyage-bassin  -->
+    <!-- ============================================ -->
+
+    <template id="page_nettoyage_bassin" name="Pool Store - Nettoyage du bassin">
+        <t t-call="website.layout">
+            <div id="wrap">
+
+                <section class="py-5" style="background: linear-gradient(135deg, #14532d 0%, #0d9488 100%); min-height: 320px; display:flex; align-items:center;">
+                    <div class="container py-4">
+                        <nav class="pool-breadcrumb mb-3">
+                            <a href="/">Accueil</a> / <a href="/services">Services</a> / <a href="/services/entretien-reparation">Entretien</a> / <span>Nettoyage du bassin</span>
+                        </nav>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="pool-sub-icon" style="background: rgba(34,197,94,0.3);">
+                                <i class="fa fa-leaf" style="color:#86efac;font-size:28px;"/>
+                            </div>
+                            <h1 class="text-white mb-0" style="font-size:2.4rem;font-weight:800;">Nettoyage du bassin</h1>
+                        </div>
+                        <p class="text-white mb-4" style="font-size:1.1rem;opacity:0.9;max-width:560px;">
+                            Aspiration du fond, brossage des parois, ligne d'eau et skimmers. Un bassin propre protège votre filtration et votre santé.
+                        </p>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="/pool/devis?service=entretien" class="pool-btn-primary"><i class="fa fa-paper-plane me-2"/>Demander un devis</a>
+                            <a href="tel:+32497444146" class="pool-btn-outline"><i class="fa fa-phone me-2"/>+32 497 44 41 46</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-5">
+                    <div class="container">
+                        <div class="row g-5">
+                            <div class="col-lg-8">
+                                <h2 class="pool-content-title mb-3">Un bassin propre, c'est une filtration efficace</h2>
+                                <p style="font-size:1.05rem;color:#475569;line-height:1.8;" class="mb-4">
+                                    Les impuretés qui s'accumulent au fond et sur les parois ne sont pas seulement inesthétiques.
+                                    Elles consomment les produits de traitement, surchargent la filtration et constituent un terrain fertile pour les algues et bactéries.
+                                </p>
+                                <div class="pool-info-box pool-info-green mb-5">
+                                    <strong><i class="fa fa-lightbulb-o me-2"/>Le saviez-vous ?</strong>
+                                    Une couche de biofilm de 1 mm sur les parois peut abriter des millions de bactéries résistantes au chlore. Le brossage régulier est indispensable même si l'eau semble claire.
+                                </div>
+
+                                <h3 class="pool-content-title mb-4">Les 4 zones clés du nettoyage</h3>
+                                <div class="row g-3 mb-5">
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-arrow-down"/></div>
+                                            <h5>Fond du bassin</h5>
+                                            <p>Aspiration de toutes les impuretés sédimentées (feuilles, insectes, sable, algues mortes) avec un équipement professionnel.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-th"/></div>
+                                            <h5>Parois et marches</h5>
+                                            <p>Brossage complet pour décoller les dépôts calcaires, le biofilm et les micro-algues avant qu'elles ne deviennent visibles.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-minus"/></div>
+                                            <h5>Ligne d'eau</h5>
+                                            <p>Nettoyage de la marque graisseuse en surface (crème solaire, huiles) avec des produits spécifiques respectueux du revêtement.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#dcfce7;color:#16a34a;"><i class="fa fa-filter"/></div>
+                                            <h5>Skimmers et préfiltres</h5>
+                                            <p>Vidange et nettoyage des paniers de skimmers et du préfiltre de pompe pour maintenir un débit de filtration optimal.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h3 class="pool-content-title mb-4">Déroulement de notre intervention</h3>
+                                <div class="pool-steps mb-5">
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#22c55e;">1</div>
+                                        <div><strong>État des lieux visuel</strong><br/><span style="color:#64748b;">Inspection pour identifier les zones à problème et adapter notre approche.</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#22c55e;">2</div>
+                                        <div><strong>Brossage des parois et marches</strong><br/><span style="color:#64748b;">Brossage de haut en bas pour faire descendre les dépôts vers le fond.</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#22c55e;">3</div>
+                                        <div><strong>Aspiration du fond</strong><br/><span style="color:#64748b;">Passage méthodique sur l'ensemble du fond, recoins et escaliers inclus.</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#22c55e;">4</div>
+                                        <div><strong>Ligne d'eau + skimmers</strong><br/><span style="color:#64748b;">Traitement de la ligne d'eau et vidange des paniers. Vérification préfiltre pompe.</span></div>
+                                    </div>
+                                </div>
+
+                                <h3 class="pool-content-title mb-3">Accessoires disponibles dans notre boutique</h3>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=balai+piscine" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-arrows-alt"/></div><span>Balai aspirateur</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=brosse+piscine" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-th"/></div><span>Brosse paroi</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=nettoyant+ligne+eau" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-minus"/></div><span>Nettoyant ligne</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=robot+piscine" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-filter"/></div><span>Robot nettoyeur</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <a href="/shop?search=nettoyage+piscine" class="pool-btn-outline-sm mb-5">
+                                    <i class="fa fa-shopping-cart me-2"/>Voir tous les accessoires de nettoyage
+                                </a>
+
+                                <div class="pool-other-services">
+                                    <h5>Nos autres prestations</h5>
+                                    <a href="/services/entretien/traitement-eau"><i class="fa fa-tint me-2" style="color:#3b82f6;"/>Traitement de l'eau <i class="fa fa-arrow-right ms-auto"/></a>
+                                    <a href="/services/entretien/maintenance-technique"><i class="fa fa-cogs me-2" style="color:#f97316;"/>Maintenance technique <i class="fa fa-arrow-right ms-auto"/></a>
+                                    <a href="/services/entretien/reparations"><i class="fa fa-wrench me-2" style="color:#ef4444;"/>Réparations <i class="fa fa-arrow-right ms-auto"/></a>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="pool-sidebar-card sticky-top" style="top:20px;border-top:4px solid #22c55e;">
+                                    <div class="pool-sidebar-header"><i class="fa fa-paper-plane"/><span>Devis gratuit</span></div>
+                                    <div class="pool-sidebar-body">
+                                        <p style="font-size:0.9rem;color:#64748b;">Recevez une estimation sous 24h.</p>
+                                        <a href="/pool/devis?service=entretien" class="pool-btn-primary w-100 justify-content-center mb-3">Demander un devis</a>
+                                        <div class="pool-sidebar-item"><i class="fa fa-phone"/><a href="tel:+32497444146">+32 497 44 41 46</a></div>
+                                        <div class="pool-sidebar-item"><i class="fa fa-envelope"/><a href="mailto:info@lolirinepoolstore.be">info@lolirinepoolstore.be</a></div>
+                                        <hr/>
+                                        <div style="background:#f0fdf4;border-radius:8px;padding:14px;font-size:0.85rem;">
+                                            <strong style="color:#16a34a;"><i class="fa fa-check-circle me-1"/>Inclus :</strong>
+                                            <ul class="mb-0 mt-2 ps-3" style="line-height:2.2;">
+                                                <li>Brossage complet des parois</li>
+                                                <li>Aspiration fond du bassin</li>
+                                                <li>Nettoyage ligne d'eau</li>
+                                                <li>Vidange skimmers</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-5">
+                    <div class="container">
+                        <div class="pool-cta-block" style="background:linear-gradient(135deg,#15803d,#0d9488);">
+                            <h2>Un bassin propre toute la saison ?</h2>
+                            <p>Abonnez-vous à notre service d'entretien régulier et ne vous souciez plus du nettoyage.</p>
+                            <a href="/pool/devis?service=entretien" class="pool-btn-white"><i class="fa fa-paper-plane me-2"/>Contacter nos experts</a>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- SOUS-PAGE : MAINTENANCE TECHNIQUE           -->
+    <!-- URL : /services/entretien/maintenance-technique -->
+    <!-- ============================================ -->
+
+    <template id="page_maintenance_technique" name="Pool Store - Maintenance technique">
+        <t t-call="website.layout">
+            <div id="wrap">
+
+                <section class="py-5" style="background: linear-gradient(135deg, #7c2d12 0%, #c2410c 100%); min-height: 320px; display:flex; align-items:center;">
+                    <div class="container py-4">
+                        <nav class="pool-breadcrumb mb-3">
+                            <a href="/">Accueil</a> / <a href="/services">Services</a> / <a href="/services/entretien-reparation">Entretien</a> / <span>Maintenance technique</span>
+                        </nav>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="pool-sub-icon" style="background: rgba(249,115,22,0.3);">
+                                <i class="fa fa-cogs" style="color:#fdba74;font-size:28px;"/>
+                            </div>
+                            <h1 class="text-white mb-0" style="font-size:2.4rem;font-weight:800;">Maintenance technique</h1>
+                        </div>
+                        <p class="text-white mb-4" style="font-size:1.1rem;opacity:0.9;max-width:560px;">
+                            Pompe, filtre, chauffage, automatismes : des équipements inspectés et réglés. La maintenance préventive vous évite les pannes en pleine saison.
+                        </p>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="/pool/devis?service=entretien" class="pool-btn-primary"><i class="fa fa-paper-plane me-2"/>Demander un devis</a>
+                            <a href="tel:+32497444146" class="pool-btn-outline"><i class="fa fa-phone me-2"/>+32 497 44 41 46</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-5">
+                    <div class="container">
+                        <div class="row g-5">
+                            <div class="col-lg-8">
+                                <h2 class="pool-content-title mb-3">La maintenance préventive, un investissement rentable</h2>
+                                <p style="font-size:1.05rem;color:#475569;line-height:1.8;" class="mb-4">
+                                    Le cœur technique de votre piscine travaille silencieusement 8 à 12h par jour.
+                                    Comme pour votre voiture, un entretien régulier détecte les signes d'usure avant qu'ils ne causent des pannes coûteuses.
+                                    Nos techniciens vérifient, réglent et nettoient l'ensemble de vos équipements.
+                                </p>
+                                <div class="pool-info-box pool-info-orange mb-5">
+                                    <strong><i class="fa fa-exclamation-triangle me-2"/>Attention :</strong>
+                                    Un filtre à sable non renouvelé tous les 5-7 ans peut abriter des bactéries résistantes. Une pompe mal entretenue tombe en panne en juillet — délai pièces : 1 à 3 semaines.
+                                </div>
+
+                                <h3 class="pool-content-title mb-4">Ce que nous vérifions</h3>
+                                <div class="row g-3 mb-5">
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#ffedd5;color:#ea580c;"><i class="fa fa-cog"/></div>
+                                            <h5>Pompe de filtration</h5>
+                                            <p>Contrôle de l'étanchéité, du débit, de la pression, de la consommation électrique. Nettoyage du préfiltre et vérification des joints.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#ffedd5;color:#ea580c;"><i class="fa fa-filter"/></div>
+                                            <h5>Filtre (sable / cartouche)</h5>
+                                            <p>Contrôle pression, vérification colmatage du sable, contrôle vanne multivoie, contre-lavage et rinçage complet.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#ffedd5;color:#ea580c;"><i class="fa fa-thermometer-half"/></div>
+                                            <h5>Système de chauffage</h5>
+                                            <p>Inspection pompe à chaleur, résistance ou échangeur solaire. Vérification températures, rendement et paramètres de régulation.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#ffedd5;color:#ea580c;"><i class="fa fa-bolt"/></div>
+                                            <h5>Équipements automatiques</h5>
+                                            <p>Vérification électrolyseur sel, régulateur pH auto, volet roulant, robot, éclairage et programmateur.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h3 class="pool-content-title mb-4">Déroulement de la visite technique</h3>
+                                <div class="pool-steps mb-5">
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#f97316;">1</div>
+                                        <div><strong>Inspection visuelle complète</strong><br/><span style="color:#64748b;">Tour du local technique : relevé des paramètres actuels (pression filtre, débit, température).</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#f97316;">2</div>
+                                        <div><strong>Maintenance pompe et filtration</strong><br/><span style="color:#64748b;">Nettoyage préfiltre, vérification débit, contre-lavage complet, contrôle étanchéité.</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#f97316;">3</div>
+                                        <div><strong>Contrôle chauffage et automatismes</strong><br/><span style="color:#64748b;">Vérification et réglage des équipements de chauffage et contrôleurs.</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#f97316;">4</div>
+                                        <div><strong>Rapport et recommandations</strong><br/><span style="color:#64748b;">Bilan écrit avec actions prioritaires et pièces à surveiller.</span></div>
+                                    </div>
+                                </div>
+
+                                <h3 class="pool-content-title mb-3">Équipements disponibles dans notre boutique</h3>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=pompe+filtration" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-cog"/></div><span>Pompes</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=filtre+sable" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-filter"/></div><span>Filtres</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=pompe+chaleur" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-thermometer-half"/></div><span>Chauffage</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=electrolyseur" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-bolt"/></div><span>Électrolyseur</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <a href="/shop?search=equipement+technique" class="pool-btn-outline-sm mb-5">
+                                    <i class="fa fa-shopping-cart me-2"/>Voir tous les équipements techniques
+                                </a>
+
+                                <div class="pool-other-services">
+                                    <h5>Nos autres prestations</h5>
+                                    <a href="/services/entretien/traitement-eau"><i class="fa fa-tint me-2" style="color:#3b82f6;"/>Traitement de l'eau <i class="fa fa-arrow-right ms-auto"/></a>
+                                    <a href="/services/entretien/nettoyage-bassin"><i class="fa fa-leaf me-2" style="color:#22c55e;"/>Nettoyage du bassin <i class="fa fa-arrow-right ms-auto"/></a>
+                                    <a href="/services/entretien/reparations"><i class="fa fa-wrench me-2" style="color:#ef4444;"/>Réparations <i class="fa fa-arrow-right ms-auto"/></a>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="pool-sidebar-card sticky-top" style="top:20px;border-top:4px solid #f97316;">
+                                    <div class="pool-sidebar-header"><i class="fa fa-paper-plane"/><span>Devis gratuit</span></div>
+                                    <div class="pool-sidebar-body">
+                                        <p style="font-size:0.9rem;color:#64748b;">Nos techniciens sont disponibles toute l'année.</p>
+                                        <a href="/pool/devis?service=entretien" class="pool-btn-primary w-100 justify-content-center mb-3">Demander un devis</a>
+                                        <div class="pool-sidebar-item"><i class="fa fa-phone"/><a href="tel:+32497444146">+32 497 44 41 46</a></div>
+                                        <div class="pool-sidebar-item"><i class="fa fa-envelope"/><a href="mailto:info@lolirinepoolstore.be">info@lolirinepoolstore.be</a></div>
+                                        <hr/>
+                                        <div style="background:#fff7ed;border-radius:8px;padding:14px;font-size:0.85rem;">
+                                            <strong style="color:#ea580c;"><i class="fa fa-check-circle me-1"/>Inclus :</strong>
+                                            <ul class="mb-0 mt-2 ps-3" style="line-height:2.2;">
+                                                <li>Contrôle pompe + filtration</li>
+                                                <li>Contre-lavage filtre</li>
+                                                <li>Vérification chauffage</li>
+                                                <li>Contrôle automatismes</li>
+                                                <li>Rapport technique écrit</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-5">
+                    <div class="container">
+                        <div class="pool-cta-block" style="background:linear-gradient(135deg,#ea580c,#d97706);">
+                            <h2>Prévenez les pannes avant l'été</h2>
+                            <p>Une maintenance en avril vaut mieux qu'une réparation en juillet. Planifiez votre visite dès maintenant.</p>
+                            <a href="/pool/devis?service=entretien" class="pool-btn-white"><i class="fa fa-calendar me-2"/>Planifier une visite</a>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </t>
+    </template>
+
+
+    <!-- ============================================ -->
+    <!-- SOUS-PAGE : RÉPARATIONS                     -->
+    <!-- URL : /services/entretien/reparations       -->
+    <!-- ============================================ -->
+
+    <template id="page_reparations" name="Pool Store - Réparations piscine">
+        <t t-call="website.layout">
+            <div id="wrap">
+
+                <section class="py-5" style="background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%); min-height: 320px; display:flex; align-items:center;">
+                    <div class="container py-4">
+                        <nav class="pool-breadcrumb mb-3">
+                            <a href="/">Accueil</a> / <a href="/services">Services</a> / <a href="/services/entretien-reparation">Entretien</a> / <span>Réparations</span>
+                        </nav>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="pool-sub-icon" style="background: rgba(239,68,68,0.3);">
+                                <i class="fa fa-wrench" style="color:#fca5a5;font-size:28px;"/>
+                            </div>
+                            <h1 class="text-white mb-0" style="font-size:2.4rem;font-weight:800;">Réparations piscine</h1>
+                        </div>
+                        <p class="text-white mb-4" style="font-size:1.1rem;opacity:0.9;max-width:560px;">
+                            Diagnostic précis, intervention rapide, pièces de qualité. Nos techniciens remettent votre piscine en service dans les meilleurs délais.
+                        </p>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="/pool/devis?service=entretien" class="pool-btn-primary"><i class="fa fa-exclamation-circle me-2"/>Intervention urgente</a>
+                            <a href="tel:+32497444146" class="pool-btn-outline"><i class="fa fa-phone me-2"/>+32 497 44 41 46</a>
+                        </div>
+                    </div>
+                </section>
+
+                <div style="background:#fef2f2;border-bottom:2px solid #fca5a5;">
+                    <div class="container py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <span style="color:#b91c1c;font-weight:600;"><i class="fa fa-exclamation-triangle me-2"/>Panne urgente ? Appelez-nous pour une intervention prioritaire.</span>
+                        <a href="tel:+32497444146" class="pool-btn-primary" style="font-size:0.9rem;padding:8px 20px;">
+                            <i class="fa fa-phone me-2"/>+32 497 44 41 46
+                        </a>
+                    </div>
+                </div>
+
+                <section class="py-5">
+                    <div class="container">
+                        <div class="row g-5">
+                            <div class="col-lg-8">
+                                <h2 class="pool-content-title mb-3">Un diagnostic précis avant toute intervention</h2>
+                                <p style="font-size:1.05rem;color:#475569;line-height:1.8;" class="mb-4">
+                                    Nos techniciens diagnostiquent rapidement la cause et proposent la solution la plus adaptée et économique,
+                                    en privilégiant toujours la réparation avant le remplacement.
+                                </p>
+                                <div class="pool-info-box pool-info-red mb-5">
+                                    <strong><i class="fa fa-clock-o me-2"/>Intervention sous 48h :</strong>
+                                    Pour les pannes urgentes (fuite active, piscine inutilisable), nous nous engageons à intervenir dans les 48h ouvrables.
+                                </div>
+
+                                <h3 class="pool-content-title mb-4">Les pannes les plus fréquentes</h3>
+                                <div class="row g-3 mb-5">
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa fa-tint"/></div>
+                                            <h5>Fuites d'eau</h5>
+                                            <p>Localisation de fuite (liner, raccords, presse-étoupe, skimmer, buse). Test de pression et réparation étanche durable.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa fa-cog"/></div>
+                                            <h5>Panne de pompe</h5>
+                                            <p>Diagnostic électrique et mécanique : condensateur défaillant, roue bloquée, joint tournant usé, problème d'amorçage.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa fa-filter"/></div>
+                                            <h5>Problème de filtration</h5>
+                                            <p>Vanne multivoie cassée, sable calcaire à renouveler, pression anormale, cartouches endommagées.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="pool-sub-card">
+                                            <div class="pool-sub-card-icon" style="background:#fee2e2;color:#dc2626;"><i class="fa fa-bolt"/></div>
+                                            <h5>Défauts électriques</h5>
+                                            <p>Problèmes d'électrolyseur, tableau de commande, éclairage subaquatique, volet roulant bloqué, sonde défaillante.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h3 class="pool-content-title mb-4">Notre processus d'intervention</h3>
+                                <div class="pool-steps mb-5">
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#ef4444;">1</div>
+                                        <div><strong>Diagnostic téléphonique</strong><br/><span style="color:#64748b;">Un premier échange pour qualifier la panne et préparer la visite avec le bon matériel.</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#ef4444;">2</div>
+                                        <div><strong>Visite de diagnostic sur site</strong><br/><span style="color:#64748b;">Inspection complète pour localiser précisément l'origine et établir un devis transparent.</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#ef4444;">3</div>
+                                        <div><strong>Réparation ou remplacement</strong><br/><span style="color:#64748b;">Intervention avec les pièces adaptées. Réparation privilégiée. Matériel de qualité si remplacement.</span></div>
+                                    </div>
+                                    <div class="pool-step">
+                                        <div class="pool-step-num" style="background:#ef4444;">4</div>
+                                        <div><strong>Tests et validation</strong><br/><span style="color:#64748b;">Vérification complète et remise en service avec suivi si nécessaire.</span></div>
+                                    </div>
+                                </div>
+
+                                <h3 class="pool-content-title mb-3">Pièces détachées dans notre boutique</h3>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=joint+pompe" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-circle-o"/></div><span>Joints pompe</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=vanne+multivoie" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-exchange"/></div><span>Vanne multivoie</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=condensateur+pompe" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-power-off"/></div><span>Condensateur</span>
+                                        </a>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <a href="/shop?search=kit+reparation+liner" class="pool-product-tile">
+                                            <div class="pool-product-icon"><i class="fa fa-minus-circle"/></div><span>Kit liner</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <a href="/shop?search=pieces+piscine" class="pool-btn-outline-sm mb-5">
+                                    <i class="fa fa-shopping-cart me-2"/>Voir toutes les pièces détachées
+                                </a>
+
+                                <div class="pool-other-services">
+                                    <h5>Évitez les réparations grâce à l'entretien préventif</h5>
+                                    <a href="/services/entretien/traitement-eau"><i class="fa fa-tint me-2" style="color:#3b82f6;"/>Traitement de l'eau <i class="fa fa-arrow-right ms-auto"/></a>
+                                    <a href="/services/entretien/nettoyage-bassin"><i class="fa fa-leaf me-2" style="color:#22c55e;"/>Nettoyage du bassin <i class="fa fa-arrow-right ms-auto"/></a>
+                                    <a href="/services/entretien/maintenance-technique"><i class="fa fa-cogs me-2" style="color:#f97316;"/>Maintenance technique <i class="fa fa-arrow-right ms-auto"/></a>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="pool-sidebar-card sticky-top" style="top:20px;border-top:4px solid #ef4444;">
+                                    <div class="pool-sidebar-header"><i class="fa fa-exclamation-circle"/><span>Signaler une panne</span></div>
+                                    <div class="pool-sidebar-body">
+                                        <p style="font-size:0.9rem;color:#64748b;">Décrivez votre problème, nous vous rappelons rapidement.</p>
+                                        <a href="/pool/devis?service=entretien" class="pool-btn-primary w-100 justify-content-center mb-3">Signaler une panne</a>
+                                        <div class="pool-sidebar-item"><i class="fa fa-phone"/><a href="tel:+32497444146">+32 497 44 41 46</a></div>
+                                        <div class="pool-sidebar-item"><i class="fa fa-envelope"/><a href="mailto:info@lolirinepoolstore.be">info@lolirinepoolstore.be</a></div>
+                                        <hr/>
+                                        <div style="background:#fef2f2;border-radius:8px;padding:14px;font-size:0.85rem;">
+                                            <strong style="color:#dc2626;"><i class="fa fa-check-circle me-1"/>Notre engagement :</strong>
+                                            <ul class="mb-0 mt-2 ps-3" style="line-height:2.2;">
+                                                <li>Diagnostic transparent</li>
+                                                <li>Devis avant intervention</li>
+                                                <li>Pièces d'origine</li>
+                                                <li>Garantie main d'œuvre</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-5">
+                    <div class="container">
+                        <div class="pool-cta-block" style="background:linear-gradient(135deg,#dc2626,#9f1239);">
+                            <h2>Votre piscine est en panne ?</h2>
+                            <p>Ne laissez pas une panne gâcher votre été. Contactez-nous pour une intervention rapide.</p>
+                            <a href="tel:+32497444146" class="pool-btn-white"><i class="fa fa-phone me-2"/>Appeler maintenant</a>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </t>
+    </template>
+
+</odoo>
