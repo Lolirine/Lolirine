@@ -484,8 +484,10 @@ publicWidget.registry.PreferredCategories = publicWidget.Widget.extend({
  * Détecte automatiquement les pages produit via l'URL ou les éléments de la page
  */
 publicWidget.registry.ProductViewTracker = publicWidget.Widget.extend({
-    // Sélecteur pour la page produit Odoo 19
-    selector: '#wrapwrap.o_wsale_product_page, .oe_website_sale #product_details, form[action*="/shop/cart/update"]',
+    // Sélecteur strict — uniquement les vraies pages produit Odoo 19
+    // ⚠️ Ne PAS inclure 'form[action*="/shop/cart/update"]' : ce sélecteur
+    //    peut matcher sur la homepage ou tout snippet avec bouton panier rapide
+    selector: '#wrapwrap.o_wsale_product_page, .oe_website_sale #product_details',
     disabledInEditableMode: true,
     
     start() {
