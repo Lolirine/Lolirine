@@ -506,28 +506,35 @@ publicWidget.registry.ProductViewTracker = publicWidget.Widget.extend({
         if (form) {
             const productInput = form.querySelector('input[name="product_id"]');
             if (productInput && productInput.value) {
-                return parseInt(productInput.value);
+                const id = parseInt(productInput.value);
+                if (!isNaN(id) && id > 0) return id;
             }
         }
         
         // Méthode 2: Depuis l'URL (pattern /shop/product-name-123)
         const urlMatch = window.location.pathname.match(/\/shop\/[^\/]+-(\d+)(?:\/|$)/);
         if (urlMatch) {
-            return parseInt(urlMatch[1]);
+            const id = parseInt(urlMatch[1]);
+            if (!isNaN(id) && id > 0) return id;
         }
         
-        // Méthode 3: Depuis data-oe-model sur les éléments
-        const productElement = document.querySelector('[data-oe-model="product.template"]');
-        if (productElement && productElement.dataset.oeId) {
-            // Note: ceci est l'ID du template, pas du product.product
-            // On le trackera quand même, le backend gérera
-            return parseInt(productElement.dataset.oeId);
+        // Méthode 3: data-oe-model="product.template" — UNIQUEMENT sur pages /shop/
+        // ⚠️ Le Website Builder injecte data-oe-model sur tous les éléments éditables,
+        //    même hors contexte produit → on restreint au pathname /shop/ ET on exige
+        //    que data-oe-id soit présent et valide pour éviter le NaN → /shop/undefined
+        if (window.location.pathname.startsWith('/shop/')) {
+            const productElement = document.querySelector('[data-oe-model="product.template"][data-oe-id]');
+            if (productElement) {
+                const id = parseInt(productElement.dataset.oeId);
+                if (!isNaN(id) && id > 0) return id;
+            }
         }
         
         // Méthode 4: Depuis un élément avec data-product-template-id
         const templateElement = document.querySelector('[data-product-template-id]');
         if (templateElement) {
-            return parseInt(templateElement.dataset.productTemplateId);
+            const id = parseInt(templateElement.dataset.productTemplateId);
+            if (!isNaN(id) && id > 0) return id;
         }
         
         return null;
