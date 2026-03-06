@@ -1,12 +1,13 @@
 /**
- * Lolirine Storage Availability v4.0
+ * Lolirine Storage Availability v4.1
+ * - CORRECTIF v4.1: DONE=true même si le produit n'est pas un box (évite boucle infinie sur site Pool)
  * - CORRECTIF: Ignore les pages de catégorie /shop/category/
  * - Boxes de stockage : remplace "Ajouter au panier" par "Voir les boxes disponibles"
  * - Frais de dossier : remplace "Ajouter au panier" par "Voir les conditions"
  * Compatible Odoo 18/19
  */
 
-console.log('=== Lolirine Storage v4.0: Script chargé ===');
+console.log('=== Lolirine Storage v4.1: Script chargé ===');
 
 (function () {
     'use strict';
@@ -19,7 +20,7 @@ console.log('=== Lolirine Storage v4.0: Script chargé ===');
     // ============================================
     if (currentUrl.includes('/shop/category/')) {
         console.log('Lolirine Storage: Page catégorie détectée, script désactivé');
-        return; // STOP - ne pas exécuter le script sur les pages catégorie
+        return;
     }
 
     // Exécuter seulement sur les pages /shop/ (produits individuels)
@@ -71,9 +72,17 @@ console.log('=== Lolirine Storage v4.0: Script chargé ===');
                     if (data && data.is_storage_box) {
                         DONE = true;
                         transform(data);
+                    } else {
+                        // ✅ CORRECTIF v4.1: pas un box de stockage → stopper toutes les tentatives
+                        // Sans ce DONE=true, les setTimeout + MutationObserver bouclaient indéfiniment
+                        // sur les pages produit du site Pool
+                        DONE = true;
+                        console.log('Lolirine Storage: Pas un box de stockage, script désactivé');
                     }
                 })
                 .catch(function(e) {
+                    // ✅ CORRECTIF v4.1: stopper aussi en cas d'erreur réseau
+                    DONE = true;
                     console.error('Lolirine Storage: Erreur', e);
                 });
         }
