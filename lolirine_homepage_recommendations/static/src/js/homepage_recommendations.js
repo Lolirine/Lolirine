@@ -143,11 +143,17 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
         const stockClass = product.in_stock ? 'in-stock' : 'out-of-stock';
         const stockText = product.in_stock ? '' : '<span class="out-of-stock-label text-danger small">Rupture</span>';
         
+        // Guards contre les URLs undefined qui font planter le Website Builder
+        const productUrl = product.url && product.url !== 'undefined' ? product.url : '#';
+        const imageUrl = product.image_url && product.image_url !== 'undefined' 
+            ? product.image_url 
+            : '/web/static/img/placeholder.png';
+
         return `
             <div class="recommendation-card ${stockClass}" data-product-id="${product.id}">
-                <a href="${product.url}" class="recommendation-card-link">
+                <a href="${productUrl}" class="recommendation-card-link">
                     <div class="recommendation-card-image">
-                        <img src="${product.image_url}" 
+                        <img src="${imageUrl}" 
                              alt="${this._escapeHtml(product.name)}"
                              loading="lazy"
                              class="img-fluid"/>
