@@ -433,18 +433,9 @@ publicWidget.registry.PreferredCategories = publicWidget.Widget.extend({
     },
     
     async _loadDefaultCategories() {
-        try {
-            // Utiliser les catégories principales du shop
-            const result = await rpc('/shop/categories', {
-                limit: this.limit,
-            });
-            
-            if (result && result.length > 0) {
-                this._renderCategories(result);
-            }
-        } catch (error) {
-            console.error('Erreur chargement catégories par défaut:', error);
-        }
+        // La route /shop/categories n'existe pas en Odoo 19 → ne rien faire
+        // Le widget se cache simplement si aucune préférence n'est disponible
+        return;
     },
     
     _renderCategories(categories) {
