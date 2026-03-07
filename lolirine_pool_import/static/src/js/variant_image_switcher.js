@@ -163,7 +163,7 @@
                 thumb.src = '/pool/variant_image_128/' + ptavId;
                 thumb.alt = info.value_name;
                 label.insertBefore(thumb, label.firstChild);
-            }
+            
         }
     }
 })();
