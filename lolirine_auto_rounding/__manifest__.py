@@ -14,7 +14,6 @@
     'license': 'LGPL-3',
     'depends': [
         'account',
-        'sale',
         'sale_subscription',
     ],
     'data': [],
