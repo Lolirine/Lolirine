@@ -25,6 +25,26 @@
                             <field name="contract_deposit_amount" readonly="1"/>
                         </group>
                     </group>
+                    <separator string="Caution / Dépôt de garantie"/>
+                    <group>
+                        <group string="Statut">
+                            <field name="contract_deposit_state" widget="badge"
+                                decoration-success="contract_deposit_state == 'received'"
+                                decoration-warning="contract_deposit_state == 'refunded'"
+                                decoration-danger="contract_deposit_state == 'not_received'"
+                            />
+                            <field name="contract_deposit_received_date"
+                                invisible="contract_deposit_state == 'not_received'"/>
+                            <field name="contract_deposit_refund_date"
+                                invisible="contract_deposit_state != 'refunded'"/>
+                        </group>
+                        <group string="Transaction bancaire">
+                            <field name="contract_deposit_move_id"
+                                invisible="contract_deposit_state == 'not_received'"
+                                options="{'no_create': True}"
+                            />
+                        </group>
+                    </group>
                     <separator string="Carte d'identité du client"/>
                     <group>
                         <group string="Recto">
@@ -41,19 +61,40 @@
             </xpath>
         </field>
     </record>
-    
-    <!-- Boutons Envoyer le contrat et Envoyer le devis -->
+
+    <!-- Boutons header -->
     <record id="view_order_form_contract_button" model="ir.ui.view">
         <field name="name">sale.order.form.contract.button</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
-                <button name="action_preview_quotation" type="object" string="Aperçu devis" class="btn-secondary" invisible="not is_subscription or state == 'sale'"/>
-                <button name="action_send_quotation" type="object" string="Envoyer le devis" class="btn-secondary" invisible="not is_subscription or state == 'sale'"/>
-                <button name="action_switch_to_location" type="object" string="Passer en location" class="btn-primary" invisible="not is_subscription or state != 'sale' or not note" confirm="Cela va changer le modèle vers 'Location de box mensuelle' et retirer les conditions générales. Continuer ?"/>
-                <button name="action_preview_contract" type="object" string="Aperçu contrat" class="btn-secondary" invisible="state != 'sale' or not is_subscription"/>
-                <button name="action_send_contract" type="object" string="Envoyer le contrat" class="btn-secondary" invisible="state != 'sale' or not is_subscription"/>
+                <button name="action_preview_quotation" type="object" string="Aperçu devis"
+                    class="btn-secondary"
+                    invisible="not is_subscription or state == 'sale'"/>
+                <button name="action_send_quotation" type="object" string="Envoyer le devis"
+                    class="btn-secondary"
+                    invisible="not is_subscription or state == 'sale'"/>
+                <button name="action_switch_to_location" type="object" string="Passer en location"
+                    class="btn-primary"
+                    invisible="not is_subscription or state != 'sale' or not note"
+                    confirm="Cela va changer le modèle vers 'Location de box mensuelle' et retirer les conditions générales. Continuer ?"/>
+                <button name="action_preview_contract" type="object" string="Aperçu contrat"
+                    class="btn-secondary"
+                    invisible="state != 'sale' or not is_subscription"/>
+                <button name="action_send_contract" type="object" string="Envoyer le contrat"
+                    class="btn-secondary"
+                    invisible="state != 'sale' or not is_subscription"/>
+                <button name="action_mark_deposit_received" type="object"
+                    string="✓ Caution reçue"
+                    class="btn-success"
+                    invisible="contract_deposit_state != 'not_received' or not is_subscription"
+                    confirm="Marquer la caution comme versée ?"/>
+                <button name="action_mark_deposit_refunded" type="object"
+                    string="↩ Caution remboursée"
+                    class="btn-warning"
+                    invisible="contract_deposit_state != 'received' or not is_subscription"
+                    confirm="Marquer la caution comme remboursée ?"/>
             </xpath>
         </field>
     </record>
