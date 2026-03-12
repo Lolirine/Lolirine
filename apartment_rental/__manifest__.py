@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Gestion Locative Appartement',
-    'version': '19.0.1.0.18',
+    'version': '19.0.2.0.0',
     'category': 'Real Estate',
     'summary': 'Gestion complète de location d\'appartement - Loyer, indexation, états des lieux, visites de contrôle',
     'description': """
