@@ -187,6 +187,44 @@
                                 <field name="current_tenant_id"/>
                             </group>
                         </page>
+                        <page string="Finances" name="finances">
+                            <group string="Agence de gestion" col="2">
+                                <group>
+                                    <field name="management_agency"/>
+                                    <field name="management_agency_vat"/>
+                                    <field name="management_agency_mandate"/>
+                                    <field name="management_net_account"/>
+                                </group>
+                                <group>
+                                    <field name="management_fee_amount"/>
+                                    <field name="management_fee_rate_gestion"/>
+                                    <field name="management_fee_rate_insurance"/>
+                                </group>
+                            </group>
+                            <group string="Récapitulatif financier" col="2"
+                                   invisible="not current_lease_id">
+                                <group string="Loyers">
+                                    <field name="finance_rent_count_paid" string="Mois payés"/>
+                                    <field name="finance_rent_count_pending" string="Mois en attente"/>
+                                    <field name="monthly_rent" string="Loyer mensuel actuel (€)"/>
+                                    <field name="monthly_charges" string="Charges mensuelles (€)"/>
+                                </group>
+                                <group string="Décompte honoraires">
+                                    <field name="finance_total_rent_gross"
+                                           string="Brut encaissé par agence (€)"/>
+                                    <field name="finance_total_fees"
+                                           string="Honoraires agence (€)"/>
+                                    <field name="finance_total_net"
+                                           string="Net reçu par Lolirine (€)"
+                                           class="fw-bold text-success"/>
+                                </group>
+                            </group>
+                            <group invisible="not current_lease_id">
+                                <field name="current_lease_id" readonly="1"
+                                       string="Bail actif"
+                                       options="{'no_open': False}"/>
+                            </group>
+                        </page>
                         <page string="Notes" name="notes">
                             <field name="notes" placeholder="Notes internes..."/>
                         </page>
