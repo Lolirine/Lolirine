@@ -459,3 +459,80 @@ class ApartmentPropertyInitialPhoto(models.Model):
     
     # Notes
     notes = fields.Text(string='Notes')
+
+    class ApartmentPropertyFinance(models.Model):
+    """Extension financière : agence de gestion + décompte honoraires"""
+    _inherit = 'apartment.property'
+
+    # Agence de gestion
+    management_agency = fields.Char(
+        string='Agence de gestion',
+        tracking=True,
+    )
+    management_agency_vat = fields.Char(string='TVA agence')
+    management_agency_mandate = fields.Char(
+        string='N° mandat',
+        help='Référence du mandat de gestion (ex: MAN/2021/0280)',
+    )
+    management_fee_amount = fields.Float(
+        string='Honoraires mensuels TTC (€)',
+        tracking=True,
+        help='Montant fixe facturé par l\'agence par mois (ex: 165€ Honesty)',
+    )
+    management_fee_rate_gestion = fields.Float(
+        string='Taux gestion (%)',
+        help='Taux des frais de gestion sur loyer (ex: 12,6%)',
+    )
+    management_fee_rate_insurance = fields.Float(
+        string='Taux assurance loyer (%)',
+        help='Taux de l\'assurance loyer (ex: 1,75%)',
+    )
+    management_net_account = fields.Char(
+        string='Compte virement net',
+        help='IBAN sur lequel l\'agence vire le net (ex: BE07 7320 5208 0866)',
+    )
+
+    # Champs calculés financiers
+    finance_total_rent_gross = fields.Float(
+        string='Total loyers bruts (€)',
+        compute='_compute_finance_totals',
+        digits=(10, 2),
+    )
+    finance_total_fees = fields.Float(
+        string='Total honoraires agence (€)',
+        compute='_compute_finance_totals',
+        digits=(10, 2),
+    )
+    finance_total_net = fields.Float(
+        string='Total net reçu (€)',
+        compute='_compute_finance_totals',
+        digits=(10, 2),
+    )
+    finance_rent_count_paid = fields.Integer(
+        string='Mois payés',
+        compute='_compute_finance_totals',
+    )
+    finance_rent_count_pending = fields.Integer(
+        string='Mois en attente',
+        compute='_compute_finance_totals',
+    )
+
+    @api.depends(
+        'current_lease_id', 'current_lease_id.rent_ids',
+        'current_lease_id.rent_ids.state',
+        'current_lease_id.rent_ids.total_amount',
+        'management_fee_amount',
+    )
+    def _compute_finance_totals(self):
+        for rec in self:
+            rents = rec.current_lease_id.rent_ids if rec.current_lease_id else []
+            paid_rents = [r for r in rents if r.state == 'paid']
+            pending_rents = [r for r in rents if r.state in ('draft', 'pending', 'partial', 'late')]
+            total_gross = sum(r.total_amount for r in paid_rents)
+            nb_paid = len(paid_rents)
+            total_fees = nb_paid * rec.management_fee_amount if rec.management_fee_amount else 0.0
+            rec.finance_total_rent_gross = round(total_gross, 2)
+            rec.finance_total_fees = round(total_fees, 2)
+            rec.finance_total_net = round(total_gross - total_fees, 2)
+            rec.finance_rent_count_paid = nb_paid
+            rec.finance_rent_count_pending = len(pending_rents)
