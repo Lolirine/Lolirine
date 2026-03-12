@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_storage_chat_conversation_tree" model="ir.ui.view">
+        <field name="name">storage.chat.conversation.list</field>
+        <field name="model">storage.chat.conversation</field>
+        <field name="arch" type="xml">
+            <list string="Conversations Garde-Meuble" decoration-info="state == 'active'" decoration-muted="state == 'archived'">
+                <field name="name" />
+                <field name="partner_id" optional="show" />
+                <field name="visitor_name" optional="hide" />
+                <field name="first_message" optional="show" />
+                <field name="message_count" string="Messages" />
+                <field name="create_date" string="Date" />
+                <field name="last_message_date" />
+                <field name="duration_minutes" string="Duree (min)" optional="show" />
+                <field name="rating" optional="show" />
+                <field name="state" widget="badge" />
+            </list>
+        </field>
+    </record>
+    <record id="view_storage_chat_conversation_form" model="ir.ui.view">
+        <field name="name">storage.chat.conversation.form</field>
+        <field name="model">storage.chat.conversation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_close" type="object" string="Terminer" class="btn-primary" invisible="state != 'active'" />
+                    <button name="action_archive_conv" type="object" string="Archiver" invisible="state != 'closed'" />
+                    <button name="action_reopen" type="object" string="Reouvrir" invisible="state != 'closed'" />
+                    <field name="state" widget="statusbar" statusbar_visible="active,closed,archived" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informations">
+                            <field name="partner_id" />
+                            <field name="visitor_name" />
+                            <field name="source_url" />
+                            <field name="rating" />
+                        </group>
+                        <group string="Statistiques">
+                            <field name="message_count" />
+                            <field name="create_date" />
+                            <field name="last_message_date" />
+                            <field name="duration_minutes" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Messages" name="messages">
+                            <field name="message_ids" nolabel="1">
+                                <list create="0" edit="0">
+                                    <field name="create_date" string="Date" />
+                                    <field name="role" widget="badge" />
+                                    <field name="content" widget="text" />
+                                    <field name="has_web_search" optional="show" />
+                                    <field name="tokens_used" optional="show" />
+                                    <field name="response_time_ms" string="Temps (ms)" optional="show" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_storage_chat_conversation_search" model="ir.ui.view">
+        <field name="name">storage.chat.conversation.search</field>
+        <field name="model">storage.chat.conversation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="partner_id" />
+                <filter string="Active" name="filter_active" domain="[('state','=','active')]" />
+                <filter string="Closed" name="filter_closed" domain="[('state','=','closed')]" />
+            </search>
+        </field>
+    </record>
+    <record id="action_storage_chat_conversation" model="ir.actions.act_window">
+        <field name="name">Conversations Garde-Meuble</field>
+        <field name="res_model">storage.chat.conversation</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_storage_chat_conversation_search" />
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+</odoo>

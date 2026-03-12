@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <menuitem id="menu_storage_chat_root" name="Chat Garde-Meuble" sequence="91" />
+    <menuitem id="menu_storage_chat_conv" name="Conversations" parent="menu_storage_chat_root" action="action_storage_chat_conversation" sequence="10" />
+</odoo>
