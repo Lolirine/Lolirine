@@ -460,7 +460,8 @@ class ApartmentPropertyInitialPhoto(models.Model):
     # Notes
     notes = fields.Text(string='Notes')
 
-    class ApartmentPropertyFinance(models.Model):
+
+class ApartmentPropertyFinance(models.Model):
     """Extension financière : agence de gestion + décompte honoraires"""
     _inherit = 'apartment.property'
 
