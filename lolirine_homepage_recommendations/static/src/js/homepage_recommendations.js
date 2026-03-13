@@ -3,26 +3,18 @@
 import publicWidget from "@web/legacy/js/public/public_widget";
 import { rpc } from "@web/core/network/rpc";
 
-/**
- * Widget principal pour les sections de recommandations
- * Compatible Odoo 19
- */
 publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
     selector: '.s_recommendations_section',
     disabledInEditableMode: true,
-    
-    /**
-     * @override
-     */
+
     start() {
         this._super.apply(this, arguments);
         this.carousel = this.el.querySelector('.recommendations-carousel');
         this.productsContainer = this.el.querySelector('.recommendations-products');
         this.skeleton = this.el.querySelector('.recommendations-skeleton');
-        
+
         if (!this.carousel) return Promise.resolve();
-        
-        // Récupérer la configuration
+
         this.sectionType = this.carousel.dataset.sectionType || 'best_sellers';
         this.limit = parseInt(this.carousel.dataset.limit) || 12;
         this.categoryId = this.carousel.dataset.categoryId ? parseInt(this.carousel.dataset.categoryId) : null;
@@ -30,19 +22,13 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
         this.showDiscount = this.carousel.dataset.showDiscount === 'true';
         this.showBadge = this.carousel.dataset.showBadge || '';
         this.requireLogin = this.carousel.dataset.requireLogin === 'true';
-        
-        // Charger les recommandations
+
         this._loadRecommendations();
-        
-        // Initialiser le carrousel
         this._initCarousel();
-        
+
         return Promise.resolve();
     },
-    
-    /**
-     * Charge les recommandations depuis le serveur
-     */
+
     async _loadRecommendations() {
         try {
             const result = await rpc('/shop/recommendations', {
@@ -50,7 +36,7 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
                 limit: this.limit,
                 category_id: this.categoryId,
             });
-            
+
             if (result.success && result.products.length > 0) {
                 this._renderProducts(result.products, result);
                 this._hideSkeleton();
@@ -68,28 +54,18 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
             }
         }
     },
-    
-    /**
-     * Génère le HTML des produits
-     */
+
     _renderProducts(products, metadata) {
         let html = '';
-        
         products.forEach(product => {
             html += this._renderProductCard(product, metadata);
         });
-        
         this.productsContainer.innerHTML = html;
-        
-        // Mettre à jour le titre si fourni par le serveur
+
         if (metadata.title) {
             const titleEl = this.el.querySelector('.title-text');
-            if (titleEl) {
-                titleEl.textContent = metadata.title;
-            }
+            if (titleEl) titleEl.textContent = metadata.title;
         }
-        
-        // Mettre à jour le sous-titre
         if (metadata.subtitle) {
             const subtitleEl = this.el.querySelector('.recommendations-subtitle');
             if (subtitleEl) {
@@ -97,27 +73,21 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
                 subtitleEl.style.display = 'block';
             }
         }
-        
-        // Ajouter les event listeners
         this._bindProductEvents();
     },
-    
-    /**
-     * Génère le HTML d'une carte produit
-     */
+
     _renderProductCard(product, metadata) {
         const priceFormatted = this._formatPrice(product.price, product.currency_symbol, product.currency_position);
-        const oldPriceFormatted = product.has_discount ? 
+        const oldPriceFormatted = product.has_discount ?
             this._formatPrice(product.compare_list_price, product.currency_symbol, product.currency_position) : '';
-        
+
         let badgeHtml = '';
         if (this.showBadge) {
             badgeHtml = `<span class="recommendation-badge bg-primary">${this.showBadge}</span>`;
         } else if (this.showDiscount && product.has_discount && product.discount_pct > 0) {
             badgeHtml = `<span class="recommendation-badge discount-badge bg-danger">-${product.discount_pct}%</span>`;
         }
-        
-        // Étoiles de notation
+
         let ratingHtml = '';
         if (product.rating_count > 0) {
             let stars = '';
@@ -132,22 +102,20 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
                 </div>
             `;
         }
-        
-        // Prix barré si réduction
+
         let priceHtml = `<span class="current-price">${priceFormatted}</span>`;
         if (product.has_discount && oldPriceFormatted) {
             priceHtml += `<span class="old-price text-muted text-decoration-line-through ms-2">${oldPriceFormatted}</span>`;
         }
-        
-        // Stock
+
         const stockClass = product.in_stock ? 'in-stock' : 'out-of-stock';
         const stockText = product.in_stock ? '' : '<span class="out-of-stock-label text-danger small">Rupture</span>';
-        
+
         return `
             <div class="recommendation-card ${stockClass}" data-product-id="${product.id}">
                 <a href="${product.url}" class="recommendation-card-link">
                     <div class="recommendation-card-image">
-                        <img src="${product.image_url}" 
+                        <img src="${product.image_url}"
                              alt="${this._escapeHtml(product.name)}"
                              loading="lazy"
                              class="img-fluid"/>
@@ -163,15 +131,15 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
                     </div>
                 </a>
                 <div class="recommendation-card-actions">
-                    <button type="button" 
-                            class="btn btn-sm btn-primary add-to-cart-quick" 
+                    <button type="button"
+                            class="btn btn-sm btn-primary add-to-cart-quick"
                             data-product-id="${product.id}"
                             ${!product.in_stock ? 'disabled' : ''}
                             title="Ajouter au panier">
                         <i class="fa fa-cart-plus"></i>
                     </button>
-                    <button type="button" 
-                            class="btn btn-sm btn-outline-secondary add-to-wishlist" 
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary add-to-wishlist"
                             data-product-id="${product.id}"
                             title="Ajouter aux favoris">
                         <i class="fa fa-heart-o"></i>
@@ -180,10 +148,7 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
             </div>
         `;
     },
-    
-    /**
-     * Formate un prix avec le symbole de devise
-     */
+
     _formatPrice(price, symbol, position) {
         const formattedPrice = price.toFixed(2).replace('.', ',');
         if (position === 'before') {
@@ -191,146 +156,87 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
         }
         return `${formattedPrice} ${symbol}`;
     },
-    
-    /**
-     * Échappe le HTML pour éviter les XSS
-     */
+
     _escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     },
-    
-    /**
-     * Initialise les contrôles du carrousel
-     */
+
     _initCarousel() {
         const prevBtn = this.el.querySelector('.carousel-prev');
         const nextBtn = this.el.querySelector('.carousel-next');
         const carousel = this.carousel;
-        
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => this._scrollCarousel(-1));
-        }
-        
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => this._scrollCarousel(1));
-        }
-        
-        // Vérifier les boutons au scroll
+
+        if (prevBtn) prevBtn.addEventListener('click', () => this._scrollCarousel(-1));
+        if (nextBtn) nextBtn.addEventListener('click', () => this._scrollCarousel(1));
+
         carousel.addEventListener('scroll', () => this._updateNavButtons());
-        
-        // Initialiser l'état des boutons
         setTimeout(() => this._updateNavButtons(), 100);
     },
-    
-    /**
-     * Scroll le carrousel
-     */
+
     _scrollCarousel(direction) {
         const cardWidth = this.productsContainer.querySelector('.recommendation-card')?.offsetWidth || 200;
         const gap = 16;
         const scrollAmount = (cardWidth + gap) * 3;
-        
-        this.carousel.scrollBy({
-            left: direction * scrollAmount,
-            behavior: 'smooth'
-        });
+        this.carousel.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
     },
-    
-    /**
-     * Met à jour l'état des boutons de navigation
-     */
+
     _updateNavButtons() {
         const prevBtn = this.el.querySelector('.carousel-prev');
         const nextBtn = this.el.querySelector('.carousel-next');
-        
-        if (prevBtn) {
-            prevBtn.classList.toggle('disabled', this.carousel.scrollLeft <= 0);
-        }
-        
+
+        if (prevBtn) prevBtn.classList.toggle('disabled', this.carousel.scrollLeft <= 0);
         if (nextBtn) {
             const maxScroll = this.carousel.scrollWidth - this.carousel.clientWidth;
             nextBtn.classList.toggle('disabled', this.carousel.scrollLeft >= maxScroll - 5);
         }
     },
-    
-    /**
-     * Bind les événements sur les produits
-     */
+
     _bindProductEvents() {
-        // Ajout rapide au panier
         this.productsContainer.querySelectorAll('.add-to-cart-quick').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const productId = parseInt(btn.dataset.productId);
-                await this._addToCart(productId);
+                await this._addToCart(parseInt(btn.dataset.productId));
             });
         });
-        
-        // Ajout aux favoris
         this.productsContainer.querySelectorAll('.add-to-wishlist').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const productId = parseInt(btn.dataset.productId);
-                await this._addToWishlist(productId, btn);
+                await this._addToWishlist(parseInt(btn.dataset.productId), btn);
             });
         });
     },
-    
-    /**
-     * Ajoute un produit au panier
-     */
+
     async _addToCart(productId) {
         try {
-            await rpc('/shop/cart/update_json', {
-                product_id: productId,
-                add_qty: 1,
-            });
-            
-            // Mettre à jour le compteur du panier
+            await rpc('/shop/cart/update_json', { product_id: productId, add_qty: 1 });
             const cartIcon = document.querySelector('.my_cart_quantity');
-            if (cartIcon) {
-                const currentQty = parseInt(cartIcon.textContent) || 0;
-                cartIcon.textContent = currentQty + 1;
-            }
-            
-            // Notification
+            if (cartIcon) cartIcon.textContent = (parseInt(cartIcon.textContent) || 0) + 1;
             this._showNotification('Produit ajouté au panier', 'success');
         } catch (error) {
             console.error('Erreur ajout panier:', error);
             this._showNotification('Erreur lors de l\'ajout au panier', 'danger');
         }
     },
-    
-    /**
-     * Ajoute un produit aux favoris
-     */
+
     async _addToWishlist(productId, btn) {
         try {
-            await rpc('/shop/wishlist/add', {
-                product_id: productId,
-            });
-            
-            // Changer l'icône
+            await rpc('/shop/wishlist/add', { product_id: productId });
             const icon = btn.querySelector('i');
             if (icon) {
                 icon.classList.remove('fa-heart-o');
                 icon.classList.add('fa-heart', 'text-danger');
             }
-            
             this._showNotification('Produit ajouté aux favoris', 'success');
         } catch (error) {
             console.error('Erreur ajout wishlist:', error);
             this._showNotification('Erreur lors de l\'ajout aux favoris', 'danger');
         }
     },
-    
-    /**
-     * Affiche une notification toast
-     */
+
     _showNotification(message, type) {
         const toast = document.createElement('div');
         toast.className = `toast-notification alert alert-${type}`;
@@ -338,35 +244,22 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
             <i class="fa ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
             ${message}
         `;
-        
         document.body.appendChild(toast);
-        
         setTimeout(() => toast.classList.add('show'), 10);
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     },
-    
-    /**
-     * Cache le skeleton loader
-     */
+
     _hideSkeleton() {
-        if (this.skeleton) {
-            this.skeleton.style.display = 'none';
-        }
+        if (this.skeleton) this.skeleton.style.display = 'none';
     },
-    
-    /**
-     * Cache toute la section
-     */
+
     _hideSection() {
         this.el.style.display = 'none';
     },
-    
-    /**
-     * Affiche un état vide
-     */
+
     _showEmptyState() {
         this._hideSkeleton();
         this.productsContainer.innerHTML = `
@@ -376,10 +269,7 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
             </div>
         `;
     },
-    
-    /**
-     * Affiche un état d'erreur
-     */
+
     _showErrorState() {
         this._hideSkeleton();
         this.productsContainer.innerHTML = `
@@ -391,65 +281,73 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
     },
 });
 
-/**
- * Widget pour la grille de catégories préférées
- */
+// ---------------------------------------------------------------------------
+// Widget PreferredCategories — CORRIGÉ
+// ---------------------------------------------------------------------------
 publicWidget.registry.PreferredCategories = publicWidget.Widget.extend({
     selector: '.s_preferred_categories',
     disabledInEditableMode: true,
-    
+
     start() {
         this._super.apply(this, arguments);
         this.grid = this.el.querySelector('.preferred-categories-grid');
         this.content = this.el.querySelector('.categories-content');
         this.skeleton = this.el.querySelector('.categories-skeleton');
-        
+
         if (!this.grid) return Promise.resolve();
-        
+
         this.limit = parseInt(this.grid.dataset.limit) || 6;
-        
         this._loadCategories();
         return Promise.resolve();
     },
-    
+
     async _loadCategories() {
         try {
             const result = await rpc('/shop/preferences/categories', {
                 limit: this.limit,
             });
-            
-            if (result.success && result.categories.length > 0) {
+
+            if (result && result.success && result.categories && result.categories.length > 0) {
+                // Catégories personnalisées disponibles
                 this._renderCategories(result.categories);
+                this._hideSkeleton();
+            } else if (!result || result.success === false) {
+                // Pas sur le site pool ou erreur serveur : on masque sans fallback
+                this._hideSection();
             } else {
-                // Charger les catégories principales par défaut
+                // Succès mais aucune préférence : fallback catégories principales
                 await this._loadDefaultCategories();
+                this._hideSkeleton();
             }
-            
-            this._hideSkeleton();
         } catch (error) {
-            console.error('Erreur chargement catégories:', error);
-            await this._loadDefaultCategories();
+            console.warn('Catégories préférées indisponibles, masquage section:', error);
+            this._hideSection();
         }
     },
-    
+
     async _loadDefaultCategories() {
         try {
-            // Utiliser les catégories principales du shop
-            const result = await rpc('/shop/categories', {
+            const result = await rpc('/shop/main_categories', {
                 limit: this.limit,
             });
-            
-            if (result && result.length > 0) {
-                this._renderCategories(result);
+
+            if (result && result.success && result.categories && result.categories.length > 0) {
+                this._renderCategories(result.categories);
+            } else {
+                this._hideSection();
             }
         } catch (error) {
-            console.error('Erreur chargement catégories par défaut:', error);
+            console.warn('Catégories par défaut indisponibles:', error);
+            this._hideSection();
         }
     },
-    
+
+    _hideSection() {
+        this.el.style.display = 'none';
+    },
+
     _renderCategories(categories) {
         let html = '';
-        
         categories.forEach(cat => {
             html += `
                 <div class="col-6 col-md-4 col-lg-2">
@@ -462,84 +360,56 @@ publicWidget.registry.PreferredCategories = publicWidget.Widget.extend({
                 </div>
             `;
         });
-        
         this.content.innerHTML = html;
     },
-    
+
     _escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     },
-    
+
     _hideSkeleton() {
-        if (this.skeleton) {
-            this.skeleton.style.display = 'none';
-        }
+        if (this.skeleton) this.skeleton.style.display = 'none';
     },
 });
 
-/**
- * Widget pour tracker les vues de produits
- * Détecte automatiquement les pages produit via l'URL ou les éléments de la page
- */
+// ---------------------------------------------------------------------------
+// Widget ProductViewTracker
+// ---------------------------------------------------------------------------
 publicWidget.registry.ProductViewTracker = publicWidget.Widget.extend({
-    // Sélecteur pour la page produit Odoo 19
     selector: '#wrapwrap.o_wsale_product_page, .oe_website_sale #product_details, form[action*="/shop/cart/update"]',
     disabledInEditableMode: true,
-    
+
     start() {
         this._super.apply(this, arguments);
-        
-        // Essayer d'extraire l'ID du produit
         const productId = this._extractProductId();
-        
-        if (productId) {
-            this._trackView(productId);
-        }
+        if (productId) this._trackView(productId);
         return Promise.resolve();
     },
-    
+
     _extractProductId() {
-        // Méthode 1: Depuis le formulaire d'ajout au panier
         const form = document.querySelector('form[action*="/shop/cart/update"]');
         if (form) {
             const productInput = form.querySelector('input[name="product_id"]');
-            if (productInput && productInput.value) {
-                return parseInt(productInput.value);
-            }
+            if (productInput && productInput.value) return parseInt(productInput.value);
         }
-        
-        // Méthode 2: Depuis l'URL (pattern /shop/product-name-123)
         const urlMatch = window.location.pathname.match(/\/shop\/[^\/]+-(\d+)(?:\/|$)/);
-        if (urlMatch) {
-            return parseInt(urlMatch[1]);
-        }
-        
-        // Méthode 3: Depuis data-oe-model sur les éléments
+        if (urlMatch) return parseInt(urlMatch[1]);
+
         const productElement = document.querySelector('[data-oe-model="product.template"]');
-        if (productElement && productElement.dataset.oeId) {
-            // Note: ceci est l'ID du template, pas du product.product
-            // On le trackera quand même, le backend gérera
-            return parseInt(productElement.dataset.oeId);
-        }
-        
-        // Méthode 4: Depuis un élément avec data-product-template-id
+        if (productElement && productElement.dataset.oeId) return parseInt(productElement.dataset.oeId);
+
         const templateElement = document.querySelector('[data-product-template-id]');
-        if (templateElement) {
-            return parseInt(templateElement.dataset.productTemplateId);
-        }
-        
+        if (templateElement) return parseInt(templateElement.dataset.productTemplateId);
+
         return null;
     },
-    
+
     async _trackView(productId) {
         try {
-            await rpc('/shop/track/view', {
-                product_id: productId,
-            });
+            await rpc('/shop/track/view', { product_id: productId });
         } catch (error) {
-            // Silently fail - tracking shouldn't break the page
             console.warn('Erreur tracking vue produit:', error);
         }
     },
