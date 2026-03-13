@@ -16,53 +16,33 @@ class HomepageRecommendationsController(http.Controller):
     """
 
     def _get_lolirine_pool_website_id(self):
-        """
-        Récupère l'ID du website Lolirine Pool depuis la configuration.
-        """
         param = request.env['ir.config_parameter'].sudo()
         website_id = param.get_param('lolirine_pool.website_id', default='0')
         return int(website_id) if website_id else 0
 
     def _is_lolirine_pool_website(self):
-        """
-        Vérifie si la requête provient du site Lolirine Pool.
-        """
         if not hasattr(request, 'website') or not request.website:
             return False
-        
         pool_website_id = self._get_lolirine_pool_website_id()
-        
-        # Si pas configuré (0), on vérifie par le domaine
         if pool_website_id == 0:
             param = request.env['ir.config_parameter'].sudo()
             pool_domain = param.get_param('lolirine_pool.domain', default='pool.lolirine.be')
             current_domain = request.website.domain or ''
             return pool_domain.lower() in current_domain.lower()
-        
         return request.website.id == pool_website_id
 
     def _get_visitor_info(self):
-        """
-        Récupère les informations du visiteur actuel.
-        """
         visitor_id = None
         partner_id = None
         session_id = request.session.sid
-        
-        # Vérifier si l'utilisateur est connecté
         if request.env.user and not request.env.user._is_public():
             partner_id = request.env.user.partner_id.id
-        
-        # Récupérer le visitor_id si disponible
         visitor = request.env['website.visitor']._get_visitor_from_request()
         if visitor:
             visitor_id = visitor.id
-        
-        # Toujours utiliser l'ID du site Lolirine Pool
         website_id = self._get_lolirine_pool_website_id()
         if website_id == 0 and hasattr(request, 'website') and request.website:
             website_id = request.website.id
-        
         return {
             'visitor_id': visitor_id,
             'partner_id': partner_id,
@@ -72,27 +52,12 @@ class HomepageRecommendationsController(http.Controller):
 
     @http.route('/shop/track/view', type='json', auth='public', website=True)
     def track_product_view(self, product_id, is_template=False):
-        """
-        Endpoint pour tracker une vue de produit.
-        Appelé via JavaScript quand un utilisateur consulte un produit.
-        
-        Args:
-            product_id: ID du product.product OU product.template
-            is_template: Si True, product_id est un product.template ID
-        
-        ⚠️ Ne fonctionne que sur le site Lolirine Pool.
-        """
-        # Vérifier qu'on est sur le site Pool
         if not self._is_lolirine_pool_website():
             return {'success': False, 'error': 'Not on Lolirine Pool website'}
-        
         try:
             visitor_info = self._get_visitor_info()
             Activity = request.env['visitor.product.activity'].sudo()
-            
             actual_product_id = int(product_id)
-            
-            # Si c'est un template ID, trouver le premier variant
             if is_template:
                 template = request.env['product.template'].sudo().browse(actual_product_id)
                 if template.exists() and template.product_variant_ids:
@@ -100,16 +65,13 @@ class HomepageRecommendationsController(http.Controller):
                 else:
                     return {'success': False, 'error': 'Template not found or has no variants'}
             else:
-                # Vérifier que le product.product existe, sinon essayer comme template
                 product = request.env['product.product'].sudo().browse(actual_product_id)
                 if not product.exists():
-                    # Peut-être que c'est un template ID
                     template = request.env['product.template'].sudo().browse(actual_product_id)
                     if template.exists() and template.product_variant_ids:
                         actual_product_id = template.product_variant_ids[0].id
                     else:
                         return {'success': False, 'error': 'Product not found'}
-            
             activity = Activity.log_product_view(
                 product_id=actual_product_id,
                 visitor_id=visitor_info['visitor_id'],
@@ -117,7 +79,6 @@ class HomepageRecommendationsController(http.Controller):
                 session_id=visitor_info['session_id'],
                 website_id=visitor_info['website_id'],
             )
-            
             return {'success': True, 'activity_id': activity.id if activity else None}
         except Exception as e:
             _logger.error(f"Erreur tracking vue produit: {e}")
@@ -125,30 +86,16 @@ class HomepageRecommendationsController(http.Controller):
 
     @http.route('/shop/recommendations', type='json', auth='public', website=True)
     def get_recommendations(self, section=None, limit=12, category_id=None):
-        """
-        Endpoint principal pour récupérer les recommandations.
-        
-        ⚠️ Ne fonctionne que sur le site Lolirine Pool.
-        
-        Args:
-            section: Type de recommandation (recently_viewed, best_sellers, etc.)
-            limit: Nombre maximum de produits
-            category_id: Filtrer par catégorie (optionnel)
-        """
-        # Vérifier qu'on est sur le site Pool
         if not self._is_lolirine_pool_website():
             return {'success': False, 'error': 'Not on Lolirine Pool website', 'products': []}
-        
         try:
             visitor_info = self._get_visitor_info()
             Recommendation = request.env['product.recommendation'].sudo()
-            
             products = request.env['product.product']
             title = ""
             subtitle = ""
             icon = ""
             badge = ""
-            
             if section == 'recently_viewed':
                 products = Recommendation.get_recently_viewed(
                     visitor_id=visitor_info['visitor_id'],
@@ -159,7 +106,6 @@ class HomepageRecommendationsController(http.Controller):
                 )
                 title = "Produits récemment consultés"
                 icon = "fa-history"
-                
             elif section == 'continue_shopping':
                 if visitor_info['partner_id']:
                     products = Recommendation.get_continue_shopping(
@@ -169,7 +115,6 @@ class HomepageRecommendationsController(http.Controller):
                     )
                 title = "Continuez vos achats"
                 icon = "fa-shopping-cart"
-                
             elif section == 'related_to_viewed':
                 products = Recommendation.get_related_to_viewed(
                     visitor_id=visitor_info['visitor_id'],
@@ -180,7 +125,6 @@ class HomepageRecommendationsController(http.Controller):
                 )
                 title = "En lien avec vos consultations"
                 icon = "fa-link"
-                
             elif section == 'best_sellers':
                 products = Recommendation.get_best_sellers(
                     limit=limit,
@@ -189,7 +133,6 @@ class HomepageRecommendationsController(http.Controller):
                 )
                 title = "Meilleures ventes"
                 icon = "fa-fire"
-                
             elif section == 'top_rated':
                 products = Recommendation.get_top_rated(
                     limit=limit,
@@ -199,7 +142,6 @@ class HomepageRecommendationsController(http.Controller):
                 title = "Les mieux notés"
                 subtitle = "4 étoiles et plus"
                 icon = "fa-star"
-                
             elif section == 'promotions':
                 products = Recommendation.get_promotions(
                     limit=limit,
@@ -209,7 +151,6 @@ class HomepageRecommendationsController(http.Controller):
                 title = "Offres du moment"
                 icon = "fa-tags"
                 badge = "Promo"
-                
             elif section == 'new_arrivals':
                 products = Recommendation.get_new_arrivals(
                     limit=limit,
@@ -219,7 +160,6 @@ class HomepageRecommendationsController(http.Controller):
                 title = "Nouveautés"
                 icon = "fa-certificate"
                 badge = "Nouveau"
-                
             elif section == 'for_category' and category_id:
                 products = Recommendation.get_personalized_for_category(
                     category_id=category_id,
@@ -231,15 +171,9 @@ class HomepageRecommendationsController(http.Controller):
                 category = request.env['product.public.category'].browse(category_id)
                 title = f"Pour vous dans {category.name}"
                 icon = "fa-folder-open"
-                
             elif section == 'frequently_bought_together':
-                # Nécessite un product_id dans le contexte
-                # Utilisé sur les pages produit, pas sur la homepage
                 pass
-            
-            # Formater les produits pour le frontend
             products_data = self._format_products(products)
-            
             return {
                 'success': True,
                 'title': title,
@@ -249,35 +183,23 @@ class HomepageRecommendationsController(http.Controller):
                 'products': products_data,
                 'count': len(products_data),
             }
-            
         except Exception as e:
             _logger.error(f"Erreur récupération recommandations: {e}")
             return {'success': False, 'error': str(e), 'products': []}
 
     @http.route('/shop/recommendations/all', type='json', auth='public', website=True)
     def get_all_recommendations(self):
-        """
-        Récupère toutes les recommandations en une seule requête.
-        Optimisé pour le chargement initial de la page.
-        
-        ⚠️ Ne fonctionne que sur le site Lolirine Pool.
-        """
-        # Vérifier qu'on est sur le site Pool
         if not self._is_lolirine_pool_website():
             return {'success': False, 'error': 'Not on Lolirine Pool website', 'recommendations': {}}
-        
         try:
             visitor_info = self._get_visitor_info()
             Recommendation = request.env['product.recommendation'].sudo()
-            
             all_recs = Recommendation.get_all_recommendations(
                 visitor_id=visitor_info['visitor_id'],
                 partner_id=visitor_info['partner_id'],
                 session_id=visitor_info['session_id'],
                 website_id=visitor_info['website_id'],
             )
-            
-            # Formater pour le frontend
             result = {}
             for key, data in all_recs.items():
                 result[key] = {
@@ -288,35 +210,26 @@ class HomepageRecommendationsController(http.Controller):
                     'products': self._format_products(data.get('products', [])),
                     'category_id': data.get('category_id'),
                 }
-            
             return {'success': True, 'recommendations': result}
-            
         except Exception as e:
             _logger.error(f"Erreur récupération toutes recommandations: {e}")
             return {'success': False, 'error': str(e), 'recommendations': {}}
 
     def _format_products(self, products):
-        """
-        Formate les produits pour l'affichage frontend.
-        """
         result = []
         for product in products:
             try:
-                # Obtenir le prix avec la pricelist du website
                 combination_info = product.product_tmpl_id._get_combination_info(
                     combination=product.product_template_attribute_value_ids,
                     product_id=product.id,
                     add_qty=1,
                 )
-                
-                # Calculer la réduction
                 discount_pct = 0
                 if combination_info.get('compare_list_price') and combination_info.get('price'):
                     if combination_info['compare_list_price'] > combination_info['price']:
                         discount_pct = round(
                             (1 - combination_info['price'] / combination_info['compare_list_price']) * 100
                         )
-                
                 result.append({
                     'id': product.id,
                     'name': product.name,
@@ -337,24 +250,40 @@ class HomepageRecommendationsController(http.Controller):
             except Exception as e:
                 _logger.warning(f"Erreur formatage produit {product.id}: {e}")
                 continue
-        
         return result
+
+    # -------------------------------------------------------------------------
+    # NOUVELLE ROUTE — fallback catégories principales (sans restriction website)
+    # -------------------------------------------------------------------------
+    @http.route('/shop/main_categories', type='json', auth='public', website=True)
+    def get_main_categories(self, limit=6):
+        """
+        Retourne les catégories racines du shop pour le site courant.
+        Utilisé comme fallback par le widget PreferredCategories.
+        Route publique, sans restriction de website.
+        """
+        try:
+            categories = request.env['product.public.category'].sudo().search([
+                ('website_id', 'in', [request.website.id, False]),
+                ('parent_id', '=', False),
+            ], limit=int(limit))
+            result = [{
+                'id': cat.id,
+                'name': cat.name,
+                'image_url': f'/web/image/product.public.category/{cat.id}/image_512',
+            } for cat in categories]
+            return {'success': True, 'categories': result}
+        except Exception as e:
+            _logger.error(f"Erreur récupération catégories principales: {e}")
+            return {'success': False, 'categories': []}
 
     @http.route('/shop/preferences/categories', type='json', auth='public', website=True)
     def get_preferred_categories(self, limit=5):
-        """
-        Récupère les catégories préférées du visiteur.
-        
-        ⚠️ Ne fonctionne que sur le site Lolirine Pool.
-        """
-        # Vérifier qu'on est sur le site Pool
         if not self._is_lolirine_pool_website():
             return {'success': False, 'error': 'Not on Lolirine Pool website', 'categories': []}
-        
         try:
             visitor_info = self._get_visitor_info()
             Preference = request.env['visitor.category.preference'].sudo()
-            
             domain = []
             if visitor_info['partner_id']:
                 domain.append(('partner_id', '=', visitor_info['partner_id']))
@@ -362,18 +291,14 @@ class HomepageRecommendationsController(http.Controller):
                 domain.append(('visitor_id', '=', visitor_info['visitor_id']))
             else:
                 return {'success': True, 'categories': []}
-            
             preferences = Preference.search(domain, order='score desc', limit=limit)
-            
             categories = [{
                 'id': pref.category_id.id,
                 'name': pref.category_id.name,
                 'score': pref.score,
                 'image_url': f'/web/image/product.public.category/{pref.category_id.id}/image_512',
             } for pref in preferences]
-            
             return {'success': True, 'categories': categories}
-            
         except Exception as e:
             _logger.error(f"Erreur récupération catégories préférées: {e}")
             return {'success': False, 'error': str(e), 'categories': []}
