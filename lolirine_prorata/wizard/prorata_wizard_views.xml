@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_prorata_wizard_form" model="ir.ui.view">
+        <field name="name">account.move.prorata.wizard.form</field>
+        <field name="model">account.move.prorata.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Appliquer un prorata">
+                <group>
+                    <group string="Paramètres">
+                        <field name="move_id" readonly="1"/>
+                        <field name="date_start"/>
+                    </group>
+                    <group string="Calcul">
+                        <field name="days_remaining" readonly="1"/>
+                        <field name="days_total" readonly="1"/>
+                        <field name="ratio" readonly="1" widget="percentage"/>
+                    </group>
+                </group>
+
+                <separator string="Aperçu des modifications"/>
+                <field name="preview_ids" readonly="1">
+                    <list>
+                        <field name="product_name"/>
+                        <field name="price_original" string="Prix actuel (€)"/>
+                        <field name="price_prorata" string="Prix prorata (€)"/>
+                    </list>
+                </field>
+
+                <footer>
+                    <button name="action_apply" type="object"
+                            string="Appliquer le prorata"
+                            class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_prorata_wizard" model="ir.actions.act_window">
+        <field name="name">Prorata</field>
+        <field name="res_model">account.move.prorata.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{
+            'default_move_id': active_id,
+        }</field>
+    </record>
+
+</odoo>
