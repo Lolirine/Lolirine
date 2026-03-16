@@ -282,7 +282,7 @@ publicWidget.registry.HomepageRecommendations = publicWidget.Widget.extend({
 });
 
 // ---------------------------------------------------------------------------
-// Widget PreferredCategories — CORRIGÉ
+// Widget PreferredCategories
 // ---------------------------------------------------------------------------
 publicWidget.registry.PreferredCategories = publicWidget.Widget.extend({
     selector: '.s_preferred_categories',
@@ -308,14 +308,11 @@ publicWidget.registry.PreferredCategories = publicWidget.Widget.extend({
             });
 
             if (result && result.success && result.categories && result.categories.length > 0) {
-                // Catégories personnalisées disponibles
                 this._renderCategories(result.categories);
                 this._hideSkeleton();
             } else if (!result || result.success === false) {
-                // Pas sur le site pool ou erreur serveur : on masque sans fallback
                 this._hideSection();
             } else {
-                // Succès mais aucune préférence : fallback catégories principales
                 await this._loadDefaultCategories();
                 this._hideSkeleton();
             }
@@ -374,49 +371,7 @@ publicWidget.registry.PreferredCategories = publicWidget.Widget.extend({
     },
 });
 
-// ---------------------------------------------------------------------------
-// Widget ProductViewTracker
-// ---------------------------------------------------------------------------
-publicWidget.registry.ProductViewTracker = publicWidget.Widget.extend({
-    selector: '#wrapwrap.o_wsale_product_page, .oe_website_sale #product_details, form[action*="/shop/cart/update"]',
-    disabledInEditableMode: true,
-
-    start() {
-        this._super.apply(this, arguments);
-        const productId = this._extractProductId();
-        if (productId) this._trackView(productId);
-        return Promise.resolve();
-    },
-
-    _extractProductId() {
-        const form = document.querySelector('form[action*="/shop/cart/update"]');
-        if (form) {
-            const productInput = form.querySelector('input[name="product_id"]');
-            if (productInput && productInput.value) return parseInt(productInput.value);
-        }
-        const urlMatch = window.location.pathname.match(/\/shop\/[^\/]+-(\d+)(?:\/|$)/);
-        if (urlMatch) return parseInt(urlMatch[1]);
-
-        const productElement = document.querySelector('[data-oe-model="product.template"]');
-        if (productElement && productElement.dataset.oeId) return parseInt(productElement.dataset.oeId);
-
-        const templateElement = document.querySelector('[data-product-template-id]');
-        if (templateElement) return parseInt(templateElement.dataset.productTemplateId);
-
-        return null;
-    },
-
-    async _trackView(productId) {
-        try {
-            await rpc('/shop/track/view', { product_id: productId });
-        } catch (error) {
-            console.warn('Erreur tracking vue produit:', error);
-        }
-    },
-});
-
 export default {
     HomepageRecommendations: publicWidget.registry.HomepageRecommendations,
     PreferredCategories: publicWidget.registry.PreferredCategories,
-    ProductViewTracker: publicWidget.registry.ProductViewTracker,
 };
