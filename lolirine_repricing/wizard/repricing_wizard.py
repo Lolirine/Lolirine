@@ -17,25 +17,23 @@ MARKETS = [
     (2442, "fr", "Luxembourg"),
 ]
 
-PRICE_FACTOR  = 0.99   # meilleur concurrent × 0.99
-MARGIN_FLOOR  = 0.20   # plancher 20% de marge
-MAX_PRICE     = 50_000 # ignorer prix aberrants
-DELAY_SEC     = 0.3    # pause entre requêtes
-WEBSITE_ID    = 6      # Pool Store
+PRICE_FACTOR  = 0.99
+MARGIN_FLOOR  = 0.20
+MAX_PRICE     = 50_000
+DELAY_SEC     = 0.3
+WEBSITE_ID    = 6
 
 
 class RepricingWizard(models.TransientModel):
     _name = 'lolirine.repricing.wizard'
     _description = 'Wizard de repricing Pool Store'
 
-    # — Configuration —
     dataforseo_login    = fields.Char(string='DataForSEO Login', required=True,
                                       default=lambda self: self._get_param('repricing.dataforseo_login'))
     dataforseo_password = fields.Char(string='DataForSEO Password', required=True,
                                       default=lambda self: self._get_param('repricing.dataforseo_password'))
     save_credentials    = fields.Boolean(string='Mémoriser les identifiants', default=True)
 
-    # — Périmètre —
     market_be = fields.Boolean(string='Belgique',   default=True)
     market_fr = fields.Boolean(string='France',     default=True)
     market_de = fields.Boolean(string='Allemagne',  default=True)
@@ -45,6 +43,12 @@ class RepricingWizard(models.TransientModel):
     only_no_price = fields.Boolean(
         string='Traiter uniquement les produits sans prix',
         default=False,
+    )
+    only_retry_no_data = fields.Boolean(
+        string='Relancer uniquement les produits sans résultat (no_data)',
+        default=False,
+        help="Relance la recherche uniquement sur les produits qui n'ont eu "
+             "aucun concurrent ET aucun coût lors de la dernière session.",
     )
     dry_run = fields.Boolean(
         string='Simulation (ne pas modifier les prix)',
@@ -57,25 +61,21 @@ class RepricingWizard(models.TransientModel):
         help="Utile pour tester sur un petit lot avant de lancer en masse.",
     )
 
-    # — Résultats (lecture seule, remplis après exécution) —
     state = fields.Selection([
         ('draft',  'Configuration'),
         ('done',   'Terminé'),
     ], default='draft')
 
-    result_total     = fields.Integer(string='Total traités',  readonly=True)
-    result_updated   = fields.Integer(string='Mis à jour',     readonly=True)
-    result_init      = fields.Integer(string='Initialisés',    readonly=True)
-    result_floor     = fields.Integer(string='Plancher',       readonly=True)
+    result_total     = fields.Integer(string='Total traités',     readonly=True)
+    result_updated   = fields.Integer(string='Mis à jour',        readonly=True)
+    result_init      = fields.Integer(string='Initialisés',       readonly=True)
+    result_floor     = fields.Integer(string='Plancher',          readonly=True)
     result_fallback  = fields.Integer(string='Plancher fallback', readonly=True)
-    result_unchanged = fields.Integer(string='Inchangés',     readonly=True)
-    result_no_data   = fields.Integer(string='Sans données',   readonly=True)
-    result_skipped   = fields.Integer(string='Ignorés',        readonly=True)
+    result_unchanged = fields.Integer(string='Inchangés',         readonly=True)
+    result_no_data   = fields.Integer(string='Sans données',      readonly=True)
+    result_skipped   = fields.Integer(string='Ignorés',           readonly=True)
     session_name     = fields.Char(string='Session', readonly=True)
 
-    # ──────────────────────────────────────────────
-    # HELPERS
-    # ──────────────────────────────────────────────
     def _get_param(self, key):
         return self.env['ir.config_parameter'].sudo().get_param(key, '')
 
@@ -98,14 +98,7 @@ class RepricingWizard(models.TransientModel):
         }
         return [v for k, v in mapping.items() if getattr(self, k)]
 
-    # ──────────────────────────────────────────────
-    # RECHERCHE DATAFORSEO
-    # ──────────────────────────────────────────────
     def _search_prices(self, keyword):
-        """
-        Cherche le prix le plus bas sur les marchés actifs.
-        Retourne (meilleur_prix, marché) ou (None, None).
-        """
         markets = self._active_markets()
         if not markets:
             return None, None
@@ -151,23 +144,43 @@ class RepricingWizard(models.TransientModel):
 
         return best_price, best_market
 
-    # ──────────────────────────────────────────────
-    # CALCUL DU NOUVEAU PRIX
-    # ──────────────────────────────────────────────
     @staticmethod
     def _floor_price(cout):
         return round(cout / (1 - MARGIN_FLOOR), 2) if cout > 0 else 0.0
 
+    @staticmethod
+    def _build_keyword(ref, nom):
+        """
+        Construit le mot-clé de recherche Google Shopping.
+        Toujours basé sur le NOM du produit nettoyé.
+        Les références internes (POOL-XXX, SPA-XXX...) ne sont pas indexées
+        sur Google Shopping et donnent 0 résultat.
+
+        Nettoyage :
+        - "Catégorie - Nom produit" → "Nom produit"
+        - "Nom produit (Variante)"  → "Nom produit"
+        - Troncature à 80 caractères
+        """
+        if not nom:
+            return ''
+
+        nom_clean = nom.strip()
+        if ' - ' in nom_clean:
+            nom_clean = nom_clean.split(' - ')[-1].strip()
+
+        import re
+        nom_clean = re.sub(r'\s*\([^)]{1,20}\)\s*$', '', nom_clean).strip()
+
+        return nom_clean[:80] if nom_clean else nom[:80]
+
     def _compute_new_price(self, prix_actuel, floor_p, best_competitor, marche):
         """
-        Retourne (nouveau_prix, statut, note).
         - Sans prix existant  → meilleur prix du marché direct
         - Avec prix existant  → concurrent × 0.99
-        Dans les deux cas, plancher de marge respecté.
+        Dans les deux cas, plancher de marge (coût/0.80) respecté.
         """
         note = f"concurrent={best_competitor:.2f}€ ({marche})"
 
-        # Produit sans prix : on rejoint le marché directement
         if prix_actuel == 0:
             price_web = round(best_competitor, 2)
             if floor_p > 0 and price_web < floor_p:
@@ -176,7 +189,6 @@ class RepricingWizard(models.TransientModel):
             note += " → prix marché assigné directement"
             return price_web, "initialized", note
 
-        # Produit avec prix : on bat le concurrent de 1%
         target = round(best_competitor * PRICE_FACTOR, 2)
         if floor_p > 0 and target < floor_p:
             note += f" → plancher {floor_p:.2f}€"
@@ -188,9 +200,6 @@ class RepricingWizard(models.TransientModel):
             note += " → déjà compétitif (-0.5%)"
         return target, "updated", note
 
-    # ──────────────────────────────────────────────
-    # ACTION PRINCIPALE
-    # ──────────────────────────────────────────────
     def action_run(self):
         self.ensure_one()
 
@@ -201,10 +210,17 @@ class RepricingWizard(models.TransientModel):
             self._set_param('repricing.dataforseo_login',    self.dataforseo_login)
             self._set_param('repricing.dataforseo_password', self.dataforseo_password)
 
-        # — Charger les produits du Pool Store (website_id = 6) —
-        domain = [('website_id', '=', WEBSITE_ID)]
-        if self.only_no_price:
-            domain += [('list_price', '=', 0)]
+        if self.only_retry_no_data:
+            no_data_logs = self.env['lolirine.repricing.log'].search([
+                ('statut', '=', 'no_data'),
+            ])
+            product_ids = no_data_logs.mapped('product_id').ids
+            domain = [('id', 'in', product_ids), ('website_id', '=', WEBSITE_ID)]
+            _logger.info("Retry no_data: %d produits ciblés", len(product_ids))
+        else:
+            domain = [('website_id', '=', WEBSITE_ID)]
+            if self.only_no_price:
+                domain += [('list_price', '=', 0)]
 
         products = self.env['product.template'].search(domain)
         if self.product_limit > 0:
@@ -213,10 +229,8 @@ class RepricingWizard(models.TransientModel):
         session_name = fields.Datetime.now().strftime('Repricing %Y-%m-%d %H:%M')
         _logger.info("Repricing session '%s' — %d produits", session_name, len(products))
 
-        # — Compteurs —
-        cnt = {k: 0 for k in ('updated','initialized','floor','floor_fallback',
-                               'no_competitor','no_data','skipped')}
-
+        cnt = {k: 0 for k in ('updated', 'initialized', 'floor', 'floor_fallback',
+                               'no_competitor', 'no_data', 'skipped')}
         log_vals = []
 
         for product in products:
@@ -226,13 +240,13 @@ class RepricingWizard(models.TransientModel):
             cout        = product.standard_price or 0.0
             floor_p     = self._floor_price(cout)
 
-            # Mot-clé : référence fournisseur si dispo, sinon nom
-            keyword = ref.strip() if ref and len(ref) > 4 else nom[:80].strip()
+            keyword = self._build_keyword(ref, nom)
 
             if not keyword:
                 cnt['skipped'] += 1
                 continue
 
+            _logger.debug("Repricing keyword: %s → '%s'", ref or nom[:30], keyword)
             best_price, best_market = self._search_prices(keyword)
 
             if best_price:
@@ -240,7 +254,6 @@ class RepricingWizard(models.TransientModel):
                     prix_actuel, floor_p, best_price, best_market
                 )
             else:
-                # Aucun concurrent trouvé
                 if prix_actuel == 0 and floor_p > 0:
                     new_price = floor_p
                     statut    = 'floor_fallback'
@@ -248,17 +261,17 @@ class RepricingWizard(models.TransientModel):
                 elif prix_actuel == 0:
                     cnt['no_data'] += 1
                     log_vals.append({
-                        'name':               session_name,
-                        'product_id':         product.id,
-                        'ref':                ref,
-                        'prix_actuel':        prix_actuel,
-                        'cout':               cout,
-                        'floor_price':        floor_p,
+                        'name':                session_name,
+                        'product_id':          product.id,
+                        'ref':                 ref,
+                        'prix_actuel':         prix_actuel,
+                        'cout':                cout,
+                        'floor_price':         floor_p,
                         'meilleur_concurrent': 0,
-                        'marche_gagnant':     '',
-                        'nouveau_prix':       0,
-                        'statut':             'no_data',
-                        'note':               'aucun concurrent et coût inconnu',
+                        'marche_gagnant':      '',
+                        'nouveau_prix':        0,
+                        'statut':              'no_data',
+                        'note':                'aucun concurrent et coût inconnu',
                     })
                     continue
                 else:
@@ -268,7 +281,6 @@ class RepricingWizard(models.TransientModel):
 
             cnt[statut] = cnt.get(statut, 0) + 1
 
-            # Appliquer le prix sauf en simulation
             if not self.dry_run and abs(new_price - prix_actuel) >= 0.01:
                 product.list_price = new_price
 
@@ -286,24 +298,21 @@ class RepricingWizard(models.TransientModel):
                 'note':                note,
             })
 
-        # — Créer les logs —
         self.env['lolirine.repricing.log'].create(log_vals)
 
-        # — Mettre à jour le wizard pour afficher les résultats —
         self.write({
-            'state':           'done',
-            'session_name':    session_name,
-            'result_total':    sum(cnt.values()),
-            'result_updated':  cnt.get('updated', 0),
-            'result_init':     cnt.get('initialized', 0),
-            'result_floor':    cnt.get('floor', 0),
-            'result_fallback': cnt.get('floor_fallback', 0),
-            'result_unchanged':cnt.get('no_competitor', 0),
-            'result_no_data':  cnt.get('no_data', 0),
-            'result_skipped':  cnt.get('skipped', 0),
+            'state':            'done',
+            'session_name':     session_name,
+            'result_total':     sum(cnt.values()),
+            'result_updated':   cnt.get('updated', 0),
+            'result_init':      cnt.get('initialized', 0),
+            'result_floor':     cnt.get('floor', 0),
+            'result_fallback':  cnt.get('floor_fallback', 0),
+            'result_unchanged': cnt.get('no_competitor', 0),
+            'result_no_data':   cnt.get('no_data', 0),
+            'result_skipped':   cnt.get('skipped', 0),
         })
 
-        # Rouvrir le wizard avec les résultats
         return {
             'type':      'ir.actions.act_window',
             'res_model': 'lolirine.repricing.wizard',
