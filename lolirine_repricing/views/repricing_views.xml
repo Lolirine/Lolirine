@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ═══ LIST VIEW ═══ -->
+    <record id="repricing_log_list" model="ir.ui.view">
+        <field name="name">lolirine.repricing.log.list</field>
+        <field name="model">lolirine.repricing.log</field>
+        <field name="arch" type="xml">
+            <list string="Logs repricing" decoration-success="statut in ('updated','initialized')"
+                  decoration-warning="statut in ('floor','floor_fallback')"
+                  decoration-muted="statut in ('no_competitor','no_data','skipped')">
+                <field name="create_date" string="Date"/>
+                <field name="name" string="Session"/>
+                <field name="ref" string="Référence"/>
+                <field name="product_id" string="Produit"/>
+                <field name="prix_actuel" string="Prix avant" widget="monetary"/>
+                <field name="meilleur_concurrent" string="Concurrent" widget="monetary"/>
+                <field name="marche_gagnant" string="Marché"/>
+                <field name="nouveau_prix" string="Nouveau prix" widget="monetary"/>
+                <field name="variation" string="Variation €"
+                       decoration-danger="variation &lt; 0"
+                       decoration-success="variation &gt; 0"/>
+                <field name="statut" string="Statut"/>
+                <field name="note" string="Note" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══ FORM VIEW ═══ -->
+    <record id="repricing_log_form" model="ir.ui.view">
+        <field name="name">lolirine.repricing.log.form</field>
+        <field name="model">lolirine.repricing.log</field>
+        <field name="arch" type="xml">
+            <form string="Log repricing" create="false" edit="false">
+                <group>
+                    <group string="Produit">
+                        <field name="name" string="Session"/>
+                        <field name="create_date" string="Date"/>
+                        <field name="product_id" string="Produit"/>
+                        <field name="ref" string="Référence"/>
+                    </group>
+                    <group string="Prix">
+                        <field name="prix_actuel"         widget="monetary"/>
+                        <field name="cout"                widget="monetary"/>
+                        <field name="floor_price"         widget="monetary"/>
+                        <field name="meilleur_concurrent" widget="monetary"/>
+                        <field name="marche_gagnant"/>
+                        <field name="nouveau_prix"        widget="monetary"/>
+                        <field name="variation"           widget="monetary"/>
+                        <field name="currency_id"         column_invisible="1"/>
+                    </group>
+                </group>
+                <group string="Résultat">
+                    <field name="statut"/>
+                    <field name="note"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══ SEARCH VIEW ═══ -->
+    <record id="repricing_log_search" model="ir.ui.view">
+        <field name="name">lolirine.repricing.log.search</field>
+        <field name="model">lolirine.repricing.log</field>
+        <field name="arch" type="xml">
+            <search string="Recherche logs">
+                <field name="name" string="Session"/>
+                <field name="product_id" string="Produit"/>
+                <field name="ref" string="Référence"/>
+                <filter name="updated"   string="Mis à jour"  domain="[('statut','in',['updated','initialized'])]"/>
+                <filter name="floor"     string="Plancher"    domain="[('statut','in',['floor','floor_fallback'])]"/>
+                <filter name="no_change" string="Inchangés"   domain="[('statut','=','no_competitor')]"/>
+                <filter name="no_data"   string="Sans données" domain="[('statut','in',['no_data','skipped'])]"/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_session" string="Session" context="{'group_by':'name'}"/>
+                    <filter name="group_statut"  string="Statut"  context="{'group_by':'statut'}"/>
+                    <filter name="group_marche"  string="Marché"  context="{'group_by':'marche_gagnant'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ═══ ACTION ═══ -->
+    <record id="action_repricing_logs" model="ir.actions.act_window">
+        <field name="name">Logs repricing</field>
+        <field name="res_model">lolirine.repricing.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="repricing_log_search"/>
+        <field name="context">{'search_default_group_session': 1}</field>
+    </record>
+
+</odoo>
