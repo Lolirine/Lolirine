@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    
+    <!-- Configuration des paramètres OCR -->
+    <record id="res_config_settings_view_form_pool" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.pool</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Piscine" string="Piscine" name="lolirine_pool_import" groups="base.group_system">
+                    <block title="Extraction IA (OCR)" name="pool_ocr_settings">
+                        <setting string="Clé API Claude" help="Configurez votre clé API Anthropic Claude pour l'extraction OCR">
+                            <div class="content-group">
+                                <div class="row mt-2">
+                                    <label for="pool_claude_api_key" class="col-lg-3"/>
+                                    <field name="pool_claude_api_key" class="col-lg-6" password="True"/>
+                                </div>
+                                <div class="text-muted mt-2">
+                                    Obtenez votre clé API sur <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Recherche d'images Google" name="pool_google_settings">
+                        <setting string="API Google Custom Search" help="Configurez l'API Google pour rechercher des images de produits">
+                            <div class="content-group">
+                                <div class="row mt-2">
+                                    <label for="pool_google_api_key" class="col-lg-3"/>
+                                    <field name="pool_google_api_key" class="col-lg-6" password="True"/>
+                                </div>
+                                <div class="row mt-2">
+                                    <label for="pool_google_search_engine_id" class="col-lg-3"/>
+                                    <field name="pool_google_search_engine_id" class="col-lg-6"/>
+                                </div>
+                                <div class="text-muted mt-2">
+                                    1. Créez un projet sur <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a> et activez "Custom Search API"<br/>
+                                    2. Créez un moteur de recherche sur <a href="https://programmablesearchengine.google.com/" target="_blank">Programmable Search Engine</a><br/>
+                                    3. 100 recherches gratuites par jour
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</data>
+</odoo>
