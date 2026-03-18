@@ -27,6 +27,7 @@
 
                 <group invisible="state != 'draft'" string="Options">
                     <field name="only_no_price"/>
+                    <field name="only_retry_no_data"/>
                     <field name="dry_run"/>
                     <field name="product_limit"
                            help="0 = tous les produits. Mettre ex. 50 pour un test."/>
@@ -53,14 +54,12 @@
                 </group>
 
                 <footer>
-                    <!-- Bouton principal -->
                     <button name="action_run"
                             string="▶  Lancer le repricing"
                             type="object"
                             class="btn-primary"
                             invisible="state != 'draft'"/>
 
-                    <!-- Après exécution -->
                     <button name="action_view_logs"
                             string="Voir les logs détaillés"
                             type="object"
@@ -76,7 +75,6 @@
         </field>
     </record>
 
-    <!-- Action pour ouvrir le wizard -->
     <record id="action_repricing_wizard" model="ir.actions.act_window">
         <field name="name">Lancer le repricing</field>
         <field name="res_model">lolirine.repricing.wizard</field>
