@@ -2,19 +2,15 @@
 """
 pool_catalog_pdf.py
 ===================
-Parseur PDF pour les catalogues FlippingBook (ex: Fluidra Benelux 2026).
+Parseur PDF pour les catalogues FlippingBook (ex: Fluidra Benelux 2026)
+et FlipDocs (ex: SCP France 2026).
 
 Avantages vs OCR image :
-- Texte extrait avec pdfplumber → 100% fiable, pas de flou ni d'erreur OCR
-- Envoi du TEXTE à Claude (pas une image) → 10x moins de tokens, 10x moins cher
-- Pages téléchargeables 1 par 1 depuis l'URL FlippingBook
-- Resumable : checkpoint JSON pour reprendre en cas d'interruption
-
-URL pattern SIBO/Fluidra :
-  https://sibo.nl/catalogus/2026/fr-be/files/assets/common/downloads/page{NNNN}.pdf
-  ?uni=d4b7c88f886254817cb42e30be3dbd40
-
-GUID détecté depuis : window.FBPublication.Initial.GUID dans le HTML source.
+- Texte extrait avec pdfplumber -> 100% fiable, pas de flou ni d'erreur OCR
+- Envoi du TEXTE a Claude (pas une image) -> 10x moins de tokens, 10x moins cher
+- Pages telechargeables 1 par 1 depuis l'URL FlippingBook (Fluidra)
+- PDF complet uploadable manuellement (SCP FlipDocs)
+- Resumable : reprend a la page courante en cas d'interruption
 """
 
 from odoo import models, fields, api, _
@@ -33,14 +29,13 @@ try:
     PDFPLUMBER_AVAILABLE = True
 except ImportError:
     PDFPLUMBER_AVAILABLE = False
-    _logger.warning("pdfplumber non installé — installer via : pip install pdfplumber")
+    _logger.warning("pdfplumber non installe -- installer via : pip install pdfplumber")
 
 
 class PoolCatalogPdfImport(models.Model):
     """
-    Import de catalogue piscine depuis un FlippingBook PDF page par page.
-    Chaque page PDF est téléchargée, son texte extrait, puis envoyé à Claude
-    pour identifier les produits + prix.
+    Import de catalogue piscine depuis un FlippingBook PDF page par page,
+    ou depuis un PDF complet uploade manuellement (FlipDocs).
     """
     _name = 'pool.catalog.pdf.import'
     _description = 'Import catalogue PDF FlippingBook'
@@ -50,7 +45,7 @@ class PoolCatalogPdfImport(models.Model):
     name = fields.Char(string='Nom', required=True)
     supplier_id = fields.Many2one('pool.supplier', string='Fournisseur', required=True)
 
-    # ── Configuration FlippingBook ──────────────────────────────────────────
+    # -- Configuration FlippingBook (Fluidra/SIBO) ---------------------------
     base_url = fields.Char(
         string='URL de base',
         help="Ex: https://sibo.nl/catalogus/2026/fr-be/files/assets/common/downloads",
@@ -58,22 +53,35 @@ class PoolCatalogPdfImport(models.Model):
     )
     guid = fields.Char(
         string='GUID FlippingBook',
-        help="Trouvé dans window.FBPublication.Initial.GUID du HTML source",
+        help="Trouve dans window.FBPublication.Initial.GUID du HTML source",
         default='d4b7c88f886254817cb42e30be3dbd40',
     )
-    page_start = fields.Integer(string='Page de début', default=1)
+    page_start = fields.Integer(string='Page de debut', default=1)
     page_end   = fields.Integer(string='Page de fin',   default=582)
     page_current = fields.Integer(string='Page en cours', default=0, readonly=True)
 
-    # ── État ────────────────────────────────────────────────────────────────
+    # -- PDF uploade manuellement (ex: SCP FlipDocs) -------------------------
+    source_pdf = fields.Binary(
+        string='PDF du catalogue',
+        attachment=True,
+        help="Uploader le PDF complet du catalogue (ex: telecharge depuis FlipDocs)",
+    )
+    source_pdf_filename = fields.Char(string='Nom du fichier PDF')
+    pages_per_chunk = fields.Integer(
+        string='Pages par lot Claude',
+        default=5,
+        help="Nombre de pages PDF envoyees a Claude en une seule requete (5 recommande)",
+    )
+
+    # -- Etat ----------------------------------------------------------------
     state = fields.Selection([
         ('draft',    'Brouillon'),
         ('running',  'En cours'),
-        ('done',     'Terminé'),
+        ('done',     'Termine'),
         ('error',    'Erreur'),
     ], default='draft', tracking=True)
 
-    # ── Résultats ───────────────────────────────────────────────────────────
+    # -- Resultats -----------------------------------------------------------
     product_ids = fields.One2many(
         'pool.catalog.pdf.product',
         'import_id',
@@ -90,18 +98,18 @@ class PoolCatalogPdfImport(models.Model):
             rec.product_count  = len(rec.product_ids)
             rec.imported_count = len(rec.product_ids.filtered(lambda p: p.state == 'imported'))
 
-    # ── Helpers URL ─────────────────────────────────────────────────────────
+    # -- Helpers URL ---------------------------------------------------------
     def _page_url(self, page_num):
         return f"{self.base_url}/page{page_num:04d}.pdf?uni={self.guid}"
 
-    # ── Extraction texte ────────────────────────────────────────────────────
+    # -- Extraction texte (FlippingBook) -------------------------------------
     def _fetch_page_text(self, page_num):
         """
-        Télécharge la page PDF et retourne le texte extrait.
+        Telecharge la page PDF depuis l'URL FlippingBook et retourne le texte extrait.
         Retourne (texte, erreur).
         """
         if not PDFPLUMBER_AVAILABLE:
-            return None, "pdfplumber non installé (pip install pdfplumber)"
+            return None, "pdfplumber non installe (pip install pdfplumber)"
 
         url = self._page_url(page_num)
         headers = {
@@ -113,10 +121,10 @@ class PoolCatalogPdfImport(models.Model):
         try:
             r = requests.get(url, headers=headers, timeout=20)
             if r.status_code == 404:
-                return None, f"404 – page {page_num} introuvable"
+                return None, f"404 - page {page_num} introuvable"
             r.raise_for_status()
         except requests.RequestException as e:
-            return None, f"Erreur réseau : {e}"
+            return None, f"Erreur reseau : {e}"
 
         try:
             with pdfplumber.open(io.BytesIO(r.content)) as pdf:
@@ -129,49 +137,49 @@ class PoolCatalogPdfImport(models.Model):
         except Exception as e:
             return None, f"Erreur pdfplumber : {e}"
 
-    # ── Extraction Claude (texte → JSON) ────────────────────────────────────
+    # -- Extraction Claude (texte -> JSON) -----------------------------------
     def _extract_products_from_text(self, page_text, page_num):
         """
-        Envoie le texte brut de la page à Claude pour en extraire les produits.
-        Retourne une liste de dicts {name, ref, price, category, brand, description}.
+        Envoie le texte brut de la page a Claude pour en extraire les produits.
+        Retourne un dict {page, category, brand, products: [{name, ref, price, description}]}.
         """
         api_key = self.env['ir.config_parameter'].sudo().get_param('pool.claude_api_key')
         if not api_key:
-            raise UserError(_("Clé API Claude non configurée (pool.claude_api_key)"))
+            raise UserError(_("Cle API Claude non configuree (pool.claude_api_key)"))
 
-        prompt = f"""Voici le texte extrait d'une page d'un catalogue de produits de piscine (Fluidra Benelux 2026).
+        prompt = f"""Voici le texte extrait d'une ou plusieurs pages d'un catalogue de produits de piscine.
 
-TEXTE DE LA PAGE {page_num} :
+TEXTE (a partir de la page {page_num}) :
 ---
 {page_text[:6000]}
 ---
 
-Extrais TOUS les produits avec leur prix de la colonne "EURO".
-Règles :
-- Chaque ligne du tableau TYPE | RÉF. | EURO correspond à un produit
-- Le prix est toujours dans la colonne EURO (format €1.199,00 ou €42,05)
-- Convertis les prix en float : €1.199,00 → 1199.0, €42,05 → 42.05
-- Ignore les lignes sans prix (titres, descriptions, specs techniques)
-- Le nom du produit peut être précédé de texte parasite (légendes de photos) — prends uniquement le vrai nom du produit
-- La catégorie est le grand titre en haut de page (ex: ROBOTS DE PISCINE, POMPES, FILTRATION...)
-- La marque est détectée depuis le texte (ex: ZODIAC, ASTRALPOOL, CEPEX, AQUAFORTE...)
+Extrais TOUS les produits avec leur prix.
+Regles :
+- Chaque ligne du tableau REF | DESIGNATION | PRIX correspond a un produit
+- Le prix peut etre dans une colonne EURO, €HT, ou similaire
+- Format prix : €1.199,00 -> 1199.0 | €42,05 -> 42.05 | 4 250,00 -> 4250.0
+- Ignore les lignes sans prix numerique (titres, descriptions, mentions NC)
+- Le nom du produit peut etre precede de texte parasite (legendes photos) -- prends uniquement le vrai nom
+- La categorie est le grand titre de section (ex: PISCINES HORS SOL, ROBOTS DE PISCINE, POMPES...)
+- La marque est detectee depuis le texte (ex: ZODIAC, ASTRALPOOL, ABATEC, GARDEN LEISURE...)
 
-Réponds UNIQUEMENT avec un JSON valide, sans markdown :
+Reponds UNIQUEMENT avec un JSON valide, sans markdown :
 {{
   "page": {page_num},
-  "category": "catégorie principale de la page",
+  "category": "categorie principale",
   "brand": "marque principale si identifiable",
   "products": [
     {{
       "name": "nom complet du produit",
-      "ref": "référence fournisseur (ex: WR000199)",
-      "price": 1199.0,
-      "description": "description courte si présente dans le texte"
+      "ref": "reference fournisseur (ex: ABT-750-0030 ou WR000199)",
+      "price": 4250.0,
+      "description": "description courte si presente"
     }}
   ]
 }}
 
-Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "products": []}}"""
+Si aucun produit avec prix numerique n'est trouve, retourne {{"page": {page_num}, "products": []}}"""
 
         try:
             r = requests.post(
@@ -182,7 +190,7 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
                     'content-type': 'application/json',
                 },
                 json={
-                    'model': 'claude-haiku-4-5-20251001',  # Haiku = rapide + économique pour extraction structurée
+                    'model': 'claude-haiku-4-5-20251001',
                     'max_tokens': 4096,
                     'messages': [{'role': 'user', 'content': prompt}],
                 },
@@ -191,7 +199,6 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
             r.raise_for_status()
             raw = r.json().get('content', [{}])[0].get('text', '{}')
 
-            # Nettoyer les éventuels backticks
             raw = raw.strip()
             if raw.startswith('```'):
                 raw = re.sub(r'^```(?:json)?\n?', '', raw)
@@ -206,19 +213,10 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
             _logger.error(f"Erreur Claude page {page_num}: {e}")
             return {'page': page_num, 'products': []}
 
-    # ── Action : traiter une page ────────────────────────────────────────────
-    def action_process_page(self):
-        """Traite la page courante (page_current) et incrémente."""
-        self.ensure_one()
-        page = self.page_current or self.page_start
-        self._process_single_page(page)
-        self.page_current = page + 1
-        if self.page_current > self.page_end:
-            self.state = 'done'
-
+    # -- Action : traiter une seule page (FlippingBook) ----------------------
     def _process_single_page(self, page_num):
         self.ensure_one()
-        _logger.info(f"PDF import — page {page_num}")
+        _logger.info(f"PDF import -- page {page_num}")
 
         text, err = self._fetch_page_text(page_num)
         if err:
@@ -226,10 +224,14 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
             return
 
         if not text or len(text.strip()) < 50:
-            _logger.info(f"Page {page_num}: texte vide ou trop court, ignorée")
+            _logger.info(f"Page {page_num}: texte vide ou trop court, ignoree")
             return
 
         data = self._extract_products_from_text(text, page_num)
+        self._save_products(data, page_num)
+
+    def _save_products(self, data, page_num):
+        """Sauvegarde les produits extraits par Claude."""
         products = data.get('products', [])
         category = data.get('category', '')
         brand    = data.get('brand', '')
@@ -237,11 +239,9 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
         for p in products:
             if not p.get('ref') or not p.get('price'):
                 continue
-            # Vérifier si déjà extrait
             existing = self.product_ids.filtered(lambda x: x.ref == p['ref'])
             if existing:
                 continue
-
             self.env['pool.catalog.pdf.product'].create({
                 'import_id':   self.id,
                 'supplier_id': self.supplier_id.id,
@@ -256,11 +256,11 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
 
         _logger.info(f"Page {page_num}: {len(products)} produits extraits")
 
-    # ── Action : lancer l'import complet (limité à 50 pages par appel) ───────
+    # -- Action : Importer 50 pages (FlippingBook) ---------------------------
     def action_run_import(self):
         """
-        Lance l'import de 50 pages à partir de page_current.
-        À appeler plusieurs fois pour traiter tout le catalogue.
+        Lance l'import de 50 pages a partir de page_current.
+        A appeler plusieurs fois pour traiter tout le catalogue.
         """
         self.ensure_one()
         self.state = 'running'
@@ -273,7 +273,6 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
             try:
                 self._process_single_page(page_num)
                 self.page_current = page_num + 1
-                # Commit intermédiaire toutes les 10 pages
                 if page_num % 10 == 0:
                     self.env.cr.commit()
             except Exception as e:
@@ -283,7 +282,7 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
         if self.page_current > self.page_end:
             self.state = 'done'
         else:
-            self.state = 'draft'  # Prêt pour le prochain batch
+            self.state = 'draft'
 
         if errors:
             self.notes = "\n".join(errors)
@@ -294,31 +293,108 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
             'params': {
                 'title': _('Import PDF'),
                 'message': _(
-                    '%d produits extraits | Pages %d→%d | %d erreur(s)'
+                    '%d produits extraits | Pages %d->%d | %d erreur(s)'
                 ) % (len(self.product_ids), start, end, len(errors)),
                 'type': 'success' if not errors else 'warning',
                 'sticky': bool(errors),
             }
         }
 
-    # ── Action : upload PDF manuel ───────────────────────────────────────────
-    def action_process_uploaded_pdf(self, pdf_base64, page_hint=None):
+    # -- Action : Traiter PDF uploade (SCP FlipDocs) -------------------------
+    def action_run_pdf_upload(self):
         """
-        Traite un PDF uploadé manuellement (ex: page téléchargée depuis Safari).
-        Utilisable depuis le wizard ou le JS du module existant.
+        Traite le PDF uploade manuellement page par page.
+        Envoie des chunks de pages_per_chunk pages a Claude.
+        A appeler plusieurs fois pour traiter tout le PDF.
         """
         self.ensure_one()
+
         if not PDFPLUMBER_AVAILABLE:
-            raise UserError(_("pdfplumber non installé. Exécuter : pip install pdfplumber"))
+            raise UserError(_("pdfplumber non installe. Executer : pip install pdfplumber"))
+
+        if not self.source_pdf:
+            raise UserError(_("Veuillez d'abord uploader un fichier PDF."))
+
+        try:
+            pdf_bytes = base64.b64decode(self.source_pdf)
+            with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+                total_pages = len(pdf.pages)
+        except Exception as e:
+            raise UserError(_("Impossible de lire le PDF : %s") % str(e))
+
+        start = self.page_current or 0
+        chunk = self.pages_per_chunk or 5
+        end = min(start + 49, total_pages)
+
+        self.state = 'running'
+        errors = []
+
+        try:
+            pdf_bytes = base64.b64decode(self.source_pdf)
+            with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+                for chunk_start in range(start, end, chunk):
+                    chunk_end = min(chunk_start + chunk, end)
+                    chunk_text = []
+
+                    for page_idx in range(chunk_start, chunk_end):
+                        if page_idx >= len(pdf.pages):
+                            break
+                        t = pdf.pages[page_idx].extract_text()
+                        if t:
+                            chunk_text.append(f"--- PAGE {page_idx + 1} ---\n{t}")
+
+                    if not chunk_text:
+                        self.page_current = chunk_end
+                        continue
+
+                    full_text = "\n\n".join(chunk_text)
+
+                    try:
+                        data = self._extract_products_from_text(full_text, chunk_start + 1)
+                        self._save_products(data, chunk_start + 1)
+                        self.page_current = chunk_end
+                        if chunk_end % 20 == 0:
+                            self.env.cr.commit()
+                    except Exception as e:
+                        errors.append(f"Pages {chunk_start+1}-{chunk_end}: {str(e)[:100]}")
+                        _logger.error(f"Erreur chunk {chunk_start}-{chunk_end}: {e}")
+
+        except Exception as e:
+            self.state = 'error'
+            raise UserError(_("Erreur lecture PDF : %s") % str(e))
+
+        if self.page_current >= total_pages:
+            self.state = 'done'
+        else:
+            self.state = 'draft'
+
+        if errors:
+            self.notes = (self.notes or '') + "\n" + "\n".join(errors)
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Import PDF uploade'),
+                'message': _(
+                    '%d produits extraits | Pages %d->%d | %d erreur(s)'
+                ) % (len(self.product_ids), start + 1, end, len(errors)),
+                'type': 'success' if not errors else 'warning',
+                'sticky': bool(errors),
+            }
+        }
+
+    # -- Action : upload PDF manuel (methode legacy) -------------------------
+    def action_process_uploaded_pdf(self, pdf_base64, page_hint=None):
+        """Traite un PDF uploade via le wizard JS (compatibilite)."""
+        self.ensure_one()
+        if not PDFPLUMBER_AVAILABLE:
+            raise UserError(_("pdfplumber non installe. Executer : pip install pdfplumber"))
 
         try:
             pdf_bytes = base64.b64decode(pdf_base64)
             with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
-                texts = []
-                for p in pdf.pages:
-                    t = p.extract_text()
-                    if t:
-                        texts.append(t)
+                texts = [p.extract_text() for p in pdf.pages if p.extract_text()]
             full_text = "\n".join(texts)
         except Exception as e:
             raise UserError(_("Erreur lecture PDF : %s") % str(e))
@@ -328,45 +404,26 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
 
         page_num = page_hint or (self.page_current or 1)
         data = self._extract_products_from_text(full_text, page_num)
-        products = data.get('products', [])
-        category = data.get('category', '')
-        brand    = data.get('brand', '')
-
-        created = 0
-        for p in products:
-            if not p.get('ref') or not p.get('price'):
-                continue
-            self.env['pool.catalog.pdf.product'].create({
-                'import_id':   self.id,
-                'supplier_id': self.supplier_id.id,
-                'page_num':    page_num,
-                'name':        p.get('name', ''),
-                'ref':         p['ref'],
-                'price':       float(p.get('price', 0)),
-                'category':    category,
-                'brand':       brand,
-                'description': p.get('description', ''),
-            })
-            created += 1
+        self._save_products(data, page_num)
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('PDF traité'),
-                'message': _('%d produits extraits depuis le PDF') % created,
+                'title': _('PDF traite'),
+                'message': _('%d produits extraits depuis le PDF') % len(data.get('products', [])),
                 'type': 'success',
                 'sticky': False,
             }
         }
 
-    # ── Action : importer dans Odoo ─────────────────────────────────────────
+    # -- Action : importer dans Odoo -----------------------------------------
     def action_import_to_odoo(self):
         """Importe tous les produits extraits dans les fiches Odoo."""
         self.ensure_one()
         to_import = self.product_ids.filtered(lambda p: p.state == 'to_import')
         if not to_import:
-            raise UserError(_("Aucun produit à importer."))
+            raise UserError(_("Aucun produit a importer."))
 
         imported = errors = 0
         for prod in to_import:
@@ -382,23 +439,22 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
             'tag': 'display_notification',
             'params': {
                 'title': _('Import Odoo'),
-                'message': _('%d importés, %d erreurs') % (imported, errors),
+                'message': _('%d importes, %d erreurs') % (imported, errors),
                 'type': 'success' if not errors else 'warning',
                 'sticky': bool(errors),
             }
         }
 
-    # ── Action : update coûts uniquement ────────────────────────────────────
+    # -- Action : update couts uniquement ------------------------------------
     def action_update_costs_only(self):
         """
-        Met à jour UNIQUEMENT le coût (standard_price) des produits existants
-        sans créer de nouveaux produits. Utile pour les 489 produits sans prix.
+        Met a jour UNIQUEMENT le cout (standard_price) des produits existants.
+        Utile pour les produits sans prix dans la base.
         """
         self.ensure_one()
         updated = not_found = 0
 
         for prod in self.product_ids.filtered(lambda p: p.price > 0):
-            # Chercher le produit Odoo par référence fournisseur
             template = self.env['product.template'].search([
                 '|',
                 ('default_code', '=', f"POOL-{prod.ref}"),
@@ -416,8 +472,8 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('Mise à jour coûts'),
-                'message': _('%d coûts mis à jour, %d références non trouvées') % (updated, not_found),
+                'title': _('Mise a jour couts'),
+                'message': _('%d couts mis a jour, %d references non trouvees') % (updated, not_found),
                 'type': 'success',
                 'sticky': True,
             }
@@ -425,7 +481,7 @@ Si aucun produit avec prix n'est trouvé, retourne {{"page": {page_num}, "produc
 
 
 class PoolCatalogPdfProduct(models.Model):
-    """Produit extrait depuis un PDF de catalogue FlippingBook."""
+    """Produit extrait depuis un PDF de catalogue FlippingBook ou FlipDocs."""
     _name = 'pool.catalog.pdf.product'
     _description = 'Produit extrait PDF catalogue'
     _order = 'page_num, name'
@@ -435,23 +491,22 @@ class PoolCatalogPdfProduct(models.Model):
     page_num    = fields.Integer(string='Page PDF')
 
     name        = fields.Char(string='Nom produit')
-    ref         = fields.Char(string='Référence', index=True)
+    ref         = fields.Char(string='Reference', index=True)
     price       = fields.Float(string='Prix catalogue HT', digits=(16, 2))
-    category    = fields.Char(string='Catégorie')
+    category    = fields.Char(string='Categorie')
     brand       = fields.Char(string='Marque')
     description = fields.Text(string='Description')
 
-    # Prix net après remise fournisseur
-    price_net   = fields.Float(
+    price_net = fields.Float(
         string='Prix achat NET',
         compute='_compute_price_net',
         store=False,
     )
 
     state = fields.Selection([
-        ('to_import', 'À importer'),
-        ('imported',  'Importé'),
-        ('skipped',   'Ignoré'),
+        ('to_import', 'A importer'),
+        ('imported',  'Importe'),
+        ('skipped',   'Ignore'),
         ('error',     'Erreur'),
     ], default='to_import')
 
@@ -464,20 +519,22 @@ class PoolCatalogPdfProduct(models.Model):
             supplier = rec.supplier_id
             if (supplier and hasattr(supplier, 'discount_ids')
                     and supplier.discount_ids and rec.price > 0):
-                info = supplier.calculate_prices(
-                    catalog_price=rec.price,
-                    category_name=rec.category,
-                )
-                rec.price_net = info['purchase_price']
+                try:
+                    info = supplier.calculate_prices(
+                        catalog_price=rec.price,
+                        category_name=rec.category,
+                    )
+                    rec.price_net = info['purchase_price']
+                except Exception:
+                    rec.price_net = rec.price
             else:
                 rec.price_net = rec.price
 
     def action_import(self):
-        """Importe ce produit dans Odoo (met à jour le coût si existant, crée sinon)."""
+        """Importe ce produit dans Odoo (met a jour le cout si existant, cree sinon)."""
         self.ensure_one()
         ProductTemplate = self.env['product.template']
 
-        # Chercher produit existant
         template = ProductTemplate.search([
             '|',
             ('default_code', '=', f"POOL-{self.ref}"),
@@ -487,18 +544,16 @@ class PoolCatalogPdfProduct(models.Model):
         price_net = self.price_net or self.price
 
         if template:
-            # Mettre à jour le coût
             template.write({'standard_price': price_net})
-            _logger.info(f"Coût mis à jour: {template.name} → {price_net}€")
+            _logger.info(f"Cout mis a jour: {template.name} -> {price_net}EUR")
         else:
-            # Créer un nouveau produit minimal
             vals = {
-                'name':          self.name or f"Produit {self.ref}",
-                'default_code':  f"POOL-{self.ref}",
+                'name':           self.name or f"Produit {self.ref}",
+                'default_code':   f"POOL-{self.ref}",
                 'standard_price': price_net,
-                'list_price':    0,
-                'sale_ok':       True,
-                'purchase_ok':   True,
+                'list_price':     0,
+                'sale_ok':        True,
+                'purchase_ok':    True,
             }
             if 'x_pool_supplier_ref' in ProductTemplate._fields:
                 vals['x_pool_supplier_ref'] = self.ref
@@ -512,7 +567,7 @@ class PoolCatalogPdfProduct(models.Model):
                 vals['website_id'] = 6  # Pool Store
 
             template = ProductTemplate.create(vals)
-            _logger.info(f"Produit créé: {template.name} (coût: {price_net}€)")
+            _logger.info(f"Produit cree: {template.name} (cout: {price_net}EUR)")
 
         self.write({'state': 'imported', 'product_id': template.id})
         return True
