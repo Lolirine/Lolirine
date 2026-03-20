@@ -29,6 +29,11 @@
         <field name="arch" type="xml">
             <form string="Import PDF Catalogue FlippingBook">
                 <header>
+                    <button name="action_run_pdf_upload"
+                            string="▶ Traiter PDF uploadé"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state not in ['draft', 'running'] or not source_pdf"/>
                     <button name="action_run_import"
                             string="▶ Importer 50 pages"
                             type="object"
@@ -52,12 +57,19 @@
                         <h1><field name="name" placeholder="Ex: Fluidra Benelux 2026"/></h1>
                     </div>
                     <group>
-                        <group string="Configuration">
+                        <group string="Configuration FlippingBook (Fluidra)">
                             <field name="supplier_id"/>
                             <field name="base_url"/>
                             <field name="guid"/>
                         </group>
-                        <group string="Pages à traiter">
+                        <group string="PDF uploadé (ex: SCP FlipDocs)">
+                            <field name="source_pdf" widget="binary" filename="source_pdf_filename"/>
+                            <field name="source_pdf_filename" invisible="1"/>
+                            <field name="pages_per_chunk"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Pages à traiter (FlippingBook)">
                             <field name="page_start"/>
                             <field name="page_end"/>
                             <field name="page_current" readonly="1"/>
