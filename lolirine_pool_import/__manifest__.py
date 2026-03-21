@@ -93,6 +93,7 @@
         'stock',
         'website',
         'website_sale',
+        'lolirine_pool_import',
         # 'lolirine_pool_dropship' est optionnel - intégration automatique si installé
     ],
     'external_dependencies': {
