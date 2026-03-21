@@ -72,12 +72,6 @@
         action="action_pool_supplier"
         sequence="10"/>
 
-    <menuitem id="menu_pool_brands"
-        name="Marques"
-        parent="menu_pool_config"
-        action="action_pool_brand"
-        sequence="15"/>
-
     <menuitem id="menu_pool_import_log"
         name="Historique des imports"
         parent="menu_pool_config"
