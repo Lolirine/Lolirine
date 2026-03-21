@@ -100,6 +100,7 @@
     },
     'data': [
         'security/ir.model.access.csv',
+        'views/pool_brand_views.xml',
         'data/product_category_data.xml',
         'data/product_attribute_data.xml',
         'data/fluidra_discount_data.xml',
@@ -110,7 +111,6 @@
         'views/product_template_views.xml',
         'views/res_config_settings_views.xml',
         'views/pool_catalog_pdf_views.xml',
-        'views/pool_brand_views.xml',
         'views/menu_views.xml',
     ],
     'assets': {
