@@ -110,6 +110,7 @@
         'views/product_template_views.xml',
         'views/res_config_settings_views.xml',
         'views/pool_catalog_pdf_views.xml',
+        'views/pool_brand_views.xml',
         'views/menu_views.xml',
     ],
     'assets': {
