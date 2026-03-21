@@ -93,7 +93,6 @@
         'stock',
         'website',
         'website_sale',
-        'lolirine_pool_import',
         # 'lolirine_pool_dropship' est optionnel - intégration automatique si installé
     ],
     'external_dependencies': {
@@ -111,7 +110,6 @@
         'views/product_template_views.xml',
         'views/res_config_settings_views.xml',
         'views/pool_catalog_pdf_views.xml',
-        'views/brands_page.xml',
         'views/menu_views.xml',
     ],
     'assets': {
@@ -123,8 +121,7 @@
             'lolirine_pool_import/static/src/js/variant_image_switcher.js',
             'lolirine_pool_import/static/src/xml/image_crop_selector.xml',
             'lolirine_pool_import/static/src/xml/catalog_extractor.xml',
-            'lolirine_pool_website/static/src/css/brands.css',
-        ],
+    ],
     },
     'installable': True,
     'application': True,
