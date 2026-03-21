@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <menuitem id="menu_pool_brands"
+        name="Marques"
+        parent="menu_pool_config"
+        action="action_pool_brand"
+        sequence="15"/>
     <data>
     <!-- Menu principal de l'application Piscine -->
     <menuitem id="menu_pool_root"
