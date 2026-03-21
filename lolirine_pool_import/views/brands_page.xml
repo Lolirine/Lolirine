@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="brands_page" name="Pool Store - Nos Marques">
+        <t t-call="website.layout">
+            <div id="wrap">
+
+                <!-- HERO - ÉDITABLE -->
+                <section class="s_cover o_cc o_cc1 pt-5 pb-5"
+                         data-snippet="s_cover"
+                         data-name="Hero Marques"
+                         style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+                    <div class="container text-center text-white py-3 oe_structure"
+                         data-name="Titre hero marques">
+                        <h1 class="display-4 fw-bold mb-2">
+                            <i class="fa fa-tags me-3"/>Nos Marques
+                        </h1>
+                        <p class="lead mb-0">
+                            Découvrez notre sélection de marques premium pour votre piscine
+                        </p>
+                    </div>
+                </section>
+
+                <!-- INTRO - ÉDITABLE -->
+                <section class="s_text_block py-4 bg-light"
+                         data-snippet="s_text_block"
+                         data-name="Introduction marques">
+                    <div class="container">
+                        <div class="text-center oe_structure" data-name="Texte intro">
+                            <p class="text-muted mb-0">
+                                <t t-esc="len(brands)"/> marques disponibles ·
+                                Cliquez sur une marque pour voir tous ses produits
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- GRILLE MARQUES - DYNAMIQUE + ÉDITABLE -->
+                <section class="s_text_block py-5"
+                         data-snippet="s_text_block"
+                         data-name="Grille des marques">
+                    <div class="container">
+
+                        <div class="oe_structure" data-name="Zone avant grille"/>
+
+                        <div class="row g-4" id="brands-grid">
+                            <t t-foreach="brands" t-as="brand">
+                                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                                    <a t-attf-href="/shop?pool_brand_id=#{brand['id']}"
+                                       class="text-decoration-none brand-card-link">
+                                        <div class="card h-100 border-0 shadow-sm brand-card text-center p-3">
+
+                                            <div class="brand-logo-wrapper mb-3 mx-auto"
+                                                 style="width: 100px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                                                <t t-if="brand['logo']">
+                                                    <img t-attf-src="/web/image/pool.brand/#{brand['id']}/logo"
+                                                         t-att-alt="brand['name']"
+                                                         style="max-width: 100%; max-height: 70px; object-fit: contain;"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="rounded d-flex align-items-center justify-content-center w-100 h-100"
+                                                         style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">
+                                                        <span class="text-white fw-bold"
+                                                              style="font-size: 0.75rem; text-align: center; padding: 4px;"
+                                                              t-esc="brand['name']"/>
+                                                    </div>
+                                                </t>
+                                            </div>
+
+                                            <h6 class="brand-name fw-bold mb-1"
+                                                style="font-size: 0.9rem; color: #1a1a1a;"
+                                                t-esc="brand['name']"/>
+
+                                            <small class="text-muted">
+                                                <t t-esc="brand['product_count']"/> produit(s)
+                                            </small>
+
+                                        </div>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+
+                        <div class="oe_structure mt-4" data-name="Zone après grille"/>
+
+                    </div>
+                </section>
+
+                <!-- CTA - ÉDITABLE -->
+                <section class="s_cover py-5 o_cc o_cc1"
+                         data-snippet="s_cover"
+                         data-name="CTA Marques"
+                         style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+                    <div class="container text-center text-white oe_structure"
+                         data-name="Contenu CTA">
+                        <h3 class="fw-bold mb-3">Vous ne trouvez pas votre marque ?</h3>
+                        <p class="mb-4">Contactez-nous, nous pouvons sourcer des produits sur commande.</p>
+                        <a href="/contactus" class="btn btn-lg btn-light px-5"
+                           style="border-radius: 50px;">
+                            <i class="fa fa-phone me-2"/>Contactez-nous
+                        </a>
+                    </div>
+                </section>
+
+            </div>
+        </t>
+    </template>
+
+</odoo>
