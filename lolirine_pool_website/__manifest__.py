@@ -25,10 +25,12 @@
         'website',
         'website_sale',
         'product',
+        'lolirine_pool_import',
     ],
     'data': [
         'security/ir.model.access.csv',
         'views/product_template_views.xml',
+        'views/brands_page.xml',
         'views/website_templates.xml',
         'data/website_data.xml',
         'data/product_category_data.xml',
@@ -37,6 +39,7 @@
     'assets': {
         'web.assets_frontend': [
             'lolirine_pool_website/static/src/css/pool_theme.css',
+            'lolirine_pool_website/static/src/css/brands.css'
         ],
     },
     'installable': True,
