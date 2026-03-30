@@ -5,240 +5,280 @@
         <section class="s_pool_guides o_colored_level pt-5 pb-5"
                  data-snippet="s_pool_guides"
                  data-name="Guides Piscine">
-
             <div class="container">
 
+                <!-- En-tête -->
                 <div class="row mb-5">
                     <div class="col-12 text-center">
-                        <h2 class="s_pool_guides_title mb-2">
-                            Guides &amp; Conseils Piscine
-                        </h2>
-                        <p class="s_pool_guides_subtitle text-muted mb-0">
-                            Tous nos guides pratiques pour profiter pleinement de votre piscine
-                        </p>
+                        <h2 class="s_pool_guides_title">Nos Guides Dédiés</h2>
+                        <div class="s_pool_guides_underline"></div>
                     </div>
                 </div>
 
+                <!-- Grille de cartes -->
                 <div class="oe_structure">
                     <div class="row g-3" id="s_pool_guides_grid">
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/hiverner-piscine-hiver" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_01_hivernage.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Comment hiverner sa piscine pour l'hiver"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Comment hiverner sa piscine pour l'hiver</span>
+                        <!-- ══ 6 cartes visibles par défaut ══ -->
+
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item">
+                            <a href="/guides/couverture-hivernage-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_18_couverture.jpg"
+                                         class="s_pool_guide_img" alt="Couverture d'hivernage" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Bien choisir sa bâche d'hivernage</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/loi-securite-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_02_securite.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Loi sécurité piscine"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Loi sécurité piscine</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item">
+                            <a href="/guides/choisir-bache-bulles" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_12_bulle.jpg"
+                                         class="s_pool_guide_img" alt="Bâche à bulles" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Choisir sa bâche à bulles</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/installation-barriere-filet-souple" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_03_barriere.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Guide d'installation d'une barrière à filet souple"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Guide d'installation d'une barrière à filet souple</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item">
+                            <a href="/guides/hiverner-piscine-hiver" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_01_hivernage.jpg"
+                                         class="s_pool_guide_img" alt="Hiverner piscine" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Bien hiverner sa piscine</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/montage-piscine-kit" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_04_kit.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Guide de montage d'une piscine en kit"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Guide de montage d'une piscine en kit</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item">
+                            <a href="/guides/equilibrer-eau-ph-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_14_ph.jpg"
+                                         class="s_pool_guide_img" alt="Équilibre pH" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Comment équilibrer l'eau et le pH d'une piscine</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/entretien-eau-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_05_entretien_eau.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Conseils sur l'entretien de l'eau de piscine"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Conseils sur l'entretien de l'eau de piscine</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item">
+                            <a href="/guides/choisir-electrolyseur-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_20_electrolyseur.jpg"
+                                         class="s_pool_guide_img" alt="Électrolyseur" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Bien choisir son électrolyseur</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/redemarrer-piscine-hiver" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_06_redemarrage.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Comment redémarrer sa piscine après l'hiver"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Comment redémarrer sa piscine après l'hiver</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item">
+                            <a href="/guides/choisir-piscine-coque" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_17_coque.jpg"
+                                         class="s_pool_guide_img" alt="Piscine coque" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Bien choisir sa coque polyester</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/traitement-ozone-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_07_ozone.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Traitement par l'ozone, désinfection de l'eau de piscine"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Traitement par l'ozone, désinfection de l'eau de piscine</span>
+                        <!-- ══ 15 cartes masquées par défaut ══ -->
+
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/choisir-volet-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_19_volet.jpg"
+                                         class="s_pool_guide_img" alt="Volet piscine" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Bien choisir son volet piscine</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/choisir-piscine-hors-sol" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_08_hors_sol.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Quelle piscine hors sol choisir ?"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Quelle piscine hors sol choisir ? Comparatif complet et conseils d'installation</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/loi-securite-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_02_securite.jpg"
+                                         class="s_pool_guide_img" alt="Loi sécurité" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Loi sécurité piscine</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/pool-terre-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_09_pool_terre.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="À quoi sert un Pool Terre"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">À quoi sert un "Pool Terre"</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/installation-barriere-filet-souple" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_03_barriere.jpg"
+                                         class="s_pool_guide_img" alt="Barrière filet" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Guide d'installation d'une barrière à filet souple</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/piscine-beton" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_10_beton.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="La piscine en béton"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">La piscine en béton</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/montage-piscine-kit" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_04_kit.jpg"
+                                         class="s_pool_guide_img" alt="Piscine en kit" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Guide de montage d'une piscine en kit</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/choisir-robot-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_11_robot.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Bien choisir son robot de piscine"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Bien choisir son robot de piscine</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/entretien-eau-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_05_entretien_eau.jpg"
+                                         class="s_pool_guide_img" alt="Entretien eau" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Conseils sur l'entretien de l'eau de piscine</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/choisir-bache-bulles" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_12_bulle.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Bien choisir sa bâche à bulles"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Bien choisir sa bâche à bulles</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/redemarrer-piscine-hiver" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_06_redemarrage.jpg"
+                                         class="s_pool_guide_img" alt="Redémarrer piscine" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Comment redémarrer sa piscine après l'hiver</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/chauffage-solaire-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_13_solaire.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Choisir un chauffage solaire piscine"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Choisir un chauffage solaire piscine</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/traitement-ozone-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_07_ozone.jpg"
+                                         class="s_pool_guide_img" alt="Traitement ozone" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Traitement par l'ozone, désinfection de l'eau</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/equilibrer-eau-ph-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_14_ph.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Comment équilibrer l'eau - réglage du pH"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Comment équilibrer l'eau – réglage du pH</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/choisir-piscine-hors-sol" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_08_hors_sol.jpg"
+                                         class="s_pool_guide_img" alt="Piscine hors sol" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Quelle piscine hors sol choisir ?</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/declaration-prealable-travaux-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_15_declaration.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Service de déclaration préalable de travaux"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Service de déclaration préalable de travaux</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/pool-terre-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_09_pool_terre.jpg"
+                                         class="s_pool_guide_img" alt="Pool Terre" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">À quoi sert un "Pool Terre"</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/contre-lavage-filtre-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_16_contrelavage.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Comment faire le contre lavage d'un filtre"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Comment faire le contre lavage d'un filtre</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/piscine-beton" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_10_beton.jpg"
+                                         class="s_pool_guide_img" alt="Piscine béton" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">La piscine en béton</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/choisir-piscine-coque" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_17_coque.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Choisir une piscine coque"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Choisir une piscine coque</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/choisir-robot-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_11_robot.jpg"
+                                         class="s_pool_guide_img" alt="Robot piscine" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Bien choisir son robot de piscine</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/couverture-hivernage-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_18_couverture.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Comment choisir une couverture d'hivernage"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Comment choisir une couverture d'hivernage</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/chauffage-solaire-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_13_solaire.jpg"
+                                         class="s_pool_guide_img" alt="Chauffage solaire" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Choisir un chauffage solaire piscine</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/choisir-volet-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_19_volet.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Comment choisir un volet piscine"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Comment choisir un volet piscine</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/declaration-prealable-travaux-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_15_declaration.jpg"
+                                         class="s_pool_guide_img" alt="Déclaration travaux" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Service de déclaration préalable de travaux</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/choisir-electrolyseur-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_20_electrolyseur.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Comment choisir un électrolyseur piscine"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Comment choisir un électrolyseur piscine</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/contre-lavage-filtre-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_16_contrelavage.jpg"
+                                         class="s_pool_guide_img" alt="Contre lavage" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Comment faire le contre lavage d'un filtre</span>
                             </a>
                         </div>
 
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <a href="/guides/choisir-bache-barres-piscine" class="s_pool_guide_card d-flex align-items-center gap-3 p-3 rounded text-decoration-none">
-                                <img src="/lolirine_pool_website/static/src/img/guides/guide_21_bache_barres.jpg"
-                                     class="s_pool_guide_thumb rounded object-fit-cover"
-                                     alt="Comment choisir bâche à barres"
-                                     loading="lazy" width="90" height="70"/>
-                                <span class="s_pool_guide_label fw-semibold">Comment choisir bâche à barres</span>
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/choisir-bache-barres-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_21_bache_barres.jpg"
+                                         class="s_pool_guide_img" alt="Bâche à barres" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Comment choisir bâche à barres</span>
                             </a>
                         </div>
 
+                        <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
+                            <a href="/guides/nettoyer-bache-hiver-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
+                                <div class="s_pool_guide_img_wrap">
+                                    <img src="/lolirine_pool_website/static/src/img/guides/guide_18_couverture.jpg"
+                                         class="s_pool_guide_img" alt="Nettoyer bâche" loading="lazy"/>
+                                </div>
+                                <span class="s_pool_guide_label">Comment nettoyer une bâche d'hiver</span>
+                            </a>
+                        </div>
+
+                    </div><!-- /row -->
+                </div><!-- /oe_structure -->
+
+                <!-- Bouton toggle -->
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <button type="button" class="s_pool_guides_btn" id="s_pool_guides_toggle">
+                            VOIR PLUS DE GUIDES
+                        </button>
                     </div>
                 </div>
 
-                <div class="oe_structure mt-5"></div>
+            </div><!-- /container -->
 
-            </div>
-        </section>
+            <!-- Script toggle -->
+            <script type="text/javascript">
+                (function() {
+                    var btn = document.getElementById('s_pool_guides_toggle');
+                    if (!btn) return;
+                    btn.addEventListener('click', function() {
+                        var hidden = document.querySelectorAll('.s_pool_guide_hidden');
+                        var isExpanded = btn.getAttribute('data-expanded') === '1';
+                        hidden.forEach(function(el) {
+                            el.style.display = isExpanded ? 'none' : '';
+                        });
+                        btn.textContent = isExpanded ? 'VOIR PLUS DE GUIDES' : 'VOIR MOINS DE GUIDES';
+                        btn.setAttribute('data-expanded', isExpanded ? '0' : '1');
+                    });
+                })();
+            </script>
+
+        </section><!-- /s_pool_guides -->
+
+        <!-- Vague + formulaire devis -->
+        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
     </template>
 
     <template id="pool_guides_in_snippets"
