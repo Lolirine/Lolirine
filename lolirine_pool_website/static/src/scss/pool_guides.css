@@ -18,8 +18,8 @@
 }
 
 /* ── Toggle : masquage par CSS via classe du parent ── */
-#s_pool_guides_grid .spg-more       { display: none; }
-#s_pool_guides_grid.spg-expanded .spg-more { display: flex; }
+#s_pool_guides_grid .spg-more                  { display: none !important; }
+#s_pool_guides_grid.spg-expanded .spg-more     { display: block !important; }
 
 /* ── Carte ── */
 .s_pool_guide_card {
