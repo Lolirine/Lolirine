@@ -2,6 +2,8 @@
 <odoo>
 
     <template id="s_pool_guides" name="Guides Piscine">
+
+        <!-- ══ Grille des guides ══ -->
         <section class="s_pool_guides o_colored_level pt-5 pb-5"
                  data-snippet="s_pool_guides"
                  data-name="Guides Piscine">
@@ -15,12 +17,11 @@
                     </div>
                 </div>
 
-                <!-- Grille de cartes -->
+                <!-- Grille -->
                 <div class="oe_structure">
                     <div class="row g-3" id="s_pool_guides_grid">
 
-                        <!-- ══ 6 cartes visibles par défaut ══ -->
-
+                        <!-- ── 6 visibles ── -->
                         <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item">
                             <a href="/guides/couverture-hivernage-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
                                 <div class="s_pool_guide_img_wrap">
@@ -81,8 +82,7 @@
                             </a>
                         </div>
 
-                        <!-- ══ 15 cartes masquées par défaut ══ -->
-
+                        <!-- ── 15 masquées ── -->
                         <div class="col-12 col-md-6 col-xl-4 s_pool_guide_item s_pool_guide_hidden">
                             <a href="/guides/choisir-volet-piscine" class="s_pool_guide_card d-flex align-items-center text-decoration-none">
                                 <div class="s_pool_guide_img_wrap">
@@ -256,28 +256,138 @@
                 </div>
 
             </div><!-- /container -->
-
-            <!-- Script toggle -->
-            <script type="text/javascript">
-                (function() {
-                    var btn = document.getElementById('s_pool_guides_toggle');
-                    if (!btn) return;
-                    btn.addEventListener('click', function() {
-                        var hidden = document.querySelectorAll('.s_pool_guide_hidden');
-                        var isExpanded = btn.getAttribute('data-expanded') === '1';
-                        hidden.forEach(function(el) {
-                            el.style.display = isExpanded ? 'none' : '';
-                        });
-                        btn.textContent = isExpanded ? 'VOIR PLUS DE GUIDES' : 'VOIR MOINS DE GUIDES';
-                        btn.setAttribute('data-expanded', isExpanded ? '0' : '1');
-                    });
-                })();
-            </script>
-
         </section><!-- /s_pool_guides -->
 
-        <!-- Vague + formulaire devis -->
-        <t t-call="lolirine_pool_website.guide_devis_form"/>
+        <!-- ══ Vague SVG ══ -->
+        <div class="s_pool_guides_wave" aria-hidden="true">
+            <svg viewBox="0 0 1440 90" xmlns="http://www.w3.org/2000/svg"
+                 preserveAspectRatio="none" style="display:block;width:100%;height:90px;">
+                <path d="M0,40 C360,90 1080,0 1440,50 L1440,90 L0,90 Z" fill="#0580c8"/>
+            </svg>
+        </div>
+
+        <!-- ══ Formulaire devis ══ -->
+        <section class="s_pool_guides_devis" style="background:linear-gradient(160deg,#0580c8 0%,#005f9e 100%);padding:3rem 0 0;">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-lg-8 col-xl-7">
+
+                        <h2 style="font-size:1.6rem;font-weight:800;color:#fff;letter-spacing:.04em;text-align:center;margin-bottom:.5rem;">
+                            DEMANDE DE DEVIS
+                        </h2>
+                        <p style="text-align:center;color:rgba(255,255,255,.75);margin-bottom:.25rem;font-size:.85rem;">
+                            Les demandes de devis sont traitées à partir de 50€ de commande minimum, merci de votre compréhension.
+                        </p>
+                        <p style="text-align:center;color:rgba(255,255,255,.75);margin-bottom:1.5rem;font-size:.85rem;">
+                            Le produit complet (robot, pompe, équipement…) dont sont issues les pièces détachées est également disponible sur devis.
+                        </p>
+
+                        <form action="/website/form/" method="post"
+                              class="o_mark_required"
+                              data-model-name="mail.mail"
+                              data-success-page="/guides/devis-envoye"
+                              enctype="multipart/form-data">
+
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="subject" value="Demande de devis — Lolirine Pool Store"/>
+                            <input type="hidden" name="email_to" value="contact@lolirinepoolstore.be"/>
+
+                            <div class="row g-3">
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="spg_nom">Nom <span style="color:#f88;">*</span></label>
+                                    <input type="text" id="spg_nom" name="nom" class="guide-form-control form-control" required="required" autocomplete="family-name"/>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="spg_prenom">Prénom <span style="color:#f88;">*</span></label>
+                                    <input type="text" id="spg_prenom" name="prenom" class="guide-form-control form-control" required="required" autocomplete="given-name"/>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="spg_email">Adresse email <span style="color:#f88;">*</span></label>
+                                    <input type="email" id="spg_email" name="email_from" class="guide-form-control form-control" required="required" autocomplete="email"/>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="spg_tel">Téléphone <span style="color:#f88;">*</span></label>
+                                    <input type="tel" id="spg_tel" name="telephone" class="guide-form-control form-control" required="required" autocomplete="tel"/>
+                                </div>
+                                <div class="col-12 col-sm-8">
+                                    <label class="guide-form-label" for="spg_adresse">Adresse</label>
+                                    <input type="text" id="spg_adresse" name="adresse" class="guide-form-control form-control" autocomplete="street-address"/>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label class="guide-form-label" for="spg_cp">Code postal</label>
+                                    <input type="text" id="spg_cp" name="code_postal" class="guide-form-control form-control" autocomplete="postal-code"/>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="spg_ville">Ville <span style="color:#f88;">*</span></label>
+                                    <input type="text" id="spg_ville" name="ville" class="guide-form-control form-control" required="required" autocomplete="address-level2"/>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="spg_pays">Pays <span style="color:#f88;">*</span></label>
+                                    <select id="spg_pays" name="pays" class="guide-form-control form-select" required="required">
+                                        <option value="BE" selected="selected">🇧🇪 Belgique</option>
+                                        <option value="FR">🇫🇷 France</option>
+                                        <option value="LU">🇱🇺 Luxembourg</option>
+                                        <option value="NL">🇳🇱 Pays-Bas</option>
+                                        <option value="DE">🇩🇪 Allemagne</option>
+                                        <option value="CH">🇨🇭 Suisse</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="guide-form-label" for="spg_message">Message <span style="color:#f88;">*</span></label>
+                                    <textarea id="spg_message" name="body_html" class="guide-form-control form-control" rows="5" required="required" placeholder="Décrivez votre projet ou votre demande…"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input type="checkbox" id="spg_optin" name="optin_newsletter" class="form-check-input" value="1"/>
+                                        <label class="form-check-label small" style="color:rgba(255,255,255,.75);" for="spg_optin">
+                                            J'accepte de recevoir les offres promotionnelles
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 text-center mt-2">
+                                    <button type="submit" class="guide-devis-btn">ENVOYER MA DEMANDE</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bande newsletter -->
+            <div style="background:rgba(0,0,0,.15);border-top:1px solid rgba(255,255,255,.1);margin-top:3rem;padding:.75rem 1rem;text-align:center;">
+                <span style="color:#fff;font-weight:700;font-size:.8rem;text-transform:uppercase;margin-right:1rem;">
+                    Recevez les nouveautés et offres exclusives — inscrivez-vous à notre newsletter
+                </span>
+                <form action="/website/newsletter/subscribe" method="post" class="d-inline-flex gap-2 mt-2 mt-md-0">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="email" name="email" placeholder="Votre adresse email" class="guide-nl-input form-control" required="required"/>
+                    <button type="submit" class="guide-nl-btn">VALIDER</button>
+                </form>
+            </div>
+
+        </section><!-- /s_pool_guides_devis -->
+
+        <!-- ══ Script toggle (corrigé : classList au lieu de style.display) ══ -->
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                var btn = document.getElementById('s_pool_guides_toggle');
+                if (!btn) return;
+                btn.addEventListener('click', function() {
+                    var isExpanded = btn.getAttribute('data-expanded') === '1';
+                    var items = document.querySelectorAll('#s_pool_guides_grid .s_pool_guide_hidden');
+                    items.forEach(function(el) {
+                        if (isExpanded) {
+                            el.classList.add('s_pool_guide_hidden');
+                        } else {
+                            el.classList.remove('s_pool_guide_hidden');
+                        }
+                    });
+                    btn.textContent = isExpanded ? 'VOIR PLUS DE GUIDES' : 'VOIR MOINS DE GUIDES';
+                    btn.setAttribute('data-expanded', isExpanded ? '0' : '1');
+                });
+            });
+        </script>
 
     </template>
 
