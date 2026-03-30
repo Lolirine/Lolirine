@@ -1,7 +1,5 @@
-/* ── Section wrapper ── */
-.s_pool_guides {
-    background-color: #f7fbfe;
-}
+/* ── Section ── */
+.s_pool_guides { background-color: #f7fbfe; }
 
 /* ── Titre ── */
 .s_pool_guides_title {
@@ -9,22 +7,19 @@
     font-weight: 800;
     color: #0580c8;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 0.6rem;
+    letter-spacing: .04em;
+    margin-bottom: .6rem;
 }
-
 .s_pool_guides_underline {
-    width: 60px;
-    height: 4px;
+    width: 60px; height: 4px;
     background: #0580c8;
     border-radius: 2px;
     margin: 0 auto;
 }
 
-/* ── Cartes masquées par défaut ── */
-.s_pool_guide_hidden {
-    display: none;
-}
+/* ── Toggle : masquage par CSS via classe du parent ── */
+#s_pool_guides_grid .spg-more       { display: none; }
+#s_pool_guides_grid.spg-expanded .spg-more { display: flex; }
 
 /* ── Carte ── */
 .s_pool_guide_card {
@@ -32,99 +27,137 @@
     border: 1.5px solid #dce8f2;
     border-radius: 10px;
     overflow: hidden;
-    transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
+    transition: box-shadow .22s ease, transform .22s ease, border-color .22s ease;
     min-height: 90px;
     gap: 0;
 }
-
 .s_pool_guide_card:hover {
-    box-shadow: 0 4px 18px rgba(5, 128, 200, 0.15);
-    border-color: rgba(5, 128, 200, 0.4);
+    box-shadow: 0 4px 18px rgba(5,128,200,.15);
+    border-color: rgba(5,128,200,.4);
     transform: translateY(-2px);
     text-decoration: none;
 }
 
-/* ── Image avec découpe en chevron ── */
+/* ── Image chevron ── */
 .s_pool_guide_img_wrap {
     flex-shrink: 0;
-    width: 110px;
-    min-width: 110px;
-    height: 90px;
+    width: 110px; min-width: 110px; height: 90px;
     overflow: hidden;
     clip-path: polygon(0 0, 80% 0, 100% 50%, 80% 100%, 0 100%);
     background: linear-gradient(135deg, #0a9fd8, #005f9e);
 }
-
 .s_pool_guide_img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.25s ease;
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transition: transform .25s ease;
 }
-
-.s_pool_guide_card:hover .s_pool_guide_img {
-    transform: scale(1.07);
-}
+.s_pool_guide_card:hover .s_pool_guide_img { transform: scale(1.07); }
 
 /* ── Label ── */
 .s_pool_guide_label {
     color: #1a2e40;
-    font-size: 0.88rem;
+    font-size: .88rem;
     font-weight: 700;
     line-height: 1.35;
-    padding: 0.75rem 1rem;
+    padding: .75rem 1rem;
     flex: 1;
+    transition: color .2s ease;
 }
+.s_pool_guide_card:hover .s_pool_guide_label { color: #0580c8; }
 
-.s_pool_guide_card:hover .s_pool_guide_label {
-    color: #0580c8;
-}
-
-/* ── Bouton "Voir plus" ── */
+/* ── Bouton toggle ── */
 .s_pool_guides_btn {
     display: inline-block;
-    padding: 0.85rem 2.5rem;
+    padding: .85rem 2.5rem;
     background: #0ea5e9;
     color: #fff;
     font-weight: 800;
-    font-size: 0.9rem;
-    letter-spacing: 0.08em;
+    font-size: .9rem;
+    letter-spacing: .08em;
     border: none;
     border-radius: 30px;
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.15s ease;
+    transition: background .2s ease, transform .15s ease;
+}
+.s_pool_guides_btn:hover { background: #0580c8; transform: translateY(-1px); }
+
+/* ── Vague animée ── */
+.s_pool_guides_wave {
+    background: #f7fbfe;
+    position: relative;
+    height: 100px;
+    overflow: hidden;
+    margin-bottom: -2px;
 }
 
-.s_pool_guides_btn:hover {
-    background: #0580c8;
-    transform: translateY(-1px);
+.spg-wave-svg {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    width: 200%;
+    height: 100px;
 }
+
+.spg-wave-parallax > use {
+    animation: spg-wave-move 20s cubic-bezier(.55,.5,.45,.5) infinite;
+}
+.spg-wave-1 {
+    fill: rgba(5,128,200,0.7);
+    animation-duration: 7s;
+    animation-delay: -2s;
+}
+.spg-wave-2 {
+    fill: rgba(5,128,200,0.5);
+    animation-duration: 10s;
+    animation-delay: -3s;
+}
+.spg-wave-3 {
+    fill: rgba(5,128,200,0.3);
+    animation-duration: 13s;
+    animation-delay: -4s;
+}
+.spg-wave-4 {
+    fill: #0580c8;
+    animation-duration: 20s;
+    animation-delay: -5s;
+}
+
+@keyframes spg-wave-move {
+    0%   { transform: translate3d(-90px, 0, 0); }
+    100% { transform: translate3d(85px, 0, 0); }
+}
+
+/* Respecte la préférence "réduire les animations" */
+@media (prefers-reduced-motion: reduce) {
+    .spg-wave-parallax > use { animation: none; }
+    .spg-wave-4 { fill: #0580c8; }
+}
+
+/* ── Formulaire (réutilise les classes de guide_article.css) ── */
+.s_pool_guides_devis .guide-nl-input {
+    border: none; border-radius: 4px 0 0 4px;
+    padding: .45rem .75rem; font-size: .82rem;
+    width: 220px; color: #1a2e40;
+}
+.s_pool_guides_devis .guide-nl-btn {
+    background: #fff; color: #0580c8;
+    border: none; border-radius: 0 4px 4px 0;
+    padding: .45rem 1rem; font-weight: 700;
+    font-size: .78rem; cursor: pointer;
+}
+.s_pool_guides_devis .guide-nl-btn:hover { background: #e8f4fc; }
 
 /* ── Responsive ── */
 @media (max-width: 575.98px) {
-    .s_pool_guide_img_wrap {
-        width: 80px;
-        min-width: 80px;
-        height: 75px;
-    }
-    .s_pool_guide_label {
-        font-size: 0.82rem;
-        padding: 0.5rem 0.75rem;
-    }
+    .s_pool_guide_img_wrap { width: 80px; min-width: 80px; height: 75px; }
+    .s_pool_guide_label { font-size: .82rem; padding: .5rem .75rem; }
+    .s_pool_guides_devis .guide-nl-input { width: 160px; }
 }
 
 /* ── Dark mode ── */
 .o_dark .s_pool_guides { background-color: #0d1f2d; }
 .o_dark .s_pool_guides_title { color: #60b8f0; }
 .o_dark .s_pool_guides_underline { background: #60b8f0; }
-.o_dark .s_pool_guide_card { background-color: #162435; border-color: rgba(80, 160, 220, 0.2); }
-.o_dark .s_pool_guide_card:hover { background-color: #1c3047; border-color: rgba(80, 160, 220, 0.5); }
+.o_dark .s_pool_guide_card { background-color: #162435; border-color: rgba(80,160,220,.2); }
+.o_dark .s_pool_guide_card:hover { background-color: #1c3047; }
 .o_dark .s_pool_guide_label { color: #c8e4f5; }
-
-/* Vague entre la grille et le formulaire */
-.s_pool_guides_wave {
-    line-height: 0;
-    margin-bottom: -1px;
-    background: #f7fbfe;
-}
