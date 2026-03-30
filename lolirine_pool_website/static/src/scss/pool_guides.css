@@ -122,7 +122,9 @@
 .o_dark .s_pool_guide_card:hover { background-color: #1c3047; border-color: rgba(80, 160, 220, 0.5); }
 .o_dark .s_pool_guide_label { color: #c8e4f5; }
 
-/* Fond de la vague adapté au fond du snippet */
-.s_pool_guides + .guide-wave-wrapper {
+/* Vague entre la grille et le formulaire */
+.s_pool_guides_wave {
+    line-height: 0;
+    margin-bottom: -1px;
     background: #f7fbfe;
 }
