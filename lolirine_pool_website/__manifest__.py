@@ -44,8 +44,8 @@
         'web.assets_frontend': [
             'lolirine_pool_website/static/src/css/pool_theme.css',
             'lolirine_pool_website/static/src/css/brands.css',
-            'lolirine_pool_website/static/src/scss/pool_guides.scss',
-            'lolirine_pool_website/static/src/scss/guide_article.scss',
+            'lolirine_pool_website/static/src/scss/pool_guides.css',
+            'lolirine_pool_website/static/src/scss/guide_article.css',
         ],
     },
     'installable': True,
