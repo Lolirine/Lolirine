@@ -1,0 +1,81 @@
+// ── Variables ─────────────────────────────────────────────────
+$guide-border-color:     rgba(0, 120, 180, 0.12);
+$guide-border-hover:     rgba(0, 120, 180, 0.45);
+$guide-bg:               #ffffff;
+$guide-bg-hover:         #f0f8ff;
+$guide-shadow-hover:     0 4px 18px rgba(0, 100, 160, 0.13);
+$guide-label-color:      #1a2e40;
+$guide-label-hover:      #0068b0;
+$guide-radius:           10px;
+$guide-thumb-w:          90px;
+$guide-thumb-h:          70px;
+$guide-transition:       all 0.22s ease;
+$guide-placeholder-gradient: linear-gradient(135deg, #0a9fd8 0%, #006ea8 100%);
+
+.s_pool_guides {
+    background-color: #f7fbfe;
+
+    .s_pool_guides_title {
+        font-size: clamp(1.5rem, 3vw, 2.1rem);
+        font-weight: 700;
+        color: #0d2d45;
+        letter-spacing: -0.02em;
+    }
+
+    .s_pool_guides_subtitle {
+        font-size: 1.05rem;
+    }
+}
+
+.s_pool_guide_card {
+    background-color:  $guide-bg;
+    border:            1.5px solid $guide-border-color;
+    border-radius:     $guide-radius;
+    transition:        $guide-transition;
+    cursor:            pointer;
+    min-height:        90px;
+
+    &:hover,
+    &:focus-visible {
+        background-color: $guide-bg-hover;
+        border-color:     $guide-border-hover;
+        box-shadow:       $guide-shadow-hover;
+        transform:        translateY(-2px);
+        outline:          none;
+
+        .s_pool_guide_label { color: $guide-label-hover; }
+        .s_pool_guide_thumb { transform: scale(1.04); }
+    }
+}
+
+.s_pool_guide_thumb {
+    width:           $guide-thumb-w;
+    min-width:       $guide-thumb-w;
+    height:          $guide-thumb-h;
+    object-fit:      cover;
+    border-radius:   6px;
+    transition:      transform 0.22s ease;
+    background:      $guide-placeholder-gradient;
+}
+
+.s_pool_guide_label {
+    color:       $guide-label-color;
+    font-size:   0.9rem;
+    line-height: 1.35;
+    transition:  color 0.2s ease;
+}
+
+@media (max-width: 575.98px) {
+    .s_pool_guide_card { flex-direction: row; }
+    .s_pool_guide_thumb { width: 70px; min-width: 70px; height: 55px; }
+    .s_pool_guide_label { font-size: 0.85rem; }
+}
+
+.o_dark .s_pool_guides { background-color: #0d1f2d; }
+.o_dark .s_pool_guides .s_pool_guides_title { color: #e8f4fc; }
+.o_dark .s_pool_guide_card {
+    background-color: #162435;
+    border-color:     rgba(80, 160, 220, 0.18);
+    &:hover { background-color: #1c3047; border-color: rgba(80, 160, 220, 0.5); }
+}
+.o_dark .s_pool_guide_label { color: #c8e4f5; }
