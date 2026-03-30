@@ -244,9 +244,13 @@
     <template id="pool_guides_in_snippets"
               inherit_id="website.snippets"
               name="Lolirine — Snippet Guides Piscine">
-        <xpath expr="//div[@id='snippet_content']" position="inside">
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
             <t t-snippet="lolirine_pool_website.s_pool_guides"
-               t-thumbnail="/lolirine_pool_website/static/src/img/snippets/pool_guides_thumb.svg"/>
+               string="Guides Piscine"
+               group="custom"
+               t-thumbnail="/lolirine_pool_website/static/src/img/snippets/pool_guides_thumb.svg">
+                <keywords>guides piscine conseils hivernage entretien sécurité</keywords>
+            </t>
         </xpath>
     </template>
 
