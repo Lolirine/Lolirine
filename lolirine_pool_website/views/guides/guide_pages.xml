@@ -1,0 +1,1719 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+    ============================================================
+    PAGES GUIDES PISCINE — 21 pages website.page + ir.ui.view
+    Module  : lolirine_pool_website
+    Fichier : views/guides/guide_pages.xml
+
+    Chaque page :
+      • URL        : /guides/<slug>
+      • website_id : 6 (Pool Store)
+      • Éditable   : via Website Builder (oe_structure + inline)
+      • Sidebar    : shared via t-call guide_article_sidebar
+      • Formulaire : shared via t-call guide_devis_form
+    ============================================================
+    -->
+
+    <!-- ── Guide 01 : hivernage ── -->
+    <record id="view_guide_hivernage" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_hivernage</field>
+        <field name="key">lolirine_pool_website.guide_hivernage</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_hivernage">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_hivernage</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Comment hiverner sa piscine pour l'hiver</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Comment hiverner sa piscine pour l'hiver</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <!-- ── Introduction ── -->
+                            <p class="guide-intro-text">
+                                Hivernage actif ou hivernage passif ?<br/>
+                                Nos conseils pour bien hiverner votre piscine, protéger le matériel pendant
+                                l'hiver et faciliter le redémarrage au printemps.
+                            </p>
+
+                            <!-- ── Sommaire ── -->
+                            <div class="guide-summary">
+                                <p class="guide-summary-title">Sommaire</p>
+                                <ul class="guide-summary-list">
+                                    <li><a href="#pourquoi-hiverner">Pourquoi hiverner sa piscine ?</a></li>
+                                    <li><a href="#quand-hiverner">Quand hiverner sa piscine ?</a></li>
+                                    <li><a href="#quel-type">Quel type d'hivernage ?</a></li>
+                                    <li><a href="#hivernage-actif">Hivernage actif</a></li>
+                                    <li><a href="#hivernage-passif">Hivernage passif</a></li>
+                                    <li><a href="#protection-gel">Protéger les parois du gel</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- ── Section 1 ── -->
+                            <h2 id="pourquoi-hiverner" class="guide-section-title">
+                                Pourquoi hiverner sa piscine ?
+                            </h2>
+                            <p>
+                                Il est impératif de prévoir l'hivernage de votre piscine après la saison de baignade.
+                                L'hivernage vous permet de protéger le matériel de votre piscine des contraintes liées
+                                aux intempéries et au gel pendant l'hiver. Il facilitera le redémarrage de votre piscine
+                                à l'arrivée des beaux jours.
+                            </p>
+
+                            <!-- ── Section 2 ── -->
+                            <h2 id="quand-hiverner" class="guide-section-title">
+                                Quand hiverner sa piscine ?
+                            </h2>
+                            <p>
+                                La mise en hivernage devrait être réalisée dès lors que vous décidez de ne plus utiliser
+                                votre piscine. Cependant, un arrêt de la filtration trop tôt dans la saison (lorsque la
+                                température de l'eau est supérieure à 12°C) favoriserait le développement des algues et
+                                la prolifération des bactéries, rendant plus difficile la remise en route au printemps
+                                suivant. Lorsque la température de l'eau de votre piscine descend sous les 12°C, le
+                                développement d'algues ou de bactéries est limité naturellement. C'est alors le bon moment
+                                pour hiverner sa piscine.
+                            </p>
+
+                            <!-- ── Section 3 ── -->
+                            <h2 id="quel-type" class="guide-section-title">
+                                Quel type d'hivernage ?
+                            </h2>
+                            <p>Deux options s'offrent à vous :</p>
+                            <ul>
+                                <li>L'hivernage actif</li>
+                                <li>L'hivernage passif</li>
+                            </ul>
+
+                            <!-- ── Section 4 ── -->
+                            <h3 id="hivernage-actif" class="guide-subsection-title">Hivernage actif</h3>
+                            <p>
+                                L'hivernage actif consiste à
+                                <strong class="guide-highlight">ralentir le fonctionnement de la piscine</strong>
+                                en laissant le système de filtration fonctionner quelques heures par jour ou constamment
+                                dès lors que la température descend en dessous de +5°C pour éviter tout risque de gel.
+                                Installer un coffret de mise hors gel permet d'éviter le risque de gel en forçant
+                                automatiquement le démarrage de la filtration au dessous d'un point de consigne.
+                            </p>
+
+                            <!-- ── Section 5 ── -->
+                            <h3 id="hivernage-passif" class="guide-subsection-title">Hivernage passif</h3>
+                            <p>
+                                L'hivernage passif consiste en
+                                <strong class="guide-highlight">l'arrêt total de votre piscine</strong>
+                                et de ses équipements.
+                            </p>
+
+                            <h4 class="guide-step-title">Bien nettoyer votre piscine</h4>
+                            <p>
+                                Il faut dans un premier temps bien nettoyer la piscine, aspirer tous les dépôts,
+                                feuilles, débris et nettoyer avec insistance la ligne d'eau.
+                            </p>
+
+                            <h4 class="guide-step-title">Descendre le niveau d'eau</h4>
+                            <p>
+                                Il faut ensuite descendre le niveau d'eau de votre piscine
+                                <strong>10 cm sous les buses de refoulement</strong>.
+                            </p>
+                            <p class="guide-warning">
+                                Vidanger complètement une piscine peut endommager la structure du bassin.
+                                Demandez conseil à votre installateur ou contactez-nous préalablement.
+                            </p>
+
+                            <!-- ── Section 6 ── -->
+                            <h3 id="protection-gel" class="guide-subsection-title">
+                                Protéger les parois du gel avec des flotteurs d'hivernage
+                            </h3>
+                            <p>
+                                Pour éviter que le gel n'endommage la structure de votre piscine, placez des flotteurs
+                                d'hivernage dans la diagonale de votre piscine. Ces flotteurs sont compressibles, la
+                                poussée de la glace ne s'exercera pas contre les parois ni la structure au risque de
+                                l'endommager irrémédiablement, mais comprimera les flotteurs. Également, pensez à
+                                installer des bouteilles "gizzmo" dans les skimmers pour les protéger.
+                            </p>
+                            <p class="guide-tip">
+                                Si vous disposez d'une couverture d'hiver, vous pouvez maintenant la mettre en place.
+                            </p>
+                            <p>
+                                Enfin, <strong>débrancher le coffret électrique</strong>. Pensez à hiverner les
+                                équipements additionnels, électrolyseurs, pompes doseuses… reportez-vous aux notices
+                                des fabricants. Votre piscine est ainsi protégée pour l'hiver.
+                            </p>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_hivernage" model="website.page">
+        <field name="name">Comment hiverner sa piscine pour l'hiver</field>
+        <field name="url">/guides/hiverner-piscine-hiver</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_hivernage"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 02 : securite ── -->
+    <record id="view_guide_securite" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_securite</field>
+        <field name="key">lolirine_pool_website.guide_securite</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_securite">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_securite</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Loi sécurité piscine</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Loi sécurité piscine</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : loi sécurité piscine.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_securite_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_securite" model="website.page">
+        <field name="name">Loi sécurité piscine</field>
+        <field name="url">/guides/loi-securite-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_securite"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 03 : barriere ── -->
+    <record id="view_guide_barriere" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_barriere</field>
+        <field name="key">lolirine_pool_website.guide_barriere</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_barriere">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_barriere</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Guide d'installation d'une barrière à filet souple</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Guide d'installation d'une barrière à filet souple</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : guide d'installation d'une barrière à filet souple.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_barriere_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_barriere" model="website.page">
+        <field name="name">Guide d'installation d'une barrière à filet souple</field>
+        <field name="url">/guides/installation-barriere-filet-souple</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_barriere"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 04 : kit ── -->
+    <record id="view_guide_kit" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_kit</field>
+        <field name="key">lolirine_pool_website.guide_kit</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_kit">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_kit</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Guide de montage d'une piscine en kit</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Guide de montage d'une piscine en kit</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : guide de montage d'une piscine en kit.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_kit_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_kit" model="website.page">
+        <field name="name">Guide de montage d'une piscine en kit</field>
+        <field name="url">/guides/montage-piscine-kit</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_kit"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 05 : entretien_eau ── -->
+    <record id="view_guide_entretien_eau" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_entretien_eau</field>
+        <field name="key">lolirine_pool_website.guide_entretien_eau</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_entretien_eau">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_entretien_eau</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Conseils sur l'entretien de l'eau de piscine</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Conseils sur l'entretien de l'eau de piscine</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : conseils sur l'entretien de l'eau de piscine.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_entretien_eau_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_entretien_eau" model="website.page">
+        <field name="name">Conseils sur l'entretien de l'eau de piscine</field>
+        <field name="url">/guides/entretien-eau-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_entretien_eau"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 06 : redemarrage ── -->
+    <record id="view_guide_redemarrage" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_redemarrage</field>
+        <field name="key">lolirine_pool_website.guide_redemarrage</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_redemarrage">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_redemarrage</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Comment redémarrer sa piscine après l'hiver</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Comment redémarrer sa piscine après l'hiver</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : comment redémarrer sa piscine après l'hiver.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_redemarrage_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_redemarrage" model="website.page">
+        <field name="name">Comment redémarrer sa piscine après l'hiver</field>
+        <field name="url">/guides/redemarrer-piscine-hiver</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_redemarrage"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 07 : ozone ── -->
+    <record id="view_guide_ozone" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_ozone</field>
+        <field name="key">lolirine_pool_website.guide_ozone</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_ozone">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_ozone</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Traitement par l&apos;ozone, désinfection de l&apos;eau de piscine</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Traitement par l&apos;ozone, désinfection de l&apos;eau de piscine</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : traitement par l&apos;ozone, désinfection de l&apos;eau de piscine.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_ozone_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_ozone" model="website.page">
+        <field name="name">Traitement par l&apos;ozone, désinfection de l&apos;eau de piscine</field>
+        <field name="url">/guides/traitement-ozone-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_ozone"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 08 : hors_sol ── -->
+    <record id="view_guide_hors_sol" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_hors_sol</field>
+        <field name="key">lolirine_pool_website.guide_hors_sol</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_hors_sol">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_hors_sol</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Quelle piscine hors sol choisir ? Comparatif complet</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Quelle piscine hors sol choisir ? Comparatif complet</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : quelle piscine hors sol choisir ? comparatif complet.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_hors_sol_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_hors_sol" model="website.page">
+        <field name="name">Quelle piscine hors sol choisir ? Comparatif complet</field>
+        <field name="url">/guides/choisir-piscine-hors-sol</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_hors_sol"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 09 : pool_terre ── -->
+    <record id="view_guide_pool_terre" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_pool_terre</field>
+        <field name="key">lolirine_pool_website.guide_pool_terre</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_pool_terre">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_pool_terre</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">À quoi sert un &quot;Pool Terre&quot;</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">À quoi sert un &quot;Pool Terre&quot;</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : à quoi sert un &quot;pool terre&quot;.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_pool_terre_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_pool_terre" model="website.page">
+        <field name="name">À quoi sert un &quot;Pool Terre&quot;</field>
+        <field name="url">/guides/pool-terre-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_pool_terre"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 10 : beton ── -->
+    <record id="view_guide_beton" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_beton</field>
+        <field name="key">lolirine_pool_website.guide_beton</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_beton">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_beton</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">La piscine en béton</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">La piscine en béton</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : la piscine en béton.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_beton_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_beton" model="website.page">
+        <field name="name">La piscine en béton</field>
+        <field name="url">/guides/piscine-beton</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_beton"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 11 : robot ── -->
+    <record id="view_guide_robot" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_robot</field>
+        <field name="key">lolirine_pool_website.guide_robot</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_robot">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_robot</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Bien choisir son robot de piscine</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Bien choisir son robot de piscine</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : bien choisir son robot de piscine.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_robot_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_robot" model="website.page">
+        <field name="name">Bien choisir son robot de piscine</field>
+        <field name="url">/guides/choisir-robot-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_robot"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 12 : bulle ── -->
+    <record id="view_guide_bulle" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_bulle</field>
+        <field name="key">lolirine_pool_website.guide_bulle</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_bulle">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_bulle</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Bien choisir sa bâche à bulles</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Bien choisir sa bâche à bulles</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : bien choisir sa bâche à bulles.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_bulle_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_bulle" model="website.page">
+        <field name="name">Bien choisir sa bâche à bulles</field>
+        <field name="url">/guides/choisir-bache-bulles</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_bulle"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 13 : solaire ── -->
+    <record id="view_guide_solaire" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_solaire</field>
+        <field name="key">lolirine_pool_website.guide_solaire</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_solaire">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_solaire</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Choisir un chauffage solaire piscine</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Choisir un chauffage solaire piscine</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : choisir un chauffage solaire piscine.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_solaire_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_solaire" model="website.page">
+        <field name="name">Choisir un chauffage solaire piscine</field>
+        <field name="url">/guides/chauffage-solaire-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_solaire"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 14 : ph ── -->
+    <record id="view_guide_ph" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_ph</field>
+        <field name="key">lolirine_pool_website.guide_ph</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_ph">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_ph</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Comment équilibrer l&apos;eau – réglage du pH</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Comment équilibrer l&apos;eau – réglage du pH</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : comment équilibrer l&apos;eau – réglage du ph.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_ph_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_ph" model="website.page">
+        <field name="name">Comment équilibrer l&apos;eau – réglage du pH</field>
+        <field name="url">/guides/equilibrer-eau-ph-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_ph"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 15 : declaration ── -->
+    <record id="view_guide_declaration" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_declaration</field>
+        <field name="key">lolirine_pool_website.guide_declaration</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_declaration">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_declaration</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Service de déclaration préalable de travaux</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Service de déclaration préalable de travaux</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : service de déclaration préalable de travaux.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_declaration_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_declaration" model="website.page">
+        <field name="name">Service de déclaration préalable de travaux</field>
+        <field name="url">/guides/declaration-prealable-travaux-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_declaration"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 16 : contrelavage ── -->
+    <record id="view_guide_contrelavage" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_contrelavage</field>
+        <field name="key">lolirine_pool_website.guide_contrelavage</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_contrelavage">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_contrelavage</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Comment faire le contre lavage d&apos;un filtre</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Comment faire le contre lavage d&apos;un filtre</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : comment faire le contre lavage d&apos;un filtre.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_contrelavage_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_contrelavage" model="website.page">
+        <field name="name">Comment faire le contre lavage d&apos;un filtre</field>
+        <field name="url">/guides/contre-lavage-filtre-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_contrelavage"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 17 : coque ── -->
+    <record id="view_guide_coque" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_coque</field>
+        <field name="key">lolirine_pool_website.guide_coque</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_coque">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_coque</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Choisir une piscine coque</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Choisir une piscine coque</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : choisir une piscine coque.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_coque_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_coque" model="website.page">
+        <field name="name">Choisir une piscine coque</field>
+        <field name="url">/guides/choisir-piscine-coque</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_coque"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 18 : couverture ── -->
+    <record id="view_guide_couverture" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_couverture</field>
+        <field name="key">lolirine_pool_website.guide_couverture</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_couverture">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_couverture</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Comment choisir une couverture d&apos;hivernage</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Comment choisir une couverture d&apos;hivernage</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : comment choisir une couverture d&apos;hivernage.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_couverture_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_couverture" model="website.page">
+        <field name="name">Comment choisir une couverture d&apos;hivernage</field>
+        <field name="url">/guides/couverture-hivernage-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_couverture"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 19 : volet ── -->
+    <record id="view_guide_volet" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_volet</field>
+        <field name="key">lolirine_pool_website.guide_volet</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_volet">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_volet</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Comment choisir un volet piscine</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Comment choisir un volet piscine</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : comment choisir un volet piscine.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_volet_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_volet" model="website.page">
+        <field name="name">Comment choisir un volet piscine</field>
+        <field name="url">/guides/choisir-volet-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_volet"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 20 : electrolyseur ── -->
+    <record id="view_guide_electrolyseur" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_electrolyseur</field>
+        <field name="key">lolirine_pool_website.guide_electrolyseur</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_electrolyseur">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_electrolyseur</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Comment choisir un électrolyseur piscine</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Comment choisir un électrolyseur piscine</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : comment choisir un électrolyseur piscine.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_electrolyseur_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_electrolyseur" model="website.page">
+        <field name="name">Comment choisir un électrolyseur piscine</field>
+        <field name="url">/guides/choisir-electrolyseur-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_electrolyseur"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+    <!-- ── Guide 21 : bache_barres ── -->
+    <record id="view_guide_bache_barres" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_bache_barres</field>
+        <field name="key">lolirine_pool_website.guide_bache_barres</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_bache_barres">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_bache_barres</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <!-- Breadcrumb -->
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Comment choisir bâche à barres</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Corps de l'article + sidebar -->
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+
+                                    <!-- ── Contenu principal ── -->
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Comment choisir bâche à barres</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 4 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+                            <p class="guide-intro-text">
+                                <!-- Résumé de l'article — modifiable via le Website Builder -->
+                                Retrouvez ici nos conseils pratiques sur : comment choisir bâche à barres.
+                            </p>
+                            <div class="oe_structure" id="oe_guide_bache_barres_body"/>
+
+                                    </div>
+
+                                    <!-- ── Sidebar ── -->
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /row -->
+                            </div><!-- /container -->
+                        </section>
+
+                        <!-- Section Devis + Wave -->
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div><!-- /#wrap -->
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_bache_barres" model="website.page">
+        <field name="name">Comment choisir bâche à barres</field>
+        <field name="url">/guides/choisir-bache-barres-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_bache_barres"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+</odoo>
