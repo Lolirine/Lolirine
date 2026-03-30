@@ -35,11 +35,17 @@
         'data/website_data.xml',
         'data/product_category_data.xml',
         'data/website_menu_data.xml',
+        'views/snippets/pool_guides_snippet.xml',
+        'views/guides/guide_article_layout.xml',
+        'views/guides/guide_pages.xml',
+        'views/guides/guide_pages_content.xml',
     ],
     'assets': {
         'web.assets_frontend': [
             'lolirine_pool_website/static/src/css/pool_theme.css',
-            'lolirine_pool_website/static/src/css/brands.css'
+            'lolirine_pool_website/static/src/css/brands.css',
+            'lolirine_pool_website/static/src/scss/pool_guides.scss',
+            'lolirine_pool_website/static/src/scss/guide_article.scss',
         ],
     },
     'installable': True,
