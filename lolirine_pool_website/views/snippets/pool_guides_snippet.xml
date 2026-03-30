@@ -244,12 +244,9 @@
     <template id="pool_guides_in_snippets"
               inherit_id="website.snippets"
               name="Lolirine — Snippet Guides Piscine">
-        <xpath expr="//div[@id='snippet_content']/div[hasclass('o_panel_body')]"
-               position="inside">
+        <xpath expr="//div[@id='snippet_content']" position="inside">
             <t t-snippet="lolirine_pool_website.s_pool_guides"
-               t-thumbnail="/lolirine_pool_website/static/src/img/snippets/pool_guides_thumb.svg">
-                <div>Guides Piscine</div>
-            </t>
+               t-thumbnail="/lolirine_pool_website/static/src/img/snippets/pool_guides_thumb.svg"/>
         </xpath>
     </template>
 
