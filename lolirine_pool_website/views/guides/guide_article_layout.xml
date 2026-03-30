@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="guide_article_sidebar" name="Guide Piscine — Sidebar À lire également">
+        <div class="guide-sidebar">
+            <h5 class="guide-sidebar-title mb-3">À lire également</h5>
+            <div class="guide-sidebar-list">
+
+                <a href="/guides/hiverner-piscine-hiver" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_01_hivernage.jpg"
+                         alt="Hiverner sa piscine" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Comment hiverner sa piscine pour l'hiver</span>
+                </a>
+                <a href="/guides/choisir-piscine-hors-sol" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_08_hors_sol.jpg"
+                         alt="Piscine hors sol" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Quelle piscine hors sol choisir ?</span>
+                </a>
+                <a href="/guides/pool-terre-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_09_pool_terre.jpg"
+                         alt="Pool Terre" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>À quoi sert un "Pool Terre"</span>
+                </a>
+                <a href="/guides/piscine-beton" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_10_beton.jpg"
+                         alt="Piscine béton" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>La piscine en béton</span>
+                </a>
+                <a href="/guides/choisir-robot-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_11_robot.jpg"
+                         alt="Robot piscine" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Bien choisir son robot de piscine</span>
+                </a>
+                <a href="/guides/choisir-bache-bulles" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_12_bulle.jpg"
+                         alt="Bâche à bulles" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Bien choisir sa bâche à bulles</span>
+                </a>
+                <a href="/guides/chauffage-solaire-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_13_solaire.jpg"
+                         alt="Chauffage solaire" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Choisir un chauffage solaire piscine</span>
+                </a>
+                <a href="/guides/loi-securite-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_02_securite.jpg"
+                         alt="Loi sécurité" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Loi sécurité piscine</span>
+                </a>
+                <a href="/guides/equilibrer-eau-ph-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_14_ph.jpg"
+                         alt="Équilibre pH" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Comment équilibrer l'eau – réglage du pH</span>
+                </a>
+                <a href="/guides/montage-piscine-kit" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_04_kit.jpg"
+                         alt="Piscine en kit" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Guide de montage d'une piscine en kit</span>
+                </a>
+                <a href="/guides/redemarrer-piscine-hiver" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_06_redemarrage.jpg"
+                         alt="Redémarrer piscine" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Comment redémarrer sa piscine après l'hiver</span>
+                </a>
+                <a href="/guides/declaration-prealable-travaux-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_15_declaration.jpg"
+                         alt="Déclaration travaux" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Service de déclaration préalable de travaux</span>
+                </a>
+                <a href="/guides/contre-lavage-filtre-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_16_contrelavage.jpg"
+                         alt="Contre lavage filtre" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Comment faire le contre lavage d'un filtre</span>
+                </a>
+                <a href="/guides/installation-barriere-filet-souple" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_03_barriere.jpg"
+                         alt="Barrière filet" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Guide d'installation d'une barrière à filet souple</span>
+                </a>
+                <a href="/guides/choisir-piscine-coque" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_17_coque.jpg"
+                         alt="Piscine coque" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Choisir une piscine coque</span>
+                </a>
+                <a href="/guides/couverture-hivernage-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_18_couverture.jpg"
+                         alt="Couverture hivernage" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Comment choisir une couverture d'hivernage</span>
+                </a>
+                <a href="/guides/choisir-volet-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_19_volet.jpg"
+                         alt="Volet piscine" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Comment choisir un volet piscine</span>
+                </a>
+                <a href="/guides/choisir-electrolyseur-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_20_electrolyseur.jpg"
+                         alt="Électrolyseur" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Comment choisir un électrolyseur piscine</span>
+                </a>
+                <a href="/guides/choisir-bache-barres-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_21_bache_barres.jpg"
+                         alt="Bâche à barres" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Comment choisir bâche à barres</span>
+                </a>
+                <a href="/guides/entretien-eau-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_05_entretien_eau.jpg"
+                         alt="Entretien eau" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Conseils sur l'entretien de l'eau de piscine</span>
+                </a>
+                <a href="/guides/traitement-ozone-piscine" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/src/img/guides/guide_07_ozone.jpg"
+                         alt="Traitement ozone" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Traitement par l'ozone, désinfection de l'eau</span>
+                </a>
+
+            </div>
+        </div>
+    </template>
+
+    <template id="guide_devis_form" name="Guide Piscine — Section Devis">
+
+        <div class="guide-wave-wrapper" aria-hidden="true">
+            <svg viewBox="0 0 1440 90" xmlns="http://www.w3.org/2000/svg"
+                 preserveAspectRatio="none" class="guide-wave-svg">
+                <path d="M0,40 C360,90 1080,0 1440,50 L1440,90 L0,90 Z" fill="#0580c8"/>
+            </svg>
+        </div>
+
+        <section class="guide-devis-section">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-lg-8 col-xl-7">
+
+                        <h2 class="guide-devis-title text-center mb-2">DEMANDE DE DEVIS</h2>
+                        <p class="text-center text-white-70 mb-1 small">
+                            Les demandes de devis sont traitées à partir de 50€ de commande minimum,
+                            merci de votre compréhension.
+                        </p>
+                        <p class="text-center text-white-70 mb-4 small">
+                            Le produit complet (robot, pompe, équipement…) dont sont issues les pièces
+                            détachées est également disponible sur devis.
+                        </p>
+
+                        <form action="/website/form/"
+                              method="post"
+                              class="guide-devis-form o_mark_required"
+                              data-model-name="mail.mail"
+                              data-success-page="/guides/devis-envoye"
+                              enctype="multipart/form-data">
+
+                            <input type="hidden" name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="subject"
+                                   value="Demande de devis — Lolirine Pool Store"/>
+                            <input type="hidden" name="email_to"
+                                   value="contact@lolirinepoolstore.be"/>
+
+                            <div class="row g-3">
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="df_nom">Nom <span class="text-danger">*</span></label>
+                                    <input type="text" id="df_nom" name="nom"
+                                           class="guide-form-control form-control"
+                                           required="required" autocomplete="family-name"/>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="df_prenom">Prénom <span class="text-danger">*</span></label>
+                                    <input type="text" id="df_prenom" name="prenom"
+                                           class="guide-form-control form-control"
+                                           required="required" autocomplete="given-name"/>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="df_email">Adresse email <span class="text-danger">*</span></label>
+                                    <input type="email" id="df_email" name="email_from"
+                                           class="guide-form-control form-control"
+                                           required="required" autocomplete="email"/>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="df_tel">Téléphone <span class="text-danger">*</span></label>
+                                    <input type="tel" id="df_tel" name="telephone"
+                                           class="guide-form-control form-control"
+                                           required="required" autocomplete="tel"/>
+                                </div>
+                                <div class="col-12 col-sm-8">
+                                    <label class="guide-form-label" for="df_adresse">Adresse</label>
+                                    <input type="text" id="df_adresse" name="adresse"
+                                           class="guide-form-control form-control"
+                                           autocomplete="street-address"/>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label class="guide-form-label" for="df_cp">Code postal</label>
+                                    <input type="text" id="df_cp" name="code_postal"
+                                           class="guide-form-control form-control"
+                                           autocomplete="postal-code"/>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="df_ville">Ville <span class="text-danger">*</span></label>
+                                    <input type="text" id="df_ville" name="ville"
+                                           class="guide-form-control form-control"
+                                           required="required" autocomplete="address-level2"/>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label class="guide-form-label" for="df_pays">Pays <span class="text-danger">*</span></label>
+                                    <select id="df_pays" name="pays"
+                                            class="guide-form-control form-select"
+                                            required="required">
+                                        <option value="BE" selected="selected">🇧🇪 Belgique</option>
+                                        <option value="FR">🇫🇷 France</option>
+                                        <option value="LU">🇱🇺 Luxembourg</option>
+                                        <option value="NL">🇳🇱 Pays-Bas</option>
+                                        <option value="DE">🇩🇪 Allemagne</option>
+                                        <option value="CH">🇨🇭 Suisse</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="guide-form-label" for="df_message">Message <span class="text-danger">*</span></label>
+                                    <textarea id="df_message" name="body_html"
+                                              class="guide-form-control form-control"
+                                              rows="5" required="required"
+                                              placeholder="Décrivez votre projet ou votre demande…"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input type="checkbox" id="df_optin" name="optin_newsletter"
+                                               class="form-check-input" value="1"/>
+                                        <label class="form-check-label text-white-70 small" for="df_optin">
+                                            J'accepte de recevoir les offres promotionnelles
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 text-center mt-2">
+                                    <button type="submit" class="guide-devis-btn">
+                                        ENVOYER MA DEMANDE
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-newsletter-bar mt-5 py-3 text-center">
+                <span class="text-white me-3 fw-semibold text-uppercase small">
+                    Recevez les nouveautés, bons plans et offres exclusives en vous
+                    inscrivant à notre newsletter
+                </span>
+                <form action="/website/newsletter/subscribe" method="post"
+                      class="d-inline-flex gap-2 mt-2 mt-md-0">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="email" name="email" placeholder="Votre adresse email"
+                           class="form-control guide-nl-input" required="required"/>
+                    <button type="submit" class="guide-nl-btn">VALIDER</button>
+                </form>
+            </div>
+
+        </section>
+    </template>
+
+</odoo>
