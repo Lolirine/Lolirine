@@ -1,0 +1,273 @@
+// ── Variables ─────────────────────────────────────────────────
+$guide-blue:          #0580c8;
+$guide-blue-dark:     #005f9e;
+$guide-blue-light:    #e8f4fc;
+$guide-section-color: #2e7fc1;
+$guide-highlight-bg:  #fff3cd;
+$guide-warning-color: #c0392b;
+$guide-tip-color:     #1a6b3a;
+$guide-border:        #dce8f2;
+$guide-sidebar-w:     110px;
+$guide-sidebar-h:     75px;
+$guide-radius:        8px;
+$guide-transition:    all 0.2s ease;
+
+// ── Breadcrumb ────────────────────────────────────────────────
+.guide-breadcrumb-bar {
+    background: #f4f8fc;
+    border-bottom: 1px solid $guide-border;
+
+    .guide-breadcrumb {
+        font-size: 0.82rem;
+        color: #6c8ea4;
+
+        a { color: $guide-blue; text-decoration: none; &:hover { text-decoration: underline; } }
+        .guide-bc-sep { margin: 0 0.4rem; opacity: 0.5; }
+        .active { color: #444; }
+    }
+}
+
+// ── Titre & meta ──────────────────────────────────────────────
+.guide-article-page { background: #fff; }
+
+.guide-title {
+    font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+    font-weight: 800;
+    color: $guide-section-color;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.guide-meta {
+    font-size: 0.82rem;
+    color: #888;
+    margin-bottom: 0;
+    .guide-reading-time { color: $guide-blue; }
+}
+
+.guide-title-divider { border-color: $guide-border; margin-top: 0.75rem; }
+
+// ── Intro & sommaire ──────────────────────────────────────────
+.guide-intro-text {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+.guide-summary {
+    border: 1.5px solid $guide-section-color;
+    border-radius: $guide-radius;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    background: $guide-blue-light;
+    float: right;
+    max-width: 280px;
+    margin-left: 1.5rem;
+
+    @media (max-width: 575px) { float: none; max-width: 100%; margin-left: 0; }
+
+    .guide-summary-title { font-weight: 700; color: $guide-section-color; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .guide-summary-list {
+        margin: 0; padding-left: 1.1rem; font-size: 0.85rem;
+        li { margin-bottom: 0.25rem; }
+        a { color: $guide-section-color; text-decoration: none; &:hover { text-decoration: underline; } }
+    }
+}
+
+// ── Headings article ──────────────────────────────────────────
+.guide-section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: $guide-section-color;
+    background: rgba($guide-blue, 0.06);
+    border-left: 4px solid $guide-section-color;
+    border-radius: 0 $guide-radius $guide-radius 0;
+    padding: 0.55rem 1rem;
+    margin: 2rem 0 1rem;
+}
+
+.guide-subsection-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $guide-section-color;
+    margin: 1.75rem 0 0.75rem;
+}
+
+.guide-step-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: $guide-section-color;
+    margin: 1.25rem 0 0.4rem;
+}
+
+// ── Typographie corps ─────────────────────────────────────────
+.guide-body-section {
+    p, li { font-size: 0.93rem; line-height: 1.75; color: #333; }
+    ul, ol { padding-left: 1.4rem; margin-bottom: 1rem; font-size: 0.93rem; }
+    strong { color: #1a1a1a; }
+}
+
+.guide-highlight {
+    background: $guide-highlight-bg;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+.guide-warning {
+    color: $guide-warning-color;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-left: 3px solid $guide-warning-color;
+    padding-left: 0.75rem;
+    margin: 1rem 0;
+}
+
+.guide-tip {
+    color: $guide-tip-color;
+    font-size: 0.9rem;
+    border-left: 3px solid $guide-tip-color;
+    padding-left: 0.75rem;
+    margin: 1rem 0;
+}
+
+.guide-table { font-size: 0.88rem; }
+
+// ── Sidebar ───────────────────────────────────────────────────
+.guide-sidebar-sticky {
+    position: sticky;
+    top: 90px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: $guide-border transparent;
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb { background: $guide-border; border-radius: 2px; }
+}
+
+.guide-sidebar {
+    border: 1.5px solid $guide-border;
+    border-radius: $guide-radius;
+    overflow: hidden;
+
+    .guide-sidebar-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #1a2e40;
+        padding: 0.8rem 1rem;
+        background: $guide-blue-light;
+        border-bottom: 1px solid $guide-border;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-bottom: 0;
+    }
+}
+
+.guide-sidebar-list { display: flex; flex-direction: column; }
+
+.guide-sidebar-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid $guide-border;
+    text-decoration: none;
+    transition: $guide-transition;
+
+    &:last-child { border-bottom: none; }
+    &:hover {
+        background: $guide-blue-light;
+        text-decoration: none;
+        span { color: $guide-blue; }
+        .guide-sidebar-thumb { transform: scale(1.05); }
+    }
+    span { font-size: 0.8rem; line-height: 1.3; color: #1a2e40; font-weight: 500; transition: color 0.18s ease; }
+}
+
+.guide-sidebar-thumb {
+    width: $guide-sidebar-w;
+    min-width: $guide-sidebar-w;
+    height: $guide-sidebar-h;
+    object-fit: cover;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #0a9fd8, #005f9e);
+    transition: transform 0.2s ease;
+}
+
+// ── Wave & section devis ──────────────────────────────────────
+.guide-wave-wrapper {
+    line-height: 0;
+    margin-bottom: -1px;
+    overflow: hidden;
+    background: #fff;
+    .guide-wave-svg { display: block; width: 100%; height: 90px; }
+}
+
+.guide-devis-section {
+    background: linear-gradient(160deg, #0580c8 0%, #005f9e 100%);
+    padding: 3rem 0 0;
+}
+
+.guide-devis-title { font-size: 1.6rem; font-weight: 800; color: #fff; letter-spacing: 0.04em; }
+.text-white-70 { color: rgba(255,255,255,.75); }
+
+.guide-form-label {
+    font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,.9);
+    margin-bottom: 0.3rem; display: block;
+}
+
+.guide-form-control {
+    border: none; border-radius: 5px; background: rgba(255,255,255,.95);
+    font-size: 0.88rem; color: #1a2e40; padding: 0.55rem 0.8rem; width: 100%;
+    &:focus { outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,.45); background: #fff; }
+    &::placeholder { color: #aaa; }
+}
+
+.guide-devis-btn {
+    display: inline-block; padding: 0.8rem 3rem;
+    background: #4cba27; color: #fff; font-weight: 800; font-size: 0.95rem;
+    letter-spacing: 0.06em; border: none; border-radius: 30px; cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    &:hover { background: #3da01f; transform: translateY(-1px); }
+    &:active { transform: translateY(0); }
+}
+
+.guide-newsletter-bar {
+    background: rgba(0,0,0,.15);
+    border-top: 1px solid rgba(255,255,255,.1);
+    .guide-nl-input { border: none; border-radius: 4px 0 0 4px; padding: 0.45rem 0.75rem; font-size: 0.82rem; width: 220px; color: #1a2e40; }
+    .guide-nl-btn {
+        background: #fff; color: $guide-blue; border: none; border-radius: 0 4px 4px 0;
+        padding: 0.45rem 1rem; font-weight: 700; font-size: 0.78rem; cursor: pointer;
+        transition: background 0.18s;
+        &:hover { background: $guide-blue-light; }
+    }
+}
+
+// ── Responsive ────────────────────────────────────────────────
+@media (max-width: 991.98px) {
+    .guide-sidebar-sticky { position: static; max-height: none; }
+    .guide-sidebar-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .guide-sidebar-card { border-right: 1px solid $guide-border; &:nth-child(even) { border-right: none; } }
+}
+
+@media (max-width: 575.98px) {
+    .guide-sidebar-list { grid-template-columns: 1fr; }
+    .guide-sidebar-card { border-right: none; }
+    .guide-nl-input { width: 160px; }
+}
+
+// ── Dark mode ─────────────────────────────────────────────────
+.o_dark {
+    .guide-article-page, .guide-body-section { background: #0d1f2d; }
+    .guide-title { color: #60b8f0; }
+    .guide-section-title { color: #60b8f0; background: rgba(96, 184, 240, 0.08); border-color: #60b8f0; }
+    .guide-breadcrumb-bar { background: #0d1a26; }
+    .guide-sidebar { border-color: rgba(80,160,220,.2); .guide-sidebar-title { background: #162435; color: #c8e4f5; } }
+    .guide-sidebar-card { border-color: rgba(80,160,220,.15); &:hover { background: #1c3047; } span { color: #c8e4f5; } }
+    p, li { color: #b0c8d8; }
+}
