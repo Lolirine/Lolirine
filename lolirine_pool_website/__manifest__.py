@@ -46,6 +46,7 @@
             'lolirine_pool_website/static/src/css/brands.css',
             'lolirine_pool_website/static/src/scss/pool_guides.css',
             'lolirine_pool_website/static/src/scss/guide_article.css',
+            'lolirine_pool_website/static/src/js/pool_guides.js',
         ],
     },
     'installable': True,
