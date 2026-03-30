@@ -1,0 +1,1056 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+    ============================================================
+    CONTENU DES PAGES GUIDES — Injection via inherit + xpath
+    Module  : lolirine_pool_website
+    Fichier : views/guides/guide_pages_content.xml
+
+    Ce fichier injecte le contenu HTML dans les 8 pages squelettes
+    existantes via xpath, sans modifier guide_pages.xml.
+    Il ajoute également la page "nettoyer-bache-hiver-piscine".
+
+    IMPORTANT : lister APRÈS guide_pages.xml dans __manifest__.py
+    ============================================================
+    -->
+
+    <!-- inject content → guide_securite -->
+    <record id="view_guide_securite_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_securite.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_securite"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_securite_body']" position="replace">
+                <div id="oe_guide_securite_body">
+
+<p class="guide-intro-text">
+    Les propriétaires de piscines enterrées non closes privatives ont la responsabilité
+    d'installer un dispositif de sécurité normalisé. En cas de non-respect, vous encourez
+    une amende de <strong>45 000 €</strong> et des sanctions pénales.
+</p>
+
+<div class="guide-summary">
+    <p class="guide-summary-title">Sommaire</p>
+    <ul class="guide-summary-list">
+        <li><a href="#qui-est-concerne">Qui est concerné ?</a></li>
+        <li><a href="#articles-loi">Articles L. 128-1 à L. 128-3</a></li>
+        <li><a href="#4-normes">Les 4 normes de protection</a></li>
+        <li><a href="#conseils-prevention">Conseils de prévention</a></li>
+    </ul>
+</div>
+
+<h2 id="qui-est-concerne" class="guide-section-title">Qui est concerné ?</h2>
+<p>
+    Les propriétaires pour les piscines existantes ou les maîtres d'ouvrage pour les
+    nouvelles piscines ont la responsabilité d'installer ou de faire installer un
+    dispositif de sécurité.
+</p>
+<p>
+    À compter du 1er janvier 2004, les piscines enterrées non closes privatives à usage
+    individuel ou collectif doivent être pourvues d'un dispositif de sécurité normalisé
+    visant à prévenir le risque de noyade.
+</p>
+
+<h2 id="articles-loi" class="guide-section-title">Articles de loi</h2>
+
+<h3 class="guide-subsection-title">Art. L. 128-1</h3>
+<p>
+    À compter du 1er janvier 2004, le constructeur ou l'installateur d'une telle piscine
+    doit fournir au maître d'ouvrage une note technique indiquant le dispositif de sécurité
+    normalisé retenu.
+    <em>(Décret n° 2003-1389 du 31/12/2003 — Décret n° 2004-499 H)</em>
+</p>
+
+<h3 class="guide-subsection-title">Art. L. 128-2</h3>
+<p>
+    Les propriétaires de piscines installées avant le 1er janvier 2004 devaient avoir équipé
+    leur piscine d'un dispositif de sécurité normalisé au 1er janvier 2006. En cas de
+    location saisonnière, un dispositif devait être installé avant le 1er janvier 2004.
+</p>
+
+<h3 class="guide-subsection-title">Art. L. 152-12 — Sanctions</h3>
+<p>
+    Le non-respect des dispositions des articles L. 128-1 et L. 128-2 est puni de
+    <strong>45 000 € d'amende</strong>. Les personnes morales peuvent également être
+    déclarées responsables pénalement.
+</p>
+
+<h2 id="4-normes" class="guide-section-title">Les 4 normes de protection</h2>
+<div class="table-responsive">
+    <table class="table table-bordered guide-table">
+        <thead>
+            <tr>
+                <th>Norme</th>
+                <th>Dispositif couvert</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><strong>NF P90-306</strong></td><td>Barrières de protection et moyens d'accès au bassin</td></tr>
+            <tr><td><strong>NF P90-307</strong></td><td>Systèmes d'alarmes</td></tr>
+            <tr><td><strong>NF P90-308</strong></td><td>Couvertures de sécurité et dispositifs d'accrochage</td></tr>
+            <tr><td><strong>NF P90-309</strong></td><td>Abris (structures légères et/ou vérandas) de piscines</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 id="conseils-prevention" class="guide-section-title">Conseils de prévention</h2>
+<ul>
+    <li>Ne laissez jamais un enfant accéder ou rester seul près d'un point d'eau.</li>
+    <li>La surveillance des enfants doit être rapprochée et constante.</li>
+    <li>Désignez un seul responsable de la sécurité.</li>
+    <li>Équipez vos enfants de brassards, maillots flotteurs, bouées adaptées.</li>
+    <li>Apprenez à nager à vos enfants le plus tôt possible.</li>
+    <li>Ayez toujours à côté du bassin une perche, une bouée, un téléphone portable.</li>
+    <li>Apprenez les gestes qui sauvent.</li>
+    <li>Ne laissez pas de jouets dans l'eau après la baignade.</li>
+    <li>Équipez votre bassin d'un dispositif de protection et remettez-le en place après chaque baignade.</li>
+    <li>Stockez les produits de traitement de l'eau hors de portée des enfants.</li>
+</ul>
+<p class="guide-tip">
+    Conseils proposés par la Coordination Syndicale Interprofessionnelle de la Piscine (CSIP).
+    Les éléments ci-dessus sont donnés à titre d'information et ne se substituent pas à la
+    réglementation applicable.
+</p>
+
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_entretien_eau -->
+    <record id="view_guide_entretien_eau_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_entretien_eau.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_entretien_eau"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_entretien_eau_body']" position="replace">
+                <div id="oe_guide_entretien_eau_body">
+
+<p class="guide-intro-text">
+    Guide et plan d'entretien avec utilisation du matériel et des produits de traitement
+    pour résoudre vos problèmes d'eau de piscine.
+</p>
+<p>
+    Il est impératif de garder une eau de piscine propre et un circuit de filtration en
+    bon ordre de marche. Feuilles mortes, insectes et débris transportés par le vent vont
+    se retrouver à la surface de votre piscine. Les particules les plus lourdes s'accumuleront
+    au fond du bassin.
+</p>
+
+<div class="guide-summary">
+    <p class="guide-summary-title">Sommaire</p>
+    <ul class="guide-summary-list">
+        <li><a href="#entretien-hebdo">Entretien hebdomadaire</a></li>
+        <li><a href="#pompe-filtre">Entretien pompe et filtre</a></li>
+        <li><a href="#controle-ph">Contrôle du pH</a></li>
+        <li><a href="#problemes-eau">Résoudre ses problèmes d'eau</a></li>
+        <li><a href="#stabilisant">Taux de stabilisant</a></li>
+        <li><a href="#traitement-choc">Traitement de choc</a></li>
+    </ul>
+</div>
+
+<h2 id="entretien-hebdo" class="guide-section-title">Entretien hebdomadaire</h2>
+<p>Opérations de nettoyage 1 à 2 fois par semaine :</p>
+<ul>
+    <li><strong>Videz le panier du skimmer</strong> : évite l'obstruction des canalisations et améliore la circulation de l'eau.</li>
+    <li><strong>Nettoyez la ligne d'eau</strong> : avec une éponge et un gel spécifique, retirez les résidus gras et les dépôts de calcaire.</li>
+    <li><strong>Passez le balai aspirateur</strong> : nettoyez le fond de la piscine avec un balai aspirateur ou un robot nettoyeur.</li>
+    <li><strong>Ajustez le niveau d'eau</strong> : maintenez le niveau au 3/4 des skimmers pour assurer une bonne circulation.</li>
+</ul>
+
+<h2 id="pompe-filtre" class="guide-section-title">Entretien de la pompe et du filtre</h2>
+<p>
+    Stoppez la filtration avant de vérifier l'état du panier pré-filtre de la pompe.
+    Contrôlez la pression du manomètre : une pression anormalement élevée indique
+    que le filtre est saturé.
+</p>
+
+<h3 class="guide-subsection-title">Filtre à sable — Contre-lavage</h3>
+<ol>
+    <li>Arrêtez la pompe.</li>
+    <li>Ouvrez la vanne d'égout.</li>
+    <li>Positionnez la vanne 6 voies sur <strong>« Lavage »</strong>.</li>
+    <li>Activez la pompe 1 minute.</li>
+    <li>Arrêtez la pompe, passez sur <strong>« Rinçage »</strong>.</li>
+    <li>Activez la pompe 1 minute.</li>
+    <li>Arrêtez la pompe, fermez la vanne d'égout.</li>
+    <li>Passez sur <strong>« Filtration »</strong> et redémarrez la pompe.</li>
+</ol>
+
+<h3 class="guide-subsection-title">Filtre à cartouche</h3>
+<p>
+    Arrêtez la pompe, retirez la cartouche, rincez-la à basse pression. Pour un nettoyage
+    approfondi, trempez-la dans un nettoyant dédié puis rincez. Surveillez la pression :
+    nettoyez lorsqu'elle augmente de 0,5 à 0,7 bar par rapport à la pression initiale.
+    Remplacez les cartouches selon les recommandations du fabricant (généralement tous les 1 à 2 ans).
+</p>
+
+<h2 id="controle-ph" class="guide-section-title">Contrôle du pH</h2>
+<p>Maintenez le pH entre <strong>7,0 et 7,4</strong> à l'aide d'un testeur d'eau.</p>
+<ul>
+    <li><strong>pH trop haut</strong> (eau basique) → ajoutez du <em>pH moins</em>.</li>
+    <li><strong>pH trop bas</strong> (eau acide) → ajoutez du <em>pH plus</em>.</li>
+</ul>
+<p class="guide-warning">
+    Un pH incorrect nuit à l'efficacité des traitements et peut détériorer votre revêtement
+    d'étanchéité (liner, coque…).
+</p>
+
+<h2 id="problemes-eau" class="guide-section-title">Résoudre ses problèmes d'eau</h2>
+
+<h3 class="guide-subsection-title">Eau laiteuse ou trouble</h3>
+<ol>
+    <li>Vérifiez et corrigez le pH (7,0–7,4).</li>
+    <li>Effectuez un traitement de choc.</li>
+    <li>Utilisez un floculant pour faire précipiter les particules.</li>
+    <li>Faites fonctionner la filtration 24 h en continu.</li>
+    <li>Aspirez les résidus au fond du bassin.</li>
+</ol>
+
+<h3 class="guide-subsection-title">Eau verte trouble (algues)</h3>
+<ol>
+    <li>Effectuez une <strong>chloration choc</strong>.</li>
+    <li>Lavez et rincez le filtre.</li>
+    <li>Placez une cartouche de floculant dans le skimmer.</li>
+    <li>Ajoutez un produit anti-algues concentré.</li>
+    <li>Vérifiez le taux de stabilisant (si > 150 ppm, vidangez la moitié du bassin).</li>
+</ol>
+
+<h3 class="guide-subsection-title">Dépôts calcaires</h3>
+<p>
+    Ajustez le pH entre 7,0 et 7,4. Si la dureté de l'eau est élevée, ajoutez un
+    produit anti-calcaire selon les instructions du fabricant.
+</p>
+
+<h3 class="guide-subsection-title">Eau brune, rougeâtre ou noire (fer / manganèse)</h3>
+<ol>
+    <li>Utilisez un séquestrant métaux.</li>
+    <li>Réajustez le pH entre 7,0 et 7,4.</li>
+    <li>Effectuez une chloration choc puis une floculation liquide.</li>
+    <li>Arrêtez la filtration 12 h pour laisser les particules se déposer.</li>
+    <li>Aspirez les dépôts en position « vidange égout ».</li>
+</ol>
+
+<h3 class="guide-subsection-title">Odeur forte de chlore + irritation</h3>
+<p>
+    Excès de <strong>chloramines</strong> (chlore dégradé). Effectuez une chloration choc
+    et réajustez le pH entre 7,0 et 7,4.
+</p>
+
+<h2 id="stabilisant" class="guide-section-title">Taux de stabilisant</h2>
+<p>
+    Le taux de stabilisant ne doit pas dépasser <strong>75 mg/l</strong>. Le stabilisant
+    ne s'élimine pas avec le temps : seule une vidange partielle ou totale peut le réduire.
+    Vérifiez-le avec une languette test ou un photomètre.
+</p>
+<p class="guide-warning">
+    Ne descendez pas trop le niveau d'eau pour les piscines avec liner ou les coques
+    polyester — ne jamais vider complètement une coque polyester.
+</p>
+
+<h2 id="traitement-choc" class="guide-section-title">Traitement de choc</h2>
+<p>
+    Pour désinfecter rapidement l'eau et éliminer les algues, effectuez un traitement de
+    choc au chlore choc. Laissez la filtration tourner en continu pendant 48 h. Effectuez
+    ensuite un contre-lavage et analysez l'eau. Corrigez le pH entre 7,0 et 7,4 et
+    maintenez un taux de chlore à <strong>1,5 mg/l</strong>.
+</p>
+<p class="guide-tip">
+    Une floculation tous les 15 jours vous permettra d'avoir une eau limpide et cristalline.
+    N'utilisez pas de floculant avec un filtre à cartouche ou à diatomées.
+</p>
+
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_ozone -->
+    <record id="view_guide_ozone_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_ozone.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_ozone"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_ozone_body']" position="replace">
+                <div id="oe_guide_ozone_body">
+
+<p class="guide-intro-text">
+    Bactéricide, biocide et germicide — le traitement de l'eau de piscine par l'ozone est
+    une méthode efficace et écologique. L'ozone (O₃) est un puissant oxydant qui détruit
+    rapidement les bactéries, les virus, les algues et les contaminants organiques.
+</p>
+
+<div class="guide-summary">
+    <p class="guide-summary-title">Sommaire</p>
+    <ul class="guide-summary-list">
+        <li><a href="#avantages-ozone">Avantages du traitement à l'ozone</a></li>
+        <li><a href="#fonctionnement">Fonctionnement</a></li>
+        <li><a href="#equipements">Équipements nécessaires</a></li>
+        <li><a href="#ozonateur">L'ozonateur — types et choix</a></li>
+        <li><a href="#remanant">Faut-il un rémanent ?</a></li>
+        <li><a href="#ozone-vs-uv">Différence entre UV et Ozone</a></li>
+        <li><a href="#tarifs">Comparatif de tarifs (60 m³)</a></li>
+    </ul>
+</div>
+
+<h2 id="avantages-ozone" class="guide-section-title">Avantages du traitement à l'ozone</h2>
+<ul>
+    <li><strong>Efficacité</strong> : oxydant puissant, il élimine rapidement les micro-organismes et les contaminants.</li>
+    <li><strong>Qualité de l'eau</strong> : améliore la clarté et réduit la nécessité de produits chimiques supplémentaires.</li>
+    <li><strong>Respect de l'environnement</strong> : l'ozone se décompose rapidement en oxygène, sans résidus nocifs.</li>
+    <li><strong>Confort des baigneurs</strong> : eau moins irritante pour la peau et les yeux, moins de sous-produits chlorés.</li>
+</ul>
+
+<h2 id="fonctionnement" class="guide-section-title">Fonctionnement</h2>
+<p>
+    Un générateur d'ozone produit de l'O₃ en soumettant l'oxygène à une décharge électrique
+    ou à une exposition aux ultraviolets. Lorsque l'ozone entre en contact avec l'eau, il
+    réagit avec les contaminants et les décompose en composés plus simples, filtrés ou
+    transformés en oxygène.
+</p>
+
+<h2 id="equipements" class="guide-section-title">Équipements nécessaires</h2>
+<ul>
+    <li><strong>Générateur d'ozone</strong> : produit l'ozone à partir de l'oxygène de l'air ou d'oxygène pur.</li>
+    <li><strong>Injecteur Venturi</strong> : crée un vide qui aspire l'ozone dans le circuit de circulation.</li>
+    <li><strong>Contacteur d'ozone</strong> : optimise le temps de contact pour une désinfection maximale.</li>
+    <li><strong>Dégazeur</strong> : élimine l'excès d'ozone non dissous avant que l'eau retourne dans la piscine.</li>
+</ul>
+
+<h2 id="ozonateur" class="guide-section-title">L'ozonateur — types et choix</h2>
+
+<h3 class="guide-subsection-title">Types d'ozonateurs</h3>
+<ul>
+    <li>
+        <strong>Décharge électrique (corona discharge)</strong> : plus efficaces pour de grands volumes ;
+        utilisés en piscines de grande taille ou applications commerciales.
+    </li>
+    <li>
+        <strong>Ultraviolets (UV)</strong> : moins efficaces mais plus simples et moins coûteux à entretenir ;
+        courants dans les piscines résidentielles.
+    </li>
+</ul>
+
+<h3 class="guide-subsection-title">Critères de choix</h3>
+<ul>
+    <li>Taille et volume de la piscine</li>
+    <li>Type d'ozonateur adapté à l'utilisation</li>
+    <li>Qualité de l'air ambiant</li>
+    <li>Budget d'installation et d'entretien</li>
+</ul>
+
+<h3 class="guide-subsection-title">Entretien</h3>
+<p>
+    Les ozonateurs à décharge électrique nécessitent un nettoyage régulier des électrodes et
+    une vérification du système de refroidissement. Les ozonateurs UV nécessitent le
+    remplacement des lampes UV <strong>tous les 12 à 24 mois</strong>.
+</p>
+
+<h2 id="remanant" class="guide-section-title">Faut-il un rémanent ?</h2>
+<p>
+    L'ozone a une durée de vie très courte dans l'eau (20 à 30 minutes). Il est donc
+    recommandé d'utiliser un <strong>désinfectant résiduel</strong> pour maintenir une
+    désinfection continue. Le chlore en faible quantité est le rémanent le plus courant.
+</p>
+<p class="guide-tip">
+    Le brome peut également être utilisé comme rémanent : il présente une odeur moins
+    prononcée et est moins irritant pour la peau et les yeux que le chlore.
+</p>
+
+<h2 id="ozone-vs-uv" class="guide-section-title">Différence entre UV et Ozone</h2>
+<div class="table-responsive">
+    <table class="table table-bordered guide-table">
+        <thead>
+            <tr><th></th><th>Traitement UV</th><th>Traitement Ozone</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><strong>Mécanisme</strong></td><td>Inactive les micro-organismes (dommages ADN)</td><td>Oxyde et détruit les contaminants</td></tr>
+            <tr><td><strong>Efficacité</strong></td><td>Bactéries, virus, algues, protozoaires</td><td>Supérieure — élimine aussi les composés organiques</td></tr>
+            <tr><td><strong>Effets sur l'eau</strong></td><td>Ne modifie pas la chimie de l'eau</td><td>Réduit les chloramines, peut légèrement augmenter le pH</td></tr>
+            <tr><td><strong>Coût d'installation</strong></td><td>500 – 1 500 €</td><td>1 000 – 3 000 €</td></tr>
+            <tr><td><strong>Entretien</strong></td><td>Simple — remplacement lampes UV</td><td>Plus fréquent, coûts plus élevés</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 id="tarifs" class="guide-section-title">Comparatif de tarifs pour un bassin de 60 m³</h2>
+<p><strong>Traitement UV :</strong></p>
+<ul>
+    <li>Installation : 500 à 1 500 € selon modèle</li>
+    <li>Entretien : remplacement des lampes UV tous les 1–2 ans (50 à 200 €)</li>
+</ul>
+<p><strong>Traitement Ozone :</strong></p>
+<ul>
+    <li>Installation : 1 000 à 3 000 € selon modèle</li>
+    <li>Entretien : coûts de pièces et réparations plus élevés qu'un système UV</li>
+</ul>
+<p class="guide-tip">
+    Le choix entre UV et Ozone dépend de vos besoins spécifiques, de votre budget et de
+    vos préférences en matière de qualité de l'eau.
+</p>
+
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_beton -->
+    <record id="view_guide_beton_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_beton.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_beton"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_beton_body']" position="replace">
+                <div id="oe_guide_beton_body">
+
+<p class="guide-intro-text">
+    Opter pour une piscine en béton, c'est choisir la durabilité, la qualité et l'élégance.
+    Grâce à une liberté de conception totale, la piscine en béton s'adapte à vos exigences
+    esthétiques, fonctionnelles et budgétaires.
+</p>
+
+<div class="guide-summary">
+    <p class="guide-summary-title">Sommaire</p>
+    <ul class="guide-summary-list">
+        <li><a href="#avantages-beton">Avantages</a></li>
+        <li><a href="#demarches">Démarches administratives</a></li>
+        <li><a href="#techniques">Techniques de fabrication</a></li>
+        <li><a href="#inconvenients">Inconvénients</a></li>
+    </ul>
+</div>
+
+<h2 id="avantages-beton" class="guide-section-title">Avantages d'une piscine en béton</h2>
+
+<h3 class="guide-subsection-title">Durabilité</h3>
+<p>
+    Le béton résiste aux agressions chimiques, aux variations de température et aux
+    intempéries. Une piscine en béton bien construite et entretenue peut durer
+    <strong>50 ans ou plus</strong>, minimisant les coûts de réparation à long terme.
+</p>
+
+<h3 class="guide-subsection-title">Personnalisation</h3>
+<p>
+    Forme sur mesure (rectangulaire, ronde, haricot…), profondeur adaptée, escaliers,
+    plages immergées, jets de massage, nage à contre-courant — tout est personnalisable.
+    Les revêtements (carrelage, mosaïque, enduit, membrane armée) offrent une esthétique
+    parfaitement intégrée à votre aménagement extérieur.
+</p>
+
+<h3 class="guide-subsection-title">Résistance</h3>
+<p>
+    Le ferraillage (barres d'acier ou treillis soudés) intégré à la structure en béton
+    absorbe les tensions et prévient les déformations. La piscine en béton armé résiste
+    aux mouvements de terrain, aux charges du bassin et aux pressions exercées par l'eau.
+</p>
+
+<h3 class="guide-subsection-title">Valeur ajoutée</h3>
+<p>
+    Une piscine en béton est perçue comme une installation haut de gamme qui améliore
+    l'attrait et le prestige de votre propriété, avec un impact positif sur la valeur
+    immobilière.
+</p>
+
+<h3 class="guide-subsection-title">Étanchéité</h3>
+<p>
+    Associée à un revêtement spécifique (liner, enduit d'étanchéité, membrane PVC armé),
+    la piscine en béton garantit une imperméabilité optimale et durable, protégeant la
+    structure contre les infiltrations et les variations thermiques.
+</p>
+
+<h2 id="demarches" class="guide-section-title">Démarches administratives</h2>
+<div class="table-responsive">
+    <table class="table table-bordered guide-table">
+        <thead>
+            <tr><th>Surface</th><th>Démarche requise</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Moins de 10 m²</td><td>Aucune démarche nécessaire</td></tr>
+            <tr><td>Entre 10 m² et 100 m²</td><td>Déclaration préalable de travaux obligatoire</td></tr>
+            <tr><td>Plus de 100 m²</td><td>Permis de construire obligatoire</td></tr>
+        </tbody>
+    </table>
+</div>
+<p class="guide-tip">
+    Les règles d'urbanisme peuvent varier d'une commune à l'autre. Consultez les services
+    d'urbanisme de votre mairie avant de lancer votre projet.
+</p>
+
+<h2 id="techniques" class="guide-section-title">Techniques de fabrication</h2>
+
+<h3 class="guide-subsection-title">Béton coulé</h3>
+<p>
+    Coulage direct dans des coffrages modulables sur site, renforcés par des armatures en
+    acier. Réputé pour sa solidité et sa durabilité. Très adapté aux formes régulières.
+</p>
+
+<h3 class="guide-subsection-title">Béton projeté (gunite / shotcrete)</h3>
+<p>
+    Mélange béton + eau projeté sous haute pression sur un treillis métallique. Excellente
+    adhérence, résistance élevée et grande flexibilité de conception — idéal pour les
+    formes complexes et les bassins sur mesure.
+</p>
+
+<h3 class="guide-subsection-title">Blocs à bancher</h3>
+<p>
+    Blocs creux en composite ou polystyrène, assemblés, ferraillés et remplis de béton.
+    Méthode plus économique mais moins adaptée aux formes irrégulières.
+</p>
+
+<h3 class="guide-subsection-title">Moellons à bancher</h3>
+<p>
+    Empilage de moellons creux avec armatures acier, remplissage béton, puis application
+    d'un enduit d'étanchéité et pose de carrelage. Offre une excellente tenue dans le temps.
+</p>
+
+<h3 class="guide-subsection-title">Panneaux modulaires préfabriqués</h3>
+<p>
+    Assemblage de panneaux en béton préfabriqués sur une structure métallique ou composite.
+    Installation rapide avec une grande flexibilité de formes et de dimensions.
+</p>
+
+<h2 id="inconvenients" class="guide-section-title">Inconvénients</h2>
+<ul>
+    <li>
+        <strong>Coût élevé</strong> : construction généralement plus coûteuse que les
+        piscines préfabriquées (coque, bois) en raison des matériaux et de la main-d'œuvre.
+    </li>
+    <li>
+        <strong>Durée de construction</strong> : plusieurs semaines à plusieurs mois selon la
+        complexité, avec des temps de séchage à respecter entre les étapes.
+    </li>
+    <li>
+        <strong>Entretien plus régulier des joints</strong> : le carrelage peut nécessiter
+        un nettoyage plus fréquent pour prévenir algues et moisissures dans les joints.
+    </li>
+    <li>
+        <strong>Confort de surface</strong> : les surfaces en béton peuvent être plus rugueuses
+        qu'une coque ou un liner. Un revêtement de finition adapté est donc important.
+    </li>
+</ul>
+
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_solaire -->
+    <record id="view_guide_solaire_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_solaire.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_solaire"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_solaire_body']" position="replace">
+                <div id="oe_guide_solaire_body">
+
+<p class="guide-intro-text">
+    Le chauffage solaire figure parmi les meilleures options écologiques pour le chauffage
+    de l'eau de votre piscine. Bien dimensionné, il réduit considérablement les coûts
+    énergétiques et peut représenter une économie significative à long terme dans les
+    régions ensoleillées.
+</p>
+
+<div class="guide-summary">
+    <p class="guide-summary-title">Sommaire</p>
+    <ul class="guide-summary-list">
+        <li><a href="#conditions">Conditions requises</a></li>
+        <li><a href="#avantages-inconvenients">Pour et contre</a></li>
+        <li><a href="#pourquoi-solaire">Pourquoi choisir le solaire ?</a></li>
+        <li><a href="#a-prendre-en-compte">Points de vigilance</a></li>
+    </ul>
+</div>
+
+<h2 id="conditions" class="guide-section-title">Conditions pour un chauffage solaire efficace</h2>
+<p>Ce type de chauffage n'est pas compatible avec toutes les piscines. Pour une efficacité optimale, votre installation doit remplir les 4 conditions suivantes :</p>
+<ol>
+    <li><strong>Surface disponible</strong> pour installer les panneaux solaires (règle : surface des panneaux = 50 à 100 % de la surface de la piscine).</li>
+    <li><strong>Ensoleillement suffisant</strong> dans votre région.</li>
+    <li><strong>Couverture thermique</strong> déjà installée ou prévue pour limiter les pertes de chaleur.</li>
+    <li><strong>Système de filtration adapté</strong> (pompe et tuyauterie) pour une circulation uniforme de la chaleur.</li>
+</ol>
+<p class="guide-tip">
+    Plus la région est ensoleillée, moins vous aurez besoin de surface de panneaux solaires
+    pour chauffer efficacement votre piscine.
+</p>
+
+<h2 id="avantages-inconvenients" class="guide-section-title">Avantages et inconvénients</h2>
+<div class="table-responsive">
+    <table class="table table-bordered guide-table">
+        <thead>
+            <tr><th>Avantages ✔️</th><th>Inconvénients ❌</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Écologique (énergie renouvelable)</td><td>Dépendance à l'ensoleillement</td></tr>
+            <tr><td>Faibles coûts d'entretien</td><td>Espace nécessaire pour les panneaux</td></tr>
+            <tr><td>Durée de vie pérenne</td><td>Coût initial plus élevé</td></tr>
+            <tr><td>Adaptabilité à différentes piscines</td><td>Impact esthétique des panneaux</td></tr>
+            <tr><td>Extension de la saison de baignade</td><td>Temps de chauffe plus long</td></tr>
+            <tr><td>Indépendance énergétique</td><td></td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 id="pourquoi-solaire" class="guide-section-title">Pourquoi choisir le chauffage solaire ?</h2>
+
+<h3 class="guide-subsection-title">Économies d'énergie</h3>
+<p>
+    Le chauffage solaire utilise gratuitement l'énergie du soleil. Les économies réalisées
+    sur les coûts de chauffage compensent généralement l'investissement initial au fil du temps.
+</p>
+
+<h3 class="guide-subsection-title">Faible entretien et longévité</h3>
+<p>
+    Les capteurs solaires sont conçus pour résister aux intempéries et durer plusieurs années,
+    avec un entretien minime comparé au gaz ou aux pompes à chaleur.
+</p>
+
+<h3 class="guide-subsection-title">Adaptabilité</h3>
+<p>
+    Les systèmes solaires s'adaptent à différentes tailles et formes de piscines. Ils peuvent
+    être combinés avec d'autres systèmes de chauffage pour maintenir une température constante
+    même par temps nuageux.
+</p>
+
+<h2 id="a-prendre-en-compte" class="guide-section-title">Points de vigilance avant l'achat</h2>
+
+<h3 class="guide-subsection-title">Dépendance météorologique</h3>
+<p>
+    Les performances du système sont réduites les jours nuageux ou en cas d'ombrage sur les
+    capteurs. En cas de faible ensoleillement prolongé, la température souhaitée peut ne
+    pas être atteinte sans chauffage d'appoint.
+</p>
+
+<h3 class="guide-subsection-title">Espace et esthétique</h3>
+<p>
+    Les capteurs nécessitent un espace suffisant sur un toit ou une surface plane à proximité
+    de la piscine. Leur impact visuel sur la propriété est à anticiper.
+</p>
+
+<h3 class="guide-subsection-title">Temps de chauffe</h3>
+<p>
+    Le chauffage solaire peut mettre plus de temps à atteindre la température souhaitée,
+    surtout si les conditions météorologiques ne sont pas optimales. Prévoyez ce délai
+    dans votre organisation.
+</p>
+
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_contrelavage -->
+    <record id="view_guide_contrelavage_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_contrelavage.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_contrelavage"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_contrelavage_body']" position="replace">
+                <div id="oe_guide_contrelavage_body">
+
+<p class="guide-intro-text">
+    Voici la procédure pour effectuer le contre-lavage (backwash) d'un filtre piscine.
+    Réalisez cette opération dès que le manomètre indique une surpression — aiguille
+    en zone orange ou rouge.
+</p>
+
+<div class="guide-summary">
+    <p class="guide-summary-title">Sommaire</p>
+    <ul class="guide-summary-list">
+        <li><a href="#contre-lavage-sable">Filtre à sable</a></li>
+        <li><a href="#contre-lavage-diatomees">Filtre à diatomées</a></li>
+    </ul>
+</div>
+
+<h2 id="contre-lavage-sable" class="guide-section-title">Contre-lavage d'un filtre à sable</h2>
+<p>
+    Le contre-lavage nettoie le sable en inversant le flux d'eau à travers le filtre,
+    éliminant les saletés et impuretés accumulées.
+</p>
+
+<ol>
+    <li><strong>Arrêtez la pompe de filtration</strong> pour éviter d'endommager le système.</li>
+    <li><strong>Ouvrez la vanne de mise à l'égout</strong> pour diriger l'eau sale vers l'évacuation.</li>
+    <li><strong>Positionnez la vanne 6 voies sur « Lavage »</strong> pour inverser le flux d'eau.</li>
+    <li><strong>Démarrez la pompe pendant 1 minute</strong> : l'eau à contre-courant soulève et nettoie le sable.</li>
+    <li><strong>Arrêtez la pompe.</strong></li>
+    <li><strong>Positionnez la vanne sur « Rinçage »</strong> pour éliminer les dernières impuretés.</li>
+    <li><strong>Démarrez la pompe pendant 1 minute</strong> pour rincer et stabiliser le sable.</li>
+    <li><strong>Arrêtez la pompe.</strong></li>
+    <li><strong>Fermez la vanne de mise à l'égout.</strong></li>
+    <li><strong>Positionnez la vanne sur « Filtration »</strong> pour remettre le système en mode normal.</li>
+    <li><strong>Redémarrez la pompe</strong> et vérifiez la position de l'aiguille du manomètre.</li>
+</ol>
+
+<p class="guide-tip">
+    Si l'aiguille est revenue dans la <strong>zone verte</strong>, le filtre est propre et
+    fonctionne correctement.
+</p>
+<p class="guide-warning">
+    Si l'aiguille reste dans la zone rouge après le contre-lavage, cela peut indiquer un
+    sable saturé de calcaire ou un manomètre défectueux. Consultez-nous pour un diagnostic.
+</p>
+
+<h2 id="contre-lavage-diatomees" class="guide-section-title">Contre-lavage d'un filtre à diatomées</h2>
+
+<ol>
+    <li><strong>Arrêtez la pompe</strong> de la piscine.</li>
+    <li><strong>Positionnez la vanne multivoie sur « Backwash »</strong>.</li>
+    <li><strong>Redémarrez la pompe</strong> et laissez l'eau sale s'écouler pendant 2 à 3 minutes.</li>
+    <li><strong>Arrêtez la pompe</strong>, passez en position <strong>« Rinçage »</strong>.</li>
+    <li><strong>Redémarrez la pompe</strong> pendant 30 secondes à 1 minute, puis arrêtez-la.</li>
+    <li>Répétez les étapes 3 à 5 si l'eau de sortie n'est pas encore claire.</li>
+    <li><strong>Repositionnez la vanne sur « Filtration »</strong>.</li>
+    <li><strong>Redémarrez la pompe.</strong></li>
+    <li>
+        <strong>Rechargez le filtre en diatomées</strong> : ajoutez la quantité appropriée
+        de terre de diatomées dans le skimmer pendant que la pompe est en marche. Les
+        diatomées se déposeront sur les grilles du filtre.
+    </li>
+    <li><strong>Surveillez la pression</strong> pour confirmer un retour à des niveaux normaux.</li>
+</ol>
+
+<p class="guide-tip">
+    Nettoyez les côtelettes du module filtrant en les rinçant à l'eau claire lors de chaque
+    contre-lavage approfondi. Remplacez les côtelettes endommagées ou usées si nécessaire.
+</p>
+
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_couverture -->
+    <record id="view_guide_couverture_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_couverture.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_couverture"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_couverture_body']" position="replace">
+                <div id="oe_guide_couverture_body">
+
+<p class="guide-intro-text">
+    Une bâche d'hivernage protège votre piscine, aide à la prévention du gel tout en
+    sécurisant l'accès au bassin. On vous explique comment choisir le bon modèle en
+    fonction du climat et les pièges à éviter avant l'achat.
+</p>
+
+<div class="guide-summary">
+    <p class="guide-summary-title">Sommaire</p>
+    <ul class="guide-summary-list">
+        <li><a href="#conformite-norme">Conformité à la norme</a></li>
+        <li><a href="#epaisseur">Quelle épaisseur choisir ?</a></li>
+        <li><a href="#opaque-filtrante">Bâche opaque vs filtrante</a></li>
+        <li><a href="#par-climat">Choisir selon le climat</a></li>
+    </ul>
+</div>
+
+<h2 id="conformite-norme" class="guide-section-title">Conformité à la norme</h2>
+<p>
+    Il est important de choisir des bâches dites « de sécurité », qui respectent les normes
+    en vigueur telles que l'<strong>AFNOR NF P 90-308</strong>, surtout pour les piscines
+    privées. Cette norme garantit la sécurité autour du bassin et prévient les risques de noyade.
+</p>
+
+<h2 id="epaisseur" class="guide-section-title">Quelle épaisseur choisir ?</h2>
+<p>
+    L'épaisseur de la bâche influe directement sur son efficacité et son prix. Les épaisseurs
+    disponibles varient de <strong>180 à 500 microns</strong>. Pour une qualité optimale et
+    une utilisation durable, nous recommandons fortement une épaisseur minimale de
+    <strong>400 microns</strong>.
+</p>
+
+<h2 id="opaque-filtrante" class="guide-section-title">Bâche opaque ou filtrante ?</h2>
+
+<div class="table-responsive">
+    <table class="table table-bordered guide-table">
+        <thead>
+            <tr><th></th><th>Bâche opaque</th><th>Bâche filtrante</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Norme NF P90-308</td><td>✔️</td><td>✔️</td></tr>
+            <tr><td>Durabilité</td><td>✔️</td><td>✔️</td></tr>
+            <tr><td>Résiste aux intempéries / neige</td><td>❌</td><td>✔️</td></tr>
+            <tr><td>Protection contre les algues</td><td>✔️</td><td>❌</td></tr>
+            <tr><td>Facilité de manipulation</td><td>❌</td><td>✔️</td></tr>
+            <tr><td>Limite l'entretien du bassin</td><td>✔️</td><td>❌</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h3 class="guide-subsection-title">Avantages de la bâche filtrante</h3>
+<ul>
+    <li>Conforme NF P 90-308 et traitée anti-UV — imputrescible.</li>
+    <li>Laisse passer les eaux pluviales tout en filtrant feuilles, végétaux et insectes.</li>
+    <li>Plus légère → plus facile à installer et à retirer.</li>
+    <li>Ne s'affaisse pas sous le poids de la neige (idéale pour les régions enneigées).</li>
+</ul>
+
+<h3 class="guide-subsection-title">Avantages de la bâche opaque</h3>
+<ul>
+    <li>Très résistante et réutilisable plusieurs saisons.</li>
+    <li>Opacité totale → empêche la lumière et donc les algues et micro-organismes.</li>
+    <li>Réduit le besoin de nettoyage approfondi lors de la remise en service.</li>
+</ul>
+<p class="guide-warning">
+    Les bâches opaques peuvent accumuler l'eau de pluie. Dans les régions à fortes
+    précipitations, privilégiez une bâche filtrante avec grille d'écoulement.
+</p>
+
+<h2 id="par-climat" class="guide-section-title">Que choisir selon le climat ?</h2>
+<ul>
+    <li><strong>Climat doux</strong> → une bâche filtrante suffit.</li>
+    <li><strong>Chutes de feuilles abondantes</strong> → bâche opaque pour bloquer les débris.</li>
+    <li><strong>Enneigements réguliers</strong> → filet d'hivernage (ne s'affaisse pas sous la neige).</li>
+    <li><strong>Fortes précipitations</strong> → bâche filtrante avec grille d'écoulement.</li>
+</ul>
+
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_volet -->
+    <record id="view_guide_volet_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_volet.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_volet"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_volet_body']" position="replace">
+                <div id="oe_guide_volet_body">
+
+<p class="guide-intro-text">
+    Le volet piscine est la solution de couverture la plus esthétique. Réalisé sur mesure,
+    il isole naturellement votre piscine, sécurise l'accès au bassin et maintient la
+    température de l'eau lorsqu'il est fermé.
+</p>
+
+<div class="guide-summary">
+    <p class="guide-summary-title">Sommaire</p>
+    <ul class="guide-summary-list">
+        <li><a href="#comparatif">Comparatif des solutions de protection</a></li>
+        <li><a href="#esthetique">Côté esthétique : hors-sol vs immergé</a></li>
+        <li><a href="#facilite">Facilité d'utilisation</a></li>
+        <li><a href="#securite">Sécurité et norme</a></li>
+    </ul>
+</div>
+
+<h2 id="comparatif" class="guide-section-title">Comparatif des solutions de protection</h2>
+<div class="table-responsive">
+    <table class="table table-bordered guide-table">
+        <thead>
+            <tr><th></th><th>Volet piscine</th><th>Abri piscine</th><th>Bâche à barres</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Sécurité</td><td>✔️</td><td>✔️</td><td>✔️</td></tr>
+            <tr><td>Esthétique</td><td>✔️</td><td>❌</td><td>❌</td></tr>
+            <tr><td>Économie d'énergie</td><td>✔️</td><td>✔️</td><td>❌</td></tr>
+            <tr><td>Facilité d'utilisation</td><td>✔️</td><td>✔️</td><td>❌</td></tr>
+            <tr><td>Durabilité</td><td>✔️</td><td>✔️</td><td>❌</td></tr>
+            <tr><td>Entretien</td><td>✔️</td><td>❌</td><td>✔️</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 id="esthetique" class="guide-section-title">Volet hors-sol ou immergé ?</h2>
+
+<h3 class="guide-subsection-title">Volet hors-sol</h3>
+<p>
+    Fixé en bord de bassin de façon permanente, il condamne une partie de la périphérie
+    (largeur du bassin). Moins esthétique mais plus économique. Peut être équipé d'un
+    coffrage pour un aspect agréable.
+</p>
+
+<h3 class="guide-subsection-title">Volet immergé</h3>
+<p>
+    S'installe à l'intérieur du bassin et condamne 60 à 90 cm de surface de nage pour
+    le stockage du volet. En contrepartie, vous disposez d'une plage émergée ou immergée
+    de 60 à 90 cm. Il s'intègre parfaitement dans votre jardin — au ras des margelles ou
+    en fond de bassin.
+</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered guide-table">
+        <thead>
+            <tr><th></th><th>Volet hors-sol</th><th>Volet immergé</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Esthétique</td><td>❌</td><td>✔️</td></tr>
+            <tr><td>Prix</td><td>✔️ (moins cher)</td><td>❌ (plus onéreux)</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<p>
+    Les lames de volet (généralement en PVC) peuvent être personnalisées en matériaux
+    exotiques, carrelage, et même en <strong>lames polycarbonate chauffantes</strong>
+    — une alternative plus efficace pour chauffer l'eau que les bâches à bulles traditionnelles.
+</p>
+
+<h2 id="facilite" class="guide-section-title">Facilité d'utilisation</h2>
+
+<h3 class="guide-subsection-title">Volet manuel</h3>
+<p>
+    Enroulement et déroulement à l'aide d'un volant. Version la plus économique, disponible
+    uniquement pour les volets <strong>hors-sol</strong>.
+</p>
+
+<h3 class="guide-subsection-title">Volet motorisé (recommandé)</h3>
+<p>
+    Enroulement/déroulement par clé de contact (sur pied ou déportée). Certains modèles
+    proposent une <strong>application smartphone</strong> dédiée pour une commande à distance.
+</p>
+<p class="guide-tip">
+    Pour une facilité d'utilisation optimale, nous recommandons les volets motorisés.
+</p>
+
+<h2 id="securite" class="guide-section-title">Sécurité et norme NF P90-308</h2>
+<p>
+    L'accès au bassin est réglementé pour prévenir les risques de noyade, en particulier
+    chez les enfants. Choisissez impérativement un volet conforme à la norme
+    <strong>NF P90-308</strong> pour éviter d'avoir à installer ultérieurement un
+    dispositif de sécurité supplémentaire.
+</p>
+<p>
+    Un volet normé NF P90-308 possède un <strong>système anti-intrusion</strong> et un
+    <strong>système de verrouillage</strong> empêchant les enfants de moins de cinq ans
+    d'accéder à l'eau.
+</p>
+
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ── Nouvelle page : nettoyer_bache ── -->
+    <record id="view_guide_nettoyer_bache" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_nettoyer_bache</field>
+        <field name="key">lolirine_pool_website.guide_nettoyer_bache</field>
+        <field name="type">qweb</field>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <t t-name="lolirine_pool_website.guide_nettoyer_bache">
+                <t t-call="website.layout">
+                    <t t-set="pageName">guide_nettoyer_bache</t>
+                    <div id="wrap" class="guide-article-page">
+
+                        <div class="guide-breadcrumb-bar py-2">
+                            <div class="container">
+                                <nav class="guide-breadcrumb" aria-label="breadcrumb">
+                                    <a href="/">Accueil</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <a href="/guides">Guides Piscine</a>
+                                    <span class="guide-bc-sep">›</span>
+                                    <span class="active">Comment nettoyer une bâche d'hiver piscine</span>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <section class="guide-body-section py-5">
+                            <div class="container">
+                                <div class="row g-5">
+                                    <div class="col-12 col-lg-8">
+                                        <h1 class="guide-title">Comment nettoyer une bâche d'hiver piscine</h1>
+                                        <p class="guide-meta">
+                                            <span class="guide-reading-time">⏱ Temps de lecture 3 minutes</span>
+                                            <span class="guide-updated ms-3">Mis à jour en 2025</span>
+                                        </p>
+                                        <hr class="guide-title-divider mb-4"/>
+
+<p class="guide-intro-text">
+    Le nettoyage d'une bâche d'hiver dès l'arrivée de la saison est indispensable pour
+    éviter moisissures et résidus d'algues. Ce nettoyage de printemps vous permet également
+    de vérifier l'intégrité du matériel et de garder une bâche propre pour une installation
+    rapide dès l'automne prochain.
+</p>
+
+<div class="guide-summary">
+    <p class="guide-summary-title">Sommaire</p>
+    <ul class="guide-summary-list">
+        <li><a href="#preparation">Préparation</a></li>
+        <li><a href="#nettoyage-brosse">Étape 1 — Nettoyer à la brosse douce</a></li>
+        <li><a href="#rincer-secher">Étape 2 — Rincer et sécher</a></li>
+        <li><a href="#inspection">Étape 3 — Inspecter et réparer</a></li>
+    </ul>
+</div>
+
+<h2 id="preparation" class="guide-section-title">Préparation</h2>
+<p>
+    Avant de commencer le nettoyage, <strong>enlevez la bâche d'hiver du bassin</strong>
+    et posez-la sur une surface propre et dégagée — une pelouse sèche ou une allée sont
+    idéales. N'hésitez pas à réaliser cette opération à plusieurs : suivant les dimensions
+    de la piscine, une bâche d'hiver peut s'avérer lourde et difficile à manipuler seul.
+</p>
+
+<h2 id="nettoyage-brosse" class="guide-section-title">Étape 1 — Nettoyer la bâche à la brosse douce</h2>
+<p>
+    Munissez-vous d'une <strong>brosse à poils doux</strong> et d'une arrivée d'eau.
+    L'utilisation d'une brosse à poils doux permet de frotter, parfois avec insistance,
+    sans abîmer la bâche.
+</p>
+<ol>
+    <li>Mouillez la bâche à l'aide du tuyau d'arrosage.</li>
+    <li>
+        Appliquez une <strong>solution de nettoyage dédiée aux bâches d'hivernage</strong>
+        (à défaut, quelques gouttes de liquide vaisselle peuvent convenir).
+    </li>
+    <li>Brossez méthodiquement en partant d'un coin, en avançant progressivement.</li>
+    <li>Insistez sur les zones souillées sans appuyer excessivement sur la bâche.</li>
+</ol>
+
+<h2 id="rincer-secher" class="guide-section-title">Étape 2 — Rincer et sécher</h2>
+<p>
+    Rincez abondamment à l'eau claire pour éliminer les saletés décollées par la brosse.
+</p>
+<p class="guide-warning">
+    N'utilisez pas de nettoyeur haute pression — il pourrait endommager la bâche.
+    Un simple jet d'eau suffit.
+</p>
+<p>
+    Une fois rincée, séchez la bâche <strong>de préférence au soleil</strong> pour éviter
+    une nouvelle formation de moisissures. Un séchage incomplet avant le rangement est
+    la principale cause de moisissures en cours de stockage.
+</p>
+
+<h2 id="inspection" class="guide-section-title">Étape 3 — Inspecter et réparer</h2>
+<p>
+    Avant de plier la bâche sèche, inspectez-la soigneusement. <strong>Toute déchirure
+    doit être réparée avant le rangement</strong> à l'aide d'un kit de réparation spécifique
+    aux bâches de piscine.
+</p>
+<p>
+    Une fois sèche et réparée, pliez la bâche soigneusement et rangez-la dans
+    <strong>un endroit sec, à l'abri du soleil direct</strong>.
+</p>
+<p class="guide-tip">
+    Consultez notre guide sur les bâches d'hivernage pour choisir la bâche la plus adaptée
+    à votre climat et à vos besoins.
+</p>
+
+                                    </div>
+                                    <div class="col-12 col-lg-4">
+                                        <div class="guide-sidebar-sticky">
+                                            <t t-call="lolirine_pool_website.guide_article_sidebar"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <t t-call="lolirine_pool_website.guide_devis_form"/>
+
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="page_guide_nettoyer_bache" model="website.page">
+        <field name="name">Comment nettoyer une bâche d'hiver piscine</field>
+        <field name="url">/guides/nettoyer-bache-hiver-piscine</field>
+        <field name="website_id">6</field>
+        <field name="view_id" ref="view_guide_nettoyer_bache"/>
+        <field name="is_published">1</field>
+        <field name="website_indexed">1</field>
+    </record>
+
+</odoo>
