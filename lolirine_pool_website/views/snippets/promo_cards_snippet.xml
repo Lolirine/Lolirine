@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="s_promo_cards" name="Cartes Promotionnelles">
+        <section class="s_promo_cards o_colored_level pt-4 pb-4"
+                 data-snippet="s_promo_cards"
+                 data-name="Cartes Promotionnelles">
+            <div class="container-fluid px-3">
+
+                <div class="oe_structure">
+                    <div class="row g-3" id="s_promo_cards_grid">
+
+                        <!-- ── Carte 1 ── -->
+                        <div class="col-12 col-md-6 s_promo_card_col">
+                            <a href="/shop?category=127" class="s_promo_card text-decoration-none d-block">
+                                <div class="s_promo_card_inner">
+                                    <!-- Image de fond — remplaçable via builder -->
+                                    <img src="/lolirine_pool_website/static/src/img/promos/promo_pac.jpg"
+                                         class="s_promo_card_bg" alt="Pompes à chaleur" loading="lazy"/>
+                                    <!-- Badge promo — éditable double-clic -->
+                                    <div class="s_promo_badge s_promo_badge_yellow">
+                                        <span class="s_promo_badge_line1">OFFRE DU MOMENT !!</span>
+                                        <span class="s_promo_badge_line2">JUSQU'À</span>
+                                        <span class="s_promo_badge_value">-20%</span>
+                                    </div>
+                                </div>
+                                <div class="s_promo_card_footer">
+                                    <span class="s_promo_card_title">Chauffez votre piscine au meilleur prix</span>
+                                    <span class="s_promo_card_arrow">›</span>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- ── Carte 2 ── -->
+                        <div class="col-12 col-md-6 s_promo_card_col">
+                            <a href="/shop?category=88" class="s_promo_card text-decoration-none d-block">
+                                <div class="s_promo_card_inner">
+                                    <img src="/lolirine_pool_website/static/src/img/promos/promo_robots.jpg"
+                                         class="s_promo_card_bg" alt="Robots piscine" loading="lazy"/>
+                                    <div class="s_promo_badge s_promo_badge_red">
+                                        <span class="s_promo_badge_line1">MEILLEURS PRIX</span>
+                                        <span class="s_promo_badge_value">AIPER</span>
+                                    </div>
+                                </div>
+                                <div class="s_promo_card_footer">
+                                    <span class="s_promo_card_title">Découvrez notre gamme de robots sans fil</span>
+                                    <span class="s_promo_card_arrow">›</span>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- ── Carte 3 ── -->
+                        <div class="col-12 col-md-6 s_promo_card_col">
+                            <a href="/shop?category=82" class="s_promo_card text-decoration-none d-block">
+                                <div class="s_promo_card_inner">
+                                    <img src="/lolirine_pool_website/static/src/img/promos/promo_traitement.jpg"
+                                         class="s_promo_card_bg" alt="Traitement eau" loading="lazy"/>
+                                    <div class="s_promo_badge s_promo_badge_green">
+                                        <span class="s_promo_badge_line1">BONS PLANS</span>
+                                        <span class="s_promo_badge_line2">TRAITEMENT PISCINE</span>
+                                    </div>
+                                </div>
+                                <div class="s_promo_card_footer">
+                                    <span class="s_promo_card_title">Bon plan sur le traitement de l'eau !</span>
+                                    <span class="s_promo_card_arrow">›</span>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- ── Carte 4 ── -->
+                        <div class="col-12 col-md-6 s_promo_card_col">
+                            <a href="/shop?category=106" class="s_promo_card text-decoration-none d-block">
+                                <div class="s_promo_card_inner">
+                                    <img src="/lolirine_pool_website/static/src/img/promos/promo_baches.jpg"
+                                         class="s_promo_card_bg" alt="Bâches" loading="lazy"/>
+                                    <div class="s_promo_badge s_promo_badge_dark">
+                                        <span class="s_promo_badge_line1">BÂCHES À BARRES</span>
+                                        <span class="s_promo_badge_line2">PRÊTES À L'EMPLOI</span>
+                                    </div>
+                                </div>
+                                <div class="s_promo_card_footer">
+                                    <span class="s_promo_card_title">Bâches livrées prêtes à utilisation</span>
+                                    <span class="s_promo_card_arrow">›</span>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- ── Carte large (pleine largeur) ── -->
+                        <div class="col-12 s_promo_card_col">
+                            <a href="/shop" class="s_promo_card s_promo_card_wide text-decoration-none d-block">
+                                <div class="s_promo_card_inner">
+                                    <img src="/lolirine_pool_website/static/src/img/promos/promo_destockage.jpg"
+                                         class="s_promo_card_bg" alt="Déstockage" loading="lazy"/>
+                                    <div class="s_promo_badge s_promo_badge_black">
+                                        <span class="s_promo_badge_line1">GRAND DÉSTOCKAGE</span>
+                                        <span class="s_promo_badge_line2">AUX PRIX LES PLUS BAS</span>
+                                    </div>
+                                </div>
+                                <div class="s_promo_card_footer">
+                                    <span class="s_promo_card_title">Protégez votre piscine cet été !</span>
+                                    <span class="s_promo_card_arrow">›</span>
+                                </div>
+                            </a>
+                        </div>
+
+                    </div><!-- /row -->
+                </div><!-- /oe_structure -->
+
+            </div><!-- /container-fluid -->
+        </section>
+    </template>
+
+    <template id="promo_cards_in_snippets"
+              inherit_id="website.snippets"
+              name="Lolirine — Cartes Promotionnelles">
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <t t-snippet="lolirine_pool_website.s_promo_cards"
+               string="Cartes Promotionnelles"
+               group="custom"
+               t-thumbnail="/lolirine_pool_website/static/src/img/snippets/promo_cards_thumb.svg">
+                <keywords>promo promotion carte bannière réduction offre</keywords>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>
