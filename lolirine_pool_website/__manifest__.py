@@ -39,6 +39,7 @@
         'views/guides/guide_article_layout.xml',
         'views/guides/guide_pages.xml',
         'views/guides/guide_pages_content.xml',
+        'views/snippets/promo_cards_snippet.xml',
     ],
     'assets': {
         'web.assets_frontend': [
@@ -47,6 +48,7 @@
             'lolirine_pool_website/static/src/scss/pool_guides.css',
             'lolirine_pool_website/static/src/scss/guide_article.css',
             'lolirine_pool_website/static/src/js/pool_guides.js',
+            'lolirine_pool_website/static/src/scss/promo_cards.css',
         ],
     },
     'installable': True,
