@@ -1,0 +1,236 @@
+/* ══════════════════════════════════════════
+   CARROUSEL PROMOTIONNEL — hero_slider.css
+   Lolirine Pool Store
+══════════════════════════════════════════ */
+
+.s_hero_slider { overflow: hidden; background: #000; }
+
+/* ── Slide ── */
+.s_hero_slide { position: relative; width: 100%; }
+.s_hero_slide::before { content: ''; display: block; padding-top: 33%; }
+@media (max-width: 767.98px) { .s_hero_slide::before { padding-top: 56%; } }
+
+.s_hero_slide_bg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
+    transition: transform 8s ease;
+}
+.carousel-item.active .s_hero_slide_bg { transform: scale(1.04); }
+
+.s_hero_slide_overlay,
+.s_hero_slide_content { position: absolute; inset: 0; }
+
+/* ── Overlays ── */
+.s_hero_slide_overlay {
+    background: linear-gradient(90deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.25) 55%, rgba(0,0,0,.05) 100%);
+}
+.s_hero_overlay_blue {
+    background: linear-gradient(90deg, rgba(5,80,140,.75) 0%, rgba(5,80,140,.35) 55%, rgba(5,80,140,.05) 100%);
+}
+.s_hero_overlay_dark {
+    background: linear-gradient(90deg, rgba(0,0,0,.70) 0%, rgba(0,0,0,.30) 60%, rgba(0,0,0,.0) 100%);
+}
+
+/* ── Contenu ── */
+.s_hero_slide_content {
+    display: flex; align-items: center;
+    padding: 2rem 5%; gap: 3rem; z-index: 2;
+}
+.s_hero_content_right { flex-direction: row-reverse; }
+
+/* ── Texte ── */
+.s_hero_slide_text { flex: 1; max-width: 600px; }
+.s_hero_slide_text_right { text-align: right; }
+
+.s_hero_slide_eyebrow {
+    font-size: .85rem; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: rgba(255,255,255,.85); margin-bottom: .4rem;
+}
+.s_hero_eyebrow_orange { color: #ff8c00; }
+.s_hero_eyebrow_white  { color: #fff; }
+
+.s_hero_slide_title {
+    font-size: clamp(1.8rem, 4vw, 3.2rem);
+    font-weight: 900; color: #fff;
+    line-height: 1.1; letter-spacing: -.01em;
+    margin-bottom: .75rem; text-transform: uppercase;
+    text-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+.s_hero_title_white { color: #fff; }
+.s_hero_slide_title_sub {
+    display: block;
+    font-size: clamp(1rem, 2vw, 1.6rem);
+    font-weight: 700; letter-spacing: .04em;
+}
+
+.s_hero_highlight {
+    display: inline-block; padding: .1em .4em; border-radius: 4px;
+}
+.s_hero_highlight_dark   { background: #1a1a1a; color: #f5d400; }
+.s_hero_highlight_blue   { background: #0580c8; color: #fff; }
+.s_hero_highlight_yellow { background: #f5d400; color: #1a1a1a; }
+.s_hero_highlight_pink   { background: #e6006e; color: #fff; }
+
+.s_hero_slide_sub { font-size: .9rem; color: rgba(255,255,255,.75); margin-bottom: 1.25rem; }
+.s_hero_sub_white { color: rgba(255,255,255,.9); }
+
+/* ── Checklist ── */
+.s_hero_checklist {
+    list-style: none; padding: .6rem .8rem; margin: 0 0 1.25rem;
+    background: rgba(255,255,255,.1); backdrop-filter: blur(4px);
+    border-left: 3px solid #ff8c00; border-radius: 0 6px 6px 0;
+}
+.s_hero_checklist li { font-size: .82rem; font-weight: 600; color: #ff8c00; line-height: 1.8; }
+
+/* ── Tags dimensions ── */
+.s_hero_sizes { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+.s_hero_size_tag {
+    background: rgba(255,255,255,.15); color: #fff;
+    border: 1.5px solid rgba(255,255,255,.5);
+    border-radius: 4px; padding: .2rem .6rem;
+    font-size: .8rem; font-weight: 700;
+}
+
+/* ── Boutons CTA ── */
+.s_hero_slide_btn {
+    display: inline-block; padding: .75rem 2rem;
+    border-radius: 4px; font-weight: 800; font-size: .88rem;
+    letter-spacing: .08em; text-transform: uppercase;
+    text-decoration: none;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.s_hero_slide_btn:hover {
+    transform: translateY(-2px); text-decoration: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+.s_hero_btn_pink   { background: #e6006e; color: #fff; }
+.s_hero_btn_blue   { background: #0580c8; color: #fff; }
+.s_hero_btn_green  { background: #1db954; color: #fff; }
+.s_hero_btn_orange { background: #ff8c00; color: #fff; }
+.s_hero_btn_yellow { background: #f5d400; color: #1a1a1a; }
+.s_hero_btn_white  { background: #fff; color: #0580c8; }
+.s_hero_btn_dark   { background: #1a2e40; color: #fff; }
+
+/* ════ BADGES ════ */
+
+/* Badge rond */
+.s_hero_badge_round {
+    flex-shrink: 0; width: 140px; height: 140px;
+    border-radius: 50%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 1rem; z-index: 3;
+}
+.s_hero_badge_pink   { background: #e6006e; color: #fff; box-shadow: 0 4px 20px rgba(230,0,110,.5); }
+.s_hero_badge_orange { background: #ff8c00; color: #fff; box-shadow: 0 4px 20px rgba(255,140,0,.5); }
+.s_hero_badge_yellow { background: #f5d400; color: #1a1a1a; box-shadow: 0 4px 20px rgba(245,212,0,.5); }
+.s_hero_badge_green  { background: #1db954; color: #fff; box-shadow: 0 4px 20px rgba(29,185,84,.4); }
+
+.s_hero_badge_top  { display: block; font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.s_hero_badge_main { display: block; font-size: .85rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; line-height: 1.1; }
+.s_hero_badge_pct  { display: block; font-size: 2rem; font-weight: 900; line-height: 1; letter-spacing: -.02em; }
+.s_hero_badge_arrow { display: block; font-size: 1.2rem; margin-top: .1rem; }
+
+/* Barre noire bas badge rose */
+.s_hero_badge_bottom_bar {
+    background: #1a1a1a; width: calc(100% + 2rem);
+    margin: .3rem -1rem -.9rem;
+    border-radius: 0 0 50% 50%; padding: .25rem 0;
+}
+.s_hero_badge_prix { display: block; font-size: 1.1rem; font-weight: 900; color: #f5d400; letter-spacing: .08em; }
+
+/* Badge rond à droite */
+.s_hero_badge_round_right {
+    position: absolute; right: 8%; top: 50%;
+    transform: translateY(-50%);
+    width: 150px; height: 150px; border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 1rem; z-index: 3;
+}
+
+/* Badge rectangle haut */
+.s_hero_badge_rect_top {
+    position: absolute; top: 1.5rem; left: 3%;
+    background: #f5d400; color: #e6006e;
+    padding: .5rem 1.2rem; border-radius: 4px;
+    text-align: center; z-index: 3;
+}
+.s_hero_badge_rect_top .s_hero_badge_top { font-size: .9rem; font-weight: 900; color: #e6006e; letter-spacing: .06em; }
+.s_hero_badge_rect_top .s_hero_badge_sub { display: block; font-size: .7rem; font-weight: 700; color: #1a1a1a; letter-spacing: .06em; text-transform: uppercase; margin-top: .1rem; font-style: italic; }
+
+/* Badge promo coin bas gauche */
+.s_hero_badge_promo_corner { position: absolute; bottom: 4rem; left: 3%; z-index: 3; display: flex; flex-direction: column; align-items: flex-start; }
+.s_hero_badge_promo_label  { font-size: 1.2rem; font-weight: 900; color: #e6006e; text-transform: uppercase; letter-spacing: .05em; text-shadow: 0 2px 4px rgba(0,0,0,.3); }
+.s_hero_badge_promo_value  { font-size: 3rem; font-weight: 900; color: #e6006e; line-height: 1; letter-spacing: -.02em; text-shadow: 0 2px 8px rgba(0,0,0,.3); }
+
+/* Sticker coin */
+.s_hero_badge_sticker_tl {
+    flex-shrink: 0; background: #0580c8; color: #fff;
+    border-radius: 8px; padding: .75rem 1.25rem;
+    text-align: center; z-index: 3;
+}
+.s_hero_sticker_line1 { display: block; font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.s_hero_sticker_line2 { display: block; font-size: 2rem; font-weight: 900; line-height: 1; }
+
+/* ── Tags (R290, Connectée) ── */
+.s_hero_tags { display: flex; gap: .5rem; margin-bottom: .75rem; }
+.s_hero_tag  { padding: .2rem .7rem; border-radius: 3px; font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.s_hero_tag_green  { background: #1db954; color: #fff; }
+.s_hero_tag_blue   { background: #0580c8; color: #fff; }
+.s_hero_tag_yellow { background: #f5d400; color: #1a1a1a; }
+.s_hero_tag_pink   { background: #e6006e; color: #fff; }
+
+/* ── Palette couleurs liner ── */
+.s_hero_color_dots { display: flex; gap: .4rem; margin-bottom: .75rem; }
+.s_hero_color_dot  { width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); display: inline-block; }
+
+/* ── Image produit flottante ── */
+.s_hero_prod_img {
+    position: absolute; z-index: 2;
+    object-fit: contain; pointer-events: none;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,.4));
+    transition: transform 8s ease;
+}
+.carousel-item.active .s_hero_prod_img { transform: translateY(-6px); }
+.s_hero_prod_right  { right: 5%; bottom: 0; height: 90%; width: auto; max-width: 40%; }
+.s_hero_prod_center { right: 15%; bottom: 0; height: 85%; width: auto; max-width: 25%; }
+
+/* ════ NAVIGATION ════ */
+.s_hero_slider_dots { bottom: .75rem; z-index: 10; }
+.s_hero_slider_dots button {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,.5); border: none;
+    margin: 0 4px; padding: 0;
+    transition: background .2s ease, transform .2s ease;
+}
+.s_hero_slider_dots button.active { background: #fff; transform: scale(1.3); }
+
+.s_hero_arrow {
+    width: 48px; height: 48px;
+    background: rgba(255,255,255,.15); backdrop-filter: blur(4px);
+    border-radius: 50%; top: 50%; transform: translateY(-50%);
+    z-index: 10; border: 1.5px solid rgba(255,255,255,.3);
+    transition: background .2s ease;
+}
+.s_hero_arrow:hover { background: rgba(255,255,255,.3); }
+.carousel-control-prev.s_hero_arrow { left: 1.5rem; }
+.carousel-control-next.s_hero_arrow { right: 1.5rem; }
+.s_hero_arrow_icon { font-size: 2rem; font-weight: 300; color: #fff; line-height: 1; }
+
+/* ════ RESPONSIVE ════ */
+@media (max-width: 767.98px) {
+    .s_hero_slide_content { padding: 1.25rem 4%; gap: 1rem; flex-direction: column; align-items: flex-start; }
+    .s_hero_content_right { flex-direction: column; align-items: flex-start; }
+    .s_hero_slide_title   { font-size: clamp(1.3rem, 6vw, 2rem); }
+    .s_hero_badge_round   { width: 90px; height: 90px; }
+    .s_hero_badge_pct     { font-size: 1.4rem; }
+    .s_hero_badge_main    { font-size: .65rem; }
+    .s_hero_badge_round_right { right: 2%; width: 100px; height: 100px; }
+    .s_hero_badge_promo_value { font-size: 2rem; }
+    .s_hero_prod_img      { display: none; }
+    .s_hero_arrow         { display: none; }
+    .s_hero_slide_btn     { font-size: .78rem; padding: .6rem 1.25rem; }
+    .s_hero_color_dot     { width: 18px; height: 18px; }
+}
