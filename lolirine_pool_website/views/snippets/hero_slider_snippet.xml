@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="s_hero_slider" name="Carrousel Promotionnel">
+        <section class="s_hero_slider o_colored_level"
+                 data-snippet="s_hero_slider"
+                 data-name="Carrousel Promotionnel">
+
+            <div id="s_hero_slider_carousel"
+                 class="carousel slide"
+                 data-bs-ride="carousel"
+                 data-bs-interval="5000">
+
+                <!-- Indicateurs -->
+                <div class="carousel-indicators s_hero_slider_dots">
+                    <button type="button" data-bs-target="#s_hero_slider_carousel"
+                            data-bs-slide-to="0" class="active" aria-current="true"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="1"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="2"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="3"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="4"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="5"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="6"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="7"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="8"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="9"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="10"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="11"/>
+                    <button type="button" data-bs-target="#s_hero_slider_carousel" data-bs-slide-to="12"/>
+                </div>
+
+                <div class="carousel-inner">
+
+                    <!-- ══ SLIDE 1 — Bâches à bulles ══ -->
+                    <div class="carousel-item active s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_baches_bulles.jpg"
+                             class="s_hero_slide_bg" alt="Bâches à bulles prédécoupées"/>
+                        <div class="s_hero_slide_overlay"></div>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_badge s_hero_badge_round s_hero_badge_pink">
+                                <span class="s_hero_badge_top">LES</span>
+                                <span class="s_hero_badge_main">MEILLEURS</span>
+                                <div class="s_hero_badge_bottom_bar">
+                                    <span class="s_hero_badge_prix">PRIX</span>
+                                </div>
+                            </div>
+                            <div class="s_hero_slide_text">
+                                <p class="s_hero_slide_eyebrow">Préparez votre saison !</p>
+                                <h2 class="s_hero_slide_title">
+                                    BÂCHES À BULLES<br/>
+                                    <span class="s_hero_highlight s_hero_highlight_dark">PRÉDÉCOUPÉES</span>
+                                </h2>
+                                <p class="s_hero_slide_sub">Offre de pré-commande</p>
+                                <a href="/guides/choisir-bache-bulles"
+                                   class="s_hero_slide_btn s_hero_btn_pink">
+                                    VOIR LES PRODUITS
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 2 — Volet de piscine ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_volet.jpg"
+                             class="s_hero_slide_bg" alt="Volet de piscine hors-sol automatique"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_dark"></div>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_badge s_hero_badge_rect_top">
+                                <span class="s_hero_badge_top">SUR MESURE</span>
+                                <span class="s_hero_badge_sub">JUSQU'À 14 X 8 m</span>
+                            </div>
+                            <div class="s_hero_badge s_hero_badge_promo_corner">
+                                <span class="s_hero_badge_promo_label">PROMO</span>
+                                <span class="s_hero_badge_promo_value">-10%</span>
+                            </div>
+                            <div class="s_hero_slide_text s_hero_slide_text_right">
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    VOLET DE PISCINE<br/>
+                                    <span class="s_hero_slide_title_sub">HORS-SOL &amp; AUTOMATIQUE</span>
+                                </h2>
+                                <a href="/guides/choisir-volet-piscine"
+                                   class="s_hero_slide_btn s_hero_btn_pink">
+                                    MON DEVIS GRATUIT
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 3 — Kit traitement / Offre flash ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_traitement.jpg"
+                             class="s_hero_slide_bg" alt="Kit traitement piscine"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_blue"></div>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_badge s_hero_badge_round_right s_hero_badge_orange">
+                                <span class="s_hero_badge_top">OFFRE</span>
+                                <span class="s_hero_badge_main">FLASH</span>
+                                <span class="s_hero_badge_pct">-22%</span>
+                                <span class="s_hero_badge_arrow">▼</span>
+                            </div>
+                            <div class="s_hero_slide_text">
+                                <p class="s_hero_slide_eyebrow s_hero_eyebrow_orange">
+                                    Kit de démarrage 6 en 1
+                                </p>
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    Solution d'entretien complète<br/>pour votre piscine
+                                </h2>
+                                <ul class="s_hero_checklist">
+                                    <li>Prêt à l'emploi</li>
+                                    <li>Analyse, équilibre et désinfection de l'eau</li>
+                                    <li>Pour piscines traitées au chlore ou au brome</li>
+                                </ul>
+                                <a href="/shop?category=82"
+                                   class="s_hero_slide_btn s_hero_btn_orange">
+                                    J'EN PROFITE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 4 — Pompes à chaleur ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_pac.jpg"
+                             class="s_hero_slide_bg" alt="Pompes à chaleur piscine"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_dark"></div>
+                        <img src="/lolirine_pool_website/static/src/img/slider/prod_pac_ambiance.jpg"
+                             class="s_hero_prod_img s_hero_prod_right" alt="Pompe à chaleur"/>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_badge s_hero_badge_round s_hero_badge_yellow">
+                                <span class="s_hero_badge_top">JUSQU'À</span>
+                                <span class="s_hero_badge_pct">-15%</span>
+                            </div>
+                            <div class="s_hero_slide_text">
+                                <p class="s_hero_slide_eyebrow">Chauffage piscine</p>
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    POMPES À CHALEUR<br/>
+                                    <span class="s_hero_highlight s_hero_highlight_blue">INVERTER</span>
+                                </h2>
+                                <p class="s_hero_slide_sub s_hero_sub_white">
+                                    11 modèles · 52 variantes de puissance disponibles
+                                </p>
+                                <a href="/shop?category=127"
+                                   class="s_hero_slide_btn s_hero_btn_blue">
+                                    DÉCOUVRIR NOS PAC
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 5 — Robots piscine ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_robots.jpg"
+                             class="s_hero_slide_bg" alt="Robots piscine automatiques"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_dark"></div>
+                        <img src="/lolirine_pool_website/static/src/img/slider/prod_robot2.jpg"
+                             class="s_hero_prod_img s_hero_prod_right" alt="Robot Zodiac"/>
+                        <div class="s_hero_slide_content s_hero_content_right">
+                            <div class="s_hero_slide_text s_hero_slide_text_right">
+                                <p class="s_hero_slide_eyebrow">Gamme Zodiac · AIPER · Dolphin</p>
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    ROBOTS<br/>AUTOMATIQUES
+                                </h2>
+                                <p class="s_hero_slide_sub s_hero_sub_white">
+                                    Nettoyage autonome · Fond, parois et ligne d'eau
+                                </p>
+                                <a href="/shop?category=88"
+                                   class="s_hero_slide_btn s_hero_btn_green">
+                                    AUX MEILLEURS PRIX
+                                </a>
+                            </div>
+                            <div class="s_hero_badge s_hero_badge_sticker_tl">
+                                <span class="s_hero_sticker_line1">NOUVEAUTÉS</span>
+                                <span class="s_hero_sticker_line2">2025</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 6 — Bâches à barres ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_baches_barres.jpg"
+                             class="s_hero_slide_bg" alt="Bâches à barres piscine"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_dark"></div>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_slide_text">
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    BÂCHES À BARRES<br/>
+                                    <span class="s_hero_highlight s_hero_highlight_yellow">PRÉDÉCOUPÉES</span>
+                                </h2>
+                                <div class="s_hero_sizes">
+                                    <span class="s_hero_size_tag">6×3</span>
+                                    <span class="s_hero_size_tag">7×3.5</span>
+                                    <span class="s_hero_size_tag">8×4</span>
+                                    <span class="s_hero_size_tag">9×4.5</span>
+                                    <span class="s_hero_size_tag">10×5</span>
+                                </div>
+                                <p class="s_hero_slide_sub s_hero_sub_white">
+                                    Livrées prêtes à l'utilisation · Norme NF P90-308
+                                </p>
+                                <a href="/guides/choisir-bache-barres-piscine"
+                                   class="s_hero_slide_btn s_hero_btn_pink">
+                                    VOIR LES PRODUITS
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 7 — Filtration ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_filtration.jpg"
+                             class="s_hero_slide_bg" alt="Filtration piscine pompe filtre"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_dark"></div>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_badge s_hero_badge_round s_hero_badge_green">
+                                <span class="s_hero_badge_top">GRAND</span>
+                                <span class="s_hero_badge_main">DÉSTOCKAGE</span>
+                                <span class="s_hero_badge_pct">-30%</span>
+                            </div>
+                            <div class="s_hero_slide_text">
+                                <p class="s_hero_slide_eyebrow s_hero_eyebrow_white">
+                                    Filtres à sable · Cartouche · Diatomées
+                                </p>
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    FILTRATION<br/>
+                                    <span class="s_hero_highlight s_hero_highlight_blue">PISCINE</span>
+                                </h2>
+                                <p class="s_hero_slide_sub s_hero_sub_white">
+                                    Plus de 120 références · Zodiac · AquaForte · Astralpool
+                                </p>
+                                <a href="/shop?category=110"
+                                   class="s_hero_slide_btn s_hero_btn_white">
+                                    VOIR LA SÉLECTION
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 8 — Pompe de filtration ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_bg_piscine.jpg"
+                             class="s_hero_slide_bg" alt="Pompes de filtration piscine"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_dark"></div>
+                        <img src="/lolirine_pool_website/static/src/img/slider/prod_pompe_jardin.jpg"
+                             class="s_hero_prod_img s_hero_prod_right" alt="Pompe Astralpool"/>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_slide_text">
+                                <p class="s_hero_slide_eyebrow">Astralpool · Zodiac · AquaForte</p>
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    POMPES DE<br/>
+                                    <span class="s_hero_highlight s_hero_highlight_blue">FILTRATION</span>
+                                </h2>
+                                <p class="s_hero_slide_sub s_hero_sub_white">
+                                    Mono et multi-vitesse · Haute efficacité énergétique<br/>
+                                    Plus de 60 modèles disponibles
+                                </p>
+                                <a href="/shop?category=141"
+                                   class="s_hero_slide_btn s_hero_btn_blue">
+                                    VOIR LES POMPES
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 9 — PAC Fluidra R290 ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_bg_piscine_nuit.jpg"
+                             class="s_hero_slide_bg" alt="Pompe à chaleur connectée Fluidra"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_dark"></div>
+                        <img src="/lolirine_pool_website/static/src/img/slider/prod_pac_jardin.jpg"
+                             class="s_hero_prod_img s_hero_prod_right" alt="PAC Fluidra R290"/>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_slide_text">
+                                <div class="s_hero_tags">
+                                    <span class="s_hero_tag s_hero_tag_green">R290 ÉCO</span>
+                                    <span class="s_hero_tag s_hero_tag_blue">CONNECTÉE</span>
+                                </div>
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    POMPES À CHALEUR<br/>
+                                    <span class="s_hero_highlight s_hero_highlight_blue">INVERTER R290</span>
+                                </h2>
+                                <p class="s_hero_slide_sub s_hero_sub_white">
+                                    Compatible Fluidra Pool App · Réfrigérant naturel<br/>
+                                    Pilotage depuis votre smartphone
+                                </p>
+                                <a href="/shop?category=127"
+                                   class="s_hero_slide_btn s_hero_btn_blue">
+                                    DÉCOUVRIR LA GAMME
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 10 — Wellness / Spa ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_bg_wellness.jpg"
+                             class="s_hero_slide_bg" alt="Jacuzzi spa bien-être"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_blue"></div>
+                        <img src="/lolirine_pool_website/static/src/img/slider/prod_swimspa.jpg"
+                             class="s_hero_prod_img s_hero_prod_right" alt="Swimspa Dual Astralpool"/>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_badge s_hero_badge_round s_hero_badge_pink">
+                                <span class="s_hero_badge_top">ESPACE</span>
+                                <span class="s_hero_badge_main">WELLNESS</span>
+                                <div class="s_hero_badge_bottom_bar">
+                                    <span class="s_hero_badge_prix">DÉCOUVREZ</span>
+                                </div>
+                            </div>
+                            <div class="s_hero_slide_text">
+                                <p class="s_hero_slide_eyebrow">Spas · Jacuzzis · Swim Spa</p>
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    VOTRE ESPACE<br/>
+                                    <span class="s_hero_highlight s_hero_highlight_blue">BIEN-ÊTRE</span>
+                                </h2>
+                                <p class="s_hero_slide_sub s_hero_sub_white">
+                                    Spas encastrables, de nage et swim spa dual<br/>
+                                    Livraison et installation disponibles
+                                </p>
+                                <a href="/shop?category=94"
+                                   class="s_hero_slide_btn s_hero_btn_pink">
+                                    VOIR LES SPAS
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 11 — Liners & Revêtements ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_bg_liner.jpg"
+                             class="s_hero_slide_bg" alt="Liners et revêtements piscine"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_dark"></div>
+                        <img src="/lolirine_pool_website/static/src/img/slider/prod_liner_colors.jpg"
+                             class="s_hero_prod_img s_hero_prod_right" alt="Palette couleurs liner"/>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_slide_text">
+                                <div class="s_hero_color_dots">
+                                    <span class="s_hero_color_dot" style="background:#6ec6e8;"/>
+                                    <span class="s_hero_color_dot" style="background:#4a9fcb;"/>
+                                    <span class="s_hero_color_dot" style="background:#3a6a8a;"/>
+                                    <span class="s_hero_color_dot" style="background:#2dbfbf;"/>
+                                    <span class="s_hero_color_dot" style="background:#7a9a6a;"/>
+                                    <span class="s_hero_color_dot" style="background:#c8c4a8;"/>
+                                    <span class="s_hero_color_dot" style="background:#d8dce4;"/>
+                                    <span class="s_hero_color_dot" style="background:#b0b8c4;"/>
+                                </div>
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    LINERS &amp;<br/>
+                                    <span class="s_hero_highlight s_hero_highlight_blue">REVÊTEMENTS</span>
+                                </h2>
+                                <p class="s_hero_slide_sub s_hero_sub_white">
+                                    10 coloris · Sur mesure<br/>
+                                    Light Blue · Azure · Sapphire · Caribbean Green…
+                                </p>
+                                <a href="/shop?category=104"
+                                   class="s_hero_slide_btn s_hero_btn_blue">
+                                    CHOISIR MON LINER
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 12 — Traitement spa CTX ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_bg_spa.jpg"
+                             class="s_hero_slide_bg" alt="Traitement eau spa"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_blue"></div>
+                        <img src="/lolirine_pool_website/static/src/img/slider/prod_jacuzzi_montagne.jpg"
+                             class="s_hero_prod_img s_hero_prod_right" alt="Jacuzzi vue montagne"/>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_slide_text">
+                                <p class="s_hero_slide_eyebrow s_hero_eyebrow_white">
+                                    CTX Pro · SPA Sensations
+                                </p>
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    TRAITEMENT<br/>
+                                    <span class="s_hero_highlight s_hero_highlight_yellow">DE L'EAU SPA</span>
+                                </h2>
+                                <ul class="s_hero_checklist">
+                                    <li>pH+, pH−, Chlore, Brome, Oxygène actif</li>
+                                    <li>Floculants et clarifiants spa</li>
+                                    <li>Flacons recyclés à 50%</li>
+                                </ul>
+                                <a href="/shop?category=98"
+                                   class="s_hero_slide_btn s_hero_btn_white">
+                                    VOIR LES PRODUITS
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ SLIDE 13 — Tuyauterie PVC ══ -->
+                    <div class="carousel-item s_hero_slide">
+                        <img src="/lolirine_pool_website/static/src/img/slider/slide_bg_technique.jpg"
+                             class="s_hero_slide_bg" alt="Local technique filtration tuyauterie"/>
+                        <div class="s_hero_slide_overlay s_hero_overlay_dark"></div>
+                        <img src="/lolirine_pool_website/static/src/img/slider/prod_pvc_tubes.jpg"
+                             class="s_hero_prod_img s_hero_prod_right" alt="Tubes PVC"/>
+                        <div class="s_hero_slide_content">
+                            <div class="s_hero_badge s_hero_badge_round s_hero_badge_yellow">
+                                <span class="s_hero_badge_top">PLUS DE</span>
+                                <span class="s_hero_badge_pct">1800</span>
+                                <span class="s_hero_badge_top">RÉFÉRENCES</span>
+                            </div>
+                            <div class="s_hero_slide_text">
+                                <p class="s_hero_slide_eyebrow">Tuyauterie · Raccords · Vannes</p>
+                                <h2 class="s_hero_slide_title s_hero_title_white">
+                                    TUYAUTERIE PVC<br/>
+                                    <span class="s_hero_highlight s_hero_highlight_blue">&amp; ACCESSOIRES</span>
+                                </h2>
+                                <p class="s_hero_slide_sub s_hero_sub_white">
+                                    Ø 16 mm à 160 mm · PN10/PN16<br/>
+                                    Colles, joints, brides et raccords
+                                </p>
+                                <a href="/shop?category=144"
+                                   class="s_hero_slide_btn s_hero_btn_dark">
+                                    VOIR LE CATALOGUE
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /carousel-inner -->
+
+                <!-- Flèches navigation -->
+                <button class="carousel-control-prev s_hero_arrow" type="button"
+                        data-bs-target="#s_hero_slider_carousel" data-bs-slide="prev">
+                    <span class="s_hero_arrow_icon">&#8249;</span>
+                </button>
+                <button class="carousel-control-next s_hero_arrow" type="button"
+                        data-bs-target="#s_hero_slider_carousel" data-bs-slide="next">
+                    <span class="s_hero_arrow_icon">&#8250;</span>
+                </button>
+
+            </div><!-- /carousel -->
+        </section>
+    </template>
+
+    <template id="hero_slider_in_snippets"
+              inherit_id="website.snippets"
+              name="Lolirine — Carrousel Promotionnel">
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <t t-snippet="lolirine_pool_website.s_hero_slider"
+               string="Carrousel Promotionnel"
+               group="custom"
+               t-thumbnail="/lolirine_pool_website/static/src/img/snippets/hero_slider_thumb.svg">
+                <keywords>carrousel slider promotion bannière hero diaporama</keywords>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>
