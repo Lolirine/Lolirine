@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_lolirine_destination_invoice_form" model="ir.ui.view">
+        <field name="name">account.move.lolirine.destination</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+
+            <!-- ── Boutons de destination en haut du formulaire ── -->
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+
+                <!-- Bouton Hangar -->
+                <button name="action_apply_hangar_only"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-industry"
+                        attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])]}"
+                        title="Appliquer 100% Hangar sur toutes les lignes">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Hangar</span>
+                        <span class="o_stat_value"
+                              attrs="{'invisible': [('has_hangar', '=', False)]}">✓</span>
+                    </div>
+                </button>
+
+                <!-- Bouton Hangar/Appart (89/11%) -->
+                <button name="action_apply_hangar_appart"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-home"
+                        attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])]}"
+                        title="Appliquer répartition 89% Hangar / 11% Appartement">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Hangar+Appart</span>
+                        <span class="o_stat_value"
+                              attrs="{'invisible': [('has_mixed', '=', False)]}">89/11%</span>
+                    </div>
+                </button>
+
+                <!-- Bouton Pool Store -->
+                <button name="action_apply_pool_only"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-tint"
+                        attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])]}"
+                        title="Appliquer 100% Pool Store sur toutes les lignes">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Pool Store</span>
+                        <span class="o_stat_value"
+                              attrs="{'invisible': [('has_pool', '=', False)]}">✓</span>
+                    </div>
+                </button>
+
+                <!-- Bouton Effacer destination -->
+                <button name="action_clear_destination"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-times-circle"
+                        attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])]}"
+                        title="Effacer toutes les destinations">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Effacer</span>
+                    </div>
+                </button>
+
+            </xpath>
+
+            <!-- ── Résumé destination sous le titre ── -->
+            <xpath expr="//field[@name='ref']" position="after">
+                <field name="has_hangar" invisible="1"/>
+                <field name="has_appart" invisible="1"/>
+                <field name="has_pool"   invisible="1"/>
+                <field name="has_mixed"  invisible="1"/>
+                <field name="destination_summary"
+                       string="Destination"
+                       readonly="1"
+                       attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'in_refund'])]}"
+                       widget="badge"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>
