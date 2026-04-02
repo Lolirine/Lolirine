@@ -165,7 +165,25 @@ class LolirineScanTva(models.Model):
         string="Facture fournisseur",
         readonly=True
     )
-    
+
+    # ── Indicateur TVA non comptabilisée ──
+    invoice_pending = fields.Boolean(
+        string="TVA non comptabilisée",
+        compute="_compute_invoice_pending",
+        store=True,
+    )
+    amount_tax_pending = fields.Monetary(
+        string="TVA en attente",
+        compute="_compute_invoice_pending",
+        store=True,
+        currency_field='currency_id',
+    )
+
+    @api.depends('state', 'invoice_id', 'amount_tax')
+    def _compute_invoice_pending(self):
+        for rec in self:
+            rec.invoice_pending = (rec.state == 'validated' and not rec.invoice_id)
+            rec.amount_tax_pending = rec.amount_tax if rec.invoice_pending else 0.0
     # Notes
     notes = fields.Text(string="Notes")
     
