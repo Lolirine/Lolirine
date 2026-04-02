@@ -1,55 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Menu principal de l'application -->
+    <!-- Menu principal -->
     <menuitem id="menu_lolirine_scan_tva_root"
               name="Scan TVA"
               sequence="26"
               web_icon="lolirine_scan_tva,static/description/icon.png"
               action="action_lolirine_scan_tva_main"/>
-    
-    <!-- Menu Nouveau scan -->
+
+    <!-- Nouveau scan -->
     <menuitem id="menu_lolirine_scan_tva_new"
               name="Nouveau scan"
               parent="menu_lolirine_scan_tva_root"
               action="action_lolirine_scan_tva_new"
               sequence="5"/>
-    
-    <!-- Menu Tous les scans -->
+
+    <!-- Tous les scans -->
     <menuitem id="menu_lolirine_scan_tva_all"
               name="Tous les scans"
               parent="menu_lolirine_scan_tva_root"
               action="action_lolirine_scan_tva_main"
               sequence="10"/>
-    
-    <!-- Menu A traiter -->
+
+    <!-- À traiter -->
     <menuitem id="menu_lolirine_scan_tva_to_process"
-              name="A traiter"
+              name="À traiter"
               parent="menu_lolirine_scan_tva_root"
               action="action_lolirine_scan_tva_to_process"
               sequence="15"/>
-    
-    <!-- Menu Facturés -->
+
+    <!-- ── TVA non comptabilisée ── -->
+    <menuitem id="menu_lolirine_scan_tva_pending"
+              name="⚠️ TVA non comptabilisée"
+              parent="menu_lolirine_scan_tva_root"
+              action="action_lolirine_scan_tva_pending"
+              sequence="17"/>
+
+    <!-- Factures créées -->
     <menuitem id="menu_lolirine_scan_tva_invoiced"
-              name="Factures creees"
+              name="Factures créées"
               parent="menu_lolirine_scan_tva_root"
               action="action_lolirine_scan_tva_invoiced"
               sequence="20"/>
-    
-    <!-- Sous-menu Configuration -->
+
+    <!-- Configuration -->
     <menuitem id="menu_lolirine_scan_tva_config"
               name="Configuration"
               parent="menu_lolirine_scan_tva_root"
               sequence="30"
               groups="base.group_system"/>
-    
-    <!-- Lien vers plan comptable -->
+
     <menuitem id="menu_lolirine_scan_tva_accounts"
               name="Plan comptable"
               parent="menu_lolirine_scan_tva_config"
               action="account.action_account_form"
               sequence="10"/>
-    
-    <!-- Lien vers fournisseurs -->
+
     <menuitem id="menu_lolirine_scan_tva_suppliers"
               name="Fournisseurs"
               parent="menu_lolirine_scan_tva_config"
