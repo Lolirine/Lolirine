@@ -1,0 +1,63 @@
+/* Lolirine Destination — boutons colorés sur factures fournisseurs */
+
+.lol_dest_btn {
+    min-width: 80px;
+    transition: all 0.2s ease;
+}
+
+/* Hangar — bleu foncé */
+.lol_dest_hangar {
+    background-color: #e8f0fe !important;
+    border-color: #1a73e8 !important;
+    color: #1a73e8 !important;
+}
+.lol_dest_hangar:hover {
+    background-color: #1a73e8 !important;
+    color: #fff !important;
+}
+
+/* Pool Store — vert */
+.lol_dest_pool {
+    background-color: #e6f4ea !important;
+    border-color: #137333 !important;
+    color: #137333 !important;
+}
+.lol_dest_pool:hover {
+    background-color: #137333 !important;
+    color: #fff !important;
+}
+
+/* Mixte 89/11 — orange */
+.lol_dest_mixed {
+    background-color: #fef3e2 !important;
+    border-color: #e37400 !important;
+    color: #e37400 !important;
+}
+.lol_dest_mixed:hover {
+    background-color: #e37400 !important;
+    color: #fff !important;
+}
+
+/* Effacer — gris */
+.lol_dest_clear {
+    background-color: #f8f9fa !important;
+    border-color: #6c757d !important;
+    color: #6c757d !important;
+}
+.lol_dest_clear:hover {
+    background-color: #6c757d !important;
+    color: #fff !important;
+}
+
+/* Badge résumé destination */
+.lol_dest_summary .o_field_char {
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background-color: #f0f4ff;
+    color: #1a73e8;
+    border: 1px solid #c5d4f5;
+    display: inline-block;
+    margin-top: 4px;
+}
