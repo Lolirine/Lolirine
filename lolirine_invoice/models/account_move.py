@@ -162,9 +162,8 @@ class AccountMove(models.Model):
     # ==================== NOUVEAUX CHAMPS - REMBOURSEMENT ====================
 
     refund_state = fields.Selection([
-        ('none',    'Aucun remboursement'),
-        ('pending', 'Remboursement en attente de rapprochement'),
-        ('done',    'Remboursement rapproché'),
+        ('pending', 'Remboursement en attente'),
+        ('done',    'Remboursé ✓'),
     ], string='État remboursement',
        compute='_compute_refund_state',
        store=True,
@@ -329,7 +328,7 @@ class AccountMove(models.Model):
                         refund_moves.append(('bank_entry', bool(is_matched)))
 
             if not refund_moves:
-                move.refund_state = 'none'
+                move.refund_state = False
             elif all(matched for _, matched in refund_moves):
                 move.refund_state = 'done'
             else:
