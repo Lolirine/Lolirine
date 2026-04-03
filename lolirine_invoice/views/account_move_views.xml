@@ -212,6 +212,10 @@
                        decoration-info="reminder_status == 'reminder_1'"
                        decoration-warning="reminder_status in ('reminder_2', 'reminder_3')"
                        decoration-danger="reminder_status in ('formal_notice', 'lawyer')"/>
+                <field name="refund_state" widget="badge" optional="show" string="Remboursement"
+                       decoration-warning="refund_state == 'pending'"
+                       decoration-success="refund_state == 'done'"
+                       invisible="refund_state == 'none'"/>
             </xpath>
         </field>
     </record>
