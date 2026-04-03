@@ -47,7 +47,7 @@ class LolirineRefundWizard(models.TransientModel):
             'amount': self.amount,
             'date': self.date,
             'journal_id': self.journal_id.id,
-            'ref': f'Remboursement {inv.name} — {self.reason}',
+            'memo': f'Remboursement {inv.name} — {self.reason}',
             'currency_id': inv.currency_id.id,
         })
         payment.action_post()
