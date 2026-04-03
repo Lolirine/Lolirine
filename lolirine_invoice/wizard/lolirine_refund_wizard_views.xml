@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_lolirine_refund_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.refund.wizard.form</field>
+        <field name="model">lolirine.refund.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Rembourser le client">
+                <group>
+                    <group string="Facture">
+                        <field name="invoice_id" readonly="1"/>
+                        <field name="partner_id" readonly="1"/>
+                        <field name="amount_invoice" readonly="1"/>
+                        <field name="currency_id" invisible="1"/>
+                    </group>
+                    <group string="Remboursement">
+                        <field name="amount"/>
+                        <field name="journal_id"/>
+                        <field name="date"/>
+                        <field name="reason" placeholder="Ex: Facture émise prématurément"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_confirm_refund" type="object"
+                            string="Confirmer le remboursement" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_lolirine_refund_wizard" model="ir.actions.act_window">
+        <field name="name">Rembourser le client</field>
+        <field name="res_model">lolirine.refund.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_invoice_id': active_id}</field>
+    </record>
+</odoo>
