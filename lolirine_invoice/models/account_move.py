@@ -326,7 +326,8 @@ class AccountMove(models.Model):
 
                     # Si la banque est créditée → argent qui SORT = remboursement
                     # Si la banque est débitée → argent qui ENTRE = paiement normal
-                    if any(l.credit > 0 for l in bank_line):
+                    net_bank = sum(l.debit - l.credit for l in bank_line)
+                    if net_bank < 0:
                         is_matched = bool(credit_move.statement_line_id)
                         refund_moves.append(('bank_entry', bool(is_matched)))
 
