@@ -175,12 +175,12 @@ class AccountMove(models.Model):
        store=True,
     )
 
-    @api.depends('refund_payment_id', 'refund_payment_id.is_matched')
+    @api.depends('refund_payment_id', 'refund_payment_id.state')
     def _compute_refund_state(self):
         for move in self:
             if not move.refund_payment_id:
                 move.refund_state = False
-            elif move.refund_payment_id.is_matched:
+            elif move.refund_payment_id.state == 'paid':
                 move.refund_state = 'done'
             else:
                 move.refund_state = 'pending'
