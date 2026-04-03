@@ -207,7 +207,7 @@
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_invoice_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='status_in_payment']" position="after">
+            <xpath expr="//field[@name='move_sent_values']" position="after">
                 <field name="reminder_status" widget="badge" optional="show" string="Relance"
                        decoration-info="reminder_status == 'reminder_1'"
                        decoration-warning="reminder_status in ('reminder_2', 'reminder_3')"
@@ -215,7 +215,6 @@
                 <field name="refund_state" widget="badge" optional="show" string="Remboursement"
                        decoration-warning="refund_state == 'pending'"
                        decoration-success="refund_state == 'done'"/>
-                       invisible="refund_state == 'none'"/>
             </xpath>
         </field>
     </record>
