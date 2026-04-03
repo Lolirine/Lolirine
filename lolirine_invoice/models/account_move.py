@@ -159,6 +159,23 @@ class AccountMove(models.Model):
         compute='_compute_partner_invoice_count'
     )
 
+    # ==================== NOUVEAUX CHAMPS - REMBOURSEMENT ====================
+
+    refund_payment_ids = fields.Many2many(
+        'account.payment',
+        compute='_compute_refund_payments',
+        string='Paiements de remboursement',
+    )
+
+    refund_state = fields.Selection([
+        ('none',    'Aucun remboursement'),
+        ('pending', 'Remboursement en attente de rapprochement'),
+        ('done',    'Remboursement rapproché'),
+    ], string='État remboursement',
+       compute='_compute_refund_state',
+       store=True,
+    )
+
     # ==================== COMPUTES ====================
 
     @api.depends('reminder_ids')
@@ -188,7 +205,6 @@ class AccountMove(models.Model):
                 lambda r: r.state in ('draft', 'sent')
             )
             if active_reminders:
-                # Prendre le niveau le plus elevé
                 type_order = ['reminder_1', 'reminder_2', 'reminder_3', 'formal_notice', 'lawyer']
                 highest = 'reminder_1'
                 for r in active_reminders:
@@ -200,21 +216,16 @@ class AccountMove(models.Model):
                 move.reminder_status = 'none'
 
     def _compute_next_reminder(self):
-        """Calcule la date de la prochaine relance recommandee"""
         config = self.env['lolirine.invoice.reminder.config'].search([], limit=1)
         for move in self:
             if move.state != 'posted' or move.payment_state == 'paid':
                 move.next_reminder_date = False
                 continue
-                
             if not move.invoice_date_due:
                 move.next_reminder_date = False
                 continue
-            
             due_date = move.invoice_date_due
-            
             if not move.last_reminder_type:
-                # Pas encore de relance -> 1er rappel
                 days = config.reminder_1_days if config else 7
                 move.next_reminder_date = due_date + timedelta(days=days)
             elif move.last_reminder_type == 'reminder_1':
@@ -268,8 +279,7 @@ class AccountMove(models.Model):
                 move.overdue_level = 'ok'
 
     def _compute_penalty_amount(self):
-        """Calcul penalites selon taux legal belge"""
-        annual_rate = 0.105  # 10.5% taux 2024
+        annual_rate = 0.105
         for move in self:
             if move.days_overdue > 0 and move.amount_residual > 0:
                 move.penalty_amount = move.amount_residual * (annual_rate / 365) * move.days_overdue
@@ -295,21 +305,41 @@ class AccountMove(models.Model):
                 move.partner_unpaid_count = 0
                 move.partner_total_due = 0.0
 
+    @api.depends('line_ids.matched_credit_ids', 'line_ids.matched_debit_ids')
+    def _compute_refund_payments(self):
+        for move in self:
+            payments = self.env['account.payment']
+            for line in move.line_ids.filtered(
+                lambda l: l.account_id.account_type == 'asset_receivable'
+            ):
+                for match in line.matched_credit_ids:
+                    pay = match.credit_move_id.move_id.payment_id
+                    if pay and pay.payment_type == 'outbound':
+                        payments |= pay
+            move.refund_payment_ids = payments
+
+    @api.depends('refund_payment_ids', 'refund_payment_ids.is_matched')
+    def _compute_refund_state(self):
+        for move in self:
+            payments = move.refund_payment_ids
+            if not payments:
+                move.refund_state = 'none'
+            elif all(p.is_matched for p in payments):
+                move.refund_state = 'done'
+            else:
+                move.refund_state = 'pending'
+
     # ==================== ACTIONS EXISTANTES ====================
 
     def action_post(self):
         """Override pour envoyer automatiquement la facture apres confirmation"""
         res = super().action_post()
-        
         for move in self:
             if move.move_type in ('out_invoice', 'out_refund'):
-                # Envoi email classique
                 if move.auto_send_invoice and not move.auto_send_peppol:
                     move._send_invoice_auto()
-                # Envoi Peppol (inclut aussi l'email via le wizard)
                 elif move.auto_send_peppol:
                     move._send_invoice_peppol_auto()
-        
         return res
 
     def _send_invoice_auto(self):
@@ -325,7 +355,6 @@ class AccountMove(models.Model):
             return False
         
         try:
-            # Generer le PDF Lolirine
             report = self.env.ref('lolirine_invoice.action_report_invoice_lolirine', raise_if_not_found=False)
             if not report:
                 report = self.env.ref('account.account_invoices', raise_if_not_found=False)
@@ -343,7 +372,6 @@ class AccountMove(models.Model):
                 })
                 attachment_ids.append(attachment.id)
             
-            # Preparer le corps de l'email
             body_html = f"""
 <div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
     <p>Bonjour {self.partner_id.name},</p>
@@ -394,7 +422,6 @@ class AccountMove(models.Model):
 </div>
             """
             
-            # Creer et envoyer l'email
             mail = self.env['mail.mail'].sudo().create({
                 'subject': f"Envoi de votre facture mensuelle {self.name} - Garde-meubles Lolirine",
                 'body_html': body_html,
@@ -423,33 +450,19 @@ class AccountMove(models.Model):
             return False
 
     def _send_invoice_peppol_auto(self):
-        """Envoyer la facture automatiquement via Peppol en utilisant le wizard
-        natif Odoo 19 account.move.send.wizard.
-        
-        Ce wizard gère :
-        - La génération du PDF
-        - La génération du XML UBL
-        - L'envoi via le proxy Peppol
-        - L'envoi email en parallèle si configuré
-        """
         self.ensure_one()
-        
         if not self.partner_id.peppol_eas or not self.partner_id.peppol_endpoint:
             self.message_post(
                 body=_("Envoi Peppol impossible : le client n'a pas d'identifiant Peppol configuré (EAS/Endpoint)."),
                 message_type='notification'
             )
             return False
-        
         try:
-            # Utiliser le wizard natif Odoo 19 pour l'envoi Peppol
             wizard = self.env['account.move.send.wizard'].with_context(
                 active_model='account.move',
                 active_ids=self.ids,
             ).create({})
-            
             wizard.action_send_and_print()
-            
             self.message_post(
                 body=_("Facture envoyée automatiquement via Peppol à %s (EAS: %s)") % (
                     self.partner_id.peppol_endpoint,
@@ -457,10 +470,8 @@ class AccountMove(models.Model):
                 ),
                 message_type='notification'
             )
-            
             _logger.info("Facture %s envoyée via Peppol à %s", self.name, self.partner_id.peppol_endpoint)
             return True
-            
         except Exception as e:
             _logger.error("Erreur envoi Peppol pour facture %s: %s", self.name, str(e))
             self.message_post(
@@ -470,23 +481,17 @@ class AccountMove(models.Model):
             return False
 
     def action_send_peppol(self):
-        """Action manuelle pour envoyer via Peppol via le wizard natif Odoo 19"""
         self.ensure_one()
-        
         if self.state != 'posted':
             raise UserError(_("La facture doit être confirmée avant d'être envoyée via Peppol."))
-        
         if not self.partner_id.peppol_eas or not self.partner_id.peppol_endpoint:
             raise UserError(_("Le client n'a pas d'identifiant Peppol configuré."))
-        
         try:
             wizard = self.env['account.move.send.wizard'].with_context(
                 active_model='account.move',
                 active_ids=self.ids,
             ).create({})
-            
             wizard.action_send_and_print()
-            
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -501,11 +506,9 @@ class AccountMove(models.Model):
             raise UserError(_("Erreur lors de l'envoi Peppol : %s") % str(e))
 
     def action_preview_invoice(self):
-        """Ouvrir un apercu de la facture"""
         self.ensure_one()
         if self.move_type not in ('out_invoice', 'out_refund'):
             raise UserError(_("Cette action est uniquement disponible pour les factures clients."))
-        
         return {
             'type': 'ir.actions.act_url',
             'url': '/report/pdf/lolirine_invoice.report_invoice_lolirine/%s' % self.id,
@@ -513,11 +516,9 @@ class AccountMove(models.Model):
         }
 
     def action_preview_invoice_html(self):
-        """Ouvrir un apercu HTML de la facture"""
         self.ensure_one()
         if self.move_type not in ('out_invoice', 'out_refund'):
             raise UserError(_("Cette action est uniquement disponible pour les factures clients."))
-        
         if self.state == 'posted':
             return {
                 'type': 'ir.actions.act_url',
@@ -532,21 +533,15 @@ class AccountMove(models.Model):
             }
 
     def action_confirm_and_send(self):
-        """Confirmer la facture et ouvrir le wizard d'envoi"""
         self.ensure_one()
-        
         if self.state == 'draft':
             self.action_post()
-        
         return self.action_open_send_wizard()
 
     def action_open_send_wizard(self):
-        """Ouvrir le wizard d'envoi de facture"""
         self.ensure_one()
-        
         if self.state != 'posted':
             raise UserError(_("La facture doit etre confirmee avant d'etre envoyee."))
-        
         return {
             'name': _('Envoyer la facture'),
             'type': 'ir.actions.act_window',
@@ -561,23 +556,15 @@ class AccountMove(models.Model):
         }
 
     def action_send_invoice_email(self):
-        """Envoyer la facture par email - ouvre le wizard de composition comme pour les contrats"""
         self.ensure_one()
-        
         if self.state != 'posted':
             raise UserError("La facture doit etre confirmee avant d'etre envoyee.")
-        
-        # Chercher le template Lolirine
         template = self.env.ref('lolirine_invoice.email_template_invoice', raise_if_not_found=False)
         if not template:
-            # Fallback sur le template standard Odoo
             template = self.env.ref('account.email_template_edi_invoice', raise_if_not_found=False)
-        
         if not template:
             raise UserError("Aucun template d'email trouve.")
-        
         compose_form = self.env.ref('mail.email_compose_message_wizard_form', raise_if_not_found=False)
-        
         ctx = {
             'default_model': 'account.move',
             'default_res_ids': self.ids,
@@ -586,7 +573,6 @@ class AccountMove(models.Model):
             'mark_invoice_as_sent': True,
             'force_email': True,
         }
-        
         return {
             'name': 'Envoyer la facture par email',
             'type': 'ir.actions.act_window',
@@ -601,16 +587,11 @@ class AccountMove(models.Model):
     # ==================== NOUVELLES ACTIONS ====================
 
     def action_create_reminder(self):
-        """Creer une nouvelle relance"""
         self.ensure_one()
-        
         if self.state != 'posted':
             raise UserError(_("La facture doit etre confirmee."))
-        
         if self.payment_state == 'paid':
             raise UserError(_("Cette facture est deja payee."))
-        
-        # Determiner le type de relance suivant
         if not self.last_reminder_type:
             next_type = 'reminder_1'
         elif self.last_reminder_type == 'reminder_1':
@@ -621,7 +602,6 @@ class AccountMove(models.Model):
             next_type = 'formal_notice'
         else:
             next_type = 'lawyer'
-        
         return {
             'name': _('Nouvelle relance'),
             'type': 'ir.actions.act_window',
@@ -635,7 +615,6 @@ class AccountMove(models.Model):
         }
 
     def action_view_reminders(self):
-        """Voir les relances de la facture"""
         self.ensure_one()
         return {
             'name': _('Relances'),
@@ -647,7 +626,6 @@ class AccountMove(models.Model):
         }
 
     def action_view_partner_invoices(self):
-        """Voir toutes les factures du client"""
         self.ensure_one()
         return {
             'name': _('Factures de %s') % self.partner_id.name,
@@ -662,7 +640,6 @@ class AccountMove(models.Model):
         }
 
     def action_view_partner_unpaid(self):
-        """Voir les factures impayees du client"""
         self.ensure_one()
         return {
             'name': _('Impayees de %s') % self.partner_id.name,
@@ -678,17 +655,13 @@ class AccountMove(models.Model):
         }
 
     def action_smart_duplicate(self):
-        """Duplication intelligente avec mise a jour des dates"""
         self.ensure_one()
-        
-        # Copier la facture
         new_invoice = self.copy({
             'invoice_date': fields.Date.today(),
             'date': fields.Date.today(),
             'invoice_tag_ids': [(6, 0, self.invoice_tag_ids.ids)],
             'internal_note': self.internal_note,
         })
-        
         return {
             'type': 'ir.actions.act_window',
             'name': _('Nouvelle facture'),
@@ -696,6 +669,17 @@ class AccountMove(models.Model):
             'res_id': new_invoice.id,
             'view_mode': 'form',
             'context': {'default_move_type': self.move_type},
+        }
+
+    def action_view_refund_payments(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Paiements de remboursement',
+            'res_model': 'account.payment',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', self.refund_payment_ids.ids)],
+            'target': 'current',
         }
 
 
@@ -714,10 +698,6 @@ class ResPartner(models.Model):
         help="Si active, les factures de ce client seront envoyees automatiquement via Peppol"
     )
     
-    # peppol_eas et peppol_endpoint sont deja definis dans account_edi_ubl_cii
-    # Ne PAS les redefinir ici pour eviter d'ecraser la liste complete des codes EAS
-    
-    # Statistiques factures
     invoice_overdue_count = fields.Integer(
         string='Factures en retard',
         compute='_compute_invoice_stats'
@@ -729,7 +709,6 @@ class ResPartner(models.Model):
     
     @api.onchange('vat')
     def _onchange_vat_peppol(self):
-        """Suggerer l'endpoint Peppol base sur le numero TVA"""
         if self.vat and not self.peppol_endpoint:
             vat_clean = self.vat.replace(' ', '').replace('.', '')
             if vat_clean.startswith('BE'):
@@ -760,61 +739,29 @@ class SaleSubscription(models.Model):
     
     @api.onchange('partner_id')
     def _onchange_partner_peppol(self):
-        """Heriter les preferences Peppol du client"""
         if self.partner_id and self.partner_id.auto_send_peppol:
             self.auto_send_peppol = True
     
     def _create_invoices(self, grouped=False, final=False, date=None):
-        """Override pour propager l'option d'envoi auto"""
         moves = super()._create_invoices(grouped=grouped, final=final, date=date)
-        
         for move in moves:
             if move.partner_id.auto_send_invoice:
                 move.auto_send_invoice = True
-            
             subscription = self.filtered(lambda s: move.partner_id in s.partner_id)
             if subscription and subscription[0].auto_send_peppol:
                 move.auto_send_peppol = True
             elif move.partner_id.auto_send_peppol:
                 move.auto_send_peppol = True
-        
         return moves
 
-    # =============================================
-    # PATCH: Correction bug Odoo Enterprise set_close()
-    # =============================================
-    
     def set_close(self, close_reason_id=None, renew=False, **kwargs):
-        """
-        PATCH CRITIQUE: Corrige le bug Odoo Enterprise ou set_close() a des 
-        signatures incompatibles entre les modules:
-        - sale_subscription: set_close(self) - 1 argument
-        - project_sale_subscription: appelle super().set_close(close_reason_id, renew) - 3 arguments
-        - sale_subscription_partnership: passe *args, **kwargs
-        
-        Resultat: TypeError: takes 1 positional argument but 3 were given
-        
-        SOLUTION: Cette methode n'appelle PAS super() pour eviter la chaine 
-        d'heritage bugguee. Elle implemente directement la logique de fermeture.
-        """
         for subscription in self:
-            # Ne traiter que les abonnements (pas les commandes normales)
             if hasattr(subscription, 'is_subscription') and not subscription.is_subscription:
                 continue
-            
-            # Preparer les valeurs de mise a jour
-            vals = {
-                'subscription_state': '6_churn',  # Etat "Churned" / Resilie
-            }
-            
-            # Ajouter la raison de cloture si fournie
+            vals = {'subscription_state': '6_churn'}
             if close_reason_id:
                 vals['close_reason_id'] = close_reason_id
-            
-            # Mettre a jour l'abonnement
             subscription.write(vals)
-            
-            # Poster un message dans le chatter
             msg = "Abonnement cloture."
             if close_reason_id:
                 try:
@@ -823,12 +770,6 @@ class SaleSubscription(models.Model):
                         msg = "Abonnement cloture. Raison: %s" % reason.name
                 except Exception:
                     pass
-            
-            subscription.message_post(
-                body=msg,
-                message_type='notification'
-            )
-            
+            subscription.message_post(body=msg, message_type='notification')
             _logger.info("Abonnement %s cloture via patch set_close()", subscription.name)
-        
         return True
