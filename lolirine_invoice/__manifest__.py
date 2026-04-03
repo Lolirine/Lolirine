@@ -68,6 +68,7 @@
         # Wizards (doit etre charge AVANT les menus)
         "wizard/invoice_send_wizard_views.xml",
         "wizard/invoice_wizard_views.xml",
+        "wizard/lolirine_refund_wizard_views.xml",
         # Views
         "views/invoice_tag_views.xml",
         "views/invoice_reminder_views.xml",
