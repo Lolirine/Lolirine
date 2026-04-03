@@ -64,6 +64,7 @@ class LolirineRefundWizard(models.TransientModel):
             amount=self.amount, journal=self.journal_id.name,
             payment=payment.name, reason=self.reason,
         ))
+        inv.refund_payment_id = payment.id
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
