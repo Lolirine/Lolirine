@@ -54,7 +54,7 @@ class LolirineRefundWizard(models.TransientModel):
         inv_line = inv.line_ids.filtered(
             lambda l: l.account_id.account_type == 'asset_receivable' and not l.reconciled
         )
-        pay_line = payment.line_ids.filtered(
+        pay_line = payment.move_id.line_ids.filtered(
             lambda l: l.account_id.account_type == 'asset_receivable' and not l.reconciled
         )
         if inv_line and pay_line:
