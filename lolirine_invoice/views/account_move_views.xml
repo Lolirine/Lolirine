@@ -40,6 +40,12 @@
                 <button name="action_smart_duplicate" type="object" string="Dupliquer" 
                         class="btn-secondary" icon="fa-copy"
                         invisible="move_type not in ('out_invoice', 'out_refund')"/>
+                <button name="%(lolirine_invoice.action_lolirine_refund_wizard)d"
+                        type="action"
+                        string="Rembourser"
+                        class="btn-danger"
+                        icon="fa-undo"
+                        invisible="state != 'posted' or move_type not in ['out_invoice'] or payment_state not in ['paid', 'in_payment', 'partial']"/>
             </xpath>
             
             <!-- Smart buttons -->
