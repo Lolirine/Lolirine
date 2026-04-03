@@ -161,12 +161,6 @@ class AccountMove(models.Model):
 
     # ==================== NOUVEAUX CHAMPS - REMBOURSEMENT ====================
 
-    refund_payment_ids = fields.Many2many(
-        'account.payment',
-        compute='_compute_refund_payments',
-        string='Paiements de remboursement',
-    )
-
     refund_state = fields.Selection([
         ('none',    'Aucun remboursement'),
         ('pending', 'Remboursement en attente de rapprochement'),
@@ -305,31 +299,30 @@ class AccountMove(models.Model):
                 move.partner_unpaid_count = 0
                 move.partner_total_due = 0.0
 
-    @api.depends('line_ids.matched_credit_ids', 'line_ids.matched_debit_ids')
-    def _compute_refund_payments(self):
-        Payment = self.env['account.payment']
+    @api.depends('line_ids.matched_credit_ids.credit_move_id',
+                 'line_ids.matched_debit_ids.debit_move_id')
+    def _compute_refund_state(self):
         for move in self:
-            payments = Payment.browse()
+            if move.move_type != 'out_invoice':
+                move.refund_state = 'none'
+                continue
+
+            refund_payments = []
             for line in move.line_ids.filtered(
                 lambda l: l.account_id.account_type == 'asset_receivable'
             ):
                 for match in line.matched_credit_ids:
                     pay_move = match.credit_move_id.move_id
-                    pay = Payment.search([
-                        ('move_id', '=', pay_move.id),
-                        ('payment_type', '=', 'outbound'),
-                    ], limit=1)
+                    pay = self.env['account.payment'].search(
+                        [('move_id', '=', pay_move.id),
+                         ('payment_type', '=', 'outbound')], limit=1
+                    )
                     if pay:
-                        payments |= pay
-            move.refund_payment_ids = payments
-        
-    @api.depends('refund_payment_ids', 'refund_payment_ids.is_matched')
-    def _compute_refund_state(self):
-        for move in self:
-            payments = move.refund_payment_ids
-            if not payments:
+                        refund_payments.append(pay)
+
+            if not refund_payments:
                 move.refund_state = 'none'
-            elif all(p.is_matched for p in payments):
+            elif all(p.is_matched for p in refund_payments):
                 move.refund_state = 'done'
             else:
                 move.refund_state = 'pending'
@@ -678,12 +671,24 @@ class AccountMove(models.Model):
 
     def action_view_refund_payments(self):
         self.ensure_one()
+        payment_ids = []
+        for line in self.line_ids.filtered(
+            lambda l: l.account_id.account_type == 'asset_receivable'
+        ):
+            for match in line.matched_credit_ids:
+                pay_move = match.credit_move_id.move_id
+                pay = self.env['account.payment'].search(
+                    [('move_id', '=', pay_move.id),
+                     ('payment_type', '=', 'outbound')], limit=1
+                )
+                if pay:
+                    payment_ids.append(pay.id)
         return {
             'type': 'ir.actions.act_window',
             'name': 'Paiements de remboursement',
             'res_model': 'account.payment',
             'view_mode': 'list,form',
-            'domain': [('id', 'in', self.refund_payment_ids.ids)],
+            'domain': [('id', 'in', payment_ids)],
             'target': 'current',
         }
 
