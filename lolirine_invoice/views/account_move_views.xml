@@ -214,8 +214,7 @@
                        decoration-danger="reminder_status in ('formal_notice', 'lawyer')"/>
                 <field name="refund_state" widget="badge" optional="show" string="Remboursement"
                        decoration-warning="refund_state == 'pending'"
-                       decoration-success="refund_state == 'done'"
-                       invisible="refund_state == 'none'"/>
+                       decoration-success="refund_state == 'done'"/>
             </xpath>
         </field>
     </record>
