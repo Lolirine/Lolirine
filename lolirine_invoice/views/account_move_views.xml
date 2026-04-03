@@ -205,9 +205,9 @@
     <record id="view_move_tree_lolirine_reminder" model="ir.ui.view">
         <field name="name">account.move.list.lolirine.reminder</field>
         <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_out_invoice_tree"/>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//list/field[@name='payment_state']" position="after">
+            <xpath expr="//field[@name='status_in_payment']" position="after">
                 <field name="reminder_status" widget="badge" optional="show" string="Relance"
                        decoration-info="reminder_status == 'reminder_1'"
                        decoration-warning="reminder_status in ('reminder_2', 'reminder_3')"
