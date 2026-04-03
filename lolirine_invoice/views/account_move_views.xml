@@ -40,12 +40,34 @@
                 <button name="action_smart_duplicate" type="object" string="Dupliquer" 
                         class="btn-secondary" icon="fa-copy"
                         invisible="move_type not in ('out_invoice', 'out_refund')"/>
+
+                <!-- Bouton Rembourser : visible si aucun remboursement en cours -->
+                <field name="refund_state" invisible="1"/>
                 <button name="%(lolirine_invoice.action_lolirine_refund_wizard)d"
                         type="action"
                         string="Rembourser"
                         class="btn-danger"
                         icon="fa-undo"
-                        invisible="state != 'posted' or move_type not in ['out_invoice'] or payment_state not in ['paid', 'in_payment', 'partial']"/>
+                        invisible="state != 'posted'
+                                   or move_type not in ['out_invoice']
+                                   or payment_state not in ['paid', 'in_payment', 'partial']
+                                   or refund_state != 'none'"/>
+
+                <!-- Bouton En attente : remboursement créé, rapprochement bancaire non fait -->
+                <button name="action_view_refund_payments"
+                        type="object"
+                        string="Remboursement en attente"
+                        class="btn-warning"
+                        icon="fa-clock-o"
+                        invisible="refund_state != 'pending'"/>
+
+                <!-- Bouton Remboursé : rapprochement bancaire effectué -->
+                <button name="action_view_refund_payments"
+                        type="object"
+                        string="Remboursé ✓"
+                        class="btn-secondary"
+                        icon="fa-check"
+                        invisible="refund_state != 'done'"/>
             </xpath>
             
             <!-- Smart buttons -->
@@ -102,6 +124,11 @@
                     <field name="last_reminder_date"/>
                     <field name="last_reminder_type"/>
                     <field name="next_reminder_date"/>
+                </group>
+                <group string="Remboursement" invisible="move_type not in ('out_invoice', 'out_refund') or refund_state == 'none'">
+                    <field name="refund_state" widget="badge"
+                           decoration-warning="refund_state == 'pending'"
+                           decoration-success="refund_state == 'done'"/>
                 </group>
             </xpath>
             
@@ -217,6 +244,9 @@
                        decoration-success="payment_state == 'paid'" 
                        decoration-warning="payment_state == 'partial'" 
                        decoration-danger="payment_state in ('not_paid', 'in_payment')"/>
+                <field name="refund_state" widget="badge" optional="show"
+                       decoration-warning="refund_state == 'pending'"
+                       decoration-success="refund_state == 'done'"/>
                 <field name="is_move_sent" widget="boolean" string="Email"/>
                 <field name="peppol_sent" widget="boolean" string="Peppol"/>
                 <field name="reminder_count" string="Relances" optional="show"/>
@@ -243,6 +273,7 @@
                 <field name="state"/>
                 <field name="payment_state"/>
                 <field name="is_overdue"/>
+                <field name="refund_state"/>
                 <field name="invoice_tag_ids"/>
                 <templates>
                     <t t-name="card">
@@ -261,6 +292,8 @@
                         </div>
                         <field name="invoice_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
                         <div t-if="record.is_overdue.raw_value" class="badge bg-danger mt-1">En retard</div>
+                        <div t-if="record.refund_state.raw_value == 'pending'" class="badge bg-warning mt-1">Remboursement en attente</div>
+                        <div t-if="record.refund_state.raw_value == 'done'" class="badge bg-success mt-1">Remboursé ✓</div>
                     </t>
                 </templates>
             </kanban>
