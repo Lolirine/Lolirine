@@ -215,6 +215,7 @@
                 <field name="refund_state" widget="badge" optional="show" string="Remboursement"
                        decoration-warning="refund_state == 'pending'"
                        decoration-success="refund_state == 'done'"/>
+                       invisible="refund_state == 'none'"/>
             </xpath>
         </field>
     </record>
