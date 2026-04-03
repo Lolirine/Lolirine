@@ -161,6 +161,12 @@ class AccountMove(models.Model):
 
     # ==================== NOUVEAUX CHAMPS - REMBOURSEMENT ====================
 
+    refund_payment_id = fields.Many2one(
+        'account.payment',
+        string='Paiement de remboursement',
+        copy=False,
+    )
+
     refund_state = fields.Selection([
         ('pending', 'Remboursement en attente'),
         ('done',    'Remboursé ✓'),
@@ -169,6 +175,29 @@ class AccountMove(models.Model):
        store=True,
     )
 
+    @api.depends('refund_payment_id', 'refund_payment_id.is_matched')
+    def _compute_refund_state(self):
+        for move in self:
+            if not move.refund_payment_id:
+                move.refund_state = False
+            elif move.refund_payment_id.is_matched:
+                move.refund_state = 'done'
+            else:
+                move.refund_state = 'pending'
+
+    def action_view_refund_payments(self):
+        self.ensure_one()
+        if not self.refund_payment_id:
+            return
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Paiement de remboursement',
+            'res_model': 'account.payment',
+            'res_id': self.refund_payment_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+        
     # ==================== COMPUTES ====================
 
     @api.depends('reminder_ids')
