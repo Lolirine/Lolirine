@@ -171,19 +171,10 @@ class AccountMove(models.Model):
         ('pending', 'Remboursement en attente'),
         ('done',    'Remboursé ✓'),
     ], string='État remboursement',
-       compute='_compute_refund_state',
        store=True,
+       readonly=True,
+       copy=False,
     )
-
-    @api.depends('refund_payment_id', 'refund_payment_id.state')
-    def _compute_refund_state(self):
-        for move in self:
-            if not move.refund_payment_id:
-                move.refund_state = False
-            elif move.refund_payment_id.state == 'paid':
-                move.refund_state = 'done'
-            else:
-                move.refund_state = 'pending'
 
     def action_view_refund_payments(self):
         self.ensure_one()
