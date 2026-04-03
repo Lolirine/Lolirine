@@ -312,19 +312,22 @@ class AccountMove(models.Model):
             ):
                 for match in line.matched_credit_ids:
                     credit_move = match.credit_move_id.move_id
-                    # Paiement via account.payment outbound
-                    pay = self.env['account.payment'].search(
-                        [('move_id', '=', credit_move.id),
-                         ('payment_type', '=', 'outbound')], limit=1
+                    if credit_move.journal_id.type not in ('bank', 'cash'):
+                        continue
+
+                    # Vérifier si c'est un paiement sortant (remboursement)
+                    # Un remboursement = débit sur le compte client (400xxx) ET crédit sur la banque
+                    # Un paiement normal = crédit sur le compte client ET débit sur la banque
+                    bank_line = credit_move.line_ids.filtered(
+                        lambda l: l.account_id.account_type in ('asset_cash', 'liability_credit_card')
                     )
-                    if pay:
-                        refund_moves.append(('payment', pay.is_matched))
-                    # OU écriture bancaire directe sur journal bank/cash
-                    elif credit_move.journal_id.type in ('bank', 'cash'):
-                        # Vérifier si cette écriture est rapprochée avec un relevé
-                        is_matched = credit_move.statement_line_id \
-                            and credit_move.statement_line_id.is_reconciled \
-                            or credit_move.move_type == 'entry'
+                    if not bank_line:
+                        continue
+
+                    # Si la banque est créditée → argent qui SORT = remboursement
+                    # Si la banque est débitée → argent qui ENTRE = paiement normal
+                    if any(l.credit > 0 for l in bank_line):
+                        is_matched = bool(credit_move.statement_line_id)
                         refund_moves.append(('bank_entry', bool(is_matched)))
 
             if not refund_moves:
