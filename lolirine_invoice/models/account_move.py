@@ -307,17 +307,22 @@ class AccountMove(models.Model):
 
     @api.depends('line_ids.matched_credit_ids', 'line_ids.matched_debit_ids')
     def _compute_refund_payments(self):
+        Payment = self.env['account.payment']
         for move in self:
-            payments = self.env['account.payment']
+            payments = Payment.browse()
             for line in move.line_ids.filtered(
                 lambda l: l.account_id.account_type == 'asset_receivable'
             ):
                 for match in line.matched_credit_ids:
-                    pay = match.credit_move_id.move_id.payment_id
-                    if pay and pay.payment_type == 'outbound':
+                    pay_move = match.credit_move_id.move_id
+                    pay = Payment.search([
+                        ('move_id', '=', pay_move.id),
+                        ('payment_type', '=', 'outbound'),
+                    ], limit=1)
+                    if pay:
                         payments |= pay
             move.refund_payment_ids = payments
-
+        
     @api.depends('refund_payment_ids', 'refund_payment_ids.is_matched')
     def _compute_refund_state(self):
         for move in self:
