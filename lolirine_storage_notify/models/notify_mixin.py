@@ -26,26 +26,33 @@ class LolirineNotifyMixin(models.AbstractModel):
     # ─────────────────────────────────────────────────────
 
     def _get_notify_admin_partners(self):
-        """Retourne les partner_id des admins via SQL (compatible toutes versions Odoo)."""
+        """Retourne les partner_id des admins réels (hors OdooBot/système)."""
         admin_group = self.env.ref('base.group_system', raise_if_not_found=False)
         if not admin_group:
             return self.env['res.partner']
         self.env.cr.execute("""
             SELECT ru.partner_id FROM res_users ru
             JOIN res_groups_users_rel rel ON rel.uid = ru.id
-            WHERE rel.gid = %s AND ru.active = true
+            WHERE rel.gid = %s
+              AND ru.active = true
+              AND ru.id > 1
+              AND ru.share = false
         """, [admin_group.id])
         partner_ids = [r[0] for r in self.env.cr.fetchall()]
         return self.env['res.partner'].browse(partner_ids)
 
     def _get_notify_admins(self):
-        """Retourne les res.users Administrateurs via SQL (compatible toutes versions Odoo)."""
+        """Retourne les res.users Administrateurs réels (hors OdooBot/système)."""
         admin_group = self.env.ref('base.group_system', raise_if_not_found=False)
         if not admin_group:
             return self.env['res.users']
         self.env.cr.execute("""
-            SELECT uid FROM res_groups_users_rel
-            WHERE gid = %s
+            SELECT rel.uid FROM res_groups_users_rel rel
+            JOIN res_users ru ON ru.id = rel.uid
+            WHERE rel.gid = %s
+              AND ru.active = true
+              AND ru.id > 1
+              AND ru.share = false
         """, [admin_group.id])
         user_ids = [r[0] for r in self.env.cr.fetchall()]
         return self.env['res.users'].browse(user_ids)
