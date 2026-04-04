@@ -7,43 +7,48 @@
         <field name="arch" type="xml">
             <form string="Générer les clés VAPID">
                 <sheet>
-                    <group>
-                        <field name="info_text" widget="text" readonly="1"
-                               invisible="[('state', '!=', 'init')]"/>
+                    <div class="alert alert-info" role="alert">
+                        <strong>ℹ️ Prérequis :</strong>
+                        Le paquet Python <code>pywebpush</code> doit être installé
+                        (ajoutez-le dans <code>requirements.txt</code> à la racine du dépôt Git,
+                        puis commitez pour que Odoo.sh le déploie).
+                    </div>
+
+                    <group string="Configuration">
+                        <field name="vapid_email" string="Email de contact VAPID"/>
                     </group>
 
-                    <!-- Étape 1 : email + génération -->
-                    <group invisible="[('state', 'not in', ['init', 'generated'])]">
-                        <field name="vapid_email" string="Email de contact"/>
+                    <group string="Clés générées" colspan="2">
+                        <field name="vapid_public_key"
+                               string="Clé publique"
+                               readonly="1"
+                               placeholder="(cliquez Générer)"/>
+                        <field name="vapid_private_key"
+                               string="Clé privée"
+                               readonly="1"
+                               password="True"
+                               placeholder="(cliquez Générer)"/>
                     </group>
 
-                    <!-- Résultat généré -->
-                    <group invisible="[('state', '=', 'init')]"
-                           string="Clés générées">
-                        <field name="vapid_public_key" string="Clé publique" readonly="1"/>
-                        <field name="vapid_private_key" string="Clé privée" readonly="1"
-                               password="True"/>
-                    </group>
-
-                    <!-- Confirmation sauvegarde -->
-                    <div invisible="[('state', '!=', 'saved')]"
-                         class="alert alert-success" role="alert">
-                        ✅ Les clés VAPID ont été sauvegardées avec succès.
-                        Rechargez le backend et accordez la permission dans votre navigateur.
+                    <div class="alert alert-success" role="alert"
+                         invisible="state != 'saved'">
+                        ✅ Clés sauvegardées. Rechargez le backend et accordez
+                        la permission navigateur pour activer les Web Push.
                     </div>
                 </sheet>
                 <footer>
                     <button name="action_generate_keys"
                             type="object"
-                            string="🔑 Générer les clés"
-                            class="btn btn-primary"
-                            invisible="[('state', '!=', 'init')]"/>
+                            string="🔑 Générer"
+                            class="btn btn-primary"/>
                     <button name="action_save_keys"
                             type="object"
-                            string="💾 Sauvegarder les clés"
+                            string="💾 Sauvegarder"
                             class="btn btn-success"
-                            invisible="[('state', '!=', 'generated')]"/>
-                    <button string="Fermer" class="btn btn-secondary" special="cancel"/>
+                            invisible="not vapid_public_key"/>
+                    <button string="Fermer"
+                            class="btn btn-secondary"
+                            special="cancel"/>
                 </footer>
             </form>
         </field>
@@ -53,6 +58,7 @@
         <field name="name">Assistant clés VAPID</field>
         <field name="res_model">lolirine.vapid.setup.wizard</field>
         <field name="view_mode">form</field>
+        <field name="view_id" ref="view_vapid_setup_wizard_form"/>
         <field name="target">new</field>
     </record>
 
