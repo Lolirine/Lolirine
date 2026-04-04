@@ -111,16 +111,16 @@ class LolirineNotifyMixin(models.AbstractModel):
             _logger.debug("pywebpush non installé – Web Push ignoré")
             return
 
-        ICP = self.env['ir.config_parameter'].sudo()
-        vapid_private = ICP.get_param('lolirine_notify.vapid_private_key', '')
-        vapid_public  = ICP.get_param('lolirine_notify.vapid_public_key', '')
-        vapid_email   = ICP.get_param('lolirine_notify.vapid_email', 'admin@lolirine.be')
+        cfg = self.env['lolirine.notify.config'].sudo().get_config()
+        vapid_private = cfg.vapid_private_key or ''
+        vapid_public  = cfg.vapid_public_key or ''
+        vapid_email   = cfg.vapid_email or 'admin@lolirine.be'
 
         if not vapid_private or not vapid_public:
             _logger.debug("Clés VAPID non configurées – Web Push ignoré")
             return
 
-        base_url = ICP.get_param('web.base.url', 'https://lolirine.be')
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url', 'https://lolirine.be')
         if not icon:
             icon = base_url + '/web/static/img/favicon.ico'
 
