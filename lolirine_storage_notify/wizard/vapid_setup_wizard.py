@@ -71,6 +71,7 @@ class VapidSetupWizard(models.TransientModel):
             'res_model': self._name,
             'res_id': self.id,
             'view_mode': 'form',
+            'view_id': self.env.ref('lolirine_storage_notify.view_vapid_setup_wizard_form').id,
             'target': 'new',
         }
 
@@ -79,12 +80,12 @@ class VapidSetupWizard(models.TransientModel):
         if not self.vapid_public_key or not self.vapid_private_key:
             raise UserError(_("Veuillez d'abord générer les clés VAPID."))
 
-        ICP = self.env['ir.config_parameter'].sudo()
-        ICP.set_param('lolirine_notify.vapid_public_key',  self.vapid_public_key)
-        ICP.set_param('lolirine_notify.vapid_private_key', self.vapid_private_key)
-        ICP.set_param('lolirine_notify.vapid_email',       self.vapid_email)
-
-        self.state = 'saved'
+        cfg = self.env['lolirine.notify.config'].sudo().get_config()
+        cfg.write({
+            'vapid_public_key':  self.vapid_public_key,
+            'vapid_private_key': self.vapid_private_key,
+            'vapid_email':       self.vapid_email,
+        })
 
         return {
             'type': 'ir.actions.client',
