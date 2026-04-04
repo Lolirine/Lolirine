@@ -40,6 +40,16 @@
                 <button name="action_smart_duplicate" type="object" string="Dupliquer" 
                         class="btn-secondary" icon="fa-copy"
                         invisible="move_type not in ('out_invoice', 'out_refund')"/>
+                <button name="action_write_off_rounding"
+                        type="object"
+                        string="Apurer arrondi"
+                        class="btn-secondary"
+                        icon="fa-eraser"
+                        invisible="state != 'posted'
+                                   or move_type not in ['out_invoice']
+                                   or payment_state in ['paid', 'reversed']
+                                   or amount_residual > 0.05
+                                   or amount_residual &lt;= 0"/>
 
                 <!-- Bouton Rembourser : visible si aucun remboursement en cours -->
                 <field name="refund_state" invisible="1"/>
