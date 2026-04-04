@@ -97,8 +97,8 @@ class AccountMove(models.Model):
     reminder_status = fields.Selection([
         ('none', 'Aucune'),
         ('reminder_1', '1er Rappel'),
-        ('reminder_2', '2ème Rappel'),
-        ('reminder_3', '3ème Rappel'),
+        ('reminder_2', '2eme Rappel'),
+        ('reminder_3', '3eme Rappel'),
         ('formal_notice', 'Mise en demeure'),
         ('lawyer', 'Avocat'),
     ], string='Statut relance', compute='_compute_reminder_status', store=True)
@@ -169,26 +169,13 @@ class AccountMove(models.Model):
 
     refund_state = fields.Selection([
         ('pending', 'Remboursement en attente'),
-        ('done',    'Remboursé ✓'),
-    ], string='État remboursement',
+        ('done', 'Rembourse'),
+    ], string='Etat remboursement',
        store=True,
        readonly=True,
        copy=False,
     )
 
-    def action_view_refund_payments(self):
-        self.ensure_one()
-        if not self.refund_payment_id:
-            return
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Paiement de remboursement',
-            'res_model': 'account.payment',
-            'res_id': self.refund_payment_id.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
-        
     # ==================== COMPUTES ====================
 
     @api.depends('reminder_ids')
@@ -318,46 +305,6 @@ class AccountMove(models.Model):
                 move.partner_unpaid_count = 0
                 move.partner_total_due = 0.0
 
-    @api.depends('line_ids.matched_credit_ids.credit_move_id',
-             'line_ids.matched_debit_ids.debit_move_id')
-    def _compute_refund_state(self):
-        for move in self:
-            if move.move_type != 'out_invoice':
-                move.refund_state = 'none'
-                continue
-
-            refund_moves = []
-            for line in move.line_ids.filtered(
-                lambda l: l.account_id.account_type == 'asset_receivable'
-            ):
-                for match in line.matched_credit_ids:
-                    credit_move = match.credit_move_id.move_id
-                    if credit_move.journal_id.type not in ('bank', 'cash'):
-                        continue
-
-                    # Vérifier si c'est un paiement sortant (remboursement)
-                    # Un remboursement = débit sur le compte client (400xxx) ET crédit sur la banque
-                    # Un paiement normal = crédit sur le compte client ET débit sur la banque
-                    bank_line = credit_move.line_ids.filtered(
-                        lambda l: l.account_id.account_type in ('asset_cash', 'liability_credit_card')
-                    )
-                    if not bank_line:
-                        continue
-
-                    # Si la banque est créditée → argent qui SORT = remboursement
-                    # Si la banque est débitée → argent qui ENTRE = paiement normal
-                    net_bank = sum(l.debit - l.credit for l in bank_line)
-                    if net_bank < 0:
-                        is_matched = bool(credit_move.statement_line_id)
-                        refund_moves.append(('bank_entry', bool(is_matched)))
-
-            if not refund_moves:
-                move.refund_state = False
-            elif all(matched for _, matched in refund_moves):
-                move.refund_state = 'done'
-            else:
-                move.refund_state = 'pending'
-
     # ==================== ACTIONS EXISTANTES ====================
 
     def action_post(self):
@@ -404,16 +351,10 @@ class AccountMove(models.Model):
             body_html = f"""
 <div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
     <p>Bonjour {self.partner_id.name},</p>
-    
-    <p>Veuillez trouver en pièce jointe votre facture mensuelle relative à la location de votre box au sein de notre site Lolirine.</p>
-    
-    <p>Cette facture correspond à la période de location en cours et reprend le détail des prestations facturées, conformément aux conditions prévues dans votre contrat de garde-meubles. Nous vous invitons à en prendre connaissance et à procéder au règlement selon les modalités indiquées sur le document.</p>
-    
-    <p>Sauf disposition contraire, le paiement est attendu à la date d'échéance mentionnée sur la facture. En cas de retard de paiement, des pénalités pourront être appliquées conformément aux conditions contractuelles.</p>
-    
+    <p>Veuillez trouver en piece jointe votre facture mensuelle.</p>
     <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 400px;">
         <tr style="background-color: #f5f5f5;">
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numéro de facture</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numero de facture</strong></td>
             <td style="padding: 10px; border: 1px solid #ddd;">{self.name}</td>
         </tr>
         <tr>
@@ -421,7 +362,7 @@ class AccountMove(models.Model):
             <td style="padding: 10px; border: 1px solid #ddd;">{self.invoice_date or ''}</td>
         </tr>
         <tr style="background-color: #f5f5f5;">
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'échéance</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'echeance</strong></td>
             <td style="padding: 10px; border: 1px solid #ddd;">{self.invoice_date_due or ''}</td>
         </tr>
         <tr>
@@ -429,25 +370,12 @@ class AccountMove(models.Model):
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>{self.amount_total:.2f} EUR</strong></td>
         </tr>
     </table>
-    
-    <p><strong>Modalités de paiement :</strong></p>
+    <p><strong>Modalites de paiement :</strong></p>
     <ul>
-        <li>Communication structurée : {self.payment_reference or 'Voir facture'}</li>
+        <li>Communication structuree : {self.payment_reference or 'Voir facture'}</li>
         <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
     </ul>
-    
-    <p>Pour toute question concernant cette facture, votre contrat ou les modalités de paiement, vous pouvez nous contacter à l'adresse suivante : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a> ou par téléphone au 0497/44 41 46 ou 0498/52 11 31.</p>
-    
-    <p>Nous vous remercions de votre confiance et restons à votre disposition.</p>
-    
-    <p>Cordialement,</p>
-    
-    <p style="margin-top: 20px;">
-        <strong>Lolirine Garde-Meubles</strong><br/>
-        Feron Rodney<br/>
-        Tél. : 0497/44 41 46<br/>
-        Email : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a>
-    </p>
+    <p>Cordialement,<br/><strong>Lolirine Garde-Meubles</strong><br/>Feron Rodney<br/>Tel. : 0497/44 41 46</p>
 </div>
             """
             
@@ -461,10 +389,9 @@ class AccountMove(models.Model):
                 'attachment_ids': [(6, 0, attachment_ids)],
             })
             mail.send()
-            
             self.write({'is_move_sent': True})
             self.message_post(
-                body=f"Facture envoyée automatiquement par email à {self.partner_id.email} avec PDF Lolirine attaché.",
+                body=f"Facture envoyee automatiquement par email a {self.partner_id.email}.",
                 attachment_ids=attachment_ids,
                 message_type='notification'
             )
@@ -482,7 +409,7 @@ class AccountMove(models.Model):
         self.ensure_one()
         if not self.partner_id.peppol_eas or not self.partner_id.peppol_endpoint:
             self.message_post(
-                body=_("Envoi Peppol impossible : le client n'a pas d'identifiant Peppol configuré (EAS/Endpoint)."),
+                body=_("Envoi Peppol impossible : le client n'a pas d'identifiant Peppol configure."),
                 message_type='notification'
             )
             return False
@@ -493,13 +420,12 @@ class AccountMove(models.Model):
             ).create({})
             wizard.action_send_and_print()
             self.message_post(
-                body=_("Facture envoyée automatiquement via Peppol à %s (EAS: %s)") % (
+                body=_("Facture envoyee automatiquement via Peppol a %s (EAS: %s)") % (
                     self.partner_id.peppol_endpoint,
                     self.partner_id.peppol_eas,
                 ),
                 message_type='notification'
             )
-            _logger.info("Facture %s envoyée via Peppol à %s", self.name, self.partner_id.peppol_endpoint)
             return True
         except Exception as e:
             _logger.error("Erreur envoi Peppol pour facture %s: %s", self.name, str(e))
@@ -512,9 +438,9 @@ class AccountMove(models.Model):
     def action_send_peppol(self):
         self.ensure_one()
         if self.state != 'posted':
-            raise UserError(_("La facture doit être confirmée avant d'être envoyée via Peppol."))
+            raise UserError(_("La facture doit etre confirmee avant d'etre envoyee via Peppol."))
         if not self.partner_id.peppol_eas or not self.partner_id.peppol_endpoint:
-            raise UserError(_("Le client n'a pas d'identifiant Peppol configuré."))
+            raise UserError(_("Le client n'a pas d'identifiant Peppol configure."))
         try:
             wizard = self.env['account.move.send.wizard'].with_context(
                 active_model='account.move',
@@ -525,8 +451,8 @@ class AccountMove(models.Model):
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': _('Succès'),
-                    'message': _('Facture envoyée via Peppol à %s') % self.partner_id.peppol_endpoint,
+                    'title': _('Succes'),
+                    'message': _('Facture envoyee via Peppol a %s') % self.partner_id.peppol_endpoint,
                     'type': 'success',
                     'sticky': False,
                 }
@@ -701,82 +627,70 @@ class AccountMove(models.Model):
         }
 
     def action_write_off_rounding(self):
-    """Apurer les différences d'arrondi <= 0.05€"""
-    self.ensure_one()
-    from datetime import date
-
-    if self.amount_residual > 0.05:
-        raise UserError(_("Le solde résiduel (%.2f €) est trop élevé pour un apurement automatique.") % self.amount_residual)
-
-    rounding_account = self.env['account.account'].search(
-        [('code', '=', '657100')], limit=1
-    )
-    if not rounding_account:
-        raise UserError(_("Compte 657100 (Différences de paiement) introuvable."))
-
-    misc_journal = self.env['account.journal'].search(
-        [('code', '=', 'MISC')], limit=1
-    )
-    receivable_account = self.line_ids.filtered(
-        lambda l: l.account_id.account_type == 'asset_receivable'
-    )[0].account_id
-
-    move = self.env['account.move'].create({
-        'move_type': 'entry',
-        'date': date.today(),
-        'journal_id': misc_journal.id,
-        'ref': f'Apurement arrondi {self.name}',
-        'line_ids': [
-            (0, 0, {
-                'account_id': rounding_account.id,
-                'debit': self.amount_residual,
-                'credit': 0.0,
-                'name': f'Différence arrondi {self.name}',
-                'partner_id': self.partner_id.id,
-            }),
-            (0, 0, {
-                'account_id': receivable_account.id,
-                'debit': 0.0,
-                'credit': self.amount_residual,
-                'name': f'Apurement arrondi {self.name}',
-                'partner_id': self.partner_id.id,
-            }),
-        ],
-    })
-    move.action_post()
-
-    inv_line = self.line_ids.filtered(
-        lambda l: l.account_id.account_type == 'asset_receivable'
-                  and not l.reconciled
-    )
-    write_off_line = move.line_ids.filtered(
-        lambda l: l.account_id.account_type == 'asset_receivable'
-                  and not l.reconciled
-    )
-    (inv_line + write_off_line).reconcile()
-
-    self.message_post(
-        body=_("✓ Arrondi de %(amount)s € apuré sur 657100 (%(move)s)",
-               amount=self.amount_residual, move=move.name)
-    )
-    return True
+        self.ensure_one()
+        if self.amount_residual > 0.05:
+            raise UserError(
+                _("Le solde residuel (%.2f EUR) est trop eleve pour un apurement automatique.") % self.amount_residual
+            )
+        rounding_account = self.env['account.account'].search(
+            [('code', '=', '657100')], limit=1
+        )
+        if not rounding_account:
+            raise UserError(_("Compte 657100 (Differences de paiement) introuvable."))
+        misc_journal = self.env['account.journal'].search(
+            [('code', '=', 'MISC')], limit=1
+        )
+        receivable_account = self.line_ids.filtered(
+            lambda l: l.account_id.account_type == 'asset_receivable'
+        )[0].account_id
+        move = self.env['account.move'].create({
+            'move_type': 'entry',
+            'date': date.today(),
+            'journal_id': misc_journal.id,
+            'ref': 'Apurement arrondi %s' % self.name,
+            'line_ids': [
+                (0, 0, {
+                    'account_id': rounding_account.id,
+                    'debit': self.amount_residual,
+                    'credit': 0.0,
+                    'name': 'Difference arrondi %s' % self.name,
+                    'partner_id': self.partner_id.id,
+                }),
+                (0, 0, {
+                    'account_id': receivable_account.id,
+                    'debit': 0.0,
+                    'credit': self.amount_residual,
+                    'name': 'Apurement arrondi %s' % self.name,
+                    'partner_id': self.partner_id.id,
+                }),
+            ],
+        })
+        move.action_post()
+        inv_line = self.line_ids.filtered(
+            lambda l: l.account_id.account_type == 'asset_receivable'
+                      and not l.reconciled
+        )
+        write_off_line = move.line_ids.filtered(
+            lambda l: l.account_id.account_type == 'asset_receivable'
+                      and not l.reconciled
+        )
+        (inv_line + write_off_line).reconcile()
+        self.message_post(
+            body=_("Arrondi de %(amount)s EUR apure sur 657100 (%(move)s)",
+                   amount=self.amount_residual, move=move.name)
+        )
+        return True
 
     def action_view_refund_payments(self):
         self.ensure_one()
-        move_ids = []
-        for line in self.line_ids.filtered(
-            lambda l: l.account_id.account_type == 'asset_receivable'
-        ):
-            for match in line.matched_credit_ids:
-                credit_move = match.credit_move_id.move_id
-                if credit_move.journal_id.type in ('bank', 'cash'):
-                    move_ids.append(credit_move.id)
+        if not self.refund_payment_id:
+            return
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Écritures de remboursement',
-            'res_model': 'account.move',
-            'view_mode': 'list,form',
-            'domain': [('id', 'in', move_ids)],
+            'name': 'Paiement de remboursement',
+            'res_model': 'account.payment',
+            'res_id': self.refund_payment_id.id,
+            'view_mode': 'form',
             'target': 'current',
         }
 
