@@ -57,9 +57,9 @@ const lolirineNotifyService = {
             notification.add(message, {
                 title,
                 type,
-                sticky: false,
+                sticky: true,   // Reste affiché jusqu'au clic
                 buttons: url ? [{
-                    name: "Voir",
+                    name: "👁 Voir",
                     onClick: () => { browser.location.href = url; },
                     primary: true,
                 }] : [],
