@@ -30,14 +30,15 @@ class LolirineNotifyMixin(models.AbstractModel):
         admin_group = self.env.ref('base.group_system', raise_if_not_found=False)
         if not admin_group:
             return self.env['res.partner']
-        return admin_group.users.mapped('partner_id')
+        admins = self.env['res.users'].search([('groups_id', 'in', admin_group.ids)])
+        return admins.mapped('partner_id')
 
     def _get_notify_admins(self):
         """Retourne les res.users Administrateurs."""
         admin_group = self.env.ref('base.group_system', raise_if_not_found=False)
         if not admin_group:
             return self.env['res.users']
-        return admin_group.users
+        return self.env['res.users'].search([('groups_id', 'in', admin_group.ids)])
 
     # ─────────────────────────────────────────────────────
     #  Canal 1 – Bus.bus  (toast dans le backend)
