@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_vapid_setup_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.vapid.setup.wizard.form</field>
+        <field name="model">lolirine.vapid.setup.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Générer les clés VAPID">
+                <sheet>
+                    <group>
+                        <field name="info_text" widget="text" readonly="1"
+                               attrs="{'invisible': [('state', '!=', 'init')]}"/>
+                    </group>
+
+                    <!-- Étape 1 : email + génération -->
+                    <group attrs="{'invisible': [('state', 'not in', ['init', 'generated'])]}">
+                        <field name="vapid_email" string="Email de contact"/>
+                    </group>
+
+                    <!-- Résultat généré -->
+                    <group attrs="{'invisible': [('state', '=', 'init')]}"
+                           string="Clés générées">
+                        <field name="vapid_public_key" string="Clé publique" readonly="1"/>
+                        <field name="vapid_private_key" string="Clé privée" readonly="1"
+                               password="True"/>
+                    </group>
+
+                    <!-- Confirmation sauvegarde -->
+                    <div attrs="{'invisible': [('state', '!=', 'saved')]}"
+                         class="alert alert-success" role="alert">
+                        ✅ Les clés VAPID ont été sauvegardées avec succès.
+                        Rechargez le backend et accordez la permission dans votre navigateur.
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_generate_keys"
+                            type="object"
+                            string="🔑 Générer les clés"
+                            class="btn btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'init')]}"/>
+                    <button name="action_save_keys"
+                            type="object"
+                            string="💾 Sauvegarder les clés"
+                            class="btn btn-success"
+                            attrs="{'invisible': [('state', '!=', 'generated')]}"/>
+                    <button string="Fermer" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_vapid_setup_wizard" model="ir.actions.act_window">
+        <field name="name">Assistant clés VAPID</field>
+        <field name="res_model">lolirine.vapid.setup.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
