@@ -25,9 +25,9 @@ class VapidSetupWizard(models.TransientModel):
 
     def action_generate_keys(self):
         """
-        Génère une paire de clés VAPID (ECDH P-256) via la librairie
-        'cryptography' (toujours disponible dans Odoo), sans dépendre
-        de l'API interne de pywebpush qui change selon les versions.
+        Génère une paire de clés VAPID (ECDH P-256).
+        Utilise cryptography.hazmat directement, compatible
+        avec toutes les versions disponibles dans Odoo.
         """
         try:
             from cryptography.hazmat.primitives.asymmetric import ec
@@ -39,19 +39,16 @@ class VapidSetupWizard(models.TransientModel):
             ))
 
         try:
-            # Génération de la clé privée ECDH P-256 (courbe requise par VAPID)
+            # Génération de la clé privée ECDH P-256
             private_key = ec.generate_private_key(ec.SECP256R1())
             public_key  = private_key.public_key()
 
-            # Clé privée → bytes bruts → base64url sans padding
-            private_bytes = private_key.private_bytes(
-                encoding=serialization.Encoding.Raw,
-                format=serialization.PrivateFormat.Raw,
-                encryption_algorithm=serialization.NoEncryption(),
-            )
+            # Clé privée : extraction du scalaire brut (compatible toutes versions)
+            private_value = private_key.private_numbers().private_value
+            private_bytes = private_value.to_bytes(32, byteorder='big')
             private_b64 = base64.urlsafe_b64encode(private_bytes).rstrip(b'=').decode('utf-8')
 
-            # Clé publique → format non-compressé (04 + X + Y) → base64url sans padding
+            # Clé publique : format non-compressé 04||X||Y → base64url
             public_bytes = public_key.public_bytes(
                 encoding=serialization.Encoding.X962,
                 format=serialization.PublicFormat.UncompressedPoint,
