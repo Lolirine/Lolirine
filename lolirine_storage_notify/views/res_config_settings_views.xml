@@ -74,7 +74,15 @@
                             <button name="action_test_notification"
                                     type="object"
                                     string="🔔 Tester les notifications"
-                                    class="btn btn-info"/>
+                                    class="btn btn-info me-2"/>
+                            <button type="button"
+                                    string="📲 Activer Web Push (Safari)"
+                                    class="btn btn-warning"
+                                    onclick="document.dispatchEvent(new CustomEvent('lolirine_request_push_permission'))"/>
+                        </div>
+                        <div class="text-muted mt-2">
+                            Sur Safari : cliquez "Activer Web Push" puis autorisez la permission dans la popup.
+                            Sur Chrome/Firefox : l'activation est automatique au chargement de la page.
                         </div>
                     </group>
                 </sheet>
