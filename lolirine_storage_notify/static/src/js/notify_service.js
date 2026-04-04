@@ -111,7 +111,16 @@ const lolirineNotifyService = {
             }
         });
 
-        await _subscribePush(swReg, vapidPublicKey);
+        // Tentative automatique (Chrome/Firefox)
+        // Safari nécessite un geste utilisateur → géré par le bouton dans l'UI
+        if (!navigator.userAgent.includes('Safari') || navigator.userAgent.includes('Chrome')) {
+            await _subscribePush(swReg, vapidPublicKey);
+        }
+
+        // Écouter le clic du bouton "Activer les notifications"
+        document.addEventListener('lolirine_request_push_permission', async () => {
+            await _subscribePush(swReg, vapidPublicKey);
+        });
     },
 };
 
