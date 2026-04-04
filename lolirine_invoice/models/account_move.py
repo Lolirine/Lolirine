@@ -700,6 +700,67 @@ class AccountMove(models.Model):
             'context': {'default_move_type': self.move_type},
         }
 
+    def action_write_off_rounding(self):
+    """Apurer les différences d'arrondi <= 0.05€"""
+    self.ensure_one()
+    from datetime import date
+
+    if self.amount_residual > 0.05:
+        raise UserError(_("Le solde résiduel (%.2f €) est trop élevé pour un apurement automatique.") % self.amount_residual)
+
+    rounding_account = self.env['account.account'].search(
+        [('code', '=', '657100')], limit=1
+    )
+    if not rounding_account:
+        raise UserError(_("Compte 657100 (Différences de paiement) introuvable."))
+
+    misc_journal = self.env['account.journal'].search(
+        [('code', '=', 'MISC')], limit=1
+    )
+    receivable_account = self.line_ids.filtered(
+        lambda l: l.account_id.account_type == 'asset_receivable'
+    )[0].account_id
+
+    move = self.env['account.move'].create({
+        'move_type': 'entry',
+        'date': date.today(),
+        'journal_id': misc_journal.id,
+        'ref': f'Apurement arrondi {self.name}',
+        'line_ids': [
+            (0, 0, {
+                'account_id': rounding_account.id,
+                'debit': self.amount_residual,
+                'credit': 0.0,
+                'name': f'Différence arrondi {self.name}',
+                'partner_id': self.partner_id.id,
+            }),
+            (0, 0, {
+                'account_id': receivable_account.id,
+                'debit': 0.0,
+                'credit': self.amount_residual,
+                'name': f'Apurement arrondi {self.name}',
+                'partner_id': self.partner_id.id,
+            }),
+        ],
+    })
+    move.action_post()
+
+    inv_line = self.line_ids.filtered(
+        lambda l: l.account_id.account_type == 'asset_receivable'
+                  and not l.reconciled
+    )
+    write_off_line = move.line_ids.filtered(
+        lambda l: l.account_id.account_type == 'asset_receivable'
+                  and not l.reconciled
+    )
+    (inv_line + write_off_line).reconcile()
+
+    self.message_post(
+        body=_("✓ Arrondi de %(amount)s € apuré sur 657100 (%(move)s)",
+               amount=self.amount_residual, move=move.name)
+    )
+    return True
+
     def action_view_refund_payments(self):
         self.ensure_one()
         move_ids = []
