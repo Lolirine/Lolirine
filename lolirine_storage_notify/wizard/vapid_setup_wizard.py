@@ -1,3 +1,4 @@
+import base64
 import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
@@ -11,7 +12,7 @@ class VapidSetupWizard(models.TransientModel):
 
     vapid_public_key  = fields.Char(string='Clé publique VAPID', readonly=True)
     vapid_private_key = fields.Char(string='Clé privée VAPID', readonly=True)
-    vapid_email       = fields.Char(
+    vapid_email = fields.Char(
         string='Email de contact VAPID',
         default='admin@lolirine.be',
         required=True,
@@ -22,44 +23,47 @@ class VapidSetupWizard(models.TransientModel):
         ('saved', 'Sauvegardé'),
     ], default='init', string='État')
 
-    info_text = fields.Text(
-        string='Information',
-        readonly=True,
-        default=(
-            "Cet assistant va générer une paire de clés VAPID nécessaires "
-            "pour les Web Push Notifications.\n\n"
-            "Les clés sont propres à votre instance Odoo. "
-            "Ne partagez jamais la clé privée.\n\n"
-            "Prérequis : le paquet Python 'pywebpush' doit être installé "
-            "(ajoutez-le dans requirements.txt sur Odoo.sh)."
-        )
-    )
-
     def action_generate_keys(self):
-        """Génère une paire de clés VAPID via py_vapid."""
+        """
+        Génère une paire de clés VAPID (ECDH P-256) via la librairie
+        'cryptography' (toujours disponible dans Odoo), sans dépendre
+        de l'API interne de pywebpush qui change selon les versions.
+        """
         try:
-            from py_vapid import Vapid
+            from cryptography.hazmat.primitives.asymmetric import ec
+            from cryptography.hazmat.primitives import serialization
         except ImportError:
-            try:
-                from pywebpush import Vapid
-            except ImportError:
-                raise UserError(_(
-                    "Le paquet 'pywebpush' n'est pas installé.\n"
-                    "Ajoutez 'pywebpush' dans votre fichier requirements.txt "
-                    "et redéployez sur Odoo.sh."
-                ))
+            raise UserError(_(
+                "La librairie 'cryptography' n'est pas disponible. "
+                "Elle est normalement incluse avec Odoo."
+            ))
 
         try:
-            vapid = Vapid()
-            vapid.generate_keys()
-            public_key  = vapid.public_key_urlsafe_base64
-            private_key = vapid.private_key_urlsafe_base64
+            # Génération de la clé privée ECDH P-256 (courbe requise par VAPID)
+            private_key = ec.generate_private_key(ec.SECP256R1())
+            public_key  = private_key.public_key()
+
+            # Clé privée → bytes bruts → base64url sans padding
+            private_bytes = private_key.private_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PrivateFormat.Raw,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+            private_b64 = base64.urlsafe_b64encode(private_bytes).rstrip(b'=').decode('utf-8')
+
+            # Clé publique → format non-compressé (04 + X + Y) → base64url sans padding
+            public_bytes = public_key.public_bytes(
+                encoding=serialization.Encoding.X962,
+                format=serialization.PublicFormat.UncompressedPoint,
+            )
+            public_b64 = base64.urlsafe_b64encode(public_bytes).rstrip(b'=').decode('utf-8')
 
             self.write({
-                'vapid_public_key':  public_key,
-                'vapid_private_key': private_key,
+                'vapid_public_key':  public_b64,
+                'vapid_private_key': private_b64,
                 'state': 'generated',
             })
+
         except Exception as e:
             _logger.error("VAPID key generation error: %s", e)
             raise UserError(_(
@@ -71,12 +75,14 @@ class VapidSetupWizard(models.TransientModel):
             'res_model': self._name,
             'res_id': self.id,
             'view_mode': 'form',
-            'view_id': self.env.ref('lolirine_storage_notify.view_vapid_setup_wizard_form').id,
+            'view_id': self.env.ref(
+                'lolirine_storage_notify.view_vapid_setup_wizard_form'
+            ).id,
             'target': 'new',
         }
 
     def action_save_keys(self):
-        """Sauvegarde les clés VAPID dans ir.config_parameter."""
+        """Sauvegarde les clés VAPID dans lolirine.notify.config."""
         if not self.vapid_public_key or not self.vapid_private_key:
             raise UserError(_("Veuillez d'abord générer les clés VAPID."))
 
@@ -87,13 +93,15 @@ class VapidSetupWizard(models.TransientModel):
             'vapid_email':       self.vapid_email,
         })
 
+        self.state = 'saved'
+
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Clés VAPID sauvegardées'),
                 'message': _(
-                    'Les clés VAPID ont été enregistrées. '
+                    'Les clés ont été enregistrées. '
                     'Rechargez le backend pour activer les Web Push.'
                 ),
                 'type': 'success',
