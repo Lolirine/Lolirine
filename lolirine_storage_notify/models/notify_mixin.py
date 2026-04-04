@@ -26,19 +26,29 @@ class LolirineNotifyMixin(models.AbstractModel):
     # ─────────────────────────────────────────────────────
 
     def _get_notify_admin_partners(self):
-        """Retourne les partner_id des utilisateurs du groupe Administrateur."""
+        """Retourne les partner_id des admins via SQL (compatible toutes versions Odoo)."""
         admin_group = self.env.ref('base.group_system', raise_if_not_found=False)
         if not admin_group:
             return self.env['res.partner']
-        admins = self.env['res.users'].search([('groups_id', 'in', admin_group.ids)])
-        return admins.mapped('partner_id')
+        self.env.cr.execute("""
+            SELECT ru.partner_id FROM res_users ru
+            JOIN res_groups_users_rel rel ON rel.uid = ru.id
+            WHERE rel.gid = %s AND ru.active = true
+        """, [admin_group.id])
+        partner_ids = [r[0] for r in self.env.cr.fetchall()]
+        return self.env['res.partner'].browse(partner_ids)
 
     def _get_notify_admins(self):
-        """Retourne les res.users Administrateurs."""
+        """Retourne les res.users Administrateurs via SQL (compatible toutes versions Odoo)."""
         admin_group = self.env.ref('base.group_system', raise_if_not_found=False)
         if not admin_group:
             return self.env['res.users']
-        return self.env['res.users'].search([('groups_id', 'in', admin_group.ids)])
+        self.env.cr.execute("""
+            SELECT uid FROM res_groups_users_rel
+            WHERE gid = %s
+        """, [admin_group.id])
+        user_ids = [r[0] for r in self.env.cr.fetchall()]
+        return self.env['res.users'].browse(user_ids)
 
     # ─────────────────────────────────────────────────────
     #  Canal 1 – Bus.bus  (toast dans le backend)
