@@ -1,3 +1,4 @@
 pytesseract
 pdf2image
 PyMuPDF
+pywebpush>=2.0.0
