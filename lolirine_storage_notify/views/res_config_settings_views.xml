@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_lolirine_notify" model="ir.ui.view">
+        <field name="name">res.config.settings.lolirine.notify</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+
+                <div class="app_settings_block" data-string="Notifications Lolirine" data-key="lolirine_storage_notify" string="Notifications Lolirine" groups="base.group_system">
+                    <h2>🔔 Notifications Lolirine (Garde-Meuble)</h2>
+                    <p class="text-muted">
+                        Configure les 3 canaux de notification : toast backend (bus Odoo),
+                        activités mail, et Web Push (OS level).
+                    </p>
+
+                    <!-- Événements à surveiller -->
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="lolirine_notify_signup" widget="boolean_toggle"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="lolirine_notify_signup"/>
+                                <div class="text-muted">
+                                    Notifier lors des inscriptions sur le portail client
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="lolirine_notify_rdv" widget="boolean_toggle"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="lolirine_notify_rdv"/>
+                                <div class="text-muted">
+                                    Notifier lors des demandes de rendez-vous
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="lolirine_notify_contact" widget="boolean_toggle"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="lolirine_notify_contact"/>
+                                <div class="text-muted">
+                                    Notifier lors des formulaires de contact web
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="lolirine_notify_portal_msg" widget="boolean_toggle"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="lolirine_notify_portal_msg"/>
+                                <div class="text-muted">
+                                    Notifier lors des messages envoyés depuis le portail
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configuration VAPID -->
+                    <h3 class="mt32">🌐 Web Push – Clés VAPID</h3>
+                    <p class="text-muted">
+                        Les clés VAPID permettent les notifications au niveau OS (même navigateur fermé).
+                        Utilisez l'assistant ci-dessous pour les générer automatiquement.
+                        Prérequis : <code>pywebpush</code> dans requirements.txt.
+                    </p>
+                    <div class="row mt8 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane w-100">
+                                <label for="lolirine_notify_vapid_email" string="Email VAPID"/>
+                                <field name="lolirine_notify_vapid_email" class="w-100"/>
+                                <div class="text-muted">Email de contact pour les push services</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane w-100">
+                                <label for="lolirine_notify_vapid_public" string="Clé publique VAPID"/>
+                                <field name="lolirine_notify_vapid_public" class="w-100"
+                                       placeholder="Générée via l'assistant →"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane w-100">
+                                <label for="lolirine_notify_vapid_private" string="Clé privée VAPID"/>
+                                <field name="lolirine_notify_vapid_private" class="w-100"
+                                       password="True" placeholder="Générée via l'assistant →"/>
+                                <div class="text-muted text-danger">⚠️ Ne jamais partager cette clé</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <button name="action_open_vapid_wizard"
+                                        type="object"
+                                        class="btn btn-secondary"
+                                        string="🔑 Générer les clés VAPID"/>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
