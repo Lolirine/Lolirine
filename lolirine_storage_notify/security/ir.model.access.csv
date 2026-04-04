@@ -2,3 +2,4 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_lolirine_push_subscription_admin,lolirine.push.subscription admin,model_lolirine_push_subscription,base.group_system,1,1,1,1
 access_lolirine_push_subscription_user,lolirine.push.subscription user,model_lolirine_push_subscription,base.group_user,1,1,1,0
 access_lolirine_vapid_wizard_admin,lolirine.vapid.setup.wizard admin,model_lolirine_vapid_setup_wizard,base.group_system,1,1,1,1
+access_lolirine_notify_config_admin,lolirine.notify.config admin,model_lolirine_notify_config,base.group_system,1,1,1,1
