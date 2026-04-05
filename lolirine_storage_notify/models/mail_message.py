@@ -1,13 +1,8 @@
 import logging
+import re
 from odoo import models, api, _
 
 _logger = logging.getLogger(__name__)
-
-# Types de messages à intercepter venant du portail
-PORTAL_MESSAGE_SUBTYPES = {
-    'mail.mt_comment',
-    'mail.mt_note',
-}
 
 
 class MailMessage(models.Model):
@@ -19,39 +14,54 @@ class MailMessage(models.Model):
         """Notifie quand un utilisateur portail envoie un message via le chatter portail."""
         messages = super().create(vals_list)
 
+        # Toute la logique de notification est dans un try/except global
+        # pour ne JAMAIS bloquer une opération Odoo (upload, création, etc.)
+        try:
+            self._check_and_notify_portal_messages(messages)
+        except Exception as e:
+            _logger.error("lolirine_notify mail_message hook error (non-bloquant): %s", e)
+
+        return messages
+
+    def _check_and_notify_portal_messages(self, messages):
         portal_group = self.env.ref('base.group_portal', raise_if_not_found=False)
         if not portal_group:
-            return messages
+            return
 
         for msg in messages:
-            # Seulement messages d'utilisateurs portail, depuis le portail
-            author = msg.author_id
-            if not author:
-                continue
-
-            author_user = self.env['res.users'].sudo().search(
-                [('partner_id', '=', author.id)], limit=1
-            )
-            if not author_user or portal_group not in author_user.groups_id:
-                continue
-
-            # Éviter les messages système / tracking
-            if msg.message_type not in ('comment', 'email'):
-                continue
-
-            # Éviter les messages sortants (envoyés par l'admin au client)
-            if author_user == self.env.user and not self.env.context.get('lolirine_notify_portal_msg'):
-                continue
-
             try:
+                author = msg.author_id
+                if not author:
+                    continue
+
+                # Seulement les types de messages visibles (pas les logs système)
+                if msg.message_type not in ('comment', 'email'):
+                    continue
+
+                author_user = self.env['res.users'].sudo().search(
+                    [('partner_id', '=', author.id)], limit=1
+                )
+                if not author_user:
+                    continue
+
+                # Éviter les messages de l'admin courant
+                if author_user.id == self.env.user.id:
+                    continue
+
+                # Vérification portail via SQL (groups_id supprimé en Odoo 19)
+                self.env.cr.execute("""
+                    SELECT 1 FROM res_groups_users_rel
+                    WHERE gid = %s AND uid = %s
+                    LIMIT 1
+                """, [portal_group.id, author_user.id])
+                if not self.env.cr.fetchone():
+                    continue
+
                 record_url = '/web'
                 if msg.model and msg.res_id:
                     record_url = f'/odoo/{msg.model.replace(".", "-")}/{msg.res_id}'
 
-                body_text = msg.body or ''
-                # Nettoyer le HTML pour l'affichage
-                import re
-                body_clean = re.sub(r'<[^>]+>', '', body_text).strip()[:200]
+                body_clean = re.sub(r'<[^>]+>', '', msg.body or '').strip()[:200]
 
                 self._lolirine_notify(
                     event_type='message',
@@ -65,7 +75,7 @@ class MailMessage(models.Model):
                     url=record_url,
                     activity_summary=_("Répondre au message"),
                     activity_note=_(
-                        "<p>Message reçu de <strong>%(name)s</strong> :</p>"
+                        "<p>Message de <strong>%(name)s</strong> :</p>"
                         "<blockquote>%(body)s</blockquote>",
                         name=author.name,
                         body=body_clean,
@@ -73,6 +83,7 @@ class MailMessage(models.Model):
                     activity_deadline_days=0,
                 )
             except Exception as e:
-                _logger.error("Notification mail.message failed for msg %s: %s", msg.id, e)
-
-        return messages
+                _logger.error(
+                    "lolirine_notify: échec notification msg %s: %s",
+                    msg.id if msg else '?', e
+                )
