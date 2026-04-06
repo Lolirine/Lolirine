@@ -111,10 +111,26 @@
 
     // ─── Init au chargement de la page ────────────────────────
     function init() {
-        const productId = getProductId();
-        if (productId) {
-            loadPanelInfo(productId);
+        // Attendre que le DOM soit prêt avec le product_id
+        function tryLoad(attempts) {
+            const productId = getProductId();
+            if (productId) {
+                loadPanelInfo(productId);
+            } else if (attempts > 0) {
+                setTimeout(() => tryLoad(attempts - 1), 300);
+            }
         }
+        tryLoad(10); // 10 tentatives × 300ms = 3 secondes max
+
+        document.addEventListener('change', function (e) {
+            const sel = e.target.closest('select.js_variant_change, input.js_variant_change');
+            if (!sel) return;
+            setTimeout(() => {
+                const newId = getProductId();
+                if (newId) loadPanelInfo(newId);
+            }, 300);
+        });
+    }
 
         // ─ Rechargement si variante changée ─────────────────
         // Odoo déclenche "variant_change" sur le formulaire configurateur
