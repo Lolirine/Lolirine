@@ -13,10 +13,12 @@
 
     // ─── Récupérer le product_id depuis la page ───────────────
     function getProductId() {
-        // Odoo place le product_id dans le formulaire panier
-        const form = document.querySelector('form.js_add_cart_json, form[action="/shop/cart/update"]');
-        if (!form) return null;
-        const inp = form.querySelector('input[name="product_id"]');
+        // Odoo 19 - le form n'a plus de classe spécifique
+        const inp = document.querySelector(
+            'input[name="product_id"], ' +
+            '.js_product input[name="product_id"], ' +
+            'form input[name="product_id"]'
+        );
         return inp ? parseInt(inp.value, 10) : null;
     }
 
