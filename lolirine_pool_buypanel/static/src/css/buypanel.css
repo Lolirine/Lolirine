@@ -1,212 +1,210 @@
 /* ═══════════════════════════════════════════════════════════════
-   Lolirine Pool – Buy Panel  (lolirine_pool_buypanel)
-   Styles pour le panneau d'achat enrichi – Pool Store uniquement
+   Lolirine Pool – Buy Panel  v2
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Delivery block ─────────────────────────────────────────── */
-.lp-buypanel-delivery {
-    border: 1px solid #e8edf2;
-    border-radius: 8px;
-    padding: 12px 14px;
-    background: #fafbfc;
+/* ── Zone prix TTC ───────────────────────────────────────────── */
+.lp-price-ttc {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-top: 3px;
     font-size: 13px;
-    line-height: 1.5;
 }
+.lp-price-ht-label  { color: #6b7280; font-weight: 500; }
+.lp-price-sep       { color: #d1d5db; }
+.lp-price-ttc-value { color: #374151; font-weight: 600; }
+.lp-price-ttc-label { color: #6b7280; }
 
-.lp-stock-line {
+/* ── Badge livraison offerte (zone prix) ─────────────────────── */
+.lp-shipping-badge-wrap {
     display: flex;
     align-items: center;
     gap: 7px;
+    margin-top: 6px;
+}
+.lp-shipping-badge {
+    display: inline-block;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 11px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+}
+.lp-shipping-badge-sub {
+    font-size: 12px;
+    color: #9ca3af;
 }
 
+/* ── Zone stock / livraison ──────────────────────────────────── */
+.lp-buypanel-delivery {
+    background: #f0f7ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.lp-stock-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 .lp-stock-dot {
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
     flex-shrink: 0;
 }
+.lp-stock-green  .lp-stock-dot { background: #22c55e; box-shadow: 0 0 0 3px #dcfce7; }
+.lp-stock-orange .lp-stock-dot { background: #f59e0b; box-shadow: 0 0 0 3px #fef3c7; }
+.lp-stock-gray   .lp-stock-dot { background: #9ca3af; box-shadow: 0 0 0 3px #f3f4f6; }
 
-.lp-stock-green  .lp-stock-dot { background: #4a9c2f; }
-.lp-stock-orange .lp-stock-dot { background: #d97706; }
-.lp-stock-gray   .lp-stock-dot { background: #9ca3af; }
+.lp-stock-green  .lp-stock-label { color: #15803d; font-weight: 700; }
+.lp-stock-orange .lp-stock-label { color: #b45309; font-weight: 700; }
+.lp-stock-gray   .lp-stock-label { color: #6b7280; font-weight: 700; }
 
-.lp-stock-green  .lp-stock-label { color: #2e7d1a; font-weight: 600; }
-.lp-stock-orange .lp-stock-label { color: #b45309; font-weight: 600; }
-.lp-stock-gray   .lp-stock-label { color: #6b7280; font-weight: 600; }
-
-.lp-stock-sub {
-    color: #6b7280;
-    font-size: 12px;
-}
+.lp-stock-sub { color: #6b7280; font-size: 12px; }
 
 .lp-delivery-line,
 .lp-pickup-line {
     display: flex;
     align-items: center;
-    gap: 7px;
-    color: #4b5563;
+    gap: 8px;
     font-size: 12.5px;
+    color: #374151;
 }
-
-.lp-delivery-text strong {
-    color: #111827;
-    font-weight: 500;
-}
+.lp-delivery-line { color: #1e40af; }
+.lp-delivery-text strong { color: #1e3a8a; font-weight: 700; }
+.lp-pickup-line { color: #6b7280; }
 
 .lp-icon {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-    color: #9ca3af;
-}
-
-/* ── Trust badges grid ──────────────────────────────────────── */
-.lp-trust-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    border: 1px solid #e8edf2;
-    border-radius: 8px;
-    padding: 12px;
-    background: #fff;
-}
-
-.lp-trust-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-}
-
-.lp-trust-item svg {
     width: 15px;
     height: 15px;
     flex-shrink: 0;
-    margin-top: 2px;
-    color: #1a6ebf;
 }
 
-.lp-trust-item div {
+/* ── Trust badges (mini-cartes colorées) ─────────────────────── */
+.lp-trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 14px 0 4px;
+}
+.lp-trust-item {
     display: flex;
-    flex-direction: column;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 9px 10px;
+    border-radius: 9px;
 }
+.lp-trust-item:nth-child(1) { background: #f0fdf4; }
+.lp-trust-item:nth-child(2) { background: #eff6ff; }
+.lp-trust-item:nth-child(3) { background: #fff7ed; }
+.lp-trust-item:nth-child(4) { background: #faf5ff; }
 
-.lp-trust-item strong {
-    font-size: 12px;
-    font-weight: 600;
-    color: #111827;
-    line-height: 1.3;
+.lp-trust-item svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
 }
+.lp-trust-item div { display: flex; flex-direction: column; }
 
-.lp-trust-item span {
-    font-size: 11px;
-    color: #6b7280;
-}
+.lp-trust-item:nth-child(1) strong { color: #14532d; }
+.lp-trust-item:nth-child(2) strong { color: #1e3a8a; }
+.lp-trust-item:nth-child(3) strong { color: #7c2d12; }
+.lp-trust-item:nth-child(4) strong { color: #4c1d95; }
 
-/* ── Product info table ─────────────────────────────────────── */
+.lp-trust-item strong { font-size: 12px; font-weight: 700; line-height: 1.3; }
+
+.lp-trust-item:nth-child(1) span { color: #16a34a; }
+.lp-trust-item:nth-child(2) span { color: #1d4ed8; }
+.lp-trust-item:nth-child(3) span { color: #c2410c; }
+.lp-trust-item:nth-child(4) span { color: #7c3aed; }
+
+.lp-trust-item span { font-size: 11px; }
+
+/* ── Infos produit (grille) ──────────────────────────────────── */
 .lp-product-info {
-    border: 1px solid #e8edf2;
-    border-radius: 8px;
-    padding: 12px 14px;
-    background: #fff;
+    padding: 14px 0 4px;
 }
-
 .lp-info-label {
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     color: #9ca3af;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
-
 .lp-info-table {
     width: 100%;
     font-size: 12.5px;
     border-collapse: collapse;
 }
-
 .lp-info-table td {
-    padding: 3px 0;
+    padding: 3.5px 0;
     line-height: 1.5;
 }
-
 .lp-info-table td:first-child {
     color: #6b7280;
     width: 42%;
 }
-
 .lp-info-table td:last-child {
     color: #111827;
-    font-weight: 500;
+    font-weight: 600;
 }
 
-/* ── Free delivery badge ────────────────────────────────────── */
+/* ── Badge livraison gratuite (dans infos) ───────────────────── */
 .lp-free-delivery-badge {
     display: inline-block;
     background: #dcfce7;
-    color: #15803d;
+    color: #166534;
     font-size: 11px;
-    font-weight: 600;
-    padding: 2px 8px;
+    font-weight: 700;
+    padding: 1px 7px;
     border-radius: 4px;
-    margin-left: 6px;
+    margin-left: 4px;
 }
 
-/* ── Contact bar ─────────────────────────────────────────────── */
+/* ── Barre contact ───────────────────────────────────────────── */
 .lp-contact-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    border: 1px solid #e8edf2;
-    border-radius: 8px;
-    padding: 10px 14px;
+    padding: 12px 0 2px;
     background: #f8fafc;
+    border-radius: 0 0 10px 10px;
+    margin: 4px -1px -1px;
+    padding: 12px 14px;
 }
-
-.lp-contact-bar div {
-    display: flex;
-    flex-direction: column;
-}
-
-.lp-contact-bar strong {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: #111827;
-}
-
-.lp-contact-bar span {
-    font-size: 11px;
-    color: #6b7280;
-}
+.lp-contact-bar div { display: flex; flex-direction: column; }
+.lp-contact-bar strong { font-size: 12.5px; font-weight: 700; color: #111827; }
+.lp-contact-bar span  { font-size: 11px; color: #6b7280; }
 
 .lp-contact-btn {
     flex-shrink: 0;
     font-size: 12px;
-    padding: 6px 14px;
-    border-radius: 6px;
-    border: 1px solid #d1d5db;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid #1a5fb4;
     background: #fff;
-    color: #374151;
+    color: #1a5fb4;
     text-decoration: none;
     white-space: nowrap;
     transition: background 0.15s;
 }
-
 .lp-contact-btn:hover {
-    background: #f3f4f6;
-    color: #111827;
+    background: #eff6ff;
+    color: #1e3a8a;
     text-decoration: none;
 }
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 576px) {
-    .lp-trust-grid {
-        grid-template-columns: 1fr;
-    }
-    .lp-contact-bar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
+    .lp-trust-grid { grid-template-columns: 1fr; }
+    .lp-contact-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
