@@ -1,14 +1,13 @@
 from datetime import date, timedelta
+import re
 from odoo import http
 from odoo.http import request
-import json
 
 
 class BuyPanelController(http.Controller):
 
     @http.route('/shop/buypanel/info', type='json', auth='public', methods=['POST'], website=True, csrf=False)
     def buypanel_info(self, product_id=None, **kwargs):
-        """Retourne les infos dynamiques pour le panneau d'achat."""
         if not product_id:
             return {}
 
@@ -16,10 +15,12 @@ class BuyPanelController(http.Controller):
         if not product.exists():
             return {}
 
+        tmpl = product.product_tmpl_id
+
         # ── Stock ──────────────────────────────────────────
         qty = product.virtual_available
         if qty > 50:
-            qty = 50  # Afficher max 50
+            qty = 50
 
         if qty > 10:
             stock_label = 'En stock'
@@ -32,8 +33,6 @@ class BuyPanelController(http.Controller):
             stock_class = 'lp-stock-gray'
 
         # ── Livraison estimée ──────────────────────────────
-        today = date.today()
-        # Sauter le week-end
         def add_business_days(d, n):
             count = 0
             while count < n:
@@ -42,10 +41,10 @@ class BuyPanelController(http.Controller):
                     count += 1
             return d
 
+        today = date.today()
         delivery_min = add_business_days(today, 2)
         delivery_max = add_business_days(today, 4)
 
-        # Noms des jours en français
         JOURS = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']
         MOIS  = ['jan.', 'fév.', 'mar.', 'avr.', 'mai', 'juin',
                  'juil.', 'août', 'sep.', 'oct.', 'nov.', 'déc.']
@@ -55,50 +54,45 @@ class BuyPanelController(http.Controller):
 
         delivery_str = f"{fmt_date(delivery_min)} — {fmt_date(delivery_max)}"
 
-        # ── Infos produit ──────────────────────────────────
-        tmpl = product.product_tmpl_id
+        # ── Marque ────────────────────────────────────────
         brand = ''
-        warranty = ''
         for line in tmpl.attribute_line_ids:
-            if 'marque' in line.attribute_id.name.lower():
-                vals = line.product_template_value_ids.filtered(
-                    lambda v: v.ptav_active
-                )
+            if 'marque' in (line.attribute_id.name or '').lower():
+                vals = line.product_template_value_ids.filtered(lambda v: v.ptav_active)
                 if vals:
                     brand = vals[0].name
-
-        # Chercher la marque dans le nom du fournisseur ou le champ seller
+                    break
         if not brand and tmpl.seller_ids:
             brand = tmpl.seller_ids[0].partner_id.name or ''
 
-        # Garantie depuis les attributs
+        # ── Garantie ──────────────────────────────────────
+        warranty = ''
         for line in tmpl.attribute_line_ids:
-            if 'garantie' in line.attribute_id.name.lower():
-                vals = line.product_template_value_ids.filtered(
-                    lambda v: v.ptav_active
-                )
+            if 'garantie' in (line.attribute_id.name or '').lower():
+                vals = line.product_template_value_ids.filtered(lambda v: v.ptav_active)
                 if vals:
                     warranty = vals[0].name
-
-        # Fallback garantie depuis la description
+                    break
         if not warranty:
             desc = (tmpl.description_sale or '') + (tmpl.description or '')
-            import re
             m = re.search(r'(\d+)\s*an', desc, re.IGNORECASE)
             if m:
                 warranty = f"{m.group(1)} an{'s' if int(m.group(1)) > 1 else ''}"
 
-        # Livraison offerte ?
-        free_delivery = tmpl.lst_price >= 499
+        # ── Livraison offerte (Odoo 19 : list_price) ──────
+        try:
+            price = tmpl.list_price or 0.0
+        except Exception:
+            price = 0.0
+        free_delivery = price >= 499
 
         return {
-            'stock_label': stock_label,
-            'stock_class': stock_class,
-            'stock_qty':   int(qty),
-            'delivery':    delivery_str,
-            'brand':       brand,
-            'warranty':    warranty,
+            'stock_label':  stock_label,
+            'stock_class':  stock_class,
+            'stock_qty':    int(qty),
+            'delivery':     delivery_str,
+            'brand':        brand,
+            'warranty':     warranty,
             'default_code': product.default_code or tmpl.default_code or '',
             'free_delivery': free_delivery,
-            'weight': tmpl.weight or 0,
         }
