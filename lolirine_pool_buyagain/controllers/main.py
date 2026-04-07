@@ -1,6 +1,5 @@
 from odoo import http
 from odoo.http import request
-from collections import defaultdict
 
 
 class BuyAgainController(http.Controller):
@@ -8,20 +7,14 @@ class BuyAgainController(http.Controller):
     @http.route('/shop/acheter-a-nouveau', type='http', auth='user',
                 website=True, sitemap=True)
     def buy_again(self, category=None, sort='recent', search='', **kwargs):
-        """
-        Page 'Acheter à nouveau' — liste les produits déjà commandés
-        par le client connecté, groupés par date de commande.
-        """
         partner = request.env.user.partner_id
 
-        # ── Récupérer les commandes confirmées du client ──────
         orders = request.env['sale.order'].sudo().search([
             ('partner_id', 'child_of', partner.id),
             ('state', 'in', ['sale', 'done']),
             ('website_id', '=', request.website.id),
         ], order='date_order desc', limit=50)
 
-        # ── Construire la liste de produits uniques ───────────
         seen_tmpl = set()
         products = []
 
@@ -42,12 +35,20 @@ class BuyAgainController(http.Controller):
                     'price_unit':  line.price_unit,
                 })
 
-        # ── Filtrer par catégorie publique ────────────────────
-        all_categories = {}
+        # ── Catégories avec image du premier produit ──────────
+        # Structure : {cat_id: {'name': ..., 'img_tmpl_id': ..., 'count': ...}}
+        cat_data = {}
         for p in products:
             for cat in p['tmpl'].public_categ_ids:
-                all_categories[cat.id] = cat.name
+                if cat.id not in cat_data:
+                    cat_data[cat.id] = {
+                        'name':       cat.name,
+                        'img_tmpl_id': p['tmpl'].id if p['tmpl'].image_128 else None,
+                        'count':      0,
+                    }
+                cat_data[cat.id]['count'] += 1
 
+        # Filtrer par catégorie
         if category:
             try:
                 cat_id = int(category)
@@ -58,7 +59,7 @@ class BuyAgainController(http.Controller):
             except (ValueError, TypeError):
                 pass
 
-        # ── Filtrer par recherche ─────────────────────────────
+        # Filtrer par recherche
         if search:
             s = search.lower()
             products = [
@@ -66,20 +67,20 @@ class BuyAgainController(http.Controller):
                 if s in (p['tmpl'].name or '').lower()
             ]
 
-        # ── Trier ─────────────────────────────────────────────
+        # Trier
         if sort == 'price_asc':
             products.sort(key=lambda p: p['tmpl'].list_price or 0)
         elif sort == 'price_desc':
             products.sort(key=lambda p: -(p['tmpl'].list_price or 0))
         elif sort == 'name':
             products.sort(key=lambda p: p['tmpl'].name or '')
-        # 'recent' = ordre par défaut (déjà trié par date_order desc)
 
         return request.render('lolirine_pool_buyagain.page_buy_again', {
-            'products':        products,
-            'all_categories':  all_categories,
-            'current_category': int(category) if category else None,
-            'current_sort':    sort,
-            'search':          search,
-            'orders_count':    len(orders),
+            'products':          products,
+            'cat_data':          cat_data,
+            'current_category':  int(category) if category else None,
+            'current_sort':      sort,
+            'search':            search,
+            'orders_count':      len(orders),
+            'total_products':    len(products),
         })
