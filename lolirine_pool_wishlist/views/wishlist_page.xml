@@ -26,8 +26,19 @@
         <xpath expr="//section[hasclass('wishlist-section')]" position="replace">
             <t t-if="website.id == 6">
 
-                <t t-set="wl_cfg" t-value="request.env['lolirine.wishlist.config'].sudo().get_config()"/>
-                <t t-set="wl_texts" t-value="request.env['lolirine.wishlist.config'].sudo().get_texts()"/>
+                <!-- Valeurs par défaut si non injectées par le controller -->
+                <t t-if="not wl_texts" t-set="wl_texts" t-value="{
+                    'page_title':    'Ma liste de souhaits',
+                    'share':         'Partager la liste',
+                    'in_stock':      'En stock',
+                    'low_stock':     'Stock limité',
+                    'out_of_stock':  'Sur commande',
+                    'add_to_cart':   'Ajouter au panier',
+                    'add_all':       'Tout ajouter au panier',
+                    'shipping_note': 'Livraison offerte dès 499 € HT · Retours 30 jours',
+                    'expert_phone':  '+32 497 44 41 46',
+                    'contact_label': 'Contacter',
+                }"/>
 
                 <div class="lw-page container py-4">
 
@@ -101,7 +112,7 @@
 
                                     <!-- Corps -->
                                     <div class="lw-body">
-                                        <a t-att-href="'/shop/%s' % wish.product_id.product_tmpl_id.website_slug"
+                                        <a t-att-href="'/shop/product/' + str(wish.product_id.product_tmpl_id.id)"
                                            class="lw-name">
                                             <t t-esc="tmpl.name"/>
                                         </a>
