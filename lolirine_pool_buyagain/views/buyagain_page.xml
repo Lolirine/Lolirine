@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="page_buy_again" name="Acheter à nouveau">
+    <t t-call="website.layout">
+        <t t-set="additional_title">Acheter à nouveau</t>
+        <t t-set="no_header_spacing" t-value="True"/>
+
+        <div id="wrap" class="ba-wrap">
+
+            <!-- Zone éditable Website Builder (bandeau haut) -->
+            <div class="oe_structure oe_empty" id="oe_structure_buyagain_top"
+                 data-editor-message="Ajoutez un bandeau ou une promotion ici"/>
+
+            <div class="ba-page container-fluid px-4 py-4">
+
+                <!-- ── En-tête ──────────────────────────────── -->
+                <div class="ba-header">
+                    <div class="ba-header-left">
+                        <h1 class="ba-title">Acheter à nouveau</h1>
+                        <span class="ba-subtitle">
+                            <t t-esc="len(products)"/> produit<t t-if="len(products) != 1">s</t>
+                            commandé<t t-if="len(products) != 1">s</t> précédemment
+                        </span>
+                    </div>
+                    <div class="ba-header-right">
+                        <!-- Recherche -->
+                        <form class="ba-search-form" method="get" action="/shop/acheter-a-nouveau">
+                            <input type="hidden" name="sort" t-att-value="current_sort"/>
+                            <input type="hidden" name="category" t-att-value="current_category or ''"/>
+                            <div class="ba-search-wrap">
+                                <svg class="ba-search-icon" viewBox="0 0 16 16" fill="none">
+                                    <circle cx="7" cy="7" r="4" stroke="currentColor" stroke-width="1.4"/>
+                                    <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                                </svg>
+                                <input type="text" name="search" class="ba-search-input"
+                                       placeholder="Rechercher dans vos commandes..."
+                                       t-att-value="search"/>
+                                <button type="submit" class="ba-search-btn">Rechercher</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ── Onglets de navigation ────────────────── -->
+                <div class="ba-tabs">
+                    <a t-attf-href="/shop/acheter-a-nouveau?sort=#{current_sort}"
+                       t-attf-class="ba-tab #{not current_category and not search and 'active' or ''}">
+                        Tout
+                    </a>
+                    <t t-foreach="all_categories.items()" t-as="cat">
+                        <a t-attf-href="/shop/acheter-a-nouveau?category=#{cat[0]}&amp;sort=#{current_sort}"
+                           t-attf-class="ba-tab #{current_category == cat[0] and 'active' or ''}">
+                            <t t-esc="cat[1]"/>
+                        </a>
+                    </t>
+                </div>
+
+                <!-- ── Toolbar tri ───────────────────────────── -->
+                <div class="ba-toolbar">
+                    <span class="ba-results-count">
+                        <t t-esc="len(products)"/> résultat<t t-if="len(products) != 1">s</t>
+                    </span>
+                    <div class="ba-sort-wrap">
+                        <span class="ba-sort-label">Trier par</span>
+                        <div class="ba-sort-btns">
+                            <a t-attf-href="/shop/acheter-a-nouveau?sort=recent&amp;category=#{current_category or ''}&amp;search=#{search}"
+                               t-attf-class="ba-sort-btn #{current_sort == 'recent' and 'active' or ''}">
+                                Recommandé
+                            </a>
+                            <a t-attf-href="/shop/acheter-a-nouveau?sort=name&amp;category=#{current_category or ''}&amp;search=#{search}"
+                               t-attf-class="ba-sort-btn #{current_sort == 'name' and 'active' or ''}">
+                                Nom A–Z
+                            </a>
+                            <a t-attf-href="/shop/acheter-a-nouveau?sort=price_asc&amp;category=#{current_category or ''}&amp;search=#{search}"
+                               t-attf-class="ba-sort-btn #{current_sort == 'price_asc' and 'active' or ''}">
+                                Prix croissant
+                            </a>
+                            <a t-attf-href="/shop/acheter-a-nouveau?sort=price_desc&amp;category=#{current_category or ''}&amp;search=#{search}"
+                               t-attf-class="ba-sort-btn #{current_sort == 'price_desc' and 'active' or ''}">
+                                Prix décroissant
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Grille produits ───────────────────────── -->
+                <t t-if="products">
+                    <div class="ba-grid">
+                        <t t-foreach="products" t-as="p">
+                            <div class="ba-card">
+
+                                <!-- Image -->
+                                <a t-attf-href="/shop/product/#{p['tmpl'].id}"
+                                   class="ba-card-img-wrap">
+                                    <t t-if="p['tmpl'].image_512">
+                                        <img t-attf-src="/web/image/product.template/#{p['tmpl'].id}/image_512"
+                                             t-att-alt="p['tmpl'].name"
+                                             class="ba-card-img"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="ba-card-img-placeholder">
+                                            <svg viewBox="0 0 64 64" fill="none">
+                                                <rect width="64" height="64" rx="8" fill="#e0f2fe"/>
+                                                <path d="M16 48l12-18 8 11 6-9 12 16" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </div>
+                                    </t>
+                                </a>
+
+                                <!-- Corps -->
+                                <div class="ba-card-body">
+                                    <a t-attf-href="/shop/product/#{p['tmpl'].id}"
+                                       class="ba-card-name">
+                                        <t t-esc="p['tmpl'].name"/>
+                                    </a>
+
+                                    <!-- Catégories -->
+                                    <div class="ba-card-cats" t-if="p['tmpl'].public_categ_ids">
+                                        <t t-foreach="p['tmpl'].public_categ_ids[:2]" t-as="cat">
+                                            <span class="ba-cat-badge"><t t-esc="cat.name"/></span>
+                                        </t>
+                                    </div>
+
+                                    <!-- Prix -->
+                                    <t t-set="price" t-value="p['tmpl'].list_price or 0"/>
+                                    <div class="ba-card-price">
+                                        <span class="ba-price-ht">
+                                            <t t-esc="'%.2f' % price"/> €
+                                        </span>
+                                        <span class="ba-price-ttc">
+                                            / <t t-esc="'%.2f' % (price * 1.21)"/> € TTC
+                                        </span>
+                                    </div>
+
+                                    <!-- Stock -->
+                                    <t t-set="qty" t-value="p['variant'].virtual_available"/>
+                                    <div class="ba-stock-line">
+                                        <t t-if="qty &gt; 10">
+                                            <span class="ba-dot ba-dot-green"></span>
+                                            <span class="ba-stock-txt ba-stock-green">En stock</span>
+                                        </t>
+                                        <t t-elif="qty &gt; 0">
+                                            <span class="ba-dot ba-dot-orange"></span>
+                                            <span class="ba-stock-txt ba-stock-orange">Stock limité</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="ba-dot ba-dot-gray"></span>
+                                            <span class="ba-stock-txt ba-stock-gray">Sur commande</span>
+                                        </t>
+                                    </div>
+
+                                    <!-- Dernière commande -->
+                                    <div class="ba-last-order">
+                                        Commandé le <t t-esc="p['last_date'].strftime('%d/%m/%Y')"/>
+                                        · Qté : <t t-esc="int(p['qty_ordered'])"/>
+                                    </div>
+                                </div>
+
+                                <!-- Footer avec boutons -->
+                                <div class="ba-card-footer">
+                                    <div class="ba-qty-wrap">
+                                        <button class="ba-qty-btn" onclick="baChangeQty(this, -1)">−</button>
+                                        <input type="number" class="ba-qty-input" value="1" min="1"/>
+                                        <button class="ba-qty-btn" onclick="baChangeQty(this, 1)">+</button>
+                                    </div>
+                                    <a t-attf-href="/shop/cart/update?product_id=#{p['variant'].id}&amp;add_qty=1"
+                                       class="ba-btn-cart"
+                                       t-att-data-product-id="p['variant'].id">
+                                        Ajouter au panier
+                                    </a>
+                                </div>
+
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- ── État vide ─────────────────────────────── -->
+                <t t-else="">
+                    <div class="ba-empty">
+                        <svg viewBox="0 0 80 80" fill="none">
+                            <circle cx="40" cy="40" r="38" stroke="#e5e7eb" stroke-width="2"/>
+                            <path d="M25 55l10-15 8 10 6-8 11 13" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="28" cy="32" r="4" fill="#e5e7eb"/>
+                        </svg>
+                        <h3>Aucun produit trouvé</h3>
+                        <t t-if="search or current_category">
+                            <p>Essayez de modifier vos filtres.</p>
+                            <a href="/shop/acheter-a-nouveau" class="ba-btn-reset">
+                                Voir tous mes produits
+                            </a>
+                        </t>
+                        <t t-else="">
+                            <p>Vous n'avez pas encore passé de commande sur la boutique.</p>
+                            <a href="/shop" class="ba-btn-reset">Découvrir la boutique</a>
+                        </t>
+                    </div>
+                </t>
+
+            </div>
+
+            <!-- Zone éditable Website Builder (bas de page) -->
+            <div class="oe_structure oe_empty" id="oe_structure_buyagain_bottom"
+                 data-editor-message="Ajoutez du contenu en bas de page ici"/>
+
+        </div>
+    </t>
+</template>
+
+</odoo>

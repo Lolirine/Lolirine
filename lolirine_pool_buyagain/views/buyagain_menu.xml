@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Ajouter "Acheter à nouveau" dans le menu principal du Pool Store -->
+    <record id="menu_buy_again" model="website.menu">
+        <field name="name">Acheter à nouveau</field>
+        <field name="url">/shop/acheter-a-nouveau</field>
+        <field name="website_id">6</field>
+        <field name="sequence">50</field>
+        <field name="parent_id" ref="website.main_menu"/>
+    </record>
+
+</odoo>
