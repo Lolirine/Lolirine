@@ -346,3 +346,166 @@ canvas { max-width: 100%; }
 }
 .pac-item:hover { background: #f0f9ff !important; }
 .pac-item-query { font-weight: 600 !important; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   Style formulaire contact — identique Lolirine Pool Store
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Section container */
+.lpc-contact-section {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+/* Header bleu de section */
+.lpc-contact-header {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: #ffffff;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+}
+.lpc-contact-header-icon {
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+/* Corps blanc */
+.lpc-contact-body {
+    padding: 24px 28px;
+}
+
+/* Sous-headers internes (gris clair) */
+.lpc-sub-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 4px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid #f0f4f8;
+}
+.lpc-sub-icon {
+    font-size: 15px;
+}
+
+/* Boutons toggle Particulier / Professionnel */
+.lpc-toggle-btn {
+    padding: 10px 22px;
+    border-radius: 25px;
+    border: 2px solid #dde4ed;
+    background: #ffffff;
+    color: #4b5563;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.lpc-toggle-btn:hover {
+    border-color: #0ea5e9;
+    color: #0ea5e9;
+    background: #f0f9ff;
+}
+.lpc-toggle-btn.active {
+    background: #0ea5e9;
+    border-color: #0ea5e9;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(14,165,233,0.35);
+}
+
+/* Champs du formulaire — style Pool Store */
+.lpc-contact-body .lpc-fg label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-bottom: 6px;
+    display: block;
+}
+.lpc-contact-body .lpc-fg input,
+.lpc-contact-body .lpc-fg .lpc-address-input {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    background: #f9fafb;
+    color: #1a2332;
+    width: 100%;
+    transition: all .2s;
+    outline: none;
+}
+.lpc-contact-body .lpc-fg input:focus {
+    border-color: #0ea5e9;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(14,165,233,0.12);
+}
+.lpc-contact-body .lpc-fg input::placeholder {
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+/* Champ requis */
+.lpc-required {
+    color: #ef4444;
+    font-size: 14px;
+    margin-left: 2px;
+}
+
+/* Badge contact lié */
+.lpc-linked-badge {
+    font-size: 11px;
+    color: #059669;
+    background: #d1fae5;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-top: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+}
+
+/* Grid 2 colonnes dans le contact body */
+.lpc-contact-body .lpc-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.lpc-contact-body .lpc-form-grid .full {
+    grid-column: 1 / -1;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .lpc-contact-body .lpc-form-grid { grid-template-columns: 1fr; }
+    .lpc-contact-body { padding: 18px 16px; }
+}
+
+@media print {
+    .lpc-contact-section { box-shadow: none; border: 1pt solid #ccc; }
+    .lpc-contact-header { background: #f2f2f2 !important; color: #000 !important; padding: 6pt 10pt; }
+    .lpc-toggle-btn { display: none; }
+}
