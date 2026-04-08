@@ -16,10 +16,11 @@
 
 * { box-sizing: border-box; }
 
+/* ── App container — plus large et aéré ── */
 .lpc-app {
-    max-width: 920px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 22px 14px 60px;
+    padding: 36px 32px 80px;
     font-family: 'DM Sans', sans-serif;
     color: var(--lpc-text);
     background: var(--lpc-bg);
@@ -28,34 +29,34 @@
 
 /* ── Header ── */
 .lpc-hdr {
-    display: flex; align-items: center; gap: 13px;
-    margin-bottom: 26px; padding-bottom: 18px;
+    display: flex; align-items: center; gap: 18px;
+    margin-bottom: 36px; padding-bottom: 24px;
     border-bottom: 2px solid var(--lpc-bd);
 }
 .lpc-logo {
-    width: 44px; height: 44px; border-radius: 10px;
-    display: grid; place-items: center; font-size: 22px; flex-shrink: 0;
+    width: 56px; height: 56px; border-radius: 14px;
+    display: grid; place-items: center; font-size: 28px; flex-shrink: 0;
 }
-.lpc-hdr h1 { font-family: 'DM Serif Display', serif; font-size: 21px; color: var(--lpc-text); }
-.lpc-hdr p  { font-size: 13px; color: var(--lpc-sub); margin-top: 2px; }
+.lpc-hdr h1 { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--lpc-text); }
+.lpc-hdr p  { font-size: 14px; color: var(--lpc-sub); margin-top: 3px; }
 
 /* ── Stepper ── */
 .lpc-stepper {
-    display: flex; gap: 0; margin-bottom: 26px;
+    display: flex; gap: 0; margin-bottom: 36px;
 }
 .lpc-step {
     flex: 1; display: flex; flex-direction: column; align-items: center;
-    gap: 5px; position: relative;
+    gap: 7px; position: relative;
 }
 .lpc-step:not(:last-child)::after {
-    content: ''; position: absolute; top: 15px; left: 50%;
+    content: ''; position: absolute; top: 18px; left: 50%;
     width: 100%; height: 2px; background: var(--lpc-bd); z-index: 0;
 }
 .lpc-step.active::after,
 .lpc-step.done::after { background: var(--acc, var(--lpc-acc)); }
 .lpc-step-num {
-    width: 30px; height: 30px; border-radius: 50%; display: grid;
-    place-items: center; font-size: 12px; font-weight: 600;
+    width: 36px; height: 36px; border-radius: 50%; display: grid;
+    place-items: center; font-size: 14px; font-weight: 600;
     border: 2px solid var(--lpc-bd); background: var(--lpc-card);
     position: relative; z-index: 1; color: var(--lpc-sub);
     transition: all .3s;
@@ -66,43 +67,71 @@
     background: var(--acc, var(--lpc-acc));
     color: #fff;
 }
-.lpc-step-lbl { font-size: 11px; color: var(--lpc-sub); font-weight: 500; text-align: center; }
+.lpc-step-lbl { font-size: 12px; color: var(--lpc-sub); font-weight: 500; text-align: center; }
 .lpc-step.active .lpc-step-lbl { color: var(--acc, var(--lpc-acc)); }
 
 /* ── Title ── */
-.lpc-title { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 15px; }
+.lpc-title { font-family: 'DM Serif Display', serif; font-size: 24px; margin-bottom: 20px; }
 
-/* ── Grid ── */
-.lpc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 11px; }
-
-/* ── Cards (intervention) ── */
-.lpc-card {
-    background: var(--lpc-card); border: 2px solid var(--lpc-bd);
-    border-radius: 12px; padding: 17px; cursor: pointer; transition: all .2s;
+/* ── Grid — 3 colonnes fixes sur grand écran ── */
+.lpc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
 }
-.lpc-card:hover { border-color: var(--acc, var(--lpc-acc)); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.07); }
-.lpc-card.sel   { border-color: var(--acc); background: color-mix(in srgb, var(--acc) 9%, white); }
-.lpc-card-title { font-size: 15px; font-weight: 600; }
-.lpc-card-sub   { font-size: 12px; color: var(--lpc-sub); margin-top: 4px; }
+
+/* ── Cards intervention — beaucoup plus grandes ── */
+.lpc-card {
+    background: var(--lpc-card);
+    border: 2.5px solid var(--lpc-bd);
+    border-radius: 16px;
+    padding: 28px 24px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 110px;
+}
+.lpc-card:hover {
+    border-color: var(--acc, var(--lpc-acc));
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.09);
+}
+.lpc-card.sel {
+    border-color: var(--acc);
+    background: color-mix(in srgb, var(--acc) 9%, white);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--acc) 20%, transparent);
+}
+.lpc-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+.lpc-card-sub {
+    font-size: 13px;
+    color: var(--lpc-sub);
+    margin-top: 2px;
+}
 
 /* ── Plan cards ── */
 .lpc-plan-card {
     background: var(--lpc-card); border: 2px solid var(--lpc-bd);
-    border-radius: 12px; padding: 15px; cursor: pointer; transition: all .2s;
-    display: flex; flex-direction: column; align-items: center; gap: 9px;
+    border-radius: 14px; padding: 20px; cursor: pointer; transition: all .2s;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
 }
 .lpc-plan-card:hover { border-color: var(--acc, var(--lpc-acc)); transform: translateY(-2px); }
 .lpc-plan-card.sel   { border-color: var(--acc); background: color-mix(in srgb, var(--acc) 8%, white); }
-.lpc-plan-lbl { font-size: 13px; font-weight: 600; text-align: center; }
+.lpc-plan-lbl { font-size: 14px; font-weight: 600; text-align: center; }
 
 /* ── Form ── */
-.lpc-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
-.lpc-fg       { display: flex; flex-direction: column; gap: 5px; }
+.lpc-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.lpc-fg       { display: flex; flex-direction: column; gap: 6px; }
 .lpc-fg.full  { grid-column: 1 / -1; }
 .lpc-fg label { font-size: 12px; font-weight: 600; color: var(--lpc-sub); text-transform: uppercase; letter-spacing: .5px; }
 .lpc-fg input {
-    border: 1.5px solid var(--lpc-bd); border-radius: 8px;
-    padding: 9px 12px; font-family: inherit; font-size: 14px;
+    border: 1.5px solid var(--lpc-bd); border-radius: 9px;
+    padding: 11px 14px; font-family: inherit; font-size: 15px;
     background: var(--lpc-bg); color: var(--lpc-text); transition: border .2s;
 }
 .lpc-fg input:focus { outline: none; border-color: var(--acc, var(--lpc-acc)); background: #fff; }
@@ -110,16 +139,16 @@
 /* ── Summary box ── */
 .lpc-sumbox {
     background: var(--lpc-card); border: 1.5px solid var(--lpc-bd);
-    border-radius: 12px; padding: 13px 17px;
-    display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
-    margin-bottom: 16px;
+    border-radius: 14px; padding: 16px 22px;
+    display: flex; gap: 24px; flex-wrap: wrap; align-items: center;
+    margin-bottom: 20px;
 }
 .lpc-si2 { display: flex; flex-direction: column; gap: 2px; }
 .lpc-si2 span   { font-size: 11px; color: var(--lpc-sub); text-transform: uppercase; letter-spacing: .5px; }
-.lpc-si2 strong { font-size: 14px; font-weight: 700; }
+.lpc-si2 strong { font-size: 15px; font-weight: 700; }
 
 /* ── Progress bar ── */
-.lpc-progbar  { background: var(--lpc-bd); border-radius: 20px; height: 8px; overflow: hidden; }
+.lpc-progbar  { background: var(--lpc-bd); border-radius: 20px; height: 9px; overflow: hidden; }
 .lpc-progfill {
     height: 100%; border-radius: 20px;
     background: linear-gradient(90deg, var(--acc, var(--lpc-acc)), color-mix(in srgb, var(--acc, var(--lpc-acc)) 70%, white));
@@ -128,36 +157,36 @@
 
 /* ── Sections ── */
 .lpc-section {
-    background: var(--lpc-card); border-radius: 13px;
-    margin-bottom: 11px; overflow: hidden; border: 1.5px solid var(--lpc-bd);
+    background: var(--lpc-card); border-radius: 14px;
+    margin-bottom: 12px; overflow: hidden; border: 1.5px solid var(--lpc-bd);
 }
 .lpc-sec-hdr {
-    padding: 12px 17px; display: flex; align-items: center;
+    padding: 14px 20px; display: flex; align-items: center;
     justify-content: space-between; cursor: pointer;
     background: #fafbfc; border-bottom: 1.5px solid var(--lpc-bd);
 }
-.lpc-sec-hdr h3 { font-size: 14px; font-weight: 600; }
+.lpc-sec-hdr h3 { font-size: 15px; font-weight: 600; }
 .lpc-progress {
     font-size: 12px; color: var(--lpc-sub); background: var(--lpc-bg);
-    padding: 3px 10px; border-radius: 20px; border: 1px solid var(--lpc-bd);
+    padding: 3px 12px; border-radius: 20px; border: 1px solid var(--lpc-bd);
 }
 .lpc-sec-body            { padding: 4px 0; }
 .lpc-sec-body.collapsed  { display: none; }
 
 /* ── Items ── */
 .lpc-item {
-    display: flex; gap: 9px; align-items: flex-start;
-    padding: 7px 15px; transition: background .15s;
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 8px 18px; transition: background .15s;
 }
 .lpc-item:hover    { background: #f8fafc; }
 .lpc-item.checked  { background: color-mix(in srgb, var(--lpc-acc) 5%, white); }
-.lpc-item-text      { flex: 1; font-size: 13.5px; line-height: 1.5; }
+.lpc-item-text      { flex: 1; font-size: 14px; line-height: 1.5; }
 .lpc-item-text.done { text-decoration: line-through; color: var(--lpc-sub); }
 
 /* ── Add product button ── */
 .lpc-add-btn {
     background: none; border: 1.5px solid var(--lpc-bd); border-radius: 7px;
-    padding: 3px 8px; font-size: 13px; cursor: pointer; transition: all .15s;
+    padding: 3px 9px; font-size: 13px; cursor: pointer; transition: all .15s;
     position: relative; flex-shrink: 0;
 }
 .lpc-add-btn:hover { border-color: var(--acc, var(--lpc-acc)); background: color-mix(in srgb, var(--acc, var(--lpc-acc)) 8%, white); }
@@ -171,21 +200,21 @@
 /* ── Note input ── */
 .lpc-note {
     border: 1px solid var(--lpc-bd); border-radius: 6px;
-    padding: 4px 8px; font-size: 12px; font-family: inherit;
-    color: var(--lpc-text); background: var(--lpc-bg); width: 120px; flex-shrink: 0;
+    padding: 4px 9px; font-size: 12px; font-family: inherit;
+    color: var(--lpc-text); background: var(--lpc-bg); width: 130px; flex-shrink: 0;
 }
 .lpc-note:focus { outline: none; border-color: var(--lpc-acc); }
 
 /* ── Linked products ── */
 .lpc-linked {
-    padding: 3px 15px 8px 41px;
+    padding: 3px 18px 8px 44px;
     display: flex; flex-direction: column; gap: 4px;
 }
 .lpc-chip {
     display: flex; gap: 7px; align-items: center;
     background: color-mix(in srgb, var(--lpc-acc) 8%, white);
     border: 1px solid color-mix(in srgb, var(--lpc-acc) 30%, #e0e0e0);
-    border-radius: 7px; padding: 4px 10px; font-size: 12px;
+    border-radius: 7px; padding: 4px 11px; font-size: 12px;
 }
 .lpc-chip-qty   { font-weight: 700; color: var(--lpc-acc); min-width: 26px; }
 .lpc-chip-ref   { color: var(--lpc-sub); font-size: 11px; font-family: monospace; }
@@ -197,18 +226,18 @@
 /* ── Materials table ── */
 .lpc-mat-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .lpc-mat-tbl th {
-    text-align: left; padding: 7px 11px; background: #f8fafc;
+    text-align: left; padding: 8px 12px; background: #f8fafc;
     border-bottom: 2px solid var(--lpc-bd); font-size: 11px; font-weight: 700;
     text-transform: uppercase; letter-spacing: .5px; color: var(--lpc-sub);
 }
-.lpc-mat-tbl td { padding: 7px 11px; border-bottom: 1px solid var(--lpc-bd); }
+.lpc-mat-tbl td { padding: 8px 12px; border-bottom: 1px solid var(--lpc-bd); }
 .lpc-mat-tbl tr:last-child td { border-bottom: none; }
 .lpc-mat-tot { background: color-mix(in srgb, var(--lpc-acc) 7%, white); }
 
 /* ── Buttons ── */
 .lpc-btn-p, .lpc-btn-s, .lpc-btn-g, .lpc-btn-pr {
-    padding: 10px 21px; border-radius: 9px; font-family: inherit;
-    font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s;
+    padding: 12px 28px; border-radius: 10px; font-family: inherit;
+    font-size: 15px; font-weight: 600; cursor: pointer; transition: all .2s;
     border: 2px solid transparent;
 }
 .lpc-btn-p  { background: var(--acc, var(--lpc-acc)); color: #fff; }
@@ -216,13 +245,13 @@
 .lpc-btn-p:disabled { background: #ccc; cursor: not-allowed; transform: none; }
 .lpc-btn-s  { background: var(--lpc-card); color: var(--lpc-text); border-color: var(--lpc-bd); }
 .lpc-btn-s:hover { border-color: var(--lpc-acc); color: var(--lpc-acc); }
-.lpc-btn-g  { background: none; border: none; color: var(--lpc-sub); font-size: 13px; padding: 6px 10px; }
+.lpc-btn-g  { background: none; border: none; color: var(--lpc-sub); font-size: 14px; padding: 6px 12px; }
 .lpc-btn-g:hover { color: var(--lpc-text); }
 .lpc-btn-pr { background: #1a2332; color: #fff; }
 .lpc-btn-pr:hover { background: #2d3f57; }
 
 /* ── Actions bar ── */
-.lpc-acts { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+.lpc-acts { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
 
 /* ── Print header (hidden on screen) ── */
 .lpc-print-hdr { display: none; }
@@ -276,4 +305,17 @@
 
     .lpc-mat-tbl    { font-size: 8pt; }
     .lpc-mat-tbl th { font-size: 7.5pt; }
+
+    /* Grille en print : 2 colonnes max */
+    .lpc-grid { grid-template-columns: 1fr 1fr !important; gap: 8pt !important; }
+    .lpc-card { padding: 10pt !important; min-height: auto !important; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .lpc-grid { grid-template-columns: repeat(2, 1fr); }
+    .lpc-app  { padding: 20px 16px 60px; }
+}
+@media (max-width: 560px) {
+    .lpc-grid { grid-template-columns: 1fr; }
 }
