@@ -303,6 +303,29 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                   );
                 }
 
+                function SuggDropdown({suggestions, onSelect}) {
+                  return (
+                    <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#fff',
+                      border:'1.5px solid #dde4ed',borderRadius:8,
+                      boxShadow:'0 8px 24px rgba(0,0,0,.12)',zIndex:2000,maxHeight:220,overflowY:'auto'}}>
+                      {suggestions.map((p,i)=>(
+                        <div key={i} onMouseDown={()=>onSelect(p)}
+                          style={{padding:'9px 12px',fontSize:13,cursor:'pointer',
+                            borderBottom:'1px solid #f0f4f8',display:'flex',gap:10,alignItems:'flex-start'}}
+                          onMouseOver={e=>e.currentTarget.style.background='#f0f9ff'}
+                          onMouseOut={e=>e.currentTarget.style.background='#fff'}>
+                          <span style={{fontSize:18,flexShrink:0}}>👤</span>
+                          <div>
+                            <div style={{fontWeight:700,color:'#1a2332'}}>{p.name}</div>
+                            {p.street && <div style={{fontSize:11,color:'#6b7a8d',marginTop:1}}>{p.street}, {p.zip} {p.city}</div>}
+                            {(p.phone||p.mobile) && <div style={{fontSize:11,color:'#6b7a8d'}}>📞 {p.phone||p.mobile}</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+
                 /* ── Autocomplete adresse (Google Places avec split rue/cp/ville/pays) ── */
                 function AddressAutocomplete({valueRue, valueCp, valueVille, valuePays, onChangeFull, placeholder, inputStyle}) {
                   const inputRef = React.useRef(null);
@@ -384,86 +407,6 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                           ))}
                         </select>
                       </div>
-                    </div>
-                  );
-                }
-
-                /* ── Client Autocomplete — prénom + nom séparés ── */
-                function ClientAutocomplete({valuePrenom, valueNom, onChangePrenom, onChangeNom, onSelectPartner}) {
-                  const [suggestions, setSugg] = React.useState([]);
-                  const [open, setOpen] = React.useState(false);
-                  const [activeField, setActiveField] = React.useState(null);
-
-                  const fieldStyle = {
-                    border:'1.5px solid #e5e7eb',borderRadius:8,padding:'12px 16px',
-                    fontFamily:'inherit',fontSize:14,background:'#f9fafb',
-                    color:'#1a2332',width:'100%',transition:'all .2s',outline:'none',
-                  };
-
-                  const search = async(v, field) => {
-                    setActiveField(field);
-                    if(v.length >= 2) {
-                      const partners = await searchPartners(v);
-                      setSugg(partners); setOpen(partners.length > 0);
-                    } else { setSugg([]); setOpen(false); }
-                  };
-
-                  const selectPartner = (p) => {
-                    // Tenter de séparer prénom/nom (premier mot = prénom)
-                    const parts = (p.name||'').trim().split(' ');
-                    const prenom = parts.length > 1 ? parts[0] : '';
-                    const nom    = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
-                    onChangePrenom(prenom);
-                    onChangeNom(nom);
-                    onSelectPartner(p);
-                    setSugg([]); setOpen(false);
-                  };
-
-                  return (
-                    <div style={{display:'contents'}}>
-                      <div className="lpc-fg" style={{position:'relative'}}>
-                        <label>Prénom <span className="lpc-required">*</span></label>
-                        <input value={valuePrenom}
-                          onChange={e=>{ onChangePrenom(e.target.value); search(e.target.value,'prenom'); }}
-                          onBlur={()=>setTimeout(()=>setOpen(false),200)}
-                          placeholder="Jean" style={fieldStyle}/>
-                        {open && activeField==='prenom' && suggestions.length>0 && (
-                          <SuggDropdown suggestions={suggestions} onSelect={selectPartner}/>
-                        )}
-                      </div>
-                      <div className="lpc-fg" style={{position:'relative'}}>
-                        <label>Nom <span className="lpc-required">*</span></label>
-                        <input value={valueNom}
-                          onChange={e=>{ onChangeNom(e.target.value); search(e.target.value,'nom'); }}
-                          onBlur={()=>setTimeout(()=>setOpen(false),200)}
-                          placeholder="Dupont" style={fieldStyle}/>
-                        {open && activeField==='nom' && suggestions.length>0 && (
-                          <SuggDropdown suggestions={suggestions} onSelect={selectPartner}/>
-                        )}
-                      </div>
-                    </div>
-                  );
-                }
-
-                function SuggDropdown({suggestions, onSelect}) {
-                  return (
-                    <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#fff',
-                      border:'1.5px solid #dde4ed',borderRadius:8,
-                      boxShadow:'0 8px 24px rgba(0,0,0,.12)',zIndex:2000,maxHeight:220,overflowY:'auto'}}>
-                      {suggestions.map((p,i)=>(
-                        <div key={i} onMouseDown={()=>onSelect(p)}
-                          style={{padding:'9px 12px',fontSize:13,cursor:'pointer',
-                            borderBottom:'1px solid #f0f4f8',display:'flex',gap:10,alignItems:'flex-start'}}
-                          onMouseOver={e=>e.currentTarget.style.background='#f0f9ff'}
-                          onMouseOut={e=>e.currentTarget.style.background='#fff'}>
-                          <span style={{fontSize:18,flexShrink:0}}>👤</span>
-                          <div>
-                            <div style={{fontWeight:700,color:'#1a2332'}}>{p.name}</div>
-                            {p.street && <div style={{fontSize:11,color:'#6b7a8d',marginTop:1}}>{p.street}, {p.zip} {p.city}</div>}
-                            {(p.phone||p.mobile) && <div style={{fontSize:11,color:'#6b7a8d'}}>📞 {p.phone||p.mobile}</div>}
-                          </div>
-                        </div>
-                      ))}
                     </div>
                   );
                 }
@@ -1276,6 +1219,63 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                         </div>
                       )}
                     </div>
+                  );
+                }
+
+
+                /* ── Client Autocomplete — prénom + nom séparés ── */
+                function ClientAutocomplete({valuePrenom, valueNom, onChangePrenom, onChangeNom, onSelectPartner}) {
+                  const [suggestions, setSugg] = React.useState([]);
+                  const [open, setOpen]         = React.useState(false);
+                  const [activeField, setActiveField] = React.useState(null);
+
+                  const fieldStyle = {
+                    border:'1.5px solid #e5e7eb',borderRadius:8,padding:'12px 16px',
+                    fontFamily:'inherit',fontSize:14,background:'#f9fafb',
+                    color:'#1a2332',width:'100%',transition:'all .2s',outline:'none',
+                  };
+
+                  const search = async(v, field) => {
+                    setActiveField(field);
+                    if(v.length >= 2) {
+                      const partners = await searchPartners(v);
+                      setSugg(partners); setOpen(partners.length > 0);
+                    } else { setSugg([]); setOpen(false); }
+                  };
+
+                  const selectPartner = (p) => {
+                    const parts = (p.name||'').trim().split(' ');
+                    const prenom = parts.length > 1 ? parts[0] : '';
+                    const nom    = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
+                    onChangePrenom(prenom);
+                    onChangeNom(nom);
+                    onSelectPartner(p);
+                    setSugg([]); setOpen(false);
+                  };
+
+                  return (
+                    <React.Fragment>
+                      <div className="lpc-fg" style={{position:'relative'}}>
+                        <label>Prénom <span className="lpc-required">*</span></label>
+                        <input value={valuePrenom}
+                          onChange={e=>{ onChangePrenom(e.target.value); search(e.target.value,'prenom'); }}
+                          onBlur={()=>setTimeout(()=>setOpen(false),200)}
+                          placeholder="Jean" style={fieldStyle}/>
+                        {open && activeField==='prenom' && suggestions.length>0 && (
+                          <SuggDropdown suggestions={suggestions} onSelect={selectPartner}/>
+                        )}
+                      </div>
+                      <div className="lpc-fg" style={{position:'relative'}}>
+                        <label>Nom <span className="lpc-required">*</span></label>
+                        <input value={valueNom}
+                          onChange={e=>{ onChangeNom(e.target.value); search(e.target.value,'nom'); }}
+                          onBlur={()=>setTimeout(()=>setOpen(false),200)}
+                          placeholder="Dupont" style={fieldStyle}/>
+                        {open && activeField==='nom' && suggestions.length>0 && (
+                          <SuggDropdown suggestions={suggestions} onSelect={selectPartner}/>
+                        )}
+                      </div>
+                    </React.Fragment>
                   );
                 }
 
