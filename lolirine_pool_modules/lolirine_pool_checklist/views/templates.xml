@@ -20,21 +20,16 @@
                 <link rel="stylesheet" href="/lolirine_pool_checklist/static/src/css/pool_checklist.css"/>
             </t>
 
-            <!-- Conteneur React -->
             <div id="pool-checklist-root"/>
 
-            <!-- Configuration injectée par Odoo (same-origin, pas de problème XML) -->
             <script type="text/javascript">
                 window.LOLIRINE_CHECKLIST_CONFIG = {
                     productsEndpoint: '/pool-checklist/products',
-                    pingEndpoint:     '/pool-checklist/ping',
-                    websiteId:        <t t-out="website_id"/>,
-                    csrfToken:        '<t t-out="request.csrf_token()"/>',
-                    userName:         '<t t-out="request.env.user.name | e"/>',
+                    websiteId: <t t-out="website_id or 6"/>,
+                    userName: '<t t-out="request.env.user.name"/>',
                 };
             </script>
 
-            <!-- Application React : fichier JS externe, aucun escaping XML -->
             <script type="text/babel"
                     src="/lolirine_pool_checklist/static/src/js/pool_checklist.js"
                     data-presets="react"/>
