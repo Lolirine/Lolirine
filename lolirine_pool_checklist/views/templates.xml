@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page_checklist" name="Pool Checklist — Fiche de visite">
+        <t t-call="website.layout">
+            <t t-set="head">
+                <style>
+                    #wrapwrap > header, #wrapwrap > footer,
+                    .o_footer_copyright { display: none !important; }
+                    #lpc_hero {
+                        position: relative; min-height: 180px;
+                        background: linear-gradient(135deg,#0ea5e9 0%,#0369a1 100%);
+                        background-size: cover; background-position: center;
+                    }
+                    #lpc_hero .o_we_bg_filter {
+                        position: absolute; inset: 0;
+                        background: rgba(10,30,60,0.45);
+                    }
+                    #lpc_hero .lpc_hero_inner {
+                        position: relative; z-index: 2;
+                        padding: 44px 52px; display: flex;
+                        align-items: center; gap: 22px;
+                    }
+                    #lpc_hero .lpc_logo_box {
+                        width:64px; height:64px;
+                        background:rgba(255,255,255,0.15); border-radius:16px;
+                        display:grid; place-items:center; font-size:32px; flex-shrink:0;
+                        backdrop-filter:blur(8px);
+                        border:1.5px solid rgba(255,255,255,0.25);
+                    }
+                    #lpc_hero h1 {
+                        font-family:'DM Serif Display',serif; font-size:30px;
+                        color:#fff; margin:0; text-shadow:0 2px 8px rgba(0,0,0,.3);
+                    }
+                    #lpc_hero p { font-size:14px; color:rgba(255,255,255,.8); margin-top:4px; }
+                    .lpc_back_btn {
+                        margin-left:auto; background:rgba(255,255,255,.15);
+                        border:1.5px solid rgba(255,255,255,.3); border-radius:9px;
+                        padding:8px 18px; font-size:13px; color:#fff;
+                        text-decoration:none; flex-shrink:0;
+                    }
+                    #lpc_app_zone { background:#eef2f7; min-height:80vh; }
+                    #lpc_footer_zone { background:#1a2332; min-height:60px; }
+                    /* Autocomplete dropdown Google */
+                    .pac-container { z-index: 99999 !important; font-family:'DM Sans',sans-serif; }
+                </style>
+                <link rel="preconnect" href="https://fonts.googleapis.com"/>
+                <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+                <!-- Google Places API -->
+                <t t-if="google_key">
+                    <script t-attf-src="https://maps.googleapis.com/maps/api/js?key=#{google_key}&amp;libraries=places&amp;callback=initGooglePlaces" async="async" defer="defer"/>
+                </t>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin="anonymous"/>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous"/>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js" crossorigin="anonymous"/>
+                <link rel="stylesheet" href="/lolirine_pool_checklist/static/src/css/pool_checklist.css"/>
+            </t>
+
+            <!-- Hero éditable Website Builder -->
+            <section id="lpc_hero" class="o_cc o_cc1 o_colored_level"
+                     data-snippet="s_cover" data-name="Hero Fiche de visite"
+                     contenteditable="false">
+                <div class="o_we_bg_filter"/>
+                <div id="oe_structure_lpc_top" class="oe_structure oe_empty"/>
+                <div class="lpc_hero_inner" contenteditable="false">
+                    <div class="lpc_logo_box">🏊</div>
+                    <div>
+                        <h1>Lolirine Pool Store — Fiche de visite chantier</h1>
+                        <p>Diagnostic · intervention · produits liés · devis estimatif</p>
+                    </div>
+                    <a href="/odoo/website" class="lpc_back_btn">← Retour Odoo</a>
+                </div>
+                <div id="oe_structure_lpc_bottom" class="oe_structure oe_empty"/>
+            </section>
+
+            <!-- App React -->
+            <section id="lpc_app_zone" contenteditable="false">
+                <div id="pool-checklist-root"/>
+            </section>
+
+            <!-- Footer éditable -->
+            <section id="lpc_footer_zone" class="o_cc o_cc5">
+                <div id="oe_structure_lpc_footer" class="oe_structure">
+                    <div style="text-align:center;color:rgba(255,255,255,0.45);font-size:12px;font-family:'DM Sans',sans-serif;padding:16px 0;">
+                        Lolirine Pool Store · lolirinepoolstore.be · BCE 0650.891.279
+                    </div>
+                </div>
+            </section>
+
+            <!-- Configuration injectée par Odoo -->
+            <script type="text/javascript">
+                window.LOLIRINE_CHECKLIST_CONFIG = {
+                    productsEndpoint:  '/pool-checklist/products',
+                    partnersEndpoint:  '/pool-checklist/partners',
+                    saveEndpoint:      '/pool-checklist/save',
+                    loadEndpoint:      '/pool-checklist/load',
+                    listEndpoint:      '/pool-checklist/list',
+                    quoteEndpoint:     '/pool-checklist/create-quote',
+                    websiteId:         <t t-out="website_id or 6"/>,
+                    isLoggedIn:        <t t-out="'true' if is_logged_in else 'false'"/>,
+                    userName:          '<t t-out="user_name"/>',
+                    userId:            <t t-out="user_id or 0"/>,
+                    hasGooglePlaces:   <t t-out="'true' if google_key else 'false'"/>,
+                };
+                // Callback Google Places — appelé quand l'API est chargée
+                window.initGooglePlaces = function() {
+                    window.GOOGLE_PLACES_READY = true;
+                    document.dispatchEvent(new CustomEvent('googlePlacesReady'));
+                };
+            </script>
+
+            <!-- Application React -->
+            <script type="text/babel"
+                    src="/lolirine_pool_checklist/static/src/js/pool_checklist.js"
+                    data-presets="react"/>
+        </t>
+    </template>
+</odoo>
