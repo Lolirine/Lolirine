@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Lien rapide dans le menu Website du backend -->
+
+    <!-- Action URL qui ouvre /visite-chantier dans un nouvel onglet -->
+    <record id="action_pool_checklist_url" model="ir.actions.act_url">
+        <field name="name">Fiche de visite chantier</field>
+        <field name="url">/visite-chantier</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Entrée dans le menu principal Website (backend) -->
+    <menuitem
+        id="menu_pool_checklist_root"
+        name="🏊 Fiche de visite chantier"
+        parent="website.menu_website"
+        action="action_pool_checklist_url"
+        sequence="50"
+    />
+
 </odoo>
