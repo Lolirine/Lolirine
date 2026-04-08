@@ -107,17 +107,81 @@
                 /* ─── API produits ─── */
                 const cfg = window.LOLIRINE_CHECKLIST_CONFIG || {};
 
+                /* Mapping libellés checklist → mots-clés catalogue */
+                const KEYWORD_MAP = [
+                  [/bonde.{0,10}fond/i,          'bonde fond'],
+                  [/skimmer/i,                    'skimmer'],
+                  [/refoulement/i,                'buse refoulement'],
+                  [/buse.{0,10}balai|prise balai/i,'prise balai'],
+                  [/filtre.{0,10}sable/i,         'filtre sable'],
+                  [/filtre.{0,10}cartouche/i,     'filtre cartouche'],
+                  [/filtre.{0,10}diatom/i,        'filtre diatomées'],
+                  [/sable.{0,10}filtration/i,     'sable filtration'],
+                  [/billes.{0,10}verre/i,         'billes verre filtration'],
+                  [/pompe.{0,10}vitesse.{0,10}variable|VEI/i, 'pompe vitesse variable'],
+                  [/pompe.{0,5}chaleur/i,         'pompe à chaleur'],
+                  [/pompe.{0,10}doseuse/i,        'pompe doseuse'],
+                  [/vanne.{0,10}multivoies/i,     'vanne multivoies'],
+                  [/électrolyseur|electrolyseur/i,'électrolyseur sel'],
+                  [/cellule.{0,10}électro/i,      'cellule électrolyse'],
+                  [/robot.{0,10}nettoyeur|robot.{0,10}fond/i,'robot piscine'],
+                  [/liner/i,                      'liner piscine'],
+                  [/projecteur.{0,10}LED|spot LED/i,'projecteur LED piscine'],
+                  [/alarme.{0,10}piscine/i,       'alarme piscine'],
+                  [/volet.{0,10}roulant/i,        'volet roulant piscine'],
+                  [/couverture.{0,10}bulle|couverture.{0,10}solaire/i,'couverture solaire piscine'],
+                  [/bouchon.{0,10}hivern/i,       'bouchon hivernage'],
+                  [/flotteur.{0,10}antigel/i,     'flotteur antigel piscine'],
+                  [/algicide/i,                   'algicide'],
+                  [/chlore.{0,10}choc|choc chlore/i,'chlore choc'],
+                  [/galets.{0,10}chlore/i,        'galets chlore'],
+                  [/pH.{0,5}moins|pH-/i,          'pH moins acide'],
+                  [/floculant/i,                  'floculant piscine'],
+                  [/anti.{0,5}calcaire/i,         'anti calcaire piscine'],
+                  [/anti.{0,5}phosphate/i,        'anti phosphates piscine'],
+                  [/traitement.{0,5}sel/i,        'sel piscine électrolyseur'],
+                  [/sonde.{0,5}pH|sonde.{0,5}ORP/i,'sonde pH ORP piscine'],
+                  [/UV|ultra.{0,5}violet/i,       'lampe UV piscine'],
+                  [/ozone/i,                      'générateur ozone piscine'],
+                  [/manomètre/i,                  'manomètre piscine'],
+                  [/préfiltre|panier.{0,10}filtre/i,'préfiltre panier pompe'],
+                  [/margelles/i,                  'margelle piscine'],
+                  [/douche.{0,10}solaire/i,       'douche solaire'],
+                  [/échelle|escalier.{0,10}inox/i,'escalier inox piscine'],
+                ];
+
+                function extractKeywords(itemText) {
+                  const clean = itemText.replace(/_{2,}/g,'').replace(/\(.*?\)/g,'').trim();
+                  for(const [pattern, kw] of KEYWORD_MAP) {
+                    if(pattern.test(clean)) return kw;
+                  }
+                  // Fallback: premiers mots significatifs
+                  return clean.replace(/[:()\[\]0-9]/g,' ')
+                    .split(/\s+/).filter(w=>w.length>3).slice(0,4).join(' ');
+                }
+
+                /* Tri : fournisseurs connus en premier */
+                function sortBySupplier(products) {
+                  return [...products].sort((a,b)=>{
+                    const aHas = (a.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp');
+                    const bHas = (b.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp');
+                    if(aHas && !bHas) return -1;
+                    if(!aHas && bHas) return 1;
+                    return 0;
+                  });
+                }
+
                 async function searchOdooProducts(query, supplier=null) {
                   try {
                     const res = await fetch(cfg.productsEndpoint || '/pool-checklist/products', {
                       method:'POST',
                       headers:{'Content-Type':'application/json'},
                       credentials:'same-origin',
-                      body: JSON.stringify({jsonrpc:'2.0',method:'call',id:1,params:{query,limit:18,supplier}})
+                      body: JSON.stringify({jsonrpc:'2.0',method:'call',id:1,params:{query,limit:24,supplier}})
                     });
                     const d = await res.json();
                     const prods = d?.result?.products || [];
-                    if(prods.length) return {source:'odoo', products: prods};
+                    if(prods.length) return {source:'odoo', products: sortBySupplier(prods)};
                     return null;
                   } catch(e) {
                     console.warn('[checklist] Odoo search failed:', e);
@@ -131,11 +195,11 @@
                       method:'POST',
                       headers:{'Content-Type':'application/json'},
                       body:JSON.stringify({
-                        model:'claude-sonnet-4-20250514',max_tokens:800,
+                        model:'claude-sonnet-4-20250514',max_tokens:900,
                         system:`Expert équipements piscine (Lolirine Pool Store, Belgique). JSON uniquement sans markdown :
-{"products":[{"ref":"","name":"Nom","category":"Cat","unit":"pièce|kg|L|m|m²|lot","note":"","supplier":"Fluidra|SCP|HTH|BWT|Hayward|Pentair"}]}
-Max 7 produits.`,
-                        messages:[{role:'user',content:`Section : ${sectionLabel}\nPoint : "${itemText}"\nProduits ?`}]
+{"products":[{"ref":"","name":"Nom produit précis","category":"Cat","unit":"pièce|kg|L|m|m²|lot","note":"info utile","supplier":"Fluidra|SCP|HTH|BWT|Hayward|Pentair|Zodiac|Astralpool"}]}
+Max 8 produits. Inclure la référence fabricant si connue. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
+                        messages:[{role:'user',content:`Section : ${sectionLabel}\nPoint checklist : "${itemText}"\nProduits/matériaux à prévoir ?`}]
                       })
                     });
                     if(!res.ok) return null;
@@ -146,7 +210,7 @@ Max 7 produits.`,
                       suppliers: p.supplier ? [{name:p.supplier,ref:p.ref||'',price:0,
                         type: /fluidra|sibo/i.test(p.supplier)?'fluidra': /scp/i.test(p.supplier)?'scp':'other'}] : []
                     }));
-                    return {source:'ai', products: prods};
+                    return {source:'ai', products: sortBySupplier(prods)};
                   } catch(e) {
                     console.warn('[checklist] AI suggest failed:', e);
                     return null;
@@ -175,13 +239,14 @@ Max 7 produits.`,
                   return <span style={{background:c.bg,color:c.color,borderRadius:5,padding:'2px 7px',fontSize:11,fontWeight:700}}>{c.label}</span>;
                 }
 
-                /* ─── ProductPanel — grille images + onglets fournisseurs + zoom ─── */
+                /* ─── ProductPanel — liste déroulante avec fournisseurs ─── */
                 function ProductPanel({itemText, sectionLabel, onAdd, onClose}) {
-                  const [q,setQ]            = React.useState(itemText.replace(/_{3,}/g,'').trim().slice(0,40));
+                  const autoKw = React.useMemo(()=>extractKeywords(itemText),[itemText]);
+                  const [q,setQ]            = React.useState(autoKw);
                   const [allResults,setAll] = React.useState([]);
                   const [loading,setLoading]= React.useState(false);
                   const [source,setSource]  = React.useState(null);
-                  const [tab,setTab]        = React.useState('all'); // 'all'|'fluidra'|'scp'|'other'
+                  const [tab,setTab]        = React.useState('all');
                   const [sel,setSel]        = React.useState({});
                   const [qtys,setQtys]      = React.useState({});
                   const [zoom,setZoom]      = React.useState(null);
@@ -200,7 +265,7 @@ Max 7 produits.`,
                     setLoading(false);
                   };
 
-                  React.useEffect(()=>{ search(q); },[]);
+                  React.useEffect(()=>{ search(autoKw); },[]);
 
                   // Filtrage par onglet fournisseur
                   const results = React.useMemo(()=>{
@@ -295,63 +360,83 @@ Max 7 produits.`,
                                 {tab!=='all'?'Aucun produit pour ce fournisseur.':'Aucun résultat. Affinez la recherche.'}
                               </div>
                             )}
-                            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(210px,1fr))',gap:14}}>
+                            {/* ── Liste déroulante avec image + infos fournisseur ── */}
+                            <div style={{display:'flex',flexDirection:'column',gap:6}}>
                               {results.map((p,i)=>{
-                                const mainSupplier = (p.suppliers||[]).find(s=>s.type!=='other')||(p.suppliers||[])[0];
+                                const hasSupplier = (p.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp');
                                 return (
                                   <div key={i} onClick={()=>toggle(i)}
-                                    style={{background:'#fff',borderRadius:14,border:`2.5px solid ${sel[i]?'#0ea5e9':'#e8edf3'}`,overflow:'hidden',
-                                      boxShadow:sel[i]?'0 6px 20px rgba(14,165,233,0.18)':'0 2px 8px rgba(0,0,0,0.05)',
-                                      transition:'all .2s',cursor:'pointer',display:'flex',flexDirection:'column'}}>
-                                    <div style={{position:'relative',background:'#f8fafc',height:180,display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',borderBottom:'1px solid #f0f4f8'}}>
+                                    style={{display:'flex',gap:0,borderRadius:12,overflow:'hidden',
+                                      border:`2px solid ${sel[i]?'#0ea5e9':hasSupplier?'#bfdbfe':'#e8edf3'}`,
+                                      background:sel[i]?'rgba(14,165,233,0.04)':'#fff',
+                                      boxShadow:sel[i]?'0 4px 14px rgba(14,165,233,0.15)':hasSupplier?'0 2px 8px rgba(37,99,235,0.07)':'0 1px 4px rgba(0,0,0,0.05)',
+                                      cursor:'pointer',transition:'all .18s',position:'relative'}}>
+
+                                    {/* Indicateur fournisseur sur le côté gauche */}
+                                    {hasSupplier && (
+                                      <div style={{width:4,flexShrink:0,
+                                        background:(p.suppliers||[]).find(s=>s.type==='fluidra')?'#1d4ed8':
+                                                   (p.suppliers||[]).find(s=>s.type==='scp')?'#16a34a':'#9ca3af'}}/>
+                                    )}
+
+                                    {/* Image vignette */}
+                                    <div style={{width:90,flexShrink:0,background:'#f8fafc',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',borderRight:'1px solid #f0f4f8'}}>
                                       {p.image ? (
                                         <>
-                                          <img src={p.image} alt={p.name} style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain',padding:10}}/>
+                                          <img src={p.image} alt={p.name} style={{width:80,height:72,objectFit:'contain',padding:4}}/>
                                           <button onClick={e=>{ e.stopPropagation(); setZoom({src:p.image,name:p.name}); }}
-                                            style={{position:'absolute',top:8,right:8,background:'rgba(0,0,0,0.55)',border:'none',borderRadius:6,padding:'4px 8px',cursor:'pointer',fontSize:13,color:'#fff'}}>
+                                            title="Agrandir"
+                                            style={{position:'absolute',bottom:3,right:3,background:'rgba(0,0,0,0.45)',border:'none',borderRadius:4,padding:'2px 5px',cursor:'pointer',fontSize:11,color:'#fff',lineHeight:1}}>
                                             🔍
                                           </button>
                                         </>
                                       ) : (
-                                        <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,color:'#94a3b8'}}>
-                                          <span style={{fontSize:44}}>🏊</span>
-                                          <span style={{fontSize:11}}>Pas d'image</span>
-                                        </div>
-                                      )}
-                                      <div style={{position:'absolute',top:8,left:8,width:22,height:22,border:`2.5px solid ${sel[i]?'#0ea5e9':'rgba(255,255,255,0.8)'}`,borderRadius:6,
-                                        background:sel[i]?'#0ea5e9':'rgba(255,255,255,0.75)',display:'grid',placeItems:'center'}}>
-                                        {sel[i]&&<span style={{color:'#fff',fontSize:13,fontWeight:800}}>✓</span>}
-                                      </div>
-                                      {mainSupplier && (
-                                        <div style={{position:'absolute',bottom:6,left:6}}>
-                                          <SupplierBadge type={mainSupplier.type} name={mainSupplier.name}/>
-                                        </div>
+                                        <span style={{fontSize:28,opacity:.35}}>🏊</span>
                                       )}
                                     </div>
-                                    <div style={{padding:'11px 13px',flex:1,display:'flex',flexDirection:'column',gap:5}}>
-                                      <div style={{fontWeight:700,fontSize:13,lineHeight:1.3,color:'#1a2332'}}>{p.name}</div>
-                                      <div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
-                                        {p.ref&&<span style={{background:'#f0f4f8',padding:'2px 6px',borderRadius:4,fontSize:11,fontFamily:'monospace',color:'#6b7a8d'}}>{p.ref}</span>}
-                                        {p.category&&<span style={{fontSize:11,color:'#94a3b8'}}>{p.category}</span>}
-                                      </div>
-                                      {(p.suppliers||[]).filter(s=>s.ref||s.price>0).map((s,si)=>(
-                                        <div key={si} style={{fontSize:11,display:'flex',gap:5,alignItems:'center',flexWrap:'wrap'}}>
-                                          <SupplierBadge type={s.type} name={s.name}/>
-                                          {s.ref&&<span style={{fontFamily:'monospace',color:'#6b7a8d'}}>Réf: {s.ref}</span>}
-                                          {s.price>0&&<span style={{color:'#059669',fontWeight:700,marginLeft:'auto'}}>{s.price.toFixed(2)} €</span>}
+
+                                    {/* Infos produit */}
+                                    <div style={{flex:1,padding:'10px 13px',display:'flex',flexDirection:'column',gap:4,minWidth:0}}>
+                                      <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
+                                        {/* Checkbox */}
+                                        <div style={{width:20,height:20,border:`2px solid ${sel[i]?'#0ea5e9':'#d1d5db'}`,borderRadius:5,
+                                          background:sel[i]?'#0ea5e9':'#fff',display:'grid',placeItems:'center',flexShrink:0,marginTop:1}}>
+                                          {sel[i]&&<span style={{color:'#fff',fontSize:12,fontWeight:800}}>✓</span>}
                                         </div>
-                                      ))}
-                                      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:'auto',paddingTop:5}}>
-                                        {p.price>0?<span style={{fontWeight:700,fontSize:15,color:'#0ea5e9'}}>{p.price.toFixed(2)} €</span>:<span/>}
-                                        {sel[i]&&(
-                                          <div style={{display:'flex',alignItems:'center',gap:5}} onClick={e=>e.stopPropagation()}>
-                                            <span style={{fontSize:11,color:'#6b7a8d',fontWeight:600}}>Qté</span>
-                                            <input type="number" min="1" value={qtys[i]||1} onChange={e=>setQty(i,e.target.value)}
-                                              style={{width:52,textAlign:'center',border:'2px solid #0ea5e9',borderRadius:7,padding:'3px',fontSize:13,fontFamily:'inherit',fontWeight:600}}/>
-                                            <span style={{fontSize:11,color:'#6b7a8d'}}>{p.unit||'pc'}</span>
-                                          </div>
-                                        )}
+                                        <div style={{flex:1,minWidth:0}}>
+                                          <div style={{fontWeight:700,fontSize:13.5,lineHeight:1.3,color:'#1a2332'}}>{p.name}</div>
+                                          {p.category&&<div style={{fontSize:11,color:'#94a3b8',marginTop:1}}>{p.category}</div>}
+                                        </div>
+                                        {p.price>0&&<span style={{fontWeight:700,fontSize:14,color:'#0ea5e9',flexShrink:0}}>{p.price.toFixed(2)} €</span>}
                                       </div>
+
+                                      {/* Ligne références + fournisseurs */}
+                                      <div style={{display:'flex',gap:6,flexWrap:'wrap',alignItems:'center'}}>
+                                        {p.ref&&<span style={{background:'#f0f4f8',padding:'1px 7px',borderRadius:4,fontSize:11,fontFamily:'monospace',color:'#64748b'}}>{p.ref}</span>}
+                                        {(p.suppliers||[]).map((s,si)=>(
+                                          <span key={si} style={{display:'inline-flex',gap:4,alignItems:'center'}}>
+                                            <SupplierBadge type={s.type} name={s.name}/>
+                                            {s.ref&&<span style={{fontFamily:'monospace',fontSize:11,color:'#64748b'}}>#{s.ref}</span>}
+                                            {s.price>0&&<span style={{fontSize:11,color:'#059669',fontWeight:700}}>{s.price.toFixed(2)} €/u</span>}
+                                          </span>
+                                        ))}
+                                      </div>
+
+                                      {/* Quantité si sélectionné */}
+                                      {sel[i]&&(
+                                        <div style={{display:'flex',alignItems:'center',gap:7,marginTop:2}} onClick={e=>e.stopPropagation()}>
+                                          <span style={{fontSize:12,color:'#6b7a8d',fontWeight:600}}>Quantité :</span>
+                                          <div style={{display:'flex',alignItems:'center',border:'2px solid #0ea5e9',borderRadius:8,overflow:'hidden'}}>
+                                            <button onClick={e=>{e.stopPropagation();setQty(i,Math.max(1,(Number(qtys[i]||1)-1)));}}
+                                              style={{background:'#f0f9ff',border:'none',padding:'3px 9px',cursor:'pointer',fontSize:15,color:'#0ea5e9',fontWeight:700}}>−</button>
+                                            <input type="number" min="1" value={qtys[i]||1} onChange={e=>setQty(i,e.target.value)}
+                                              style={{width:46,textAlign:'center',border:'none',padding:'3px 4px',fontSize:13,fontFamily:'inherit',fontWeight:700,outline:'none'}}/>
+                                            <button onClick={e=>{e.stopPropagation();setQty(i,(Number(qtys[i]||1)+1));}}
+                                              style={{background:'#f0f9ff',border:'none',padding:'3px 9px',cursor:'pointer',fontSize:15,color:'#0ea5e9',fontWeight:700}}>+</button>
+                                          </div>
+                                          <span style={{fontSize:12,color:'#6b7a8d'}}>{p.unit||'pièce(s)'}</span>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 );
