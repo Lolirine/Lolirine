@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Origines CORS supplémentaires autorisées (séparées par virgule).
+             Les origines ALWAYS_ALLOWED (claude.ai, lolirinepoolstore.be,
+             localhost) sont toujours incluses dans le code.
+             Ajouter ici d'autres origines si nécessaire. -->
+        <record id="lolirine_cors_allowed_origins" model="ir.config_parameter">
+            <field name="key">lolirine.cors.allowed_origins</field>
+            <field name="value"></field>
+        </record>
+    </data>
+</odoo>
