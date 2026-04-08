@@ -902,58 +902,106 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                       {step===1 && (
                         <div>
                           <h2 className="lpc-title">Informations client &amp; chantier</h2>
-                          <div className="lpc-section" style={{padding:24}}>
-                            <div className="lpc-form-grid">
 
-                              {/* Nom client avec autocomplétion Odoo */}
-                              <div className="lpc-fg full">
-                                <label>Nom / Raison sociale du client</label>
-                                <ClientAutocomplete
-                                  value={client.nom}
-                                  onChange={v=>setClient(p=>({...p,nom:v}))}
-                                  onSelectPartner={partner=>setClient(p=>({
-                                    ...p,
-                                    nom:     partner.name,
-                                    adresse: partner.street ? `${partner.street}, ${partner.zip||''} ${partner.city||''}`.trim() : p.adresse,
-                                    tel:     partner.phone || partner.mobile || p.tel,
-                                    partner_id: partner.id,
-                                  }))}
-                                  placeholder="M./Mme Dupont — tapez pour chercher dans les contacts"
-                                  inputStyle={inputStyle}
-                                />
-                                {client.partner_id && <div style={{fontSize:11,color:'#059669',marginTop:4}}>✅ Lié au contact Odoo #{client.partner_id}</div>}
+                          {/* ── Type de client ── */}
+                          <div className="lpc-contact-section">
+                            <div className="lpc-contact-header">
+                              <span className="lpc-contact-header-icon">👤</span>
+                              <span>Vous êtes</span>
+                            </div>
+                            <div className="lpc-contact-body">
+                              <div style={{display:'flex',gap:10,marginBottom:20}}>
+                                {[['particulier','👤 Particulier'],['professionnel','🏢 Professionnel']].map(([val,lbl])=>(
+                                  <button key={val} onClick={()=>setClient(p=>({...p,type:val}))}
+                                    className={`lpc-toggle-btn${(client.type||'particulier')===val?' active':''}`}>
+                                    {lbl}
+                                  </button>
+                                ))}
                               </div>
 
-                              {/* Adresse avec Google Places */}
-                              <div className="lpc-fg full">
-                                <label>Adresse du chantier</label>
-                                <AddressAutocomplete
-                                  value={client.adresse}
-                                  onChange={v=>setClient(p=>({...p,adresse:v}))}
-                                  placeholder="Rue de la Piscine 12, 5000 Namur"
-                                  inputStyle={inputStyle}
-                                />
-                                {cfg.hasGooglePlaces==='true' && <div style={{fontSize:11,color:'#6b7a8d',marginTop:3}}>📍 Autocomplétion Google Places activée</div>}
+                              {/* ── Informations de contact ── */}
+                              <div className="lpc-sub-header">
+                                <span className="lpc-sub-icon">📋</span>
+                                <span>Informations de contact</span>
                               </div>
 
-                              <div className="lpc-fg">
-                                <label>Téléphone</label>
-                                <input value={client.tel} onChange={e=>setClient(p=>({...p,tel:e.target.value}))} placeholder="+32 4xx xx xx xx" style={inputStyle}/>
+                              <div className="lpc-form-grid" style={{marginTop:16}}>
+                                <div className="lpc-fg full">
+                                  <label>Nom complet <span className="lpc-required">*</span></label>
+                                  <ClientAutocomplete
+                                    value={client.nom}
+                                    onChange={v=>setClient(p=>({...p,nom:v}))}
+                                    onSelectPartner={partner=>setClient(p=>({
+                                      ...p,
+                                      nom:     partner.name,
+                                      adresse: partner.street ? `${partner.street}, ${partner.zip||''} ${partner.city||''}`.trim() : p.adresse,
+                                      tel:     partner.phone || partner.mobile || p.tel,
+                                      partner_id: partner.id,
+                                    }))}
+                                    placeholder="Jean Dupont"
+                                    inputStyle={{...inputStyle}}
+                                  />
+                                  {client.partner_id && (
+                                    <div className="lpc-linked-badge">✅ Contact Odoo lié</div>
+                                  )}
+                                </div>
+
+                                <div className="lpc-fg">
+                                  <label>Téléphone <span className="lpc-required">*</span></label>
+                                  <input value={client.tel} onChange={e=>setClient(p=>({...p,tel:e.target.value}))}
+                                    placeholder="0475/12 34 56" style={inputStyle}/>
+                                </div>
+
+                                <div className="lpc-fg">
+                                  <label>Date de visite</label>
+                                  <input type="date" value={client.date} onChange={e=>setClient(p=>({...p,date:e.target.value}))} style={inputStyle}/>
+                                </div>
                               </div>
-                              <div className="lpc-fg">
-                                <label>Date de visite</label>
-                                <input type="date" value={client.date} onChange={e=>setClient(p=>({...p,date:e.target.value}))} style={inputStyle}/>
+
+                              {/* ── Adresse du chantier ── */}
+                              <div className="lpc-sub-header" style={{marginTop:24}}>
+                                <span className="lpc-sub-icon">📍</span>
+                                <span>Adresse du chantier</span>
                               </div>
-                              <div className="lpc-fg">
-                                <label>Technicien / Commercial</label>
-                                <input value={client.technicien} onChange={e=>setClient(p=>({...p,technicien:e.target.value}))} placeholder="Prénom NOM" style={inputStyle}/>
+
+                              <div className="lpc-form-grid" style={{marginTop:16}}>
+                                <div className="lpc-fg full">
+                                  <label>Adresse complète <span className="lpc-required">*</span></label>
+                                  <AddressAutocomplete
+                                    value={client.adresse}
+                                    onChange={v=>setClient(p=>({...p,adresse:v}))}
+                                    placeholder="Rue de la Piscine 12, 5000 Namur"
+                                    inputStyle={{...inputStyle}}
+                                  />
+                                  {cfg.hasGooglePlaces==='true' && (
+                                    <div style={{fontSize:11,color:'#6b7a8d',marginTop:4,display:'flex',alignItems:'center',gap:4}}>
+                                      <span>📍</span> Autocomplétion Google Places activée
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                              <div className="lpc-fg">
-                                <label>Référence dossier</label>
-                                <input value={client.ref} onChange={e=>setClient(p=>({...p,ref:e.target.value}))} placeholder="LPS-2025-001" style={inputStyle}/>
+
+                              {/* ── Informations de l'intervention ── */}
+                              <div className="lpc-sub-header" style={{marginTop:24}}>
+                                <span className="lpc-sub-icon">🔧</span>
+                                <span>Informations de l'intervention</span>
+                              </div>
+
+                              <div className="lpc-form-grid" style={{marginTop:16}}>
+                                <div className="lpc-fg">
+                                  <label>Technicien / Commercial</label>
+                                  <input value={client.technicien} onChange={e=>setClient(p=>({...p,technicien:e.target.value}))}
+                                    placeholder="Prénom NOM" style={inputStyle}/>
+                                </div>
+                                <div className="lpc-fg">
+                                  <label>Référence dossier</label>
+                                  <input value={client.ref} onChange={e=>setClient(p=>({...p,ref:e.target.value}))}
+                                    placeholder="LPS-2025-001" style={inputStyle}/>
+                                </div>
                               </div>
                             </div>
                           </div>
+
                           <div className="lpc-acts no-print">
                             <button className="lpc-btn-s" onClick={()=>setStep(0)}>← Retour</button>
                             <div style={{flex:1}}/>
