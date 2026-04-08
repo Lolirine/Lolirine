@@ -303,112 +303,167 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                   );
                 }
 
-                /* ── Autocomplete adresse (Google Places + fallback Odoo partners) ── */
-                function AddressAutocomplete({value, onChange, placeholder, inputStyle}) {
+                /* ── Autocomplete adresse (Google Places avec split rue/cp/ville/pays) ── */
+                function AddressAutocomplete({valueRue, valueCp, valueVille, valuePays, onChangeFull, placeholder, inputStyle}) {
                   const inputRef = React.useRef(null);
-                  const [suggestions, setSugg] = React.useState([]);
-                  const [open, setOpen] = React.useState(false);
-                  const autocompleteRef = React.useRef(null);
+                  const [localVal, setLocalVal] = React.useState(valueRue||'');
+                  const [ready, setReady] = React.useState(false);
+
+                  React.useEffect(()=>{
+                    setLocalVal(valueRue||'');
+                  },[valueRue]);
 
                   React.useEffect(()=>{
                     const initAC = () => {
                       if(!inputRef.current || !window.google?.maps?.places) return;
                       const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
                         types:['address'],
-                        componentRestrictions:{country:['be','fr','lu','nl']},
-                        fields:['formatted_address','address_components','geometry'],
+                        componentRestrictions:{country:['be','fr','lu','nl','de']},
+                        fields:['address_components','formatted_address'],
                       });
                       ac.addListener('place_changed', ()=>{
                         const place = ac.getPlace();
-                        if(place.formatted_address) {
-                          onChange(place.formatted_address);
-                          setSugg([]); setOpen(false);
-                        }
+                        if(!place.address_components) return;
+                        const get = (types) => {
+                          const c = place.address_components.find(c=>types.some(t=>c.types.includes(t)));
+                          return c ? c.long_name : '';
+                        };
+                        const streetNum = get(['street_number']);
+                        const route     = get(['route']);
+                        const rue       = [route, streetNum].filter(Boolean).join(' ');
+                        const cp        = get(['postal_code']);
+                        const ville     = get(['locality','postal_town','sublocality']);
+                        const pays      = get(['country']);
+                        onChangeFull({ rue, cp, ville, pays });
+                        setLocalVal(rue);
                       });
-                      autocompleteRef.current = ac;
+                      setReady(true);
                     };
-
                     if(window.GOOGLE_PLACES_READY) { initAC(); }
-                    else { document.addEventListener('googlePlacesReady', initAC, {once:true}); }
+                    else {
+                      document.addEventListener('googlePlacesReady', initAC, {once:true});
+                      // Retry si déjà chargé mais événement manqué
+                      setTimeout(()=>{ if(window.google?.maps?.places) initAC(); }, 1000);
+                    }
                     return ()=>{ document.removeEventListener('googlePlacesReady', initAC); };
                   },[]);
 
-                  const handleChange = async(e) => {
-                    const v = e.target.value;
-                    onChange(v);
-                    // Si pas Google Places, recherche dans les partenaires Odoo
-                    if(!window.GOOGLE_PLACES_READY && v.length >= 2) {
-                      const partners = await searchPartners(v);
-                      const addrs = partners.filter(p=>p.street).map(p=>({
-                        label: `${p.name} — ${p.street}, ${p.zip||''} ${p.city||''}`.trim(),
-                        value: `${p.street}, ${p.zip||''} ${p.city||''}`.trim(),
-                        partner: p,
-                      }));
-                      setSugg(addrs); setOpen(addrs.length > 0);
-                    }
-                  };
-
                   return (
-                    <div style={{position:'relative'}}>
-                      <input ref={inputRef} value={value} onChange={handleChange}
-                        placeholder={placeholder}
-                        style={inputStyle}
-                        onBlur={()=>setTimeout(()=>setOpen(false),200)}/>
-                      {open && suggestions.length>0 && (
-                        <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#fff',border:'1.5px solid #dde4ed',borderRadius:8,boxShadow:'0 8px 24px rgba(0,0,0,.1)',zIndex:1000,maxHeight:200,overflowY:'auto'}}>
-                          {suggestions.map((s,i)=>(
-                            <div key={i} onMouseDown={()=>{ onChange(s.value); setSugg([]); setOpen(false); }}
-                              style={{padding:'8px 12px',fontSize:13,cursor:'pointer',borderBottom:'1px solid #f0f4f8'}}
-                              onMouseOver={e=>e.currentTarget.style.background='#f0f9ff'}
-                              onMouseOut={e=>e.currentTarget.style.background='#fff'}>
-                              📍 {s.label}
-                            </div>
+                    <div style={{display:'contents'}}>
+                      <div className="lpc-fg full">
+                        <label>Rue <span className="lpc-required">*</span></label>
+                        <input ref={inputRef} value={localVal}
+                          onChange={e=>{ setLocalVal(e.target.value); onChangeFull({rue:e.target.value,cp:valueCp,ville:valueVille,pays:valuePays}); }}
+                          placeholder="Rue de la Piscine 12"
+                          style={inputStyle}/>
+                        {!ready && (
+                          <div style={{fontSize:11,color:'#9ca3af',marginTop:3}}>
+                            💡 Tapez l'adresse — autocomplétion Google Places
+                          </div>
+                        )}
+                      </div>
+                      <div className="lpc-fg">
+                        <label>Code postal</label>
+                        <input value={valueCp}
+                          onChange={e=>onChangeFull({rue:localVal,cp:e.target.value,ville:valueVille,pays:valuePays})}
+                          placeholder="5000" style={inputStyle}/>
+                      </div>
+                      <div className="lpc-fg">
+                        <label>Ville</label>
+                        <input value={valueVille}
+                          onChange={e=>onChangeFull({rue:localVal,cp:valueCp,ville:e.target.value,pays:valuePays})}
+                          placeholder="Namur" style={inputStyle}/>
+                      </div>
+                      <div className="lpc-fg full">
+                        <label>Pays</label>
+                        <select value={valuePays}
+                          onChange={e=>onChangeFull({rue:localVal,cp:valueCp,ville:valueVille,pays:e.target.value})}
+                          style={{...inputStyle,cursor:'pointer'}}>
+                          {['Belgique','France','Luxembourg','Pays-Bas','Allemagne','Suisse'].map(p=>(
+                            <option key={p} value={p}>{p}</option>
                           ))}
-                        </div>
-                      )}
+                        </select>
+                      </div>
                     </div>
                   );
                 }
 
-                /* ── Client Autocomplete (nom → partenaire Odoo) ── */
-                function ClientAutocomplete({value, onChange, onSelectPartner, placeholder, inputStyle}) {
+                /* ── Client Autocomplete — prénom + nom séparés ── */
+                function ClientAutocomplete({valuePrenom, valueNom, onChangePrenom, onChangeNom, onSelectPartner}) {
                   const [suggestions, setSugg] = React.useState([]);
                   const [open, setOpen] = React.useState(false);
+                  const [activeField, setActiveField] = React.useState(null);
 
-                  const handleChange = async(e) => {
-                    const v = e.target.value;
-                    onChange(v);
+                  const fieldStyle = {
+                    border:'1.5px solid #e5e7eb',borderRadius:8,padding:'12px 16px',
+                    fontFamily:'inherit',fontSize:14,background:'#f9fafb',
+                    color:'#1a2332',width:'100%',transition:'all .2s',outline:'none',
+                  };
+
+                  const search = async(v, field) => {
+                    setActiveField(field);
                     if(v.length >= 2) {
                       const partners = await searchPartners(v);
                       setSugg(partners); setOpen(partners.length > 0);
                     } else { setSugg([]); setOpen(false); }
                   };
 
+                  const selectPartner = (p) => {
+                    // Tenter de séparer prénom/nom (premier mot = prénom)
+                    const parts = (p.name||'').trim().split(' ');
+                    const prenom = parts.length > 1 ? parts[0] : '';
+                    const nom    = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
+                    onChangePrenom(prenom);
+                    onChangeNom(nom);
+                    onSelectPartner(p);
+                    setSugg([]); setOpen(false);
+                  };
+
                   return (
-                    <div style={{position:'relative'}}>
-                      <input value={value} onChange={handleChange} placeholder={placeholder} style={inputStyle}
-                        onBlur={()=>setTimeout(()=>setOpen(false),200)}/>
-                      {open && suggestions.length>0 && (
-                        <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#fff',border:'1.5px solid #dde4ed',borderRadius:8,boxShadow:'0 8px 24px rgba(0,0,0,.1)',zIndex:1000,maxHeight:240,overflowY:'auto'}}>
-                          {suggestions.map((p,i)=>(
-                            <div key={i} onMouseDown={()=>{
-                                onChange(p.name);
-                                onSelectPartner(p);
-                                setSugg([]); setOpen(false);
-                              }}
-                              style={{padding:'9px 12px',fontSize:13,cursor:'pointer',borderBottom:'1px solid #f0f4f8',display:'flex',gap:8,alignItems:'flex-start'}}
-                              onMouseOver={e=>e.currentTarget.style.background='#f0f9ff'}
-                              onMouseOut={e=>e.currentTarget.style.background='#fff'}>
-                              <span style={{fontSize:18}}>👤</span>
-                              <div>
-                                <div style={{fontWeight:600}}>{p.name}</div>
-                                {p.street && <div style={{fontSize:11,color:'#6b7a8d'}}>{p.street}, {p.zip} {p.city}</div>}
-                                {p.phone && <div style={{fontSize:11,color:'#6b7a8d'}}>📞 {p.phone}</div>}
-                              </div>
-                            </div>
-                          ))}
+                    <div style={{display:'contents'}}>
+                      <div className="lpc-fg" style={{position:'relative'}}>
+                        <label>Prénom <span className="lpc-required">*</span></label>
+                        <input value={valuePrenom}
+                          onChange={e=>{ onChangePrenom(e.target.value); search(e.target.value,'prenom'); }}
+                          onBlur={()=>setTimeout(()=>setOpen(false),200)}
+                          placeholder="Jean" style={fieldStyle}/>
+                        {open && activeField==='prenom' && suggestions.length>0 && (
+                          <SuggDropdown suggestions={suggestions} onSelect={selectPartner}/>
+                        )}
+                      </div>
+                      <div className="lpc-fg" style={{position:'relative'}}>
+                        <label>Nom <span className="lpc-required">*</span></label>
+                        <input value={valueNom}
+                          onChange={e=>{ onChangeNom(e.target.value); search(e.target.value,'nom'); }}
+                          onBlur={()=>setTimeout(()=>setOpen(false),200)}
+                          placeholder="Dupont" style={fieldStyle}/>
+                        {open && activeField==='nom' && suggestions.length>0 && (
+                          <SuggDropdown suggestions={suggestions} onSelect={selectPartner}/>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+
+                function SuggDropdown({suggestions, onSelect}) {
+                  return (
+                    <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#fff',
+                      border:'1.5px solid #dde4ed',borderRadius:8,
+                      boxShadow:'0 8px 24px rgba(0,0,0,.12)',zIndex:2000,maxHeight:220,overflowY:'auto'}}>
+                      {suggestions.map((p,i)=>(
+                        <div key={i} onMouseDown={()=>onSelect(p)}
+                          style={{padding:'9px 12px',fontSize:13,cursor:'pointer',
+                            borderBottom:'1px solid #f0f4f8',display:'flex',gap:10,alignItems:'flex-start'}}
+                          onMouseOver={e=>e.currentTarget.style.background='#f0f9ff'}
+                          onMouseOut={e=>e.currentTarget.style.background='#fff'}>
+                          <span style={{fontSize:18,flexShrink:0}}>👤</span>
+                          <div>
+                            <div style={{fontWeight:700,color:'#1a2332'}}>{p.name}</div>
+                            {p.street && <div style={{fontSize:11,color:'#6b7a8d',marginTop:1}}>{p.street}, {p.zip} {p.city}</div>}
+                            {(p.phone||p.mobile) && <div style={{fontSize:11,color:'#6b7a8d'}}>📞 {p.phone||p.mobile}</div>}
+                          </div>
                         </div>
-                      )}
+                      ))}
                     </div>
                   );
                 }
@@ -725,8 +780,11 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                   const [intervention,setInt]= React.useState(null);
                   const [plan,setPlan]       = React.useState(null);
                   const [client,setClient]   = React.useState({
-                    nom:'', adresse:'', date:new Date().toISOString().slice(0,10),
-                    technicien:cfg.userName||'', ref:'', tel:'', partner_id:null
+                    prenom:'', nom:'', tel:'',
+                    rue:'', cp:'', ville:'', pays:'Belgique',
+                    date:new Date().toISOString().slice(0,10),
+                    technicien:cfg.userName||'', ref:'', type:'particulier',
+                    partner_id:null
                   });
                   const [statuses,setStatuses]       = React.useState({});
                   const [notes,setNotes]             = React.useState({});
@@ -791,7 +849,13 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                     try {
                       const r = await apiPost(cfg.saveEndpoint||'/pool-checklist/save', {
                         report_id:    reportId,
-                        ...client,
+                        nom:          [client.prenom, client.nom].filter(Boolean).join(' '),
+                        adresse:      [client.rue, client.cp, client.ville, client.pays].filter(Boolean).join(', '),
+                        tel:          client.tel,
+                        date:         client.date,
+                        ref:          client.ref,
+                        technicien:   client.technicien,
+                        partner_id:   client.partner_id,
                         intervention, plan,
                         checklist:    statuses,
                         products:     allProds,
@@ -828,7 +892,7 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                     const r = await apiPost(cfg.quoteEndpoint||'/pool-checklist/create-quote', {
                       report_id: reportId,
                       products:  allProds,
-                      client:    client,
+                      client: {...client, nom:[client.prenom,client.nom].filter(Boolean).join(' '), adresse:[client.rue,client.cp,client.ville,client.pays].filter(Boolean).join(', ')},
                     });
                     setSaveStatus(null);
                     if(r?.success) { setQuoteResult(r); }
@@ -925,33 +989,36 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                                 <span>Informations de contact</span>
                               </div>
 
+                              {/* Prénom + Nom */}
                               <div className="lpc-form-grid" style={{marginTop:16}}>
-                                <div className="lpc-fg full">
-                                  <label>Nom complet <span className="lpc-required">*</span></label>
-                                  <ClientAutocomplete
-                                    value={client.nom}
-                                    onChange={v=>setClient(p=>({...p,nom:v}))}
-                                    onSelectPartner={partner=>setClient(p=>({
-                                      ...p,
-                                      nom:     partner.name,
-                                      adresse: partner.street ? `${partner.street}, ${partner.zip||''} ${partner.city||''}`.trim() : p.adresse,
-                                      tel:     partner.phone || partner.mobile || p.tel,
-                                      partner_id: partner.id,
-                                    }))}
-                                    placeholder="Jean Dupont"
-                                    inputStyle={{...inputStyle}}
-                                  />
-                                  {client.partner_id && (
-                                    <div className="lpc-linked-badge">✅ Contact Odoo lié</div>
-                                  )}
-                                </div>
-
+                                <ClientAutocomplete
+                                  valuePrenom={client.prenom}
+                                  valueNom={client.nom}
+                                  onChangePrenom={v=>setClient(p=>({...p,prenom:v}))}
+                                  onChangeNom={v=>setClient(p=>({...p,nom:v}))}
+                                  onSelectPartner={partner=>{
+                                    const parts=(partner.name||'').trim().split(' ');
+                                    setClient(p=>({...p,
+                                      prenom:    parts.length>1?parts[0]:'',
+                                      nom:       parts.length>1?parts.slice(1).join(' '):parts[0],
+                                      tel:       partner.phone||partner.mobile||p.tel,
+                                      rue:       partner.street||p.rue,
+                                      cp:        partner.zip||p.cp,
+                                      ville:     partner.city||p.ville,
+                                      partner_id:partner.id,
+                                    }));
+                                  }}
+                                />
+                                {client.partner_id && (
+                                  <div className="lpc-fg full">
+                                    <div className="lpc-linked-badge">✅ Contact Odoo #{client.partner_id} lié — champs pré-remplis</div>
+                                  </div>
+                                )}
                                 <div className="lpc-fg">
                                   <label>Téléphone <span className="lpc-required">*</span></label>
                                   <input value={client.tel} onChange={e=>setClient(p=>({...p,tel:e.target.value}))}
                                     placeholder="0475/12 34 56" style={inputStyle}/>
                                 </div>
-
                                 <div className="lpc-fg">
                                   <label>Date de visite</label>
                                   <input type="date" value={client.date} onChange={e=>setClient(p=>({...p,date:e.target.value}))} style={inputStyle}/>
@@ -965,20 +1032,20 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                               </div>
 
                               <div className="lpc-form-grid" style={{marginTop:16}}>
-                                <div className="lpc-fg full">
-                                  <label>Adresse complète <span className="lpc-required">*</span></label>
-                                  <AddressAutocomplete
-                                    value={client.adresse}
-                                    onChange={v=>setClient(p=>({...p,adresse:v}))}
-                                    placeholder="Rue de la Piscine 12, 5000 Namur"
-                                    inputStyle={{...inputStyle}}
-                                  />
-                                  {cfg.hasGooglePlaces==='true' && (
-                                    <div style={{fontSize:11,color:'#6b7a8d',marginTop:4,display:'flex',alignItems:'center',gap:4}}>
-                                      <span>📍</span> Autocomplétion Google Places activée
-                                    </div>
-                                  )}
-                                </div>
+                                <AddressAutocomplete
+                                  valueRue={client.rue}
+                                  valueCp={client.cp}
+                                  valueVille={client.ville}
+                                  valuePays={client.pays}
+                                  onChangeFull={({rue,cp,ville,pays})=>setClient(p=>({
+                                    ...p,
+                                    rue:  rue  !== undefined ? rue  : p.rue,
+                                    cp:   cp   !== undefined ? cp   : p.cp,
+                                    ville:ville !== undefined ? ville: p.ville,
+                                    pays: pays !== undefined ? pays : p.pays,
+                                  }))}
+                                  inputStyle={inputStyle}
+                                />
                               </div>
 
                               {/* ── Informations de l'intervention ── */}
@@ -1037,7 +1104,7 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                           {/* Print header */}
                           <div className="lpc-print-hdr">
                             <div className="lpc-sumbox" style={{display:'flex'}}>
-                              {[['Client',client.nom],['Adresse',client.adresse],['Tél',client.tel],['Date',client.date],['Technicien',client.technicien],['Réf.',client.ref],['Intervention',intData?.label]].filter(([,v])=>v).map(([l,v])=>(
+                              {[["Client",[client.prenom,client.nom].filter(Boolean).join(' ')],["Adresse",[client.rue,client.cp,client.ville,client.pays].filter(Boolean).join(', ')],["Tél",client.tel],["Date",client.date],["Technicien",client.technicien],["Réf.",client.ref],["Intervention",intData?.label]].filter(([,v])=>v).map(([l,v])=>(
                                 <div key={l} className="lpc-si2"><span>{l}</span><strong>{v}</strong></div>
                               ))}
                             </div>
@@ -1045,7 +1112,7 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
 
                           {/* Barre résumé */}
                           <div className="lpc-sumbox no-print">
-                            <div className="lpc-si2"><span>Client</span><strong>{client.nom||'—'}</strong></div>
+                            <div className="lpc-si2"><span>Client</span><strong>{[client.prenom,client.nom].filter(Boolean).join(' ')||'—'}</strong></div>
                             <div className="lpc-si2"><span>Date</span><strong>{client.date}</strong></div>
                             <div className="lpc-si2"><span>Intervention</span><strong style={{color:accent}}>{intData?.label}</strong></div>
                             {plan && <div className="lpc-si2"><span>Plan</span><strong>{POOL_PLANS.find(p=>p.id===plan)?.label}</strong></div>}
