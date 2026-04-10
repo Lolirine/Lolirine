@@ -222,7 +222,16 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                 function lsLoad() {
                   try { return JSON.parse(localStorage.getItem(LS_KEY)||'null'); } catch(e){ return null; }
                 }
+
                 function lsClear() { try { localStorage.removeItem(LS_KEY); } catch(e){} }
+
+                /* ── Statuts des points de contrôle ── */
+                const STATUS_CONFIG = {
+                  pending: {icon:'⬜', label:'Non vérifié',   bg:'transparent', color:'#6b7a8d'},
+                  ok:      {icon:'✅', label:'Conforme',       bg:'#dcfce7',     color:'#166534'},
+                  warn:    {icon:'⚠️', label:'À surveiller',  bg:'#fef3c7',     color:'#92400e'},
+                  action:  {icon:'❌', label:'Action requise', bg:'#fee2e2',     color:'#991b1b'},
+                };
 
                 /* ════════════════════════════════════════════════════════
                    Composants UI réutilisables
