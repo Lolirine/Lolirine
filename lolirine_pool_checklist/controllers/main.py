@@ -23,7 +23,7 @@ class PoolChecklistController(http.Controller):
         is_logged = not user._is_public()
         # Récupérer la clé Google Maps depuis les paramètres système
         google_key = request.env['ir.config_parameter'].sudo().get_param(
-            'google.api_key', default='')
+            'google_address_autocomplete.google_places_api_key', default='')
         return request.render('lolirine_pool_checklist.page_checklist', {
             'website_id':  POOL_STORE_WEBSITE_ID,
             'is_logged_in': is_logged,
