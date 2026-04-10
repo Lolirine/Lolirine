@@ -214,6 +214,42 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                   } catch(e) { return []; }
                 }
 
+                /* ── Validation TVA via VIES (endpoint Odoo natif) ── */
+                async function checkVatVies(vat) {
+                  if(!vat || vat.trim().length < 8) return null;
+                  try {
+                    const r = await apiPost('/web/dataset/call_kw', {
+                      model:  'res.partner',
+                      method: 'simple_vat_check',
+                      args:   [vat.trim().toUpperCase()],
+                      kwargs: {},
+                    });
+                    return r;
+                  } catch(e) { return null; }
+                }
+
+                async function checkVatOdoo(vat) {
+                  if(!vat || vat.trim().length < 8) return null;
+                  try {
+                    // Utilise le module base_vat natif Odoo
+                    const r = await apiPost('/web/dataset/call_kw', {
+                      model:  'res.partner',
+                      method: 'check_vat',
+                      args:   [],
+                      kwargs: {vat: vat.trim().toUpperCase()},
+                    });
+                    if(r?.vat_formatted || r?.name) {
+                      return {
+                        valid:   true,
+                        name:    r.name    || '',
+                        address: r.address || '',
+                        vat:     r.vat_formatted || vat,
+                      };
+                    }
+                    return {valid: !!r, name:'', address:'', vat:vat};
+                  } catch(e) { return null; }
+                }
+
                 /* Auto-save localStorage */
                 const LS_KEY = 'lpc_draft_v2';
                 function lsSave(data) {
@@ -931,6 +967,7 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                   const [plan,setPlan]       = React.useState(null);
                   const [client,setClient]   = React.useState({
                     prenom:'', nom:'', tel:'',
+                    societe:'', tva:'', tvaStatus:null, tvaLoading:false,
                     rue:'', cp:'', ville:'', pays:'Belgique',
                     date:new Date().toISOString().slice(0,10),
                     technicien:cfg.userName||'', ref:'', type:'particulier',
@@ -1000,6 +1037,9 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                       const r = await apiPost(cfg.saveEndpoint||'/pool-checklist/save', {
                         report_id:    reportId,
                         nom:          [client.prenom, client.nom].filter(Boolean).join(' '),
+                        societe:      client.societe||'',
+                        tva:          client.tva||'',
+                        type_client:  client.type||'particulier',
                         adresse:      [client.rue, client.cp, client.ville, client.pays].filter(Boolean).join(', '),
                         tel:          client.tel,
                         date:         client.date,
@@ -1133,6 +1173,79 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                                 ))}
                               </div>
 
+                              {/* ── Champs Professionnel ── */}
+                              {(client.type||'particulier')==='professionnel' && (
+                                <>
+                                  <div className="lpc-sub-header">
+                                    <span className="lpc-sub-icon">🏢</span>
+                                    <span>Informations entreprise</span>
+                                  </div>
+                                  <div className="lpc-form-grid" style={{marginTop:12,marginBottom:20}}>
+                                    <div className="lpc-fg full">
+                                      <label>Dénomination sociale <span className="lpc-required">*</span></label>
+                                      <input value={client.societe}
+                                        onChange={e=>setClient(p=>({...p,societe:e.target.value}))}
+                                        placeholder="ACME SRL, Dupont & Associés SA…"
+                                        style={{border:'1.5px solid #e5e7eb',borderRadius:8,padding:'12px 16px',
+                                          fontFamily:'inherit',fontSize:14,background:'#f9fafb',
+                                          color:'#1a2332',width:'100%',outline:'none'}}/>
+                                    </div>
+                                    <div className="lpc-fg full">
+                                      <label>Numéro de TVA</label>
+                                      <div style={{position:'relative',display:'flex',gap:8}}>
+                                        <input value={client.tva}
+                                          onChange={e=>{
+                                            const v = e.target.value;
+                                            setClient(p=>({...p,tva:v,tvaStatus:null}));
+                                          }}
+                                          onBlur={async(e)=>{
+                                            const v = e.target.value.trim();
+                                            if(!v || v.length < 8) return;
+                                            setClient(p=>({...p,tvaLoading:true,tvaStatus:null}));
+                                            const result = await checkVatOdoo(v);
+                                            if(result?.valid && result?.name) {
+                                              setClient(p=>({
+                                                ...p,
+                                                tvaLoading:false,
+                                                tvaStatus:'valid',
+                                                societe: p.societe || result.name,
+                                              }));
+                                            } else if(result !== null) {
+                                              setClient(p=>({...p,tvaLoading:false,tvaStatus:'invalid'}));
+                                            } else {
+                                              setClient(p=>({...p,tvaLoading:false,tvaStatus:null}));
+                                            }
+                                          }}
+                                          placeholder="BE0650.891.279"
+                                          style={{flex:1,border:`1.5px solid ${client.tvaStatus==='valid'?'#10b981':client.tvaStatus==='invalid'?'#ef4444':'#e5e7eb'}`,
+                                            borderRadius:8,padding:'12px 16px',fontFamily:'inherit',
+                                            fontSize:14,background:'#f9fafb',color:'#1a2332',outline:'none'}}/>
+                                        {/* Indicateur de statut TVA */}
+                                        <div style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',fontSize:16}}>
+                                          {client.tvaLoading && <span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⟳</span>}
+                                          {!client.tvaLoading && client.tvaStatus==='valid'   && <span title="TVA valide">✅</span>}
+                                          {!client.tvaLoading && client.tvaStatus==='invalid' && <span title="TVA invalide">❌</span>}
+                                        </div>
+                                      </div>
+                                      {client.tvaStatus==='valid' && (
+                                        <div style={{fontSize:11,color:'#059669',marginTop:4,display:'flex',gap:4,alignItems:'center'}}>
+                                          ✅ Numéro de TVA vérifié via VIES Odoo
+                                          {client.societe && <span>— <strong>{client.societe}</strong></span>}
+                                        </div>
+                                      )}
+                                      {client.tvaStatus==='invalid' && (
+                                        <div style={{fontSize:11,color:'#ef4444',marginTop:4}}>
+                                          ❌ Numéro de TVA invalide ou non trouvé
+                                        </div>
+                                      )}
+                                      <div style={{fontSize:11,color:'#9ca3af',marginTop:3}}>
+                                        Format : BE0000.000.000 — La vérification se fait à la perte du focus
+                                      </div>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+
                               {/* ── Informations de contact ── */}
                               <div className="lpc-sub-header">
                                 <span className="lpc-sub-icon">📋</span>
@@ -1148,9 +1261,13 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                                   onChangeNom={v=>setClient(p=>({...p,nom:v}))}
                                   onSelectPartner={partner=>{
                                     const parts=(partner.name||'').trim().split(' ');
+                                    const isCompany = partner.company_name || partner.is_company;
                                     setClient(p=>({...p,
-                                      prenom:    parts.length>1?parts[0]:'',
-                                      nom:       parts.length>1?parts.slice(1).join(' '):parts[0],
+                                      prenom:    isCompany?p.prenom:(parts.length>1?parts[0]:''),
+                                      nom:       isCompany?p.nom:(parts.length>1?parts.slice(1).join(' '):parts[0]),
+                                      societe:   partner.company_name||partner.name||p.societe,
+                                      tva:       partner.vat||p.tva,
+                                      type:      isCompany?'professionnel':p.type,
                                       tel:       partner.phone||partner.mobile||p.tel,
                                       rue:       partner.street||p.rue,
                                       cp:        partner.zip||p.cp,
@@ -1254,7 +1371,7 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                           {/* Print header */}
                           <div className="lpc-print-hdr">
                             <div className="lpc-sumbox" style={{display:'flex'}}>
-                              {[["Client",[client.prenom,client.nom].filter(Boolean).join(' ')],["Adresse",[client.rue,client.cp,client.ville,client.pays].filter(Boolean).join(', ')],["Tél",client.tel],["Date",client.date],["Technicien",client.technicien],["Réf.",client.ref],["Intervention",intData?.label]].filter(([,v])=>v).map(([l,v])=>(
+                              {[["Client",[client.prenom,client.nom].filter(Boolean).join(' ')],client.societe&&["Société",client.societe],client.tva&&["TVA",client.tva],["Adresse",[client.rue,client.cp,client.ville,client.pays].filter(Boolean).join(', ')],["Tél",client.tel],["Date",client.date],["Technicien",client.technicien],["Réf.",client.ref],["Intervention",intData?.label]].filter(Boolean).filter(([,v])=>v).map(([l,v])=>(
                                 <div key={l} className="lpc-si2"><span>{l}</span><strong>{v}</strong></div>
                               ))}
                             </div>
