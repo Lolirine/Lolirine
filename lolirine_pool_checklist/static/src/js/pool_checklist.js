@@ -472,6 +472,7 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                   const [sel,setSel]        = React.useState({});
                   const [qtys,setQtys]      = React.useState({});
                   const [zoom,setZoom]      = React.useState(null);
+                  const [openCats,setOpenCats] = React.useState({});   // catégories ouvertes
 
                   const search = async(query) => {
                     if(!query.trim()) return;
@@ -479,130 +480,336 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                     try {
                       let r = await searchOdooProducts(query);
                       if(!r) r = await suggestViaAI(itemText, sectionLabel);
-                      setAll(r?.products||[]); setSource(r?.source||null);
+                      const prods = r?.products||[];
+                      setAll(prods); setSource(r?.source||null);
+                      // Ouvrir auto la 1ère catégorie avec fournisseur
+                      const firstWithSupplier = prods.find(p=>(p.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp'));
+                      if(firstWithSupplier) {
+                        setOpenCats({[firstWithSupplier.category||'Général']:true});
+                      }
                     } catch(e) { setAll([]); }
                     setLoading(false);
                   };
 
                   React.useEffect(()=>{ search(autoKw); },[]);
 
+                  // Filtrage par onglet fournisseur
                   const results = React.useMemo(()=>{
                     if(tab==='all') return allResults;
                     return allResults.filter(p=>(p.suppliers||[]).some(s=>s.type===tab));
                   },[allResults,tab]);
 
+                  // Comptages
                   const counts = React.useMemo(()=>({
                     all:     allResults.length,
                     fluidra: allResults.filter(p=>(p.suppliers||[]).some(s=>s.type==='fluidra')).length,
                     scp:     allResults.filter(p=>(p.suppliers||[]).some(s=>s.type==='scp')).length,
                   }),[allResults]);
 
-                  const toggle = i=>setSel(p=>({...p,[i]:!p[i]}));
-                  const setQty = (i,v)=>setQtys(p=>({...p,[i]:v}));
-                  const selCount = Object.values(sel).filter(Boolean).length;
-                  const confirm = ()=>{ onAdd(results.filter((_,i)=>sel[i]).map((p,i)=>({...p,qty:Number(qtys[i]||1)}))); onClose(); };
+                  // Groupement par catégorie — fournisseurs connus en premier dans chaque groupe
+                  const grouped = React.useMemo(()=>{
+                    const groups = {};
+                    results.forEach(p=>{
+                      const cat = p.category||'Général';
+                      if(!groups[cat]) groups[cat] = {withSupplier:[], other:[]};
+                      const hasS = (p.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp');
+                      if(hasS) groups[cat].withSupplier.push(p);
+                      else      groups[cat].other.push(p);
+                    });
+                    // Trier les catégories : celles avec fournisseurs connus en tête
+                    return Object.entries(groups).sort(([,a],[,b])=>
+                      b.withSupplier.length - a.withSupplier.length
+                    );
+                  },[results]);
+
+                  const toggleCat = (cat) => setOpenCats(p=>({...p,[cat]:!p[cat]}));
+                  const toggle    = (uid) => setSel(p=>({...p,[uid]:!p[uid]}));
+                  const setQty    = (uid,v) => setQtys(p=>({...p,[uid]:v}));
+                  const selCount  = Object.values(sel).filter(Boolean).length;
+
+                  // uid unique = index global
+                  const productUid = (p) => `${p.id||p.name}_${p.ref||''}`;
+
+                  const confirm = () => {
+                    const added = results
+                      .filter(p=>sel[productUid(p)])
+                      .map(p=>({...p, qty:Number(qtys[productUid(p)]||1)}));
+                    onAdd(added);
+                    onClose();
+                  };
 
                   const TAB_S = (active,color='#0ea5e9')=>({
-                    padding:'7px 14px',border:'none',cursor:'pointer',fontFamily:'inherit',
-                    fontSize:13,fontWeight:600,background:'transparent',
+                    padding:'7px 14px', border:'none', cursor:'pointer', fontFamily:'inherit',
+                    fontSize:13, fontWeight:600, background:'transparent',
                     borderBottom:`3px solid ${active?color:'transparent'}`,
-                    color:active?color:'#6b7a8d',transition:'all .15s',whiteSpace:'nowrap',
+                    color:active?color:'#6b7a8d', transition:'all .15s', whiteSpace:'nowrap',
                   });
+
+                  // Composant ligne produit (liste déroulante)
+                  const ProductRow = ({p, uid}) => {
+                    const hasS  = (p.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp');
+                    const mainS = (p.suppliers||[]).find(s=>s.type!=='other')||(p.suppliers||[])[0];
+                    const isSelected = !!sel[uid];
+                    return (
+                      <div onClick={()=>toggle(uid)}
+                        style={{display:'flex',gap:0,borderRadius:10,overflow:'hidden',
+                          border:`2px solid ${isSelected?'#0ea5e9':hasS?'#bfdbfe':'#e8edf3'}`,
+                          background:isSelected?'rgba(14,165,233,0.04)':'#fff',
+                          boxShadow:isSelected?'0 4px 14px rgba(14,165,233,.15)':hasS?'0 2px 8px rgba(37,99,235,0.06)':'0 1px 3px rgba(0,0,0,.04)',
+                          cursor:'pointer', transition:'all .18s', marginBottom:6}}>
+
+                        {/* Barre couleur fournisseur */}
+                        {hasS && <div style={{width:4,flexShrink:0,
+                          background:(p.suppliers||[]).find(s=>s.type==='fluidra')?'#1d4ed8':'#16a34a'}}/>}
+
+                        {/* Image */}
+                        <div style={{width:80,flexShrink:0,background:'#f8fafc',display:'flex',
+                          alignItems:'center',justifyContent:'center',position:'relative',
+                          borderRight:'1px solid #f0f4f8',minHeight:72}}>
+                          {p.image ? (
+                            <>
+                              <img src={p.image} alt={p.name}
+                                style={{maxWidth:72,maxHeight:64,objectFit:'contain',padding:4}}/>
+                              <button onClick={e=>{e.stopPropagation();setZoom({src:p.image,name:p.name});}}
+                                style={{position:'absolute',bottom:2,right:2,background:'rgba(0,0,0,.45)',
+                                  border:'none',borderRadius:4,padding:'2px 5px',cursor:'pointer',
+                                  fontSize:11,color:'#fff',lineHeight:1}}>🔍</button>
+                            </>
+                          ) : <span style={{fontSize:26,opacity:.25}}>🏊</span>}
+                        </div>
+
+                        {/* Infos */}
+                        <div style={{flex:1,padding:'9px 12px',display:'flex',flexDirection:'column',gap:4,minWidth:0}}>
+                          <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
+                            {/* Checkbox */}
+                            <div style={{width:19,height:19,border:`2px solid ${isSelected?'#0ea5e9':'#d1d5db'}`,
+                              borderRadius:5,background:isSelected?'#0ea5e9':'#fff',
+                              display:'grid',placeItems:'center',flexShrink:0,marginTop:2}}>
+                              {isSelected&&<span style={{color:'#fff',fontSize:11,fontWeight:800}}>✓</span>}
+                            </div>
+                            <div style={{flex:1,minWidth:0}}>
+                              <div style={{fontWeight:700,fontSize:13,lineHeight:1.3,color:'#1a2332'}}>{p.name}</div>
+                              {p.category&&<div style={{fontSize:11,color:'#94a3b8',marginTop:1}}>{p.category}</div>}
+                            </div>
+                            {p.price>0 && <span style={{fontWeight:700,fontSize:14,color:'#0ea5e9',flexShrink:0,whiteSpace:'nowrap'}}>{p.price.toFixed(2)} €</span>}
+                          </div>
+
+                          {/* Refs + fournisseurs */}
+                          <div style={{display:'flex',gap:5,flexWrap:'wrap',alignItems:'center'}}>
+                            {p.ref&&<span style={{background:'#f0f4f8',padding:'1px 6px',borderRadius:4,
+                              fontSize:11,fontFamily:'monospace',color:'#64748b'}}>{p.ref}</span>}
+                            {(p.suppliers||[]).map((s,si)=>(
+                              <span key={si} style={{display:'inline-flex',gap:4,alignItems:'center'}}>
+                                <SupplierBadge type={s.type} name={s.name}/>
+                                {s.ref&&<span style={{fontFamily:'monospace',fontSize:11,color:'#64748b'}}>#{s.ref}</span>}
+                                {s.price>0&&<span style={{fontSize:11,color:'#059669',fontWeight:700}}>{s.price.toFixed(2)} €</span>}
+                              </span>
+                            ))}
+                          </div>
+
+                          {/* Quantité */}
+                          {isSelected&&(
+                            <div style={{display:'flex',alignItems:'center',gap:6,marginTop:2}}
+                              onClick={e=>e.stopPropagation()}>
+                              <span style={{fontSize:12,color:'#6b7a8d',fontWeight:600}}>Qté :</span>
+                              <div style={{display:'flex',alignItems:'center',border:'2px solid #0ea5e9',
+                                borderRadius:8,overflow:'hidden'}}>
+                                <button onClick={e=>{e.stopPropagation();setQty(uid,Math.max(1,Number(qtys[uid]||1)-1));}}
+                                  style={{background:'#f0f9ff',border:'none',padding:'3px 9px',cursor:'pointer',
+                                    fontSize:14,color:'#0ea5e9',fontWeight:700}}>−</button>
+                                <input type="number" min="1" value={qtys[uid]||1}
+                                  onChange={e=>setQty(uid,e.target.value)}
+                                  style={{width:46,textAlign:'center',border:'none',padding:'3px 4px',
+                                    fontSize:13,fontFamily:'inherit',fontWeight:700,outline:'none'}}/>
+                                <button onClick={e=>{e.stopPropagation();setQty(uid,Number(qtys[uid]||1)+1);}}
+                                  style={{background:'#f0f9ff',border:'none',padding:'3px 9px',cursor:'pointer',
+                                    fontSize:14,color:'#0ea5e9',fontWeight:700}}>+</button>
+                              </div>
+                              <span style={{fontSize:12,color:'#6b7a8d'}}>{p.unit||'pièce(s)'}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  };
 
                   return (
                     <>
                       {zoom && <ImageZoom src={zoom.src} name={zoom.name} onClose={()=>setZoom(null)}/>}
-                      <div style={{position:'fixed',inset:0,background:'rgba(10,20,40,0.65)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
-                        <div style={{background:'#f0f4f8',borderRadius:20,width:'100%',maxWidth:900,maxHeight:'92vh',display:'flex',flexDirection:'column',boxShadow:'0 28px 90px rgba(0,0,0,.3)',overflow:'hidden'}}>
-                          <div style={{padding:'15px 20px',borderBottom:'1.5px solid #dde4ed',display:'flex',gap:12,alignItems:'flex-start',background:'#fff'}}>
+                      <div style={{position:'fixed',inset:0,background:'rgba(10,20,40,0.65)',zIndex:9999,
+                        display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
+                        <div style={{background:'#f0f4f8',borderRadius:20,width:'100%',maxWidth:920,
+                          maxHeight:'93vh',display:'flex',flexDirection:'column',
+                          boxShadow:'0 28px 90px rgba(0,0,0,.3)',overflow:'hidden'}}>
+
+                          {/* Header */}
+                          <div style={{padding:'15px 20px',borderBottom:'1.5px solid #dde4ed',
+                            display:'flex',gap:12,alignItems:'flex-start',background:'#fff'}}>
                             <div style={{flex:1}}>
                               <div style={{fontWeight:700,fontSize:15}}>🛒 Lier des produits à ce point</div>
-                              <div style={{fontSize:12,color:'#6b7a8d',marginTop:3}}>{itemText.slice(0,90)}{itemText.length>90?'…':''}</div>
+                              <div style={{fontSize:12,color:'#6b7a8d',marginTop:3}}>
+                                {itemText.slice(0,90)}{itemText.length>90?'…':''}
+                              </div>
                             </div>
-                            <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:8,padding:'5px 12px',cursor:'pointer',fontSize:14,color:'#6b7a8d'}}>✕</button>
+                            <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',
+                              borderRadius:8,padding:'5px 12px',cursor:'pointer',fontSize:14,color:'#6b7a8d'}}>✕</button>
                           </div>
-                          <div style={{padding:'10px 20px',borderBottom:'1px solid #dde4ed',display:'flex',gap:8,background:'#fff'}}>
-                            <input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==='Enter'&&search(q)}
+
+                          {/* Barre de recherche */}
+                          <div style={{padding:'10px 20px',borderBottom:'1px solid #dde4ed',
+                            display:'flex',gap:8,background:'#fff'}}>
+                            <input value={q} onChange={e=>setQ(e.target.value)}
+                              onKeyDown={e=>e.key==='Enter'&&search(q)}
                               placeholder="Nom de produit, référence, marque…"
-                              style={{flex:1,border:'2px solid #dde4ed',borderRadius:10,padding:'9px 13px',fontFamily:'inherit',fontSize:14,outline:'none',background:'#f8fafc'}}/>
-                            <button onClick={()=>search(q)} style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:10,padding:'9px 20px',fontWeight:700,cursor:'pointer',fontSize:14}}>
+                              style={{flex:1,border:'2px solid #dde4ed',borderRadius:10,
+                                padding:'9px 13px',fontFamily:'inherit',fontSize:14,
+                                outline:'none',background:'#f8fafc'}}/>
+                            <button onClick={()=>search(q)}
+                              style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:10,
+                                padding:'9px 20px',fontWeight:700,cursor:'pointer',fontSize:14}}>
                               {loading?'…':'Chercher'}
                             </button>
                           </div>
-                          {allResults.length>0 && (
-                            <div style={{display:'flex',alignItems:'center',background:'#fff',borderBottom:'1px solid #dde4ed',paddingLeft:20,paddingRight:20,overflowX:'auto'}}>
-                              <button style={TAB_S(tab==='all')} onClick={()=>setTab('all')}>Tous <span style={{marginLeft:5,background:tab==='all'?'#0ea5e9':'#f0f4f8',color:tab==='all'?'#fff':'#6b7a8d',borderRadius:10,padding:'1px 7px',fontSize:11,fontWeight:700}}>{counts.all}</span></button>
-                              {counts.fluidra>0 && <button style={TAB_S(tab==='fluidra','#1d4ed8')} onClick={()=>setTab('fluidra')}>Fluidra/SIBO <span style={{marginLeft:5,background:tab==='fluidra'?'#1d4ed8':'#f0f4f8',color:tab==='fluidra'?'#fff':'#6b7a8d',borderRadius:10,padding:'1px 7px',fontSize:11,fontWeight:700}}>{counts.fluidra}</span></button>}
-                              {counts.scp>0 && <button style={TAB_S(tab==='scp','#166534')} onClick={()=>setTab('scp')}>SCP Bénélux <span style={{marginLeft:5,background:tab==='scp'?'#166534':'#f0f4f8',color:tab==='scp'?'#fff':'#6b7a8d',borderRadius:10,padding:'1px 7px',fontSize:11,fontWeight:700}}>{counts.scp}</span></button>}
-                              {source && <span style={{marginLeft:'auto',fontSize:11,fontWeight:700,padding:'2px 9px',borderRadius:20,background:source==='odoo'?'#dcfce7':'#fef3c7',color:source==='odoo'?'#166534':'#92400e'}}>{source==='odoo'?'✅ Live':'✨ IA'}</span>}
+
+                          {/* Onglets fournisseurs */}
+                          {allResults.length>0&&(
+                            <div style={{display:'flex',alignItems:'center',background:'#fff',
+                              borderBottom:'1px solid #dde4ed',paddingLeft:20,paddingRight:20,overflowX:'auto'}}>
+                              <button style={TAB_S(tab==='all')} onClick={()=>setTab('all')}>
+                                Tous <span style={{marginLeft:5,background:tab==='all'?'#0ea5e9':'#f0f4f8',
+                                  color:tab==='all'?'#fff':'#6b7a8d',borderRadius:10,padding:'1px 7px',
+                                  fontSize:11,fontWeight:700}}>{counts.all}</span>
+                              </button>
+                              {counts.fluidra>0&&(
+                                <button style={TAB_S(tab==='fluidra','#1d4ed8')} onClick={()=>setTab('fluidra')}>
+                                  Fluidra / SIBO <span style={{marginLeft:5,background:tab==='fluidra'?'#1d4ed8':'#f0f4f8',
+                                    color:tab==='fluidra'?'#fff':'#6b7a8d',borderRadius:10,padding:'1px 7px',
+                                    fontSize:11,fontWeight:700}}>{counts.fluidra}</span>
+                                </button>
+                              )}
+                              {counts.scp>0&&(
+                                <button style={TAB_S(tab==='scp','#166534')} onClick={()=>setTab('scp')}>
+                                  SCP Bénélux <span style={{marginLeft:5,background:tab==='scp'?'#166534':'#f0f4f8',
+                                    color:tab==='scp'?'#fff':'#6b7a8d',borderRadius:10,padding:'1px 7px',
+                                    fontSize:11,fontWeight:700}}>{counts.scp}</span>
+                                </button>
+                              )}
+                              {source&&<span style={{marginLeft:'auto',fontSize:11,fontWeight:700,
+                                padding:'2px 9px',borderRadius:20,
+                                background:source==='odoo'?'#dcfce7':'#fef3c7',
+                                color:source==='odoo'?'#166534':'#92400e'}}>
+                                {source==='odoo'?'✅ Catalogue live':'✨ Suggestions IA'}
+                              </span>}
                             </div>
                           )}
+
+                          {/* Résultats groupés par catégorie */}
                           <div style={{flex:1,overflowY:'auto',padding:'12px 20px'}}>
-                            {loading && <div style={{padding:50,textAlign:'center',color:'#6b7a8d',fontSize:32}}>🔄</div>}
-                            {!loading && results.length===0 && source && <div style={{padding:30,textAlign:'center',color:'#6b7a8d',fontSize:13}}>Aucun résultat.</div>}
-                            <div style={{display:'flex',flexDirection:'column',gap:6}}>
-                              {results.map((p,i)=>{
-                                const hasS=(p.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp');
-                                const mainS=(p.suppliers||[]).find(s=>s.type!=='other')||(p.suppliers||[])[0];
-                                return (
-                                  <div key={i} onClick={()=>toggle(i)}
-                                    style={{display:'flex',gap:0,borderRadius:11,overflow:'hidden',
-                                      border:`2px solid ${sel[i]?'#0ea5e9':hasS?'#bfdbfe':'#e8edf3'}`,
-                                      background:sel[i]?'rgba(14,165,233,0.04)':'#fff',
-                                      boxShadow:sel[i]?'0 4px 14px rgba(14,165,233,.15)':'0 1px 4px rgba(0,0,0,.05)',
-                                      cursor:'pointer',transition:'all .18s'}}>
-                                    {hasS && <div style={{width:4,flexShrink:0,background:(p.suppliers||[]).find(s=>s.type==='fluidra')?'#1d4ed8':'#16a34a'}}/>}
-                                    <div style={{width:86,flexShrink:0,background:'#f8fafc',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',borderRight:'1px solid #f0f4f8'}}>
-                                      {p.image ? (
-                                        <><img src={p.image} alt={p.name} style={{width:76,height:68,objectFit:'contain',padding:4}}/>
-                                          <button onClick={e=>{e.stopPropagation();setZoom({src:p.image,name:p.name});}}
-                                            style={{position:'absolute',bottom:3,right:3,background:'rgba(0,0,0,.45)',border:'none',borderRadius:4,padding:'2px 5px',cursor:'pointer',fontSize:11,color:'#fff'}}>🔍</button>
-                                        </>
-                                      ) : <span style={{fontSize:26,opacity:.3}}>🏊</span>}
-                                    </div>
-                                    <div style={{flex:1,padding:'9px 12px',display:'flex',flexDirection:'column',gap:4,minWidth:0}}>
-                                      <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
-                                        <div style={{width:19,height:19,border:`2px solid ${sel[i]?'#0ea5e9':'#d1d5db'}`,borderRadius:5,background:sel[i]?'#0ea5e9':'#fff',display:'grid',placeItems:'center',flexShrink:0,marginTop:1}}>
-                                          {sel[i]&&<span style={{color:'#fff',fontSize:11,fontWeight:800}}>✓</span>}
-                                        </div>
-                                        <div style={{flex:1,minWidth:0}}>
-                                          <div style={{fontWeight:700,fontSize:13,lineHeight:1.3,color:'#1a2332'}}>{p.name}</div>
-                                          {p.category&&<div style={{fontSize:11,color:'#94a3b8'}}>{p.category}</div>}
-                                        </div>
-                                        {p.price>0&&<span style={{fontWeight:700,fontSize:14,color:'#0ea5e9',flexShrink:0}}>{p.price.toFixed(2)} €</span>}
+                            {loading&&(
+                              <div style={{padding:50,textAlign:'center',color:'#6b7a8d',fontSize:32}}>🔄</div>
+                            )}
+                            {!loading&&results.length===0&&source&&(
+                              <div style={{padding:30,textAlign:'center',color:'#6b7a8d',fontSize:13}}>
+                                Aucun résultat. Modifiez la recherche.
+                              </div>
+                            )}
+
+                            {grouped.map(([cat, {withSupplier, other}])=>{
+                              const isOpen = openCats[cat] !== false; // ouvert par défaut
+                              const total  = withSupplier.length + other.length;
+                              const hasKnownSupplier = withSupplier.length > 0;
+                              return (
+                                <div key={cat} style={{marginBottom:10}}>
+                                  {/* Header catégorie — accordéon */}
+                                  <div onClick={()=>toggleCat(cat)}
+                                    style={{display:'flex',alignItems:'center',gap:10,
+                                      padding:'9px 14px',borderRadius:10,cursor:'pointer',
+                                      background: hasKnownSupplier
+                                        ? 'linear-gradient(135deg,#eff6ff,#f0fdf4)'
+                                        : '#f8fafc',
+                                      border:`1.5px solid ${hasKnownSupplier?'#bfdbfe':'#e8edf3'}`,
+                                      marginBottom: isOpen?6:0,
+                                      transition:'all .15s'}}>
+                                    <span style={{fontSize:16}}>{isOpen?'▼':'▶'}</span>
+                                    <span style={{fontWeight:700,fontSize:14,flex:1,color:'#1a2332'}}>{cat}</span>
+                                    {/* Badges fournisseurs dans ce groupe */}
+                                    {withSupplier.length>0&&(
+                                      <div style={{display:'flex',gap:5}}>
+                                        {withSupplier.some(p=>(p.suppliers||[]).some(s=>s.type==='fluidra'))&&(
+                                          <span style={{background:'#dbeafe',color:'#1d4ed8',borderRadius:5,
+                                            padding:'2px 7px',fontSize:11,fontWeight:700}}>Fluidra</span>
+                                        )}
+                                        {withSupplier.some(p=>(p.suppliers||[]).some(s=>s.type==='scp'))&&(
+                                          <span style={{background:'#dcfce7',color:'#166534',borderRadius:5,
+                                            padding:'2px 7px',fontSize:11,fontWeight:700}}>SCP</span>
+                                        )}
                                       </div>
-                                      <div style={{display:'flex',gap:5,flexWrap:'wrap',alignItems:'center'}}>
-                                        {p.ref&&<span style={{background:'#f0f4f8',padding:'1px 6px',borderRadius:4,fontSize:11,fontFamily:'monospace',color:'#64748b'}}>{p.ref}</span>}
-                                        {(p.suppliers||[]).map((s,si)=>(
-                                          <span key={si} style={{display:'inline-flex',gap:4,alignItems:'center'}}>
-                                            <SupplierBadge type={s.type} name={s.name}/>
-                                            {s.ref&&<span style={{fontFamily:'monospace',fontSize:11,color:'#64748b'}}>#{s.ref}</span>}
-                                            {s.price>0&&<span style={{fontSize:11,color:'#059669',fontWeight:700}}>{s.price.toFixed(2)} €/u</span>}
-                                          </span>
-                                        ))}
-                                      </div>
-                                      {sel[i]&&(
-                                        <div style={{display:'flex',alignItems:'center',gap:6,marginTop:2}} onClick={e=>e.stopPropagation()}>
-                                          <span style={{fontSize:12,color:'#6b7a8d',fontWeight:600}}>Qté :</span>
-                                          <div style={{display:'flex',alignItems:'center',border:'2px solid #0ea5e9',borderRadius:8,overflow:'hidden'}}>
-                                            <button onClick={e=>{e.stopPropagation();setQty(i,Math.max(1,Number(qtys[i]||1)-1));}} style={{background:'#f0f9ff',border:'none',padding:'3px 9px',cursor:'pointer',fontSize:14,color:'#0ea5e9',fontWeight:700}}>−</button>
-                                            <input type="number" min="1" value={qtys[i]||1} onChange={e=>setQty(i,e.target.value)} style={{width:46,textAlign:'center',border:'none',padding:'3px 4px',fontSize:13,fontFamily:'inherit',fontWeight:700,outline:'none'}}/>
-                                            <button onClick={e=>{e.stopPropagation();setQty(i,Number(qtys[i]||1)+1);}} style={{background:'#f0f9ff',border:'none',padding:'3px 9px',cursor:'pointer',fontSize:14,color:'#0ea5e9',fontWeight:700}}>+</button>
+                                    )}
+                                    <span style={{fontSize:12,color:'#6b7a8d',background:'#f0f4f8',
+                                      padding:'2px 8px',borderRadius:12,fontWeight:600}}>
+                                      {total} produit{total>1?'s':''}
+                                    </span>
+                                  </div>
+
+                                  {/* Produits de la catégorie */}
+                                  {isOpen&&(
+                                    <div style={{paddingLeft:4}}>
+                                      {/* Produits avec fournisseur connu en premier */}
+                                      {withSupplier.length>0&&(
+                                        <div style={{marginBottom:4}}>
+                                          <div style={{fontSize:11,fontWeight:700,color:'#6b7a8d',
+                                            textTransform:'uppercase',letterSpacing:'.5px',
+                                            padding:'4px 0',marginBottom:4,display:'flex',
+                                            alignItems:'center',gap:6}}>
+                                            <span style={{width:8,height:8,borderRadius:'50%',
+                                              background:'#10b981',display:'inline-block'}}/>
+                                            Fournisseurs référencés
                                           </div>
-                                          <span style={{fontSize:12,color:'#6b7a8d'}}>{p.unit||'pièce(s)'}</span>
+                                          {withSupplier.map(p=>(
+                                            <ProductRow key={productUid(p)} p={p} uid={productUid(p)}/>
+                                          ))}
+                                        </div>
+                                      )}
+                                      {/* Autres produits */}
+                                      {other.length>0&&(
+                                        <div>
+                                          {withSupplier.length>0&&(
+                                            <div style={{fontSize:11,fontWeight:700,color:'#9ca3af',
+                                              textTransform:'uppercase',letterSpacing:'.5px',
+                                              padding:'4px 0',marginBottom:4,display:'flex',
+                                              alignItems:'center',gap:6}}>
+                                              <span style={{width:8,height:8,borderRadius:'50%',
+                                                background:'#d1d5db',display:'inline-block'}}/>
+                                              Autres produits
+                                            </div>
+                                          )}
+                                          {other.map(p=>(
+                                            <ProductRow key={productUid(p)} p={p} uid={productUid(p)}/>
+                                          ))}
                                         </div>
                                       )}
                                     </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
-                          <div style={{padding:'12px 20px',borderTop:'1.5px solid #dde4ed',display:'flex',alignItems:'center',gap:10,background:'#fff'}}>
-                            <span style={{fontSize:13,color:'#6b7a8d',flex:1}}>{selCount} produit(s) sélectionné(s)</span>
-                            <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:9,padding:'8px 16px',cursor:'pointer',fontFamily:'inherit',fontSize:13,fontWeight:600}}>Annuler</button>
-                            <button onClick={confirm} disabled={!selCount} style={{background:selCount?'#0ea5e9':'#d1d5db',color:'#fff',border:'none',borderRadius:9,padding:'8px 20px',fontWeight:700,cursor:selCount?'pointer':'not-allowed',fontFamily:'inherit',fontSize:13}}>
-                              ✓ Ajouter
+
+                          {/* Footer */}
+                          <div style={{padding:'12px 20px',borderTop:'1.5px solid #dde4ed',
+                            display:'flex',alignItems:'center',gap:10,background:'#fff'}}>
+                            <span style={{fontSize:13,color:'#6b7a8d',flex:1}}>
+                              {selCount} produit(s) sélectionné(s)
+                            </span>
+                            <button onClick={onClose}
+                              style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:9,
+                                padding:'8px 16px',cursor:'pointer',fontFamily:'inherit',
+                                fontSize:13,fontWeight:600}}>Annuler</button>
+                            <button onClick={confirm} disabled={!selCount}
+                              style={{background:selCount?'#0ea5e9':'#d1d5db',color:'#fff',border:'none',
+                                borderRadius:9,padding:'8px 20px',fontWeight:700,
+                                cursor:selCount?'pointer':'not-allowed',fontFamily:'inherit',fontSize:13}}>
+                              ✓ Ajouter à l'intervention
                             </button>
                           </div>
                         </div>
@@ -611,15 +818,6 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                   );
                 }
 
-                /* ════════════════════════════════════════════════════════
-                   SectionBlock avec statuts + photos
-                   ════════════════════════════════════════════════════════ */
-                const STATUS_CONFIG = {
-                  pending: {icon:'⬜', label:'Non vérifié', bg:'transparent', color:'#6b7a8d'},
-                  ok:      {icon:'✅', label:'Conforme',    bg:'#dcfce7',     color:'#166534'},
-                  warn:    {icon:'⚠️', label:'À surveiller', bg:'#fef3c7',    color:'#92400e'},
-                  action:  {icon:'❌', label:'Action requise', bg:'#fee2e2',  color:'#991b1b'},
-                };
 
                 function SectionBlock({sec,si,statuses,notes,toggle,setStatus,setNote,accent,linkedProducts,photos,onAddProducts,onRemoveProduct,onPhoto}) {
                   const [open,setOpen] = React.useState(true);
