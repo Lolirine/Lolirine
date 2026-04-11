@@ -123,39 +123,19 @@
                             </field>
 
                             <!-- Totaux -->
-                            <div class="oe_subtotal_footer">
-                                <div class="oe_subtotal_footer_separator">
-                                    <label string="Matériaux HT"/>
-                                    <field name="amount_materials" widget="monetary" options="{'currency_field': false}"/>
-                                </div>
-                                <div class="oe_subtotal_footer_separator" invisible="amount_labor == 0">
-                                    <label string="Main d'oeuvre HT"/>
-                                    <field name="amount_labor" widget="monetary" options="{'currency_field': false}"/>
-                                </div>
-                                <div class="oe_subtotal_footer_separator" invisible="amount_disposal == 0">
-                                    <label string="Évacuation HT"/>
-                                    <field name="amount_disposal" widget="monetary" options="{'currency_field': false}"/>
-                                </div>
-                                <div class="oe_subtotal_footer_separator" invisible="amount_travel == 0">
-                                    <label string="Déplacement HT"/>
-                                    <field name="amount_travel" widget="monetary" options="{'currency_field': false}"/>
-                                </div>
-                                <div class="oe_subtotal_footer_separator">
-                                    <label string="Total HT"/>
-                                    <field name="amount_untaxed" widget="monetary" options="{'currency_field': false}"/>
-                                </div>
-                                <div class="oe_subtotal_footer_separator">
-                                    <label string="TVA"/>
-                                    <div>
-                                        <field name="vat_rate" class="oe_inline"/> %
-                                        = <field name="amount_tax" widget="monetary" class="oe_inline" options="{'currency_field': false}"/>
-                                    </div>
-                                </div>
-                                <div class="oe_subtotal_footer_separator oe_subtotal_footer_total">
-                                    <label string="Total TTC"/>
-                                    <field name="amount_total" widget="monetary" options="{'currency_field': false}"/>
-                                </div>
-                            </div>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="amount_materials" string="Matériaux HT"/>
+                                <field name="amount_labor"     string="Main d'oeuvre HT"
+                                       invisible="amount_labor == 0"/>
+                                <field name="amount_disposal"  string="Évacuation HT"
+                                       invisible="amount_disposal == 0"/>
+                                <field name="amount_travel"    string="Déplacement HT"
+                                       invisible="amount_travel == 0"/>
+                                <field name="amount_untaxed"   string="Total HT"/>
+                                <field name="vat_rate"         string="TVA %"/>
+                                <field name="amount_tax"       string="Montant TVA"/>
+                                <field name="amount_total"     string="Total TTC"/>
+                            </group>
                         </page>
 
                         <page string="🏭 Fournisseur Dropshipping">
