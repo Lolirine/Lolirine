@@ -2666,6 +2666,7 @@ function PoolChecklist() {
   const [saveStatus, setSaveStatus] = React.useState(null); // null|'saving'|'saved'|'error'
   const [showHistory, setShowHistory] = React.useState(false);
   const [quoteResult, setQuoteResult] = React.useState(null);
+  const [showQuoteModal, setShowQuoteModal] = React.useState(false);
   const [generalNotes, setGeneralNotes] = React.useState('');
   const intData = INTERVENTIONS.find(i => i.id === intervention);
   const sections = intervention ? CHECKLISTS[intervention] : [];
@@ -2841,6 +2842,15 @@ function PoolChecklist() {
     } else {
       alert('Erreur lors de la création du devis : ' + (r?.error || 'inconnue'));
     }
+  };
+
+  /* Ouvrir la modale de création de devis */
+  const openQuoteModal = () => {
+    if (!allProds.length) {
+      alert('Aucun produit lié à cette fiche.');
+      return;
+    }
+    setShowQuoteModal(true);
   };
 
   /* Réinitialiser */
