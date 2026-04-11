@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══ Séquence ══ -->
+    <record id="seq_pool_store_quote" model="ir.sequence">
+        <field name="name">Devis Pool Store</field>
+        <field name="code">pool.store.quote</field>
+        <field name="prefix">LPS-DEVIS/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <!-- ══ Vue liste ══ -->
+    <record id="view_pool_quote_list" model="ir.ui.view">
+        <field name="name">pool.store.quote.list</field>
+        <field name="model">pool.store.quote</field>
+        <field name="arch" type="xml">
+            <list string="Devis Pool Store"
+                  decoration-success="state in ('confirmed','done')"
+                  decoration-info="state == 'sent'"
+                  decoration-muted="state == 'cancelled'"
+                  decoration-warning="state == 'po_created'">
+                <field name="name"/>
+                <field name="date_quote"/>
+                <field name="partner_id"/>
+                <field name="intervention_type"/>
+                <field name="user_id"/>
+                <field name="amount_untaxed" string="HT" widget="monetary" options="{'currency_field': false}"/>
+                <field name="amount_total" string="TTC" widget="monetary" options="{'currency_field': false}"/>
+                <field name="supplier_id" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state in ('confirmed','done')"
+                       decoration-info="state == 'sent'"
+                       decoration-warning="state == 'po_created'"
+                       decoration-muted="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══ Vue formulaire ══ -->
+    <record id="view_pool_quote_form" model="ir.ui.view">
+        <field name="name">pool.store.quote.form</field>
+        <field name="model">pool.store.quote</field>
+        <field name="arch" type="xml">
+            <form string="Devis Pool Store">
+                <header>
+                    <button name="action_send" string="📨 Marquer comme envoyé"
+                            type="object" class="btn-secondary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_confirm" string="✅ Confirmer le devis"
+                            type="object" class="btn-primary"
+                            invisible="state not in ('draft','sent')"/>
+                    <button name="action_create_purchase_order"
+                            string="📦 Créer bon de commande fournisseur"
+                            type="object" class="btn-secondary"
+                            invisible="state not in ('confirmed','sent')"/>
+                    <button name="action_view_sale_order" string="Voir la commande client"
+                            type="object" class="btn-secondary"
+                            invisible="not sale_order_id"/>
+                    <button name="action_view_purchase_order" string="Voir le bon de commande"
+                            type="object" class="btn-secondary"
+                            invisible="not purchase_order_id"/>
+                    <button name="action_cancel" string="Annuler"
+                            type="object"
+                            invisible="state in ('cancelled','done')"/>
+                    <button name="action_reset_draft" string="Remettre en brouillon"
+                            type="object"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,sent,confirmed,po_created,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+
+                    <!-- Alertes -->
+                    <div class="alert alert-info" invisible="state != 'sent'">
+                        Ce devis a été envoyé au client. En attente de confirmation.
+                    </div>
+                    <div class="alert alert-success" invisible="state != 'confirmed'">
+                        ✅ Devis confirmé. Vous pouvez créer le bon de commande fournisseur.
+                    </div>
+                    <div class="alert alert-warning" invisible="state != 'po_created'">
+                        📦 Bon de commande fournisseur créé — en attente de livraison.
+                    </div>
+
+                    <group>
+                        <group string="Client">
+                            <field name="partner_id"/>
+                            <field name="partner_type"/>
+                            <field name="address_site"/>
+                        </group>
+                        <group string="Devis">
+                            <field name="date_quote"/>
+                            <field name="date_validity"/>
+                            <field name="date_confirmed" readonly="1"/>
+                            <field name="user_id"/>
+                            <field name="intervention_type"/>
+                            <field name="checklist_id"/>
+                        </group>
+                    </group>
+
+                    <!-- Lignes -->
+                    <notebook>
+                        <page string="📋 Lignes du devis">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="line_type"/>
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="ref" optional="show"/>
+                                    <field name="supplier_ref" optional="show"/>
+                                    <field name="qty"/>
+                                    <field name="unit" optional="show"/>
+                                    <field name="unit_price"/>
+                                    <field name="supplier_price" optional="show"/>
+                                    <field name="discount" optional="show"/>
+                                    <field name="subtotal" readonly="1"/>
+                                </list>
+                            </field>
+
+                            <!-- Totaux -->
+                            <div class="oe_subtotal_footer">
+                                <div class="oe_subtotal_footer_separator">
+                                    <label string="Matériaux HT"/>
+                                    <field name="amount_materials" widget="monetary" options="{'currency_field': false}"/>
+                                </div>
+                                <div class="oe_subtotal_footer_separator" invisible="amount_labor == 0">
+                                    <label string="Main d'oeuvre HT"/>
+                                    <field name="amount_labor" widget="monetary" options="{'currency_field': false}"/>
+                                </div>
+                                <div class="oe_subtotal_footer_separator" invisible="amount_disposal == 0">
+                                    <label string="Évacuation HT"/>
+                                    <field name="amount_disposal" widget="monetary" options="{'currency_field': false}"/>
+                                </div>
+                                <div class="oe_subtotal_footer_separator" invisible="amount_travel == 0">
+                                    <label string="Déplacement HT"/>
+                                    <field name="amount_travel" widget="monetary" options="{'currency_field': false}"/>
+                                </div>
+                                <div class="oe_subtotal_footer_separator">
+                                    <label string="Total HT"/>
+                                    <field name="amount_untaxed" widget="monetary" options="{'currency_field': false}"/>
+                                </div>
+                                <div class="oe_subtotal_footer_separator">
+                                    <label string="TVA"/>
+                                    <div>
+                                        <field name="vat_rate" class="oe_inline"/> %
+                                        = <field name="amount_tax" widget="monetary" class="oe_inline" options="{'currency_field': false}"/>
+                                    </div>
+                                </div>
+                                <div class="oe_subtotal_footer_separator oe_subtotal_footer_total">
+                                    <label string="Total TTC"/>
+                                    <field name="amount_total" widget="monetary" options="{'currency_field': false}"/>
+                                </div>
+                            </div>
+                        </page>
+
+                        <page string="🏭 Fournisseur Dropshipping">
+                            <group>
+                                <group>
+                                    <field name="supplier_id"/>
+                                    <field name="supplier_type"/>
+                                    <field name="purchase_order_id" readonly="1"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-info" invisible="supplier_id != False">
+                                Sélectionnez un fournisseur dropshipping (Fluidra/SIBO ou SCP Bénélux)
+                                pour pouvoir créer le bon de commande.
+                            </div>
+                        </page>
+
+                        <page string="📝 Notes">
+                            <group>
+                                <field name="notes_client" placeholder="Conditions particulières, délais de livraison, remarques pour le client…"/>
+                                <field name="notes_internal" placeholder="Notes internes — non visibles par le client…"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══ Action ══ -->
+    <record id="action_pool_store_quote" model="ir.actions.act_window">
+        <field name="name">Devis Pool Store</field>
+        <field name="res_model">pool.store.quote</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'default_partner_type': 'particulier'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créer votre premier devis Pool Store</p>
+            <p>Les devis Pool Store ont leur propre numérotation (LPS-DEVIS/2025/XXXX),
+               séparée du garde-meuble.</p>
+        </field>
+    </record>
+
+</odoo>

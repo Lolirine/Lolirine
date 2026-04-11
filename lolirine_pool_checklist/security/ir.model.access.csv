@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pool_checklist_report_user,pool.checklist.report user,model_pool_checklist_report,base.group_user,1,1,1,0
+access_pool_checklist_report_manager,pool.checklist.report manager,model_pool_checklist_report,base.group_system,1,1,1,1
+access_pool_store_quote_user,pool.store.quote user,model_pool_store_quote,base.group_user,1,1,1,0
+access_pool_store_quote_manager,pool.store.quote manager,model_pool_store_quote,base.group_system,1,1,1,1
+access_pool_store_quote_line_user,pool.store.quote.line user,model_pool_store_quote_line,base.group_user,1,1,1,0
+access_pool_store_quote_line_manager,pool.store.quote.line manager,model_pool_store_quote_line,base.group_system,1,1,1,1
