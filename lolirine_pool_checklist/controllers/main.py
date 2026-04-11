@@ -104,10 +104,19 @@ class PoolChecklistController(http.Controller):
             partners = request.env['res.partner'].sudo().search_read(
                 [('name', 'ilike', query), ('active', '=', True)],
                 fields=['id','name','street','city','zip','country_id',
-                        'phone','mobile','email'],
+                        'phone','mobile','email','vat','company_name','is_company'],
                 limit=int(limit), order='name asc'
             )
-            return {'partners': [dict(p, country=p['country_id'][1] if p.get('country_id') else '') for p in partners]}
+            result = []
+            for p in partners:
+                result.append({
+                    **{k:v for k,v in p.items() if k != 'country_id'},
+                    'country':      p['country_id'][1] if p.get('country_id') else '',
+                    'vat':          p.get('vat') or '',
+                    'company_name': p.get('company_name') or '',
+                    'is_company':   p.get('is_company') or False,
+                })
+            return {'partners': result}
         except Exception as e:
             _logger.error('[pool_checklist] partners: %s', e)
             return {'partners': []}
@@ -221,7 +230,7 @@ class PoolChecklistController(http.Controller):
     # ── Créer un devis depuis les produits liés ───────────────────────────
     @http.route('/pool-checklist/create-quote', type='json', auth='user',
                 website=True, methods=['POST'], csrf=False)
-    def create_quote(self, report_id=None, products=None, client=None, **kwargs):
+    def create_quote(self, report_id=None, products=None, extra_lines=None, client=None, notes=None, **kwargs):
         try:
             products = products or []
             # Trouver ou créer le partenaire
@@ -270,6 +279,38 @@ class PoolChecklistController(http.Controller):
                 request.env['pool.checklist.report'].sudo().browse(int(report_id)).write({
                     'sale_order_id': order.id, 'state': 'done'
                 })
+
+            # Lignes supplémentaires (main d'oeuvre, évacuation, déplacement)
+            for el in (extra_lines or []):
+                try:
+                    # Chercher ou créer un produit de service générique
+                    svc = request.env['product.product'].sudo().search([
+                        ('name', '=', el.get('name')),
+                        ('type', '=', 'service'),
+                    ], limit=1)
+                    if not svc:
+                        svc_tmpl = request.env['product.template'].sudo().create({
+                            'name':          el.get('name'),
+                            'type':          'service',
+                            'default_code':  el.get('ref',''),
+                            'list_price':    el.get('price', 0),
+                            'sale_ok':       True,
+                            'purchase_ok':   False,
+                        })
+                        svc = svc_tmpl.product_variant_id
+                    request.env['sale.order.line'].sudo().create({
+                        'order_id':       order.id,
+                        'product_id':     svc.id,
+                        'product_uom_qty':el.get('qty', 1),
+                        'price_unit':     el.get('price', 0),
+                        'name':           el.get('name', ''),
+                    })
+                except Exception as le:
+                    _logger.warning('[pool_checklist] extra line error: %s', le)
+
+            # Notes devis
+            if notes:
+                order.write({'note': notes})
 
             return {
                 'success': True,
