@@ -1474,7 +1474,97 @@ function QuoteModal({
       background: '#f8fafc',
       borderRadius: 6
     }
-  }, "\uD83D\uDCCD Chantier : ", [client.rue, client.cp, client.ville].filter(Boolean).join(', ')))), /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDCCD Chantier : ", [client.rue, client.cp, client.ville].filter(Boolean).join(', ')))), allProds.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: secStyle
+  }, /*#__PURE__*/React.createElement("div", {
+    style: secHdr
+  }, "\uD83D\uDCE6 Mat\xE9riaux & produits (", allProds.length, " article(s))"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxHeight: 180,
+      overflowY: 'auto'
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: '100%',
+      borderCollapse: 'collapse',
+      fontSize: 13
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    style: {
+      background: '#f8fafc'
+    }
+  }, /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'left',
+      padding: '5px 8px',
+      color: '#6b7a8d',
+      fontSize: 11,
+      fontWeight: 700,
+      textTransform: 'uppercase'
+    }
+  }, "D\xE9signation"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'center',
+      padding: '5px 8px',
+      color: '#6b7a8d',
+      fontSize: 11,
+      fontWeight: 700
+    }
+  }, "Qt\xE9"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'right',
+      padding: '5px 8px',
+      color: '#6b7a8d',
+      fontSize: 11,
+      fontWeight: 700
+    }
+  }, "P.U. HT"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'right',
+      padding: '5px 8px',
+      color: '#6b7a8d',
+      fontSize: 11,
+      fontWeight: 700
+    }
+  }, "Total HT"))), /*#__PURE__*/React.createElement("tbody", null, allProds.map((p, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i,
+    style: {
+      borderBottom: '1px solid #f0f4f8'
+    }
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '5px 8px',
+      fontWeight: 500
+    }
+  }, p.name, p.ref && /*#__PURE__*/React.createElement("span", {
+    style: {
+      marginLeft: 6,
+      background: '#f0f4f8',
+      padding: '1px 5px',
+      borderRadius: 3,
+      fontSize: 11,
+      fontFamily: 'monospace',
+      color: '#6b7a8d'
+    }
+  }, p.ref)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      textAlign: 'center',
+      padding: '5px 8px'
+    }
+  }, p.qty), /*#__PURE__*/React.createElement("td", {
+    style: {
+      textAlign: 'right',
+      padding: '5px 8px',
+      color: '#0ea5e9',
+      fontWeight: 600
+    }
+  }, p.price > 0 ? `${p.price.toFixed(2)} €` : '—'), /*#__PURE__*/React.createElement("td", {
+    style: {
+      textAlign: 'right',
+      padding: '5px 8px',
+      fontWeight: 700
+    }
+  }, p.price > 0 ? `${(p.price * (p.qty || 1)).toFixed(2)} €` : '—'))))))), /*#__PURE__*/React.createElement("div", {
     style: secStyle
   }, /*#__PURE__*/React.createElement("div", {
     style: secHdr
@@ -2540,7 +2630,45 @@ function SectionBlock({
         fontSize: 13,
         flexShrink: 0
       }
-    }, sc.icon), /*#__PURE__*/React.createElement("span", {
+    }, sc.icon), item.includes('______') ? /*#__PURE__*/React.createElement("span", {
+      className: "lpc-item-text",
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 4
+      }
+    }, item.split('______').map((part, pi, arr) => /*#__PURE__*/React.createElement(React.Fragment, {
+      key: pi
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        opacity: status === 'ok' ? .5 : 1
+      }
+    }, part), pi < arr.length - 1 && /*#__PURE__*/React.createElement("input", {
+      type: "text",
+      placeholder: "\u2026",
+      defaultValue: notes[k]?.split('||')[pi] || '',
+      onChange: e => {
+        const parts = (notes[k] || '').split('||');
+        while (parts.length <= pi) parts.push('');
+        parts[pi] = e.target.value;
+        setNote(si, idx, parts.join('||'));
+      },
+      onClick: ev => ev.stopPropagation(),
+      className: "no-print",
+      style: {
+        border: '1.5px solid #0ea5e9',
+        borderRadius: 5,
+        padding: '2px 6px',
+        fontSize: 13,
+        fontFamily: 'inherit',
+        width: item.toLowerCase().includes('m)') ? '60px' : item.toLowerCase().includes('km') ? '50px' : item.toLowerCase().includes('kg') ? '55px' : item.toLowerCase().includes('kw') ? '55px' : '100px',
+        background: '#f0f9ff',
+        outline: 'none',
+        color: '#0369a1',
+        fontWeight: 600
+      }
+    })))) : /*#__PURE__*/React.createElement("span", {
       className: `lpc-item-text${status === 'ok' ? ' done' : ''}`
     }, item), /*#__PURE__*/React.createElement("div", {
       className: "no-print",
@@ -3635,7 +3763,7 @@ function PoolChecklist() {
       marginTop: 2
     }
   }, "Num\xE9rotation s\xE9par\xE9e \u2014 visible dans Fiche chantier \u2192 Devis Pool Store")), /*#__PURE__*/React.createElement("a", {
-    href: `/odoo/pool-store-quotes/${quoteResult.quote_id || quoteResult.order_id}`,
+    href: `/pool-checklist/open-quote/${quoteResult.quote_id}`,
     target: "_blank",
     style: {
       background: '#059669',
