@@ -323,6 +323,19 @@ class PoolChecklistController(http.Controller):
             return {'error': str(e)}
 
     # ── Ping ─────────────────────────────────────────────────────────────
+    @http.route('/pool-checklist/open-quote/<int:quote_id>', type='http', auth='user',
+                website=False, methods=['GET'])
+    def open_quote(self, quote_id, **kwargs):
+        """Redirige vers le formulaire Odoo backend du devis Pool Store."""
+        # Trouver l'action window pour pool.store.quote
+        action = request.env['ir.actions.act_window'].sudo().search(
+            [('res_model', '=', 'pool.store.quote')], limit=1)
+        if action:
+            url = f'/odoo/action-{action.id}/{quote_id}'
+        else:
+            url = f'/odoo'
+        return request.redirect(url)
+
     @http.route('/pool-checklist/ping', type='json', auth='user',
                 website=True, methods=['POST'], csrf=False)
     def ping(self, **kwargs):
