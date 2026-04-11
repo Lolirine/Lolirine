@@ -456,6 +456,369 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                   );
                 }
 
+                /* ════════════════════════════════════════════════════════
+                   QuoteModal — Main d'œuvre, évacuation, déplacement
+                   ════════════════════════════════════════════════════════ */
+
+                /* Calcul frais de déplacement depuis Namur */
+                function calcDeplacementFee(km) {
+                  if(!km || km <= 0) return 0;
+                  if(km <= 30) return 50;
+                  const beyond = km - 30;
+                  const slices = Math.ceil(beyond / 5);
+                  return 50 + slices * 10;
+                }
+
+                function QuoteModal({client, allProds, reportId, onClose, onSuccess}) {
+                  const [mainOeuvre, setMainOeuvre]   = React.useState({enabled:false, heures:0, tauxHoraire:55, forfait:0, mode:'horaire'});
+                  const [evacuation, setEvacuation]   = React.useState({mode:'forfait', montant:150}); // 'forfait'|'client'|'aucune'
+                  const [deplacement, setDeplacement] = React.useState({enabled:false, km:0, fee:0, autoCalc:true});
+                  const [notes, setNotes]             = React.useState('');
+                  const [creating, setCreating]       = React.useState(false);
+                  const [distLoading, setDistLoading] = React.useState(false);
+
+                  /* Calcul automatique distance via Google Maps */
+                  const calcDistance = async() => {
+                    if(!client.rue && !client.ville) return;
+                    if(!window.google?.maps) return;
+                    setDistLoading(true);
+                    try {
+                      const origin = 'Namur, Belgique';
+                      const dest   = [client.rue, client.cp, client.ville, client.pays].filter(Boolean).join(', ');
+                      const svc    = new window.google.maps.DistanceMatrixService();
+                      svc.getDistanceMatrix({
+                        origins:      [origin],
+                        destinations: [dest],
+                        travelMode:   window.google.maps.TravelMode.DRIVING,
+                        unitSystem:   window.google.maps.UnitSystem.METRIC,
+                      }, (res, status) => {
+                        if(status === 'OK' && res.rows[0]?.elements[0]?.status === 'OK') {
+                          const km = Math.round(res.rows[0].elements[0].distance.value / 1000);
+                          setDeplacement(p=>({...p, km, fee:calcDeplacementFee(km), enabled:true}));
+                        }
+                        setDistLoading(false);
+                      });
+                    } catch(e) { setDistLoading(false); }
+                  };
+
+                  /* Recalcul fee quand km change */
+                  React.useEffect(()=>{
+                    if(deplacement.autoCalc) {
+                      setDeplacement(p=>({...p, fee:calcDeplacementFee(p.km)}));
+                    }
+                  },[deplacement.km, deplacement.autoCalc]);
+
+                  /* Total estimatif */
+                  const prodsTotal = allProds.reduce((a,p)=>a+(p.price||0)*(p.qty||1),0);
+                  const moTotal    = mainOeuvre.enabled
+                    ? (mainOeuvre.mode==='horaire' ? mainOeuvre.heures*mainOeuvre.tauxHoraire : mainOeuvre.forfait)
+                    : 0;
+                  const evacTotal  = evacuation.mode==='forfait' ? evacuation.montant : 0;
+                  const deplTotal  = deplacement.enabled ? deplacement.fee : 0;
+                  const grandTotal = prodsTotal + moTotal + evacTotal + deplTotal;
+
+                  const handleCreate = async() => {
+                    setCreating(true);
+                    const extraLines = [];
+
+                    /* Main d'œuvre */
+                    if(mainOeuvre.enabled) {
+                      if(mainOeuvre.mode==='horaire' && mainOeuvre.heures > 0) {
+                        extraLines.push({
+                          name:  `Main d'œuvre — ${mainOeuvre.heures}h × ${mainOeuvre.tauxHoraire} €/h`,
+                          qty:   mainOeuvre.heures,
+                          price: mainOeuvre.tauxHoraire,
+                          ref:   'MO-HORAIRE',
+                          type:  'service',
+                        });
+                      } else if(mainOeuvre.mode==='forfait' && mainOeuvre.forfait > 0) {
+                        extraLines.push({
+                          name:  "Main d'œuvre — Forfait",
+                          qty:   1,
+                          price: mainOeuvre.forfait,
+                          ref:   'MO-FORFAIT',
+                          type:  'service',
+                        });
+                      }
+                    }
+
+                    /* Évacuation */
+                    if(evacuation.mode==='forfait' && evacuation.montant > 0) {
+                      extraLines.push({
+                        name:  "Forfait évacuation des déchets de chantier",
+                        qty:   1,
+                        price: evacuation.montant,
+                        ref:   'EVAC-FORFAIT',
+                        type:  'service',
+                      });
+                    } else if(evacuation.mode==='client') {
+                      extraLines.push({
+                        name:  "Évacuation des déchets — À charge du client",
+                        qty:   1,
+                        price: 0,
+                        ref:   'EVAC-CLIENT',
+                        type:  'service',
+                      });
+                    }
+
+                    /* Frais de déplacement */
+                    if(deplacement.enabled && deplacement.fee > 0) {
+                      const addr = [client.rue, client.cp, client.ville].filter(Boolean).join(', ');
+                      extraLines.push({
+                        name:  `Frais de déplacement${deplacement.km>0?` (${deplacement.km} km depuis Namur)`:''}${addr?' — '+addr:''}`,
+                        qty:   1,
+                        price: deplacement.fee,
+                        ref:   'DEPL',
+                        type:  'service',
+                      });
+                    }
+
+                    const r = await apiPost(cfg.quoteEndpoint||'/pool-checklist/create-quote', {
+                      report_id:   reportId,
+                      products:    allProds,
+                      extra_lines: extraLines,
+                      notes:       notes,
+                      client:      {...client,
+                        nom: [client.prenom,client.nom].filter(Boolean).join(' '),
+                        adresse: [client.rue,client.cp,client.ville,client.pays].filter(Boolean).join(', '),
+                      },
+                    });
+                    setCreating(false);
+                    if(r?.success) onSuccess(r);
+                    else alert('Erreur : '+(r?.error||'inconnue'));
+                  };
+
+                  const secStyle = {background:'#fff',borderRadius:12,padding:'16px 18px',marginBottom:12,border:'1.5px solid #dde4ed'};
+                  const secHdr   = {fontWeight:700,fontSize:14,marginBottom:12,display:'flex',alignItems:'center',gap:8};
+                  const inputS   = {border:'1.5px solid #e5e7eb',borderRadius:8,padding:'8px 12px',fontFamily:'inherit',fontSize:14,background:'#f9fafb',outline:'none',width:'100%'};
+                  const numS     = {border:'1.5px solid #e5e7eb',borderRadius:8,padding:'8px 12px',fontFamily:'inherit',fontSize:14,background:'#f9fafb',outline:'none',width:'90px',textAlign:'center'};
+
+                  return (
+                    <div style={{position:'fixed',inset:0,background:'rgba(10,20,40,0.7)',zIndex:9998,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
+                      <div style={{background:'#f0f4f8',borderRadius:20,width:'100%',maxWidth:680,maxHeight:'92vh',display:'flex',flexDirection:'column',boxShadow:'0 28px 90px rgba(0,0,0,.35)',overflow:'hidden'}}>
+
+                        {/* Header */}
+                        <div style={{padding:'16px 22px',borderBottom:'1.5px solid #dde4ed',background:'#fff',display:'flex',alignItems:'center',gap:12}}>
+                          <div style={{flex:1}}>
+                            <div style={{fontWeight:700,fontSize:16}}>📋 Créer un devis Odoo</div>
+                            <div style={{fontSize:12,color:'#6b7a8d',marginTop:2}}>
+                              {allProds.length} produit(s) · Total matériaux : <strong>{allProds.reduce((a,p)=>a+(p.price||0)*(p.qty||1),0).toFixed(2)} €</strong>
+                            </div>
+                          </div>
+                          <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:8,padding:'5px 13px',cursor:'pointer',fontSize:14,color:'#6b7a8d'}}>✕</button>
+                        </div>
+
+                        {/* Contenu scrollable */}
+                        <div style={{flex:1,overflowY:'auto',padding:16}}>
+
+                          {/* ── Main d'œuvre ── */}
+                          <div style={secStyle}>
+                            <div style={secHdr}>
+                              <input type="checkbox" checked={mainOeuvre.enabled}
+                                onChange={e=>setMainOeuvre(p=>({...p,enabled:e.target.checked}))}
+                                style={{width:16,height:16,accentColor:'#0ea5e9',cursor:'pointer'}}/>
+                              🔨 Main d'œuvre
+                            </div>
+                            {mainOeuvre.enabled && (
+                              <div>
+                                <div style={{display:'flex',gap:8,marginBottom:12}}>
+                                  {[['horaire','À l'heure'],['forfait','Forfait']].map(([v,l])=>(
+                                    <button key={v} onClick={()=>setMainOeuvre(p=>({...p,mode:v}))}
+                                      style={{padding:'6px 14px',borderRadius:20,border:`1.5px solid ${mainOeuvre.mode===v?'#0ea5e9':'#dde4ed'}`,
+                                        background:mainOeuvre.mode===v?'#0ea5e9':'#fff',
+                                        color:mainOeuvre.mode===v?'#fff':'#6b7a8d',
+                                        cursor:'pointer',fontSize:13,fontWeight:600}}>
+                                      {l}
+                                    </button>
+                                  ))}
+                                </div>
+                                {mainOeuvre.mode==='horaire' ? (
+                                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,alignItems:'end'}}>
+                                    <div>
+                                      <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Nombre d'heures</div>
+                                      <input type="number" min="0" step="0.5" value={mainOeuvre.heures}
+                                        onChange={e=>setMainOeuvre(p=>({...p,heures:parseFloat(e.target.value)||0}))}
+                                        style={numS}/>
+                                    </div>
+                                    <div>
+                                      <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Taux horaire (€/h)</div>
+                                      <input type="number" min="0" value={mainOeuvre.tauxHoraire}
+                                        onChange={e=>setMainOeuvre(p=>({...p,tauxHoraire:parseFloat(e.target.value)||0}))}
+                                        style={numS}/>
+                                    </div>
+                                    <div>
+                                      <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Total</div>
+                                      <div style={{fontWeight:700,fontSize:16,color:'#0ea5e9',padding:'8px 0'}}>
+                                        {(mainOeuvre.heures*mainOeuvre.tauxHoraire).toFixed(2)} €
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,alignItems:'end'}}>
+                                    <div>
+                                      <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Montant forfait (€ HT)</div>
+                                      <input type="number" min="0" value={mainOeuvre.forfait}
+                                        onChange={e=>setMainOeuvre(p=>({...p,forfait:parseFloat(e.target.value)||0}))}
+                                        style={numS}/>
+                                    </div>
+                                    <div style={{fontWeight:700,fontSize:16,color:'#0ea5e9',padding:'8px 0'}}>
+                                      {mainOeuvre.forfait.toFixed(2)} €
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* ── Évacuation déchets ── */}
+                          <div style={secStyle}>
+                            <div style={secHdr}>🗑️ Évacuation des déchets de chantier</div>
+                            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                              {[
+                                ['forfait', '💰 Forfait évacuation (à facturer)'],
+                                ['client',  '🚛 Évacuation prise en charge par le client'],
+                                ['aucune',  '➖ Sans évacuation'],
+                              ].map(([v,l])=>(
+                                <label key={v} style={{display:'flex',alignItems:'center',gap:10,cursor:'pointer',
+                                  padding:'10px 14px',borderRadius:9,border:`1.5px solid ${evacuation.mode===v?'#0ea5e9':'#e5e7eb'}`,
+                                  background:evacuation.mode===v?'rgba(14,165,233,0.04)':'#fff',transition:'all .15s'}}>
+                                  <input type="radio" name="evacuation" value={v}
+                                    checked={evacuation.mode===v}
+                                    onChange={()=>setEvacuation(p=>({...p,mode:v}))}
+                                    style={{accentColor:'#0ea5e9'}}/>
+                                  <span style={{fontWeight:600,fontSize:13,flex:1}}>{l}</span>
+                                  {v==='forfait' && evacuation.mode==='forfait' && (
+                                    <div style={{display:'flex',alignItems:'center',gap:8}} onClick={e=>e.stopPropagation()}>
+                                      <input type="number" min="0" value={evacuation.montant}
+                                        onChange={e=>setEvacuation(p=>({...p,montant:parseFloat(e.target.value)||0}))}
+                                        style={{...numS,width:80}}/>
+                                      <span style={{fontSize:13,color:'#6b7a8d',fontWeight:600}}>€</span>
+                                    </div>
+                                  )}
+                                  {v==='forfait' && evacuation.mode!=='forfait' && (
+                                    <span style={{fontSize:12,color:'#9ca3af'}}>{evacuation.montant.toFixed(2)} €</span>
+                                  )}
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* ── Frais de déplacement ── */}
+                          <div style={secStyle}>
+                            <div style={secHdr}>
+                              <input type="checkbox" checked={deplacement.enabled}
+                                onChange={e=>setDeplacement(p=>({...p,enabled:e.target.checked}))}
+                                style={{width:16,height:16,accentColor:'#0ea5e9',cursor:'pointer'}}/>
+                              🚗 Frais de déplacement
+                              <span style={{fontSize:11,color:'#9ca3af',fontWeight:400,marginLeft:4}}>
+                                (depuis Namur · ≤30 km = 50 € · +10 €/5 km au-delà)
+                              </span>
+                            </div>
+                            {deplacement.enabled && (
+                              <div>
+                                {/* Calcul auto si Google Maps dispo */}
+                                {window.google?.maps && client.rue && (
+                                  <button onClick={calcDistance} disabled={distLoading}
+                                    style={{background:'#f0f9ff',border:'1.5px solid #bae6fd',borderRadius:8,
+                                      padding:'7px 14px',cursor:'pointer',fontSize:13,fontWeight:600,
+                                      color:'#0369a1',marginBottom:12,display:'flex',alignItems:'center',gap:7}}>
+                                    {distLoading?'⟳ Calcul en cours…':'📍 Calculer la distance automatiquement'}
+                                  </button>
+                                )}
+                                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,alignItems:'end'}}>
+                                  <div>
+                                    <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Distance (km)</div>
+                                    <input type="number" min="0" value={deplacement.km}
+                                      onChange={e=>{
+                                        const km = parseFloat(e.target.value)||0;
+                                        setDeplacement(p=>({...p,km,fee:p.autoCalc?calcDeplacementFee(km):p.fee}));
+                                      }}
+                                      style={numS}/>
+                                  </div>
+                                  <div>
+                                    <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>
+                                      Montant (€)
+                                      <label style={{marginLeft:8,fontSize:11,fontWeight:400,cursor:'pointer'}}>
+                                        <input type="checkbox" checked={deplacement.autoCalc}
+                                          onChange={e=>setDeplacement(p=>({...p,autoCalc:e.target.checked}))}
+                                          style={{marginRight:3,accentColor:'#0ea5e9'}}/>
+                                        Auto
+                                      </label>
+                                    </div>
+                                    <input type="number" min="0" value={deplacement.fee}
+                                      readOnly={deplacement.autoCalc}
+                                      onChange={e=>!deplacement.autoCalc&&setDeplacement(p=>({...p,fee:parseFloat(e.target.value)||0}))}
+                                      style={{...numS,background:deplacement.autoCalc?'#f3f4f6':'#f9fafb',cursor:deplacement.autoCalc?'not-allowed':'text'}}/>
+                                  </div>
+                                  <div>
+                                    <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Barème appliqué</div>
+                                    <div style={{fontSize:12,color:'#0ea5e9',fontWeight:600,padding:'8px 0'}}>
+                                      {deplacement.km<=30&&deplacement.km>0?'≤ 30 km → 50 €':
+                                       deplacement.km>30?`${deplacement.km} km → 50 € + ${Math.ceil((deplacement.km-30)/5)}×10 €`:'—'}
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* Adresse chantier */}
+                                {(client.rue||client.ville) && (
+                                  <div style={{fontSize:11,color:'#6b7a8d',marginTop:8,padding:'6px 10px',background:'#f8fafc',borderRadius:6}}>
+                                    📍 Chantier : {[client.rue,client.cp,client.ville].filter(Boolean).join(', ')}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* ── Notes devis ── */}
+                          <div style={secStyle}>
+                            <div style={secHdr}>📝 Notes internes pour le devis</div>
+                            <textarea value={notes} onChange={e=>setNotes(e.target.value)}
+                              placeholder="Conditions particulières, délais, remarques pour le devis…"
+                              style={{width:'100%',minHeight:60,border:'1.5px solid #e5e7eb',borderRadius:8,
+                                padding:'9px 12px',fontFamily:'inherit',fontSize:13,resize:'vertical',
+                                background:'#f9fafb',outline:'none'}}/>
+                          </div>
+
+                          {/* ── Récap total ── */}
+                          <div style={{background:'linear-gradient(135deg,#0ea5e9,#0369a1)',borderRadius:12,padding:'16px 20px',color:'#fff'}}>
+                            <div style={{fontSize:13,opacity:.85,marginBottom:8}}>Récapitulatif estimatif HT</div>
+                            {prodsTotal>0&&<div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:13}}>
+                              <span>Matériaux & produits</span><strong>{prodsTotal.toFixed(2)} €</strong>
+                            </div>}
+                            {moTotal>0&&<div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:13}}>
+                              <span>Main d'œuvre</span><strong>{moTotal.toFixed(2)} €</strong>
+                            </div>}
+                            {evacTotal>0&&<div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:13}}>
+                              <span>Évacuation déchets</span><strong>{evacTotal.toFixed(2)} €</strong>
+                            </div>}
+                            {deplTotal>0&&<div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:13}}>
+                              <span>Frais de déplacement</span><strong>{deplTotal.toFixed(2)} €</strong>
+                            </div>}
+                            <div style={{borderTop:'1px solid rgba(255,255,255,.3)',marginTop:8,paddingTop:8,
+                              display:'flex',justifyContent:'space-between',fontSize:16,fontWeight:700}}>
+                              <span>Total estimatif HT</span><span>{grandTotal.toFixed(2)} €</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div style={{padding:'13px 22px',borderTop:'1.5px solid #dde4ed',display:'flex',gap:10,background:'#fff'}}>
+                          <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:9,
+                            padding:'10px 18px',cursor:'pointer',fontFamily:'inherit',fontSize:14,fontWeight:600}}>
+                            Annuler
+                          </button>
+                          <div style={{flex:1}}/>
+                          <button onClick={handleCreate} disabled={creating}
+                            style={{background:creating?'#d1d5db':'#059669',color:'#fff',border:'none',
+                              borderRadius:9,padding:'10px 24px',fontWeight:700,cursor:creating?'not-allowed':'pointer',
+                              fontFamily:'inherit',fontSize:14,display:'flex',alignItems:'center',gap:8}}>
+                            {creating?'⟳ Création…':'✅ Créer le devis Odoo'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
                 /* ── Modal historique des fiches ── */
                 function HistoryModal({onLoad, onClose}) {
                   const [reports, setReports] = React.useState([]);
@@ -1109,6 +1472,18 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                     <div className="lpc-app">
 
                       {showHistory && <HistoryModal onLoad={loadReport} onClose={()=>setShowHistory(false)}/>}
+                      {showQuoteModal && (
+                        <QuoteModal
+                          client={client}
+                          allProds={allProds}
+                          reportId={reportId}
+                          onClose={()=>setShowQuoteModal(false)}
+                          onSuccess={r=>{
+                            setQuoteResult(r);
+                            setShowQuoteModal(false);
+                          }}
+                        />
+                      )}
 
                       {/* Header app (caché en print — hero Odoo prend le relais) */}
                       <div className="lpc-hdr no-print">
@@ -1529,7 +1904,7 @@ Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
                             <button className="lpc-btn-s" onClick={reset}>🔄 Réinitialiser</button>
                             <div style={{flex:1}}/>
                             {allProds.length>0 && (
-                              <button className="lpc-btn-p" style={{'--acc':'#10b981',background:'#10b981'}} onClick={createQuote}>
+                              <button className="lpc-btn-p" style={{'--acc':'#10b981',background:'#10b981'}} onClick={openQuoteModal}>
                                 📋 Créer un devis Odoo
                               </button>
                             )}
