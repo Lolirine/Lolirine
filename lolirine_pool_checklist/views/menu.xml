@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Action pour ouvrir /visite-chantier dans un nouvel onglet -->
+    <!-- Action qui ouvre la fiche de visite dans un nouvel onglet -->
     <record id="action_open_checklist" model="ir.actions.act_url">
         <field name="name">Fiche de visite chantier</field>
         <field name="url">/visite-chantier</field>
         <field name="target">new</field>
     </record>
 
-    <!-- Entrée parent sous Site Web -->
-    <record id="menu_pool_checklist_parent" model="ir.ui.menu">
+    <!-- Menu RACINE — apparaît dans la barre d'apps Odoo (home screen) -->
+    <record id="menu_pool_checklist_root" model="ir.ui.menu">
+        <field name="name">Fiche chantier</field>
+        <field name="action" ref="action_open_checklist"/>
+        <field name="web_icon">lolirine_pool_checklist,static/description/icon.png</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <!-- Menu sous Site Web → Configuration → Lolirine Pool -->
+    <record id="menu_pool_checklist_website_parent" model="ir.ui.menu">
         <field name="name">Lolirine Pool</field>
         <field name="parent_id" ref="website.menu_website_configuration"/>
         <field name="sequence">90</field>
     </record>
 
-    <!-- Raccourci Fiche de visite -->
-    <record id="menu_pool_checklist_page" model="ir.ui.menu">
+    <record id="menu_pool_checklist_website_page" model="ir.ui.menu">
         <field name="name">🏊 Fiche de visite chantier</field>
-        <field name="parent_id" ref="menu_pool_checklist_parent"/>
+        <field name="parent_id" ref="menu_pool_checklist_website_parent"/>
         <field name="action" ref="action_open_checklist"/>
         <field name="sequence">10</field>
     </record>
