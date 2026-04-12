@@ -191,43 +191,80 @@ function SuggDropdown({ items, onSelect, onClose }) {
 }
 
 /* ─────────────────────────────────────────────────────
-   AddressAutocomplete — champ adresse avec suggestions
+   AddressAutocomplete — champ adresse avec suggestions BE/LU/FR
 ───────────────────────────────────────────────────── */
 function AddressAutocomplete({ value, onChange, placeholder }) {
-  const [suggs, setSuggs] = useState([]);
-  const [show, setShow] = useState(false);
+  const [suggs,   setSuggs]   = useState([]);
+  const [show,    setShow]    = useState(false);
+  const [loading, setLoading] = useState(false);
   const timerRef = useRef(null);
-  const wrapRef = useRef(null);
+  const wrapRef  = useRef(null);
 
   useEffect(() => {
     function handler(e) { if (wrapRef.current && !wrapRef.current.contains(e.target)) setShow(false); }
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  async function fetchSuggs(val) {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        q: val, countrycodes: 'be,lu,fr,nl', format: 'json',
+        limit: '6', addressdetails: '1'
+      });
+      const res = await fetch('https://nominatim.openstreetmap.org/search?' + params, {
+        mode: 'cors',
+        headers: { 'Accept-Language': 'fr' }
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const results = data.map(d => {
+        const a = d.address || {};
+        const street = [a.road, a.house_number].filter(Boolean).join(' ');
+        const parts = [street, a.postcode, a.city||a.town||a.village||a.municipality].filter(Boolean);
+        return parts.length > 1 ? parts.join(', ') : d.display_name.split(',').slice(0,3).join(',');
+      }).filter(Boolean);
+      setSuggs(results); setShow(results.length > 0);
+    } catch { setSuggs([]); setShow(false); }
+    setLoading(false);
+  }
 
   function handleInput(val) {
     onChange(val);
     clearTimeout(timerRef.current);
-    if (val.length < 3) { setSuggs([]); setShow(false); return; }
-    timerRef.current = setTimeout(async () => {
-      try {
-        const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(val)}&countrycodes=be&format=json&limit=5&addressdetails=1`,
-          { headers: { "Accept-Language": "fr" } });
-        const data = await r.json();
-        const results = data.map(d => d.display_name);
-        setSuggs(results);
-        setShow(results.length > 0);
-      } catch { setSuggs([]); setShow(false); }
-    }, 300);
+    if (val.length < 4) { setSuggs([]); setShow(false); return; }
+    timerRef.current = setTimeout(() => fetchSuggs(val), 450);
   }
 
   return (
-    <div ref={wrapRef} style={{position:"relative"}}>
-      <input value={value} onChange={e => handleInput(e.target.value)}
-        placeholder={placeholder || "Adresse du chantier…"}
-        style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box"}}
-        onFocus={() => suggs.length && setShow(true)} />
-      {show && <SuggDropdown items={suggs} onSelect={v => { onChange(v); setShow(false); }} onClose={() => setShow(false)} />}
+    <div ref={wrapRef} style={{position:'relative'}}>
+      <div style={{position:'relative'}}>
+        <input value={value} onChange={e=>handleInput(e.target.value)}
+          onFocus={()=>suggs.length&&setShow(true)}
+          placeholder={placeholder||'Adresse du chantier…'}
+          style={{width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,padding:'8px 30px 8px 12px',
+            fontFamily:'inherit',fontSize:13,outline:'none',boxSizing:'border-box'}} />
+        <span style={{position:'absolute',right:9,top:'50%',transform:'translateY(-50%)',fontSize:12,
+          color:'#94a3b8',pointerEvents:value?'auto':'none',cursor:value?'pointer':'default'}}
+          onClick={()=>{if(value){onChange('');setSuggs([]);setShow(false);}}}>
+          {loading?'⌛':value?'✕':''}
+        </span>
+      </div>
+      {show && suggs.length > 0 && (
+        <div style={{position:'absolute',top:'100%',left:0,right:0,zIndex:1000,background:'#fff',
+          border:'1.5px solid #dde4ed',borderRadius:10,boxShadow:'0 8px 28px rgba(0,0,0,.12)',marginTop:3,maxHeight:210,overflowY:'auto'}}>
+          {suggs.map((s,i) => (
+            <div key={i} onClick={()=>{onChange(s);setShow(false);setSuggs([]);}}
+              style={{padding:'8px 12px',cursor:'pointer',fontSize:12,color:'#334155',
+                borderBottom:i<suggs.length-1?'1px solid #f0f4f8':'none',display:'flex',gap:7,alignItems:'center'}}
+              onMouseEnter={e=>e.currentTarget.style.background='#f0f9ff'}
+              onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+              <span style={{color:'#0ea5e9',fontSize:13}}>📍</span><span>{s}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1011,347 +1048,407 @@ function QuoteModal({ products, client, clientId, address, refDossier, onClose, 
 
 /* ─────────────────────────────────────────────────────
    PoolChecklist — composant principal
+   Navigation : onglets Fiche · Devis · Enregistrement
 ───────────────────────────────────────────────────── */
 function PoolChecklist() {
-  const [type, setType] = useState("entretien");
-  const [client, setClient] = useState("");
-  const [clientId, setClientId] = useState(null);
-  const [address, setAddress] = useState("");
-  const [technicien, setTechnicien] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [ref, setRef] = useState("");
-  const [observations, setObservations] = useState("");
-  const [checked, setChecked] = useState({});
-  const [products, setProducts] = useState([]);
-  const [panel, setPanel] = useState(null);
-  const [showHistory, setShowHistory] = useState(false);
-  const [showQuote, setShowQuote] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [statut, setStatut] = useState('en_cours');
-  const [signClient, setSignClient] = useState('');
-  const [signTech, setSignTech] = useState('');
+  /* ── Onglet principal ── */
+  const [mainTab, setMainTab] = useState('fiche');
 
-  const sections = SECTIONS_DATA[type] || [];
+  /* ── État fiche ── */
+  const [type,         setType]         = useState('entretien');
+  const [client,       setClient]       = useState('');
+  const [clientId,     setClientId]     = useState(null);
+  const [address,      setAddress]      = useState('');
+  const [technicien,   setTechnicien]   = useState('');
+  const [date,         setDate]         = useState(new Date().toISOString().split('T')[0]);
+  const [ref,          setRef]          = useState('');
+  const [observations, setObservations] = useState('');
+  const [checked,      setChecked]      = useState({});
+  const [products,     setProducts]     = useState([]);
+  const [panel,        setPanel]        = useState(null);
+  const [showHistory,  setShowHistory]  = useState(false);
 
-  const totalItems = sections.reduce((a, s) => a + s.items.length, 0);
-  const totalDone = sections.reduce((a, s, si) => {
-    return a + s.items.filter((_, ii) => checked[`${si}_${ii}`]).length;
-  }, 0);
+  /* ── État enregistrement ── */
+  const [statut,      setStatut]     = useState('en_cours');
+  const [signClient,  setSignClient] = useState('');
+  const [signTech,    setSignTech]   = useState('');
+  const [saved,       setSaved]      = useState(false);
+  const [saveMsg,     setSaveMsg]    = useState('');
+
+  const sections   = SECTIONS_DATA[type] || [];
+  const totalItems = sections.reduce((a,s) => a + s.items.length, 0);
+  const totalDone  = sections.reduce((a,s,si) =>
+    a + s.items.filter((_,ii) => checked[`${si}_${ii}`]).length, 0);
   const pct = totalItems ? Math.round((totalDone / totalItems) * 100) : 0;
+  const totalHT = products.reduce((a,p) => {
+    const price = typeof p.price==='number' ? p.price : (parseFloat(p.price)||0);
+    return a + price*(p.qty||1);
+  }, 0);
 
-  function handleToggle(si, ii) {
-    const k = `${si}_${ii}`;
-    setChecked(c => ({ ...c, [k]: !c[k] }));
-  }
-
-  function handleOpenProducts(item, sectionLabel) {
-    setPanel({ item, sectionLabel });
-  }
-
+  /* ── Handlers fiche ── */
+  function handleToggle(si, ii)    { const k=`${si}_${ii}`; setChecked(c=>({...c,[k]:!c[k]})); }
+  function handleOpenProducts(item, sectionLabel) { setPanel({item,sectionLabel}); }
   function handleAddProducts(newProds) {
     setProducts(ps => {
-      const existing = new Set(ps.map(p => p.ref || p.name));
-      const toAdd = newProds.filter(p => !existing.has(p.ref || p.name));
-      return [...ps, ...toAdd.map(p => ({ ...p, qty: 1 }))];
+      const existing = new Set(ps.map(p=>p.ref||p.name));
+      const toAdd = newProds.filter(p=>!existing.has(p.ref||p.name));
+      return [...ps, ...toAdd.map(p=>({...p,qty:1}))];
     });
     setPanel(null);
   }
+  function updateQty(i,delta) { setProducts(ps=>ps.map((p,idx)=>idx===i?{...p,qty:Math.max(0,(p.qty||1)+delta)}:p).filter(p=>p.qty>0)); }
+  function removeProduct(i)   { setProducts(ps=>ps.filter((_,idx)=>idx!==i)); }
 
-  function updateQty(i, delta) {
-    setProducts(ps => ps.map((p, idx) => idx===i ? { ...p, qty: Math.max(0, (p.qty||1)+delta) } : p).filter(p => p.qty > 0));
-  }
-
-  function removeProduct(i) { setProducts(ps => ps.filter((_, idx) => idx !== i)); }
-
-  function resetChecklist() {
-    if (confirm("Réinitialiser toute la fiche ?")) {
-      setChecked({}); setProducts([]); setClient(""); setClientId(null);
-      setAddress(""); setTechnicien(""); setObservations(""); setRef("");
-      setDate(new Date().toISOString().split("T")[0]); setSaved(false);
-    }
-  }
-
-  function saveToHistory() {
+  /* ── Sauvegarde localStorage ── */
+  function saveToHistory(showFeedback=true) {
     try {
-      const stored = JSON.parse(localStorage.getItem("pool_checklist_history") || "[]");
-      stored.push({ client, address, technicien, date, ref, type, observations, checked, products,
-        statut, signClient, signTech, savedAt: new Date().toISOString() });
-      localStorage.setItem("pool_checklist_history", JSON.stringify(stored.slice(-50)));
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch (e) { alert("Erreur lors de la sauvegarde : " + e.message); }
+      const stored = JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
+      stored.push({client,address,technicien,date,ref,type,observations,checked,products,
+        statut,signClient,signTech,savedAt:new Date().toISOString()});
+      localStorage.setItem('pool_checklist_history', JSON.stringify(stored.slice(-50)));
+      if(showFeedback){ setSaved(true); setSaveMsg('Fiche sauvegardée ✓'); setTimeout(()=>{setSaved(false);setSaveMsg('');},2500); }
+    } catch(e) { alert('Erreur sauvegarde : '+e.message); }
   }
 
   function loadRecord(r) {
-    setType(r.type || "entretien");
-    setClient(r.client || ""); setClientId(null);
-    setAddress(r.address || ""); setTechnicien(r.technicien || "");
-    setDate(r.date || ""); setRef(r.ref || "");
-    setObservations(r.observations || "");
-    setChecked(r.checked || {}); setProducts(r.products || []);
-    setStatut(r.statut || 'en_cours');
-    setSignClient(r.signClient || ''); setSignTech(r.signTech || '');
+    setType(r.type||'entretien');
+    setClient(r.client||'');       setClientId(null);
+    setAddress(r.address||'');     setTechnicien(r.technicien||'');
+    setDate(r.date||'');           setRef(r.ref||'');
+    setObservations(r.observations||'');
+    setChecked(r.checked||{});     setProducts(r.products||[]);
+    setStatut(r.statut||'en_cours');
+    setSignClient(r.signClient||''); setSignTech(r.signTech||'');
+    setMainTab('fiche');
   }
 
-  function handlePrint() {
-    window.print();
+  function resetChecklist() {
+    if(!confirm('Réinitialiser toute la fiche ?')) return;
+    setChecked({}); setProducts([]); setClient(''); setClientId(null);
+    setAddress(''); setTechnicien(''); setObservations(''); setRef('');
+    setDate(new Date().toISOString().split('T')[0]);
+    setStatut('en_cours'); setSignClient(''); setSignTech(''); setSaved(false);
   }
 
-  const totalHT = products.reduce((a, p) => {
-    const price = typeof p.price === "number" ? p.price : (parseFloat(p.price) || 0);
-    return a + price * (p.qty || 1);
-  }, 0);
+  /* ── Styles communs ── */
+  const MAIN_TABS = [
+    {key:'fiche',        icon:'📋', label:'Fiche checklist',    badge: pct<100 ? `${totalDone}/${totalItems}` : '✓'},
+    {key:'devis',        icon:'📄', label:'Créer un devis',     badge: products.length>0 ? products.length : null},
+    {key:'enregistrement',icon:'💾', label:'Enregistrement',    badge: saved ? '✓' : null},
+  ];
 
   return (
     <div style={{fontFamily:"'Inter','Segoe UI',system-ui,sans-serif",background:"#f1f5f9",minHeight:"100vh"}}>
-      {/* Barre supérieure */}
-      <div style={{background:"#0ea5e9",color:"#fff",padding:"14px 24px",display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
-        <div style={{flex:1,minWidth:200}}>
-          <div style={{fontWeight:800,fontSize:20,letterSpacing:"-.5px"}}>📋 Fiche de visite chantier</div>
-          <div style={{fontSize:12,opacity:.85,marginTop:1}}>Lolirine Pool Store</div>
+
+      {/* ══ Barre supérieure ══ */}
+      <div style={{background:"#0ea5e9",color:"#fff",padding:"12px 20px",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap",flexShrink:0}}>
+        <div style={{flex:1,minWidth:180}}>
+          <div style={{fontWeight:800,fontSize:19,letterSpacing:"-.5px"}}>📋 Fiche de visite chantier</div>
+          <div style={{fontSize:11,opacity:.8,marginTop:1}}>Lolirine Pool Store</div>
         </div>
-        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-          <button onClick={() => setShowHistory(true)}
-            style={{background:"rgba(255,255,255,.2)",color:"#fff",border:"1.5px solid rgba(255,255,255,.4)",borderRadius:9,padding:"7px 15px",cursor:"pointer",fontWeight:600,fontSize:13}}>
+        <div style={{display:"flex",gap:7,flexWrap:"wrap",alignItems:"center"}}>
+          {/* Progression */}
+          <div style={{display:"flex",alignItems:"center",gap:8,background:"rgba(255,255,255,.15)",borderRadius:10,padding:"5px 12px"}}>
+            <div style={{width:80,height:5,background:"rgba(255,255,255,.3)",borderRadius:5,overflow:"hidden"}}>
+              <div style={{height:"100%",background:pct===100?"#4ade80":"#fff",width:`${pct}%`,borderRadius:5,transition:"width .3s"}} />
+            </div>
+            <span style={{fontSize:12,fontWeight:700}}>{pct}%</span>
+          </div>
+          <button onClick={()=>setShowHistory(true)}
+            style={{background:"rgba(255,255,255,.2)",color:"#fff",border:"1.5px solid rgba(255,255,255,.4)",borderRadius:9,padding:"6px 13px",cursor:"pointer",fontWeight:600,fontSize:12}}>
             📁 Historique
           </button>
-          <button onClick={saveToHistory}
-            style={{background:saved?"#16a34a":"rgba(255,255,255,.15)",color:"#fff",border:"1.5px solid rgba(255,255,255,.4)",borderRadius:9,padding:"7px 15px",cursor:"pointer",fontWeight:600,fontSize:13,transition:"background .3s"}}>
-            {saved ? "✅ Sauvegardé !" : "💾 Sauvegarder"}
+          <button onClick={()=>saveToHistory(true)}
+            style={{background:saved?"rgba(74,222,128,.8)":"rgba(255,255,255,.15)",color:"#fff",border:"1.5px solid rgba(255,255,255,.4)",borderRadius:9,padding:"6px 13px",cursor:"pointer",fontWeight:600,fontSize:12,transition:"background .3s"}}>
+            {saved?"✅ Sauvegardé !":"💾 Sauvegarder"}
           </button>
-          <button onClick={handlePrint}
-            style={{background:"rgba(255,255,255,.15)",color:"#fff",border:"1.5px solid rgba(255,255,255,.4)",borderRadius:9,padding:"7px 15px",cursor:"pointer",fontWeight:600,fontSize:13}}>
-            🖨️ Imprimer
+          <button onClick={()=>window.print()}
+            style={{background:"rgba(255,255,255,.15)",color:"#fff",border:"1.5px solid rgba(255,255,255,.4)",borderRadius:9,padding:"6px 13px",cursor:"pointer",fontWeight:600,fontSize:12}}>
+            🖨️ PDF
           </button>
           <button onClick={resetChecklist}
-            style={{background:"rgba(255,255,255,.1)",color:"rgba(255,255,255,.8)",border:"1px solid rgba(255,255,255,.3)",borderRadius:9,padding:"7px 13px",cursor:"pointer",fontSize:12}}>
-            ↺ Réinitialiser
+            style={{background:"rgba(255,255,255,.08)",color:"rgba(255,255,255,.75)",border:"1px solid rgba(255,255,255,.25)",borderRadius:9,padding:"6px 11px",cursor:"pointer",fontSize:11}}>
+            ↺
           </button>
         </div>
       </div>
 
-      {/* Barre de progression */}
-      <div style={{background:"#fff",padding:"10px 24px",borderBottom:"1px solid #e2e8f0",display:"flex",alignItems:"center",gap:14}}>
-        <div style={{flex:1,height:8,background:"#e2e8f0",borderRadius:8,overflow:"hidden"}}>
-          <div style={{height:"100%",background:pct===100?"#16a34a":"#0ea5e9",width:`${pct}%`,borderRadius:8,transition:"width .4s"}} />
-        </div>
-        <span style={{fontSize:13,fontWeight:700,color:pct===100?"#16a34a":"#0ea5e9",whiteSpace:"nowrap"}}>{pct} % — {totalDone}/{totalItems}</span>
+      {/* ══ Onglets principaux ══ */}
+      <div style={{background:"#fff",borderBottom:"2px solid #e2e8f0",display:"flex",padding:"0 16px",overflowX:"auto"}}>
+        {MAIN_TABS.map(t=>(
+          <button key={t.key} onClick={()=>setMainTab(t.key)}
+            style={{padding:"11px 18px",border:"none",
+              borderBottom:`3px solid ${mainTab===t.key?'#0ea5e9':'transparent'}`,
+              background:"transparent",cursor:"pointer",
+              fontWeight:mainTab===t.key?700:500,fontSize:14,
+              color:mainTab===t.key?'#0ea5e9':'#64748b',
+              whiteSpace:"nowrap",transition:"all .15s",
+              display:"flex",alignItems:"center",gap:7}}>
+            {t.icon} {t.label}
+            {t.badge!==null && (
+              <span style={{
+                background:mainTab===t.key?'#0ea5e9':'#e2e8f0',
+                color:mainTab===t.key?'#fff':'#64748b',
+                borderRadius:20,padding:"1px 7px",fontSize:11,fontWeight:700}}>
+                {t.badge}
+              </span>
+            )}
+          </button>
+        ))}
       </div>
 
-      <div style={{maxWidth:1000,margin:"0 auto",padding:"24px 16px"}}>
-        {/* Type d'intervention */}
-        <div style={{background:"#fff",borderRadius:14,padding:"18px 20px",marginBottom:20,border:"1.5px solid #e2e8f0"}}>
-          <div style={{fontWeight:700,fontSize:14,color:"#1e293b",marginBottom:12}}>Type d'intervention</div>
-          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
-            {INTERVENTION_TYPES.map(t => (
-              <button key={t.key} onClick={() => { setType(t.key); setChecked({}); }}
-                style={{padding:"8px 16px",borderRadius:10,border:`2px solid ${type===t.key?"#0ea5e9":"#e2e8f0"}`,background:type===t.key?"#eff9ff":"#fff",color:type===t.key?"#0369a1":"#475569",fontWeight:type===t.key?700:500,fontSize:13,cursor:"pointer",transition:"all .15s"}}>
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
+      {/* ══ Corps ══ */}
+      <div style={{maxWidth:1020,margin:"0 auto",padding:"20px 14px"}}>
 
-        {/* Fiche client */}
-        <div style={{background:"#fff",borderRadius:14,padding:"18px 20px",marginBottom:20,border:"1.5px solid #e2e8f0"}}>
-          <div style={{fontWeight:700,fontSize:14,color:"#1e293b",marginBottom:14}}>Informations client</div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:12}}>
-            <div>
-              <label style={{fontSize:12,fontWeight:600,color:"#64748b",display:"block",marginBottom:4}}>Client *</label>
-              <ClientAutocomplete value={client} onChange={setClient} onSelectId={setClientId} />
-            </div>
-            <div>
-              <label style={{fontSize:12,fontWeight:600,color:"#64748b",display:"block",marginBottom:4}}>Adresse chantier</label>
-              <AddressAutocomplete value={address} onChange={setAddress} placeholder="Adresse du chantier…" />
-            </div>
-            <div>
-              <label style={{fontSize:12,fontWeight:600,color:"#64748b",display:"block",marginBottom:4}}>Technicien</label>
-              <input value={technicien} onChange={e => setTechnicien(e.target.value)} placeholder="Prénom Nom"
-                style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box"}} />
-            </div>
-            <div>
-              <label style={{fontSize:12,fontWeight:600,color:"#64748b",display:"block",marginBottom:4}}>Date</label>
-              <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box"}} />
-            </div>
-            <div>
-              <label style={{fontSize:12,fontWeight:600,color:"#64748b",display:"block",marginBottom:4}}>Référence dossier</label>
-              <input value={ref} onChange={e => setRef(e.target.value)} placeholder="ex : CHT-2025-042"
-                style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box"}} />
-            </div>
-          </div>
-        </div>
+        {/* ─────── Onglet FICHE ─────── */}
+        {mainTab==='fiche' && (<>
 
-        {/* Sections checklist */}
-        {sections.map((s, si) => (
-          <SectionBlock key={si}
-            section={s.section}
-            items={s.items}
-            checked={Object.fromEntries(s.items.map((_, ii) => [ii, !!checked[`${si}_${ii}`]]))}
-            onToggle={ii => handleToggle(si, ii)}
-            onOpenProducts={(item, sectionLabel) => handleOpenProducts(item, sectionLabel)} />
-        ))}
-
-        {/* Observations */}
-        <div style={{background:"#fff",borderRadius:14,padding:"18px 20px",marginBottom:20,border:"1.5px solid #e2e8f0"}}>
-          <div style={{fontWeight:700,fontSize:14,color:"#1e293b",marginBottom:10}}>📝 Observations & recommandations</div>
-          <textarea value={observations} onChange={e => setObservations(e.target.value)}
-            placeholder="Observations particulières, travaux à prévoir, commentaires client…"
-            style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:10,padding:"12px 14px",fontFamily:"inherit",fontSize:14,outline:"none",resize:"vertical",minHeight:100,boxSizing:"border-box",lineHeight:1.5}} />
-        </div>
-
-        {/* Récapitulatif produits */}
-        {products.length > 0 && (
-          <div style={{background:"#fff",borderRadius:14,padding:"18px 20px",marginBottom:20,border:"1.5px solid #e2e8f0"}}>
-            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14,flexWrap:"wrap"}}>
-              <div style={{fontWeight:700,fontSize:14,color:"#1e293b",flex:1}}>🛒 Matériaux & produits ({products.length})</div>
-              <button onClick={() => setShowQuote(true)}
-                style={{background:"#0ea5e9",color:"#fff",border:"none",borderRadius:10,padding:"8px 18px",fontWeight:700,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
-                📄 Créer un devis
-              </button>
-            </div>
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
-              <thead>
-                <tr style={{borderBottom:"2px solid #f0f4f8"}}>
-                  {["Référence","Désignation","Fournisseur","Unité","Qté","Prix unit. HT","Total HT",""].map((h,i) => (
-                    <th key={i} style={{textAlign:"left",padding:"6px 8px",fontWeight:600,color:"#64748b",fontSize:12}}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((p, i) => {
-                  const price = typeof p.price === "number" ? p.price : (parseFloat(p.price) || 0);
-                  const sup = p.suppliers?.[0] || {};
-                  return (
-                    <tr key={i} style={{borderBottom:"1px solid #f8fafc"}}>
-                      <td style={{padding:"7px 8px",color:"#94a3b8",fontSize:12}}>{p.ref || "—"}</td>
-                      <td style={{padding:"7px 8px",fontWeight:500,color:"#1e293b"}}>{p.name}</td>
-                      <td style={{padding:"7px 8px",color:"#7c3aed",fontSize:12}}>{sup.name || p.category || "—"}</td>
-                      <td style={{padding:"7px 8px",color:"#64748b",fontSize:12}}>{p.unit || "pcs"}</td>
-                      <td style={{padding:"7px 8px"}}>
-                        <div style={{display:"flex",alignItems:"center",gap:6}}>
-                          <button onClick={() => updateQty(i, -1)} style={{width:22,height:22,border:"1px solid #e2e8f0",borderRadius:5,background:"#f8fafc",cursor:"pointer",fontSize:14,lineHeight:"20px",textAlign:"center"}}>−</button>
-                          <span style={{fontWeight:600,fontSize:14,minWidth:20,textAlign:"center"}}>{p.qty||1}</span>
-                          <button onClick={() => updateQty(i, 1)} style={{width:22,height:22,border:"1px solid #e2e8f0",borderRadius:5,background:"#f8fafc",cursor:"pointer",fontSize:14,lineHeight:"20px",textAlign:"center"}}>+</button>
-                        </div>
-                      </td>
-                      <td style={{padding:"7px 8px",color:"#16a34a",fontWeight:600}}>{price > 0 ? price.toFixed(2)+" €" : "—"}</td>
-                      <td style={{padding:"7px 8px",color:"#0369a1",fontWeight:700}}>{price > 0 ? (price*(p.qty||1)).toFixed(2)+" €" : "—"}</td>
-                      <td style={{padding:"7px 8px"}}>
-                        <button onClick={() => removeProduct(i)} style={{background:"none",border:"none",cursor:"pointer",color:"#ef4444",fontSize:14,padding:"2px 5px"}}>✕</button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-              {totalHT > 0 && (
-                <tfoot>
-                  <tr style={{borderTop:"2px solid #e2e8f0"}}>
-                    <td colSpan={7} style={{padding:"10px 8px",textAlign:"right",fontWeight:800,fontSize:15,color:"#0369a1"}}>
-                      Total estimatif HT : {totalHT.toFixed(2)} €
-                    </td>
-                    <td />
-                  </tr>
-                </tfoot>
-              )}
-            </table>
-          </div>
-        )}
-
-      {/* ── Section Enregistrement de la fiche ── */}
-      <div style={{background:"#fff",borderRadius:14,border:"1.5px solid #e2e8f0",marginBottom:20,overflow:"hidden"}}>
-        <div style={{background:"#1e293b",padding:"14px 20px",display:"flex",alignItems:"center",gap:10}}>
-          <span style={{fontSize:18}}>📋</span>
-          <span style={{fontWeight:800,fontSize:15,color:"#fff"}}>Enregistrement de la fiche</span>
-          <span style={{marginLeft:"auto",fontSize:12,color:"rgba(255,255,255,.6)"}}>Statut & signatures</span>
-        </div>
-        <div style={{padding:"20px"}}>
-          {/* Statut */}
-          <div style={{marginBottom:18}}>
-            <div style={{fontWeight:700,fontSize:13,color:"#1e293b",marginBottom:8}}>Statut de la visite</div>
-            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-              {[
-                {key:"en_cours",    label:"🔄 En cours",     color:"#f59e0b"},
-                {key:"termine",     label:"✅ Terminée",      color:"#16a34a"},
-                {key:"a_replanifier",label:"🔁 À replanifier",color:"#ef4444"},
-                {key:"attente_pieces",label:"⏳ Attente pièces",color:"#8b5cf6"},
-              ].map(s=>(
-                <button key={s.key} onClick={()=>setStatut(s.key)}
-                  style={{padding:"8px 16px",borderRadius:10,border:`2px solid ${statut===s.key?s.color:"#e2e8f0"}`,
-                    background:statut===s.key?s.color+"22":"#fff",color:statut===s.key?s.color:"#475569",
-                    fontWeight:statut===s.key?700:500,fontSize:13,cursor:"pointer",transition:"all .15s"}}>
-                  {s.label}
+          {/* Type d'intervention */}
+          <div style={{background:"#fff",borderRadius:14,padding:"16px 18px",marginBottom:16,border:"1.5px solid #e2e8f0"}}>
+            <div style={{fontWeight:700,fontSize:13,color:"#1e293b",marginBottom:10}}>Type d'intervention</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:7}}>
+              {INTERVENTION_TYPES.map(t=>(
+                <button key={t.key} onClick={()=>{setType(t.key);setChecked({});}}
+                  style={{padding:"7px 14px",borderRadius:9,border:`2px solid ${type===t.key?"#0ea5e9":"#e2e8f0"}`,
+                    background:type===t.key?"#eff9ff":"#fff",color:type===t.key?"#0369a1":"#475569",
+                    fontWeight:type===t.key?700:500,fontSize:12,cursor:"pointer",transition:"all .15s"}}>
+                  {t.label}
                 </button>
               ))}
             </div>
           </div>
-          {/* Signatures */}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:18}}>
-            <div>
-              <div style={{fontWeight:700,fontSize:13,color:"#1e293b",marginBottom:6}}>✍️ Signature client</div>
-              <input value={signClient} onChange={e=>setSignClient(e.target.value)}
-                placeholder="Nom complet du client (validation)"
-                style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"10px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box",fontStyle:signClient?"italic":"normal"}} />
-              {signClient && <div style={{fontSize:11,color:"#16a34a",marginTop:3}}>✓ Lu et approuvé par {signClient}</div>}
-            </div>
-            <div>
-              <div style={{fontWeight:700,fontSize:13,color:"#1e293b",marginBottom:6}}>🔧 Visa technicien</div>
-              <input value={signTech} onChange={e=>setSignTech(e.target.value)}
-                placeholder={technicien || "Nom du technicien"}
-                style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"10px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box",fontStyle:signTech?"italic":"normal"}} />
-              {signTech && <div style={{fontSize:11,color:"#0ea5e9",marginTop:3}}>✓ Intervenu par {signTech}</div>}
+
+          {/* Infos client */}
+          <div style={{background:"#fff",borderRadius:14,padding:"16px 18px",marginBottom:16,border:"1.5px solid #e2e8f0"}}>
+            <div style={{fontWeight:700,fontSize:13,color:"#1e293b",marginBottom:12}}>Informations client</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:11}}>
+              <div>
+                <label style={{fontSize:11,fontWeight:600,color:"#64748b",display:"block",marginBottom:3}}>Client *</label>
+                <ClientAutocomplete value={client} onChange={setClient} onSelectId={setClientId} />
+              </div>
+              <div>
+                <label style={{fontSize:11,fontWeight:600,color:"#64748b",display:"block",marginBottom:3}}>Adresse chantier</label>
+                <AddressAutocomplete value={address} onChange={setAddress} />
+              </div>
+              <div>
+                <label style={{fontSize:11,fontWeight:600,color:"#64748b",display:"block",marginBottom:3}}>Technicien</label>
+                <input value={technicien} onChange={e=>setTechnicien(e.target.value)} placeholder="Prénom Nom"
+                  style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"8px 12px",fontFamily:"inherit",fontSize:13,outline:"none",boxSizing:"border-box"}} />
+              </div>
+              <div>
+                <label style={{fontSize:11,fontWeight:600,color:"#64748b",display:"block",marginBottom:3}}>Date</label>
+                <input type="date" value={date} onChange={e=>setDate(e.target.value)}
+                  style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"8px 12px",fontFamily:"inherit",fontSize:13,outline:"none",boxSizing:"border-box"}} />
+              </div>
+              <div>
+                <label style={{fontSize:11,fontWeight:600,color:"#64748b",display:"block",marginBottom:3}}>Référence dossier</label>
+                <input value={ref} onChange={e=>setRef(e.target.value)} placeholder="ex : CHT-2025-042"
+                  style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"8px 12px",fontFamily:"inherit",fontSize:13,outline:"none",boxSizing:"border-box"}} />
+              </div>
             </div>
           </div>
-          {/* Résumé avant enregistrement */}
-          <div style={{background:"#f8fafc",borderRadius:10,padding:"12px 16px",marginBottom:16,fontSize:13,color:"#475569",display:"flex",gap:16,flexWrap:"wrap"}}>
-            <span>👤 {client||"Client non renseigné"}</span>
-            <span>📅 {date}</span>
-            <span>🔧 {INTERVENTION_TYPES.find(t=>t.key===type)?.label||type}</span>
-            <span>✅ {totalDone}/{totalItems} points</span>
-            {products.length>0&&<span>🛒 {products.length} produit{products.length>1?"s":""}</span>}
+
+          {/* Sections checklist */}
+          {sections.map((s,si)=>(
+            <SectionBlock key={si} section={s.section} items={s.items}
+              checked={Object.fromEntries(s.items.map((_,ii)=>[ii,!!checked[`${si}_${ii}`]]))}
+              onToggle={ii=>handleToggle(si,ii)}
+              onOpenProducts={(item,sectionLabel)=>handleOpenProducts(item,sectionLabel)} />
+          ))}
+
+          {/* Observations */}
+          <div style={{background:"#fff",borderRadius:14,padding:"16px 18px",marginBottom:16,border:"1.5px solid #e2e8f0"}}>
+            <div style={{fontWeight:700,fontSize:13,color:"#1e293b",marginBottom:8}}>📝 Remarques générales</div>
+            <textarea value={observations} onChange={e=>setObservations(e.target.value)}
+              placeholder="Observations générales, conditions d'accès, points particuliers à noter…"
+              style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:10,padding:"11px 13px",fontFamily:"inherit",fontSize:13,outline:"none",resize:"vertical",minHeight:90,boxSizing:"border-box",lineHeight:1.5}} />
           </div>
-          {/* Bouton enregistrement */}
-          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-            <button onClick={saveToHistory}
-              style={{background:saved?"#16a34a":"#0ea5e9",color:"#fff",border:"none",borderRadius:10,padding:"10px 24px",fontWeight:700,fontSize:14,cursor:"pointer",transition:"background .3s",flex:1,minWidth:160}}>
-              {saved?"✅ Fiche enregistrée !":"💾 Enregistrer la fiche"}
+
+          {/* Récapitulatif produits (si présents) */}
+          {products.length>0 && (
+            <div style={{background:"#fff",borderRadius:14,padding:"16px 18px",marginBottom:16,border:"1.5px solid #e2e8f0"}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12,flexWrap:"wrap"}}>
+                <div style={{fontWeight:700,fontSize:13,color:"#1e293b",flex:1}}>🛒 Matériaux sélectionnés ({products.length})</div>
+                <button onClick={()=>setMainTab('devis')}
+                  style={{background:"#7c3aed",color:"#fff",border:"none",borderRadius:9,padding:"7px 16px",fontWeight:700,fontSize:12,cursor:"pointer"}}>
+                  📄 Créer le devis →
+                </button>
+              </div>
+              <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+                <thead>
+                  <tr style={{borderBottom:"2px solid #f0f4f8"}}>
+                    {["Désignation","Fournisseur","Unité","Qté","Total HT",""].map((h,i)=>(
+                      <th key={i} style={{textAlign:"left",padding:"5px 7px",fontWeight:600,color:"#64748b",fontSize:11}}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map((p,i)=>{
+                    const price=typeof p.price==='number'?p.price:(parseFloat(p.price)||0);
+                    const sup=p.suppliers?.[0]||{};
+                    return (
+                      <tr key={i} style={{borderBottom:"1px solid #f8fafc"}}>
+                        <td style={{padding:"6px 7px",fontWeight:500,color:"#1e293b"}}>{p.name}</td>
+                        <td style={{padding:"6px 7px",color:"#7c3aed",fontSize:11}}>{sup.name||p.category||'—'}</td>
+                        <td style={{padding:"6px 7px",color:"#64748b",fontSize:11}}>{p.unit||'pcs'}</td>
+                        <td style={{padding:"6px 7px"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:4}}>
+                            <button onClick={()=>updateQty(i,-1)} style={{width:20,height:20,border:"1px solid #e2e8f0",borderRadius:4,background:"#f8fafc",cursor:"pointer",fontSize:12,lineHeight:"18px",textAlign:"center"}}>−</button>
+                            <span style={{fontWeight:700,minWidth:18,textAlign:"center"}}>{p.qty||1}</span>
+                            <button onClick={()=>updateQty(i,+1)} style={{width:20,height:20,border:"1px solid #e2e8f0",borderRadius:4,background:"#f8fafc",cursor:"pointer",fontSize:12,lineHeight:"18px",textAlign:"center"}}>+</button>
+                          </div>
+                        </td>
+                        <td style={{padding:"6px 7px",color:"#0369a1",fontWeight:700,whiteSpace:"nowrap"}}>{price>0?(price*(p.qty||1)).toFixed(2)+' €':'—'}</td>
+                        <td style={{padding:"6px 7px"}}>
+                          <button onClick={()=>removeProduct(i)} style={{background:"none",border:"none",cursor:"pointer",color:"#ef4444",fontSize:13,padding:"1px 4px"}}>✕</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                {totalHT>0&&(
+                  <tfoot>
+                    <tr style={{borderTop:"2px solid #e2e8f0"}}>
+                      <td colSpan={4} style={{padding:"7px 7px",textAlign:"right",fontWeight:800,fontSize:13,color:"#0369a1"}}>Total estimatif HT :</td>
+                      <td style={{padding:"7px 7px",fontWeight:800,fontSize:14,color:"#0369a1",whiteSpace:"nowrap"}}>{totalHT.toFixed(2)} €</td>
+                      <td/>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+          )}
+
+          {/* Bouton "Passer à l'enregistrement" */}
+          <div style={{display:"flex",gap:10,marginBottom:20,justifyContent:"flex-end",flexWrap:"wrap"}}>
+            <button onClick={()=>setMainTab('devis')}
+              style={{background:"#0ea5e9",color:"#fff",border:"none",borderRadius:10,padding:"10px 22px",fontWeight:700,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",gap:7}}>
+              📄 Créer un devis {products.length>0&&`(${products.length} produit${products.length>1?'s':''})`}
             </button>
-            <button onClick={handlePrint}
-              style={{background:"none",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"10px 20px",fontWeight:600,fontSize:13,cursor:"pointer",color:"#475569"}}>
-              🖨️ Imprimer / PDF
+            <button onClick={()=>setMainTab('enregistrement')}
+              style={{background:"#1e293b",color:"#fff",border:"none",borderRadius:10,padding:"10px 22px",fontWeight:700,fontSize:13,cursor:"pointer"}}>
+              💾 Enregistrer la fiche →
             </button>
-            {products.length>0&&(
-              <button onClick={()=>setShowQuote(true)}
-                style={{background:"#7c3aed",color:"#fff",border:"none",borderRadius:10,padding:"10px 20px",fontWeight:700,fontSize:13,cursor:"pointer"}}>
-                📄 Créer un devis
+          </div>
+
+        </>)}
+
+        {/* ─────── Onglet DEVIS (QuoteModal inline) ─────── */}
+        {mainTab==='devis' && (
+          <QuoteModal
+            products={products}
+            client={client}
+            clientId={clientId}
+            address={address}
+            refDossier={ref}
+            onClose={()=>setMainTab('fiche')}
+            onCreated={()=>{}}
+            inline={true}
+          />
+        )}
+
+        {/* ─────── Onglet ENREGISTREMENT ─────── */}
+        {mainTab==='enregistrement' && (
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+
+            {/* Résumé de la fiche */}
+            <div style={{background:"#fff",borderRadius:14,border:"1.5px solid #e2e8f0",overflow:"hidden"}}>
+              <div style={{background:"#0ea5e9",padding:"12px 18px",display:"flex",alignItems:"center",gap:8}}>
+                <span style={{fontWeight:800,fontSize:15,color:"#fff"}}>📋 Résumé de la visite</span>
+              </div>
+              <div style={{padding:"16px 18px",display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:12}}>
+                {[
+                  {label:"Client",      value:client||"Non renseigné",   icon:"👤"},
+                  {label:"Adresse",     value:address||"—",              icon:"📍"},
+                  {label:"Technicien",  value:technicien||"—",           icon:"🔧"},
+                  {label:"Date",        value:date,                       icon:"📅"},
+                  {label:"Type",        value:INTERVENTION_TYPES.find(t=>t.key===type)?.label||type, icon:"🔨"},
+                  {label:"Progression", value:`${totalDone}/${totalItems} (${pct}%)`, icon:"✅"},
+                  ...(products.length>0?[{label:"Matériaux",value:`${products.length} produits — ${totalHT.toFixed(2)} € HT`,icon:"🛒"}]:[]),
+                ].map((item,i)=>(
+                  <div key={i} style={{background:"#f8fafc",borderRadius:9,padding:"10px 12px"}}>
+                    <div style={{fontSize:11,fontWeight:600,color:"#94a3b8",marginBottom:3}}>{item.icon} {item.label}</div>
+                    <div style={{fontSize:13,fontWeight:600,color:"#1e293b"}}>{item.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Statut */}
+            <div style={{background:"#fff",borderRadius:14,padding:"16px 18px",border:"1.5px solid #e2e8f0"}}>
+              <div style={{fontWeight:700,fontSize:13,color:"#1e293b",marginBottom:10}}>Statut de la visite</div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {[
+                  {key:"en_cours",       label:"🔄 En cours",      color:"#f59e0b"},
+                  {key:"termine",        label:"✅ Terminée",       color:"#16a34a"},
+                  {key:"a_replanifier",  label:"🔁 À replanifier", color:"#ef4444"},
+                  {key:"attente_pieces", label:"⏳ Attente pièces", color:"#8b5cf6"},
+                ].map(s=>(
+                  <button key={s.key} onClick={()=>setStatut(s.key)}
+                    style={{padding:"8px 15px",borderRadius:10,border:`2px solid ${statut===s.key?s.color:"#e2e8f0"}`,
+                      background:statut===s.key?s.color+"22":"#fff",color:statut===s.key?s.color:"#475569",
+                      fontWeight:statut===s.key?700:500,fontSize:13,cursor:"pointer",transition:"all .15s"}}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Signatures */}
+            <div style={{background:"#fff",borderRadius:14,padding:"16px 18px",border:"1.5px solid #e2e8f0"}}>
+              <div style={{fontWeight:700,fontSize:13,color:"#1e293b",marginBottom:12}}>✍️ Signatures</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+                <div>
+                  <label style={{fontSize:11,fontWeight:600,color:"#64748b",display:"block",marginBottom:5}}>Visa technicien</label>
+                  <input value={signTech||technicien} onChange={e=>setSignTech(e.target.value)}
+                    placeholder={technicien||"Prénom Nom technicien"}
+                    style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 12px",fontFamily:"'Dancing Script',Georgia,serif",fontSize:16,outline:"none",boxSizing:"border-box",fontStyle:"italic",color:"#1e293b"}} />
+                  {(signTech||technicien)&&<div style={{fontSize:11,color:"#0ea5e9",marginTop:3}}>✓ Intervenu par {signTech||technicien} le {date}</div>}
+                </div>
+                <div>
+                  <label style={{fontSize:11,fontWeight:600,color:"#64748b",display:"block",marginBottom:5}}>Signature client (bon pour accord)</label>
+                  <input value={signClient} onChange={e=>setSignClient(e.target.value)}
+                    placeholder={client||"Nom complet du client"}
+                    style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 12px",fontFamily:"'Dancing Script',Georgia,serif",fontSize:16,outline:"none",boxSizing:"border-box",fontStyle:"italic",color:"#1e293b"}} />
+                  {signClient&&<div style={{fontSize:11,color:"#16a34a",marginTop:3}}>✓ Lu et approuvé par {signClient}</div>}
+                </div>
+              </div>
+            </div>
+
+            {/* Boutons enregistrement */}
+            <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+              <button onClick={()=>saveToHistory(true)}
+                style={{background:saved?"#16a34a":"#0ea5e9",color:"#fff",border:"none",borderRadius:10,padding:"11px 26px",fontWeight:700,fontSize:14,cursor:"pointer",transition:"background .3s",flex:1,minWidth:200}}>
+                {saved?("✅ "+saveMsg):"💾 Enregistrer la fiche"}
               </button>
-            )}
+              <button onClick={()=>{saveToHistory(false);setMainTab('devis');}}
+                style={{background:"#7c3aed",color:"#fff",border:"none",borderRadius:10,padding:"11px 22px",fontWeight:700,fontSize:13,cursor:"pointer"}}>
+                📄 Enregistrer + créer devis
+              </button>
+              <button onClick={()=>window.print()}
+                style={{background:"none",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"11px 20px",fontWeight:600,fontSize:13,cursor:"pointer",color:"#475569"}}>
+                🖨️ Imprimer / PDF
+              </button>
+            </div>
+
+            {/* Pied de page */}
+            <div style={{textAlign:"center",padding:"10px 0",fontSize:11,color:"#94a3b8"}}>
+              Lolirine Pool Store · lolirinepoolstore.be · BCE 0650.891.279
+            </div>
           </div>
-        </div>
-      </div>
-      </div>{/* fin maxWidth container */}
+        )}
 
-      {/* Panel produits */}
-      {panel && <ProductPanel item={panel.item} sectionLabel={panel.sectionLabel} onAddProducts={handleAddProducts} onClose={() => setPanel(null)} />}
+      </div>{/* fin container */}
 
-      {/* Modal devis */}
-      {showQuote && products.length > 0 && (
-        <QuoteModal
-          products={products}
-          client={client}
-          clientId={clientId}
-          address={address}
-          refDossier={ref}
-          onClose={() => setShowQuote(false)}
-          onCreated={() => {}}
-        />
-      )}
+      {/* Panel produits (modal) */}
+      {panel && <ProductPanel item={panel.item} sectionLabel={panel.sectionLabel} onAddProducts={handleAddProducts} onClose={()=>setPanel(null)} />}
 
       {/* Modal historique */}
-      {showHistory && <HistoryModal onClose={() => setShowHistory(false)} onLoad={loadRecord} />}
+      {showHistory && <HistoryModal onClose={()=>setShowHistory(false)} onLoad={loadRecord} />}
     </div>
   );
 }
+
 
 /* ─────────────────────────────────────────────────────
    MOUNT
