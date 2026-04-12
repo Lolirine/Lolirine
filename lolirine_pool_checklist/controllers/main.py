@@ -40,9 +40,10 @@ class PoolChecklistController(http.Controller):
         try:
             PT     = request.env['product.template'].sudo()
             domain = [
-                ('website_id', '=', POOL_STORE_WEBSITE_ID),
+                '|', ('website_id', '=', POOL_STORE_WEBSITE_ID),
+                '&', ('website_published', '=', True), ('website_id', '=', False),
                 '|', ('name', 'ilike', query),
-                     ('description_sale', 'ilike', query),
+                     ('default_code', 'ilike', query),
             ]
             if supplier and supplier in SUPPLIER_NAMES:
                 names = SUPPLIER_NAMES[supplier]
