@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Page /visite-chantier
+        Page HTML autonome — React 18 + Babel via CDN
+        Le JS JSX est servi depuis static/ et transpilé par Babel dans le navigateur
+    -->
+    <template id="page_checklist" name="Fiche de visite chantier">
+        <html lang="fr">
+            <head>
+                <meta charset="UTF-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                <title>Fiche de visite chantier — Lolirine Pool Store</title>
+
+                <!-- Désactivation indexation -->
+                <meta name="robots" content="noindex, nofollow"/>
+
+                <!-- CSS module -->
+                <link rel="stylesheet"
+                      type="text/css"
+                      t-att-href="'/lolirine_pool_checklist/static/src/css/pool_checklist.css'"/>
+
+                <!-- React 18 + ReactDOM + Babel standalone -->
+                <script src="https://unpkg.com/react@18/umd/react.production.min.js"
+                        crossorigin="anonymous"/>
+                <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+                        crossorigin="anonymous"/>
+                <script src="https://unpkg.com/@babel/standalone/babel.min.js"
+                        crossorigin="anonymous"/>
+
+                <!-- Config frontend injectée côté serveur -->
+                <script>
+                    window.LOLIRINE_CHECKLIST_CONFIG = {
+                        csrfToken:        '<t t-esc="request.csrf_token()"/>',
+                        productsEndpoint:  '/pool-checklist/products',
+                        aiEndpoint:        '/pool-checklist/ai-suggest',
+                        partnerEndpoint:   '/pool-checklist/search-partner',
+                        quoteEndpoint:     '/pool-checklist/create-quote'
+                    };
+                </script>
+
+                <style>
+                    *, *::before, *::after { box-sizing: border-box; }
+                    html, body { margin: 0; padding: 0; background: #f1f5f9; }
+                    #pool-checklist-root { min-height: 100vh; }
+                </style>
+            </head>
+            <body>
+                <!-- Point de montage React -->
+                <div id="pool-checklist-root"/>
+
+                <!-- JS JSX transpilé par Babel dans le navigateur -->
+                <script type="text/babel"
+                        data-presets="react"
+                        t-att-src="'/lolirine_pool_checklist/static/src/js/pool_checklist.js'"/>
+            </body>
+        </html>
+    </template>
+
+</odoo>
