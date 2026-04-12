@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Menu Odoo backend : Site Web → Fiche de visite -->
+    <record id="menu_pool_checklist_root" model="ir.ui.menu">
+        <field name="name">Lolirine Pool</field>
+        <field name="parent_id" ref="website.menu_website_configuration"/>
+        <field name="sequence">100</field>
+    </record>
+
+    <record id="menu_pool_checklist_page" model="ir.ui.menu">
+        <field name="name">Fiche de visite chantier</field>
+        <field name="parent_id" ref="menu_pool_checklist_root"/>
+        <field name="action" ref="base_setup.action_general_configuration"/>
+        <field name="sequence">10</field>
+    </record>
+
+</odoo>
