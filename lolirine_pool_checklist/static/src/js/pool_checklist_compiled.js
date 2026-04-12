@@ -400,6 +400,28 @@ async function searchPartners(query) {
   }
 }
 
+/* ── Catalogue : catégories et produits par catégorie ── */
+async function fetchCategories() {
+  try {
+    const r = await apiPost('/pool-checklist/categories', {});
+    return r?.categories || [];
+  } catch (e) {
+    return [];
+  }
+}
+async function fetchProductsByCategory(categoryId, query = '') {
+  try {
+    const r = await apiPost('/pool-checklist/products-by-category', {
+      category_id: categoryId,
+      query,
+      limit: 60
+    });
+    return sortBySupplier(r?.products || []);
+  } catch (e) {
+    return [];
+  }
+}
+
 /* ── Validation TVA via VIES (endpoint Odoo natif) ── */
 async function checkVatVies(vat) {
   if (!vat || vat.trim().length < 8) return null;
@@ -1048,7 +1070,18 @@ function QuoteModal({
       }
     });
     setCreating(false);
-    if (r?.success) onSuccess(r);else alert('Erreur : ' + (r?.error || 'inconnue'));
+    if (r?.success) {
+      // Récupérer l'URL backend du devis via endpoint dédié
+      try {
+        const urlR = await apiPost('/pool-checklist/quote-url', {
+          quote_id: r.quote_id
+        });
+        r._backendUrl = urlR?.url || `/odoo/action-4402/${r.quote_id}`;
+      } catch (e) {
+        r._backendUrl = `/odoo/action-4402/${r.quote_id}`;
+      }
+      onSuccess(r);
+    } else alert('Erreur : ' + (r?.error || 'inconnue'));
   };
   const secStyle = {
     background: '#fff',
@@ -1850,6 +1883,7 @@ function ProductPanel({
   onClose
 }) {
   const autoKw = React.useMemo(() => extractKeywords(itemText), [itemText]);
+  const [mode, setMode] = React.useState('search'); // 'search'|'catalog'
   const [q, setQ] = React.useState(autoKw);
   const [allResults, setAll] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
@@ -1858,8 +1892,16 @@ function ProductPanel({
   const [sel, setSel] = React.useState({});
   const [qtys, setQtys] = React.useState({});
   const [zoom, setZoom] = React.useState(null);
-  const [openCats, setOpenCats] = React.useState({}); // catégories ouvertes
+  const [openCats, setOpenCats] = React.useState({});
 
+  // Catalogue
+  const [categories, setCategories] = React.useState([]);
+  const [catLoading, setCatLoading] = React.useState(false);
+  const [selCat, setSelCat] = React.useState(null);
+  const [catProds, setCatProds] = React.useState([]);
+  const [catProdLoading, setCatPL] = React.useState(false);
+  const [catSearch, setCatSearch] = React.useState('');
+  const [catFilter, setCatFilter] = React.useState('');
   const search = async query => {
     if (!query.trim()) return;
     setLoading(true);
@@ -1873,17 +1915,32 @@ function ProductPanel({
       const prods = r?.products || [];
       setAll(prods);
       setSource(r?.source || null);
-      // Ouvrir auto la 1ère catégorie avec fournisseur
       const firstWithSupplier = prods.find(p => (p.suppliers || []).some(s => s.type === 'fluidra' || s.type === 'scp'));
-      if (firstWithSupplier) {
-        setOpenCats({
-          [firstWithSupplier.category || 'Général']: true
-        });
-      }
+      if (firstWithSupplier) setOpenCats({
+        [firstWithSupplier.category || 'Général']: true
+      });
     } catch (e) {
       setAll([]);
     }
     setLoading(false);
+  };
+  const loadCategories = async () => {
+    if (categories.length > 0) return;
+    setCatLoading(true);
+    const cats = await fetchCategories();
+    setCategories(cats);
+    setCatLoading(false);
+  };
+  const loadCatProducts = async (catId, q = '') => {
+    setCatPL(true);
+    setCatProds([]);
+    const prods = await fetchProductsByCategory(catId, q);
+    setCatProds(prods);
+    setCatPL(false);
+  };
+  const switchMode = m => {
+    setMode(m);
+    if (m === 'catalog') loadCategories();
   };
   React.useEffect(() => {
     search(autoKw);
@@ -2228,7 +2285,7 @@ function ProductPanel({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: '15px 20px',
+      padding: '14px 20px',
       borderBottom: '1.5px solid #dde4ed',
       display: 'flex',
       gap: 12,
@@ -2248,9 +2305,9 @@ function ProductPanel({
     style: {
       fontSize: 12,
       color: '#6b7a8d',
-      marginTop: 3
+      marginTop: 2
     }
-  }, itemText.slice(0, 90), itemText.length > 90 ? '…' : '')), /*#__PURE__*/React.createElement("button", {
+  }, itemText.slice(0, 80), itemText.length > 80 ? '…' : '')), /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
     style: {
       background: 'none',
@@ -2262,6 +2319,29 @@ function ProductPanel({
       color: '#6b7a8d'
     }
   }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      background: '#fff',
+      borderBottom: '1px solid #dde4ed',
+      paddingLeft: 20,
+      paddingRight: 20
+    }
+  }, [['search', '🔍 Recherche'], ['catalog', '📂 Catalogue complet']].map(([m, lbl]) => /*#__PURE__*/React.createElement("button", {
+    key: m,
+    onClick: () => switchMode(m),
+    style: {
+      padding: '9px 16px',
+      border: 'none',
+      cursor: 'pointer',
+      fontFamily: 'inherit',
+      fontSize: 13,
+      fontWeight: 600,
+      background: 'transparent',
+      borderBottom: `3px solid ${mode === m ? '#0ea5e9' : 'transparent'}`,
+      color: mode === m ? '#0ea5e9' : '#6b7a8d',
+      transition: 'all .15s'
+    }
+  }, lbl))), mode === 'search' && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '10px 20px',
       borderBottom: '1px solid #dde4ed',
@@ -2296,7 +2376,55 @@ function ProductPanel({
       cursor: 'pointer',
       fontSize: 14
     }
-  }, loading ? '…' : 'Chercher')), allResults.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, loading ? '…' : 'Chercher')), mode === 'catalog' && selCat && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '8px 20px',
+      borderBottom: '1px solid #dde4ed',
+      display: 'flex',
+      gap: 8,
+      alignItems: 'center',
+      background: '#fff'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setSelCat(null);
+      setCatProds([]);
+      setCatSearch('');
+    },
+    style: {
+      background: 'none',
+      border: '1.5px solid #dde4ed',
+      borderRadius: 7,
+      padding: '5px 10px',
+      cursor: 'pointer',
+      fontSize: 12,
+      color: '#6b7a8d',
+      whiteSpace: 'nowrap'
+    }
+  }, "\u2190 Cat\xE9gories"), /*#__PURE__*/React.createElement("input", {
+    value: catSearch,
+    onChange: e => {
+      setCatSearch(e.target.value);
+      loadCatProducts(selCat.id, e.target.value);
+    },
+    placeholder: `Filtrer dans ${selCat.name}…`,
+    style: {
+      flex: 1,
+      border: '1.5px solid #dde4ed',
+      borderRadius: 8,
+      padding: '7px 12px',
+      fontFamily: 'inherit',
+      fontSize: 13,
+      outline: 'none',
+      background: '#f8fafc'
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: '#6b7a8d',
+      whiteSpace: 'nowrap'
+    }
+  }, catProds.length, " produit(s)")), allResults.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -2361,21 +2489,173 @@ function ProductPanel({
       overflowY: 'auto',
       padding: '12px 20px'
     }
-  }, loading && /*#__PURE__*/React.createElement("div", {
+  }, mode === 'catalog' && !selCat && /*#__PURE__*/React.createElement(React.Fragment, null, catLoading && /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: 50,
+      padding: 40,
       textAlign: 'center',
       color: '#6b7a8d',
-      fontSize: 32
+      fontSize: 28
     }
-  }, "\uD83D\uDD04"), !loading && results.length === 0 && source && /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDD04"), !catLoading && categories.length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: 30,
       textAlign: 'center',
       color: '#6b7a8d',
       fontSize: 13
     }
-  }, "Aucun r\xE9sultat. Modifiez la recherche."), grouped.map(([cat, {
+  }, "Aucune cat\xE9gorie trouv\xE9e."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    placeholder: "Filtrer les cat\xE9gories\u2026",
+    onChange: e => {
+      const q = e.target.value.toLowerCase();
+      // Filter inline via CSS opacity trick not needed - use state
+      setCatFilter(q);
+    },
+    style: {
+      width: '100%',
+      border: '1.5px solid #dde4ed',
+      borderRadius: 8,
+      padding: '8px 13px',
+      fontFamily: 'inherit',
+      fontSize: 13,
+      outline: 'none',
+      background: '#f8fafc'
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))',
+      gap: 8
+    }
+  }, categories.filter(cat => !catFilter || (cat.name || '').toLowerCase().includes(catFilter)).map(cat => {
+    const ICONS = {
+      'pompe': '⚙️',
+      'filtr': '🔧',
+      'skimmer': '💧',
+      'bonde': '🔩',
+      'liner': '🏊',
+      'eclairage': '💡',
+      'éclairage': '💡',
+      'robot': '🤖',
+      'traitement': '🧪',
+      'désinfect': '🧪',
+      'desinfect': '🧪',
+      'chauffage': '🌡️',
+      'chaleur': '🌡️',
+      'couverture': '🟦',
+      'wellness': '🛁',
+      'spa': '🛁',
+      'accessoire': '🛠️',
+      'pièce': '🔩',
+      'pieces': '🔩',
+      'nettoyage': '🧹',
+      'épuisette': '🧹',
+      'buse': '💧',
+      'irrigation': '🌿',
+      'étang': '🌿',
+      'clôture': '🚧',
+      'alarme': '🚨',
+      'sel': '🧂'
+    };
+    let icon = '🏊';
+    const nameLow = (cat.name || '').toLowerCase();
+    for (const [k, v] of Object.entries(ICONS)) {
+      if (nameLow.includes(k)) {
+        icon = v;
+        break;
+      }
+    }
+    return /*#__PURE__*/React.createElement("div", {
+      key: cat.id,
+      onClick: () => {
+        setSelCat(cat);
+        loadCatProducts(cat.id);
+        setCatFilter('');
+      },
+      style: {
+        background: '#fff',
+        borderRadius: 10,
+        padding: '12px 14px',
+        cursor: 'pointer',
+        border: '1.5px solid #e8edf3',
+        transition: 'all .15s',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10
+      },
+      onMouseOver: e => {
+        e.currentTarget.style.borderColor = '#0ea5e9';
+        e.currentTarget.style.background = '#f0f9ff';
+      },
+      onMouseOut: e => {
+        e.currentTarget.style.borderColor = '#e8edf3';
+        e.currentTarget.style.background = '#fff';
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 22,
+        flexShrink: 0
+      }
+    }, icon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 13,
+        color: '#1a2332',
+        lineHeight: 1.3
+      }
+    }, cat.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: '#0ea5e9',
+        fontWeight: 600,
+        marginTop: 2
+      }
+    }, cat.count, " produit(s)")));
+  }))), mode === 'catalog' && selCat && /*#__PURE__*/React.createElement(React.Fragment, null, catProdLoading && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 40,
+      textAlign: 'center',
+      color: '#6b7a8d',
+      fontSize: 28
+    }
+  }, "\uD83D\uDD04"), !catProdLoading && catProds.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 30,
+      textAlign: 'center',
+      color: '#6b7a8d',
+      fontSize: 13
+    }
+  }, "Aucun produit."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 6
+    }
+  }, catProds.map(p => {
+    const uid = productUid(p);
+    return /*#__PURE__*/React.createElement(ProductRow, {
+      key: uid,
+      p: p,
+      uid: uid
+    });
+  }))), mode === 'search' && loading && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 50,
+      textAlign: 'center',
+      color: '#6b7a8d',
+      fontSize: 32
+    }
+  }, "\uD83D\uDD04"), mode === 'search' && !loading && results.length === 0 && source && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 30,
+      textAlign: 'center',
+      color: '#6b7a8d',
+      fontSize: 13
+    }
+  }, "Aucun r\xE9sultat. Modifiez la recherche ou utilisez le ", /*#__PURE__*/React.createElement("strong", null, "Catalogue complet"), "."), mode === 'search' && /*#__PURE__*/React.createElement(React.Fragment, null, grouped.map(([cat, {
     withSupplier,
     other
   }]) => {
@@ -2503,7 +2783,7 @@ function ProductPanel({
       p: p,
       uid: productUid(p)
     })))));
-  })), /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '12px 20px',
       borderTop: '1.5px solid #dde4ed',
@@ -3756,14 +4036,14 @@ function PoolChecklist() {
       fontWeight: 700,
       color: '#059669'
     }
-  }, "Devis Pool Store ", quoteResult.quote_name || quoteResult.order_name, " cr\xE9\xE9 !"), /*#__PURE__*/React.createElement("div", {
+  }, "Devis Pool Store ", quoteResult.quote_name, " cr\xE9\xE9 !"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 13,
       color: '#047857',
       marginTop: 2
     }
   }, "Num\xE9rotation s\xE9par\xE9e \u2014 visible dans Fiche chantier \u2192 Devis Pool Store")), /*#__PURE__*/React.createElement("a", {
-    href: `/pool-checklist/open-quote/${quoteResult.quote_id}`,
+    href: quoteResult._backendUrl || `/odoo/action-4402/${quoteResult.quote_id}`,
     target: "_blank",
     style: {
       background: '#059669',
