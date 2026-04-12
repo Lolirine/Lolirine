@@ -102,6 +102,68 @@ const INTERVENTION_TYPES = [
 ];
 
 /* ─────────────────────────────────────────────────────
+   ClientAutocomplete — recherche partenaire Odoo
+───────────────────────────────────────────────────── */
+function ClientAutocomplete({ value, onChange, onSelectId }) {
+  const cfg = window.LOLIRINE_CHECKLIST_CONFIG || {};
+  const [suggs, setSuggs] = useState([]);
+  const [show, setShow] = useState(false);
+  const timerRef = useRef(null);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    function handler(e) { if (wrapRef.current && !wrapRef.current.contains(e.target)) setShow(false); }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  function handleInput(val) {
+    onChange(val);
+    clearTimeout(timerRef.current);
+    if (val.length < 2) { setSuggs([]); setShow(false); return; }
+    timerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(cfg.partnerEndpoint || "/pool-checklist/search-partner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ jsonrpc: "2.0", method: "call", id: 1, params: { query: val, limit: 8 } }),
+        });
+        const d = await res.json();
+        const partners = d?.result?.partners || [];
+        setSuggs(partners);
+        setShow(partners.length > 0);
+      } catch { setSuggs([]); setShow(false); }
+    }, 250);
+  }
+
+  return (
+    <div ref={wrapRef} style={{position:"relative"}}>
+      <input value={value} onChange={e => handleInput(e.target.value)}
+        placeholder="Nom du client…"
+        style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box"}}
+        onFocus={() => suggs.length && setShow(true)} />
+      {show && (
+        <div style={{position:"absolute",top:"100%",left:0,right:0,zIndex:1000,background:"#fff",border:"1.5px solid #dde4ed",borderRadius:10,boxShadow:"0 8px 30px rgba(0,0,0,.12)",marginTop:4,maxHeight:220,overflowY:"auto"}}>
+          {suggs.map((p, i) => (
+            <div key={i} onClick={() => { onChange(p.name); onSelectId && onSelectId(p.id); setShow(false); }}
+              style={{padding:"9px 14px",cursor:"pointer",fontSize:13,borderBottom:i<suggs.length-1?"1px solid #f0f4f8":"none",display:"flex",gap:8,alignItems:"flex-start"}}
+              onMouseEnter={e => e.currentTarget.style.background="#f0f9ff"}
+              onMouseLeave={e => e.currentTarget.style.background="transparent"}>
+              <div>
+                <div style={{fontWeight:600,color:"#1e293b"}}>{p.name}</div>
+                {p.city && <div style={{fontSize:11,color:"#94a3b8"}}>{p.city}</div>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────
    SuggDropdown — liste déroulante de suggestions
 ───────────────────────────────────────────────────── */
 function SuggDropdown({ items, onSelect, onClose }) {
@@ -404,168 +466,544 @@ function SectionBlock({ section, items, checked, onToggle, onOpenProducts }) {
 }
 
 /* ─────────────────────────────────────────────────────
-   QuoteModal — création devis Odoo depuis la checklist
+   QuoteModal — Devis piscine style Odoo
+   Onglets : Lignes · Frais & services · Dropshipping · Notes
+   TVA 21% BE · Fournisseurs SCP / Fluidra · Déplacement auto
 ───────────────────────────────────────────────────── */
-function QuoteModal({ products, client, clientId, address, ref: refDossier, onClose, onCreated }) {
+
+/* ── Helpers ── */
+function calcDeplacement(km) {
+  const n = Number(km) || 0;
+  if (n <= 0)  return 0;
+  if (n <= 30) return 50;
+  return 50 + Math.ceil((n - 30) / 25) * 10;
+}
+
+const EVAC_OPTIONS = [
+  { key:'forfait', label:'🚛 Forfait évacuation Lolirine', price:150 },
+  { key:'client',  label:'🤝 Évacuation prise en charge client', price:0 },
+  { key:'sans',    label:'— Sans évacuation', price:0 },
+];
+
+const PAYMENT_TERMS = [
+  'Paiement à terme échu (30 j)',
+  'Paiement comptant',
+  'Acompte 30 % + solde livraison',
+  'Acompte 50 % + solde livraison',
+  'Virement avant expédition',
+];
+
+const SUPPLIERS = ['Fluidra / SIBO','SCP Bénélux','HTH / BWT','Zodiac / Fluidra','Hayward','Astralpool','Pentair'];
+
+const TVA_RATE = 0.21;
+
+function QuoteModal({ products, client, clientId, address, refDossier, onClose, onCreated }) {
   const cfg = window.LOLIRINE_CHECKLIST_CONFIG || {};
-  const [lines, setLines] = useState(
-    products.map(p => ({ ...p, qty: p.qty || 1, include: true }))
-  );
+  const [tab, setTab]   = useState('lines');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-  const [note, setNote] = useState(address ? `Chantier : ${address}` : '');
+  const [result,  setResult]  = useState(null);
+  const [error,   setError]   = useState(null);
 
-  function toggleLine(i) {
-    setLines(ls => ls.map((l, idx) => idx === i ? { ...l, include: !l.include } : l));
-  }
-  function updateQty(i, delta) {
-    setLines(ls => ls.map((l, idx) => idx === i ? { ...l, qty: Math.max(1, (l.qty || 1) + delta) } : l));
-  }
+  /* ── Onglet Lignes ── */
+  const [lines, setLines] = useState(
+    (products||[]).map(p => ({
+      ...p, qty: p.qty||1, include: true,
+      remise: 0,
+      price_unit: typeof p.price==='number' ? p.price : (parseFloat(p.price)||0),
+    }))
+  );
 
-  const included = lines.filter(l => l.include);
-  const totalHT = included.reduce((a, l) => {
-    const p = typeof l.price === 'number' ? l.price : (parseFloat(l.price) || 0);
-    return a + p * l.qty;
+  /* ── Onglet Frais & services ── */
+  const [evac,      setEvac]      = useState('client');
+  const [km,        setKm]        = useState(0);
+  const [deplAuto,  setDeplAuto]  = useState(true);
+  const [deplMt,    setDeplMt]    = useState(0);
+  const [moeuvre,   setMoeuvre]   = useState(0);
+  const [inclDepl,  setInclDepl]  = useState(false);
+  const [inclMO,    setInclMO]    = useState(false);
+
+  /* ── Onglet Dropshipping ── */
+  const [supplier,    setSupplier]    = useState('Fluidra / SIBO');
+  const [supplierRef, setSupplierRef] = useState('');
+  const [delaiLivr,   setDelaiLivr]   = useState('5-10 jours ouvrés');
+  const [livrAdresse, setLivrAdresse] = useState(address || '');
+  const [livrDirect,  setLivrDirect]  = useState(true);
+  const [commandeFourn, setCommandeFourn] = useState('');
+
+  /* ── Onglet Notes / conditions ── */
+  const [notesInt,    setNotesInt]    = useState(address ? 'Chantier : '+address : '');
+  const [conditions,  setConditions]  = useState('');
+  const [paymentTerm, setPaymentTerm] = useState(PAYMENT_TERMS[0]);
+  const [validite,    setValidite]    = useState(30);
+
+  /* ── Géocodage adresse → km auto ── */
+  useEffect(() => {
+    if (!address || Number(km)>0) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch(
+          'https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(address)+
+          '&format=json&limit=1&countrycodes=be',
+          { headers:{'Accept-Language':'fr','User-Agent':'LolirinePoolChecklist/1.0'} }
+        );
+        const d = await r.json();
+        if (cancelled||!d[0]) return;
+        const lat2=parseFloat(d[0].lat), lon2=parseFloat(d[0].lon);
+        const R=6371, dLat=(lat2-50.4530)*Math.PI/180, dLon=(lon2-4.9030)*Math.PI/180;
+        const a=Math.sin(dLat/2)**2+Math.cos(50.4530*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+        const dist=Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))*1.3);
+        if (!cancelled && dist>0) { setKm(dist); setInclDepl(dist>0); }
+      } catch {}
+    })();
+    return ()=>{cancelled=true;};
+  }, [address]);
+
+  useEffect(()=>{ if(deplAuto) setDeplMt(calcDeplacement(Number(km))); }, [km, deplAuto]);
+
+  /* ── Calculs totaux ── */
+  const totalMat = lines.filter(l=>l.include).reduce((a,l)=>{
+    const p = l.price_unit||0;
+    return a + p*(l.qty||1)*(1-(l.remise||0)/100);
   }, 0);
+  const totalDepl = inclDepl ? (deplAuto ? calcDeplacement(Number(km)) : Number(deplMt)||0) : 0;
+  const totalEvac = evac!=='sans' ? (EVAC_OPTIONS.find(o=>o.key===evac)?.price||0) : 0;
+  const totalMO   = inclMO ? (Number(moeuvre)||0) : 0;
+  const subtotalHT = totalMat + totalDepl + totalEvac + totalMO;
+  const tva        = subtotalHT * TVA_RATE;
+  const totalTTC   = subtotalHT + tva;
 
+  /* ── Mutations lignes ── */
+  function toggleLine(i)     { setLines(ls=>ls.map((l,x)=>x===i?{...l,include:!l.include}:l)); }
+  function updQty(i,d)       { setLines(ls=>ls.map((l,x)=>x===i?{...l,qty:Math.max(1,(l.qty||1)+d)}:l)); }
+  function updPrice(i,v)     { setLines(ls=>ls.map((l,x)=>x===i?{...l,price_unit:parseFloat(v)||0}:l)); }
+  function updRemise(i,v)    { setLines(ls=>ls.map((l,x)=>x===i?{...l,remise:Math.min(100,Math.max(0,parseFloat(v)||0))}:l)); }
+  function removeLine(i)     { setLines(ls=>ls.filter((_,x)=>x!==i)); }
+
+  /* ── Création devis Odoo ── */
   async function createQuote() {
-    if (!included.length) { setError('Aucune ligne sélectionnée.'); return; }
     setLoading(true); setError(null);
+    const allLines = [
+      ...lines.filter(l=>l.include).map(l=>({
+        product_id: l.id||null,
+        name: l.name,
+        product_uom_qty: l.qty,
+        price_unit: l.price_unit||0,
+        discount: l.remise||0,
+        default_code: l.ref||'',
+      })),
+      ...(totalDepl>0?[{product_id:null,name:'Frais de déplacement ('+km+' km depuis Namur)',product_uom_qty:1,price_unit:totalDepl,discount:0,default_code:''}]:[]),
+      ...(totalEvac>0?[{product_id:null,name:EVAC_OPTIONS.find(o=>o.key===evac)?.label,product_uom_qty:1,price_unit:totalEvac,discount:0,default_code:''}]:[]),
+      ...(totalMO>0?[{product_id:null,name:'Main d\'œuvre technicien',product_uom_qty:1,price_unit:totalMO,discount:0,default_code:''}]:[]),
+    ];
+    if (!allLines.length) { setError('Aucune ligne à inclure.'); setLoading(false); return; }
     try {
-      const res = await fetch(cfg.quoteEndpoint || '/pool-checklist/create-quote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          jsonrpc: '2.0', method: 'call', id: 1,
-          params: {
-            partner_id: clientId || null,
-            partner_name: client || '',
-            ref_dossier: refDossier || '',
-            note,
-            lines: included.map(l => ({
-              product_id: l.id || null,
-              name: l.name,
-              product_uom_qty: l.qty,
-              price_unit: typeof l.price === 'number' ? l.price : (parseFloat(l.price) || 0),
-              default_code: l.ref || '',
-            })),
-          },
-        }),
+      const r = await fetch(cfg.quoteEndpoint||'/pool-checklist/create-quote',{
+        method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
+        body:JSON.stringify({jsonrpc:'2.0',method:'call',id:1,params:{
+          partner_id:clientId||null, partner_name:client||'',
+          ref_dossier:refDossier||'',
+          note:[notesInt,conditions,
+            livrDirect?'Livraison directe chantier : '+livrAdresse:'',
+            commandeFourn?'Réf. commande fourn. : '+commandeFourn:'',
+            supplierRef?'Réf. fournisseur : '+supplierRef:'',
+          ].filter(Boolean).join('\n'),
+          payment_term:paymentTerm,
+          lines:allLines,
+        }}),
       });
-      const d = await res.json();
+      const d = await r.json();
       if (d?.result?.error) { setError(d.result.error); setLoading(false); return; }
-      setResult(d?.result || {});
+      setResult(d?.result||{});
       if (onCreated) onCreated(d?.result);
-    } catch (e) { setError(e.message); }
+    } catch(e) { setError(e.message); }
     setLoading(false);
   }
 
-  /* ── Rendu succès ── */
-  if (result) {
-    return (
-      <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.55)',zIndex:9995,display:'flex',alignItems:'center',justifyContent:'center'}}>
-        <div style={{background:'#fff',borderRadius:18,padding:36,width:'min(520px,92vw)',boxShadow:'0 24px 80px rgba(0,0,0,.22)',textAlign:'center'}}>
-          <div style={{fontSize:52,marginBottom:12}}>✅</div>
-          <div style={{fontWeight:800,fontSize:20,color:'#1e293b',marginBottom:6}}>Devis créé !</div>
-          <div style={{fontSize:15,color:'#475569',marginBottom:6}}>
-            {result.name && <span style={{fontWeight:700,color:'#0ea5e9'}}>{result.name}</span>}
-          </div>
-          {result.partner_name && <div style={{fontSize:13,color:'#64748b',marginBottom:20}}>Client : {result.partner_name}</div>}
-          <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
-            {result.url && (
-              <a href={result.url} target='_blank' rel='noreferrer'
-                style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:10,padding:'10px 22px',fontWeight:700,fontSize:14,textDecoration:'none',cursor:'pointer'}}>
-                Ouvrir le devis →
-              </a>
-            )}
-            <button onClick={onClose}
-              style={{background:'none',border:'1.5px solid #e2e8f0',borderRadius:10,padding:'10px 22px',fontWeight:600,fontSize:14,cursor:'pointer',color:'#475569'}}>
-              Fermer
-            </button>
-          </div>
+  /* ── Succès ── */
+  if (result) return (
+    <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.6)',zIndex:9995,display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <div style={{background:'#fff',borderRadius:18,padding:36,width:'min(480px,92vw)',textAlign:'center',boxShadow:'0 24px 80px rgba(0,0,0,.25)'}}>
+        <div style={{fontSize:52,marginBottom:10}}>✅</div>
+        <div style={{fontWeight:800,fontSize:20,color:'#1e293b',marginBottom:4}}>Devis créé !</div>
+        {result.name&&<div style={{fontSize:18,color:'#0ea5e9',fontWeight:700,marginBottom:4}}>{result.name}</div>}
+        {result.partner_name&&<div style={{fontSize:13,color:'#64748b',marginBottom:20}}>Client : {result.partner_name}</div>}
+        <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
+          {result.url&&<a href={result.url} target='_blank' rel='noreferrer'
+            style={{background:'#0ea5e9',color:'#fff',borderRadius:10,padding:'10px 22px',fontWeight:700,fontSize:14,textDecoration:'none'}}>Ouvrir le devis →</a>}
+          <button onClick={onClose} style={{background:'none',border:'1.5px solid #e2e8f0',borderRadius:10,padding:'10px 22px',fontWeight:600,fontSize:14,cursor:'pointer',color:'#475569'}}>Fermer</button>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+
+  /* ── Styles réutilisables ── */
+  const F = { label:{fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:'.5px',display:'block',marginBottom:4} };
+  const inputSt = {width:'100%',border:'1.5px solid #dde4ed',borderRadius:8,padding:'7px 11px',fontFamily:'inherit',fontSize:13,outline:'none',boxSizing:'border-box'};
+  const TABS = [
+    {key:'lines',     icon:'📦', label:'Lignes de commande'},
+    {key:'services',  icon:'🔧', label:'Frais & services'},
+    {key:'dropship',  icon:'🚚', label:'Dropshipping'},
+    {key:'notes',     icon:'📝', label:'Notes & conditions'},
+  ];
 
   /* ── Rendu principal ── */
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.55)',zIndex:9995,display:'flex',alignItems:'center',justifyContent:'center'}}>
-      <div style={{background:'#fff',borderRadius:18,width:'min(760px,96vw)',maxHeight:'90vh',display:'flex',flexDirection:'column',boxShadow:'0 24px 80px rgba(0,0,0,.22)'}}>
-        {/* Header */}
-        <div style={{padding:'20px 24px 14px',borderBottom:'1px solid #f0f4f8',display:'flex',alignItems:'center',gap:14}}>
+    <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.6)',zIndex:9995,display:'flex',alignItems:'center',justifyContent:'center',padding:8}}>
+      <div style={{background:'#f1f5f9',borderRadius:16,width:'min(960px,100%)',maxHeight:'96vh',display:'flex',flexDirection:'column',boxShadow:'0 28px 90px rgba(0,0,0,.28)',overflow:'hidden'}}>
+
+        {/* ══ Barre titre style Odoo ══ */}
+        <div style={{background:'#fff',borderBottom:'2px solid #e2e8f0',padding:'12px 20px',display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
           <div style={{flex:1}}>
-            <div style={{fontWeight:800,fontSize:18,color:'#1e293b'}}>📄 Créer un devis</div>
-            {client && <div style={{fontSize:13,color:'#64748b',marginTop:2}}>Client : <strong>{client}</strong></div>}
+            <div style={{fontWeight:800,fontSize:17,color:'#1e293b'}}>📄 Nouveau devis — Lolirine Pool Store</div>
+            <div style={{fontSize:12,color:'#64748b',marginTop:1}}>
+              {client&&<span style={{fontWeight:600,color:'#0ea5e9'}}>{client}</span>}
+              {address&&<span style={{color:'#94a3b8'}}> · {address.split(',')[0]}</span>}
+              {refDossier&&<span style={{color:'#7c3aed'}}> · {refDossier}</span>}
+            </div>
           </div>
-          <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:8,padding:'5px 13px',cursor:'pointer',fontSize:14,color:'#6b7a8d'}}>✕</button>
+          <div style={{display:'flex',gap:8,alignItems:'center',flexShrink:0}}>
+            <div style={{background:'#f0fdf4',border:'1.5px solid #bbf7d0',borderRadius:20,padding:'4px 12px',fontSize:12,fontWeight:700,color:'#16a34a'}}>Brouillon</div>
+            <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:8,padding:'5px 13px',cursor:'pointer',fontSize:13,color:'#6b7a8d'}}>✕</button>
+          </div>
         </div>
 
-        {/* Note */}
-        <div style={{padding:'12px 24px 0',borderBottom:'1px solid #f8fafc'}}>
-          <label style={{fontSize:12,fontWeight:600,color:'#64748b',display:'block',marginBottom:4}}>Note / référence chantier</label>
-          <input value={note} onChange={e => setNote(e.target.value)} placeholder="Adresse, référence dossier, remarques…"
-            style={{width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,padding:'8px 13px',fontFamily:'inherit',fontSize:13,outline:'none',boxSizing:'border-box',marginBottom:12}} />
+        {/* ══ Fiche client style Odoo ══ */}
+        <div style={{background:'#fff',borderBottom:'1px solid #e8edf3',padding:'14px 20px',display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:12,flexShrink:0}}>
+          <div>
+            <label style={F.label}>Client</label>
+            <div style={{fontWeight:600,fontSize:14,color:'#1e293b',padding:'6px 0'}}>{client||<span style={{color:'#94a3b8'}}>Non renseigné</span>}</div>
+            {address&&<div style={{fontSize:11,color:'#64748b'}}>{address}</div>}
+          </div>
+          <div>
+            <label style={F.label}>Référence dossier</label>
+            <div style={{fontWeight:600,fontSize:14,color:'#7c3aed',padding:'6px 0'}}>{refDossier||'—'}</div>
+          </div>
+          <div>
+            <label style={F.label}>Date du devis</label>
+            <div style={{fontSize:13,color:'#1e293b',padding:'6px 0'}}>{new Date().toLocaleDateString('fr-BE')}</div>
+          </div>
+          <div>
+            <label style={F.label}>Validité</label>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <input type='number' value={validite} min={1} max={90} onChange={e=>setValidite(e.target.value)}
+                style={{width:56,...inputSt,padding:'5px 8px',textAlign:'center'}} />
+              <span style={{fontSize:12,color:'#64748b'}}>jours</span>
+            </div>
+          </div>
+          <div>
+            <label style={F.label}>Conditions de paiement</label>
+            <select value={paymentTerm} onChange={e=>setPaymentTerm(e.target.value)}
+              style={{...inputSt,background:'#fff',cursor:'pointer'}}>
+              {PAYMENT_TERMS.map(t=><option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={F.label}>TVA appliquée</label>
+            <div style={{fontSize:13,fontWeight:600,color:'#475569',padding:'6px 0'}}>21 % (BE)</div>
+          </div>
         </div>
 
-        {/* Lignes */}
-        <div style={{flex:1,overflowY:'auto',padding:'8px 24px'}}>
-          <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
-            <thead>
-              <tr style={{borderBottom:'2px solid #f0f4f8'}}>
-                {['','Désignation','Réf.','Fournisseur','Qté','Prix unit. HT','Total HT'].map((h,i) => (
-                  <th key={i} style={{padding:'6px 8px',textAlign:'left',fontWeight:600,color:'#64748b',fontSize:12}}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {lines.map((l, i) => {
-                const price = typeof l.price === 'number' ? l.price : (parseFloat(l.price) || 0);
-                const sup = l.suppliers?.[0] || {};
-                return (
-                  <tr key={i} style={{borderBottom:'1px solid #f8fafc',opacity:l.include?1:.4}}>
-                    <td style={{padding:'7px 6px',width:24}}>
-                      <input type='checkbox' checked={l.include} onChange={() => toggleLine(i)} style={{accentColor:'#0ea5e9',width:15,height:15,cursor:'pointer'}} />
-                    </td>
-                    <td style={{padding:'7px 8px',fontWeight:500,color:'#1e293b'}}>{l.name}</td>
-                    <td style={{padding:'7px 8px',color:'#94a3b8',fontSize:12}}>{l.ref || '—'}</td>
-                    <td style={{padding:'7px 8px',color:'#7c3aed',fontSize:12}}>{sup.name || '—'}</td>
-                    <td style={{padding:'7px 8px'}}>
-                      <div style={{display:'flex',alignItems:'center',gap:5}}>
-                        <button onClick={() => updateQty(i,-1)} style={{width:22,height:22,border:'1px solid #e2e8f0',borderRadius:5,background:'#f8fafc',cursor:'pointer',fontSize:13,lineHeight:'20px',textAlign:'center'}}>−</button>
-                        <span style={{fontWeight:700,minWidth:20,textAlign:'center'}}>{l.qty}</span>
-                        <button onClick={() => updateQty(i,+1)} style={{width:22,height:22,border:'1px solid #e2e8f0',borderRadius:5,background:'#f8fafc',cursor:'pointer',fontSize:13,lineHeight:'20px',textAlign:'center'}}>+</button>
-                      </div>
-                    </td>
-                    <td style={{padding:'7px 8px',color:'#16a34a',fontWeight:600}}>{price > 0 ? price.toFixed(2)+' €' : '—'}</td>
-                    <td style={{padding:'7px 8px',color:'#0369a1',fontWeight:700}}>{price > 0 ? (price*l.qty).toFixed(2)+' €' : '—'}</td>
+        {/* ══ Onglets style Odoo ══ */}
+        <div style={{background:'#fff',borderBottom:'2px solid #e2e8f0',display:'flex',gap:0,flexShrink:0,overflowX:'auto'}}>
+          {TABS.map(t=>(
+            <button key={t.key} onClick={()=>setTab(t.key)}
+              style={{padding:'10px 20px',border:'none',borderBottom:tab===t.key?'3px solid #0ea5e9':'3px solid transparent',
+                background:'transparent',cursor:'pointer',fontWeight:tab===t.key?700:500,fontSize:13,
+                color:tab===t.key?'#0ea5e9':'#64748b',whiteSpace:'nowrap',transition:'all .15s',
+                display:'flex',alignItems:'center',gap:6}}>
+              {t.icon} {t.label}
+              {t.key==='lines'&&<span style={{background:'#e0f2fe',color:'#0369a1',borderRadius:20,padding:'1px 7px',fontSize:11,fontWeight:700,marginLeft:4}}>{lines.filter(l=>l.include).length}</span>}
+            </button>
+          ))}
+        </div>
+
+        {/* ══ Corps défilable ══ */}
+        <div style={{flex:1,overflowY:'auto',padding:'0'}}>
+
+          {/* ── Onglet Lignes ── */}
+          {tab==='lines' && (
+            <div style={{padding:'0'}}>
+              <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+                <thead style={{background:'#f8fafc',position:'sticky',top:0,zIndex:1}}>
+                  <tr style={{borderBottom:'2px solid #e2e8f0'}}>
+                    {['','Produit','Fournisseur','Réf. fourn.','Qté','Prix unit. HT','Rem. %','Montant HT',''].map((h,i)=>(
+                      <th key={i} style={{padding:'9px 10px',textAlign:'left',fontWeight:700,color:'#64748b',fontSize:11,whiteSpace:'nowrap'}}>{h}</th>
+                    ))}
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Footer */}
-        <div style={{padding:'14px 24px',borderTop:'1px solid #f0f4f8',display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
-          {totalHT > 0 && (
-            <span style={{flex:1,fontSize:15,fontWeight:800,color:'#0369a1'}}>
-              Total HT estimatif : {totalHT.toFixed(2)} €
-            </span>
+                </thead>
+                <tbody>
+                  {lines.map((l,i)=>{
+                    const sup=l.suppliers?.[0]||{};
+                    const mt=(l.price_unit||0)*(l.qty||1)*(1-(l.remise||0)/100);
+                    return (
+                      <tr key={i} style={{borderBottom:'1px solid #f1f5f9',background:l.include?'#fff':'#f8fafc',opacity:l.include?1:.5}}>
+                        <td style={{padding:'8px 10px',width:22}}>
+                          <input type='checkbox' checked={!!l.include} onChange={()=>toggleLine(i)} style={{accentColor:'#0ea5e9',width:15,height:15,cursor:'pointer'}} />
+                        </td>
+                        <td style={{padding:'8px 10px',minWidth:180}}>
+                          <div style={{fontWeight:600,color:'#1e293b'}}>{l.name}</div>
+                          {l.ref&&<div style={{fontSize:11,color:'#94a3b8'}}>Réf. : {l.ref}</div>}
+                          {l.category&&<div style={{fontSize:11,color:'#7c3aed'}}>{l.category}</div>}
+                        </td>
+                        <td style={{padding:'8px 10px',fontSize:12,color:'#7c3aed',whiteSpace:'nowrap'}}>{sup.name||'—'}</td>
+                        <td style={{padding:'8px 10px',fontSize:12,color:'#64748b'}}>{sup.ref||l.ref||'—'}</td>
+                        <td style={{padding:'8px 10px'}}>
+                          <div style={{display:'flex',alignItems:'center',gap:4}}>
+                            <button onClick={()=>updQty(i,-1)} style={{width:22,height:22,border:'1px solid #e2e8f0',borderRadius:5,background:'#f8fafc',cursor:'pointer',fontSize:13,lineHeight:'20px',textAlign:'center'}}>−</button>
+                            <span style={{fontWeight:700,minWidth:22,textAlign:'center'}}>{l.qty}</span>
+                            <button onClick={()=>updQty(i,+1)} style={{width:22,height:22,border:'1px solid #e2e8f0',borderRadius:5,background:'#f8fafc',cursor:'pointer',fontSize:13,lineHeight:'20px',textAlign:'center'}}>+</button>
+                          </div>
+                        </td>
+                        <td style={{padding:'8px 10px',width:90}}>
+                          <input type='number' value={l.price_unit} min={0} step={0.01}
+                            onChange={e=>updPrice(i,e.target.value)}
+                            style={{width:'100%',border:'1.5px solid #dde4ed',borderRadius:7,padding:'4px 7px',fontFamily:'inherit',fontSize:13,textAlign:'right',outline:'none'}} />
+                        </td>
+                        <td style={{padding:'8px 10px',width:70}}>
+                          <input type='number' value={l.remise||0} min={0} max={100} step={1}
+                            onChange={e=>updRemise(i,e.target.value)}
+                            style={{width:'100%',border:'1.5px solid #dde4ed',borderRadius:7,padding:'4px 7px',fontFamily:'inherit',fontSize:13,textAlign:'right',outline:'none'}} />
+                        </td>
+                        <td style={{padding:'8px 10px',fontWeight:700,color:'#0369a1',whiteSpace:'nowrap',textAlign:'right'}}>{mt>0?mt.toFixed(2)+' €':'—'}</td>
+                        <td style={{padding:'8px 10px'}}>
+                          <button onClick={()=>removeLine(i)} style={{background:'none',border:'none',cursor:'pointer',color:'#ef4444',fontSize:14,padding:'2px 4px'}}>✕</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {lines.length===0&&(
+                    <tr><td colSpan={9} style={{padding:'30px',textAlign:'center',color:'#94a3b8',fontSize:13}}>Aucun produit. Ajoutez des articles depuis la fiche checklist.</td></tr>
+                  )}
+                </tbody>
+              </table>
+              {/* Sous-total lignes */}
+              <div style={{padding:'12px 20px',borderTop:'1px solid #e2e8f0',background:'#f8fafc',textAlign:'right',fontSize:13,color:'#64748b'}}>
+                Sous-total matériaux HT : <strong style={{color:'#0369a1'}}>{totalMat.toFixed(2)} €</strong>
+              </div>
+            </div>
           )}
-          {error && <span style={{color:'#ef4444',fontSize:12,flex:1}}>{error}</span>}
-          <div style={{display:'flex',gap:10,marginLeft:'auto'}}>
-            <button onClick={onClose} style={{background:'none',border:'1.5px solid #e2e8f0',borderRadius:10,padding:'9px 20px',fontWeight:600,fontSize:13,cursor:'pointer',color:'#475569'}}>
-              Annuler
-            </button>
-            <button onClick={createQuote} disabled={loading || !included.length}
-              style={{background:loading||!included.length?'#cbd5e1':'#0ea5e9',color:'#fff',border:'none',borderRadius:10,padding:'9px 22px',fontWeight:700,fontSize:14,cursor:loading?'wait':!included.length?'default':'pointer'}}>
-              {loading ? '⏳ Création…' : `📄 Créer le devis (${included.length} ligne${included.length>1?'s':''})`}
-            </button>
+
+          {/* ── Onglet Frais & services ── */}
+          {tab==='services' && (
+            <div style={{padding:'20px',display:'flex',flexDirection:'column',gap:20}}>
+
+              {/* Évacuation */}
+              <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',padding:'16px 18px'}}>
+                <div style={{fontWeight:700,fontSize:14,color:'#1e293b',marginBottom:12}}>🗑️ Évacuation déchets</div>
+                <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                  {EVAC_OPTIONS.map(opt=>(
+                    <label key={opt.key}
+                      style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',borderRadius:10,
+                        border:`2px solid ${evac===opt.key?'#0ea5e9':'#e8edf3'}`,background:evac===opt.key?'#eff9ff':'#fff',cursor:'pointer'}}>
+                      <input type='radio' name='evac' value={opt.key} checked={evac===opt.key} onChange={()=>setEvac(opt.key)} style={{accentColor:'#0ea5e9',width:16,height:16}} />
+                      <span style={{flex:1,fontSize:13,fontWeight:evac===opt.key?600:400,color:evac===opt.key?'#0369a1':'#334155'}}>{opt.label}</span>
+                      {opt.price>0&&<span style={{fontWeight:700,color:'#0369a1',fontSize:14}}>{opt.price.toFixed(2)} €</span>}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Déplacement */}
+              <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',padding:'16px 18px'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+                  <input type='checkbox' checked={inclDepl} onChange={e=>setInclDepl(e.target.checked)} style={{accentColor:'#0ea5e9',width:16,height:16,cursor:'pointer'}} />
+                  <span style={{fontWeight:700,fontSize:14,color:'#1e293b'}}>🚗 Frais de déplacement</span>
+                  <span style={{fontSize:11,color:'#94a3b8',fontStyle:'italic'}}>depuis Namur · ≤30 km = 50 € · +10 €/25 km</span>
+                </div>
+                <div style={{display:'flex',gap:16,alignItems:'flex-end',flexWrap:'wrap'}}>
+                  <div>
+                    <label style={F.label}>Distance (km)</label>
+                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                      <button onClick={()=>setKm(Math.max(0,Number(km)-5))} style={{width:28,height:28,border:'1px solid #e2e8f0',borderRadius:6,background:'#f8fafc',cursor:'pointer',fontSize:16}}>−</button>
+                      <input type='number' value={km} min={0} onChange={e=>setKm(e.target.value)}
+                        style={{width:70,...inputSt,padding:'6px 8px',textAlign:'center'}} />
+                      <button onClick={()=>setKm(Number(km)+5)} style={{width:28,height:28,border:'1px solid #e2e8f0',borderRadius:6,background:'#f8fafc',cursor:'pointer',fontSize:16}}>+</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label style={F.label}>
+                      Montant HT (€)&nbsp;
+                      <label style={{fontWeight:400,cursor:'pointer'}}>
+                        <input type='checkbox' checked={deplAuto} onChange={e=>setDeplAuto(e.target.checked)} style={{accentColor:'#0ea5e9',marginRight:3}} />Auto
+                      </label>
+                    </label>
+                    <input type='number' value={deplAuto?calcDeplacement(Number(km)):deplMt} min={0} readOnly={deplAuto}
+                      onChange={e=>!deplAuto&&setDeplMt(e.target.value)}
+                      style={{width:90,...inputSt,padding:'6px 8px',textAlign:'center',background:deplAuto?'#f8fafc':'#fff'}} />
+                  </div>
+                  <div style={{fontSize:12,color:'#64748b',paddingBottom:4}}>
+                    {address&&<div>📍 {address.split(',')[0]}</div>}
+                    {Number(km)>0&&<div style={{color:'#0ea5e9',fontWeight:600,marginTop:2}}>→ Barème : {calcDeplacement(Number(km)).toFixed(2)} €</div>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Main d'œuvre */}
+              <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',padding:'16px 18px'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+                  <input type='checkbox' checked={inclMO} onChange={e=>setInclMO(e.target.checked)} style={{accentColor:'#0ea5e9',width:16,height:16,cursor:'pointer'}} />
+                  <span style={{fontWeight:700,fontSize:14,color:'#1e293b'}}>🔨 Main d'œuvre technicien</span>
+                </div>
+                <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+                  <button onClick={()=>setMoeuvre(Math.max(0,(Number(moeuvre)||0)-50))} style={{width:28,height:28,border:'1px solid #e2e8f0',borderRadius:6,background:'#f8fafc',cursor:'pointer',fontSize:16}}>−</button>
+                  <input type='number' value={moeuvre} min={0} step={50} onChange={e=>setMoeuvre(e.target.value)}
+                    style={{width:100,...inputSt,padding:'7px 10px',textAlign:'center',fontSize:15,fontWeight:700}} />
+                  <span style={{fontSize:13,color:'#475569'}}>€ HT</span>
+                  <button onClick={()=>setMoeuvre((Number(moeuvre)||0)+50)} style={{width:28,height:28,border:'1px solid #e2e8f0',borderRadius:6,background:'#f8fafc',cursor:'pointer',fontSize:16}}>+</button>
+                  <div style={{display:'flex',gap:6,marginLeft:4}}>
+                    {[0,500,750,1000,1500,2000].map(v=>(
+                      <button key={v} onClick={()=>setMoeuvre(v)}
+                        style={{padding:'4px 9px',borderRadius:7,border:`1px solid ${moeuvre==v?'#0ea5e9':'#e2e8f0'}`,
+                          background:moeuvre==v?'#eff9ff':'#f8fafc',color:moeuvre==v?'#0369a1':'#64748b',fontSize:11,cursor:'pointer',fontWeight:moeuvre==v?700:400}}>
+                        {v===0?'—':v+'€'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* ── Onglet Dropshipping ── */}
+          {tab==='dropship' && (
+            <div style={{padding:'20px',display:'flex',flexDirection:'column',gap:16}}>
+              <div style={{background:'#fffbeb',border:'1.5px solid #fde68a',borderRadius:12,padding:'12px 16px',fontSize:13,color:'#92400e'}}>
+                ⚡ En dropshipping, la commande fournisseur est transmise après validation du devis client. La livraison est effectuée directement sur le chantier.
+              </div>
+
+              <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',padding:'18px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+                <div>
+                  <label style={F.label}>Fournisseur principal</label>
+                  <select value={supplier} onChange={e=>setSupplier(e.target.value)} style={{...inputSt,background:'#fff',cursor:'pointer'}}>
+                    {SUPPLIERS.map(s=><option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={F.label}>Référence commande fournisseur</label>
+                  <input value={commandeFourn} onChange={e=>setCommandeFourn(e.target.value)} placeholder='BC-FOURN-2025-XXX'
+                    style={inputSt} />
+                </div>
+                <div>
+                  <label style={F.label}>Référence produit fournisseur</label>
+                  <input value={supplierRef} onChange={e=>setSupplierRef(e.target.value)} placeholder='ex : FLU-PMP-00312'
+                    style={inputSt} />
+                </div>
+                <div>
+                  <label style={F.label}>Délai de livraison estimé</label>
+                  <input value={delaiLivr} onChange={e=>setDelaiLivr(e.target.value)}
+                    style={inputSt} />
+                </div>
+              </div>
+
+              <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',padding:'18px'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+                  <input type='checkbox' checked={livrDirect} onChange={e=>setLivrDirect(e.target.checked)} style={{accentColor:'#0ea5e9',width:16,height:16}} />
+                  <span style={{fontWeight:700,fontSize:14,color:'#1e293b'}}>📍 Livraison directe sur chantier</span>
+                </div>
+                {livrDirect ? (
+                  <div>
+                    <label style={F.label}>Adresse de livraison</label>
+                    <input value={livrAdresse} onChange={e=>setLivrAdresse(e.target.value)}
+                      placeholder='Adresse complète de livraison…' style={inputSt} />
+                  </div>
+                ) : (
+                  <div style={{fontSize:13,color:'#64748b',padding:'6px 0'}}>📦 Livraison à l'entrepôt Lolirine — retrait par le technicien</div>
+                )}
+              </div>
+
+              {/* Tableau produits dropship */}
+              <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',overflow:'hidden'}}>
+                <div style={{background:'#f8fafc',padding:'10px 16px',borderBottom:'1px solid #e2e8f0',fontWeight:700,fontSize:13,color:'#1e293b'}}>
+                  📦 Articles à commander ({lines.filter(l=>l.include).length})
+                </div>
+                <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                  <thead>
+                    <tr style={{borderBottom:'1px solid #f0f4f8'}}>
+                      {['Désignation','Réf. catalogue','Fournisseur','Qté','Prix d\'achat estimé'].map((h,i)=>(
+                        <th key={i} style={{padding:'7px 12px',textAlign:'left',fontWeight:600,color:'#64748b',fontSize:11}}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lines.filter(l=>l.include).map((l,i)=>{
+                      const sup=l.suppliers?.[0]||{};
+                      return (
+                        <tr key={i} style={{borderBottom:'1px solid #f8fafc'}}>
+                          <td style={{padding:'8px 12px',fontWeight:500,color:'#1e293b'}}>{l.name}</td>
+                          <td style={{padding:'8px 12px',color:'#64748b',fontSize:11}}>{l.ref||'—'}</td>
+                          <td style={{padding:'8px 12px',color:'#7c3aed',fontSize:11}}>{sup.name||supplier}</td>
+                          <td style={{padding:'8px 12px',fontWeight:700}}>{l.qty}</td>
+                          <td style={{padding:'8px 12px',color:'#16a34a',fontWeight:600}}>{sup.price>0?(sup.price*l.qty).toFixed(2)+' €':'—'}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ── Onglet Notes ── */}
+          {tab==='notes' && (
+            <div style={{padding:'20px',display:'flex',flexDirection:'column',gap:14}}>
+              <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',padding:'16px 18px'}}>
+                <label style={F.label}>Notes internes / chantier</label>
+                <textarea value={notesInt} onChange={e=>setNotesInt(e.target.value)} rows={4}
+                  placeholder='Observations de la visite, accès chantier, remarques techniques…'
+                  style={{width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,padding:'10px 13px',fontFamily:'inherit',fontSize:13,outline:'none',resize:'vertical',lineHeight:1.5,boxSizing:'border-box'}} />
+              </div>
+              <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',padding:'16px 18px'}}>
+                <label style={F.label}>Conditions particulières</label>
+                <textarea value={conditions} onChange={e=>setConditions(e.target.value)} rows={3}
+                  placeholder='Conditions de garantie, délais d'exécution, restrictions techniques…'
+                  style={{width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,padding:'10px 13px',fontFamily:'inherit',fontSize:13,outline:'none',resize:'vertical',lineHeight:1.5,boxSizing:'border-box'}} />
+              </div>
+              <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',padding:'16px 18px'}}>
+                <label style={F.label}>Conditions de paiement</label>
+                <select value={paymentTerm} onChange={e=>setPaymentTerm(e.target.value)}
+                  style={{...inputSt,background:'#fff',cursor:'pointer',fontSize:13}}>
+                  {PAYMENT_TERMS.map(t=><option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+            </div>
+          )}
+
+        </div>{/* fin scroll */}
+
+        {/* ══ Récapitulatif totaux style Odoo + footer ══ */}
+        <div style={{background:'#fff',borderTop:'2px solid #e2e8f0',flexShrink:0}}>
+          <div style={{display:'flex',gap:0,flexWrap:'wrap'}}>
+            {/* Totaux */}
+            <div style={{flex:1,padding:'14px 20px',minWidth:260}}>
+              <table style={{width:'100%',fontSize:13}}>
+                <tbody>
+                  {totalMat>0&&<tr><td style={{color:'#64748b',padding:'2px 0'}}>Matériaux & produits HT</td><td style={{textAlign:'right',fontWeight:600,color:'#1e293b'}}>{totalMat.toFixed(2)} €</td></tr>}
+                  {totalDepl>0&&<tr><td style={{color:'#64748b',padding:'2px 0'}}>Déplacement ({km} km)</td><td style={{textAlign:'right',fontWeight:600,color:'#1e293b'}}>{totalDepl.toFixed(2)} €</td></tr>}
+                  {totalEvac>0&&<tr><td style={{color:'#64748b',padding:'2px 0'}}>Évacuation</td><td style={{textAlign:'right',fontWeight:600,color:'#1e293b'}}>{totalEvac.toFixed(2)} €</td></tr>}
+                  {totalMO>0&&<tr><td style={{color:'#64748b',padding:'2px 0'}}>Main d'œuvre</td><td style={{textAlign:'right',fontWeight:600,color:'#1e293b'}}>{totalMO.toFixed(2)} €</td></tr>}
+                  <tr style={{borderTop:'1px solid #f0f4f8'}}><td style={{color:'#64748b',padding:'6px 0 2px'}}>Montant hors taxes</td><td style={{textAlign:'right',fontWeight:700,color:'#1e293b',fontSize:14}}>{subtotalHT.toFixed(2)} €</td></tr>
+                  <tr><td style={{color:'#64748b',padding:'2px 0'}}>TVA 21%</td><td style={{textAlign:'right',fontWeight:600,color:'#1e293b'}}>{tva.toFixed(2)} €</td></tr>
+                  <tr style={{borderTop:'2px solid #0ea5e9'}}><td style={{fontWeight:800,fontSize:15,color:'#0ea5e9',padding:'6px 0 0'}}>Total TTC</td><td style={{textAlign:'right',fontWeight:800,fontSize:16,color:'#0ea5e9'}}>{totalTTC.toFixed(2)} €</td></tr>
+                </tbody>
+              </table>
+            </div>
+            {/* Boutons action */}
+            <div style={{padding:'14px 20px',display:'flex',flexDirection:'column',gap:8,justifyContent:'center',minWidth:200,alignItems:'stretch'}}>
+              {error&&<div style={{color:'#ef4444',fontSize:12,textAlign:'center',padding:'4px 0'}}>{error}</div>}
+              <button onClick={createQuote} disabled={loading}
+                style={{background:loading?'#cbd5e1':'#0ea5e9',color:'#fff',border:'none',borderRadius:10,padding:'11px 24px',fontWeight:700,fontSize:14,cursor:loading?'wait':'pointer',whiteSpace:'nowrap'}}>
+                {loading?'⏳ Création…':'📄 Créer le devis Odoo'}
+              </button>
+              <button onClick={onClose}
+                style={{background:'none',border:'1.5px solid #e2e8f0',borderRadius:10,padding:'9px 24px',fontWeight:600,fontSize:13,cursor:'pointer',color:'#475569'}}>
+                ← Annuler
+              </button>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   );
@@ -589,6 +1027,9 @@ function PoolChecklist() {
   const [showHistory, setShowHistory] = useState(false);
   const [showQuote, setShowQuote] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [statut, setStatut] = useState('en_cours');
+  const [signClient, setSignClient] = useState('');
+  const [signTech, setSignTech] = useState('');
 
   const sections = SECTIONS_DATA[type] || [];
 
@@ -633,7 +1074,8 @@ function PoolChecklist() {
   function saveToHistory() {
     try {
       const stored = JSON.parse(localStorage.getItem("pool_checklist_history") || "[]");
-      stored.push({ client, address, technicien, date, ref, type, observations, checked, products, savedAt: new Date().toISOString() });
+      stored.push({ client, address, technicien, date, ref, type, observations, checked, products,
+        statut, signClient, signTech, savedAt: new Date().toISOString() });
       localStorage.setItem("pool_checklist_history", JSON.stringify(stored.slice(-50)));
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -647,6 +1089,8 @@ function PoolChecklist() {
     setDate(r.date || ""); setRef(r.ref || "");
     setObservations(r.observations || "");
     setChecked(r.checked || {}); setProducts(r.products || []);
+    setStatut(r.statut || 'en_cours');
+    setSignClient(r.signClient || ''); setSignTech(r.signTech || '');
   }
 
   function handlePrint() {
@@ -813,7 +1257,79 @@ function PoolChecklist() {
             </table>
           </div>
         )}
+
+      {/* ── Section Enregistrement de la fiche ── */}
+      <div style={{background:"#fff",borderRadius:14,border:"1.5px solid #e2e8f0",marginBottom:20,overflow:"hidden"}}>
+        <div style={{background:"#1e293b",padding:"14px 20px",display:"flex",alignItems:"center",gap:10}}>
+          <span style={{fontSize:18}}>📋</span>
+          <span style={{fontWeight:800,fontSize:15,color:"#fff"}}>Enregistrement de la fiche</span>
+          <span style={{marginLeft:"auto",fontSize:12,color:"rgba(255,255,255,.6)"}}>Statut & signatures</span>
+        </div>
+        <div style={{padding:"20px"}}>
+          {/* Statut */}
+          <div style={{marginBottom:18}}>
+            <div style={{fontWeight:700,fontSize:13,color:"#1e293b",marginBottom:8}}>Statut de la visite</div>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {[
+                {key:"en_cours",    label:"🔄 En cours",     color:"#f59e0b"},
+                {key:"termine",     label:"✅ Terminée",      color:"#16a34a"},
+                {key:"a_replanifier",label:"🔁 À replanifier",color:"#ef4444"},
+                {key:"attente_pieces",label:"⏳ Attente pièces",color:"#8b5cf6"},
+              ].map(s=>(
+                <button key={s.key} onClick={()=>setStatut(s.key)}
+                  style={{padding:"8px 16px",borderRadius:10,border:`2px solid ${statut===s.key?s.color:"#e2e8f0"}`,
+                    background:statut===s.key?s.color+"22":"#fff",color:statut===s.key?s.color:"#475569",
+                    fontWeight:statut===s.key?700:500,fontSize:13,cursor:"pointer",transition:"all .15s"}}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Signatures */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:18}}>
+            <div>
+              <div style={{fontWeight:700,fontSize:13,color:"#1e293b",marginBottom:6}}>✍️ Signature client</div>
+              <input value={signClient} onChange={e=>setSignClient(e.target.value)}
+                placeholder="Nom complet du client (validation)"
+                style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"10px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box",fontStyle:signClient?"italic":"normal"}} />
+              {signClient && <div style={{fontSize:11,color:"#16a34a",marginTop:3}}>✓ Lu et approuvé par {signClient}</div>}
+            </div>
+            <div>
+              <div style={{fontWeight:700,fontSize:13,color:"#1e293b",marginBottom:6}}>🔧 Visa technicien</div>
+              <input value={signTech} onChange={e=>setSignTech(e.target.value)}
+                placeholder={technicien || "Nom du technicien"}
+                style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"10px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box",fontStyle:signTech?"italic":"normal"}} />
+              {signTech && <div style={{fontSize:11,color:"#0ea5e9",marginTop:3}}>✓ Intervenu par {signTech}</div>}
+            </div>
+          </div>
+          {/* Résumé avant enregistrement */}
+          <div style={{background:"#f8fafc",borderRadius:10,padding:"12px 16px",marginBottom:16,fontSize:13,color:"#475569",display:"flex",gap:16,flexWrap:"wrap"}}>
+            <span>👤 {client||"Client non renseigné"}</span>
+            <span>📅 {date}</span>
+            <span>🔧 {INTERVENTION_TYPES.find(t=>t.key===type)?.label||type}</span>
+            <span>✅ {totalDone}/{totalItems} points</span>
+            {products.length>0&&<span>🛒 {products.length} produit{products.length>1?"s":""}</span>}
+          </div>
+          {/* Bouton enregistrement */}
+          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+            <button onClick={saveToHistory}
+              style={{background:saved?"#16a34a":"#0ea5e9",color:"#fff",border:"none",borderRadius:10,padding:"10px 24px",fontWeight:700,fontSize:14,cursor:"pointer",transition:"background .3s",flex:1,minWidth:160}}>
+              {saved?"✅ Fiche enregistrée !":"💾 Enregistrer la fiche"}
+            </button>
+            <button onClick={handlePrint}
+              style={{background:"none",border:"1.5px solid #e2e8f0",borderRadius:10,padding:"10px 20px",fontWeight:600,fontSize:13,cursor:"pointer",color:"#475569"}}>
+              🖨️ Imprimer / PDF
+            </button>
+            {products.length>0&&(
+              <button onClick={()=>setShowQuote(true)}
+                style={{background:"#7c3aed",color:"#fff",border:"none",borderRadius:10,padding:"10px 20px",fontWeight:700,fontSize:13,cursor:"pointer"}}>
+                📄 Créer un devis
+              </button>
+            )}
+          </div>
+        </div>
       </div>
+      </div>{/* fin maxWidth container */}
 
       {/* Panel produits */}
       {panel && <ProductPanel item={panel.item} sectionLabel={panel.sectionLabel} onAddProducts={handleAddProducts} onClose={() => setPanel(null)} />}
@@ -825,7 +1341,7 @@ function PoolChecklist() {
           client={client}
           clientId={clientId}
           address={address}
-          ref={ref}
+          refDossier={ref}
           onClose={() => setShowQuote(false)}
           onCreated={() => {}}
         />
@@ -833,67 +1349,6 @@ function PoolChecklist() {
 
       {/* Modal historique */}
       {showHistory && <HistoryModal onClose={() => setShowHistory(false)} onLoad={loadRecord} />}
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────
-   ClientAutocomplete — recherche partenaire Odoo
-───────────────────────────────────────────────────── */
-function ClientAutocomplete({ value, onChange, onSelectId }) {
-  const cfg = window.LOLIRINE_CHECKLIST_CONFIG || {};
-  const [suggs, setSuggs] = useState([]);
-  const [show, setShow] = useState(false);
-  const timerRef = useRef(null);
-  const wrapRef = useRef(null);
-
-  useEffect(() => {
-    function handler(e) { if (wrapRef.current && !wrapRef.current.contains(e.target)) setShow(false); }
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  function handleInput(val) {
-    onChange(val);
-    clearTimeout(timerRef.current);
-    if (val.length < 2) { setSuggs([]); setShow(false); return; }
-    timerRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch(cfg.partnerEndpoint || "/pool-checklist/search-partner", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({ jsonrpc: "2.0", method: "call", id: 1, params: { query: val, limit: 8 } }),
-        });
-        const d = await res.json();
-        const partners = d?.result?.partners || [];
-        setSuggs(partners);
-        setShow(partners.length > 0);
-      } catch { setSuggs([]); setShow(false); }
-    }, 250);
-  }
-
-  return (
-    <div ref={wrapRef} style={{position:"relative"}}>
-      <input value={value} onChange={e => handleInput(e.target.value)}
-        placeholder="Nom du client…"
-        style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box"}}
-        onFocus={() => suggs.length && setShow(true)} />
-      {show && (
-        <div style={{position:"absolute",top:"100%",left:0,right:0,zIndex:1000,background:"#fff",border:"1.5px solid #dde4ed",borderRadius:10,boxShadow:"0 8px 30px rgba(0,0,0,.12)",marginTop:4,maxHeight:220,overflowY:"auto"}}>
-          {suggs.map((p, i) => (
-            <div key={i} onClick={() => { onChange(p.name); onSelectId && onSelectId(p.id); setShow(false); }}
-              style={{padding:"9px 14px",cursor:"pointer",fontSize:13,borderBottom:i<suggs.length-1?"1px solid #f0f4f8":"none",display:"flex",gap:8,alignItems:"flex-start"}}
-              onMouseEnter={e => e.currentTarget.style.background="#f0f9ff"}
-              onMouseLeave={e => e.currentTarget.style.background="transparent"}>
-              <div>
-                <div style={{fontWeight:600,color:"#1e293b"}}>{p.name}</div>
-                {p.city && <div style={{fontSize:11,color:"#94a3b8"}}>{p.city}</div>}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
