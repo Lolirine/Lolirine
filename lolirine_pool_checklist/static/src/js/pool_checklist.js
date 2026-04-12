@@ -1,1981 +1,904 @@
-/* ─── Pool Plans ─── */
-                const POOL_PLANS = [
-                  { id:"rect",   label:"Rectangulaire",        w:200, h:100, shape:"rect"   },
-                  { id:"square", label:"Carrée",                w:140, h:140, shape:"rect"   },
-                  { id:"l_shape",label:"En L",                  w:200, h:140, shape:"l"      },
-                  { id:"oval",   label:"Ovale / Ronde",         w:200, h:120, shape:"oval"   },
-                  { id:"kidney", label:"Forme libre / Haricot", w:210, h:130, shape:"kidney" },
-                  { id:"spa",    label:"Rect. + Spa intégré",   w:220, h:120, shape:"spa"    },
-                ];
+/* pool_checklist.js — Lolirine Pool Store © 2025
+   React 18 via Babel standalone (CDN). Pas de build step.
+   window.LOLIRINE_CHECKLIST_CONFIG doit être défini dans le template :
+     { csrfToken, productsEndpoint, aiEndpoint, partnerEndpoint }
+*/
 
-                function PoolSvg({ plan, size=180 }) {
-                  const scale=size/240, s=v=>v*scale;
-                  const fill="rgba(14,165,233,0.18)", stroke="#0ea5e9", sw=2.5;
-                  const {w:W,h:H}=plan;
-                  if(plan.shape==="rect") return (
-                    <svg width={s(W+30)} height={s(H+30)} viewBox={`0 0 ${W+30} ${H+30}`}>
-                      <rect x="15" y="15" width={W} height={H} rx="6" fill={fill} stroke={stroke} strokeWidth={sw}/>
-                      {[[15,15],[15+W,15],[15,15+H],[15+W,15+H]].map(([cx,cy],i)=><circle key={i} cx={cx} cy={cy} r="4" fill={stroke}/>)}
-                    </svg>);
-                  if(plan.shape==="oval") return (
-                    <svg width={s(W+30)} height={s(H+30)} viewBox={`0 0 ${W+30} ${H+30}`}>
-                      <ellipse cx={15+W/2} cy={15+H/2} rx={W/2} ry={H/2} fill={fill} stroke={stroke} strokeWidth={sw}/>
-                    </svg>);
-                  if(plan.shape==="kidney") return (
-                    <svg width={s(W+30)} height={s(H+30)} viewBox={`0 0 ${W+30} ${H+30}`}>
-                      <path d={`M 15,${15+H*.5} C 15,${15+H*.05} ${15+W*.35},15 ${15+W*.5},${15+H*.1} C ${15+W*.72},${15+H*.22} ${15+W},${15+H*.1} ${15+W},${15+H*.5} C ${15+W},${15+H*.88} ${15+W*.72},${15+H} ${15+W*.5},${15+H*.88} C ${15+W*.28},${15+H*.75} ${15+W*.28},${15+H*.55} ${15+W*.15},${15+H*.55} C 15,${15+H*.55} 15,${15+H*.95} 15,${15+H*.5} Z`} fill={fill} stroke={stroke} strokeWidth={sw}/>
-                    </svg>);
-                  if(plan.shape==="l") return (
-                    <svg width={s(W+30)} height={s(H+30)} viewBox={`0 0 ${W+30} ${H+30}`}>
-                      <path d={`M 15,15 H ${15+W} V ${15+H*.55} H ${15+W*.55} V ${15+H} H 15 Z`} fill={fill} stroke={stroke} strokeWidth={sw}/>
-                    </svg>);
-                  if(plan.shape==="spa") return (
-                    <svg width={s(W+30)} height={s(H+30)} viewBox={`0 0 ${W+30} ${H+30}`}>
-                      <rect x="15" y="15" width={W*.72} height={H} rx="5" fill={fill} stroke={stroke} strokeWidth={sw}/>
-                      <rect x={15+W*.76} y={15+H*.2} width={W*.24} height={H*.6} rx="8" fill="rgba(251,191,36,0.2)" stroke="#f59e0b" strokeWidth={sw}/>
-                      <text x={15+W*.88} y={15+H*.54} textAnchor="middle" fontSize="8" fill="#92400e" fontFamily="sans-serif">SPA</text>
-                    </svg>);
-                  return null;
-                }
+/* global React, ReactDOM */
+const { useState, useEffect, useRef, useCallback } = React;
 
-                /* ─── Interventions ─── */
-                const INTERVENTIONS=[
-                  {id:"construction",    label:"🏗️ Construction neuve",       color:"#0ea5e9"},
-                  {id:"renovation",      label:"🔧 Rénovation",                color:"#f59e0b"},
-                  {id:"entretien",       label:"🧹 Entretien régulier",        color:"#10b981"},
-                  {id:"hivernage",       label:"❄️ Hivernage",                 color:"#6366f1"},
-                  {id:"remise_en_route", label:"☀️ Remise en route",           color:"#f97316"},
-                  {id:"materiel",        label:"⚙️ Changement de matériel",    color:"#ec4899"},
-                ];
+/* ─────────────────────────────────────────────────────
+   DONNÉES — Sections par type d'intervention
+───────────────────────────────────────────────────── */
+const SECTIONS_DATA = {
+  construction: [
+    { section: "🏗️ Génie civil & structure",
+      items: ["Type de bassin : béton coulé / béton projeté / kit acier / polyester / bois","Dimensions retenues (L × l × prof.) : ______","Forme : rectangulaire / carré / L / ovale / haricot / sur mesure","Profondeur mini : ______ m  —  maxi : ______ m","Escalier : romain / angles / bloc côté","Banquette assise prévue","Plage bain de soleil (sun-shelf) ≤ 0,20 m","Vérification portance sol / étude géotechnique","Blindage / palplanches si nappe phréatique","Étanchéité : enduit hydraulique / membrane / liner / résine","Joints de dilatation entre bassin et plage","Regards de visite / accès coffret technique"] },
+    { section: "🔧 Filtration & hydraulique",
+      items: ["Débit filtration calculé (m³/h) : ______","Pompe principale : ______ kW / ______ m³/h","Filtre : sable / verre filtrant / cartouche / DE — volume ______ m³","Skimmer(s) : nombre ______ / largeur goulotte ______ mm","Bonde(s) de fond : nombre ______","Refoulement(s) : nombre / emplacement","Vanne multivoies 6 voies / 4 voies","Préfiltre pompe (panier inox)","Tuyauterie : PVC ø50 / ø63 / ø90 selon débit","Regards de soufflage / brassage (optionnel)","Pompe de brassage / nage à contre-courant","Branchements électriques armoire"] },
+    { section: "💊 Traitement de l'eau",
+      items: ["Électrolyseur au sel (capacité m³) : ______","Pompe doseuse pH-","Pompe doseuse chlore liquide / PAC","Régulateur ORP + sonde","Sonde pH industrielle","Analyseur en ligne (Lovibond PoolManager)","Bac tampon / cuve de dilution acide","Emplacement prévu pour produits chimiques (local fermé)"] },
+    { section: "🌡️ Chauffage",
+      items: ["Pompe à chaleur air/eau (puissance ______ kW)","Pompe à chaleur réversible (piscine + abri)","Échangeur thermique (raccordement chaudière gaz/mazout)","Chauffe-eau solaire (capteurs ______ m²)","Résistance électrique (puissance ______ kW)","Couverture solaire à bulles (ép. 400 µ)","Volet roulant isolant (R thermique)","Vanne de by-pass pompe à chaleur"] },
+    { section: "💡 Électricité & éclairage",
+      items: ["Projecteurs LED RGB subaquatiques","Spots LED encastrés paroi (niche inox)","Bandeau LED périmétral (plage)","Éclairage escalier submergé","Coffret électrique IP65 dédié piscine","Disjoncteur différentiel 30 mA obligatoire","Liaison équipotentielle (norme NF C 15-100)","Mise à la terre générale","Chemin de câbles gainés sous dallage","Raccordement armoire domotique (optionnel)","Prise extérieure étanche (pour accessoires)"] },
+    { section: "🪟 Couverture & sécurité",
+      items: ["Volet roulant immergé (lames polycarbonate / alu)","Volet roulant hors-sol (banc / coffre intégré)","Couverture à barres automatique / manuelle","Filet de protection (norme NF P 90-308)","Alarme piscine (OBLIGATOIRE) – type : ______","Conformité norme NF P 90-306 à vérifier","Clôture de protection (h ≥ 1,10 m) + portillon auto-fermant","Signalétique profondeur / interdiction plongée"] },
+    { section: "🏡 Plage, abords & finitions",
+      items: ["Margelles (carrelage / pierre naturelle / béton désactivé)","Dallage plage (antidérapant R11 minimum)","Drainage plage (pente 1 % minimum vers extérieur)","Caniveau de récupération eaux de plage","Douche solaire / raccordement eau froide + ECS","Lave-pieds","Local technique (préfabriqué / maçonné / enterré)","Ventilation local technique (gaine Ø125 mini)","Clôture / portillon de sécurité piscine","Haie / écran végétal (brise-vent)","Nettoyage chantier / évacuation gravats","Réception chantier avec fiche technique équipements","Notice utilisation + entretien remise client"] },
+    { section: "🤝 Administratif & SAV",
+      items: ["Devis signé + acompte encaissé","Planning prévisionnel remis","Coordonnées sous-traitants (maçon, électricien, plombier)","Garanties décennale + RC professionnelle","Dossier photos avant / pendant / après","Formation client sur équipements","Contrat d'entretien proposé"] },
+  ],
 
-                const CHECKLISTS={
-                  construction:[
-                    {section:"📍 Visite préalable du terrain",items:["Accès chantier (largeur portail, chemin d'accès véhicule)","Nature du sol (argile, sable, roche, remblai)","Présence nappe phréatique (profondeur estimée)","Déclivité / nivellement du terrain nécessaire","Présence d'arbres / racines / végétation envahissante","Réseaux enterrés repérés (gaz, eau, électricité, télécoms)","Distance limites de propriété (min. 1,5 m / usage : 3 m)","Permis de construire obtenu (>10 m² en Wallonie)","Étude de sol réalisée (géotechnique)","Évacuation des eaux de vidange (égout, infiltration, noue)","Orientation solaire de la piscine optimisée"]},
-                    {section:"📐 Dimensions & plan de bassin",items:["Longueur (m) : ______","Largeur (m) : ______","Profondeur mini (m) : ______","Profondeur maxi (m) : ______","Forme retenue (voir plan sélectionné)","Plage bain allongé (banquette immergée)","Escalier intégré (roman, droit, d'angle)","Escalier externe / échelle inox","Plongeoir prévu (profondeur ≥ 2,5 m)","Niche de filtration intégrée (réservation béton)","Caniveau périphérique / margelles débordantes","Couverture / volet roulant (réservation intégrée)"]},
-                    {section:"🧱 Structure & étanchéité",items:["Béton coulé (coffrage traditionnel)","Béton projeté – Gunite","Béton armé préfabriqué (panneaux)","Coque polyester (monobloc)","Kit panneaux acier galvanisé / inox","Kit panneaux polypropylène","Revêtement : liner armé (épaisseur 75/100 µ)","Revêtement : carrelage (grès cérame antidérapant)","Revêtement : enduit Marbrex / Marbelite","Revêtement : membrane armée (alkorplan)","Traitement des joints de structure","Drain de fond (si présence nappe)","Protection géotextile fond de fouille"]},
-                    {section:"💧 Hydraulique",items:["Nombre de bondes de fond : ______","Nombre de skimmers : ______ (1 skimmer / 25 m²)","Nombre de refoulements : ______","Buses de nage (nage à contre-courant)","Buse à balai (prise balai)","Trop-plein / régulateur de niveau","Tuyauterie PVC pression ∅ 50 mm (aspiration)","Tuyauterie PVC pression ∅ 50 mm (refoulement)","Manchons anti-vibratoires sur pompe","Étanchéité traversées de paroi (joints EPDM)","Test pression canalisations avant remblai"]},
-                    {section:"🔄 Filtration",items:["Filtre à sable (∅ cuve ______ / débit ______ m³/h)","Filtre à cartouche","Filtre à diatomées","Sable de filtration (granulométrie 0,4–0,8 mm)","Billes de verre (alternative sable)","Pompe (marque / modèle / puissance kW) : ______","Pompe vitesse variable (économie énergie)","Préfiltre / panier préfiltre","Vanne multivoies (6 voies)","Débitmètre","Manomètre","Armoire électrique / coffret de commande"]},
-                    {section:"🧪 Traitement de l'eau",items:["Chlore manuel (galets, liquide)","Électrolyseur au sel (concentration sel ______ g/L)","Brome (pastilles / système automatique)","Traitement UV (lampe UV-C)","Ozone (générateur ozone)","PHMB (sans chlore)","Régulation pH automatique","Sonde ORP (potentiel rédox)","Pompe doseuse pH–","Pompe doseuse désinfectant","Analyseur connecté"]},
-                    {section:"🌡️ Chauffage",items:["Pompe à chaleur air/eau (puissance ______ kW)","Pompe à chaleur réversible","Échangeur thermique (raccordement chaudière)","Chauffe-eau solaire (capteurs ______ m²)","Résistance électrique (puissance ______ kW)","Couverture solaire à bulles (ép. 400 µ)","Volet roulant isolant","Vanne de by-pass pompe à chaleur"]},
-                    {section:"💡 Électricité & éclairage",items:["Projecteurs LED RGB subaquatiques","Spots LED encastrés paroi (niche inox)","Bandeau LED périmétral (plage)","Éclairage escalier submergé","Coffret électrique IP65 dédié piscine","Disjoncteur différentiel 30 mA obligatoire","Liaison équipotentielle (norme NF C 15-100)","Mise à la terre générale","Prise extérieure étanche"]},
-                    {section:"🪟 Couverture & sécurité",items:["Volet roulant immergé (lames polycarbonate / alu)","Volet roulant hors-sol","Couverture à barres automatique / manuelle","Filet de protection (normes NF P 90-308)","Alarme piscine OBLIGATOIRE – type : ______","Clôture de protection (h ≥ 1,10 m) + portillon","Signalétique profondeur / interdiction plongée"]},
-                    {section:"🏡 Plage, abords & finitions",items:["Margelles (carrelage / pierre naturelle / béton désactivé)","Dallage plage (antidérapant R11 minimum)","Drainage plage (pente 1% minimum)","Caniveau de récupération eaux de plage","Douche solaire / raccordement eau","Lave-pieds","Local technique","Nettoyage de chantier / évacuation gravats","Notice d'utilisation remise au client"]},
-                    {section:"🤝 Administratif & SAV",items:["Devis signé + acompte encaissé","Planning prévisionnel remis","Garanties décennale + RC professionnelle","Dossier photos avant / pendant / après","Formation client sur équipements","Contrat d'entretien proposé"]},
-                  ],
-                  renovation:[
-                    {section:"🔍 Diagnostic structure",items:["Fissures structure (fines / traversantes / actives)","Test étanchéité (baisse niveau eau / test colorant)","État du fond (dénivellations, décollements)","État des parois (cloques, éclatement béton)","Corrosion armatures","État des scellements (bondes, skimmers, projecteurs)","Désolidarisation margelles / plage","Tassement / fissures plage"]},
-                    {section:"🎨 Revêtement existant",items:["Type de revêtement actuel : ______","Âge du revêtement (années) : ______","Liner : déchirures / décollements / décolorations","Liner : vieillissement, perte de souplesse","Carrelage : joints décollés / cassés / tâchés","Enduit : farinage / effritement / tâches","Membrane armée : décollement / percement","Évaluation : remplacement ou réfection partielle ?"]},
-                    {section:"🔧 Hydraulique & filtration existants",items:["Âge de la pompe (années) : ______","Débit pompe mesuré (m³/h) : ______","Bruit / vibrations anormaux pompe","Âge du filtre (années) : ______","Sable à remplacer (> 5 ans)","État vanne multivoies (fuites, jeu)","État des canalisations","Skimmers : panier cassé / joint usé","Trop-plein fonctionnel"]},
-                    {section:"⚡ Électricité & éclairage",items:["Coffret électrique conforme (différentiel 30 mA)","Liaison équipotentielle présente et vérifiée","Projecteurs : fonctionnels / étanches","Projecteurs : remplacement LED prévu","Câblage apparent / dégradé","Mise aux normes NF C 15-100 nécessaire"]},
-                    {section:"🏗️ Travaux de structure prévus",items:["Ragréage fond et parois","Injection résine anti-fissures","Reprise étanchéité générale","Résine de pontage / primaire d'accrochage","Pose nouveau liner (mesures relevées : ______)","Réfection enduit complet","Recarrelage partiel / complet","Remplacement bondes / skimmers / refoulements","Remplacement niche projecteur","Remplacement margelles","Réfection plage"]},
-                    {section:"🆕 Équipements à remplacer / ajouter",items:["Pompe (référence nouvelle : ______)","Filtre à sable (référence nouvelle : ______)","Vanne multivoies","Système de traitement (type : ______)","Pompe à chaleur (référence : ______)","Volet / couverture","Éclairage LED","Robot nettoyeur","Système domotique"]},
-                    {section:"🤝 Administratif",items:["Photos état avant travaux","Devis détaillé postes par postes","Planning et durée des travaux","Vidange piscine planifiée","Gestion eaux de vidange (évacuation conforme)","Garanties travaux communiquées"]},
-                  ],
-                  entretien:[
-                    {section:"🧪 Analyse de l'eau",items:["pH (cible 7,2–7,4) → mesuré : ______","TAC (cible 80–120 mg/L) → mesuré : ______","TH – Dureté (cible 150–300 mg/L) → mesuré : ______","Chlore libre (cible 1,0–3,0 mg/L) → mesuré : ______","Chlore combiné (< 0,6 mg/L) → mesuré : ______","Taux de sel si électrolyseur → mesuré : ______","Cyanurate (< 75 mg/L) → mesuré : ______","Phosphates (< 0,1 mg/L) → mesuré : ______","Température eau (°C) : ______","Turbidité (limpide / trouble / verte)"]},
-                    {section:"🧹 Nettoyage bassin",items:["Écrémage surface (feuilles, insectes, pollens)","Aspiration fond (manuelle / robot)","Brossage parois et fond","Nettoyage ligne de flottaison","Nettoyage panier(s) skimmer(s)","Nettoyage panier préfiltre pompe","Contre-lavage si pression ≥ 0,5 bar","Nettoyage cartouche filtrante (si applicable)","Rinçage plage / abords","Nettoyage local technique"]},
-                    {section:"🔄 Filtration & équipements",items:["Pression manomètre relevée : ______ bar","Débit pompe vérifié","Bruit / vibration anormal pompe","Vérification programmateur / horloge","Vérification vanne multivoies","Vérification électrolyseur (cellule / production)","Vérification pompe doseuse pH","Vérification sonde ORP / pH","Niveau d'eau ajusté (mi-skimmer)","Vérification alarme piscine","Vérification volet / mécanisme"]},
-                    {section:"💊 Traitements correctifs",items:["Correction pH (produit / dose) : ______","Correction TAC : ______","Correction TH : ______","Choc chlore (dose) : ______","Algicide préventif appliqué","Floculant / clarifiant appliqué","Anti-phosphates appliqué","Sel ajouté (kg) : ______"]},
-                    {section:"📋 Observations & recommandations",items:["Usure liner / revêtement à surveiller","Équipement à remplacer prochainement : ______","Travaux recommandés : ______","Prochain entretien prévu (date) : ______","Produits laissés au client : ______","Bon de visite signé par le client"]},
-                  ],
-                  hivernage:[
-                    {section:"🌊 Préparation de l'eau",items:["Dernière analyse eau complète réalisée","pH ajusté à 7,2–7,4","TAC ajusté (> 120 mg/L recommandé)","Chlore choc appliqué (J-3 minimum)","Algicide hivernal longue durée appliqué","Anti-calcaire hivernal appliqué","Floculant final appliqué","Nettoyage complet bassin","Ligne de flottaison nettoyée"]},
-                    {section:"📉 Niveau d'eau & bouchons",items:["Abaissement niveau d'eau (sous le bas des skimmers)","Niveau recommandé : ______ cm sous la margelle","Bouchons hivernage posés dans skimmers","Bouchons posés dans refoulements","Bonde de fond : bouchon / clapet fermé","Flotteurs antigel placés (nombre : ______)","Prise balai bouchonnée"]},
-                    {section:"🔌 Arrêt des équipements",items:["Filtration arrêtée","Vidange complète de la pompe","Vidange filtre à sable","Vidange vanne multivoies","Soufflage des canalisations (compresseur)","Arrêt électrolyseur + cellule démontée si gel <-10°C","Arrêt UV / ozone","Arrêt pompes doseuses + vidange","Débranchement programmateur / coffret","Hivernation pompe à chaleur"]},
-                    {section:"🧳 Rangement & protection",items:["Robot nettoyeur sorti, rincé, stocké","Équipements de mesure rincés et rangés","Couverture hivernage mise en place (type : ______)","État couverture vérifié","Filet anti-feuilles posé si couverture bulle","Alarme piscine maintenue active"]},
-                    {section:"📋 Observations & suivi",items:["Photos état piscine à la fermeture","Date d'hivernage : ______","Date de remise en route prévisionnelle : ______","Remarques particulières : ______","Bon d'intervention signé"]},
-                  ],
-                  remise_en_route:[
-                    {section:"🧹 Réouverture bassin",items:["Retrait couverture hivernage","Retrait filet anti-feuilles","Retrait flotteurs antigel","Retrait bouchons skimmers / refoulements / bonde de fond","Nettoyage fond et parois","Remontée du niveau d'eau (mi-skimmer)","Rinçage plage et abords"]},
-                    {section:"🔌 Redémarrage équipements",items:["Remontage pompe (vérification sens rotation)","Amorçage pompe / purge d'air","Remontage vanne multivoies","Mise en marche filtration","Rinçage filtre (contre-lavage + rinçage)","Remontage / reconnexion électrolyseur","Remontage pompes doseuses","Remontage UV / ozone","Redémarrage pompe à chaleur","Vérification programmateur / horloge (heure d'été !)","Test coffret électrique / disjoncteur","Vérification alarme piscine"]},
-                    {section:"🧪 Remise en état de l'eau",items:["Analyse eau complète (pH, TAC, TH, chlore, sel)","Correction pH : ______","Correction TAC : ______","Traitement choc (chlore ou oxygène actif)","Algicide curatif si présence d'algues","Floculant / clarifiant","Ajout sel si électrolyseur (quantité : ______ kg)","Filtration continu 24h à 48h minimum","Eau limpide atteinte avant baignade"]},
-                    {section:"✅ Contrôle général",items:["Vérification absence de fuite","Vérification projecteurs (étanchéité)","Test robot nettoyeur","Vérification volet roulant / mécanisme","Produits d'entretien réapprovisionnés","Bon d'intervention signé"]},
-                  ],
-                  materiel:[
-                    {section:"🔎 Diagnostic matériel existant",items:["Pompe – marque / modèle actuel : ______","Pompe – puissance (kW) : ______ / âge (ans) : ______","Pompe – panne constatée : ______","Filtre – marque / modèle : ______ / ∅ cuve : ______","Filtre – âge : ______ / état du sable : ______","Vanne multivoies – marque / état : ______","Système de traitement – type : ______ / âge : ______","Électrolyseur – marque / taux de sel actuel : ______","PAC – marque / modèle : ______ / âge : ______","Volet – type / état : ______","Photos du matériel défectueux réalisées"]},
-                    {section:"🔄 Remplacement pompe",items:["Débit requis calculé (volume bassin / 4h) : ______ m³/h","Référence nouvelle pompe : ______","Pompe vitesse variable (VEI) recommandée","Raccordements hydrauliques ∅ : ______","Manchons anti-vibratoires neufs","Test de débit après installation"]},
-                    {section:"🔄 Remplacement filtre",items:["Diamètre filtre recommandé : ______","Référence nouveau filtre : ______","Type de média filtrant : sable / verre / billes","Quantité de sable / média : ______ kg","Vanne multivoies adaptée","Manomètre neuf posé","Test de contre-lavage effectué"]},
-                    {section:"🔄 Remplacement traitement",items:["Électrolyseur – référence : ______ / production Cl/h : ______","Cellule d'électrolyse (seule ou boîtier complet)","Régulation pH automatique – marque : ______","Sondes pH / ORP remplacées","Pompes doseuses – marque / débit : ______","UV – puissance W : ______ / lampe neuve","Analyseur connecté / Wi-Fi : ______"]},
-                    {section:"🔄 Remplacement chauffage",items:["Pompe à chaleur – référence : ______ / COP : ______","PAC réversible (climatisation abri incluse)","Vanne de by-pass posée","Test de montée en température bassin"]},
-                    {section:"🔄 Remplacement couverture / volet",items:["Type de couverture choisie : ______","Volet roulant immergé – réservation béton vérifiée","Volet roulant hors-sol – emplacement coffre","Couverture à barres – type de motorisation","Lames : polycarbonate / alu / PVC (couleur : ______)","Test motorisation / sécurité anti-pincement"]},
-                    {section:"🔄 Remplacement éclairage",items:["Nombre de projecteurs : ______","Type : LED RGB / LED blanc chaud","Niche(s) existante(s) compatibles ou à remplacer","Test d'étanchéité après installation","Programmation RGB / scénarios lumineux"]},
-                    {section:"🔄 Robot nettoyeur",items:["Robot fond seul / fond+parois / complet","Référence robot : ______","Alimentation : filaire / sur batterie","Application mobile configurée","Sac / filtre de rechange laissé"]},
-                    {section:"🤝 Clôture intervention",items:["Mise en service complète réalisée","Démonstration au client","Ancien matériel évacué","Garantie constructeur enregistrée","Bon d'intervention signé","Facture / attestation TVA réduite si applicable"]},
-                  ],
-                };
+  renovation: [
+    { section: "🔍 Diagnostic structure",
+      items: ["Fissures structure (fines / traversantes / actives)","Test étanchéité (baisse niveau eau / test colorant)","État du fond (dénivellations, décollements)","État des parois (cloques, éclatement béton)","Corrosion armatures (épaufrures, rouille visible)","État des scellements (bondes, skimmers, projecteurs)","Désolidarisation margelles / plage","Tassement / fissures plage"] },
+    { section: "🎨 Revêtement existant",
+      items: ["Type de revêtement actuel : ______","Âge du revêtement (années) : ______","Liner : déchirures / décollements / décolorations","Liner : vieillissement, perte de souplesse","Carrelage : joints décollés / cassés / tâchés","Carrelage : carreau(x) décollé(s) / fissuré(s)","Enduit : farinage / effritement / tâches","Membrane armée : décollement / percement","Évaluation : remplacement ou réfection partielle ?"] },
+    { section: "🔧 Équipements existants",
+      items: ["Âge pompe : ______ ans — état : ______","Filtre — type / âge / état : ______","Skimmers : état joints / collerettes","Bondes de fond : étanchéité OK ?","Vanne multivoies : état + étanchéité","Électrolyseur : cellule OK / à remplacer","Éclairage : projecteurs à remplacer / optique HS","Câblage : conformité + état isolations","Armoire électrique : disjoncteur différentiel présent ?"] },
+    { section: "🛠️ Travaux rénovation prévus",
+      items: ["Reprise fissures (résine époxy / mortier cristallin)","Traitement anti-calcaire parois","Nouveau revêtement : liner / carrelage / résine / membrane","Remplacement skimmer(s)","Remplacement bonde(s) de fond","Remplacement projecteurs LED","Remplacement pompe","Remplacement filtre + média filtrant","Mise aux normes électriques (liaison équipotentielle)","Remplacement volet + rail","Reprise margelles / plage"] },
+    { section: "🤝 Fin de chantier rénovation",
+      items: ["Photos avant / pendant / après","Mise en eau contrôlée (24 h surveillance)","Réglage équilibrage hydraulique","Première analyse eau + traitements de départ","Notice remise client","Formulaire de réception signé"] },
+  ],
 
-                /* ════════════════════════════════════════════════════════
-                   API & utilitaires
-                   ════════════════════════════════════════════════════════ */
-                const cfg = window.LOLIRINE_CHECKLIST_CONFIG || {};
+  entretien: [
+    { section: "💧 Analyse et mesures eau",
+      items: ["pH (cible 7,2 – 7,6) → mesuré : ______","TAC – alcalinité (cible 80–120 mg/L) → mesuré : ______","TH – dureté (cible 150–300 mg/L) → mesuré : ______","Chlore libre (cible 1,0 – 3,0 mg/L) → mesuré : ______","Chlore combiné (< 0,6 mg/L) → mesuré : ______","Taux de sel si électrolyseur (cible ______ g/L) → mesuré : ______","Cyanurate (< 75 mg/L) → mesuré : ______","Phosphates (< 0,1 mg/L) → mesuré : ______","Température eau (°C) : ______","Turbidité : eau limpide / trouble / verte"] },
+    { section: "🧹 Nettoyage bassin",
+      items: ["Écrémage surface (feuilles, insectes, pollens)","Aspiration fond (manuelle / robot)","Brossage parois et fond","Nettoyage ligne de flottaison (dépôt calcaire / graisses)","Nettoyage panier(s) skimmer(s)","Nettoyage panier préfiltre pompe","Nettoyage fond filtre (sable) — contre-lavage si pression ≥ 0,5 bar","Nettoyage cartouche filtrante (si applicable)","Nettoyage niche projecteur(s)","Rinçage plage / abords","Nettoyage local technique"] },
+    { section: "🔄 Filtration & équipements",
+      items: ["Pression manomètre relevée : ______ bar","Débit pompe vérifié","Bruit / vibration anormal pompe","Vérification programmateur / horloge","Vérification vanne multivoies (absence de fuite)","Vérification électrolyseur (cellule / production)","Vérification pompe doseuse pH","Vérification sonde ORP / pH","Niveau d'eau ajusté (mi-skimmer)","Vérification alarme piscine","Vérification volet / mécanisme"] },
+    { section: "💊 Traitements correctifs appliqués",
+      items: ["Correction pH (produit utilisé / dose) : ______","Correction TAC (bicarbonate / CO2) : ______","Correction TH (anti-calcaire / eau douce) : ______","Choc chlore (dose) : ______","Algicide préventif appliqué","Floculant / clarifiant appliqué","Anti-phosphates appliqué"] },
+    { section: "📋 Observations & recommandations",
+      items: ["Prochaine vidange partielle recommandée (%)","Prochain contre-lavage prévu","Remplacement média filtrant à prévoir","Pièces à commander / en attente","Prochain passage programmé (date) : ______","Rapport envoyé au client : OUI / NON"] },
+  ],
 
-                /* ── Keyword map pour la recherche produits ── */
-                const KEYWORD_MAP = [
-                  [/bonde.{0,10}fond/i,'bonde fond'],
-                  [/skimmer/i,'skimmer'],
-                  [/refoulement/i,'buse refoulement'],
-                  [/buse.{0,10}balai|prise balai/i,'prise balai'],
-                  [/filtre.{0,10}sable/i,'filtre sable'],
-                  [/filtre.{0,10}cartouche/i,'filtre cartouche'],
-                  [/filtre.{0,10}diatom/i,'filtre diatomées'],
-                  [/sable.{0,10}filtration/i,'sable filtration'],
-                  [/billes.{0,10}verre/i,'billes verre filtration'],
-                  [/pompe.{0,10}vitesse.{0,10}variable|VEI/i,'pompe vitesse variable'],
-                  [/pompe.{0,5}chaleur/i,'pompe chaleur piscine'],
-                  [/pompe.{0,10}doseuse/i,'pompe doseuse'],
-                  [/vanne.{0,10}multivoies/i,'vanne multivoies'],
-                  [/électrolyseur|electrolyseur/i,'électrolyseur sel'],
-                  [/cellule.{0,10}électro/i,'cellule électrolyse'],
-                  [/robot.{0,10}nettoyeur|robot.{0,10}fond/i,'robot piscine'],
-                  [/liner/i,'liner piscine'],
-                  [/projecteur.{0,10}LED|spot LED/i,'projecteur LED piscine'],
-                  [/alarme.{0,10}piscine/i,'alarme piscine'],
-                  [/volet.{0,10}roulant/i,'volet roulant piscine'],
-                  [/couverture.{0,10}bulle|couverture.{0,10}solaire/i,'couverture solaire piscine'],
-                  [/bouchon.{0,10}hivern/i,'bouchon hivernage'],
-                  [/flotteur.{0,10}antigel/i,'flotteur antigel piscine'],
-                  [/algicide/i,'algicide'],
-                  [/chlore.{0,10}choc|choc chlore/i,'chlore choc'],
-                  [/galets.{0,10}chlore/i,'galets chlore'],
-                  [/pH.{0,5}moins|pH-/i,'pH moins acide'],
-                  [/floculant/i,'floculant piscine'],
-                  [/anti.{0,5}calcaire/i,'anti calcaire piscine'],
-                  [/anti.{0,5}phosphate/i,'anti phosphates piscine'],
-                  [/sonde.{0,5}pH|sonde.{0,5}ORP/i,'sonde pH ORP piscine'],
-                  [/UV|ultra.{0,5}violet/i,'lampe UV piscine'],
-                  [/ozone/i,'générateur ozone piscine'],
-                  [/manomètre/i,'manomètre piscine'],
-                  [/préfiltre|panier.{0,10}filtre/i,'préfiltre panier pompe'],
-                  [/margelles/i,'margelle piscine'],
-                  [/douche.{0,10}solaire/i,'douche solaire'],
-                  [/échelle|escalier.{0,10}inox/i,'escalier inox piscine'],
-                ];
+  hivernage: [
+    { section: "💧 Traitement eau avant hivernage",
+      items: ["Analyse complète eau réalisée","Correction pH à 7,2","Choc chlore (dose hivernage) : ______","Algicide hivernage longue durée appliqué","Anti-calcaire / séquestrant appliqué","Floculant appliqué si eau trouble","Niveau eau abaissé sous les skimmers"] },
+    { section: "🔧 Filtration & hydraulique",
+      items: ["Contre-lavage filtre effectué","Rinçage filtre effectué","Vidange pompe principale (corps + préfiltre)","Vidange filtre","Vidange vanne multivoies / by-pass","Vidange tuyauteries (air comprimé ou bouchons)","Vanne multivoies en position hivernage / ouverte","Débranchement pompe + mise hors tension","Démontage et rangement accessoires (balai, manche, raclette)"] },
+    { section: "🌡️ Protection gel équipements",
+      items: ["Déconnexion / rangement électrolyseur (cellule)","Démontage pompe doseuse + rinçage","Protection anti-gel locale technique (chauffage / isolant)","Gaine isolante sur tuyauteries exposées","Mise hors service chauffe-eau / PAC (procédure fabricant)","Vérification flotteur(s) anti-gel posé(s) dans bassin","Alimentation électrique générale piscine coupée"] },
+    { section: "🪟 Couverture & sécurité hivernage",
+      items: ["Volet / couverture barres en place et verrouillé","Filet de protection anti-feuilles posé","Nettoyage de la couverture avant pose","Alarme piscine : vérification piles / fonctionnement","Signalétique de sécurité en place"] },
+    { section: "📋 Fin d'hivernage",
+      items: ["Photos état fin de saison effectuées","Date hivernage + date remise en route estimée notées","Rapport hivernage envoyé au client","Commandes produits remise en route anticipées"] },
+  ],
 
-                function extractKeywords(itemText) {
-                  const clean = itemText.replace(/_{2,}/g,'').replace(/\(.*?\)/g,'').trim();
-                  for(const [pat,kw] of KEYWORD_MAP) { if(pat.test(clean)) return kw; }
-                  return clean.replace(/[:()\[\]0-9]/g,' ').split(/\s+/).filter(w=>w.length>3).slice(0,4).join(' ');
-                }
+  remise_en_route: [
+    { section: "🧹 Nettoyage général",
+      items: ["Retrait couverture / filet — nettoyage et rangement","Remise en eau (niveau mi-skimmer)","Nettoyage fond et parois (dépôts hivernage)","Aspiration résidus fond","Nettoyage skimmers et préfiltre","Nettoyage local technique"] },
+    { section: "🔧 Remontage équipements",
+      items: ["Remontage / reconnexion pompe principale","Remontage préfiltre pompe (joint neuf si besoin)","Reconnexion vanne multivoies (position filtration)","Remontage cellule électrolyseur","Remontage pompe doseuse + amorçage","Remontage sondes pH / ORP","Vérification raccords et joints (absence de fuite)","Mise sous tension armoire électrique","Test démarrage pompe (amorçage, purge air)"] },
+    { section: "💧 Première analyse & traitement",
+      items: ["pH mesuré : ______ → correction : ______","TAC mesuré : ______ → correction : ______","TH mesuré : ______ → correction : ______","Taux de sel mesuré : ______ → correction : ______","Choc chlore d'ouverture (dose) : ______","Algicide préventif de départ appliqué","Anti-calcaire / séquestrant appliqué","Floculant si eau trouble appliqué","Attente filtration 48 h avant analyse définitive"] },
+    { section: "⚙️ Vérifications finales",
+      items: ["Programmateur réglé (horaires filtration)","Électrolyseur réglé (% production)","PAC / chauffe-eau remis en route (procédure fabricant)","Alarme piscine testée et validée","Volet / couverture testé (course complète)","Éclairage subaquatique testé","Formation / rappel client si besoin","Rapport remise en route envoyé au client"] },
+  ],
 
-                function sortBySupplier(products) {
-                  return [...products].sort((a,b)=>{
-                    const aH=(a.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp');
-                    const bH=(b.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp');
-                    return aH&&!bH?-1:!aH&&bH?1:0;
-                  });
-                }
+  materiel: [
+    { section: "🔧 Matériel à remplacer",
+      items: ["Pompe principale — référence actuelle : ______","Pompe à remplacer par : ______","Filtre — référence actuelle : ______","Filtre à remplacer par : ______","Électrolyseur — cellule / groupe : ______","Projecteur(s) — nombre + type LED : ______","Volet / armoire volet : ______","Pompe doseuse — type : ______","Vanne multivoies — ø raccordement : ______","Robot nettoyeur — type : ______","Autre : ______"] },
+    { section: "📦 Accessoires & consommables",
+      items: ["Panier skimmer(s) — référence : ______","Panier préfiltre — référence : ______","Médias filtrants — type + quantité : ______","Manomètre — ø filetage : ______","Joints vanne multivoies — référence : ______","Embouts / bouchons hivernage","Manche + balai aspirateur","Raclette / épuisette","Thermomètre flottant / numérique","Bâche à bulles — dimensions : ______"] },
+    { section: "💊 Produits chimiques commandés",
+      items: ["pH- (acide chlorhydrique / pH minus granulés) — quantité : ______","pH+ (carbonate de soude) — quantité : ______","Chlore choc (granulés / liquide) — quantité : ______","Chlore lent (galets 200 g) — quantité : ______","Algicide concentré — quantité : ______","Anti-calcaire / séquestrant — quantité : ______","Floculant / clarifiant — quantité : ______","Anti-phosphates — quantité : ______","Sel électrolyse (sacs 25 kg) — nombre : ______"] },
+    { section: "🤝 Fin d'intervention matériel",
+      items: ["Ancien matériel déposé / évacué","Mise en service nouveau matériel effectuée","Test fonctionnement validé","Notice et garanties remises au client","Bon de livraison / facture émis"] },
+  ],
+};
 
-                async function apiPost(url, params={}) {
-                  const res = await fetch(url, {
-                    method:'POST', credentials:'same-origin',
-                    headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({jsonrpc:'2.0',method:'call',id:1,params})
-                  });
-                  const d = await res.json();
-                  return d?.result;
-                }
+const INTERVENTION_TYPES = [
+  { key: "construction",    label: "🏗️ Construction" },
+  { key: "renovation",      label: "🔨 Rénovation" },
+  { key: "entretien",       label: "🧹 Entretien" },
+  { key: "hivernage",       label: "❄️ Hivernage" },
+  { key: "remise_en_route", label: "🌱 Remise en route" },
+  { key: "materiel",        label: "📦 Changement matériel" },
+];
 
-                async function searchOdooProducts(query, supplier=null) {
-                  try {
-                    const r = await apiPost(cfg.productsEndpoint||'/pool-checklist/products',{query,limit:24,supplier});
-                    const prods = r?.products||[];
-                    if(prods.length) return {source:'odoo', products:sortBySupplier(prods)};
-                    return null;
-                  } catch(e) { console.warn('products:', e); return null; }
-                }
+/* ─────────────────────────────────────────────────────
+   SuggDropdown — liste déroulante de suggestions
+───────────────────────────────────────────────────── */
+function SuggDropdown({ items, onSelect, onClose }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    function handler(e) { if (ref.current && !ref.current.contains(e.target)) onClose(); }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [onClose]);
+  if (!items || items.length === 0) return null;
+  return (
+    <div ref={ref} style={{position:"absolute",top:"100%",left:0,right:0,zIndex:1000,background:"#fff",
+      border:"1.5px solid #dde4ed",borderRadius:10,boxShadow:"0 8px 30px rgba(0,0,0,.12)",marginTop:4,maxHeight:220,overflowY:"auto"}}>
+      {items.map((item, i) => (
+        <div key={i} onClick={() => onSelect(item)}
+          style={{padding:"9px 14px",cursor:"pointer",fontSize:13,color:"#1e293b",borderBottom:i<items.length-1?"1px solid #f0f4f8":"none",
+            transition:"background .1s"}}
+          onMouseEnter={e=>e.currentTarget.style.background="#f0f9ff"}
+          onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+          {item}
+        </div>
+      ))}
+    </div>
+  );
+}
 
-                async function suggestViaAI(itemText, sectionLabel) {
-                  try {
-                    const res = await fetch('https://api.anthropic.com/v1/messages',{
-                      method:'POST', headers:{'Content-Type':'application/json'},
-                      body:JSON.stringify({
-                        model:'claude-sonnet-4-20250514',max_tokens:900,
-                        system:`Expert équipements piscine (Lolirine Pool Store, Belgique). JSON uniquement sans markdown :
-{"products":[{"ref":"","name":"Nom produit précis","category":"Cat","unit":"pièce|kg|L|m|m²|lot","note":"","supplier":"Fluidra|SCP|HTH|BWT|Hayward|Pentair|Zodiac|Astralpool"}]}
-Max 8 produits. Priorité aux produits Fluidra/SIBO et SCP Bénélux.`,
-                        messages:[{role:'user',content:`Section : ${sectionLabel}\nPoint : "${itemText}"\nProduits à prévoir ?`}]
-                      })
-                    });
-                    if(!res.ok) return null;
-                    const d = await res.json();
-                    const parsed = JSON.parse((d.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim());
-                    const prods = (parsed.products||[]).map(p=>({...p,
-                      suppliers: p.supplier?[{name:p.supplier,ref:p.ref||'',price:0,
-                        type:/fluidra|sibo/i.test(p.supplier)?'fluidra':/scp/i.test(p.supplier)?'scp':'other'}]:[]
-                    }));
-                    return {source:'ai', products:sortBySupplier(prods)};
-                  } catch(e) { console.warn('AI:', e); return null; }
-                }
+/* ─────────────────────────────────────────────────────
+   AddressAutocomplete — champ adresse avec suggestions
+───────────────────────────────────────────────────── */
+function AddressAutocomplete({ value, onChange, placeholder }) {
+  const [suggs, setSuggs] = useState([]);
+  const [show, setShow] = useState(false);
+  const timerRef = useRef(null);
+  const wrapRef = useRef(null);
 
-                async function searchPartners(query) {
-                  try {
-                    const r = await apiPost(cfg.partnersEndpoint||'/pool-checklist/partners',{query});
-                    return r?.partners||[];
-                  } catch(e) { return []; }
-                }
+  useEffect(() => {
+    function handler(e) { if (wrapRef.current && !wrapRef.current.contains(e.target)) setShow(false); }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
-                /* ── Validation TVA via VIES (endpoint Odoo natif) ── */
-                async function checkVatVies(vat) {
-                  if(!vat || vat.trim().length < 8) return null;
-                  try {
-                    const r = await apiPost('/web/dataset/call_kw', {
-                      model:  'res.partner',
-                      method: 'simple_vat_check',
-                      args:   [vat.trim().toUpperCase()],
-                      kwargs: {},
-                    });
-                    return r;
-                  } catch(e) { return null; }
-                }
+  function handleInput(val) {
+    onChange(val);
+    clearTimeout(timerRef.current);
+    if (val.length < 3) { setSuggs([]); setShow(false); return; }
+    timerRef.current = setTimeout(async () => {
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(val)}&countrycodes=be&format=json&limit=5&addressdetails=1`,
+          { headers: { "Accept-Language": "fr" } });
+        const data = await r.json();
+        const results = data.map(d => d.display_name);
+        setSuggs(results);
+        setShow(results.length > 0);
+      } catch { setSuggs([]); setShow(false); }
+    }, 300);
+  }
 
-                async function checkVatOdoo(vat) {
-                  if(!vat || vat.trim().length < 8) return null;
-                  try {
-                    // Utilise le module base_vat natif Odoo
-                    const r = await apiPost('/web/dataset/call_kw', {
-                      model:  'res.partner',
-                      method: 'check_vat',
-                      args:   [],
-                      kwargs: {vat: vat.trim().toUpperCase()},
-                    });
-                    if(r?.vat_formatted || r?.name) {
-                      return {
-                        valid:   true,
-                        name:    r.name    || '',
-                        address: r.address || '',
-                        vat:     r.vat_formatted || vat,
-                      };
-                    }
-                    return {valid: !!r, name:'', address:'', vat:vat};
-                  } catch(e) { return null; }
-                }
+  return (
+    <div ref={wrapRef} style={{position:"relative"}}>
+      <input value={value} onChange={e => handleInput(e.target.value)}
+        placeholder={placeholder || "Adresse du chantier…"}
+        style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box"}}
+        onFocus={() => suggs.length && setShow(true)} />
+      {show && <SuggDropdown items={suggs} onSelect={v => { onChange(v); setShow(false); }} onClose={() => setShow(false)} />}
+    </div>
+  );
+}
 
-                /* Auto-save localStorage */
-                const LS_KEY = 'lpc_draft_v2';
-                function lsSave(data) {
-                  try { localStorage.setItem(LS_KEY, JSON.stringify({...data, _ts: Date.now()})); } catch(e){}
-                }
-                function lsLoad() {
-                  try { return JSON.parse(localStorage.getItem(LS_KEY)||'null'); } catch(e){ return null; }
-                }
+/* ─────────────────────────────────────────────────────
+   HistoryModal — historique des fiches (localStorage)
+───────────────────────────────────────────────────── */
+function HistoryModal({ onClose, onLoad }) {
+  const [records, setRecords] = useState([]);
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("pool_checklist_history") || "[]");
+      setRecords(stored.reverse());
+    } catch { setRecords([]); }
+  }, []);
 
-                function lsClear() { try { localStorage.removeItem(LS_KEY); } catch(e){} }
+  function del(idx) {
+    const stored = JSON.parse(localStorage.getItem("pool_checklist_history") || "[]");
+    stored.splice(stored.length - 1 - idx, 1);
+    localStorage.setItem("pool_checklist_history", JSON.stringify(stored));
+    setRecords(stored.reverse());
+  }
 
-                /* ── Statuts des points de contrôle ── */
-                const STATUS_CONFIG = {
-                  pending: {icon:'⬜', label:'Non vérifié',   bg:'transparent', color:'#6b7a8d'},
-                  ok:      {icon:'✅', label:'Conforme',       bg:'#dcfce7',     color:'#166534'},
-                  warn:    {icon:'⚠️', label:'À surveiller',  bg:'#fef3c7',     color:'#92400e'},
-                  action:  {icon:'❌', label:'Action requise', bg:'#fee2e2',     color:'#991b1b'},
-                };
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.45)",zIndex:9999,display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <div style={{background:"#fff",borderRadius:16,padding:28,width:"min(600px,95vw)",maxHeight:"80vh",overflow:"hidden",display:"flex",flexDirection:"column",boxShadow:"0 20px 60px rgba(0,0,0,.2)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+          <h3 style={{margin:0,fontSize:17,color:"#1e293b",fontWeight:700}}>📋 Historique des fiches</h3>
+          <button onClick={onClose} style={{background:"none",border:"1.5px solid #dde4ed",borderRadius:8,padding:"5px 12px",cursor:"pointer",fontSize:13,color:"#6b7a8d"}}>✕</button>
+        </div>
+        {records.length === 0
+          ? <div style={{textAlign:"center",padding:"40px 0",color:"#94a3b8",fontSize:14}}>Aucune fiche sauvegardée</div>
+          : <div style={{overflowY:"auto",flex:1,display:"flex",flexDirection:"column",gap:8}}>
+              {records.map((r, i) => (
+                <div key={i} style={{border:"1.5px solid #e8edf3",borderRadius:10,padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:12}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontWeight:600,fontSize:14,color:"#1e293b",marginBottom:3}}>{r.client || "Client non renseigné"}</div>
+                    <div style={{fontSize:12,color:"#64748b"}}>{r.type} — {r.date || "—"}</div>
+                    <div style={{fontSize:12,color:"#94a3b8",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.address || ""}</div>
+                  </div>
+                  <div style={{display:"flex",gap:8,flexShrink:0}}>
+                    <button onClick={() => { onLoad(r); onClose(); }}
+                      style={{background:"#0ea5e9",color:"#fff",border:"none",borderRadius:8,padding:"6px 14px",cursor:"pointer",fontSize:12,fontWeight:600}}>
+                      Ouvrir
+                    </button>
+                    <button onClick={() => del(i)}
+                      style={{background:"none",border:"1.5px solid #fca5a5",color:"#ef4444",borderRadius:8,padding:"6px 10px",cursor:"pointer",fontSize:12}}>
+                      🗑
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+        }
+      </div>
+    </div>
+  );
+}
 
-                /* ════════════════════════════════════════════════════════
-                   Composants UI réutilisables
-                   ════════════════════════════════════════════════════════ */
+/* ─────────────────────────────────────────────────────
+   ProductPanel — recherche produits + suggestions IA
+───────────────────────────────────────────────────── */
+function ProductPanel({ item, sectionLabel, onAddProducts, onClose }) {
+  const cfg = window.LOLIRINE_CHECKLIST_CONFIG || {};
+  const [q, setQ] = useState(item || "");
+  const [results, setResults] = useState([]);
+  const [sel, setSel] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [source, setSource] = useState(null);
 
-                function SupplierBadge({type, name}) {
-                  const C={fluidra:{bg:'#dbeafe',color:'#1d4ed8',label:'Fluidra/SIBO'},
-                           scp:{bg:'#dcfce7',color:'#166534',label:'SCP Bénélux'},
-                           other:{bg:'#f3f4f6',color:'#6b7a8d',label:name}};
-                  const c=C[type]||C.other;
-                  return <span style={{background:c.bg,color:c.color,borderRadius:5,padding:'2px 7px',fontSize:11,fontWeight:700}}>{c.label}</span>;
-                }
+  useEffect(() => { if (item) search(item); }, []);
 
-                /* ── ImageZoom ── */
-                function ImageZoom({src, name, onClose}) {
+  async function searchOdooProducts(query) {
+    try {
+      const res = await fetch(cfg.productsEndpoint || "/pool-checklist/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ jsonrpc: "2.0", method: "call", id: 1, params: { query, limit: 12 } }),
+      });
+      const d = await res.json();
+      const prods = d?.result?.products || [];
+      return prods.length ? { source: "odoo", products: prods } : null;
+    } catch (e) { console.warn("[checklist] Odoo search failed:", e); return null; }
+  }
+
+  async function suggestViaAI(itemText, sectLabel) {
+    try {
+      const res = await fetch(cfg.aiEndpoint || "/pool-checklist/ai-suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ jsonrpc: "2.0", method: "call", id: 1, params: { item_text: itemText, section_label: sectLabel } }),
+      });
+      if (!res.ok) return null;
+      const d = await res.json();
+      const prods = d?.result?.products || [];
+      return prods.length ? { source: "ai", products: prods } : null;
+    } catch (e) { console.warn("[checklist] AI suggest failed:", e); return null; }
+  }
+
+  async function search(query) {
+    if (!query.trim()) return;
+    setLoading(true); setResults([]); setSource(null); setSel({});
+    const odoo = await searchOdooProducts(query);
+    if (odoo) { setResults(odoo.products); setSource("odoo"); setLoading(false); return; }
+    const ai = await suggestViaAI(query, sectionLabel);
+    if (ai) { setResults(ai.products); setSource("ai"); } else { setSource("empty"); }
+    setLoading(false);
+  }
+
+  function toggle(i) { setSel(s => ({ ...s, [i]: !s[i] })); }
+
+  function addSelected() {
+    const chosen = results.filter((_, i) => sel[i]);
+    if (chosen.length) onAddProducts(chosen);
+  }
+
+  const nSelected = Object.values(sel).filter(Boolean).length;
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,.5)",zIndex:9990,display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <div style={{background:"#fff",borderRadius:16,width:"min(680px,96vw)",maxHeight:"88vh",display:"flex",flexDirection:"column",boxShadow:"0 24px 80px rgba(0,0,0,.22)"}}>
+        {/* header */}
+        <div style={{padding:"18px 20px 12px",borderBottom:"1px solid #f0f4f8",display:"flex",gap:12,alignItems:"flex-start"}}>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontWeight:700,fontSize:16,color:"#1e293b",marginBottom:3}}>🔍 Produits associés</div>
+            <div style={{fontSize:12,color:"#64748b",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item}</div>
+          </div>
+          <button onClick={onClose} style={{background:"none",border:"1.5px solid #dde4ed",borderRadius:8,padding:"5px 12px",cursor:"pointer",fontSize:13,color:"#6b7a8d",flexShrink:0}}>✕</button>
+        </div>
+        {/* search bar */}
+        <div style={{padding:"10px 20px",borderBottom:"1px solid #f0f4f8",display:"flex",gap:8}}>
+          <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === "Enter" && search(q)}
+            placeholder="Nom de produit, référence, marque…"
+            style={{flex:1,border:"1.5px solid #dde4ed",borderRadius:9,padding:"8px 13px",fontFamily:"inherit",fontSize:14,outline:"none"}} />
+          <button onClick={() => search(q)}
+            style={{background:"#0ea5e9",color:"#fff",border:"none",borderRadius:9,padding:"8px 18px",fontWeight:600,cursor:"pointer",fontSize:13,whiteSpace:"nowrap"}}>
+            {loading ? "…" : "Chercher"}
+          </button>
+        </div>
+        {/* source badge */}
+        {source && source !== "empty" && (
+          <div style={{padding:"5px 20px",background:source==="odoo"?"#f0fdf4":"#fffbeb",borderBottom:"1px solid #f0f4f8"}}>
+            <span style={{fontSize:11,fontWeight:600,padding:"2px 9px",borderRadius:20,background:source==="odoo"?"#dcfce7":"#fef3c7",color:source==="odoo"?"#166534":"#92400e"}}>
+              {source==="odoo" ? "✅ Catalogue Lolirine Pool Store (données live)" : "✨ Suggestions IA (catalogue non accessible en direct)"}
+            </span>
+          </div>
+        )}
+        {/* results */}
+        <div style={{flex:1,overflowY:"auto",padding:"6px 20px"}}>
+          {loading && <div style={{padding:40,textAlign:"center",color:"#6b7a8d"}}><div style={{fontSize:28}}>🔄</div><div style={{fontSize:14,marginTop:10}}>Recherche en cours…</div></div>}
+          {!loading && source==="empty" && <div style={{padding:30,textAlign:"center",color:"#94a3b8",fontSize:14}}>Aucun résultat trouvé.</div>}
+          {!loading && source===null && results.length===0 && <div style={{padding:30,textAlign:"center",color:"#94a3b8",fontSize:14}}>Lancez une recherche ou appuyez Entrée.</div>}
+          {results.map((p, i) => {
+            const price = typeof p.price === "number" ? p.price : (parseFloat(p.price) || 0);
+            const sup = p.suppliers?.[0] || {};
+            return (
+              <div key={i} onClick={() => toggle(i)}
+                style={{display:"flex",gap:11,padding:"9px 11px",margin:"4px 0",borderRadius:10,border:`1.5px solid ${sel[i]?"#0ea5e9":"#e8edf3"}`,background:sel[i]?"rgba(14,165,233,.05)":"#fff",cursor:"pointer",alignItems:"flex-start",transition:"all .15s"}}>
+                <div style={{width:18,height:18,border:`2px solid ${sel[i]?"#0ea5e9":"#bbb"}`,borderRadius:5,background:sel[i]?"#0ea5e9":"transparent",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:12}}>
+                  {sel[i] && "✓"}
+                </div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:600,fontSize:13,color:"#1e293b",marginBottom:2}}>{p.name}</div>
+                  <div style={{fontSize:11,color:"#64748b",display:"flex",gap:10,flexWrap:"wrap"}}>
+                    {p.ref && <span>Réf : {p.ref}</span>}
+                    {p.category && <span>• {p.category}</span>}
+                    {p.unit && <span>• {p.unit}</span>}
+                    {sup.name && <span style={{color:"#7c3aed"}}>• {sup.name}</span>}
+                    {price > 0 && <span style={{color:"#16a34a",fontWeight:600}}>• {price.toFixed(2)} € HT</span>}
+                  </div>
+                  {p.note && <div style={{fontSize:11,color:"#94a3b8",marginTop:2,fontStyle:"italic"}}>{p.note}</div>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {/* footer */}
+        {results.length > 0 && (
+          <div style={{padding:"12px 20px",borderTop:"1px solid #f0f4f8",display:"flex",justifyContent:"flex-end",gap:10}}>
+            <button onClick={onClose} style={{background:"none",border:"1.5px solid #dde4ed",borderRadius:9,padding:"8px 18px",cursor:"pointer",fontSize:13,color:"#64748b"}}>Annuler</button>
+            <button onClick={addSelected} disabled={nSelected===0}
+              style={{background:nSelected?`#0ea5e9`:"#cbd5e1",color:"#fff",border:"none",borderRadius:9,padding:"8px 20px",fontWeight:700,cursor:nSelected?"pointer":"default",fontSize:13}}>
+              Ajouter {nSelected ? `(${nSelected})` : "la sélection"}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────
+   SectionBlock — section checklist avec cases + produits
+───────────────────────────────────────────────────── */
+function SectionBlock({ section, items, checked, onToggle, onOpenProducts }) {
+  const [open, setOpen] = useState(true);
+  const done = items.filter((_, i) => checked[i]).length;
+  const pct = Math.round((done / items.length) * 100);
+
+  return (
+    <div style={{background:"#fff",borderRadius:14,border:"1.5px solid #e2e8f0",marginBottom:16,overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,.04)"}}>
+      <div onClick={() => setOpen(o => !o)} style={{padding:"14px 18px",display:"flex",alignItems:"center",gap:12,cursor:"pointer",userSelect:"none",background:"#f8fafc"}}>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:700,fontSize:15,color:"#1e293b"}}>{section}</div>
+          <div style={{marginTop:4,height:4,background:"#e2e8f0",borderRadius:4,overflow:"hidden"}}>
+            <div style={{height:"100%",background:pct===100?"#16a34a":"#0ea5e9",width:`${pct}%`,borderRadius:4,transition:"width .3s"}} />
+          </div>
+        </div>
+        <span style={{fontSize:12,color:"#64748b",whiteSpace:"nowrap"}}>{done}/{items.length}</span>
+        <span style={{fontSize:11,color:"#94a3b8"}}>{open ? "▲" : "▼"}</span>
+      </div>
+      {open && (
+        <div style={{padding:"4px 0 8px"}}>
+          {items.map((item, i) => (
+            <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"7px 18px",borderTop:"1px solid #f8fafc"}}>
+              <input type="checkbox" checked={!!checked[i]} onChange={() => onToggle(i)}
+                style={{marginTop:2,width:16,height:16,accentColor:"#0ea5e9",cursor:"pointer",flexShrink:0}} />
+              <span style={{flex:1,fontSize:13.5,color:checked[i]?"#94a3b8":"#334155",textDecoration:checked[i]?"line-through":"none",lineHeight:1.4}}>
+                {item}
+              </span>
+              <button onClick={() => onOpenProducts(item, section)}
+                title="Rechercher des produits"
+                style={{background:"none",border:"1px solid #e2e8f0",borderRadius:6,padding:"2px 7px",cursor:"pointer",fontSize:11,color:"#94a3b8",flexShrink:0,whiteSpace:"nowrap",transition:"all .15s"}}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor="#0ea5e9";e.currentTarget.style.color="#0ea5e9";}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor="#e2e8f0";e.currentTarget.style.color="#94a3b8";}}>
+                🔍
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────
+   QuoteModal — création devis Odoo depuis la checklist
+───────────────────────────────────────────────────── */
+function QuoteModal({ products, client, clientId, address, ref: refDossier, onClose, onCreated }) {
+  const cfg = window.LOLIRINE_CHECKLIST_CONFIG || {};
+  const [lines, setLines] = useState(
+    products.map(p => ({ ...p, qty: p.qty || 1, include: true }))
+  );
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [note, setNote] = useState(address ? `Chantier : ${address}` : '');
+
+  function toggleLine(i) {
+    setLines(ls => ls.map((l, idx) => idx === i ? { ...l, include: !l.include } : l));
+  }
+  function updateQty(i, delta) {
+    setLines(ls => ls.map((l, idx) => idx === i ? { ...l, qty: Math.max(1, (l.qty || 1) + delta) } : l));
+  }
+
+  const included = lines.filter(l => l.include);
+  const totalHT = included.reduce((a, l) => {
+    const p = typeof l.price === 'number' ? l.price : (parseFloat(l.price) || 0);
+    return a + p * l.qty;
+  }, 0);
+
+  async function createQuote() {
+    if (!included.length) { setError('Aucune ligne sélectionnée.'); return; }
+    setLoading(true); setError(null);
+    try {
+      const res = await fetch(cfg.quoteEndpoint || '/pool-checklist/create-quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          jsonrpc: '2.0', method: 'call', id: 1,
+          params: {
+            partner_id: clientId || null,
+            partner_name: client || '',
+            ref_dossier: refDossier || '',
+            note,
+            lines: included.map(l => ({
+              product_id: l.id || null,
+              name: l.name,
+              product_uom_qty: l.qty,
+              price_unit: typeof l.price === 'number' ? l.price : (parseFloat(l.price) || 0),
+              default_code: l.ref || '',
+            })),
+          },
+        }),
+      });
+      const d = await res.json();
+      if (d?.result?.error) { setError(d.result.error); setLoading(false); return; }
+      setResult(d?.result || {});
+      if (onCreated) onCreated(d?.result);
+    } catch (e) { setError(e.message); }
+    setLoading(false);
+  }
+
+  /* ── Rendu succès ── */
+  if (result) {
+    return (
+      <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.55)',zIndex:9995,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <div style={{background:'#fff',borderRadius:18,padding:36,width:'min(520px,92vw)',boxShadow:'0 24px 80px rgba(0,0,0,.22)',textAlign:'center'}}>
+          <div style={{fontSize:52,marginBottom:12}}>✅</div>
+          <div style={{fontWeight:800,fontSize:20,color:'#1e293b',marginBottom:6}}>Devis créé !</div>
+          <div style={{fontSize:15,color:'#475569',marginBottom:6}}>
+            {result.name && <span style={{fontWeight:700,color:'#0ea5e9'}}>{result.name}</span>}
+          </div>
+          {result.partner_name && <div style={{fontSize:13,color:'#64748b',marginBottom:20}}>Client : {result.partner_name}</div>}
+          <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
+            {result.url && (
+              <a href={result.url} target='_blank' rel='noreferrer'
+                style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:10,padding:'10px 22px',fontWeight:700,fontSize:14,textDecoration:'none',cursor:'pointer'}}>
+                Ouvrir le devis →
+              </a>
+            )}
+            <button onClick={onClose}
+              style={{background:'none',border:'1.5px solid #e2e8f0',borderRadius:10,padding:'10px 22px',fontWeight:600,fontSize:14,cursor:'pointer',color:'#475569'}}>
+              Fermer
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Rendu principal ── */
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.55)',zIndex:9995,display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <div style={{background:'#fff',borderRadius:18,width:'min(760px,96vw)',maxHeight:'90vh',display:'flex',flexDirection:'column',boxShadow:'0 24px 80px rgba(0,0,0,.22)'}}>
+        {/* Header */}
+        <div style={{padding:'20px 24px 14px',borderBottom:'1px solid #f0f4f8',display:'flex',alignItems:'center',gap:14}}>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:800,fontSize:18,color:'#1e293b'}}>📄 Créer un devis</div>
+            {client && <div style={{fontSize:13,color:'#64748b',marginTop:2}}>Client : <strong>{client}</strong></div>}
+          </div>
+          <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:8,padding:'5px 13px',cursor:'pointer',fontSize:14,color:'#6b7a8d'}}>✕</button>
+        </div>
+
+        {/* Note */}
+        <div style={{padding:'12px 24px 0',borderBottom:'1px solid #f8fafc'}}>
+          <label style={{fontSize:12,fontWeight:600,color:'#64748b',display:'block',marginBottom:4}}>Note / référence chantier</label>
+          <input value={note} onChange={e => setNote(e.target.value)} placeholder="Adresse, référence dossier, remarques…"
+            style={{width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,padding:'8px 13px',fontFamily:'inherit',fontSize:13,outline:'none',boxSizing:'border-box',marginBottom:12}} />
+        </div>
+
+        {/* Lignes */}
+        <div style={{flex:1,overflowY:'auto',padding:'8px 24px'}}>
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+            <thead>
+              <tr style={{borderBottom:'2px solid #f0f4f8'}}>
+                {['','Désignation','Réf.','Fournisseur','Qté','Prix unit. HT','Total HT'].map((h,i) => (
+                  <th key={i} style={{padding:'6px 8px',textAlign:'left',fontWeight:600,color:'#64748b',fontSize:12}}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {lines.map((l, i) => {
+                const price = typeof l.price === 'number' ? l.price : (parseFloat(l.price) || 0);
+                const sup = l.suppliers?.[0] || {};
+                return (
+                  <tr key={i} style={{borderBottom:'1px solid #f8fafc',opacity:l.include?1:.4}}>
+                    <td style={{padding:'7px 6px',width:24}}>
+                      <input type='checkbox' checked={l.include} onChange={() => toggleLine(i)} style={{accentColor:'#0ea5e9',width:15,height:15,cursor:'pointer'}} />
+                    </td>
+                    <td style={{padding:'7px 8px',fontWeight:500,color:'#1e293b'}}>{l.name}</td>
+                    <td style={{padding:'7px 8px',color:'#94a3b8',fontSize:12}}>{l.ref || '—'}</td>
+                    <td style={{padding:'7px 8px',color:'#7c3aed',fontSize:12}}>{sup.name || '—'}</td>
+                    <td style={{padding:'7px 8px'}}>
+                      <div style={{display:'flex',alignItems:'center',gap:5}}>
+                        <button onClick={() => updateQty(i,-1)} style={{width:22,height:22,border:'1px solid #e2e8f0',borderRadius:5,background:'#f8fafc',cursor:'pointer',fontSize:13,lineHeight:'20px',textAlign:'center'}}>−</button>
+                        <span style={{fontWeight:700,minWidth:20,textAlign:'center'}}>{l.qty}</span>
+                        <button onClick={() => updateQty(i,+1)} style={{width:22,height:22,border:'1px solid #e2e8f0',borderRadius:5,background:'#f8fafc',cursor:'pointer',fontSize:13,lineHeight:'20px',textAlign:'center'}}>+</button>
+                      </div>
+                    </td>
+                    <td style={{padding:'7px 8px',color:'#16a34a',fontWeight:600}}>{price > 0 ? price.toFixed(2)+' €' : '—'}</td>
+                    <td style={{padding:'7px 8px',color:'#0369a1',fontWeight:700}}>{price > 0 ? (price*l.qty).toFixed(2)+' €' : '—'}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer */}
+        <div style={{padding:'14px 24px',borderTop:'1px solid #f0f4f8',display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+          {totalHT > 0 && (
+            <span style={{flex:1,fontSize:15,fontWeight:800,color:'#0369a1'}}>
+              Total HT estimatif : {totalHT.toFixed(2)} €
+            </span>
+          )}
+          {error && <span style={{color:'#ef4444',fontSize:12,flex:1}}>{error}</span>}
+          <div style={{display:'flex',gap:10,marginLeft:'auto'}}>
+            <button onClick={onClose} style={{background:'none',border:'1.5px solid #e2e8f0',borderRadius:10,padding:'9px 20px',fontWeight:600,fontSize:13,cursor:'pointer',color:'#475569'}}>
+              Annuler
+            </button>
+            <button onClick={createQuote} disabled={loading || !included.length}
+              style={{background:loading||!included.length?'#cbd5e1':'#0ea5e9',color:'#fff',border:'none',borderRadius:10,padding:'9px 22px',fontWeight:700,fontSize:14,cursor:loading?'wait':!included.length?'default':'pointer'}}>
+              {loading ? '⏳ Création…' : `📄 Créer le devis (${included.length} ligne${included.length>1?'s':''})`}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────
+   PoolChecklist — composant principal
+───────────────────────────────────────────────────── */
+function PoolChecklist() {
+  const [type, setType] = useState("entretien");
+  const [client, setClient] = useState("");
+  const [clientId, setClientId] = useState(null);
+  const [address, setAddress] = useState("");
+  const [technicien, setTechnicien] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [ref, setRef] = useState("");
+  const [observations, setObservations] = useState("");
+  const [checked, setChecked] = useState({});
+  const [products, setProducts] = useState([]);
+  const [panel, setPanel] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showQuote, setShowQuote] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const sections = SECTIONS_DATA[type] || [];
+
+  const totalItems = sections.reduce((a, s) => a + s.items.length, 0);
+  const totalDone = sections.reduce((a, s, si) => {
+    return a + s.items.filter((_, ii) => checked[`${si}_${ii}`]).length;
+  }, 0);
+  const pct = totalItems ? Math.round((totalDone / totalItems) * 100) : 0;
+
+  function handleToggle(si, ii) {
+    const k = `${si}_${ii}`;
+    setChecked(c => ({ ...c, [k]: !c[k] }));
+  }
+
+  function handleOpenProducts(item, sectionLabel) {
+    setPanel({ item, sectionLabel });
+  }
+
+  function handleAddProducts(newProds) {
+    setProducts(ps => {
+      const existing = new Set(ps.map(p => p.ref || p.name));
+      const toAdd = newProds.filter(p => !existing.has(p.ref || p.name));
+      return [...ps, ...toAdd.map(p => ({ ...p, qty: 1 }))];
+    });
+    setPanel(null);
+  }
+
+  function updateQty(i, delta) {
+    setProducts(ps => ps.map((p, idx) => idx===i ? { ...p, qty: Math.max(0, (p.qty||1)+delta) } : p).filter(p => p.qty > 0));
+  }
+
+  function removeProduct(i) { setProducts(ps => ps.filter((_, idx) => idx !== i)); }
+
+  function resetChecklist() {
+    if (confirm("Réinitialiser toute la fiche ?")) {
+      setChecked({}); setProducts([]); setClient(""); setClientId(null);
+      setAddress(""); setTechnicien(""); setObservations(""); setRef("");
+      setDate(new Date().toISOString().split("T")[0]); setSaved(false);
+    }
+  }
+
+  function saveToHistory() {
+    try {
+      const stored = JSON.parse(localStorage.getItem("pool_checklist_history") || "[]");
+      stored.push({ client, address, technicien, date, ref, type, observations, checked, products, savedAt: new Date().toISOString() });
+      localStorage.setItem("pool_checklist_history", JSON.stringify(stored.slice(-50)));
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (e) { alert("Erreur lors de la sauvegarde : " + e.message); }
+  }
+
+  function loadRecord(r) {
+    setType(r.type || "entretien");
+    setClient(r.client || ""); setClientId(null);
+    setAddress(r.address || ""); setTechnicien(r.technicien || "");
+    setDate(r.date || ""); setRef(r.ref || "");
+    setObservations(r.observations || "");
+    setChecked(r.checked || {}); setProducts(r.products || []);
+  }
+
+  function handlePrint() {
+    window.print();
+  }
+
+  const totalHT = products.reduce((a, p) => {
+    const price = typeof p.price === "number" ? p.price : (parseFloat(p.price) || 0);
+    return a + price * (p.qty || 1);
+  }, 0);
+
+  return (
+    <div style={{fontFamily:"'Inter','Segoe UI',system-ui,sans-serif",background:"#f1f5f9",minHeight:"100vh"}}>
+      {/* Barre supérieure */}
+      <div style={{background:"#0ea5e9",color:"#fff",padding:"14px 24px",display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
+        <div style={{flex:1,minWidth:200}}>
+          <div style={{fontWeight:800,fontSize:20,letterSpacing:"-.5px"}}>📋 Fiche de visite chantier</div>
+          <div style={{fontSize:12,opacity:.85,marginTop:1}}>Lolirine Pool Store</div>
+        </div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          <button onClick={() => setShowHistory(true)}
+            style={{background:"rgba(255,255,255,.2)",color:"#fff",border:"1.5px solid rgba(255,255,255,.4)",borderRadius:9,padding:"7px 15px",cursor:"pointer",fontWeight:600,fontSize:13}}>
+            📁 Historique
+          </button>
+          <button onClick={saveToHistory}
+            style={{background:saved?"#16a34a":"rgba(255,255,255,.15)",color:"#fff",border:"1.5px solid rgba(255,255,255,.4)",borderRadius:9,padding:"7px 15px",cursor:"pointer",fontWeight:600,fontSize:13,transition:"background .3s"}}>
+            {saved ? "✅ Sauvegardé !" : "💾 Sauvegarder"}
+          </button>
+          <button onClick={handlePrint}
+            style={{background:"rgba(255,255,255,.15)",color:"#fff",border:"1.5px solid rgba(255,255,255,.4)",borderRadius:9,padding:"7px 15px",cursor:"pointer",fontWeight:600,fontSize:13}}>
+            🖨️ Imprimer
+          </button>
+          <button onClick={resetChecklist}
+            style={{background:"rgba(255,255,255,.1)",color:"rgba(255,255,255,.8)",border:"1px solid rgba(255,255,255,.3)",borderRadius:9,padding:"7px 13px",cursor:"pointer",fontSize:12}}>
+            ↺ Réinitialiser
+          </button>
+        </div>
+      </div>
+
+      {/* Barre de progression */}
+      <div style={{background:"#fff",padding:"10px 24px",borderBottom:"1px solid #e2e8f0",display:"flex",alignItems:"center",gap:14}}>
+        <div style={{flex:1,height:8,background:"#e2e8f0",borderRadius:8,overflow:"hidden"}}>
+          <div style={{height:"100%",background:pct===100?"#16a34a":"#0ea5e9",width:`${pct}%`,borderRadius:8,transition:"width .4s"}} />
+        </div>
+        <span style={{fontSize:13,fontWeight:700,color:pct===100?"#16a34a":"#0ea5e9",whiteSpace:"nowrap"}}>{pct} % — {totalDone}/{totalItems}</span>
+      </div>
+
+      <div style={{maxWidth:1000,margin:"0 auto",padding:"24px 16px"}}>
+        {/* Type d'intervention */}
+        <div style={{background:"#fff",borderRadius:14,padding:"18px 20px",marginBottom:20,border:"1.5px solid #e2e8f0"}}>
+          <div style={{fontWeight:700,fontSize:14,color:"#1e293b",marginBottom:12}}>Type d'intervention</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+            {INTERVENTION_TYPES.map(t => (
+              <button key={t.key} onClick={() => { setType(t.key); setChecked({}); }}
+                style={{padding:"8px 16px",borderRadius:10,border:`2px solid ${type===t.key?"#0ea5e9":"#e2e8f0"}`,background:type===t.key?"#eff9ff":"#fff",color:type===t.key?"#0369a1":"#475569",fontWeight:type===t.key?700:500,fontSize:13,cursor:"pointer",transition:"all .15s"}}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Fiche client */}
+        <div style={{background:"#fff",borderRadius:14,padding:"18px 20px",marginBottom:20,border:"1.5px solid #e2e8f0"}}>
+          <div style={{fontWeight:700,fontSize:14,color:"#1e293b",marginBottom:14}}>Informations client</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:12}}>
+            <div>
+              <label style={{fontSize:12,fontWeight:600,color:"#64748b",display:"block",marginBottom:4}}>Client *</label>
+              <ClientAutocomplete value={client} onChange={setClient} onSelectId={setClientId} />
+            </div>
+            <div>
+              <label style={{fontSize:12,fontWeight:600,color:"#64748b",display:"block",marginBottom:4}}>Adresse chantier</label>
+              <AddressAutocomplete value={address} onChange={setAddress} placeholder="Adresse du chantier…" />
+            </div>
+            <div>
+              <label style={{fontSize:12,fontWeight:600,color:"#64748b",display:"block",marginBottom:4}}>Technicien</label>
+              <input value={technicien} onChange={e => setTechnicien(e.target.value)} placeholder="Prénom Nom"
+                style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box"}} />
+            </div>
+            <div>
+              <label style={{fontSize:12,fontWeight:600,color:"#64748b",display:"block",marginBottom:4}}>Date</label>
+              <input type="date" value={date} onChange={e => setDate(e.target.value)}
+                style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box"}} />
+            </div>
+            <div>
+              <label style={{fontSize:12,fontWeight:600,color:"#64748b",display:"block",marginBottom:4}}>Référence dossier</label>
+              <input value={ref} onChange={e => setRef(e.target.value)} placeholder="ex : CHT-2025-042"
+                style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box"}} />
+            </div>
+          </div>
+        </div>
+
+        {/* Sections checklist */}
+        {sections.map((s, si) => (
+          <SectionBlock key={si}
+            section={s.section}
+            items={s.items}
+            checked={Object.fromEntries(s.items.map((_, ii) => [ii, !!checked[`${si}_${ii}`]]))}
+            onToggle={ii => handleToggle(si, ii)}
+            onOpenProducts={(item, sectionLabel) => handleOpenProducts(item, sectionLabel)} />
+        ))}
+
+        {/* Observations */}
+        <div style={{background:"#fff",borderRadius:14,padding:"18px 20px",marginBottom:20,border:"1.5px solid #e2e8f0"}}>
+          <div style={{fontWeight:700,fontSize:14,color:"#1e293b",marginBottom:10}}>📝 Observations & recommandations</div>
+          <textarea value={observations} onChange={e => setObservations(e.target.value)}
+            placeholder="Observations particulières, travaux à prévoir, commentaires client…"
+            style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:10,padding:"12px 14px",fontFamily:"inherit",fontSize:14,outline:"none",resize:"vertical",minHeight:100,boxSizing:"border-box",lineHeight:1.5}} />
+        </div>
+
+        {/* Récapitulatif produits */}
+        {products.length > 0 && (
+          <div style={{background:"#fff",borderRadius:14,padding:"18px 20px",marginBottom:20,border:"1.5px solid #e2e8f0"}}>
+            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14,flexWrap:"wrap"}}>
+              <div style={{fontWeight:700,fontSize:14,color:"#1e293b",flex:1}}>🛒 Matériaux & produits ({products.length})</div>
+              <button onClick={() => setShowQuote(true)}
+                style={{background:"#0ea5e9",color:"#fff",border:"none",borderRadius:10,padding:"8px 18px",fontWeight:700,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
+                📄 Créer un devis
+              </button>
+            </div>
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+              <thead>
+                <tr style={{borderBottom:"2px solid #f0f4f8"}}>
+                  {["Référence","Désignation","Fournisseur","Unité","Qté","Prix unit. HT","Total HT",""].map((h,i) => (
+                    <th key={i} style={{textAlign:"left",padding:"6px 8px",fontWeight:600,color:"#64748b",fontSize:12}}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((p, i) => {
+                  const price = typeof p.price === "number" ? p.price : (parseFloat(p.price) || 0);
+                  const sup = p.suppliers?.[0] || {};
                   return (
-                    <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.92)',zIndex:99999,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24,cursor:'zoom-out'}}>
-                      <img src={src} alt={name} style={{maxWidth:'88vw',maxHeight:'78vh',objectFit:'contain',borderRadius:14,background:'#fff',padding:16,boxShadow:'0 24px 80px rgba(0,0,0,.6)'}}/>
-                      <div style={{color:'rgba(255,255,255,.9)',marginTop:18,fontSize:16,fontWeight:700,textAlign:'center'}}>{name}</div>
-                      <div style={{color:'rgba(255,255,255,.4)',marginTop:6,fontSize:12}}>Cliquer pour fermer</div>
-                    </div>
+                    <tr key={i} style={{borderBottom:"1px solid #f8fafc"}}>
+                      <td style={{padding:"7px 8px",color:"#94a3b8",fontSize:12}}>{p.ref || "—"}</td>
+                      <td style={{padding:"7px 8px",fontWeight:500,color:"#1e293b"}}>{p.name}</td>
+                      <td style={{padding:"7px 8px",color:"#7c3aed",fontSize:12}}>{sup.name || p.category || "—"}</td>
+                      <td style={{padding:"7px 8px",color:"#64748b",fontSize:12}}>{p.unit || "pcs"}</td>
+                      <td style={{padding:"7px 8px"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6}}>
+                          <button onClick={() => updateQty(i, -1)} style={{width:22,height:22,border:"1px solid #e2e8f0",borderRadius:5,background:"#f8fafc",cursor:"pointer",fontSize:14,lineHeight:"20px",textAlign:"center"}}>−</button>
+                          <span style={{fontWeight:600,fontSize:14,minWidth:20,textAlign:"center"}}>{p.qty||1}</span>
+                          <button onClick={() => updateQty(i, 1)} style={{width:22,height:22,border:"1px solid #e2e8f0",borderRadius:5,background:"#f8fafc",cursor:"pointer",fontSize:14,lineHeight:"20px",textAlign:"center"}}>+</button>
+                        </div>
+                      </td>
+                      <td style={{padding:"7px 8px",color:"#16a34a",fontWeight:600}}>{price > 0 ? price.toFixed(2)+" €" : "—"}</td>
+                      <td style={{padding:"7px 8px",color:"#0369a1",fontWeight:700}}>{price > 0 ? (price*(p.qty||1)).toFixed(2)+" €" : "—"}</td>
+                      <td style={{padding:"7px 8px"}}>
+                        <button onClick={() => removeProduct(i)} style={{background:"none",border:"none",cursor:"pointer",color:"#ef4444",fontSize:14,padding:"2px 5px"}}>✕</button>
+                      </td>
+                    </tr>
                   );
-                }
-
-                /* ── Signature Canvas ── */
-                function SignatureCanvas({label, onSave}) {
-                  const canvasRef = React.useRef(null);
-                  const drawing = React.useRef(false);
-                  const [hasContent, setHasContent] = React.useState(false);
-
-                  const getPos = (e, canvas) => {
-                    const rect = canvas.getBoundingClientRect();
-                    const src = e.touches ? e.touches[0] : e;
-                    return {x: src.clientX - rect.left, y: src.clientY - rect.top};
-                  };
-
-                  const start = (e) => {
-                    e.preventDefault();
-                    const canvas = canvasRef.current;
-                    const ctx = canvas.getContext('2d');
-                    const {x,y} = getPos(e, canvas);
-                    ctx.beginPath(); ctx.moveTo(x,y);
-                    drawing.current = true;
-                  };
-                  const draw = (e) => {
-                    if(!drawing.current) return;
-                    e.preventDefault();
-                    const canvas = canvasRef.current;
-                    const ctx = canvas.getContext('2d');
-                    const {x,y} = getPos(e, canvas);
-                    ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.strokeStyle='#1a2332';
-                    ctx.lineTo(x,y); ctx.stroke();
-                    setHasContent(true);
-                  };
-                  const end = () => { drawing.current = false; };
-                  const clear = () => {
-                    const canvas = canvasRef.current;
-                    canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
-                    setHasContent(false); onSave(null);
-                  };
-                  const save = () => {
-                    if(!hasContent) return;
-                    onSave(canvasRef.current.toDataURL('image/png'));
-                  };
-
-                  return (
-                    <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                      <div style={{fontSize:12,color:'#6b7a8d',fontWeight:600}}>{label}</div>
-                      <canvas ref={canvasRef} width={320} height={120}
-                        style={{border:'1.5px solid #dde4ed',borderRadius:8,background:'#fafafa',touchAction:'none',cursor:'crosshair',width:'100%'}}
-                        onMouseDown={start} onMouseMove={draw} onMouseUp={end} onMouseLeave={end}
-                        onTouchStart={start} onTouchMove={draw} onTouchEnd={end}/>
-                      <div style={{display:'flex',gap:6}}>
-                        <button onClick={clear} style={{background:'none',border:'1px solid #dde4ed',borderRadius:6,padding:'4px 10px',fontSize:12,cursor:'pointer',color:'#6b7a8d'}}>🗑️ Effacer</button>
-                        {hasContent && <button onClick={save} style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:6,padding:'4px 12px',fontSize:12,cursor:'pointer',fontWeight:600}}>✓ Valider signature</button>}
-                      </div>
-                    </div>
-                  );
-                }
-
-                function SuggDropdown({suggestions, onSelect}) {
-                  return (
-                    <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#fff',
-                      border:'1.5px solid #dde4ed',borderRadius:8,
-                      boxShadow:'0 8px 24px rgba(0,0,0,.12)',zIndex:2000,maxHeight:220,overflowY:'auto'}}>
-                      {suggestions.map((p,i)=>(
-                        <div key={i} onMouseDown={()=>onSelect(p)}
-                          style={{padding:'9px 12px',fontSize:13,cursor:'pointer',
-                            borderBottom:'1px solid #f0f4f8',display:'flex',gap:10,alignItems:'flex-start'}}
-                          onMouseOver={e=>e.currentTarget.style.background='#f0f9ff'}
-                          onMouseOut={e=>e.currentTarget.style.background='#fff'}>
-                          <span style={{fontSize:18,flexShrink:0}}>👤</span>
-                          <div>
-                            <div style={{fontWeight:700,color:'#1a2332'}}>{p.name}</div>
-                            {p.street && <div style={{fontSize:11,color:'#6b7a8d',marginTop:1}}>{p.street}, {p.zip} {p.city}</div>}
-                            {(p.phone||p.mobile) && <div style={{fontSize:11,color:'#6b7a8d'}}>📞 {p.phone||p.mobile}</div>}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }
-
-                /* ── Autocomplete adresse (Google Places avec split rue/cp/ville/pays) ── */
-                function AddressAutocomplete({valueRue, valueCp, valueVille, valuePays, onChangeFull, placeholder, inputStyle}) {
-                  const inputRef = React.useRef(null);
-                  const [localVal, setLocalVal] = React.useState(valueRue||'');
-                  const [ready, setReady] = React.useState(false);
-
-                  React.useEffect(()=>{
-                    setLocalVal(valueRue||'');
-                  },[valueRue]);
-
-                  React.useEffect(()=>{
-                    const initAC = () => {
-                      if(!inputRef.current || !window.google?.maps?.places) return;
-                      const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
-                        types:['address'],
-                        componentRestrictions:{country:['be','fr','lu','nl','de']},
-                        fields:['address_components','formatted_address'],
-                      });
-                      ac.addListener('place_changed', ()=>{
-                        const place = ac.getPlace();
-                        if(!place.address_components) return;
-                        const get = (types) => {
-                          const c = place.address_components.find(c=>types.some(t=>c.types.includes(t)));
-                          return c ? c.long_name : '';
-                        };
-                        const streetNum = get(['street_number']);
-                        const route     = get(['route']);
-                        const rue       = [route, streetNum].filter(Boolean).join(' ');
-                        const cp        = get(['postal_code']);
-                        const ville     = get(['locality','postal_town','sublocality']);
-                        const pays      = get(['country']);
-                        onChangeFull({ rue, cp, ville, pays });
-                        setLocalVal(rue);
-                      });
-                      setReady(true);
-                    };
-                    if(window.GOOGLE_PLACES_READY) { initAC(); }
-                    else {
-                      document.addEventListener('googlePlacesReady', initAC, {once:true});
-                      // Retry si déjà chargé mais événement manqué
-                      setTimeout(()=>{ if(window.google?.maps?.places) initAC(); }, 1000);
-                    }
-                    return ()=>{ document.removeEventListener('googlePlacesReady', initAC); };
-                  },[]);
-
-                  return (
-                    <div style={{display:'contents'}}>
-                      <div className="lpc-fg full">
-                        <label>Rue <span className="lpc-required">*</span></label>
-                        <input ref={inputRef} value={localVal}
-                          onChange={e=>{ setLocalVal(e.target.value); onChangeFull({rue:e.target.value,cp:valueCp,ville:valueVille,pays:valuePays}); }}
-                          placeholder="Rue de la Piscine 12"
-                          style={inputStyle}/>
-                        {!ready && (
-                          <div style={{fontSize:11,color:'#9ca3af',marginTop:3}}>
-                            💡 Tapez l'adresse — autocomplétion Google Places
-                          </div>
-                        )}
-                      </div>
-                      <div className="lpc-fg">
-                        <label>Code postal</label>
-                        <input value={valueCp}
-                          onChange={e=>onChangeFull({rue:localVal,cp:e.target.value,ville:valueVille,pays:valuePays})}
-                          placeholder="5000" style={inputStyle}/>
-                      </div>
-                      <div className="lpc-fg">
-                        <label>Ville</label>
-                        <input value={valueVille}
-                          onChange={e=>onChangeFull({rue:localVal,cp:valueCp,ville:e.target.value,pays:valuePays})}
-                          placeholder="Namur" style={inputStyle}/>
-                      </div>
-                      <div className="lpc-fg full">
-                        <label>Pays</label>
-                        <select value={valuePays}
-                          onChange={e=>onChangeFull({rue:localVal,cp:valueCp,ville:valueVille,pays:e.target.value})}
-                          style={{...inputStyle,cursor:'pointer'}}>
-                          {['Belgique','France','Luxembourg','Pays-Bas','Allemagne','Suisse'].map(p=>(
-                            <option key={p} value={p}>{p}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  );
-                }
-
-                /* ════════════════════════════════════════════════════════
-                   QuoteModal — Main d'œuvre, évacuation, déplacement
-                   ════════════════════════════════════════════════════════ */
-
-                /* Calcul frais de déplacement depuis Namur */
-                function calcDeplacementFee(km) {
-                  if(!km || km <= 0) return 0;
-                  if(km <= 30) return 50;
-                  const beyond = km - 30;
-                  const slices = Math.ceil(beyond / 5);
-                  return 50 + slices * 10;
-                }
-
-                function QuoteModal({client, allProds, reportId, onClose, onSuccess}) {
-                  const [mainOeuvre, setMainOeuvre]   = React.useState({enabled:false, heures:0, tauxHoraire:55, forfait:0, mode:'horaire'});
-                  const [evacuation, setEvacuation]   = React.useState({mode:'forfait', montant:150}); // 'forfait'|'client'|'aucune'
-                  const [deplacement, setDeplacement] = React.useState({enabled:false, km:0, fee:0, autoCalc:true});
-                  const [notes, setNotes]             = React.useState('');
-                  const [creating, setCreating]       = React.useState(false);
-                  const [distLoading, setDistLoading] = React.useState(false);
-
-                  /* Calcul automatique distance via Google Maps */
-                  const calcDistance = async() => {
-                    if(!client.rue && !client.ville) return;
-                    if(!window.google?.maps) return;
-                    setDistLoading(true);
-                    try {
-                      const origin = 'Namur, Belgique';
-                      const dest   = [client.rue, client.cp, client.ville, client.pays].filter(Boolean).join(', ');
-                      const svc    = new window.google.maps.DistanceMatrixService();
-                      svc.getDistanceMatrix({
-                        origins:      [origin],
-                        destinations: [dest],
-                        travelMode:   window.google.maps.TravelMode.DRIVING,
-                        unitSystem:   window.google.maps.UnitSystem.METRIC,
-                      }, (res, status) => {
-                        if(status === 'OK' && res.rows[0]?.elements[0]?.status === 'OK') {
-                          const km = Math.round(res.rows[0].elements[0].distance.value / 1000);
-                          setDeplacement(p=>({...p, km, fee:calcDeplacementFee(km), enabled:true}));
-                        }
-                        setDistLoading(false);
-                      });
-                    } catch(e) { setDistLoading(false); }
-                  };
-
-                  /* Recalcul fee quand km change */
-                  React.useEffect(()=>{
-                    if(deplacement.autoCalc) {
-                      setDeplacement(p=>({...p, fee:calcDeplacementFee(p.km)}));
-                    }
-                  },[deplacement.km, deplacement.autoCalc]);
-
-                  /* Total estimatif */
-                  const prodsTotal = allProds.reduce((a,p)=>a+(p.price||0)*(p.qty||1),0);
-                  const moTotal    = mainOeuvre.enabled
-                    ? (mainOeuvre.mode==='horaire' ? mainOeuvre.heures*mainOeuvre.tauxHoraire : mainOeuvre.forfait)
-                    : 0;
-                  const evacTotal  = evacuation.mode==='forfait' ? evacuation.montant : 0;
-                  const deplTotal  = deplacement.enabled ? deplacement.fee : 0;
-                  const grandTotal = prodsTotal + moTotal + evacTotal + deplTotal;
-
-                  const handleCreate = async() => {
-                    setCreating(true);
-                    const extraLines = [];
-
-                    /* Main d'œuvre */
-                    if(mainOeuvre.enabled) {
-                      if(mainOeuvre.mode==='horaire' && mainOeuvre.heures > 0) {
-                        extraLines.push({
-                          name:  `Main d'œuvre — ${mainOeuvre.heures}h × ${mainOeuvre.tauxHoraire} €/h`,
-                          qty:   mainOeuvre.heures,
-                          price: mainOeuvre.tauxHoraire,
-                          ref:   'MO-HORAIRE',
-                          type:  'service',
-                        });
-                      } else if(mainOeuvre.mode==='forfait' && mainOeuvre.forfait > 0) {
-                        extraLines.push({
-                          name:  "Main d'œuvre — Forfait",
-                          qty:   1,
-                          price: mainOeuvre.forfait,
-                          ref:   'MO-FORFAIT',
-                          type:  'service',
-                        });
-                      }
-                    }
-
-                    /* Évacuation */
-                    if(evacuation.mode==='forfait' && evacuation.montant > 0) {
-                      extraLines.push({
-                        name:  "Forfait évacuation des déchets de chantier",
-                        qty:   1,
-                        price: evacuation.montant,
-                        ref:   'EVAC-FORFAIT',
-                        type:  'service',
-                      });
-                    } else if(evacuation.mode==='client') {
-                      extraLines.push({
-                        name:  "Évacuation des déchets — À charge du client",
-                        qty:   1,
-                        price: 0,
-                        ref:   'EVAC-CLIENT',
-                        type:  'service',
-                      });
-                    }
-
-                    /* Frais de déplacement */
-                    if(deplacement.enabled && deplacement.fee > 0) {
-                      const addr = [client.rue, client.cp, client.ville].filter(Boolean).join(', ');
-                      extraLines.push({
-                        name:  `Frais de déplacement${deplacement.km>0?` (${deplacement.km} km depuis Namur)`:''}${addr?' — '+addr:''}`,
-                        qty:   1,
-                        price: deplacement.fee,
-                        ref:   'DEPL',
-                        type:  'service',
-                      });
-                    }
-
-                    const r = await apiPost(cfg.quoteEndpoint||'/pool-checklist/create-quote', {
-                      report_id:   reportId,
-                      products:    allProds,
-                      extra_lines: extraLines,
-                      notes:       notes,
-                      client:      {...client,
-                        nom: [client.prenom,client.nom].filter(Boolean).join(' '),
-                        adresse: [client.rue,client.cp,client.ville,client.pays].filter(Boolean).join(', '),
-                      },
-                    });
-                    setCreating(false);
-                    if(r?.success) onSuccess(r);
-                    else alert('Erreur : '+(r?.error||'inconnue'));
-                  };
-
-                  const secStyle = {background:'#fff',borderRadius:12,padding:'16px 18px',marginBottom:12,border:'1.5px solid #dde4ed'};
-                  const secHdr   = {fontWeight:700,fontSize:14,marginBottom:12,display:'flex',alignItems:'center',gap:8};
-                  const inputS   = {border:'1.5px solid #e5e7eb',borderRadius:8,padding:'8px 12px',fontFamily:'inherit',fontSize:14,background:'#f9fafb',outline:'none',width:'100%'};
-                  const numS     = {border:'1.5px solid #e5e7eb',borderRadius:8,padding:'8px 12px',fontFamily:'inherit',fontSize:14,background:'#f9fafb',outline:'none',width:'90px',textAlign:'center'};
-
-                  return (
-                    <div style={{position:'fixed',inset:0,background:'rgba(10,20,40,0.7)',zIndex:9998,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
-                      <div style={{background:'#f0f4f8',borderRadius:20,width:'100%',maxWidth:680,maxHeight:'92vh',display:'flex',flexDirection:'column',boxShadow:'0 28px 90px rgba(0,0,0,.35)',overflow:'hidden'}}>
-
-                        {/* Header */}
-                        <div style={{padding:'16px 22px',borderBottom:'1.5px solid #dde4ed',background:'#fff',display:'flex',alignItems:'center',gap:12}}>
-                          <div style={{flex:1}}>
-                            <div style={{fontWeight:700,fontSize:16}}>📋 Créer un devis Odoo</div>
-                            <div style={{fontSize:12,color:'#6b7a8d',marginTop:2}}>
-                              {allProds.length} produit(s) · Total matériaux : <strong>{allProds.reduce((a,p)=>a+(p.price||0)*(p.qty||1),0).toFixed(2)} €</strong>
-                            </div>
-                          </div>
-                          <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:8,padding:'5px 13px',cursor:'pointer',fontSize:14,color:'#6b7a8d'}}>✕</button>
-                        </div>
-
-                        {/* Contenu scrollable */}
-                        <div style={{flex:1,overflowY:'auto',padding:16}}>
-
-                          {/* ── Main d'œuvre ── */}
-                          <div style={secStyle}>
-                            <div style={secHdr}>
-                              <input type="checkbox" checked={mainOeuvre.enabled}
-                                onChange={e=>setMainOeuvre(p=>({...p,enabled:e.target.checked}))}
-                                style={{width:16,height:16,accentColor:'#0ea5e9',cursor:'pointer'}}/>
-                              🔨 Main d'œuvre
-                            </div>
-                            {mainOeuvre.enabled && (
-                              <div>
-                                <div style={{display:'flex',gap:8,marginBottom:12}}>
-                                  {[['horaire',"À l'heure"],['forfait','Forfait']].map(([v,l])=>(
-                                    <button key={v} onClick={()=>setMainOeuvre(p=>({...p,mode:v}))}
-                                      style={{padding:'6px 14px',borderRadius:20,border:`1.5px solid ${mainOeuvre.mode===v?'#0ea5e9':'#dde4ed'}`,
-                                        background:mainOeuvre.mode===v?'#0ea5e9':'#fff',
-                                        color:mainOeuvre.mode===v?'#fff':'#6b7a8d',
-                                        cursor:'pointer',fontSize:13,fontWeight:600}}>
-                                      {l}
-                                    </button>
-                                  ))}
-                                </div>
-                                {mainOeuvre.mode==='horaire' ? (
-                                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,alignItems:'end'}}>
-                                    <div>
-                                      <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Nombre d'heures</div>
-                                      <input type="number" min="0" step="0.5" value={mainOeuvre.heures}
-                                        onChange={e=>setMainOeuvre(p=>({...p,heures:parseFloat(e.target.value)||0}))}
-                                        style={numS}/>
-                                    </div>
-                                    <div>
-                                      <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Taux horaire (€/h)</div>
-                                      <input type="number" min="0" value={mainOeuvre.tauxHoraire}
-                                        onChange={e=>setMainOeuvre(p=>({...p,tauxHoraire:parseFloat(e.target.value)||0}))}
-                                        style={numS}/>
-                                    </div>
-                                    <div>
-                                      <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Total</div>
-                                      <div style={{fontWeight:700,fontSize:16,color:'#0ea5e9',padding:'8px 0'}}>
-                                        {(mainOeuvre.heures*mainOeuvre.tauxHoraire).toFixed(2)} €
-                                      </div>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,alignItems:'end'}}>
-                                    <div>
-                                      <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Montant forfait (€ HT)</div>
-                                      <input type="number" min="0" value={mainOeuvre.forfait}
-                                        onChange={e=>setMainOeuvre(p=>({...p,forfait:parseFloat(e.target.value)||0}))}
-                                        style={numS}/>
-                                    </div>
-                                    <div style={{fontWeight:700,fontSize:16,color:'#0ea5e9',padding:'8px 0'}}>
-                                      {mainOeuvre.forfait.toFixed(2)} €
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* ── Évacuation déchets ── */}
-                          <div style={secStyle}>
-                            <div style={secHdr}>🗑️ Évacuation des déchets de chantier</div>
-                            <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                              {[
-                                ['forfait', '💰 Forfait évacuation (à facturer)'],
-                                ['client',  '🚛 Évacuation prise en charge par le client'],
-                                ['aucune',  '➖ Sans évacuation'],
-                              ].map(([v,l])=>(
-                                <label key={v} style={{display:'flex',alignItems:'center',gap:10,cursor:'pointer',
-                                  padding:'10px 14px',borderRadius:9,border:`1.5px solid ${evacuation.mode===v?'#0ea5e9':'#e5e7eb'}`,
-                                  background:evacuation.mode===v?'rgba(14,165,233,0.04)':'#fff',transition:'all .15s'}}>
-                                  <input type="radio" name="evacuation" value={v}
-                                    checked={evacuation.mode===v}
-                                    onChange={()=>setEvacuation(p=>({...p,mode:v}))}
-                                    style={{accentColor:'#0ea5e9'}}/>
-                                  <span style={{fontWeight:600,fontSize:13,flex:1}}>{l}</span>
-                                  {v==='forfait' && evacuation.mode==='forfait' && (
-                                    <div style={{display:'flex',alignItems:'center',gap:8}} onClick={e=>e.stopPropagation()}>
-                                      <input type="number" min="0" value={evacuation.montant}
-                                        onChange={e=>setEvacuation(p=>({...p,montant:parseFloat(e.target.value)||0}))}
-                                        style={{...numS,width:80}}/>
-                                      <span style={{fontSize:13,color:'#6b7a8d',fontWeight:600}}>€</span>
-                                    </div>
-                                  )}
-                                  {v==='forfait' && evacuation.mode!=='forfait' && (
-                                    <span style={{fontSize:12,color:'#9ca3af'}}>{evacuation.montant.toFixed(2)} €</span>
-                                  )}
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* ── Frais de déplacement ── */}
-                          <div style={secStyle}>
-                            <div style={secHdr}>
-                              <input type="checkbox" checked={deplacement.enabled}
-                                onChange={e=>setDeplacement(p=>({...p,enabled:e.target.checked}))}
-                                style={{width:16,height:16,accentColor:'#0ea5e9',cursor:'pointer'}}/>
-                              🚗 Frais de déplacement
-                              <span style={{fontSize:11,color:'#9ca3af',fontWeight:400,marginLeft:4}}>
-                                (depuis Namur · ≤30 km = 50 € · +10 €/5 km au-delà)
-                              </span>
-                            </div>
-                            {deplacement.enabled && (
-                              <div>
-                                {/* Calcul auto si Google Maps dispo */}
-                                {window.google?.maps && client.rue && (
-                                  <button onClick={calcDistance} disabled={distLoading}
-                                    style={{background:'#f0f9ff',border:'1.5px solid #bae6fd',borderRadius:8,
-                                      padding:'7px 14px',cursor:'pointer',fontSize:13,fontWeight:600,
-                                      color:'#0369a1',marginBottom:12,display:'flex',alignItems:'center',gap:7}}>
-                                    {distLoading?'⟳ Calcul en cours…':'📍 Calculer la distance automatiquement'}
-                                  </button>
-                                )}
-                                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,alignItems:'end'}}>
-                                  <div>
-                                    <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Distance (km)</div>
-                                    <input type="number" min="0" value={deplacement.km}
-                                      onChange={e=>{
-                                        const km = parseFloat(e.target.value)||0;
-                                        setDeplacement(p=>({...p,km,fee:p.autoCalc?calcDeplacementFee(km):p.fee}));
-                                      }}
-                                      style={numS}/>
-                                  </div>
-                                  <div>
-                                    <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>
-                                      Montant (€)
-                                      <label style={{marginLeft:8,fontSize:11,fontWeight:400,cursor:'pointer'}}>
-                                        <input type="checkbox" checked={deplacement.autoCalc}
-                                          onChange={e=>setDeplacement(p=>({...p,autoCalc:e.target.checked}))}
-                                          style={{marginRight:3,accentColor:'#0ea5e9'}}/>
-                                        Auto
-                                      </label>
-                                    </div>
-                                    <input type="number" min="0" value={deplacement.fee}
-                                      readOnly={deplacement.autoCalc}
-                                      onChange={e=>!deplacement.autoCalc&&setDeplacement(p=>({...p,fee:parseFloat(e.target.value)||0}))}
-                                      style={{...numS,background:deplacement.autoCalc?'#f3f4f6':'#f9fafb',cursor:deplacement.autoCalc?'not-allowed':'text'}}/>
-                                  </div>
-                                  <div>
-                                    <div style={{fontSize:12,color:'#6b7a8d',marginBottom:5,fontWeight:600}}>Barème appliqué</div>
-                                    <div style={{fontSize:12,color:'#0ea5e9',fontWeight:600,padding:'8px 0'}}>
-                                      {deplacement.km<=30&&deplacement.km>0?'≤ 30 km → 50 €':
-                                       deplacement.km>30?`${deplacement.km} km → 50 € + ${Math.ceil((deplacement.km-30)/5)}×10 €`:'—'}
-                                    </div>
-                                  </div>
-                                </div>
-                                {/* Adresse chantier */}
-                                {(client.rue||client.ville) && (
-                                  <div style={{fontSize:11,color:'#6b7a8d',marginTop:8,padding:'6px 10px',background:'#f8fafc',borderRadius:6}}>
-                                    📍 Chantier : {[client.rue,client.cp,client.ville].filter(Boolean).join(', ')}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* ── Notes devis ── */}
-                          <div style={secStyle}>
-                            <div style={secHdr}>📝 Notes internes pour le devis</div>
-                            <textarea value={notes} onChange={e=>setNotes(e.target.value)}
-                              placeholder="Conditions particulières, délais, remarques pour le devis…"
-                              style={{width:'100%',minHeight:60,border:'1.5px solid #e5e7eb',borderRadius:8,
-                                padding:'9px 12px',fontFamily:'inherit',fontSize:13,resize:'vertical',
-                                background:'#f9fafb',outline:'none'}}/>
-                          </div>
-
-                          {/* ── Récap total ── */}
-                          <div style={{background:'linear-gradient(135deg,#0ea5e9,#0369a1)',borderRadius:12,padding:'16px 20px',color:'#fff'}}>
-                            <div style={{fontSize:13,opacity:.85,marginBottom:8}}>Récapitulatif estimatif HT</div>
-                            {prodsTotal>0&&<div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:13}}>
-                              <span>Matériaux & produits</span><strong>{prodsTotal.toFixed(2)} €</strong>
-                            </div>}
-                            {moTotal>0&&<div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:13}}>
-                              <span>Main d'œuvre</span><strong>{moTotal.toFixed(2)} €</strong>
-                            </div>}
-                            {evacTotal>0&&<div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:13}}>
-                              <span>Évacuation déchets</span><strong>{evacTotal.toFixed(2)} €</strong>
-                            </div>}
-                            {deplTotal>0&&<div style={{display:'flex',justifyContent:'space-between',marginBottom:4,fontSize:13}}>
-                              <span>Frais de déplacement</span><strong>{deplTotal.toFixed(2)} €</strong>
-                            </div>}
-                            <div style={{borderTop:'1px solid rgba(255,255,255,.3)',marginTop:8,paddingTop:8,
-                              display:'flex',justifyContent:'space-between',fontSize:16,fontWeight:700}}>
-                              <span>Total estimatif HT</span><span>{grandTotal.toFixed(2)} €</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Footer */}
-                        <div style={{padding:'13px 22px',borderTop:'1.5px solid #dde4ed',display:'flex',gap:10,background:'#fff'}}>
-                          <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:9,
-                            padding:'10px 18px',cursor:'pointer',fontFamily:'inherit',fontSize:14,fontWeight:600}}>
-                            Annuler
-                          </button>
-                          <div style={{flex:1}}/>
-                          <button onClick={handleCreate} disabled={creating}
-                            style={{background:creating?'#d1d5db':'#059669',color:'#fff',border:'none',
-                              borderRadius:9,padding:'10px 24px',fontWeight:700,cursor:creating?'not-allowed':'pointer',
-                              fontFamily:'inherit',fontSize:14,display:'flex',alignItems:'center',gap:8}}>
-                            {creating?'⟳ Création…':'✅ Créer le devis Odoo'}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-
-                /* ── Modal historique des fiches ── */
-                function HistoryModal({onLoad, onClose}) {
-                  const [reports, setReports] = React.useState([]);
-                  const [loading, setLoading] = React.useState(true);
-
-                  React.useEffect(()=>{
-                    apiPost(cfg.listEndpoint||'/pool-checklist/list',{limit:30})
-                      .then(r=>{ setReports(r?.reports||[]); setLoading(false); });
-                  },[]);
-
-                  const intColors = {construction:'#0ea5e9',renovation:'#f59e0b',entretien:'#10b981',
-                    hivernage:'#6366f1',remise_en_route:'#f97316',materiel:'#ec4899'};
-
-                  return (
-                    <div style={{position:'fixed',inset:0,background:'rgba(10,20,40,0.65)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
-                      <div style={{background:'#f0f4f8',borderRadius:20,width:'100%',maxWidth:720,maxHeight:'85vh',display:'flex',flexDirection:'column',boxShadow:'0 24px 80px rgba(0,0,0,.3)',overflow:'hidden'}}>
-                        <div style={{padding:'16px 22px',borderBottom:'1.5px solid #dde4ed',background:'#fff',display:'flex',alignItems:'center',gap:12}}>
-                          <div style={{flex:1,fontWeight:700,fontSize:16}}>📋 Fiches de visite sauvegardées</div>
-                          <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:8,padding:'5px 13px',cursor:'pointer',fontSize:14,color:'#6b7a8d'}}>✕</button>
-                        </div>
-                        <div style={{flex:1,overflowY:'auto',padding:16}}>
-                          {loading && <div style={{textAlign:'center',padding:40,color:'#6b7a8d',fontSize:28}}>🔄</div>}
-                          {!loading && reports.length===0 && <div style={{textAlign:'center',padding:40,color:'#6b7a8d'}}>Aucune fiche sauvegardée</div>}
-                          {reports.map(r=>(
-                            <div key={r.id} onClick={()=>onLoad(r.id)}
-                              style={{background:'#fff',borderRadius:12,padding:'13px 16px',marginBottom:8,cursor:'pointer',border:'1.5px solid #dde4ed',transition:'all .15s',display:'flex',gap:12,alignItems:'center'}}
-                              onMouseOver={e=>e.currentTarget.style.borderColor='#0ea5e9'}
-                              onMouseOut={e=>e.currentTarget.style.borderColor='#dde4ed'}>
-                              <div style={{width:10,height:10,borderRadius:'50%',background:intColors[r.intervention_type]||'#6b7a8d',flexShrink:0}}/>
-                              <div style={{flex:1,minWidth:0}}>
-                                <div style={{fontWeight:700,fontSize:13}}>{r.partner_name||'Sans nom'}</div>
-                                <div style={{fontSize:11,color:'#6b7a8d',marginTop:2}}>{r.name} · {r.date} · {r.intervention_type}</div>
-                              </div>
-                              <div style={{textAlign:'right',flexShrink:0}}>
-                                <div style={{fontSize:11,fontWeight:700,color:r.state==='done'?'#059669':'#f59e0b',background:r.state==='done'?'#dcfce7':'#fef3c7',padding:'2px 8px',borderRadius:10}}>
-                                  {r.state==='done'?'✅ Validée':'📝 Brouillon'}
-                                </div>
-                                {r.completion_pct>0 && <div style={{fontSize:11,color:'#6b7a8d',marginTop:3}}>{r.completion_pct}% complété</div>}
-                                {r.items_action>0 && <div style={{fontSize:11,color:'#ef4444',fontWeight:600}}>⚠️ {r.items_action} action(s)</div>}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-
-                /* ════════════════════════════════════════════════════════
-                   ProductPanel (version complète)
-                   ════════════════════════════════════════════════════════ */
-                function ProductPanel({itemText, sectionLabel, onAdd, onClose}) {
-                  const autoKw = React.useMemo(()=>extractKeywords(itemText),[itemText]);
-                  const [q,setQ]            = React.useState(autoKw);
-                  const [allResults,setAll] = React.useState([]);
-                  const [loading,setLoading]= React.useState(false);
-                  const [source,setSource]  = React.useState(null);
-                  const [tab,setTab]        = React.useState('all');
-                  const [sel,setSel]        = React.useState({});
-                  const [qtys,setQtys]      = React.useState({});
-                  const [zoom,setZoom]      = React.useState(null);
-                  const [openCats,setOpenCats] = React.useState({});   // catégories ouvertes
-
-                  const search = async(query) => {
-                    if(!query.trim()) return;
-                    setLoading(true); setAll([]); setSource(null); setSel({}); setQtys({});
-                    try {
-                      let r = await searchOdooProducts(query);
-                      if(!r) r = await suggestViaAI(itemText, sectionLabel);
-                      const prods = r?.products||[];
-                      setAll(prods); setSource(r?.source||null);
-                      // Ouvrir auto la 1ère catégorie avec fournisseur
-                      const firstWithSupplier = prods.find(p=>(p.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp'));
-                      if(firstWithSupplier) {
-                        setOpenCats({[firstWithSupplier.category||'Général']:true});
-                      }
-                    } catch(e) { setAll([]); }
-                    setLoading(false);
-                  };
-
-                  React.useEffect(()=>{ search(autoKw); },[]);
-
-                  // Filtrage par onglet fournisseur
-                  const results = React.useMemo(()=>{
-                    if(tab==='all') return allResults;
-                    return allResults.filter(p=>(p.suppliers||[]).some(s=>s.type===tab));
-                  },[allResults,tab]);
-
-                  // Comptages
-                  const counts = React.useMemo(()=>({
-                    all:     allResults.length,
-                    fluidra: allResults.filter(p=>(p.suppliers||[]).some(s=>s.type==='fluidra')).length,
-                    scp:     allResults.filter(p=>(p.suppliers||[]).some(s=>s.type==='scp')).length,
-                  }),[allResults]);
-
-                  // Groupement par catégorie — fournisseurs connus en premier dans chaque groupe
-                  const grouped = React.useMemo(()=>{
-                    const groups = {};
-                    results.forEach(p=>{
-                      const cat = p.category||'Général';
-                      if(!groups[cat]) groups[cat] = {withSupplier:[], other:[]};
-                      const hasS = (p.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp');
-                      if(hasS) groups[cat].withSupplier.push(p);
-                      else      groups[cat].other.push(p);
-                    });
-                    // Trier les catégories : celles avec fournisseurs connus en tête
-                    return Object.entries(groups).sort(([,a],[,b])=>
-                      b.withSupplier.length - a.withSupplier.length
-                    );
-                  },[results]);
-
-                  const toggleCat = (cat) => setOpenCats(p=>({...p,[cat]:!p[cat]}));
-                  const toggle    = (uid) => setSel(p=>({...p,[uid]:!p[uid]}));
-                  const setQty    = (uid,v) => setQtys(p=>({...p,[uid]:v}));
-                  const selCount  = Object.values(sel).filter(Boolean).length;
-
-                  // uid unique = index global
-                  const productUid = (p) => `${p.id||p.name}_${p.ref||''}`;
-
-                  const confirm = () => {
-                    const added = results
-                      .filter(p=>sel[productUid(p)])
-                      .map(p=>({...p, qty:Number(qtys[productUid(p)]||1)}));
-                    onAdd(added);
-                    onClose();
-                  };
-
-                  const TAB_S = (active,color='#0ea5e9')=>({
-                    padding:'7px 14px', border:'none', cursor:'pointer', fontFamily:'inherit',
-                    fontSize:13, fontWeight:600, background:'transparent',
-                    borderBottom:`3px solid ${active?color:'transparent'}`,
-                    color:active?color:'#6b7a8d', transition:'all .15s', whiteSpace:'nowrap',
-                  });
-
-                  // Composant ligne produit (liste déroulante)
-                  const ProductRow = ({p, uid}) => {
-                    const hasS  = (p.suppliers||[]).some(s=>s.type==='fluidra'||s.type==='scp');
-                    const mainS = (p.suppliers||[]).find(s=>s.type!=='other')||(p.suppliers||[])[0];
-                    const isSelected = !!sel[uid];
-                    return (
-                      <div onClick={()=>toggle(uid)}
-                        style={{display:'flex',gap:0,borderRadius:10,overflow:'hidden',
-                          border:`2px solid ${isSelected?'#0ea5e9':hasS?'#bfdbfe':'#e8edf3'}`,
-                          background:isSelected?'rgba(14,165,233,0.04)':'#fff',
-                          boxShadow:isSelected?'0 4px 14px rgba(14,165,233,.15)':hasS?'0 2px 8px rgba(37,99,235,0.06)':'0 1px 3px rgba(0,0,0,.04)',
-                          cursor:'pointer', transition:'all .18s', marginBottom:6}}>
-
-                        {/* Barre couleur fournisseur */}
-                        {hasS && <div style={{width:4,flexShrink:0,
-                          background:(p.suppliers||[]).find(s=>s.type==='fluidra')?'#1d4ed8':'#16a34a'}}/>}
-
-                        {/* Image */}
-                        <div style={{width:80,flexShrink:0,background:'#f8fafc',display:'flex',
-                          alignItems:'center',justifyContent:'center',position:'relative',
-                          borderRight:'1px solid #f0f4f8',minHeight:72}}>
-                          {p.image ? (
-                            <>
-                              <img src={p.image} alt={p.name}
-                                style={{maxWidth:72,maxHeight:64,objectFit:'contain',padding:4}}/>
-                              <button onClick={e=>{e.stopPropagation();setZoom({src:p.image,name:p.name});}}
-                                style={{position:'absolute',bottom:2,right:2,background:'rgba(0,0,0,.45)',
-                                  border:'none',borderRadius:4,padding:'2px 5px',cursor:'pointer',
-                                  fontSize:11,color:'#fff',lineHeight:1}}>🔍</button>
-                            </>
-                          ) : <span style={{fontSize:26,opacity:.25}}>🏊</span>}
-                        </div>
-
-                        {/* Infos */}
-                        <div style={{flex:1,padding:'9px 12px',display:'flex',flexDirection:'column',gap:4,minWidth:0}}>
-                          <div style={{display:'flex',alignItems:'flex-start',gap:8}}>
-                            {/* Checkbox */}
-                            <div style={{width:19,height:19,border:`2px solid ${isSelected?'#0ea5e9':'#d1d5db'}`,
-                              borderRadius:5,background:isSelected?'#0ea5e9':'#fff',
-                              display:'grid',placeItems:'center',flexShrink:0,marginTop:2}}>
-                              {isSelected&&<span style={{color:'#fff',fontSize:11,fontWeight:800}}>✓</span>}
-                            </div>
-                            <div style={{flex:1,minWidth:0}}>
-                              <div style={{fontWeight:700,fontSize:13,lineHeight:1.3,color:'#1a2332'}}>{p.name}</div>
-                              {p.category&&<div style={{fontSize:11,color:'#94a3b8',marginTop:1}}>{p.category}</div>}
-                            </div>
-                            {p.price>0 && <span style={{fontWeight:700,fontSize:14,color:'#0ea5e9',flexShrink:0,whiteSpace:'nowrap'}}>{p.price.toFixed(2)} €</span>}
-                          </div>
-
-                          {/* Refs + fournisseurs */}
-                          <div style={{display:'flex',gap:5,flexWrap:'wrap',alignItems:'center'}}>
-                            {p.ref&&<span style={{background:'#f0f4f8',padding:'1px 6px',borderRadius:4,
-                              fontSize:11,fontFamily:'monospace',color:'#64748b'}}>{p.ref}</span>}
-                            {(p.suppliers||[]).map((s,si)=>(
-                              <span key={si} style={{display:'inline-flex',gap:4,alignItems:'center'}}>
-                                <SupplierBadge type={s.type} name={s.name}/>
-                                {s.ref&&<span style={{fontFamily:'monospace',fontSize:11,color:'#64748b'}}>#{s.ref}</span>}
-                                {s.price>0&&<span style={{fontSize:11,color:'#059669',fontWeight:700}}>{s.price.toFixed(2)} €</span>}
-                              </span>
-                            ))}
-                          </div>
-
-                          {/* Quantité */}
-                          {isSelected&&(
-                            <div style={{display:'flex',alignItems:'center',gap:6,marginTop:2}}
-                              onClick={e=>e.stopPropagation()}>
-                              <span style={{fontSize:12,color:'#6b7a8d',fontWeight:600}}>Qté :</span>
-                              <div style={{display:'flex',alignItems:'center',border:'2px solid #0ea5e9',
-                                borderRadius:8,overflow:'hidden'}}>
-                                <button onClick={e=>{e.stopPropagation();setQty(uid,Math.max(1,Number(qtys[uid]||1)-1));}}
-                                  style={{background:'#f0f9ff',border:'none',padding:'3px 9px',cursor:'pointer',
-                                    fontSize:14,color:'#0ea5e9',fontWeight:700}}>−</button>
-                                <input type="number" min="1" value={qtys[uid]||1}
-                                  onChange={e=>setQty(uid,e.target.value)}
-                                  style={{width:46,textAlign:'center',border:'none',padding:'3px 4px',
-                                    fontSize:13,fontFamily:'inherit',fontWeight:700,outline:'none'}}/>
-                                <button onClick={e=>{e.stopPropagation();setQty(uid,Number(qtys[uid]||1)+1);}}
-                                  style={{background:'#f0f9ff',border:'none',padding:'3px 9px',cursor:'pointer',
-                                    fontSize:14,color:'#0ea5e9',fontWeight:700}}>+</button>
-                              </div>
-                              <span style={{fontSize:12,color:'#6b7a8d'}}>{p.unit||'pièce(s)'}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  };
-
-                  return (
-                    <>
-                      {zoom && <ImageZoom src={zoom.src} name={zoom.name} onClose={()=>setZoom(null)}/>}
-                      <div style={{position:'fixed',inset:0,background:'rgba(10,20,40,0.65)',zIndex:9999,
-                        display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
-                        <div style={{background:'#f0f4f8',borderRadius:20,width:'100%',maxWidth:920,
-                          maxHeight:'93vh',display:'flex',flexDirection:'column',
-                          boxShadow:'0 28px 90px rgba(0,0,0,.3)',overflow:'hidden'}}>
-
-                          {/* Header */}
-                          <div style={{padding:'15px 20px',borderBottom:'1.5px solid #dde4ed',
-                            display:'flex',gap:12,alignItems:'flex-start',background:'#fff'}}>
-                            <div style={{flex:1}}>
-                              <div style={{fontWeight:700,fontSize:15}}>🛒 Lier des produits à ce point</div>
-                              <div style={{fontSize:12,color:'#6b7a8d',marginTop:3}}>
-                                {itemText.slice(0,90)}{itemText.length>90?'…':''}
-                              </div>
-                            </div>
-                            <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',
-                              borderRadius:8,padding:'5px 12px',cursor:'pointer',fontSize:14,color:'#6b7a8d'}}>✕</button>
-                          </div>
-
-                          {/* Barre de recherche */}
-                          <div style={{padding:'10px 20px',borderBottom:'1px solid #dde4ed',
-                            display:'flex',gap:8,background:'#fff'}}>
-                            <input value={q} onChange={e=>setQ(e.target.value)}
-                              onKeyDown={e=>e.key==='Enter'&&search(q)}
-                              placeholder="Nom de produit, référence, marque…"
-                              style={{flex:1,border:'2px solid #dde4ed',borderRadius:10,
-                                padding:'9px 13px',fontFamily:'inherit',fontSize:14,
-                                outline:'none',background:'#f8fafc'}}/>
-                            <button onClick={()=>search(q)}
-                              style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:10,
-                                padding:'9px 20px',fontWeight:700,cursor:'pointer',fontSize:14}}>
-                              {loading?'…':'Chercher'}
-                            </button>
-                          </div>
-
-                          {/* Onglets fournisseurs */}
-                          {allResults.length>0&&(
-                            <div style={{display:'flex',alignItems:'center',background:'#fff',
-                              borderBottom:'1px solid #dde4ed',paddingLeft:20,paddingRight:20,overflowX:'auto'}}>
-                              <button style={TAB_S(tab==='all')} onClick={()=>setTab('all')}>
-                                Tous <span style={{marginLeft:5,background:tab==='all'?'#0ea5e9':'#f0f4f8',
-                                  color:tab==='all'?'#fff':'#6b7a8d',borderRadius:10,padding:'1px 7px',
-                                  fontSize:11,fontWeight:700}}>{counts.all}</span>
-                              </button>
-                              {counts.fluidra>0&&(
-                                <button style={TAB_S(tab==='fluidra','#1d4ed8')} onClick={()=>setTab('fluidra')}>
-                                  Fluidra / SIBO <span style={{marginLeft:5,background:tab==='fluidra'?'#1d4ed8':'#f0f4f8',
-                                    color:tab==='fluidra'?'#fff':'#6b7a8d',borderRadius:10,padding:'1px 7px',
-                                    fontSize:11,fontWeight:700}}>{counts.fluidra}</span>
-                                </button>
-                              )}
-                              {counts.scp>0&&(
-                                <button style={TAB_S(tab==='scp','#166534')} onClick={()=>setTab('scp')}>
-                                  SCP Bénélux <span style={{marginLeft:5,background:tab==='scp'?'#166534':'#f0f4f8',
-                                    color:tab==='scp'?'#fff':'#6b7a8d',borderRadius:10,padding:'1px 7px',
-                                    fontSize:11,fontWeight:700}}>{counts.scp}</span>
-                                </button>
-                              )}
-                              {source&&<span style={{marginLeft:'auto',fontSize:11,fontWeight:700,
-                                padding:'2px 9px',borderRadius:20,
-                                background:source==='odoo'?'#dcfce7':'#fef3c7',
-                                color:source==='odoo'?'#166534':'#92400e'}}>
-                                {source==='odoo'?'✅ Catalogue live':'✨ Suggestions IA'}
-                              </span>}
-                            </div>
-                          )}
-
-                          {/* Résultats groupés par catégorie */}
-                          <div style={{flex:1,overflowY:'auto',padding:'12px 20px'}}>
-                            {loading&&(
-                              <div style={{padding:50,textAlign:'center',color:'#6b7a8d',fontSize:32}}>🔄</div>
-                            )}
-                            {!loading&&results.length===0&&source&&(
-                              <div style={{padding:30,textAlign:'center',color:'#6b7a8d',fontSize:13}}>
-                                Aucun résultat. Modifiez la recherche.
-                              </div>
-                            )}
-
-                            {grouped.map(([cat, {withSupplier, other}])=>{
-                              const isOpen = openCats[cat] !== false; // ouvert par défaut
-                              const total  = withSupplier.length + other.length;
-                              const hasKnownSupplier = withSupplier.length > 0;
-                              return (
-                                <div key={cat} style={{marginBottom:10}}>
-                                  {/* Header catégorie — accordéon */}
-                                  <div onClick={()=>toggleCat(cat)}
-                                    style={{display:'flex',alignItems:'center',gap:10,
-                                      padding:'9px 14px',borderRadius:10,cursor:'pointer',
-                                      background: hasKnownSupplier
-                                        ? 'linear-gradient(135deg,#eff6ff,#f0fdf4)'
-                                        : '#f8fafc',
-                                      border:`1.5px solid ${hasKnownSupplier?'#bfdbfe':'#e8edf3'}`,
-                                      marginBottom: isOpen?6:0,
-                                      transition:'all .15s'}}>
-                                    <span style={{fontSize:16}}>{isOpen?'▼':'▶'}</span>
-                                    <span style={{fontWeight:700,fontSize:14,flex:1,color:'#1a2332'}}>{cat}</span>
-                                    {/* Badges fournisseurs dans ce groupe */}
-                                    {withSupplier.length>0&&(
-                                      <div style={{display:'flex',gap:5}}>
-                                        {withSupplier.some(p=>(p.suppliers||[]).some(s=>s.type==='fluidra'))&&(
-                                          <span style={{background:'#dbeafe',color:'#1d4ed8',borderRadius:5,
-                                            padding:'2px 7px',fontSize:11,fontWeight:700}}>Fluidra</span>
-                                        )}
-                                        {withSupplier.some(p=>(p.suppliers||[]).some(s=>s.type==='scp'))&&(
-                                          <span style={{background:'#dcfce7',color:'#166534',borderRadius:5,
-                                            padding:'2px 7px',fontSize:11,fontWeight:700}}>SCP</span>
-                                        )}
-                                      </div>
-                                    )}
-                                    <span style={{fontSize:12,color:'#6b7a8d',background:'#f0f4f8',
-                                      padding:'2px 8px',borderRadius:12,fontWeight:600}}>
-                                      {total} produit{total>1?'s':''}
-                                    </span>
-                                  </div>
-
-                                  {/* Produits de la catégorie */}
-                                  {isOpen&&(
-                                    <div style={{paddingLeft:4}}>
-                                      {/* Produits avec fournisseur connu en premier */}
-                                      {withSupplier.length>0&&(
-                                        <div style={{marginBottom:4}}>
-                                          <div style={{fontSize:11,fontWeight:700,color:'#6b7a8d',
-                                            textTransform:'uppercase',letterSpacing:'.5px',
-                                            padding:'4px 0',marginBottom:4,display:'flex',
-                                            alignItems:'center',gap:6}}>
-                                            <span style={{width:8,height:8,borderRadius:'50%',
-                                              background:'#10b981',display:'inline-block'}}/>
-                                            Fournisseurs référencés
-                                          </div>
-                                          {withSupplier.map(p=>(
-                                            <ProductRow key={productUid(p)} p={p} uid={productUid(p)}/>
-                                          ))}
-                                        </div>
-                                      )}
-                                      {/* Autres produits */}
-                                      {other.length>0&&(
-                                        <div>
-                                          {withSupplier.length>0&&(
-                                            <div style={{fontSize:11,fontWeight:700,color:'#9ca3af',
-                                              textTransform:'uppercase',letterSpacing:'.5px',
-                                              padding:'4px 0',marginBottom:4,display:'flex',
-                                              alignItems:'center',gap:6}}>
-                                              <span style={{width:8,height:8,borderRadius:'50%',
-                                                background:'#d1d5db',display:'inline-block'}}/>
-                                              Autres produits
-                                            </div>
-                                          )}
-                                          {other.map(p=>(
-                                            <ProductRow key={productUid(p)} p={p} uid={productUid(p)}/>
-                                          ))}
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-
-                          {/* Footer */}
-                          <div style={{padding:'12px 20px',borderTop:'1.5px solid #dde4ed',
-                            display:'flex',alignItems:'center',gap:10,background:'#fff'}}>
-                            <span style={{fontSize:13,color:'#6b7a8d',flex:1}}>
-                              {selCount} produit(s) sélectionné(s)
-                            </span>
-                            <button onClick={onClose}
-                              style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:9,
-                                padding:'8px 16px',cursor:'pointer',fontFamily:'inherit',
-                                fontSize:13,fontWeight:600}}>Annuler</button>
-                            <button onClick={confirm} disabled={!selCount}
-                              style={{background:selCount?'#0ea5e9':'#d1d5db',color:'#fff',border:'none',
-                                borderRadius:9,padding:'8px 20px',fontWeight:700,
-                                cursor:selCount?'pointer':'not-allowed',fontFamily:'inherit',fontSize:13}}>
-                              ✓ Ajouter à l'intervention
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  );
-                }
-
-
-                function SectionBlock({sec,si,statuses,notes,toggle,setStatus,setNote,accent,linkedProducts,photos,onAddProducts,onRemoveProduct,onPhoto}) {
-                  const [open,setOpen] = React.useState(true);
-                  const [productPanel,setProductPanel] = React.useState(null);
-                  const sChecked = sec.items.filter((_,i)=>statuses[`${si}_${i}`]&&statuses[`${si}_${i}`]!=='pending').length;
-
-                  return (
-                    <>
-                      {productPanel!==null && (
-                        <ProductPanel itemText={sec.items[productPanel]} sectionLabel={sec.section}
-                          onAdd={prods=>onAddProducts(si,productPanel,prods)} onClose={()=>setProductPanel(null)}/>
-                      )}
-                      <div className="lpc-section">
-                        <div className="lpc-sec-hdr" onClick={()=>setOpen(o=>!o)}>
-                          <h3>{sec.section}</h3>
-                          <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                            <span className="lpc-progress">{sChecked}/{sec.items.length}</span>
-                            <span style={{fontSize:12,color:'#6b7a8d'}}>{open?'▲':'▼'}</span>
-                          </div>
-                        </div>
-                        <div className={`lpc-sec-body${open?'':' collapsed'}`}>
-                          {sec.items.map((item,idx)=>{
-                            const k=`${si}_${idx}`;
-                            const status=statuses[k]||'pending';
-                            const sc=STATUS_CONFIG[status];
-                            const prods=linkedProducts[k]||[];
-                            const photo=photos[k]||null;
-                            return (
-                              <div key={idx}>
-                                <div className={`lpc-item${status!=='pending'?' checked':''}`}
-                                  style={{background:sc.bg||'transparent',borderLeft:status!=='pending'?`3px solid ${sc.color}`:'3px solid transparent'}}>
-
-                                  {/* Boutons statut */}
-                                  <div style={{display:'flex',gap:2,flexShrink:0}} className="no-print">
-                                    {Object.entries(STATUS_CONFIG).map(([s,c])=>(
-                                      <button key={s} onClick={()=>setStatus(si,idx,s)}
-                                        title={c.label}
-                                        style={{background:status===s?c.bg:'transparent',border:`1.5px solid ${status===s?c.color:'#e2e8f0'}`,borderRadius:5,padding:'2px 5px',cursor:'pointer',fontSize:14,lineHeight:1,transition:'all .15s'}}>
-                                        {c.icon}
-                                      </button>
-                                    ))}
-                                  </div>
-
-                                  {/* Statut print uniquement */}
-                                  <span className="print-only" style={{fontSize:13,flexShrink:0}}>{sc.icon}</span>
-
-                                  <span className={`lpc-item-text${status==='ok'?' done':''}`}>{item}</span>
-
-                                  {/* Photo */}
-                                  <div className="no-print" style={{flexShrink:0,display:'flex',gap:4,alignItems:'center'}}>
-                                    {photo ? (
-                                      <img src={photo} alt="photo" onClick={()=>window.open(photo)}
-                                        style={{width:32,height:32,objectFit:'cover',borderRadius:4,cursor:'pointer',border:'1.5px solid #dde4ed'}}/>
-                                    ) : null}
-                                    <label title="Prendre/choisir une photo" style={{cursor:'pointer',fontSize:16,opacity:.5}} onMouseOver={e=>e.currentTarget.style.opacity=1} onMouseOut={e=>e.currentTarget.style.opacity=.5}>
-                                      📷
-                                      <input type="file" accept="image/*" capture="environment"
-                                        style={{display:'none'}}
-                                        onChange={e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>onPhoto(si,idx,ev.target.result); r.readAsDataURL(f); }}/>
-                                    </label>
-                                  </div>
-
-                                  {/* Caddie produits */}
-                                  <button className="lpc-add-btn no-print" title="Lier des produits" onClick={()=>setProductPanel(idx)} style={{'--acc':accent}}>
-                                    🛒{prods.length>0&&<span className="lpc-badge">{prods.length}</span>}
-                                  </button>
-                                  <input className="lpc-note no-print" placeholder="Note…" value={notes[k]||''} onChange={e=>setNote(si,idx,e.target.value)}/>
-                                </div>
-
-                                {/* Produits liés */}
-                                {prods.length>0 && (
-                                  <div className="lpc-linked">
-                                    {prods.map((p,pi)=>(
-                                      <div key={pi} className="lpc-chip">
-                                        <span className="lpc-chip-qty">{p.qty}×</span>
-                                        {p.ref&&<span className="lpc-chip-ref">[{p.ref}]</span>}
-                                        <span className="lpc-chip-name">{p.name}</span>
-                                        {p.price>0&&<span className="lpc-chip-price">{(p.price*(p.qty||1)).toFixed(2)} €</span>}
-                                        <button className="lpc-chip-del no-print" onClick={()=>onRemoveProduct(si,idx,pi)}>✕</button>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-
-                                {/* Photo en print */}
-                                {photo && <div className="print-only" style={{padding:'2px 20px 6px 44px'}}><img src={photo} style={{height:60,objectFit:'cover',borderRadius:4}}/></div>}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </>
-                  );
-                }
-
-                /* ════════════════════════════════════════════════════════
-                   Application principale
-                   ════════════════════════════════════════════════════════ */
-                function PoolChecklist() {
-                  const [step,setStep]       = React.useState(0);
-                  const [intervention,setInt]= React.useState(null);
-                  const [plan,setPlan]       = React.useState(null);
-                  const [client,setClient]   = React.useState({
-                    prenom:'', nom:'', tel:'',
-                    societe:'', tva:'', tvaStatus:null, tvaLoading:false,
-                    rue:'', cp:'', ville:'', pays:'Belgique',
-                    date:new Date().toISOString().slice(0,10),
-                    technicien:cfg.userName||'', ref:'', type:'particulier',
-                    partner_id:null
-                  });
-                  const [statuses,setStatuses]       = React.useState({});
-                  const [notes,setNotes]             = React.useState({});
-                  const [linkedProducts,setLinked]   = React.useState({});
-                  const [photos,setPhotos]           = React.useState({});
-                  const [sigTech,setSigTech]         = React.useState(null);
-                  const [sigClient,setSigClient]     = React.useState(null);
-                  const [reportId,setReportId]       = React.useState(null);
-                  const [saveStatus,setSaveStatus]   = React.useState(null); // null|'saving'|'saved'|'error'
-                  const [showHistory,setShowHistory] = React.useState(false);
-                  const [quoteResult,setQuoteResult] = React.useState(null);
-                  const [generalNotes,setGeneralNotes]= React.useState('');
-
-                  const intData  = INTERVENTIONS.find(i=>i.id===intervention);
-                  const sections = intervention?CHECKLISTS[intervention]:[];
-                  const accent   = intData?.color||'#0ea5e9';
-                  const totalItems   = sections.reduce((a,s)=>a+s.items.length,0);
-                  const okCount      = Object.values(statuses).filter(s=>s==='ok').length;
-                  const warnCount    = Object.values(statuses).filter(s=>s==='warn').length;
-                  const actionCount  = Object.values(statuses).filter(s=>s==='action').length;
-                  const doneCount    = okCount + warnCount + actionCount;
-                  const allProds     = Object.entries(linkedProducts).filter(([,a])=>a.length>0).flatMap(([k,a])=>a.map(p=>({...p,_k:k})));
-                  const totalEst     = allProds.reduce((a,p)=>a+(p.price||0)*(p.qty||1),0);
-
-                  const setStatus = (si,idx,s) => { const k=`${si}_${idx}`; setStatuses(p=>({...p,[k]:s})); };
-                  const setNote   = (si,idx,v) => { const k=`${si}_${idx}`; setNotes(p=>({...p,[k]:v})); };
-                  const addProds  = (si,idx,prods) => { const k=`${si}_${idx}`; setLinked(p=>({...p,[k]:[...(p[k]||[]),...prods]})); };
-                  const remProd   = (si,idx,pi)    => { const k=`${si}_${idx}`; setLinked(p=>({...p,[k]:(p[k]||[]).filter((_,i)=>i!==pi)})); };
-                  const setPhoto  = (si,idx,data)  => { const k=`${si}_${idx}`; setPhotos(p=>({...p,[k]:data})); };
-
-                  /* Auto-save localStorage toutes les 15s */
-                  React.useEffect(()=>{
-                    if(step < 3) return;
-                    const id = setInterval(()=>{
-                      lsSave({step,intervention,plan,client,statuses,notes,linkedProducts,generalNotes,reportId});
-                    }, 15000);
-                    return ()=>clearInterval(id);
-                  },[step,intervention,plan,client,statuses,notes,linkedProducts,generalNotes,reportId]);
-
-                  /* Restaurer brouillon au démarrage */
-                  React.useEffect(()=>{
-                    const draft = lsLoad();
-                    if(draft && draft._ts && (Date.now()-draft._ts) < 48*3600*1000) {
-                      if(window.confirm('Un brouillon de fiche a été trouvé. Voulez-vous le restaurer ?')) {
-                        if(draft.step)         setStep(draft.step);
-                        if(draft.intervention) setInt(draft.intervention);
-                        if(draft.plan)         setPlan(draft.plan);
-                        if(draft.client)       setClient(draft.client);
-                        if(draft.statuses)     setStatuses(draft.statuses);
-                        if(draft.notes)        setNotes(draft.notes);
-                        if(draft.linkedProducts) setLinked(draft.linkedProducts);
-                        if(draft.generalNotes) setGeneralNotes(draft.generalNotes);
-                        if(draft.reportId)     setReportId(draft.reportId);
-                      }
-                    }
-                  },[]);
-
-                  /* Sauvegarder sur Odoo */
-                  const saveToOdoo = async() => {
-                    if(!cfg.isLoggedIn) { alert('Veuillez vous connecter pour sauvegarder.'); return; }
-                    setSaveStatus('saving');
-                    try {
-                      const r = await apiPost(cfg.saveEndpoint||'/pool-checklist/save', {
-                        report_id:    reportId,
-                        nom:          [client.prenom, client.nom].filter(Boolean).join(' '),
-                        societe:      client.societe||'',
-                        tva:          client.tva||'',
-                        type_client:  client.type||'particulier',
-                        adresse:      [client.rue, client.cp, client.ville, client.pays].filter(Boolean).join(', '),
-                        tel:          client.tel,
-                        date:         client.date,
-                        ref:          client.ref,
-                        technicien:   client.technicien,
-                        partner_id:   client.partner_id,
-                        intervention, plan,
-                        checklist:    statuses,
-                        products:     allProds,
-                        notes:        generalNotes,
-                        signature_technicien: sigTech,
-                        signature_client:     sigClient,
-                      });
-                      if(r?.success) {
-                        setReportId(r.report_id);
-                        setSaveStatus('saved');
-                        lsClear();
-                        setTimeout(()=>setSaveStatus(null), 3000);
-                      } else { setSaveStatus('error'); }
-                    } catch(e) { setSaveStatus('error'); }
-                  };
-
-                  /* Charger une fiche depuis l'historique */
-                  const loadReport = async(id) => {
-                    const r = await apiPost(`${cfg.loadEndpoint||'/pool-checklist/load'}/${id}`, {});
-                    if(r?.success) {
-                      const d = r.data;
-                      setInt(d.intervention); setPlan(d.plan||null);
-                      setClient({nom:d.nom||'',adresse:d.adresse||'',tel:d.tel||'',date:d.date||'',ref:d.ref||'',technicien:d.technicien||'',partner_id:d.partner_id||null});
-                      setStatuses(d.checklist||{}); setLinked(d.products?Object.fromEntries(d.products.map((p,i)=>[p._k||`_${i}`,[p]])):{}); 
-                      setReportId(d.report_id); setGeneralNotes(d.notes||'');
-                      setStep(3); setShowHistory(false);
-                    }
-                  };
-
-                  /* Créer un devis */
-                  const createQuote = async() => {
-                    if(!allProds.length) { alert('Aucun produit lié à cette fiche.'); return; }
-                    setSaveStatus('saving');
-                    const r = await apiPost(cfg.quoteEndpoint||'/pool-checklist/create-quote', {
-                      report_id: reportId,
-                      products:  allProds,
-                      client: {...client, nom:[client.prenom,client.nom].filter(Boolean).join(' '), adresse:[client.rue,client.cp,client.ville,client.pays].filter(Boolean).join(', ')},
-                    });
-                    setSaveStatus(null);
-                    if(r?.success) { setQuoteResult(r); }
-                    else { alert('Erreur lors de la création du devis : '+(r?.error||'inconnue')); }
-                  };
-
-                  /* Réinitialiser */
-                  const reset = () => {
-                    if(!window.confirm('Réinitialiser la fiche ? Toutes les données non sauvegardées seront perdues.')) return;
-                    setStatuses({}); setNotes({}); setLinked({}); setPhotos({});
-                    setSigTech(null); setSigClient(null); setReportId(null);
-                    setGeneralNotes(''); lsClear();
-                  };
-
-                  const STEPS = ["Type d'intervention","Infos client","Plan de bassin","Check-list & produits"];
-
-                  const inputStyle = {
-                    border:'2px solid #dde4ed',borderRadius:10,padding:'11px 14px',
-                    fontFamily:'inherit',fontSize:15,background:'#eef2f7',
-                    color:'#1a2332',transition:'border .2s',width:'100%',outline:'none',
-                  };
-
-                  return (
-                    <div className="lpc-app">
-
-                      {showHistory && <HistoryModal onLoad={loadReport} onClose={()=>setShowHistory(false)}/>}
-                      {showQuoteModal && (
-                        <QuoteModal
-                          client={client}
-                          allProds={allProds}
-                          reportId={reportId}
-                          onClose={()=>setShowQuoteModal(false)}
-                          onSuccess={r=>{
-                            setQuoteResult(r);
-                            setShowQuoteModal(false);
-                          }}
-                        />
-                      )}
-
-                      {/* Header app (caché en print — hero Odoo prend le relais) */}
-                      <div className="lpc-hdr no-print">
-                        <div className="lpc-logo" style={{background:accent}}>🏊</div>
-                        <div><h1>Lolirine Pool Store — Fiche de visite chantier</h1><p>Diagnostic · intervention · produits liés · devis estimatif</p></div>
-                        <div style={{marginLeft:'auto',display:'flex',gap:8,flexShrink:0}}>
-                          {cfg.isLoggedIn && <button onClick={()=>setShowHistory(true)} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:8,padding:'6px 13px',fontSize:13,color:'#6b7a8d',cursor:'pointer'}}>📋 Historique</button>}
-                          {saveStatus==='saving' && <span style={{fontSize:13,color:'#6b7a8d',padding:'6px 0'}}>💾 Sauvegarde…</span>}
-                          {saveStatus==='saved'  && <span style={{fontSize:13,color:'#059669',padding:'6px 0'}}>✅ Sauvegardé</span>}
-                          {saveStatus==='error'  && <span style={{fontSize:13,color:'#ef4444',padding:'6px 0'}}>❌ Erreur</span>}
-                          {reportId && <span style={{fontSize:12,color:'#6b7a8d',padding:'6px 0',border:'1px solid #dde4ed',borderRadius:6,paddingLeft:8,paddingRight:8}}>📄 {reportId}</span>}
-                        </div>
-                      </div>
-
-                      {/* Stepper */}
-                      <div className="lpc-stepper no-print">
-                        {STEPS.map((lbl,i)=>(
-                          <div key={i} className={`lpc-step${step===i?' active':step>i?' done':''}`} style={{'--acc':accent}}>
-                            <div className="lpc-step-num">{step>i?'✓':i+1}</div>
-                            <div className="lpc-step-lbl">{lbl}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* ── STEP 0 : Type d'intervention ── */}
-                      {step===0 && (
-                        <div>
-                          <h2 className="lpc-title">Sélectionner le type d'intervention</h2>
-                          <div className="lpc-grid">
-                            {INTERVENTIONS.map(iv=>(
-                              <div key={iv.id} className={`lpc-card${intervention===iv.id?' sel':''}`}
-                                style={{'--acc':iv.color}} onClick={()=>setInt(iv.id)}>
-                                <div className="lpc-card-title">{iv.label}</div>
-                                <div className="lpc-card-sub">{CHECKLISTS[iv.id].reduce((a,s)=>a+s.items.length,0)} points · {CHECKLISTS[iv.id].length} sections</div>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="lpc-acts no-print"><div style={{flex:1}}/>
-                            <button className="lpc-btn-p" disabled={!intervention} style={{'--acc':accent}} onClick={()=>setStep(1)}>Suivant →</button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* ── STEP 1 : Infos client avec autocomplétion ── */}
-                      {step===1 && (
-                        <div>
-                          <h2 className="lpc-title">Informations client &amp; chantier</h2>
-
-                          {/* ── Type de client ── */}
-                          <div className="lpc-contact-section">
-                            <div className="lpc-contact-header">
-                              <span className="lpc-contact-header-icon">👤</span>
-                              <span>Vous êtes</span>
-                            </div>
-                            <div className="lpc-contact-body">
-                              <div style={{display:'flex',gap:10,marginBottom:20}}>
-                                {[['particulier','👤 Particulier'],['professionnel','🏢 Professionnel']].map(([val,lbl])=>(
-                                  <button key={val} onClick={()=>setClient(p=>({...p,type:val}))}
-                                    className={`lpc-toggle-btn${(client.type||'particulier')===val?' active':''}`}>
-                                    {lbl}
-                                  </button>
-                                ))}
-                              </div>
-
-                              {/* ── Champs Professionnel ── */}
-                              {(client.type||'particulier')==='professionnel' && (
-                                <>
-                                  <div className="lpc-sub-header">
-                                    <span className="lpc-sub-icon">🏢</span>
-                                    <span>Informations entreprise</span>
-                                  </div>
-                                  <div className="lpc-form-grid" style={{marginTop:12,marginBottom:20}}>
-                                    <div className="lpc-fg full">
-                                      <label>Dénomination sociale <span className="lpc-required">*</span></label>
-                                      <input value={client.societe}
-                                        onChange={e=>setClient(p=>({...p,societe:e.target.value}))}
-                                        placeholder="ACME SRL, Dupont & Associés SA…"
-                                        style={{border:'1.5px solid #e5e7eb',borderRadius:8,padding:'12px 16px',
-                                          fontFamily:'inherit',fontSize:14,background:'#f9fafb',
-                                          color:'#1a2332',width:'100%',outline:'none'}}/>
-                                    </div>
-                                    <div className="lpc-fg full">
-                                      <label>Numéro de TVA</label>
-                                      <div style={{position:'relative',display:'flex',gap:8}}>
-                                        <input value={client.tva}
-                                          onChange={e=>{
-                                            const v = e.target.value;
-                                            setClient(p=>({...p,tva:v,tvaStatus:null}));
-                                          }}
-                                          onBlur={async(e)=>{
-                                            const v = e.target.value.trim();
-                                            if(!v || v.length < 8) return;
-                                            setClient(p=>({...p,tvaLoading:true,tvaStatus:null}));
-                                            const result = await checkVatOdoo(v);
-                                            if(result?.valid && result?.name) {
-                                              setClient(p=>({
-                                                ...p,
-                                                tvaLoading:false,
-                                                tvaStatus:'valid',
-                                                societe: p.societe || result.name,
-                                              }));
-                                            } else if(result !== null) {
-                                              setClient(p=>({...p,tvaLoading:false,tvaStatus:'invalid'}));
-                                            } else {
-                                              setClient(p=>({...p,tvaLoading:false,tvaStatus:null}));
-                                            }
-                                          }}
-                                          placeholder="BE0650.891.279"
-                                          style={{flex:1,border:`1.5px solid ${client.tvaStatus==='valid'?'#10b981':client.tvaStatus==='invalid'?'#ef4444':'#e5e7eb'}`,
-                                            borderRadius:8,padding:'12px 16px',fontFamily:'inherit',
-                                            fontSize:14,background:'#f9fafb',color:'#1a2332',outline:'none'}}/>
-                                        {/* Indicateur de statut TVA */}
-                                        <div style={{position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',fontSize:16}}>
-                                          {client.tvaLoading && <span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⟳</span>}
-                                          {!client.tvaLoading && client.tvaStatus==='valid'   && <span title="TVA valide">✅</span>}
-                                          {!client.tvaLoading && client.tvaStatus==='invalid' && <span title="TVA invalide">❌</span>}
-                                        </div>
-                                      </div>
-                                      {client.tvaStatus==='valid' && (
-                                        <div style={{fontSize:11,color:'#059669',marginTop:4,display:'flex',gap:4,alignItems:'center'}}>
-                                          ✅ Numéro de TVA vérifié via VIES Odoo
-                                          {client.societe && <span>— <strong>{client.societe}</strong></span>}
-                                        </div>
-                                      )}
-                                      {client.tvaStatus==='invalid' && (
-                                        <div style={{fontSize:11,color:'#ef4444',marginTop:4}}>
-                                          ❌ Numéro de TVA invalide ou non trouvé
-                                        </div>
-                                      )}
-                                      <div style={{fontSize:11,color:'#9ca3af',marginTop:3}}>
-                                        Format : BE0000.000.000 — La vérification se fait à la perte du focus
-                                      </div>
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-
-                              {/* ── Informations de contact ── */}
-                              <div className="lpc-sub-header">
-                                <span className="lpc-sub-icon">📋</span>
-                                <span>Informations de contact</span>
-                              </div>
-
-                              {/* Prénom + Nom */}
-                              <div className="lpc-form-grid" style={{marginTop:16}}>
-                                <ClientAutocomplete
-                                  valuePrenom={client.prenom}
-                                  valueNom={client.nom}
-                                  onChangePrenom={v=>setClient(p=>({...p,prenom:v}))}
-                                  onChangeNom={v=>setClient(p=>({...p,nom:v}))}
-                                  onSelectPartner={partner=>{
-                                    const parts=(partner.name||'').trim().split(' ');
-                                    const isCompany = partner.company_name || partner.is_company;
-                                    setClient(p=>({...p,
-                                      prenom:    isCompany?p.prenom:(parts.length>1?parts[0]:''),
-                                      nom:       isCompany?p.nom:(parts.length>1?parts.slice(1).join(' '):parts[0]),
-                                      societe:   partner.company_name||partner.name||p.societe,
-                                      tva:       partner.vat||p.tva,
-                                      type:      isCompany?'professionnel':p.type,
-                                      tel:       partner.phone||partner.mobile||p.tel,
-                                      rue:       partner.street||p.rue,
-                                      cp:        partner.zip||p.cp,
-                                      ville:     partner.city||p.ville,
-                                      partner_id:partner.id,
-                                    }));
-                                  }}
-                                />
-                                {client.partner_id && (
-                                  <div className="lpc-fg full">
-                                    <div className="lpc-linked-badge">✅ Contact Odoo #{client.partner_id} lié — champs pré-remplis</div>
-                                  </div>
-                                )}
-                                <div className="lpc-fg">
-                                  <label>Téléphone <span className="lpc-required">*</span></label>
-                                  <input value={client.tel} onChange={e=>setClient(p=>({...p,tel:e.target.value}))}
-                                    placeholder="0475/12 34 56" style={inputStyle}/>
-                                </div>
-                                <div className="lpc-fg">
-                                  <label>Date de visite</label>
-                                  <input type="date" value={client.date} onChange={e=>setClient(p=>({...p,date:e.target.value}))} style={inputStyle}/>
-                                </div>
-                              </div>
-
-                              {/* ── Adresse du chantier ── */}
-                              <div className="lpc-sub-header" style={{marginTop:24}}>
-                                <span className="lpc-sub-icon">📍</span>
-                                <span>Adresse du chantier</span>
-                              </div>
-
-                              <div className="lpc-form-grid" style={{marginTop:16}}>
-                                <AddressAutocomplete
-                                  valueRue={client.rue}
-                                  valueCp={client.cp}
-                                  valueVille={client.ville}
-                                  valuePays={client.pays}
-                                  onChangeFull={({rue,cp,ville,pays})=>setClient(p=>({
-                                    ...p,
-                                    rue:  rue  !== undefined ? rue  : p.rue,
-                                    cp:   cp   !== undefined ? cp   : p.cp,
-                                    ville:ville !== undefined ? ville: p.ville,
-                                    pays: pays !== undefined ? pays : p.pays,
-                                  }))}
-                                  inputStyle={inputStyle}
-                                />
-                              </div>
-
-                              {/* ── Informations de l'intervention ── */}
-                              <div className="lpc-sub-header" style={{marginTop:24}}>
-                                <span className="lpc-sub-icon">🔧</span>
-                                <span>Informations de l'intervention</span>
-                              </div>
-
-                              <div className="lpc-form-grid" style={{marginTop:16}}>
-                                <div className="lpc-fg">
-                                  <label>Technicien / Commercial</label>
-                                  <input value={client.technicien} onChange={e=>setClient(p=>({...p,technicien:e.target.value}))}
-                                    placeholder="Prénom NOM" style={inputStyle}/>
-                                </div>
-                                <div className="lpc-fg">
-                                  <label>Référence dossier</label>
-                                  <input value={client.ref} onChange={e=>setClient(p=>({...p,ref:e.target.value}))}
-                                    placeholder="LPS-2025-001" style={inputStyle}/>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="lpc-acts no-print">
-                            <button className="lpc-btn-s" onClick={()=>setStep(0)}>← Retour</button>
-                            <div style={{flex:1}}/>
-                            <button className="lpc-btn-p" style={{'--acc':accent}} onClick={()=>setStep(2)}>Suivant →</button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* ── STEP 2 : Plan de bassin ── */}
-                      {step===2 && (
-                        <div>
-                          <h2 className="lpc-title">Plan de bassin</h2>
-                          <p style={{fontSize:13,color:'#6b7a8d',marginBottom:18}}>Sélectionner la forme correspondante</p>
-                          <div className="lpc-grid">
-                            {POOL_PLANS.map(p=>(
-                              <div key={p.id} className={`lpc-plan-card${plan===p.id?' sel':''}`} style={{'--acc':accent}} onClick={()=>setPlan(p.id)}>
-                                <PoolSvg plan={p} size={140}/><div className="lpc-plan-lbl">{p.label}</div>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="lpc-acts no-print">
-                            <button className="lpc-btn-s" onClick={()=>setStep(1)}>← Retour</button>
-                            <div style={{flex:1}}/>
-                            <button className="lpc-btn-g" onClick={()=>{setPlan(null);setStep(3);}}>Passer</button>
-                            <button className="lpc-btn-p" disabled={!plan} style={{'--acc':accent}} onClick={()=>setStep(3)}>Suivant →</button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* ── STEP 3 : Checklist ── */}
-                      {step===3 && (
-                        <div>
-                          {/* Print header */}
-                          <div className="lpc-print-hdr">
-                            <div className="lpc-sumbox" style={{display:'flex'}}>
-                              {[["Client",[client.prenom,client.nom].filter(Boolean).join(' ')],client.societe&&["Société",client.societe],client.tva&&["TVA",client.tva],["Adresse",[client.rue,client.cp,client.ville,client.pays].filter(Boolean).join(', ')],["Tél",client.tel],["Date",client.date],["Technicien",client.technicien],["Réf.",client.ref],["Intervention",intData?.label]].filter(Boolean).filter(([,v])=>v).map(([l,v])=>(
-                                <div key={l} className="lpc-si2"><span>{l}</span><strong>{v}</strong></div>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Barre résumé */}
-                          <div className="lpc-sumbox no-print">
-                            <div className="lpc-si2"><span>Client</span><strong>{[client.prenom,client.nom].filter(Boolean).join(' ')||'—'}</strong></div>
-                            <div className="lpc-si2"><span>Date</span><strong>{client.date}</strong></div>
-                            <div className="lpc-si2"><span>Intervention</span><strong style={{color:accent}}>{intData?.label}</strong></div>
-                            {plan && <div className="lpc-si2"><span>Plan</span><strong>{POOL_PLANS.find(p=>p.id===plan)?.label}</strong></div>}
-                            <div style={{flex:1}}/>
-                            <div className="lpc-si2" style={{alignItems:'flex-end'}}><span>✅ OK</span><strong style={{color:'#059669'}}>{okCount}</strong></div>
-                            {warnCount>0 && <div className="lpc-si2" style={{alignItems:'flex-end'}}><span>⚠️ Surveiller</span><strong style={{color:'#d97706'}}>{warnCount}</strong></div>}
-                            {actionCount>0 && <div className="lpc-si2" style={{alignItems:'flex-end'}}><span>❌ Actions</span><strong style={{color:'#dc2626'}}>{actionCount}</strong></div>}
-                            <div className="lpc-si2" style={{alignItems:'flex-end'}}><span>🛒 Produits</span><strong style={{color:'#0ea5e9'}}>{allProds.length}</strong></div>
-                            {totalEst>0 && <div className="lpc-si2" style={{alignItems:'flex-end'}}><span>💰 Estimation</span><strong style={{color:'#059669'}}>{totalEst.toFixed(2)} €</strong></div>}
-                          </div>
-
-                          {/* Barre de progression */}
-                          <div className="no-print" style={{marginBottom:16}}>
-                            <div style={{display:'flex',gap:4,height:10,borderRadius:20,overflow:'hidden'}}>
-                              <div style={{width:`${totalItems?okCount/totalItems*100:0}%`,background:'#10b981',transition:'width .4s'}}/>
-                              <div style={{width:`${totalItems?warnCount/totalItems*100:0}%`,background:'#f59e0b',transition:'width .4s'}}/>
-                              <div style={{width:`${totalItems?actionCount/totalItems*100:0}%`,background:'#ef4444',transition:'width .4s'}}/>
-                              <div style={{flex:1,background:'#dde4ed'}}/>
-                            </div>
-                            <div style={{fontSize:12,color:'#6b7a8d',marginTop:5,display:'flex',gap:12}}>
-                              <span>✅ {okCount} conformes</span>
-                              {warnCount>0 && <span>⚠️ {warnCount} à surveiller</span>}
-                              {actionCount>0 && <span style={{color:'#dc2626',fontWeight:600}}>❌ {actionCount} actions requises</span>}
-                              <span style={{marginLeft:'auto'}}>{totalItems?Math.round(doneCount/totalItems*100):0}% complété</span>
-                            </div>
-                          </div>
-
-                          {/* Légende statuts */}
-                          <div className="no-print" style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:14,padding:'10px 14px',background:'#fff',borderRadius:10,border:'1px solid #dde4ed',fontSize:12}}>
-                            <span style={{fontWeight:700,color:'#6b7a8d',marginRight:4}}>Statuts :</span>
-                            {Object.entries(STATUS_CONFIG).map(([s,c])=>(
-                              <span key={s} style={{display:'inline-flex',gap:4,alignItems:'center',background:c.bg||'#f0f4f8',padding:'3px 9px',borderRadius:20,color:c.color||'#6b7a8d',fontWeight:600}}>
-                                {c.icon} {c.label}
-                              </span>
-                            ))}
-                            <span style={{marginLeft:'auto',color:'#6b7a8d'}}>📷 = photo · 🛒 = produits</span>
-                          </div>
-
-                          {/* Plan */}
-                          {plan && (<>
-                            <div style={{display:'flex',justifyContent:'center',marginBottom:14}} className="no-print">
-                              <div style={{background:'#fff',border:'1.5px solid #dde4ed',borderRadius:12,padding:14,display:'inline-flex',flexDirection:'column',alignItems:'center',gap:7}}>
-                                <PoolSvg plan={POOL_PLANS.find(p=>p.id===plan)} size={160}/>
-                                <div style={{fontSize:12,fontWeight:600,color:accent}}>{POOL_PLANS.find(p=>p.id===plan)?.label}</div>
-                              </div>
-                            </div>
-                            <div className="lpc-print-plan"><PoolSvg plan={POOL_PLANS.find(p=>p.id===plan)} size={100}/><div style={{fontSize:9}}>{POOL_PLANS.find(p=>p.id===plan)?.label}</div></div>
-                          </>)}
-
-                          {/* Sections */}
-                          {sections.map((sec,si)=>(
-                            <SectionBlock key={si} sec={sec} si={si}
-                              statuses={statuses} notes={notes} photos={photos}
-                              setStatus={setStatus} setNote={setNote}
-                              accent={accent}
-                              linkedProducts={linkedProducts}
-                              onAddProducts={addProds} onRemoveProduct={remProd}
-                              onPhoto={setPhoto}/>
-                          ))}
-
-                          {/* Récap matériaux */}
-                          {allProds.length>0 && (
-                            <div className="lpc-section" style={{marginTop:10}}>
-                              <div className="lpc-sec-hdr">
-                                <h3>🛒 Récapitulatif matériaux &amp; produits liés</h3>
-                                <span className="lpc-progress">{allProds.length} article(s){totalEst>0?` · ${totalEst.toFixed(2)} €`:''}</span>
-                              </div>
-                              <div style={{padding:'6px 0'}}>
-                                <table className="lpc-mat-tbl">
-                                  <thead><tr><th>Réf.</th><th>Désignation</th><th>Fournisseur</th><th>Qté</th><th>Unité</th>{totalEst>0&&<><th>P.U.</th><th>Total HT</th></>}<th>Point de contrôle</th></tr></thead>
-                                  <tbody>
-                                    {allProds.map((p,i)=>{
-                                      const mainS=(p.suppliers||[]).find(s=>s.type!=='other')||(p.suppliers||[])[0];
-                                      return (
-                                        <tr key={i}>
-                                          <td style={{fontSize:11,fontFamily:'monospace',color:'#6b7a8d'}}>{p.ref||'—'}</td>
-                                          <td style={{fontWeight:500}}>{p.name}</td>
-                                          <td>{mainS?<SupplierBadge type={mainS.type} name={mainS.name}/>:'—'}</td>
-                                          <td style={{textAlign:'center'}}>{p.qty}</td>
-                                          <td>{p.unit||'pc'}</td>
-                                          {totalEst>0&&<>
-                                            <td style={{textAlign:'right'}}>{p.price>0?`${p.price.toFixed(2)} €`:'—'}</td>
-                                            <td style={{textAlign:'right',fontWeight:600}}>{p.price>0?`${(p.price*(p.qty||1)).toFixed(2)} €`:'—'}</td>
-                                          </>}
-                                          <td style={{fontSize:11,color:'#6b7a8d',maxWidth:130,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.itemText?.slice(0,45)||''}</td>
-                                        </tr>
-                                      );
-                                    })}
-                                    {totalEst>0 && <tr className="lpc-mat-tot">
-                                      <td colSpan={totalEst>0?6:4} style={{textAlign:'right',fontWeight:700}}>Total estimatif HT</td>
-                                      <td style={{textAlign:'right',fontWeight:700,color:'#059669'}}>{totalEst.toFixed(2)} €</td><td/>
-                                    </tr>}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Résultat devis */}
-                          {quoteResult && (
-                            <div style={{background:'#f0fdf4',border:'2px solid #10b981',borderRadius:12,padding:'14px 18px',marginTop:10,display:'flex',alignItems:'center',gap:12}}>
-                              <span style={{fontSize:24}}>✅</span>
-                              <div style={{flex:1}}>
-                                <div style={{fontWeight:700,color:'#059669'}}>Devis Pool Store {quoteResult.quote_name||quoteResult.order_name} créé !</div>
-                                <div style={{fontSize:13,color:'#047857',marginTop:2}}>Numérotation séparée — visible dans Fiche chantier → Devis Pool Store</div>
-                              </div>
-                              <a href={`/odoo/pool-store-quotes/${quoteResult.quote_id||quoteResult.order_id}`} target="_blank"
-                                style={{background:'#059669',color:'#fff',padding:'8px 16px',borderRadius:8,textDecoration:'none',fontWeight:700,fontSize:13}}>
-                                Ouvrir le devis →
-                              </a>
-                              <button onClick={()=>setQuoteResult(null)} style={{background:'none',border:'none',cursor:'pointer',color:'#6b7a8d',fontSize:16}}>✕</button>
-                            </div>
-                          )}
-
-                          {/* Notes générales */}
-                          <div className="lpc-section" style={{marginTop:10}}>
-                            <div className="lpc-sec-hdr"><h3>📝 Remarques générales</h3></div>
-                            <div style={{padding:16}}>
-                              <textarea value={generalNotes} onChange={e=>setGeneralNotes(e.target.value)}
-                                placeholder="Observations générales, conditions d'accès, points particuliers à noter…"
-                                style={{width:'100%',minHeight:80,border:'1.5px solid #dde4ed',borderRadius:8,padding:'10px 12px',fontFamily:'inherit',fontSize:14,resize:'vertical',background:'#f8fafc'}}/>
-                            </div>
-                          </div>
-
-                          {/* Signatures */}
-                          <div className="lpc-section" style={{marginTop:10}}>
-                            <div className="lpc-sec-hdr"><h3>✍️ Signatures</h3></div>
-                            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24,padding:20}}>
-                              <SignatureCanvas label="Signature du technicien" onSave={setSigTech}/>
-                              <SignatureCanvas label="Signature du client (bon pour accord)" onSave={setSigClient}/>
-                            </div>
-                            {(sigTech||sigClient) && (
-                              <div style={{padding:'0 20px 16px',display:'flex',gap:12}}>
-                                {sigTech && <img src={sigTech} alt="Sig tech" style={{height:50,border:'1px solid #dde4ed',borderRadius:6}}/>}
-                                {sigClient && <img src={sigClient} alt="Sig client" style={{height:50,border:'1px solid #dde4ed',borderRadius:6}}/>}
-                              </div>
-                            )}
-                          </div>
-
-                          <div style={{fontSize:11,color:'#6b7a8d',textAlign:'center',marginTop:14}}>
-                            Lolirine Pool Store · lolirinepoolstore.be · BCE 0650.891.279
-                          </div>
-
-                          {/* Barre d'actions */}
-                          <div className="lpc-acts no-print" style={{marginTop:20,flexWrap:'wrap'}}>
-                            <button className="lpc-btn-s" onClick={()=>setStep(2)}>← Retour</button>
-                            <button className="lpc-btn-s" onClick={reset}>🔄 Réinitialiser</button>
-                            <div style={{flex:1}}/>
-                            {allProds.length>0 && (
-                              <button className="lpc-btn-p" style={{'--acc':'#10b981',background:'#10b981'}} onClick={openQuoteModal}>
-                                📋 Créer un devis Odoo
-                              </button>
-                            )}
-                            {cfg.isLoggedIn && (
-                              <button className="lpc-btn-p" style={{'--acc':'#6366f1',background:'#6366f1'}} onClick={saveToOdoo}>
-                                💾 Sauvegarder
-                              </button>
-                            )}
-                            <button className="lpc-btn-pr" onClick={()=>window.print()}>🖨️ Imprimer / PDF</button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
-
-                /* ── Client Autocomplete — prénom + nom séparés ── */
-                function ClientAutocomplete({valuePrenom, valueNom, onChangePrenom, onChangeNom, onSelectPartner}) {
-                  const [suggestions, setSugg] = React.useState([]);
-                  const [open, setOpen]         = React.useState(false);
-                  const [activeField, setActiveField] = React.useState(null);
-
-                  const fieldStyle = {
-                    border:'1.5px solid #e5e7eb',borderRadius:8,padding:'12px 16px',
-                    fontFamily:'inherit',fontSize:14,background:'#f9fafb',
-                    color:'#1a2332',width:'100%',transition:'all .2s',outline:'none',
-                  };
-
-                  const search = async(v, field) => {
-                    setActiveField(field);
-                    if(v.length >= 2) {
-                      const partners = await searchPartners(v);
-                      setSugg(partners); setOpen(partners.length > 0);
-                    } else { setSugg([]); setOpen(false); }
-                  };
-
-                  const selectPartner = (p) => {
-                    const parts = (p.name||'').trim().split(' ');
-                    const prenom = parts.length > 1 ? parts[0] : '';
-                    const nom    = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
-                    onChangePrenom(prenom);
-                    onChangeNom(nom);
-                    onSelectPartner(p);
-                    setSugg([]); setOpen(false);
-                  };
-
-                  return (
-                    <React.Fragment>
-                      <div className="lpc-fg" style={{position:'relative'}}>
-                        <label>Prénom <span className="lpc-required">*</span></label>
-                        <input value={valuePrenom}
-                          onChange={e=>{ onChangePrenom(e.target.value); search(e.target.value,'prenom'); }}
-                          onBlur={()=>setTimeout(()=>setOpen(false),200)}
-                          placeholder="Jean" style={fieldStyle}/>
-                        {open && activeField==='prenom' && suggestions.length>0 && (
-                          <SuggDropdown suggestions={suggestions} onSelect={selectPartner}/>
-                        )}
-                      </div>
-                      <div className="lpc-fg" style={{position:'relative'}}>
-                        <label>Nom <span className="lpc-required">*</span></label>
-                        <input value={valueNom}
-                          onChange={e=>{ onChangeNom(e.target.value); search(e.target.value,'nom'); }}
-                          onBlur={()=>setTimeout(()=>setOpen(false),200)}
-                          placeholder="Dupont" style={fieldStyle}/>
-                        {open && activeField==='nom' && suggestions.length>0 && (
-                          <SuggDropdown suggestions={suggestions} onSelect={selectPartner}/>
-                        )}
-                      </div>
-                    </React.Fragment>
-                  );
-                }
-
-                ReactDOM.createRoot(document.getElementById('pool-checklist-root')).render(<PoolChecklist/>);
+                })}
+              </tbody>
+              {totalHT > 0 && (
+                <tfoot>
+                  <tr style={{borderTop:"2px solid #e2e8f0"}}>
+                    <td colSpan={7} style={{padding:"10px 8px",textAlign:"right",fontWeight:800,fontSize:15,color:"#0369a1"}}>
+                      Total estimatif HT : {totalHT.toFixed(2)} €
+                    </td>
+                    <td />
+                  </tr>
+                </tfoot>
+              )}
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Panel produits */}
+      {panel && <ProductPanel item={panel.item} sectionLabel={panel.sectionLabel} onAddProducts={handleAddProducts} onClose={() => setPanel(null)} />}
+
+      {/* Modal devis */}
+      {showQuote && products.length > 0 && (
+        <QuoteModal
+          products={products}
+          client={client}
+          clientId={clientId}
+          address={address}
+          ref={ref}
+          onClose={() => setShowQuote(false)}
+          onCreated={() => {}}
+        />
+      )}
+
+      {/* Modal historique */}
+      {showHistory && <HistoryModal onClose={() => setShowHistory(false)} onLoad={loadRecord} />}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────
+   ClientAutocomplete — recherche partenaire Odoo
+───────────────────────────────────────────────────── */
+function ClientAutocomplete({ value, onChange, onSelectId }) {
+  const cfg = window.LOLIRINE_CHECKLIST_CONFIG || {};
+  const [suggs, setSuggs] = useState([]);
+  const [show, setShow] = useState(false);
+  const timerRef = useRef(null);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    function handler(e) { if (wrapRef.current && !wrapRef.current.contains(e.target)) setShow(false); }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  function handleInput(val) {
+    onChange(val);
+    clearTimeout(timerRef.current);
+    if (val.length < 2) { setSuggs([]); setShow(false); return; }
+    timerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(cfg.partnerEndpoint || "/pool-checklist/search-partner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ jsonrpc: "2.0", method: "call", id: 1, params: { query: val, limit: 8 } }),
+        });
+        const d = await res.json();
+        const partners = d?.result?.partners || [];
+        setSuggs(partners);
+        setShow(partners.length > 0);
+      } catch { setSuggs([]); setShow(false); }
+    }, 250);
+  }
+
+  return (
+    <div ref={wrapRef} style={{position:"relative"}}>
+      <input value={value} onChange={e => handleInput(e.target.value)}
+        placeholder="Nom du client…"
+        style={{width:"100%",border:"1.5px solid #dde4ed",borderRadius:9,padding:"9px 13px",fontFamily:"inherit",fontSize:14,outline:"none",boxSizing:"border-box"}}
+        onFocus={() => suggs.length && setShow(true)} />
+      {show && (
+        <div style={{position:"absolute",top:"100%",left:0,right:0,zIndex:1000,background:"#fff",border:"1.5px solid #dde4ed",borderRadius:10,boxShadow:"0 8px 30px rgba(0,0,0,.12)",marginTop:4,maxHeight:220,overflowY:"auto"}}>
+          {suggs.map((p, i) => (
+            <div key={i} onClick={() => { onChange(p.name); onSelectId && onSelectId(p.id); setShow(false); }}
+              style={{padding:"9px 14px",cursor:"pointer",fontSize:13,borderBottom:i<suggs.length-1?"1px solid #f0f4f8":"none",display:"flex",gap:8,alignItems:"flex-start"}}
+              onMouseEnter={e => e.currentTarget.style.background="#f0f9ff"}
+              onMouseLeave={e => e.currentTarget.style.background="transparent"}>
+              <div>
+                <div style={{fontWeight:600,color:"#1e293b"}}>{p.name}</div>
+                {p.city && <div style={{fontSize:11,color:"#94a3b8"}}>{p.city}</div>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────
+   MOUNT
+───────────────────────────────────────────────────── */
+ReactDOM.createRoot(document.getElementById("pool-checklist-root")).render(<PoolChecklist />);
