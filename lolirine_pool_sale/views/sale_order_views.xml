@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         Héritage de la vue formulaire sale.order
+         Ajoute :
+           - Champ "Devis piscine" dans l'en-tête
+           - Bouton "Fiche de visite" dans le bandeau d'actions
+           - Badge séquence PSC visible dans le titre
+           - Onglet 🏊 Chantier
+           - Onglet 🚚 Dropshipping
+           - Onglet 📋 Fiche de visite
+           - Masquage conditionnel des onglets garde-meuble
+         ════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_pool_sale_order_form" model="ir.ui.view">
+        <field name="name">lolirine.pool.sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- ── Bouton dans le bandeau d'actions ── -->
+            <xpath expr="//button[@name='action_confirm']" position="before">
+                <button name="action_open_checklist"
+                        type="object"
+                        string="🏊 Fiche de visite"
+                        icon="fa-clipboard"
+                        attrs="{'invisible': [('is_pool_quote', '=', False)]}"
+                        class="btn-secondary"/>
+            </xpath>
+
+            <!-- ── Champ "Devis piscine" sous le numéro de devis ── -->
+            <xpath expr="//field[@name='client_order_ref']" position="after">
+                <field name="is_pool_quote" widget="boolean_toggle"/>
+                <label for="is_pool_quote" string="Devis piscine (séquence PSC)"/>
+            </xpath>
+
+            <!-- ── Référence dossier / Adresse chantier dans l'en-tête ── -->
+            <xpath expr="//field[@name='client_order_ref']" position="replace">
+                <field name="client_order_ref" string="Réf. client"/>
+                <field name="pool_ref_dossier"
+                       attrs="{'invisible': [('is_pool_quote', '=', False)]}"
+                       placeholder="CHT-2025-042"/>
+            </xpath>
+
+            <!-- ── Onglet 🏊 Chantier ── -->
+            <xpath expr="//page[@name='order_lines']" position="after">
+                <page string="🏊 Chantier"
+                      name="pool_chantier"
+                      attrs="{'invisible': [('is_pool_quote', '=', False)]}">
+                    <group string="Intervention">
+                        <group>
+                            <field name="pool_intervention_type"/>
+                            <field name="pool_technicien"/>
+                            <field name="pool_date_visite"/>
+                        </group>
+                        <group>
+                            <field name="pool_adresse_chantier"/>
+                            <field name="pool_visit_statut"/>
+                            <field name="pool_visit_checklist_pct"
+                                   widget="percentpie"/>
+                        </group>
+                    </group>
+
+                    <group string="Bassin">
+                        <group>
+                            <field name="pool_basin_shape"/>
+                            <field name="pool_basin_longueur"/>
+                            <field name="pool_basin_largeur"/>
+                            <field name="pool_basin_profondeur"/>
+                        </group>
+                        <group>
+                            <field name="pool_basin_surface" readonly="1"/>
+                            <field name="pool_basin_volume"  readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Notes bassin">
+                        <field name="pool_basin_notes" nolabel="1"
+                               placeholder="Particularités, contraintes, équipements existants…"/>
+                    </group>
+
+                    <group string="Frais &amp; services">
+                        <group>
+                            <field name="pool_evacuation"/>
+                            <field name="pool_km"/>
+                            <field name="pool_frais_deplacement"/>
+                        </group>
+                        <group>
+                            <field name="pool_moeuvre"/>
+                        </group>
+                    </group>
+
+                    <group string="Conditions particulières">
+                        <field name="pool_conditions_particulieres" nolabel="1"
+                               placeholder="Garanties, délais d'exécution, restrictions techniques…"/>
+                    </group>
+                </page>
+            </xpath>
+
+            <!-- ── Onglet 🚚 Dropshipping ── -->
+            <xpath expr="//page[@name='pool_chantier']" position="after">
+                <page string="🚚 Dropshipping"
+                      name="pool_dropshipping"
+                      attrs="{'invisible': [('is_pool_quote', '=', False)]}">
+                    <group string="Fournisseur">
+                        <group>
+                            <field name="pool_fournisseur"/>
+                            <field name="pool_fournisseur_other"
+                                   attrs="{'invisible': [('pool_fournisseur', '!=', 'autre')]}"
+                                   placeholder="Nom du fournisseur"/>
+                            <field name="pool_fournisseur_ref_cmd"
+                                   placeholder="BC-FOURN-2025-XXX"/>
+                            <field name="pool_fournisseur_ref_prod"
+                                   placeholder="ex : FLU-PMP-00312"/>
+                        </group>
+                        <group>
+                            <field name="pool_delai_livraison"/>
+                            <field name="pool_livraison_directe"/>
+                            <field name="pool_livraison_adresse"
+                                   attrs="{'invisible': [('pool_livraison_directe', '=', False)]}"
+                                   placeholder="Adresse complète de livraison chantier"/>
+                        </group>
+                    </group>
+
+                    <!-- Rappel lignes concernées par le dropshipping -->
+                    <separator string="Lignes de commande"/>
+                    <field name="order_line" readonly="1"
+                           widget="one2many"
+                           context="{'default_order_id': active_id}">
+                        <list>
+                            <field name="product_id"/>
+                            <field name="product_uom_qty"/>
+                            <field name="price_unit"/>
+                            <field name="price_subtotal"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+
+            <!-- ── Onglet 📋 Fiche de visite ── -->
+            <xpath expr="//page[@name='pool_dropshipping']" position="after">
+                <page string="📋 Fiche de visite"
+                      name="pool_fiche_visite"
+                      attrs="{'invisible': [('is_pool_quote', '=', False)]}">
+                    <group string="Résultat de la visite">
+                        <group>
+                            <field name="pool_visit_statut"/>
+                            <field name="pool_date_visite"/>
+                            <field name="pool_technicien"/>
+                            <field name="pool_visit_checklist_pct"
+                                   string="Progression check-list"
+                                   widget="progressbar"/>
+                        </group>
+                        <group>
+                            <field name="pool_adresse_chantier" readonly="1"/>
+                            <field name="pool_intervention_type" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Observations de la visite">
+                        <field name="pool_visit_observations" nolabel="1"
+                               placeholder="Observations de la visite chantier, points relevés, recommandations…"/>
+                    </group>
+                    <group string="Accès rapide">
+                        <button name="action_open_checklist"
+                                type="object"
+                                string="Ouvrir la fiche de visite chantier"
+                                icon="fa-external-link"
+                                class="btn-primary"/>
+                    </group>
+                </page>
+            </xpath>
+
+            <!-- ── Masquer l'onglet Indexation pour les devis piscine ── -->
+            <xpath expr="//page[@name='indexation']" position="attributes"
+                   t-if="hasattr(view, 'indexation')">
+                <attribute name="attrs">{'invisible': [('is_pool_quote', '=', True)]}</attribute>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         Vue liste — ajout colonne type intervention + adresse chantier
+         ════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_pool_sale_order_list" model="ir.ui.view">
+        <field name="name">lolirine.pool.sale.order.list</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="pool_intervention_type"
+                       optional="show"
+                       string="Intervention"
+                       attrs="{'invisible': [('is_pool_quote', '=', False)]}"/>
+                <field name="pool_adresse_chantier"
+                       optional="show"
+                       string="Chantier"
+                       attrs="{'invisible': [('is_pool_quote', '=', False)]}"/>
+                <field name="pool_technicien"
+                       optional="hide"
+                       string="Technicien"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         Filtre & Groupe — Devis piscine dans la recherche
+         ════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_pool_sale_order_search" model="ir.ui.view">
+        <field name="name">lolirine.pool.sale.order.search</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                <filter string="🏊 Devis piscine"
+                        name="pool_quotes"
+                        domain="[('is_pool_quote', '=', True)]"/>
+                <separator/>
+                <filter string="✅ Visite terminée"
+                        name="pool_visit_done"
+                        domain="[('pool_visit_statut', '=', 'termine')]"/>
+                <filter string="⏳ Attente pièces"
+                        name="pool_waiting_parts"
+                        domain="[('pool_visit_statut', '=', 'attente_pieces')]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Type intervention"
+                        name="group_intervention"
+                        context="{'group_by': 'pool_intervention_type'}"/>
+                <filter string="Technicien"
+                        name="group_technicien"
+                        context="{'group_by': 'pool_technicien'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         Action + Menu raccourci "Devis Piscine"
+         ════════════════════════════════════════════════════════════════ -->
+
+    <record id="action_pool_sale_orders" model="ir.actions.act_window">
+        <field name="name">Devis Piscine</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_pool_quote', '=', True)]</field>
+        <field name="context">{'default_is_pool_quote': True, 'search_default_pool_quotes': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer un devis piscine
+            </p>
+            <p>Les devis piscine utilisent la séquence PSC/AAAA/XXXX.</p>
+        </field>
+    </record>
+
+    <record id="menu_pool_sale_orders" model="ir.ui.menu">
+        <field name="name">🏊 Devis Piscine</field>
+        <field name="parent_id" ref="sale.sale_order_menu"/>
+        <field name="action" ref="action_pool_sale_orders"/>
+        <field name="sequence">5</field>
+    </record>
+
+</odoo>
