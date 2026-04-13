@@ -329,14 +329,20 @@ class PoolChecklistController(http.Controller):
                 'name': partner_name or 'Client checklist piscine',
                 'customer_rank': 1,
             })
+        # Récupérer la séquence PSC directement ici pour garantir l'attribution
+        psc_name = env['ir.sequence'].sudo().next_by_code('lolirine.pool.sale.order') or '/'
+
         order_vals = {
             'partner_id': partner.id,
+            'name': psc_name,
+            'is_pool_quote': True,
             'origin': ref_dossier or 'Fiche visite chantier',
             'note': note or '',
             'company_id': request.env.company.id,
         }
         if ref_dossier:
             order_vals['client_order_ref'] = ref_dossier
+            order_vals['pool_ref_dossier'] = ref_dossier
         order = env['sale.order'].sudo().create(order_vals)
         Product = env['product.product'].sudo()
         SOLine  = env['sale.order.line'].sudo()
