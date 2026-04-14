@@ -367,9 +367,11 @@ function ProductPanel({ item, sectionLabel, onAdd, onClose }) {
       <div onClick={()=>toggle(i)} style={{display:'flex',gap:10,padding:'9px 12px',borderRadius:10,border:`1.5px solid ${isSel?'#0ea5e9':'#e8edf3'}`,background:isSel?'rgba(14,165,233,.05)':'#fff',cursor:'pointer',alignItems:'flex-start',marginBottom:4,transition:'all .15s'}}>
         {/* Checkbox */}
         <div style={{width:18,height:18,border:`2px solid ${isSel?'#0ea5e9':'#bbb'}`,borderRadius:4,background:isSel?'#0ea5e9':'transparent',flexShrink:0,marginTop:2,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:11}}>{isSel&&'✓'}</div>
-        {/* Image produit */}
+        {/* Image produit — chemin avec credentials same-origin */}
         {p.image_url&&!imgErr
-          ? <img src={p.image_url} alt="" onError={()=>setImgErr(true)} style={{width:52,height:52,objectFit:'contain',borderRadius:8,border:'1px solid #e2e8f0',background:'#f8fafc',flexShrink:0}} />
+          ? <img src={p.image_url} alt="" onError={()=>setImgErr(true)}
+              crossOrigin="use-credentials"
+              style={{width:52,height:52,objectFit:'contain',borderRadius:8,border:'1px solid #e2e8f0',background:'#f8fafc',flexShrink:0}} />
           : <div style={{width:52,height:52,borderRadius:8,border:'1px solid #e2e8f0',background:'#f8fafc',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,color:'#cbd5e1'}}>📦</div>
         }
         <div style={{flex:1,minWidth:0}}>
@@ -597,6 +599,128 @@ const ITEM_SCHEMAS = {
   texte:       { icon:'✏️', title:'Informations',       unit:'',     fields:[{k:'valeur',l:'Valeur / Information',t:'text'},{k:'observations',l:'Observations',t:'textarea'}] },
   /* Générique nombre */
   nombre:      { icon:'🔢', title:'Quantité / Valeur',  unit:'',     fields:[{k:'valeur',l:'Valeur',t:'number',step:.01},{k:'unite',l:'Unité',t:'text'},{k:'observations',l:'Notes',t:'text'}] },
+
+  /* ── Couvertures ── */
+  couverture_bulle: { icon:'🫧', title:'Bâche à bulles', unit:'', fields:[
+    {k:'type',l:'Type',t:'select',opts:['400µ standard','400µ renforcée','500µ','600µ','800µ ultra']},
+    {k:'couleur',l:'Couleur',t:'select',opts:['Bleu clair','Bleu foncé','Gris','Transparent','Vert']},
+    {k:'longueur',l:'Longueur (m)',t:'number',step:.1},{k:'largeur',l:'Largeur (m)',t:'number',step:.1},
+    {k:'surface',l:'Surface calculée (m²)',t:'number',step:.5,ro:true},
+    {k:'enrouleur',l:'Enrouleur',t:'select',opts:['Non','Manuel fixe','Manuel mobile','Motorisé']},
+    {k:'marque',l:'Marque / référence',t:'text'},{k:'etat',l:'État',t:'select',opts:['Neuf','Bon','Usé','À remplacer']},
+    {k:'observations',l:'Observations',t:'textarea'},
+  ]},
+  couverture_barres: { icon:'🏊', title:'Couverture à barres', unit:'', fields:[
+    {k:'type',l:'Type',t:'select',opts:['Manuelle','Semi-automatique','Automatique électrique','Automatique solaire']},
+    {k:'materiau',l:'Matériau barres',t:'select',opts:['Aluminium','Polycarbonate','Composite','Inox']},
+    {k:'longueur',l:'Longueur bassin (m)',t:'number',step:.1},{k:'largeur',l:'Largeur bassin (m)',t:'number',step:.1},
+    {k:'couleur',l:'Couleur',t:'text'},{k:'marque',l:'Marque / modèle',t:'text'},
+    {k:'norme',l:'Norme sécurité',t:'select',opts:['NF P 90-308','Non certifié']},
+    {k:'etat',l:'État',t:'select',opts:['Neuf','Bon','Usé','Défaillant','À remplacer']},
+    {k:'observations',l:'Observations',t:'textarea'},
+  ]},
+  volet: { icon:'🌊', title:'Volet roulant', unit:'', fields:[
+    {k:'type',l:'Type',t:'select',opts:['Volet immergé lames PC','Volet immergé lames alu','Volet hors-sol banc','Volet hors-sol coffre','Volet solaire']},
+    {k:'motorisation',l:'Motorisation',t:'select',opts:['Manuelle','Électrique 230V','Solaire','Avec télécommande']},
+    {k:'lames',l:'Matériau lames',t:'select',opts:['Polycarbonate transparent','Polycarbonate opaque','Aluminium','Composite']},
+    {k:'longueur',l:'Longueur (m)',t:'number',step:.1},{k:'largeur',l:'Largeur (m)',t:'number',step:.1},
+    {k:'couleur',l:'Couleur',t:'text'},{k:'marque',l:'Marque / modèle',t:'text'},
+    {k:'norme',l:'Norme sécurité',t:'select',opts:['NF P 90-308','NF P 90-306','Non certifié']},
+    {k:'etat',l:'État',t:'select',opts:['Neuf','Bon','Bruit','Rail défaillant','Lame cassée','À remplacer']},
+    {k:'observations',l:'Observations',t:'textarea'},
+  ]},
+
+  /* ── Tuyauterie ── */
+  tuyau: { icon:'🔵', title:'Tuyauterie', unit:'', fields:[
+    {k:'type',l:'Type',t:'select',opts:['PVC pression','PVC souple','Multicouche','PEHD','Inox']},
+    {k:'diametre',l:'Diamètre (mm)',t:'select',opts:['32mm','40mm','50mm','63mm','75mm','90mm','110mm','125mm','140mm','160mm']},
+    {k:'longueur',l:'Longueur totale (m)',t:'number',step:.5},
+    {k:'nb_lignes',l:'Nombre de lignes',t:'integer',min:1,max:10},
+    {k:'pression',l:'Pression nominale',t:'select',opts:['PN6','PN10','PN16','PN25']},
+    {k:'couleur',l:'Couleur',t:'select',opts:['Gris','Bleu','Blanc','Noir','Transparent']},
+    {k:'marque',l:'Marque',t:'text'},{k:'observations',l:'Observations',t:'textarea'},
+  ]},
+  raccord_coude: { icon:'🔧', title:'Coudes & raccords', unit:'', fields:[
+    {k:'type',l:'Type',t:'select',opts:['Coude 45°','Coude 90°','Té égal','Té réduit','Manchon','Réduction','Union','Bouchon','Embout']},
+    {k:'diametre',l:'Diamètre (mm)',t:'select',opts:['32mm','40mm','50mm','63mm','75mm','90mm','110mm','125mm','160mm']},
+    {k:'materiau',l:'Matériau',t:'select',opts:['PVC collé','PVC fileté','PP noir','Inox 316L','Laiton']},
+    {k:'quantite',l:'Quantité',t:'integer',min:1,max:200},
+    {k:'marque',l:'Marque / référence',t:'text'},{k:'observations',l:'Observations',t:'text'},
+  ]},
+  vanne: { icon:'🔧', title:'Vannes', unit:'', fields:[
+    {k:'type',l:'Type',t:'select',opts:['Vanne à boisseau','Vanne papillon','Vanne d'arrêt','Vanne multivoies 4 voies','Vanne multivoies 6 voies','Clapet anti-retour','Vanne de régulation']},
+    {k:'diametre',l:'Diamètre raccordement',t:'select',opts:['32mm','40mm','50mm','63mm','75mm','90mm','110mm']},
+    {k:'materiau',l:'Matériau',t:'select',opts:['PVC','PP','Inox','Laiton','Bronze']},
+    {k:'commande',l:'Commande',t:'select',opts:['Manuelle','Motorisée 24V','Motorisée 230V']},
+    {k:'quantite',l:'Quantité',t:'integer',min:1,max:20},
+    {k:'marque',l:'Marque / référence',t:'text'},
+    {k:'etat',l:'État',t:'select',opts:['Bon','Fuite','Bloquée','À remplacer']},
+  ]},
+
+  /* ── Revêtements de sol & plage ── */
+  dalle_margelle: { icon:'🏡', title:'Dalles & margelles', unit:'', fields:[
+    {k:'type',l:'Type',t:'select',opts:['Margelle','Dalle plage','Dalle escalier','Revêtement intérieur','Plage bois/composite']},
+    {k:'materiau',l:'Matériau',t:'select',opts:['Carrelage grès cérame','Pierre naturelle (calcaire)','Pierre naturelle (granit)','Béton désactivé','Béton lavé','Bois exotique','Composite','PVC antidérapant']},
+    {k:'surface',l:'Surface totale (m²)',t:'number',step:.5},
+    {k:'longueur',l:'Longueur (m)',t:'number',step:.1},{k:'largeur',l:'Largeur (m)',t:'number',step:.1},
+    {k:'epaisseur',l:'Épaisseur (cm)',t:'number',step:.5,placeholder:'3'},
+    {k:'antiderapant',l:'Antidérapant',t:'select',opts:['R11','R12','R13','Non classé']},
+    {k:'couleur',l:'Couleur / référence',t:'text'},
+    {k:'nb_pieces',l:'Nombre de pièces (si margelles)',t:'integer',min:0},
+    {k:'marque',l:'Marque / fournisseur',t:'text'},
+    {k:'observations',l:'Observations',t:'textarea'},
+  ]},
+  escalier: { icon:'🪜', title:'Escalier piscine', unit:'', fields:[
+    {k:'type',l:'Type',t:'select',opts:['Escalier romain (angle)','Escalier d'angle','Escalier droit','Bloc escalier','Plage bain de soleil','Banquette']},
+    {k:'materiau',l:'Matériau',t:'select',opts:['Béton intégré','Kit plastique (ABS)','Kit inox 316L','Polyester']},
+    {k:'nb_marches',l:'Nombre de marches',t:'integer',min:1,max:8},
+    {k:'largeur',l:'Largeur (m)',t:'number',step:.1},
+    {k:'couleur',l:'Couleur / finition',t:'text'},
+    {k:'marque',l:'Marque / référence',t:'text'},
+    {k:'antiderapant',l:'Nez de marche antidérapant',t:'select',opts:['Oui','Non','À prévoir']},
+    {k:'observations',l:'Observations',t:'textarea'},
+  ]},
+
+  /* ── Structure & génie civil ── */
+  bassin_structure: { icon:'🏗️', title:'Structure bassin', unit:'', fields:[
+    {k:'type',l:'Type de construction',t:'select',opts:['Béton coulé','Béton projeté (gunite)','Kit acier parois','Polyester coque','Bois traité','Bois + membrane']},
+    {k:'longueur',l:'Longueur (m)',t:'number',step:.1},{k:'largeur',l:'Largeur (m)',t:'number',step:.1},
+    {k:'prof_min',l:'Profondeur mini (m)',t:'number',step:.05},{k:'prof_max',l:'Profondeur maxi (m)',t:'number',step:.05},
+    {k:'forme',l:'Forme',t:'select',opts:['Rectangulaire','Carré','En L','Ovale','Haricot','Libre']},
+    {k:'volume',l:'Volume estimé (m³)',t:'number',step:.5},
+    {k:'epaisseur_paroi',l:'Épaisseur paroi (cm)',t:'number',step:1,placeholder:'20'},
+    {k:'etancheite',l:'Étanchéité',t:'select',opts:['Enduit hydraulique','Membrane armée','Liner','Résine polyuréthane','Carrelage + hydrofuge']},
+    {k:'observations',l:'Observations',t:'textarea'},
+  ]},
+  drainage: { icon:'💧', title:'Drainage & évacuation', unit:'', fields:[
+    {k:'type_plage',l:'Drainage plage',t:'select',opts:['Caniveau béton','Caniveau inox','Pente seule','Dalle drainante','Drain enterré']},
+    {k:'pente',l:'Pente plage (%)',t:'number',step:.5,dfl:'1'},
+    {k:'evac_trop_plein',l:'Trop-plein',t:'select',opts:['Skimmer intégré','Bonde de surface','Goulotte débordement','Aucun']},
+    {k:'diametre_evacuation',l:'Diamètre évacuation (mm)',t:'select',opts:['50mm','63mm','75mm','90mm','110mm']},
+    {k:'observations',l:'Observations',t:'textarea'},
+  ]},
+
+  /* ── Traitement UV/Ozone ── */
+  uv_ozone: { icon:'☀️', title:'Traitement UV / Ozone', unit:'', fields:[
+    {k:'type',l:'Type',t:'select',opts:['UV basse pression','UV moyenne pression','Ozone par effluve','Ozone par UV','Combiné UV+Ozone']},
+    {k:'marque',l:'Marque / modèle',t:'text'},
+    {k:'debit',l:'Débit nominal (m³/h)',t:'number',step:.5},
+    {k:'puissance',l:'Puissance (W)',t:'number',step:1},
+    {k:'age_lampe',l:'Âge lampe (mois)',t:'integer',min:0,max:48},
+    {k:'etat',l:'État',t:'select',opts:['Fonctionnel','Lampe à remplacer','Défaillant','Hors service']},
+    {k:'observations',l:'Observations',t:'textarea'},
+  ]},
+
+  /* ── Robot nettoyeur ── */
+  robot: { icon:'🤖', title:'Robot nettoyeur', unit:'', fields:[
+    {k:'type',l:'Type',t:'select',opts:['Robot électrique fond','Robot électrique fond+parois','Robot hydraulique','Balai aspirateur manuel']},
+    {k:'marque',l:'Marque / modèle',t:'text'},
+    {k:'alimentation',l:'Alimentation',t:'select',opts:['Secteur 220V','Basse tension 24V','Hydraulique (pompe)','Batterie']},
+    {k:'couverture',l:'Couverture nettoyage',t:'select',opts:['Fond seul','Fond + parois','Fond + parois + ligne eau','Fond + parois + escaliers']},
+    {k:'age',l:'Âge (années)',t:'integer',min:0,max:15},
+    {k:'etat',l:'État',t:'select',opts:['Fonctionnel','Brosses usées','Câble défaillant','Moteur défaillant','Hors service']},
+    {k:'observations',l:'Observations',t:'textarea'},
+  ]},
 };
 
 /* Détection automatique du schéma à partir du texte de l'item */
@@ -629,6 +753,18 @@ function detectSchema(text) {
   if (t.match(/revêtement|liner|carrelage/)) return 'revetement';
   if (t.match(/coffret|disjoncteur|équipotentielle|câbl/)) return 'electrique';
   if (t.match(/traitement.*(?:correctif|appliqué|choc)|choc.*chlore|algicide|floculant/)) return 'traitement';
+  if (t.match(/bâche.*bulle|couverture.*bulle|bulle.*400|bulle.*500/)) return 'couverture_bulle';
+  if (t.match(/couverture.*barre|barre.*auto|barre.*manu/)) return 'couverture_barres';
+  if (t.match(/volet.*roulant|volet.*immergé|volet.*hors.sol|lames.*polycarbonate/)) return 'volet';
+  if (t.match(/tuyau|tuyauterie|pvc.*ø|ø.*pvc|conduite/)) return 'tuyau';
+  if (t.match(/coude|raccord|manchon|réduction|té|union.*pvc/)) return 'raccord_coude';
+  if (t.match(/vanne|clapet|multivoies|boisseau/)) return 'vanne';
+  if (t.match(/margelle|dalle.*plage|plage.*dalle|revêtement.*plage|dallage/)) return 'dalle_margelle';
+  if (t.match(/escalier|marche|romain|banquette|sun.shelf/)) return 'escalier';
+  if (t.match(/type de bassin|béton.*coulé|béton.*projeté|kit.*acier|polyester.*coque/)) return 'bassin_structure';
+  if (t.match(/drainage|caniveau|trop.plein|évacuation.*plage|pente.*1%/)) return 'drainage';
+  if (t.match(/uv|ozone|ultra.violet|lampe.*uv/)) return 'uv_ozone';
+  if (t.match(/robot.*nettoyeur|robot.*aspirateur|balai.*aspirateur/)) return 'robot';
   if (t.match(/nombre\s*[_:]/i) || t.match(/nombre\s+___/i)) return 'nombre';
   if (t.match(/______+|___\s*$/)) return 'texte';
   return null;
@@ -1317,6 +1453,179 @@ function QuoteModal({products,clientInfo,onClose,onCreated}) {
 }
 
 /* ═══════════════════════════════════════════════════
+   FreeProductZone — zone d'ajout libre de produits/matériaux
+   Permet d'ajouter des produits non liés aux items de checklist
+═══════════════════════════════════════════════════ */
+function FreeProductZone({ products, onAdd, onUpdate, onRemove }) {
+  const [showPanel, setShowPanel] = useState(false);
+  const [manualName, setManualName] = useState('');
+  const [manualRef, setManualRef]   = useState('');
+  const [manualQty, setManualQty]   = useState(1);
+  const [manualUnit, setManualUnit] = useState('pièce');
+  const [manualPrice, setManualPrice] = useState('');
+
+  /* Produits non liés à un item spécifique */
+  const freeProds = products.filter(p => p._free);
+  const totalHT   = freeProds.reduce((a,p) => {
+    const price = typeof p.price==='number' ? p.price : (parseFloat(p.price)||0);
+    return a + price*(p.qty||1);
+  }, 0);
+
+  function addManual() {
+    if (!manualName.trim()) return;
+    const newProd = {
+      name: manualName.trim(), ref: manualRef.trim(),
+      unit: manualUnit, price: parseFloat(manualPrice)||0,
+      qty: parseInt(manualQty)||1, _free: true,
+      suppliers: [], category: 'Ajout manuel',
+    };
+    onAdd([newProd]);
+    setManualName(''); setManualRef(''); setManualQty(1); setManualUnit('pièce'); setManualPrice('');
+  }
+
+  const IS = {border:'1.5px solid #dde4ed',borderRadius:8,padding:'7px 10px',fontFamily:'inherit',fontSize:12,outline:'none',boxSizing:'border-box'};
+  const UNITS = ['pièce','lot','m','m²','m³','L','kg','sac','boîte','rouleau','forfait'];
+
+  return (
+    <div style={{background:'#fff',borderRadius:13,border:'2px dashed #0ea5e9',marginBottom:12,overflow:'hidden'}}>
+      {/* Header */}
+      <div style={{padding:'12px 16px',background:'#eff9ff',display:'flex',alignItems:'center',gap:10,cursor:'pointer'}}
+        onClick={()=>setShowPanel(o=>!o)}>
+        <span style={{fontSize:18}}>➕</span>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:700,fontSize:14,color:'#0369a1'}}>Produits & matériaux complémentaires</div>
+          <div style={{fontSize:11,color:'#0ea5e9',marginTop:1}}>
+            {freeProds.length>0
+              ? `${freeProds.length} article${freeProds.length>1?'s':''} — ${totalHT.toFixed(2)} € HT estimatif`
+              : 'Ajouter des produits hors check-list (catalogue ou saisie libre)'}
+          </div>
+        </div>
+        <span style={{fontSize:12,color:'#0ea5e9'}}>{showPanel?'▲':'▼'}</span>
+      </div>
+
+      {showPanel && (
+        <div style={{padding:'14px 16px'}}>
+
+          {/* Bouton catalogue */}
+          <button onClick={()=>setShowPanel('catalog')}
+            style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:9,padding:'8px 18px',fontWeight:700,fontSize:13,cursor:'pointer',marginBottom:14,display:'flex',alignItems:'center',gap:7}}>
+            📂 Parcourir le catalogue Pool Store
+          </button>
+
+          {/* Séparateur */}
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+            <div style={{flex:1,height:1,background:'#e2e8f0'}} />
+            <span style={{fontSize:11,color:'#94a3b8',whiteSpace:'nowrap'}}>ou saisie manuelle</span>
+            <div style={{flex:1,height:1,background:'#e2e8f0'}} />
+          </div>
+
+          {/* Formulaire saisie manuelle */}
+          <div style={{display:'grid',gridTemplateColumns:'1fr 100px 80px 80px 90px auto',gap:8,alignItems:'end',marginBottom:12}}>
+            <div>
+              <label style={{fontSize:10,fontWeight:600,color:'#64748b',display:'block',marginBottom:3,textTransform:'uppercase'}}>Désignation *</label>
+              <input value={manualName} onChange={e=>setManualName(e.target.value)}
+                onKeyDown={e=>e.key==='Enter'&&addManual()}
+                placeholder="Nom du produit / matériau…" style={{...IS,width:'100%'}} />
+            </div>
+            <div>
+              <label style={{fontSize:10,fontWeight:600,color:'#64748b',display:'block',marginBottom:3,textTransform:'uppercase'}}>Réf.</label>
+              <input value={manualRef} onChange={e=>setManualRef(e.target.value)}
+                placeholder="POOL-XXX" style={{...IS,width:'100%'}} />
+            </div>
+            <div>
+              <label style={{fontSize:10,fontWeight:600,color:'#64748b',display:'block',marginBottom:3,textTransform:'uppercase'}}>Qté</label>
+              <input type="number" value={manualQty} min={1} onChange={e=>setManualQty(e.target.value)}
+                style={{...IS,width:'100%',textAlign:'center'}} />
+            </div>
+            <div>
+              <label style={{fontSize:10,fontWeight:600,color:'#64748b',display:'block',marginBottom:3,textTransform:'uppercase'}}>Unité</label>
+              <select value={manualUnit} onChange={e=>setManualUnit(e.target.value)}
+                style={{...IS,width:'100%',background:'#fff',cursor:'pointer'}}>
+                {UNITS.map(u=><option key={u}>{u}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{fontSize:10,fontWeight:600,color:'#64748b',display:'block',marginBottom:3,textTransform:'uppercase'}}>Prix HT €</label>
+              <input type="number" value={manualPrice} min={0} step={0.01}
+                onChange={e=>setManualPrice(e.target.value)} placeholder="0.00"
+                style={{...IS,width:'100%',textAlign:'right'}} />
+            </div>
+            <button onClick={addManual} disabled={!manualName.trim()}
+              style={{background:manualName.trim()?'#16a34a':'#cbd5e1',color:'#fff',border:'none',borderRadius:8,padding:'8px 14px',cursor:manualName.trim()?'pointer':'default',fontWeight:700,fontSize:13,whiteSpace:'nowrap',height:36}}>
+              + Ajouter
+            </button>
+          </div>
+
+          {/* Liste des produits libres ajoutés */}
+          {freeProds.length > 0 && (
+            <div style={{borderTop:'1.5px solid #e2e8f0',paddingTop:10}}>
+              <div style={{fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:'.4px',marginBottom:8}}>
+                Articles ajoutés ({freeProds.length})
+              </div>
+              <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                <thead>
+                  <tr style={{borderBottom:'2px solid #f0f4f8'}}>
+                    {['Désignation','Réf.','Unité','Qté','Prix HT','Total HT',''].map((h,i)=>(
+                      <th key={i} style={{textAlign:'left',padding:'4px 7px',fontWeight:600,color:'#64748b',fontSize:11}}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {freeProds.map((p,idx)=>{
+                    const price = typeof p.price==='number'?p.price:(parseFloat(p.price)||0);
+                    const realIdx = products.findIndex(pp=>pp===p);
+                    return (
+                      <tr key={idx} style={{borderBottom:'1px solid #f8fafc'}}>
+                        <td style={{padding:'6px 7px',fontWeight:500,color:'#1e293b'}}>{p.name}</td>
+                        <td style={{padding:'6px 7px',color:'#94a3b8',fontSize:11}}>{p.ref||'—'}</td>
+                        <td style={{padding:'6px 7px',color:'#64748b',fontSize:11}}>{p.unit||'pcs'}</td>
+                        <td style={{padding:'6px 7px'}}>
+                          <div style={{display:'flex',alignItems:'center',gap:3}}>
+                            <button onClick={()=>onUpdate(realIdx,-1)} style={{width:19,height:19,border:'1px solid #e2e8f0',borderRadius:4,background:'#f8fafc',cursor:'pointer',fontSize:11,lineHeight:'17px',textAlign:'center'}}>−</button>
+                            <span style={{fontWeight:700,minWidth:20,textAlign:'center'}}>{p.qty||1}</span>
+                            <button onClick={()=>onUpdate(realIdx,+1)} style={{width:19,height:19,border:'1px solid #e2e8f0',borderRadius:4,background:'#f8fafc',cursor:'pointer',fontSize:11,lineHeight:'17px',textAlign:'center'}}>+</button>
+                          </div>
+                        </td>
+                        <td style={{padding:'6px 7px',color:'#16a34a',fontWeight:600}}>{price>0?price.toFixed(2)+' €':'—'}</td>
+                        <td style={{padding:'6px 7px',color:'#0369a1',fontWeight:700}}>{price>0?(price*(p.qty||1)).toFixed(2)+' €':'—'}</td>
+                        <td style={{padding:'6px 7px'}}>
+                          <button onClick={()=>onRemove(realIdx)} style={{background:'none',border:'none',cursor:'pointer',color:'#ef4444',fontSize:13}}>✕</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                {totalHT > 0 && (
+                  <tfoot>
+                    <tr style={{borderTop:'2px solid #e2e8f0'}}>
+                      <td colSpan={5} style={{padding:'7px 7px',textAlign:'right',fontWeight:700,fontSize:12,color:'#0369a1'}}>Total complémentaires HT :</td>
+                      <td style={{padding:'7px 7px',fontWeight:800,fontSize:13,color:'#0369a1'}}>{totalHT.toFixed(2)} €</td>
+                      <td/>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+          )}
+
+        </div>
+      )}
+
+      {/* ProductPanel catalogue intégré */}
+      {showPanel==='catalog' && (
+        <ProductPanel item="" sectionLabel="Produits complémentaires"
+          onAdd={prods=>{
+            const tagged = prods.map(p=>({...p,_free:true}));
+            onAdd(tagged);
+            setShowPanel(true);
+          }}
+          onClose={()=>setShowPanel(true)} />
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
    PoolChecklist — Wizard 4 étapes
 ═══════════════════════════════════════════════════ */
 function PoolChecklist() {
@@ -1668,6 +1977,9 @@ function PoolChecklist() {
 
               {/* Remarques */}
               <div style={{background:'#fff',borderRadius:12,padding:'16px 18px',marginBottom:12,border:'1.5px solid #e2e8f0'}}>
+          {/* ── Zone de saisie libre de produits complémentaires ── */}
+          <FreeProductZone products={products} onAdd={handleAddProducts} onUpdate={updateQty} onRemove={removeProduct} />
+
                 <div style={{fontWeight:700,fontSize:14,color:'#1e293b',marginBottom:8}}>📝 Remarques générales</div>
                 <textarea value={obs} onChange={e=>setObs(e.target.value)} placeholder="Observations générales, conditions d'accès, points particuliers à noter…" style={{width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,padding:'10px 12px',fontFamily:'inherit',fontSize:13,outline:'none',resize:'vertical',minHeight:80,boxSizing:'border-box',lineHeight:1.5}} />
               </div>
