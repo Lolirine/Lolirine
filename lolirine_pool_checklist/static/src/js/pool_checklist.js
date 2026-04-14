@@ -362,9 +362,16 @@ function ProductPanel({ item, sectionLabel, onAdd, onClose }) {
     const price=typeof p.price==='number'?p.price:(parseFloat(p.price)||0);
     const sup=p.suppliers?.[0]||{};
     const isSel=!!selMap[i];
+    const [imgErr,setImgErr]=useState(false);
     return(
       <div onClick={()=>toggle(i)} style={{display:'flex',gap:10,padding:'9px 12px',borderRadius:10,border:`1.5px solid ${isSel?'#0ea5e9':'#e8edf3'}`,background:isSel?'rgba(14,165,233,.05)':'#fff',cursor:'pointer',alignItems:'flex-start',marginBottom:4,transition:'all .15s'}}>
+        {/* Checkbox */}
         <div style={{width:18,height:18,border:`2px solid ${isSel?'#0ea5e9':'#bbb'}`,borderRadius:4,background:isSel?'#0ea5e9':'transparent',flexShrink:0,marginTop:2,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:11}}>{isSel&&'✓'}</div>
+        {/* Image produit */}
+        {p.image_url&&!imgErr
+          ? <img src={p.image_url} alt="" onError={()=>setImgErr(true)} style={{width:52,height:52,objectFit:'contain',borderRadius:8,border:'1px solid #e2e8f0',background:'#f8fafc',flexShrink:0}} />
+          : <div style={{width:52,height:52,borderRadius:8,border:'1px solid #e2e8f0',background:'#f8fafc',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,color:'#cbd5e1'}}>📦</div>
+        }
         <div style={{flex:1,minWidth:0}}>
           <div style={{fontWeight:600,fontSize:13,color:'#1e293b',lineHeight:1.3}}>{p.name}</div>
           <div style={{fontSize:11,color:'#64748b',display:'flex',gap:8,flexWrap:'wrap',marginTop:3}}>
@@ -542,13 +549,365 @@ function ProductPanel({ item, sectionLabel, onAdd, onClose }) {
   );
 }
 
+
+/* ═══════════════════════════════════════════════════
+   ITEM SCHEMA DETECTION — détection automatique des champs
+   à encoder par item de checklist
+═══════════════════════════════════════════════════ */
+const ITEM_SCHEMAS = {
+  /* Mesures eau */
+  ph:          { icon:'💧', title:'Mesure pH',           unit:'',     fields:[{k:'mesure',l:'Valeur mesurée',t:'number',step:.01,min:0,max:14,placeholder:'7.4'},{k:'cible',l:'Cible',t:'text',dfl:'7,2 – 7,6',ro:true},{k:'correction',l:'Correction apportée',t:'text'},{k:'produit',l:'Produit utilisé',t:'text'},{k:'dose',l:'Dose (g ou mL)',t:'number',step:.1}] },
+  tac:         { icon:'💧', title:'Mesure TAC',          unit:'mg/L', fields:[{k:'mesure',l:'Valeur mesurée (mg/L)',t:'number',step:1,placeholder:'100'},{k:'cible',l:'Cible',t:'text',dfl:'80 – 120 mg/L',ro:true},{k:'correction',l:'Correction',t:'text'},{k:'produit',l:'Produit (bicarbonate/CO2)',t:'text'},{k:'dose',l:'Dose',t:'number',step:.1}] },
+  th:          { icon:'💧', title:'Mesure TH',           unit:'mg/L', fields:[{k:'mesure',l:'Valeur mesurée (mg/L)',t:'number',step:1,placeholder:'200'},{k:'cible',l:'Cible',t:'text',dfl:'150 – 300 mg/L',ro:true},{k:'correction',l:'Correction',t:'text'}] },
+  chlore:      { icon:'🧪', title:'Mesure Chlore',       unit:'mg/L', fields:[{k:'libre',l:'Chlore libre (mg/L)',t:'number',step:.01,placeholder:'2.0'},{k:'combine',l:'Chlore combiné (mg/L)',t:'number',step:.01,placeholder:'0.3'},{k:'cible',l:'Cible libre',t:'text',dfl:'1,0 – 3,0 mg/L',ro:true},{k:'produit',l:'Produit choc',t:'text'},{k:'dose',l:'Dose (g ou mL)',t:'number',step:.1}] },
+  sel:         { icon:'🧂', title:'Taux de sel',         unit:'g/L',  fields:[{k:'mesure',l:'Taux mesuré (g/L)',t:'number',step:.1,placeholder:'5.0'},{k:'cible',l:'Cible électrolyseur',t:'number',step:.1,placeholder:'5.0'},{k:'correction',l:'Correction (kg sel)',t:'number',step:.5}] },
+  cyanurate:   { icon:'☀️', title:'Cyanurate',           unit:'mg/L', fields:[{k:'mesure',l:'Valeur mesurée (mg/L)',t:'number',step:1,placeholder:'40'},{k:'cible',l:'Cible max',t:'text',dfl:'< 75 mg/L',ro:true}] },
+  phosphates:  { icon:'🌿', title:'Phosphates',          unit:'mg/L', fields:[{k:'mesure',l:'Valeur mesurée (mg/L)',t:'number',step:.01,placeholder:'0.05'},{k:'cible',l:'Cible max',t:'text',dfl:'< 0,1 mg/L',ro:true},{k:'produit',l:'Anti-phosphates utilisé',t:'text'}] },
+  temperature: { icon:'🌡️', title:'Température',        unit:'°C',   fields:[{k:'eau',l:'Température eau (°C)',t:'number',step:.5,placeholder:'24'},{k:'air',l:'Température air (°C)',t:'number',step:.5},{k:'turbidite',l:'Turbidité',t:'select',opts:['Limpide','Légèrement trouble','Trouble','Verte']}] },
+  orp:         { icon:'⚡', title:'ORP / Redox',         unit:'mV',   fields:[{k:'mesure',l:'Valeur ORP (mV)',t:'number',step:1,placeholder:'700'},{k:'cible',l:'Cible',t:'text',dfl:'650 – 750 mV',ro:true}] },
+  /* Équipements — nombres */
+  skimmer:     { icon:'🔧', title:'Skimmers',           unit:'',     fields:[{k:'nombre',l:'Nombre de skimmers',t:'integer',min:1,max:10,placeholder:'2'},{k:'marque',l:'Marque / modèle',t:'text'},{k:'diam',l:'Largeur goulotte (mm)',t:'number',step:1,placeholder:'180'},{k:'etat',l:'État',t:'select',opts:['Bon état','Joint à remplacer','Collerette fissurée','À remplacer']}] },
+  bonde:       { icon:'🔧', title:'Bondes de fond',    unit:'',     fields:[{k:'nombre',l:'Nombre de bondes',t:'integer',min:1,max:6,placeholder:'2'},{k:'marque',l:'Marque / modèle',t:'text'},{k:'etancheite',l:'Étanchéité',t:'select',opts:['OK','Suintement','Fuite','À remplacer']}] },
+  refoulement: { icon:'🔧', title:'Refoulements',       unit:'',     fields:[{k:'nombre',l:'Nombre de refoulements',t:'integer',min:1,max:12,placeholder:'4'},{k:'emplacement',l:'Emplacement',t:'text',placeholder:'Fond + parois'},{k:'orientation',l:'Orientation',t:'select',opts:['Fixe','Orientable','Rotatif']}] },
+  pompe:       { icon:'⚙️', title:'Pompe',              unit:'',     fields:[{k:'marque',l:'Marque / modèle',t:'text'},{k:'puissance',l:'Puissance (kW)',t:'number',step:.01,placeholder:'0.55'},{k:'debit',l:'Débit (m³/h)',t:'number',step:.5,placeholder:'10'},{k:'age',l:'Âge (années)',t:'integer',min:0,max:30},{k:'etat',l:'État général',t:'select',opts:['Bon état','Bruit','Vibration','Fuite','Hs']},{k:'pression',l:'Pression manomètre (bar)',t:'number',step:.1}] },
+  filtre:      { icon:'🔵', title:'Filtre',             unit:'',     fields:[{k:'type',l:'Type',t:'select',opts:['Sable','Verre filtrant','Cartouche','Diatomées']},{k:'marque',l:'Marque / modèle',t:'text'},{k:'volume',l:'Volume filtrant (m³)',t:'number',step:.05,placeholder:'0.35'},{k:'pression',l:'Pression actuelle (bar)',t:'number',step:.05,placeholder:'0.8'},{k:'seuil',l:'Seuil contre-lavage (bar)',t:'number',step:.05,dfl:.5},{k:'media',l:'Média filtrant',t:'text',placeholder:'Sable 0,4–0,8 mm'}] },
+  electrolyse: { icon:'⚡', title:'Électrolyseur',      unit:'',     fields:[{k:'marque',l:'Marque / modèle',t:'text'},{k:'capacite',l:'Capacité (m³)',t:'number',step:5,placeholder:'60'},{k:'production',l:'Production réglée (%)',t:'number',step:1,min:0,max:100,placeholder:'60'},{k:'etat_cellule',l:'État cellule',t:'select',opts:['Propre','Tartrée légère','Tartrée forte','Défaillante','À remplacer']},{k:'age_cellule',l:'Âge cellule (années)',t:'integer',min:0,max:10}] },
+  pac:         { icon:'🌡️', title:'Pompe à chaleur',   unit:'',     fields:[{k:'marque',l:'Marque / modèle',t:'text'},{k:'puissance',l:'Puissance (kW)',t:'number',step:.5,placeholder:'12'},{k:'cop',l:'COP',t:'number',step:.1,placeholder:'5'},{k:'temp_consigne',l:'Température consigne (°C)',t:'number',step:.5,placeholder:'28'},{k:'etat',l:'État',t:'select',opts:['Fonctionnel','Bruit','Erreur affichée','Hors service']}] },
+  /* Dimensions / surfaces */
+  dimensions:  { icon:'📐', title:'Dimensions bassin',  unit:'',     fields:[{k:'longueur',l:'Longueur (m)',t:'number',step:.1,placeholder:'10'},{k:'largeur',l:'Largeur (m)',t:'number',step:.1,placeholder:'5'},{k:'prof_min',l:'Profondeur mini (m)',t:'number',step:.1,placeholder:'1.2'},{k:'prof_max',l:'Profondeur maxi (m)',t:'number',step:.1,placeholder:'2'},{k:'forme',l:'Forme',t:'select',opts:['Rectangulaire','Carré','L','Ovale','Haricot','Spa']}] },
+  surface:     { icon:'📐', title:'Surface / Volume',   unit:'m²',   fields:[{k:'surface',l:'Surface (m²)',t:'number',step:.5},{k:'volume',l:'Volume (m³)',t:'number',step:.5},{k:'plage',l:'Surface plage (m²)',t:'number',step:.5}] },
+  /* Traitements */
+  traitement:  { icon:'💊', title:'Traitement appliqué',unit:'',     fields:[{k:'produit',l:'Produit utilisé',t:'text'},{k:'dose',l:'Dose (g / mL / L)',t:'number',step:.1},{k:'dilution',l:'Dilution préalable',t:'select',opts:['Non','Oui 10%','Oui 50%']},{k:'heure',l:'Heure application',t:'time'},{k:'observations',l:'Observations',t:'textarea'}] },
+  /* Pression / débit */
+  pression:    { icon:'🔵', title:'Pression',           unit:'bar',  fields:[{k:'pression',l:'Pression (bar)',t:'number',step:.05,placeholder:'0.8'},{k:'alarme',l:'Seuil alarme (bar)',t:'number',step:.05,placeholder:'1.5'},{k:'etat',l:'État',t:'select',opts:['Normal','Élevée — contre-lavage requis','Basse — contrôler pompe']}] },
+  debit:       { icon:'💧', title:'Débit',              unit:'m³/h', fields:[{k:'debit',l:'Débit mesuré (m³/h)',t:'number',step:.5},{k:'debit_nominal',l:'Débit nominal (m³/h)',t:'number',step:.5},{k:'duree',l:'Durée filtration/jour (h)',t:'number',step:.5,placeholder:'8'}] },
+  /* Planning / dates */
+  date_prochaine: { icon:'📅', title:'Prochain passage',unit:'',    fields:[{k:'date',l:'Date prévue',t:'date'},{k:'type',l:'Type de passage',t:'select',opts:['Entretien standard','Analyse complète','Hivernage','Remise en route','Urgence']},{k:'technicien',l:'Technicien',t:'text'},{k:'notes',l:'Notes',t:'textarea'}] },
+  /* Première mise en eau */
+  mise_en_eau: { icon:'💧', title:'Première mise en eau',unit:'',   fields:[{k:'volume_rempli',l:'Volume rempli (m³)',t:'number',step:.5},{k:'duree_remplissage',l:'Durée remplissage (h)',t:'number',step:.5},{k:'turbidite',l:'Turbidité initiale',t:'select',opts:['Limpide','Légèrement trouble','Trouble']},{k:'choc_initial',l:'Choc chlore initial (g)',t:'number',step:50},{k:'ph_initial',l:'pH initial',t:'number',step:.01},{k:'sel_initial',l:'Sel initial (kg)',t:'number',step:5},{k:'floculation',l:'Floculation appliquée',t:'select',opts:['Non','Oui — floculant liquide','Oui — cartouche']},{k:'surveillance',l:'Durée surveillance (h)',t:'integer',min:1,max:72,placeholder:'24'},{k:'observations',l:'Observations',t:'textarea'}] },
+  /* Éclairage */
+  eclairage:   { icon:'💡', title:'Éclairage',          unit:'',     fields:[{k:'type',l:'Type',t:'select',opts:['LED RGB','LED blanc','Halogène (obsolète)','Fibre optique']},{k:'puissance',l:'Puissance (W)',t:'number',step:1},{k:'nombre',l:'Nombre',t:'integer',min:1,max:20},{k:'couleur',l:'Couleur / référence',t:'text'},{k:'etat',l:'État',t:'select',opts:['Fonctionnel','Défaillant','À remplacer']}] },
+  /* Alarme / sécurité */
+  alarme:      { icon:'🔔', title:'Alarme piscine',     unit:'',     fields:[{k:'type',l:'Type',t:'select',opts:['Détection de chute (immergé)','Détection de chute (barrière)','Barrière périmétrale','Couverture sécurisée']},{k:'marque',l:'Marque / modèle',t:'text'},{k:'norme',l:'Norme',t:'select',opts:['NF P 90-307 (chute)','NF P 90-308 (barrière)','NF P 90-306','Autre']},{k:'test',l:'Test fonctionnel',t:'select',opts:['OK','Défaillant — piles','Défaillant — capteur','Hors service']},{k:'date_test',l:'Date dernier test',t:'date'}] },
+  /* Revêtement */
+  revetement:  { icon:'🎨', title:'Revêtement',         unit:'',     fields:[{k:'type',l:'Type',t:'select',opts:['Liner PVC','Carrelage','Enduit hydraulique','Résine','Membrane armée','Béton brut']},{k:'age',l:'Âge (années)',t:'integer',min:0,max:30},{k:'etat',l:'État général',t:'select',opts:['Excellent','Bon','Usé','Fissuré','À remplacer']},{k:'surface',l:'Surface (m²)',t:'number',step:.5},{k:'couleur',l:'Couleur / référence',t:'text'}] },
+  /* Câblage / électrique */
+  electrique:  { icon:'⚡', title:'Installation électrique',unit:'', fields:[{k:'coffret',l:'Coffret IP',t:'select',opts:['IP65','IP66','IP54','Autre']},{k:'diff',l:'Disjoncteur différentiel 30mA',t:'select',opts:['Présent et testé','Présent — non testé','Absent']},{k:'equi',l:'Liaison équipotentielle',t:'select',opts:['Conforme','Non vérifiée','Non conforme']},{k:'section',l:'Section câbles (mm²)',t:'number',step:.5,placeholder:'2.5'},{k:'observations',l:'Observations',t:'textarea'}] },
+  /* Générique texte */
+  texte:       { icon:'✏️', title:'Informations',       unit:'',     fields:[{k:'valeur',l:'Valeur / Information',t:'text'},{k:'observations',l:'Observations',t:'textarea'}] },
+  /* Générique nombre */
+  nombre:      { icon:'🔢', title:'Quantité / Valeur',  unit:'',     fields:[{k:'valeur',l:'Valeur',t:'number',step:.01},{k:'unite',l:'Unité',t:'text'},{k:'observations',l:'Notes',t:'text'}] },
+};
+
+/* Détection automatique du schéma à partir du texte de l'item */
+function detectSchema(text) {
+  const t = text.toLowerCase();
+  if (t.match(/\bph\b.*(?:mesur|cible|7[,.]2)/)) return 'ph';
+  if (t.match(/\btac\b|alcalinité/)) return 'tac';
+  if (t.match(/\bth\b|dureté/)) return 'th';
+  if (t.match(/chlore/)) return 'chlore';
+  if (t.match(/\bsel\b.*(?:électrolys|g\/l|mesur)/)) return 'sel';
+  if (t.match(/cyanurate/)) return 'cyanurate';
+  if (t.match(/phosphate/)) return 'phosphates';
+  if (t.match(/température.*eau|°c/)) return 'temperature';
+  if (t.match(/\borp\b|redox/)) return 'orp';
+  if (t.match(/skimmer/)) return 'skimmer';
+  if (t.match(/bonde.*fond|fond.*bonde/)) return 'bonde';
+  if (t.match(/refoulement/)) return 'refoulement';
+  if (t.match(/pompe.*(?:marque|modèle|kw|m³\/h|puissance|âge)/)) return 'pompe';
+  if (t.match(/filtre.*(?:sable|cartouche|volume|média|pression)/)) return 'filtre';
+  if (t.match(/électrolyseur|electrolyse/)) return 'electrolyse';
+  if (t.match(/pompe à chaleur|pac\b/)) return 'pac';
+  if (t.match(/dimensions?.*(?:l\s*[×x]|prof)/i) || t.match(/l\s*[×x]\s*l\s*[×x]\s*prof/i)) return 'dimensions';
+  if (t.match(/surface.*m²|volume.*m³/)) return 'surface';
+  if (t.match(/pression.*(?:manomètre|bar)/)) return 'pression';
+  if (t.match(/débit.*m³\/h/)) return 'debit';
+  if (t.match(/prochain.*passage|prochain.*contre-lavage|prochaine.*visite/)) return 'date_prochaine';
+  if (t.match(/première mise en eau|mise en eau.*contrôlée|remplissage.*contrôlé/)) return 'mise_en_eau';
+  if (t.match(/projecteur|éclairage|led.*subaquatique/)) return 'eclairage';
+  if (t.match(/alarme.*piscine|détection/)) return 'alarme';
+  if (t.match(/revêtement|liner|carrelage/)) return 'revetement';
+  if (t.match(/coffret|disjoncteur|équipotentielle|câbl/)) return 'electrique';
+  if (t.match(/traitement.*(?:correctif|appliqué|choc)|choc.*chlore|algicide|floculant/)) return 'traitement';
+  if (t.match(/nombre\s*[_:]/i) || t.match(/nombre\s+___/i)) return 'nombre';
+  if (t.match(/______+|___\s*$/)) return 'texte';
+  return null;
+}
+
+/* ═══════════════════════════════════════════════════
+   ItemDetailModal — fenêtre d'encodage contextuelle
+═══════════════════════════════════════════════════ */
+function ItemDetailModal({ item, schemaKey, savedValues, onSave, onClose }) {
+  const schema = ITEM_SCHEMAS[schemaKey] || ITEM_SCHEMAS.texte;
+  const [vals, setVals] = useState(() => {
+    const init = {};
+    schema.fields.forEach(f => { init[f.k] = (savedValues && savedValues[f.k] !== undefined) ? savedValues[f.k] : (f.dfl || ''); });
+    return init;
+  });
+
+  function set(k, v) { setVals(s => ({...s, [k]: v})); }
+
+  /* Calculs dérivés en temps réel */
+  const derived = {};
+  if (schemaKey === 'dimensions' && vals.longueur && vals.largeur) {
+    derived.surface = (parseFloat(vals.longueur) * parseFloat(vals.largeur)).toFixed(1);
+    if (vals.prof_max) derived.volume = (parseFloat(vals.longueur) * parseFloat(vals.largeur) * parseFloat(vals.prof_max) * 0.8).toFixed(1);
+  }
+  if (schemaKey === 'ph' || schemaKey === 'tac' || schemaKey === 'th' || schemaKey === 'sel') {
+    const mesure = parseFloat(vals.mesure || vals.mesure);
+    if (!isNaN(mesure)) {
+      const ranges = {ph:[7.2,7.6], tac:[80,120], th:[150,300], sel:[4.5,5.5]};
+      const r = ranges[schemaKey];
+      if (r) derived.statut = mesure < r[0] ? '📉 En dessous — correction nécessaire' : mesure > r[1] ? '📈 Au-dessus — correction nécessaire' : '✅ Dans la plage cible';
+    }
+  }
+
+  const IS = {width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,padding:'9px 12px',fontFamily:'inherit',fontSize:13,outline:'none',boxSizing:'border-box'};
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.55)',zIndex:9998,display:'flex',alignItems:'center',justifyContent:'center',padding:8}}>
+      <div style={{background:'#fff',borderRadius:16,width:'min(620px,100%)',maxHeight:'90vh',display:'flex',flexDirection:'column',boxShadow:'0 24px 80px rgba(0,0,0,.25)',overflow:'hidden'}}>
+        {/* Header */}
+        <div style={{background:'#0ea5e9',padding:'14px 18px',display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
+          <span style={{fontSize:22}}>{schema.icon}</span>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:800,fontSize:16,color:'#fff'}}>{schema.title}</div>
+            <div style={{fontSize:11,color:'rgba(255,255,255,.75)',marginTop:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item}</div>
+          </div>
+          <button onClick={onClose} style={{background:'rgba(255,255,255,.2)',border:'none',borderRadius:7,padding:'5px 12px',cursor:'pointer',fontSize:13,color:'#fff'}}>✕</button>
+        </div>
+        {/* Corps */}
+        <div style={{overflowY:'auto',padding:'18px 20px',display:'flex',flexDirection:'column',gap:14}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            {schema.fields.map(f => (
+              <div key={f.k} style={{gridColumn:f.t==='textarea'?'1/-1':undefined}}>
+                <label style={{fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:'.4px',display:'block',marginBottom:4}}>{f.l}{f.unit?` (${f.unit})`:''}</label>
+                {f.t === 'select' ? (
+                  <select value={vals[f.k]||''} onChange={e=>set(f.k,e.target.value)} style={{...IS,background:'#fff',cursor:'pointer'}}>
+                    <option value="">— Choisir —</option>
+                    {(f.opts||[]).map(o=><option key={o} value={o}>{o}</option>)}
+                  </select>
+                ) : f.t === 'textarea' ? (
+                  <textarea value={vals[f.k]||''} onChange={e=>set(f.k,e.target.value)} rows={3} placeholder={f.placeholder||''} style={{...IS,resize:'vertical',lineHeight:1.5}} />
+                ) : (
+                  <input type={f.t==='integer'?'number':f.t||'text'} value={vals[f.k]||''} onChange={e=>set(f.k,e.target.value)}
+                    readOnly={f.ro} min={f.min} max={f.max} step={f.step} placeholder={f.placeholder||f.dfl||''}
+                    style={{...IS,background:f.ro?'#f8fafc':'#fff',color:f.ro?'#94a3b8':'#1e293b'}} />
+                )}
+              </div>
+            ))}
+          </div>
+          {/* Calculs dérivés */}
+          {Object.keys(derived).length > 0 && (
+            <div style={{background:'#eff9ff',borderRadius:10,padding:'12px 16px',display:'flex',gap:16,flexWrap:'wrap'}}>
+              {derived.surface && <div style={{fontSize:13,color:'#0369a1'}}><strong>Surface :</strong> {derived.surface} m²</div>}
+              {derived.volume  && <div style={{fontSize:13,color:'#0369a1'}}><strong>Volume estimé :</strong> {derived.volume} m³</div>}
+              {derived.statut  && <div style={{fontSize:13,fontWeight:600,color:derived.statut.startsWith('✅')?'#16a34a':'#e24b4a'}}>{derived.statut}</div>}
+            </div>
+          )}
+        </div>
+        {/* Footer */}
+        <div style={{padding:'12px 20px',borderTop:'1px solid #f0f4f8',display:'flex',justifyContent:'flex-end',gap:9,flexShrink:0}}>
+          <button onClick={onClose} style={{background:'none',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'8px 18px',cursor:'pointer',fontSize:13,color:'#475569',fontWeight:600}}>Annuler</button>
+          <button onClick={()=>onSave(vals)} style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:9,padding:'8px 22px',fontWeight:700,fontSize:13,cursor:'pointer'}}>💾 Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   PlanningModal — planning prévisionnel par type
+═══════════════════════════════════════════════════ */
+const PLANNING_TEMPLATES = {
+  construction: [
+    {phase:'Études & préparation',    days:7,  color:'#7c3aed', tasks:['Étude de sol','Validation devis','Obtention permis','Commande matériaux']},
+    {phase:'Terrassement & VRD',      days:5,  color:'#0ea5e9', tasks:['Terrassement','Voirie & réseaux','Coffrage fond']},
+    {phase:'Génie civil',             days:10, color:'#0369a1', tasks:['Coulage béton','Pose armatures','Étanchéité primaire']},
+    {phase:'Plomberie & hydraulique', days:5,  color:'#16a34a', tasks:['Tuyauteries','Pose skimmers & bondes','Raccordements']},
+    {phase:'Électricité & éclairage', days:4,  color:'#f59e0b', tasks:['Câblage','Coffret IP65','Projecteurs LED','Équipotentielle']},
+    {phase:'Revêtement & finitions',  days:6,  color:'#ef4444', tasks:['Pose liner/carrelage','Margelles','Plage','Douche']},
+    {phase:'Équipements filtration',  days:3,  color:'#8b5cf6', tasks:['Local technique','Pompe/filtre','Électrolyseur']},
+    {phase:'Mise en eau & réglages',  days:3,  color:'#0ea5e9', tasks:['Remplissage','Analyses','Paramétrage','Formation client']},
+  ],
+  renovation: [
+    {phase:'Diagnostic complet',      days:1,  color:'#7c3aed', tasks:['Inspection structure','Test étanchéité','Rapport diagnostic']},
+    {phase:'Vidange & préparation',   days:2,  color:'#0ea5e9', tasks:['Vidange bassin','Nettoyage fond','Dépose revêtement']},
+    {phase:'Travaux structure',       days:5,  color:'#ef4444', tasks:['Reprise fissures','Traitement armatures','Enduit de fond']},
+    {phase:'Nouveau revêtement',      days:4,  color:'#16a34a', tasks:['Pose liner/carrelage/résine','Scellements','Joints']},
+    {phase:'Équipements',             days:3,  color:'#f59e0b', tasks:['Pompe','Filtre','Électrolyseur','Éclairage']},
+    {phase:'Remise en eau',           days:2,  color:'#0369a1', tasks:['Remplissage','Analyses','Réglages','Réception']},
+  ],
+  entretien: [
+    {phase:'Analyse & mesures',       days:0.1, color:'#0ea5e9', tasks:['pH, TAC, TH, Chlore','Sel, Cyanurate, Phosphates','Turbidité']},
+    {phase:'Nettoyage',               days:0.2, color:'#16a34a', tasks:['Aspiration fond','Brossage parois','Skimmers & préfiltre']},
+    {phase:'Filtration',              days:0.1, color:'#7c3aed', tasks:['Contre-lavage si nécessaire','Vérif équipements']},
+    {phase:'Traitements correctifs',  days:0.1, color:'#f59e0b', tasks:['Corrections mesures','Choc chlore si besoin']},
+    {phase:'Rapport',                 days:0.1, color:'#64748b', tasks:['Rapport envoyé client','Recommandations']},
+  ],
+  hivernage: [
+    {phase:'Traitement eau',          days:1,  color:'#0ea5e9', tasks:['Analyse complète','Choc chlore','Algicide hivernage']},
+    {phase:'Mise hors service',       days:1,  color:'#64748b', tasks:['Vidange pompe/filtre','Tuyauteries','Débranchement']},
+    {phase:'Protection gel',          days:0.5,color:'#3b82f6', tasks:['Flotteurs anti-gel','Isolation','Local technique']},
+    {phase:'Couverture & sécurité',   days:0.5,color:'#8b5cf6', tasks:['Pose couverture','Filet','Alarme']},
+  ],
+  remise_en_route: [
+    {phase:'Nettoyage général',       days:0.5,color:'#16a34a', tasks:['Retrait couverture','Nettoyage bassin','Local technique']},
+    {phase:'Remontage équipements',   days:1,  color:'#0ea5e9', tasks:['Pompe','Sondes','Électrolyseur','Raccordements']},
+    {phase:'Mise en eau',             days:1,  color:'#0369a1', tasks:['Remplissage','Test étanchéité']},
+    {phase:'Analyses & réglages',     days:1,  color:'#f59e0b', tasks:['Analyses complètes','Réglages équipements','Filtration 48h']},
+  ],
+  materiel: [
+    {phase:'Commande fournisseur',    days:5,  color:'#7c3aed', tasks:['Confirmation devis','Bon de commande','Confirmation délai']},
+    {phase:'Réception matériel',      days:1,  color:'#0ea5e9', tasks:['Contrôle livraison','Vérification conformité']},
+    {phase:'Démontage ancien',        days:0.5,color:'#ef4444', tasks:["Dépose ancien matériel","Mise hors service","Évacuation"]},
+    {phase:'Installation',            days:1,  color:'#16a34a', tasks:['Pose nouveau matériel','Raccordements','Câblage']},
+    {phase:'Mise en service',         days:0.5,color:'#f59e0b', tasks:['Tests','Réglages','Formation client','Réception']},
+  ],
+};
+
+function PlanningModal({ type, clientName, startDate, onClose }) {
+  const template = PLANNING_TEMPLATES[type] || PLANNING_TEMPLATES.entretien;
+  const [start, setStart] = useState(startDate || new Date().toISOString().split('T')[0]);
+  const [notes, setNotes] = useState('');
+
+  const totalDays = template.reduce((a,p) => a + p.days, 0);
+
+  /* Calculer les dates de chaque phase */
+  const phases = [];
+  let cursor = new Date(start);
+  template.forEach(p => {
+    const s = new Date(cursor);
+    const e = new Date(cursor);
+    e.setDate(e.getDate() + Math.ceil(p.days));
+    // Sauter les week-ends
+    while (e.getDay() === 0 || e.getDay() === 6) e.setDate(e.getDate() + 1);
+    phases.push({...p, startDate: new Date(s), endDate: new Date(e)});
+    cursor = new Date(e);
+    cursor.setDate(cursor.getDate() + 1);
+  });
+
+  const projectEnd = phases[phases.length-1]?.endDate;
+  const fmt = d => d?.toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'2-digit'}) || '';
+
+  function exportPDF() { window.print(); }
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.55)',zIndex:9997,display:'flex',alignItems:'center',justifyContent:'center',padding:8}}>
+      <div style={{background:'#f8fafc',borderRadius:16,width:'min(820px,100%)',maxHeight:'92vh',display:'flex',flexDirection:'column',boxShadow:'0 28px 90px rgba(0,0,0,.25)',overflow:'hidden'}}>
+
+        {/* Header */}
+        <div style={{background:'#1e293b',padding:'14px 20px',display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
+          <span style={{fontSize:24}}>📅</span>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:800,fontSize:16,color:'#fff'}}>Planning prévisionnel</div>
+            <div style={{fontSize:11,color:'rgba(255,255,255,.6)',marginTop:1}}>{clientName||'Client'} · {totalDays} jours ouvrés · Fin estimée : {fmt(projectEnd)}</div>
+          </div>
+          <button onClick={exportPDF} style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.3)',borderRadius:7,padding:'5px 12px',cursor:'pointer',fontSize:12,color:'#fff'}}>🖨️ PDF</button>
+          <button onClick={onClose} style={{background:'rgba(255,255,255,.2)',border:'none',borderRadius:7,padding:'5px 12px',cursor:'pointer',fontSize:13,color:'#fff'}}>✕</button>
+        </div>
+
+        <div style={{overflowY:'auto',flex:1,padding:'18px 20px'}}>
+
+          {/* Date de début */}
+          <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',padding:'14px 18px',marginBottom:16,display:'flex',gap:16,alignItems:'center',flexWrap:'wrap'}}>
+            <div>
+              <label style={{fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:'.4px',display:'block',marginBottom:4}}>Date de début</label>
+              <input type="date" value={start} onChange={e=>setStart(e.target.value)}
+                style={{border:'1.5px solid #dde4ed',borderRadius:8,padding:'7px 12px',fontFamily:'inherit',fontSize:14,outline:'none'}} />
+            </div>
+            <div style={{flex:1,display:'flex',gap:10,flexWrap:'wrap'}}>
+              <div style={{background:'#eff9ff',borderRadius:9,padding:'8px 14px',fontSize:12}}>
+                <div style={{fontWeight:700,color:'#0369a1'}}>Début</div>
+                <div style={{color:'#475569'}}>{fmt(new Date(start))}</div>
+              </div>
+              <div style={{background:'#f0fdf4',borderRadius:9,padding:'8px 14px',fontSize:12}}>
+                <div style={{fontWeight:700,color:'#16a34a'}}>Fin estimée</div>
+                <div style={{color:'#475569'}}>{fmt(projectEnd)}</div>
+              </div>
+              <div style={{background:'#f8fafc',borderRadius:9,padding:'8px 14px',fontSize:12}}>
+                <div style={{fontWeight:700,color:'#475569'}}>Durée totale</div>
+                <div style={{color:'#64748b'}}>{totalDays} jours ouvrés</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Gantt simplifié */}
+          <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',marginBottom:16,overflow:'hidden'}}>
+            <div style={{background:'#f8fafc',padding:'10px 16px',borderBottom:'1px solid #e2e8f0',fontWeight:700,fontSize:13,color:'#1e293b',display:'flex',gap:16}}>
+              <span style={{width:180,flexShrink:0}}>Phase</span>
+              <span style={{flex:1}}>Timeline</span>
+              <span style={{width:140,textAlign:'right',flexShrink:0}}>Dates</span>
+            </div>
+            {phases.map((p,i)=>{
+              const pct = Math.max(5, Math.round(p.days / totalDays * 100));
+              return (
+                <div key={i} style={{borderTop:i>0?'1px solid #f8fafc':'none',padding:'10px 16px',display:'flex',gap:16,alignItems:'center'}}>
+                  <div style={{width:180,flexShrink:0}}>
+                    <div style={{fontWeight:600,fontSize:13,color:'#1e293b'}}>{p.phase}</div>
+                    <div style={{fontSize:11,color:'#94a3b8',marginTop:1}}>{p.days < 1 ? Math.round(p.days*8)+'h' : p.days+' j'}</div>
+                  </div>
+                  <div style={{flex:1,display:'flex',alignItems:'center',gap:6}}>
+                    <div style={{height:20,background:p.color,borderRadius:4,width:`${pct}%`,minWidth:30,display:'flex',alignItems:'center',padding:'0 8px'}}>
+                      <span style={{fontSize:10,color:'#fff',fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{p.days < 1 ? '' : p.phase.split(' ')[0]}</span>
+                    </div>
+                  </div>
+                  <div style={{width:140,textAlign:'right',fontSize:11,color:'#64748b',flexShrink:0}}>
+                    {fmt(p.startDate)} → {fmt(p.endDate)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Détail des tâches par phase */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(250px,1fr))',gap:10,marginBottom:16}}>
+            {phases.map((p,i)=>(
+              <div key={i} style={{background:'#fff',borderRadius:11,border:'1.5px solid #e2e8f0',overflow:'hidden'}}>
+                <div style={{background:p.color,padding:'8px 12px',display:'flex',alignItems:'center',gap:8}}>
+                  <div style={{flex:1,fontWeight:700,fontSize:12,color:'#fff'}}>{p.phase}</div>
+                  <div style={{fontSize:10,color:'rgba(255,255,255,.8)',background:'rgba(255,255,255,.15)',borderRadius:4,padding:'2px 6px',whiteSpace:'nowrap'}}>{fmt(p.startDate)}</div>
+                </div>
+                <div style={{padding:'8px 12px'}}>
+                  {(p.tasks||[]).map((t,j)=>(
+                    <div key={j} style={{fontSize:12,color:'#475569',padding:'3px 0',display:'flex',alignItems:'center',gap:7,borderBottom:j<p.tasks.length-1?'1px solid #f8fafc':'none'}}>
+                      <div style={{width:6,height:6,borderRadius:'50%',background:p.color,flexShrink:0}} />
+                      {t}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Notes */}
+          <div style={{background:'#fff',borderRadius:12,border:'1.5px solid #e2e8f0',padding:'14px 18px'}}>
+            <div style={{fontWeight:700,fontSize:13,color:'#1e293b',marginBottom:8}}>📝 Notes & conditions particulières</div>
+            <textarea value={notes} onChange={e=>setNotes(e.target.value)} rows={3}
+              placeholder="Conditions d'accès, contraintes météo, disponibilités client, matériaux à confirmer…"
+              style={{width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,padding:'10px 12px',fontFamily:'inherit',fontSize:13,outline:'none',resize:'vertical',lineHeight:1.5,boxSizing:'border-box'}} />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{padding:'12px 20px',borderTop:'1px solid #e2e8f0',background:'#fff',display:'flex',justifyContent:'flex-end',gap:9,flexShrink:0}}>
+          <button onClick={onClose} style={{background:'none',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'8px 18px',cursor:'pointer',fontSize:13,color:'#475569',fontWeight:600}}>Fermer</button>
+          <button onClick={exportPDF} style={{background:'#1e293b',color:'#fff',border:'none',borderRadius:9,padding:'8px 22px',fontWeight:700,fontSize:13,cursor:'pointer'}}>🖨️ Imprimer le planning</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════════════
    SectionBlock — ring progress + badges colorés + photo
 ═══════════════════════════════════════════════════ */
-function SectionBlock({ section, items, state, onSetState, onOpenProducts, filterStatus }) {
+function SectionBlock({ section, items, state, onSetState, onOpenProducts, filterStatus, itemData, onSetItemData }) {
   const [open,setOpen]=useState(true);
   const [notes,setNotes]=useState({});
   const [photos,setPhotos]=useState({});
+  const [detailModal,setDetailModal]=useState(null); /* {itemIdx, item, schemaKey} */
+  const [quantities,setQuantities]=useState({}); /* quantités inline */
   const fileInputRefs=useRef({});
   const done=items.filter((_,i)=>(state[i]||'')!=='').length;
   const nOk=items.filter((_,i)=>state[i]==='ok').length;
@@ -611,7 +970,15 @@ function SectionBlock({ section, items, state, onSetState, onOpenProducts, filte
           const textColor=s==='ok'?'#3b6d11':s==='warn'?'#854f0b':s==='bad'?'#a32d2d':'#334155';
           const photoList=photos[i]||[];
           return(
-            <div key={i} style={{padding:'6px 14px 6px 11px',borderTop:'1px solid #f8fafc',display:'flex',alignItems:'center',gap:7,borderLeft:`3px solid ${borderColor}`,background:bgColor,transition:'all .2s'}}>
+            {(() => {
+              const schemaKey = detectSchema(item);
+              const hasData = itemData && itemData[i] && Object.values(itemData[i]).some(v => v !== '' && v !== undefined);
+              /* Résumé des valeurs saisies */
+              const dataSummary = hasData ? Object.entries(itemData[i]).filter(([k,v])=>v&&v!=='').slice(0,3).map(([k,v])=>`${v}`).join(' · ') : null;
+              /* Quantité inline pour items "nombre ___" */
+              const isCountItem = item.toLowerCase().match(/nombre\s*[_:]/i);
+              return (
+            <div key={i} style={{padding:'6px 14px 6px 11px',borderTop:'1px solid #f8fafc',display:'flex',alignItems:'center',gap:7,borderLeft:`3px solid ${borderColor}`,background:bgColor,transition:'all .2s',flexWrap:'nowrap'}}>
               <input type="checkbox" checked={s!==''} onChange={()=>onSetState(i,s?null:'ok')} style={{width:14,height:14,accentColor:'#0ea5e9',cursor:'pointer',flexShrink:0}} />
               <button title="OK / Conforme" onClick={()=>onSetState(i,s==='ok'?null:'ok')}
                 style={{width:22,height:22,borderRadius:5,border:'none',cursor:'pointer',fontSize:13,background:s==='ok'?'#16a34a':'#f0fdf4',transition:'all .15s',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>✅</button>
@@ -619,22 +986,39 @@ function SectionBlock({ section, items, state, onSetState, onOpenProducts, filte
                 style={{width:22,height:22,borderRadius:5,border:'none',cursor:'pointer',fontSize:13,background:s==='warn'?'#f59e0b':'#fffbeb',transition:'all .15s',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>⚠️</button>
               <button title="Problème / Non conforme" onClick={()=>onSetState(i,s==='bad'?null:'bad')}
                 style={{width:22,height:22,borderRadius:5,border:'none',cursor:'pointer',fontSize:13,background:s==='bad'?'#ef4444':'#fef2f2',transition:'all .15s',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>❌</button>
-              <span style={{flex:1,fontSize:12.5,color:textColor,textDecoration:s==='ok'?'line-through':'none',lineHeight:1.4}}>{item}</span>
+              {/* Texte item + résumé données */}
+              <div style={{flex:1,minWidth:0}}>
+                <span style={{fontSize:12.5,color:textColor,textDecoration:s==='ok'?'line-through':'none',lineHeight:1.4}}>{item.replace(/_{3,}/g,'').replace(/:\s*$/,'').trim()}</span>
+                {dataSummary&&<div style={{fontSize:10,color:s==='ok'?'#16a34a':s==='warn'?'#f59e0b':s==='bad'?'#ef4444':'#0ea5e9',marginTop:1,fontWeight:600}}>→ {dataSummary}</div>}
+              </div>
+              {/* Quantité inline */}
+              {isCountItem&&(
+                <input type="number" min={0} max={99} value={quantities[i]||''} onChange={e=>setQuantities(q=>({...q,[i]:e.target.value}))}
+                  placeholder="Nb" onClick={e=>e.stopPropagation()}
+                  style={{width:50,border:`1.5px solid ${borderColor==='#e2e8f0'?'#e2e8f0':borderColor}`,borderRadius:6,padding:'2px 6px',fontFamily:'inherit',fontSize:12,textAlign:'center',outline:'none',flexShrink:0}} />
+              )}
+              {/* Bouton 📝 encodage détaillé */}
+              {schemaKey&&(
+                <button title="Encoder les informations" onClick={e=>{e.stopPropagation();setDetailModal({itemIdx:i,item,schemaKey});}}
+                  style={{background:hasData?'#eff9ff':'none',border:`1.5px solid ${hasData?'#0ea5e9':'#e2e8f0'}`,borderRadius:5,padding:'2px 8px',cursor:'pointer',fontSize:12,color:hasData?'#0ea5e9':'#94a3b8',flexShrink:0,fontWeight:hasData?700:400}}>
+                  {hasData?'📝 ✓':'📝'}
+                </button>
+              )}
               {/* Photo */}
-              <button title="Ajouter une photo" onClick={()=>fileInputRefs.current[i]?.click()}
+              <button title="Ajouter une photo" onClick={e=>{e.stopPropagation();fileInputRefs.current[i]?.click();}}
                 style={{background:photoList.length>0?'#eff9ff':'none',border:`1px solid ${photoList.length>0?'#0ea5e9':'#e2e8f0'}`,borderRadius:5,padding:'2px 7px',cursor:'pointer',fontSize:11,color:photoList.length>0?'#0ea5e9':'#94a3b8',flexShrink:0,whiteSpace:'nowrap'}}>
                 📷{photoList.length>0?` ${photoList.length}`:''}
               </button>
               <input ref={el=>fileInputRefs.current[i]=el} type="file" accept="image/*" capture="environment" onChange={e=>handlePhoto(i,e)} style={{display:'none'}} />
               {/* Produits */}
-              <button title="Produits associés" onClick={()=>onOpenProducts(item,section)}
+              <button title="Produits associés" onClick={e=>{e.stopPropagation();onOpenProducts(item,section);}}
                 style={{background:s==='bad'?'#fef2f2':s==='warn'?'#fffbeb':'none',border:`1px solid ${s==='bad'?'#fca5a5':s==='warn'?'#fcd34d':'#e2e8f0'}`,borderRadius:5,padding:'2px 7px',cursor:'pointer',fontSize:13,color:s==='bad'?'#ef4444':s==='warn'?'#f59e0b':'#94a3b8',flexShrink:0}}>🛒</button>
               {/* Note */}
               <input value={notes[i]||''} onChange={e=>setNotes(n=>({...n,[i]:e.target.value}))} placeholder="Note…"
-                style={{width:90,border:`1px solid ${s==='bad'?'#fca5a5':s==='warn'?'#fcd34d':'#e8edf3'}`,borderRadius:5,padding:'2px 7px',fontFamily:'inherit',fontSize:11,outline:'none',color:textColor,background:'transparent',flexShrink:0}} onClick={e=>e.stopPropagation()} />
+                style={{width:80,border:`1px solid ${s==='bad'?'#fca5a5':s==='warn'?'#fcd34d':'#e8edf3'}`,borderRadius:5,padding:'2px 7px',fontFamily:'inherit',fontSize:11,outline:'none',color:textColor,background:'transparent',flexShrink:0}} onClick={e=>e.stopPropagation()} />
             </div>
-          );
-        })}
+              );
+            })()}
         {photos&&Object.keys(photos).some(k=>photos[k]?.length>0)&&(
           <div style={{padding:'8px 14px',borderTop:'1px solid #f0f4f8',display:'flex',gap:6,flexWrap:'wrap'}}>
             {Object.entries(photos).flatMap(([k,imgs])=>imgs.map((src,j)=>(
@@ -643,6 +1027,19 @@ function SectionBlock({ section, items, state, onSetState, onOpenProducts, filte
           </div>
         )}
       </div>)}
+      {detailModal&&(
+        <ItemDetailModal
+          item={detailModal.item}
+          schemaKey={detailModal.schemaKey}
+          savedValues={itemData&&itemData[detailModal.itemIdx]}
+          onSave={vals=>{
+            if(onSetItemData)onSetItemData(detailModal.itemIdx,vals);
+            if(state[detailModal.itemIdx]==='')onSetState(detailModal.itemIdx,'ok');
+            setDetailModal(null);
+          }}
+          onClose={()=>setDetailModal(null)}
+        />
+      )}
     </div>
   );
 }
@@ -859,6 +1256,8 @@ function PoolChecklist() {
   const [showHistory, setShowHistory] = useState(false);
   const [obs, setObs]           = useState('');
   const [statut, setStatut]     = useState('en_cours');
+  const [itemData,setItemData]  = useState({});
+  const [showPlanning,setShowPlanning] = useState(false);
   const [signClient, setSignClient] = useState('');
   const [signTech, setSignTech] = useState('');
   const [saved, setSaved]       = useState(false);
@@ -901,7 +1300,7 @@ function PoolChecklist() {
   function saveToHistory(){
     try{
       const s=JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
-      s.push({type,clientType,prenom,nom,email,telephone,codePostal,adresseChantier,denomination,tvaNum,refDossier,technicien,date,basinShape,basinL,basinW,basinD,basinNotes,itemState,products,obs,statut,signClient,signTech,savedAt:new Date().toISOString()});
+      s.push({type,clientType,prenom,nom,email,telephone,codePostal,adresseChantier,denomination,tvaNum,refDossier,technicien,date,basinShape,basinL,basinW,basinD,basinNotes,itemState,itemData,products,obs,statut,signClient,signTech,savedAt:new Date().toISOString()});
       localStorage.setItem('pool_checklist_history',JSON.stringify(s.slice(-50)));
       setSaved(true);setTimeout(()=>setSaved(false),2500);
     }catch(e){alert('Erreur: '+e.message);}
@@ -913,7 +1312,7 @@ function PoolChecklist() {
     setDenomination(r.denomination||'');setTvaNum(r.tvaNum||'');setRefDossier(r.refDossier||'');
     setTechnicien(r.technicien||'');setDate(r.date||new Date().toISOString().split('T')[0]);
     setBasinShape(r.basinShape||'');setBasinL(r.basinL||'');setBasinW(r.basinW||'');setBasinD(r.basinD||'');setBasinNotes(r.basinNotes||'');
-    setItemState(r.itemState||{});setProducts(r.products||[]);setObs(r.obs||'');
+    setItemState(r.itemState||{});setItemData(r.itemData||{});setProducts(r.products||[]);setObs(r.obs||'');
     setStatut(r.statut||'en_cours');setSignClient(r.signClient||'');setSignTech(r.signTech||'');
   }
   function reset(){if(!confirm('Réinitialiser toute la fiche ?'))return;setStep(1);setType('');setPrenom('');setNom('');setEmail('');setTelephone('');setCodePostal('');setAdresseChantier('');setDenomination('');setTvaNum('');setRefDossier('');setTechnicien('');setDate(new Date().toISOString().split('T')[0]);setBasinShape('');setBasinL('');setBasinW('');setBasinD('');setBasinNotes('');setItemState({});setProducts([]);setObs('');setStatut('en_cours');setSignClient('');setSignTech('');setSaved(false);}
@@ -942,6 +1341,7 @@ function PoolChecklist() {
           <div style={{fontSize:12,color:'#94a3b8',marginTop:1}}>Diagnostic · intervention · produits liés · devis estimatif</div>
         </div>
         <div style={{display:'flex',gap:8,flexShrink:0}}>
+          <button onClick={()=>setShowPlanning(true)} style={{background:'rgba(255,255,255,.15)',color:'#fff',border:'1.5px solid rgba(255,255,255,.4)',borderRadius:8,padding:'6px 12px',cursor:'pointer',fontWeight:600,fontSize:12}}>📅 Planning</button>
           <button onClick={()=>setShowHistory(true)} style={{background:'#f1f5f9',color:'#475569',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'7px 13px',cursor:'pointer',fontWeight:600,fontSize:12}}>📁 Historique</button>
           <button onClick={saveToHistory} style={{background:saved?'#16a34a':'#f1f5f9',color:saved?'#fff':'#475569',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'7px 13px',cursor:'pointer',fontWeight:600,fontSize:12,transition:'all .3s'}}>{saved?'✅ Sauvegardé':'💾 Sauvegarder'}</button>
           {lastSaved&&<span style={{fontSize:11,color:'#16a34a',display:'flex',alignItems:'center',gap:4,background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:8,padding:'4px 9px',whiteSpace:'nowrap'}}><span style={{width:6,height:6,borderRadius:'50%',background:'#16a34a',display:'inline-block'}}/>Auto {Math.round((Date.now()-lastSaved)/1000)}s</span>}
@@ -1165,7 +1565,9 @@ function PoolChecklist() {
                     onSetState={(ii,val)=>setItemSt(si,ii,val)}
                     onOpenProducts={(item,sec)=>setPanel({item,sectionLabel:sec})}
                     filterStatus={filter4}
-                    searchText={search4} />
+                    searchText={search4}
+                    itemData={Object.fromEntries(s.items.map((_,ii)=>[ii,itemData[`${si}_${ii}`]]))}
+                    onSetItemData={(ii,vals)=>setItemData(d=>({...d,[`${si}_${ii}`]:vals}))} />
                 );
               })}
 
@@ -1272,6 +1674,8 @@ function PoolChecklist() {
       </div>
 
       {/* Modals */}
+      {showPlanning&&<PlanningModal type={type} clientName={[prenom,nom].filter(Boolean).join(' ')||denomination||'Client'} startDate={date} onClose={()=>setShowPlanning(false)} />
+      }
       {panel&&<ProductPanel item={panel.item} sectionLabel={panel.sectionLabel} onAdd={handleAddProducts} onClose={()=>setPanel(null)} />}
       {showQuote&&<QuoteModal products={products} clientInfo={clientInfo} onClose={()=>setShowQuote(false)} onCreated={()=>{}} />}
       {showHistory&&<HistoryModal onClose={()=>setShowHistory(false)} onLoad={loadRecord} />}
