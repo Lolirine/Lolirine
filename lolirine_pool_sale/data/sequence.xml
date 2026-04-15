@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Séquence PSC/AAAA/XXXXX pour les devis piscine -->
+    <record id="seq_pool_sale_order" model="ir.sequence">
+        <field name="name">Devis Piscine Lolirine</field>
+        <field name="code">lolirine.pool.sale.order</field>
+        <field name="prefix">PSC/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="number_next">1</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="use_date_range" eval="True"/>
+    </record>
+
+</odoo>
