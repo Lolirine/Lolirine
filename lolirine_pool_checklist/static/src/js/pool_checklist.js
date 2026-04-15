@@ -73,6 +73,13 @@ const INTERVENTION_TYPES = [
   { key:"materiel",        icon:"⚙️", label:"Changement de matériel",  color:"#ef4444" },
 ];
 
+const PAYS_OPTIONS = [
+  {k:'BE',l:'🇧🇪 Belgique'},{k:'LU',l:'🇱🇺 Luxembourg'},{k:'FR',l:'🇫🇷 France'},
+  {k:'NL',l:'🇳🇱 Pays-Bas'},{k:'DE',l:'🇩🇪 Allemagne'},{k:'GB',l:'🇬🇧 Royaume-Uni'},
+  {k:'ES',l:'🇪🇸 Espagne'},{k:'IT',l:'🇮🇹 Italie'},{k:'PT',l:'🇵🇹 Portugal'},
+  {k:'CH',l:'🇨🇭 Suisse'},{k:'OTHER',l:'🌍 Autre'},
+];
+
 const BASIN_SHAPES = [
   { key:"rectangulaire", icon:"⬜", label:"Rectangulaire" },
   { key:"carre",         icon:"🔲", label:"Carré" },
@@ -1638,7 +1645,18 @@ function PoolChecklist() {
   const [nom, setNom]           = useState('');
   const [email, setEmail]       = useState('');
   const [telephone, setTelephone] = useState('');
+  /* Adresse client (splittée) */
+  const [rue, setRue]           = useState('');
+  const [numRue, setNumRue]     = useState('');
   const [codePostal, setCodePostal] = useState('');
+  const [ville, setVille]       = useState('');
+  const [pays, setPays]         = useState('BE');
+  /* Adresse chantier (splittée) */
+  const [chantierRue, setChantierRue]         = useState('');
+  const [chantierNum, setChantierNum]         = useState('');
+  const [chantierCP, setChantierCP]           = useState('');
+  const [chantierVille, setChantierVille]     = useState('');
+  const [chantierPays, setChantierPays]       = useState('BE');
   const [adresseChantier, setAdresseChantier] = useState('');
   const [denomination, setDenomination] = useState('');
   const [tvaNum, setTvaNum]     = useState('');
@@ -1714,7 +1732,20 @@ function PoolChecklist() {
   const pct = totalItems ? Math.round(totalDone/totalItems*100) : 0;
   const totalHT = products.reduce((a,p)=>{const price=typeof p.price==='number'?p.price:(parseFloat(p.price)||0);return a+price*(p.qty||1);},0);
 
-  const clientInfo = { prenom, nom, email, telephone, codePostal, adresseChantier, denomination, tvaNum, clientType, refDossier, odooId };
+  /* Composer adresseChantier complète depuis les champs splittés */
+  useEffect(()=>{
+    const parts = [
+      chantierRue && (chantierNum ? chantierRue+' '+chantierNum : chantierRue),
+      chantierCP && chantierVille ? chantierCP+' '+chantierVille : chantierCP||chantierVille,
+      chantierPays !== 'BE' ? PAYS_OPTIONS.find(p=>p.k===chantierPays)?.l||chantierPays : '',
+    ].filter(Boolean);
+    setAdresseChantier(parts.join(', '));
+  }, [chantierRue, chantierNum, chantierCP, chantierVille, chantierPays]);
+
+  const clientInfo = { prenom, nom, email, telephone,
+    rue, numRue, codePostal, ville, pays,
+    adresseChantier, chantierRue, chantierNum, chantierCP, chantierVille, chantierPays,
+    denomination, tvaNum, clientType, refDossier, odooId };
 
   function handleAddProducts(newProds) {
     setProducts(ps=>{const ex=new Set(ps.map(p=>p.ref||p.name));const toAdd=newProds.filter(p=>!ex.has(p.ref||p.name));return[...ps,...toAdd.map(p=>({...p,qty:1}))];});
@@ -1727,7 +1758,7 @@ function PoolChecklist() {
   function saveToHistory(){
     try{
       const s=JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
-      s.push({ficheId,type,clientType,prenom,nom,email,telephone,codePostal,adresseChantier,denomination,tvaNum,refDossier,technicien,date,basinShape,basinL,basinW,basinD,basinNotes,itemState,itemData,products,obs,statut,signClient,signTech,savedAt:new Date().toISOString()});
+      s.push({ficheId,type,clientType,prenom,nom,email,telephone,codePostal,adresseChantier,denomination,tvaNum,refDossier,technicien,date,rue,numRue,ville,pays,chantierRue,chantierNum,chantierCP,chantierVille,chantierPays,basinShape,basinL,basinW,basinD,basinNotes,itemState,itemData,products,obs,statut,signClient,signTech,savedAt:new Date().toISOString()});
       localStorage.setItem('pool_checklist_history',JSON.stringify(s.slice(-50)));
       setSaved(true);setTimeout(()=>setSaved(false),2500);
     }catch(e){alert('Erreur: '+e.message);}
@@ -1735,14 +1766,14 @@ function PoolChecklist() {
   function loadRecord(r){
     setType(r.type||'entretien');setStep(r.step||4);
     setClientType(r.clientType||'particulier');setPrenom(r.prenom||'');setNom(r.nom||'');setEmail(r.email||'');
-    setTelephone(r.telephone||'');setCodePostal(r.codePostal||'');setAdresseChantier(r.adresseChantier||'');
+    setTelephone(r.telephone||'');setRue(r.rue||'');setNumRue(r.numRue||'');setCodePostal(r.codePostal||'');setVille(r.ville||'');setPays(r.pays||'BE');setAdresseChantier(r.adresseChantier||'');setChantierRue(r.chantierRue||'');setChantierNum(r.chantierNum||'');setChantierCP(r.chantierCP||'');setChantierVille(r.chantierVille||'');setChantierPays(r.chantierPays||'BE');
     setDenomination(r.denomination||'');setTvaNum(r.tvaNum||'');setRefDossier(r.refDossier||'');
     setTechnicien(r.technicien||'');setDate(r.date||new Date().toISOString().split('T')[0]);
     setBasinShape(r.basinShape||'');setBasinL(r.basinL||'');setBasinW(r.basinW||'');setBasinD(r.basinD||'');setBasinNotes(r.basinNotes||'');
     setItemState(r.itemState||{});setItemData(r.itemData||{});setProducts(r.products||[]);setObs(r.obs||'');
     setStatut(r.statut||'en_cours');setSignClient(r.signClient||'');setSignTech(r.signTech||'');
   }
-  function reset(){if(!confirm('Réinitialiser toute la fiche ?'))return;setStep(1);setType('');setPrenom('');setNom('');setEmail('');setTelephone('');setCodePostal('');setAdresseChantier('');setDenomination('');setTvaNum('');setRefDossier('');setTechnicien('');setDate(new Date().toISOString().split('T')[0]);setBasinShape('');setBasinL('');setBasinW('');setBasinD('');setBasinNotes('');setItemState({});setProducts([]);setObs('');setStatut('en_cours');setSignClient('');setSignTech('');setSaved(false);}
+  function reset(){if(!confirm('Réinitialiser toute la fiche ?'))return;setStep(1);setType('');setPrenom('');setNom('');setEmail('');setTelephone('');setCodePostal('');setRue('');setNumRue('');setCodePostal('');setVille('');setPays('BE');setAdresseChantier('');setChantierRue('');setChantierNum('');setChantierCP('');setChantierVille('');setChantierPays('BE');setDenomination('');setTvaNum('');setRefDossier('');setTechnicien('');setDate(new Date().toISOString().split('T')[0]);setBasinShape('');setBasinL('');setBasinW('');setBasinD('');setBasinNotes('');setItemState({});setProducts([]);setObs('');setStatut('en_cours');setSignClient('');setSignTech('');setSaved(false);}
 
   const canNext = [
     true,
@@ -1888,17 +1919,89 @@ function PoolChecklist() {
                     <label style={LABEL_ST}>Téléphone</label>
                     <input value={telephone} onChange={e=>setTelephone(e.target.value)} placeholder="0475/12 34 56" style={INPUT_ST} />
                   </div>
+                  {/* ── Adresse domicile client ── */}
+                  <div style={{gridColumn:'1/-1'}}>
+                    <div style={{fontWeight:700,fontSize:12,color:'#64748b',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:8,borderBottom:'1px solid #f0f4f8',paddingBottom:4}}>📍 Adresse domicile</div>
+                  </div>
+                  <div>
+                    <label style={LABEL_ST}>Rue</label>
+                    <input value={rue} onChange={e=>setRue(e.target.value)} placeholder="Rue de la Paix" style={INPUT_ST} />
+                  </div>
+                  <div>
+                    <label style={LABEL_ST}>N°</label>
+                    <input value={numRue} onChange={e=>setNumRue(e.target.value)} placeholder="12" style={INPUT_ST} />
+                  </div>
                   <div>
                     <label style={LABEL_ST}>Code postal</label>
                     <input value={codePostal} onChange={e=>setCodePostal(e.target.value)} placeholder="4000" style={INPUT_ST} />
                   </div>
                   <div>
+                    <label style={LABEL_ST}>Ville</label>
+                    <input value={ville} onChange={e=>setVille(e.target.value)} placeholder="Liège" style={INPUT_ST} />
+                  </div>
+                  <div>
+                    <label style={LABEL_ST}>Pays</label>
+                    <select value={pays} onChange={e=>setPays(e.target.value)} style={{...INPUT_ST,background:'#fff',cursor:'pointer'}}>
+                      {PAYS_OPTIONS.map(p=><option key={p.k} value={p.k}>{p.l}</option>)}
+                    </select>
+                  </div>
+                  <div>
                     <label style={LABEL_ST}>Référence dossier</label>
                     <input value={refDossier} onChange={e=>setRefDossier(e.target.value)} placeholder="CHT-2025-042" style={INPUT_ST} />
                   </div>
+                  {/* ── Adresse chantier ── */}
+                  <div style={{gridColumn:'1/-1',marginTop:6}}>
+                    <div style={{fontWeight:700,fontSize:12,color:'#64748b',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:8,borderBottom:'1px solid #f0f4f8',paddingBottom:4}}>🏗️ Adresse du chantier</div>
+                  </div>
+                  <div style={{gridColumn:'1/-1',display:'flex',gap:6,alignItems:'center',marginBottom:4}}>
+                    <input type="checkbox" id="same_addr" style={{accentColor:'#0ea5e9',width:14,height:14,cursor:'pointer'}}
+                      onChange={e=>{if(e.target.checked){setChantierRue(rue);setChantierNum(numRue);setChantierCP(codePostal);setChantierVille(ville);setChantierPays(pays);}}} />
+                    <label htmlFor="same_addr" style={{fontSize:12,color:'#64748b',cursor:'pointer'}}>Même adresse que le domicile</label>
+                  </div>
+                  <div>
+                    <label style={LABEL_ST}>Rue chantier</label>
+                    <input value={chantierRue} onChange={e=>setChantierRue(e.target.value)} placeholder="Rue du Chantier" style={INPUT_ST} />
+                  </div>
+                  <div>
+                    <label style={LABEL_ST}>N°</label>
+                    <input value={chantierNum} onChange={e=>setChantierNum(e.target.value)} placeholder="10" style={INPUT_ST} />
+                  </div>
+                  <div>
+                    <label style={LABEL_ST}>Code postal</label>
+                    <input value={chantierCP} onChange={e=>setChantierCP(e.target.value)} placeholder="5000" style={INPUT_ST} />
+                  </div>
+                  <div>
+                    <label style={LABEL_ST}>Ville</label>
+                    <input value={chantierVille} onChange={e=>setChantierVille(e.target.value)} placeholder="Namur" style={INPUT_ST} />
+                  </div>
+                  <div>
+                    <label style={LABEL_ST}>Pays</label>
+                    <select value={chantierPays} onChange={e=>setChantierPays(e.target.value)} style={{...INPUT_ST,background:'#fff',cursor:'pointer'}}>
+                      {PAYS_OPTIONS.map(p=><option key={p.k} value={p.k}>{p.l}</option>)}
+                    </select>
+                  </div>
                   <div style={{gridColumn:'1/-1'}}>
-                    <label style={LABEL_ST}>Adresse du chantier</label>
-                    <AddressAutocomplete value={adresseChantier} onChange={setAdresseChantier} placeholder="Adresse complète du chantier…" />
+                    <label style={{...LABEL_ST,color:'#0ea5e9'}}>Adresse complète composée</label>
+                    <div style={{background:'#eff9ff',borderRadius:9,padding:'8px 12px',fontSize:13,color:'#0369a1',fontWeight:500,minHeight:32}}>
+                      {adresseChantier||<span style={{color:'#94a3b8',fontStyle:'italic'}}>Se remplit automatiquement…</span>}
+                    </div>
+                  </div>
+                  <div style={{gridColumn:'1/-1'}}>
+                    <label style={{...LABEL_ST,fontSize:11,color:'#94a3b8'}}>Ou rechercher l&#39;adresse</label>
+                    <AddressAutocomplete value={adresseChantier} onChange={v=>{
+                      setAdresseChantier(v);
+                      const parts=v.split(',');
+                      if(parts.length>=2){
+                        const streetParts=parts[0].trim().split(' ');
+                        const lastPart=streetParts[streetParts.length-1];
+                        if(/^\d/.test(lastPart)){setChantierNum(lastPart);setChantierRue(streetParts.slice(0,-1).join(' '));}
+                        else setChantierRue(parts[0].trim());
+                        const cpVille=parts[1]?.trim()||'';
+                        const cpMatch=cpVille.match(/^(\d{4,5})\s+(.+)$/);
+                        if(cpMatch){setChantierCP(cpMatch[1]);setChantierVille(cpMatch[2]);}
+                        else setChantierVille(cpVille);
+                      }
+                    }} placeholder="Ou recherchez une adresse (Nominatim)…" />
                   </div>
                   <div>
                     <label style={LABEL_ST}>Technicien</label>
