@@ -307,7 +307,7 @@ class PoolChecklistController(http.Controller):
     @http.route('/pool-checklist/create-quote', type='json', auth='user',
                 website=True, methods=['POST'], csrf=False)
     def create_quote(self, partner_id=None, partner_name='', ref_dossier='',
-                     note='', payment_term='', lines=None, **kwargs):
+                     note='', payment_term='', lines=None, fiche_id=None, **kwargs):
         env = request.env
         if not lines:
             return {'error': 'Aucune ligne fournie'}
@@ -349,6 +349,8 @@ class PoolChecklistController(http.Controller):
         }
         if pool_template:
             order_vals['sale_order_template_id'] = pool_template.id
+        if fiche_id:
+            order_vals['pool_fiche_id'] = fiche_id
         if ref_dossier:
             order_vals['client_order_ref'] = ref_dossier
             order_vals['pool_ref_dossier'] = ref_dossier
