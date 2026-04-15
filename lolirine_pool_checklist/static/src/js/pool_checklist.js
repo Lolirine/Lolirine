@@ -1282,7 +1282,7 @@ const EVAC_OPT=[{key:'client',label:'🤝 Évacuation prise en charge client',pr
 const PAY_TERMS=['Paiement à terme échu (30j)','Paiement comptant','Acompte 30%+solde livraison','Acompte 50%+solde livraison','Virement avant expédition'];
 const FOURNISSEURS=['Fluidra / SIBO','SCP Bénélux','HTH / BWT','Zodiac / Fluidra','Hayward','Astralpool','Pentair'];
 function deplCost(km){const n=Number(km)||0;if(n<=0)return 0;if(n<=30)return 50;return 50+Math.ceil((n-30)/25)*10;}
-function QuoteModal({products,clientInfo,onClose,onCreated}) {
+function QuoteModal({products,clientInfo,ficheId,onClose,onCreated}) {
   const cfg=window.LOLIRINE_CHECKLIST_CONFIG||{};
   const [tab,setTab]=useState('lines');
   const [busy,setBusy]=useState(false);
@@ -2107,7 +2107,7 @@ function PoolChecklist() {
       {showPlanning&&<PlanningModal type={type} clientName={[prenom,nom].filter(Boolean).join(' ')||denomination||'Client'} startDate={date} onClose={()=>setShowPlanning(false)} />
       }
       {panel&&<ProductPanel item={panel.item} sectionLabel={panel.sectionLabel} onAdd={handleAddProducts} onClose={()=>setPanel(null)} />}
-      {showQuote&&<QuoteModal products={products} clientInfo={clientInfo} onClose={()=>setShowQuote(false)} onCreated={()=>{}} />}
+      {showQuote&&<QuoteModal products={products} clientInfo={clientInfo} ficheId={ficheId} onClose={()=>setShowQuote(false)} onCreated={()=>{}} />}
       {showHistory&&<HistoryModal onClose={()=>setShowHistory(false)} onLoad={loadRecord} />}
     </div>
   );
