@@ -1343,7 +1343,7 @@ function QuoteModal({products,clientInfo,onClose,onCreated}) {
     if(!allLines.length){setErr('Aucune ligne.');setBusy(false);return;}
     const clientName=[clientInfo?.prenom,clientInfo?.nom].filter(Boolean).join(' ')||clientInfo?.denominationSociale||'';
     try{
-      const r=await fetch(cfg.quoteEndpoint||'/pool-checklist/create-quote',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method:'call',id:1,params:{partner_id:clientInfo?.odooId||null,partner_name:clientName,ref_dossier:clientInfo?.refDossier||'',payment_term:payTerm,note:[noteInt,cond,livrDir?'Livraison chantier : '+livrAdr:'',cmdFourn?'BC fourn: '+cmdFourn:''].filter(Boolean).join('\n'),lines:allLines}})});
+      const r=await fetch(cfg.quoteEndpoint||'/pool-checklist/create-quote',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method:'call',id:1,params:{partner_id:clientInfo?.odooId||null,partner_name:clientName,fiche_id:ficheId,ref_dossier:clientInfo?.refDossier||'',payment_term:payTerm,note:[noteInt,cond,livrDir?'Livraison chantier : '+livrAdr:'',cmdFourn?'BC fourn: '+cmdFourn:''].filter(Boolean).join('\n'),lines:allLines}})});
       const d=await r.json();
       if(d?.result?.error){setErr(d.result.error);setBusy(false);return;}
       setResult(d?.result||{});
@@ -1662,6 +1662,14 @@ function PoolChecklist() {
   const [statut, setStatut]     = useState('en_cours');
   const [itemData,setItemData]  = useState({});
   const [showPlanning,setShowPlanning] = useState(false);
+  /* ID unique de la fiche — généré une fois, persisté en localStorage */
+  const [ficheId] = useState(()=>{
+    const stored = localStorage.getItem('pool_fiche_current_id');
+    if(stored) return stored;
+    const id = 'fiche_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+    localStorage.setItem('pool_fiche_current_id', id);
+    return id;
+  });
   const [signClient, setSignClient] = useState('');
   const [signTech, setSignTech] = useState('');
   const [saved, setSaved]       = useState(false);
@@ -1685,6 +1693,21 @@ function PoolChecklist() {
     return()=>clearInterval(t);
   },[type,prenom,nom,itemState,products]);
 
+  /* Charger la fiche correspondante si URL contient ?fiche_id */
+  useEffect(()=>{
+    const params = new URLSearchParams(window.location.search);
+    const urlFicheId = params.get('fiche_id');
+    if(!urlFicheId) return;
+    try {
+      const history = JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
+      const found = history.find(r => r.ficheId === urlFicheId);
+      if(found) {
+        loadRecord(found);
+        console.log('Fiche chargée depuis URL:', urlFicheId);
+      }
+    } catch(e) { console.warn('Erreur chargement fiche:', e); }
+  }, []);
+
   const sections   = type ? (SECTIONS_DATA[type]||[]) : [];
   const totalItems = sections.reduce((a,s)=>a+s.items.length,0);
   const totalDone  = sections.reduce((a,s,si)=>a+s.items.filter((_,ii)=>!!itemState[`${si}_${ii}`]).length,0);
@@ -1704,7 +1727,7 @@ function PoolChecklist() {
   function saveToHistory(){
     try{
       const s=JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
-      s.push({type,clientType,prenom,nom,email,telephone,codePostal,adresseChantier,denomination,tvaNum,refDossier,technicien,date,basinShape,basinL,basinW,basinD,basinNotes,itemState,itemData,products,obs,statut,signClient,signTech,savedAt:new Date().toISOString()});
+      s.push({ficheId,type,clientType,prenom,nom,email,telephone,codePostal,adresseChantier,denomination,tvaNum,refDossier,technicien,date,basinShape,basinL,basinW,basinD,basinNotes,itemState,itemData,products,obs,statut,signClient,signTech,savedAt:new Date().toISOString()});
       localStorage.setItem('pool_checklist_history',JSON.stringify(s.slice(-50)));
       setSaved(true);setTimeout(()=>setSaved(false),2500);
     }catch(e){alert('Erreur: '+e.message);}
