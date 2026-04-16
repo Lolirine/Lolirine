@@ -1346,6 +1346,13 @@ function QuoteModal({products,clientInfo,ficheId,onClose,onCreated}) {
   function delLine(i){setLines(ls=>ls.filter((_,x)=>x!==i));}
   async function doCreate(){
     setBusy(true);setErr(null);
+    /* Sauvegarder la fiche en historique avant de créer le devis */
+    if(ficheId) {
+      try {
+        const ev = new CustomEvent('pool_checklist_save_before_quote', {detail:{ficheId}});
+        window.dispatchEvent(ev);
+      } catch(e) {}
+    }
     const allLines=[...lines.filter(l=>l.include).map(l=>({product_id:l.id||null,name:l.name,product_uom_qty:l.qty,price_unit:l.price_unit||0,discount:l.remise||0,default_code:l.ref||''})),...(tDepl>0?[{product_id:null,name:`Frais déplacement (${km}km depuis Boninne)`,product_uom_qty:1,price_unit:tDepl,discount:0,default_code:''}]:[]),...(tEvac>0?[{product_id:null,name:EVAC_OPT.find(o=>o.key===evac)?.label,product_uom_qty:1,price_unit:tEvac,discount:0,default_code:''}]:[]),...(tMO>0?[{product_id:null,name:"Main d'oeuvre technicien",product_uom_qty:1,price_unit:tMO,discount:0,default_code:''}]:[])];
     if(!allLines.length){setErr('Aucune ligne.');setBusy(false);return;}
     const clientName=[clientInfo?.prenom,clientInfo?.nom].filter(Boolean).join(' ')||clientInfo?.denominationSociale||'';
@@ -1717,14 +1724,47 @@ function PoolChecklist() {
     const urlFicheId = params.get('fiche_id');
     if(!urlFicheId) return;
     try {
-      const history = JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
-      const found = history.find(r => r.ficheId === urlFicheId);
+      const hist = JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
+      /* Chercher dans l'historique OU dans l'autosave courant */
+      let found = hist.slice().reverse().find(r => r.ficheId === urlFicheId);
       if(found) {
         loadRecord(found);
+        setStep(4);
         console.log('Fiche chargée depuis URL:', urlFicheId);
       }
     } catch(e) { console.warn('Erreur chargement fiche:', e); }
   }, []);
+
+  /* Écouter l'événement "sauvegarder avant devis" */
+  useEffect(()=>{
+    function handleSaveBeforeQuote(e) {
+      try {
+        const hist = JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
+        const record = {
+          ficheId, type, clientType, prenom, nom, email, telephone,
+          rue, numRue, codePostal, ville, pays,
+          adresseChantier, chantierRue, chantierNum, chantierCP, chantierVille, chantierPays,
+          denomination, tvaNum, refDossier, technicien, date,
+          basinShape, basinL, basinW, basinD, basinNotes,
+          itemState, itemData, products, obs, statut, signClient, signTech,
+          savedAt: new Date().toISOString(), preQuoteSave: true,
+        };
+        /* Remplacer l'entrée existante avec ce ficheId ou en ajouter une */
+        const idx = hist.findIndex(r => r.ficheId === ficheId);
+        if(idx >= 0) hist[idx] = record;
+        else hist.push(record);
+        localStorage.setItem('pool_checklist_history', JSON.stringify(hist.slice(-50)));
+        console.log('Fiche sauvegardée avant création devis:', ficheId);
+      } catch(e) { console.warn('Erreur sauvegarde avant devis:', e); }
+    }
+    window.addEventListener('pool_checklist_save_before_quote', handleSaveBeforeQuote);
+    return () => window.removeEventListener('pool_checklist_save_before_quote', handleSaveBeforeQuote);
+  }, [ficheId, type, clientType, prenom, nom, email, telephone,
+      rue, numRue, codePostal, ville, pays,
+      adresseChantier, chantierRue, chantierNum, chantierCP, chantierVille, chantierPays,
+      denomination, tvaNum, refDossier, technicien, date,
+      basinShape, basinL, basinW, basinD, basinNotes,
+      itemState, itemData, products, obs, statut, signClient, signTech]);
 
   const sections   = type ? (SECTIONS_DATA[type]||[]) : [];
   const totalItems = sections.reduce((a,s)=>a+s.items.length,0);
@@ -1764,7 +1804,8 @@ function PoolChecklist() {
     }catch(e){alert('Erreur: '+e.message);}
   }
   function loadRecord(r){
-    setType(r.type||'entretien');setStep(r.step||4);
+    setType(r.type||'entretien');
+    setStep(r.type ? 4 : 1); /* Toujours aller à l'étape 4 si type connu */
     setClientType(r.clientType||'particulier');setPrenom(r.prenom||'');setNom(r.nom||'');setEmail(r.email||'');
     setTelephone(r.telephone||'');setRue(r.rue||'');setNumRue(r.numRue||'');setCodePostal(r.codePostal||'');setVille(r.ville||'');setPays(r.pays||'BE');setAdresseChantier(r.adresseChantier||'');setChantierRue(r.chantierRue||'');setChantierNum(r.chantierNum||'');setChantierCP(r.chantierCP||'');setChantierVille(r.chantierVille||'');setChantierPays(r.chantierPays||'BE');
     setDenomination(r.denomination||'');setTvaNum(r.tvaNum||'');setRefDossier(r.refDossier||'');
@@ -1919,9 +1960,37 @@ function PoolChecklist() {
                     <label style={LABEL_ST}>Téléphone</label>
                     <input value={telephone} onChange={e=>setTelephone(e.target.value)} placeholder="0475/12 34 56" style={INPUT_ST} />
                   </div>
+                  {/* ── Helper parse Nominatim ── */}
+                  {/*
+                    parseNominatim(result, setRue, setNum, setCP, setVille) :
+                    extrait rue/n°/CP/ville depuis une string "Rue N°, CP Ville, Pays"
+                  */}
+
                   {/* ── Adresse domicile client ── */}
                   <div style={{gridColumn:'1/-1'}}>
                     <div style={{fontWeight:700,fontSize:12,color:'#64748b',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:8,borderBottom:'1px solid #f0f4f8',paddingBottom:4}}>📍 Adresse domicile</div>
+                  </div>
+                  {/* Autocomplete domicile */}
+                  <div style={{gridColumn:'1/-1'}}>
+                    <label style={{...LABEL_ST,fontSize:11,color:'#0ea5e9'}}>Rechercher l&#39;adresse domicile</label>
+                    <AddressAutocomplete value={rue&&numRue?`${rue} ${numRue}, ${codePostal} ${ville}`.trim():''} onChange={v=>{
+                      if(!v){setRue('');setNumRue('');setCodePostal('');setVille('');return;}
+                      const parts = v.split(',');
+                      const street = (parts[0]||'').trim();
+                      const streetTokens = street.split(' ');
+                      const lastTok = streetTokens[streetTokens.length-1];
+                      if(/^\d+[a-zA-Z]?$/.test(lastTok)){
+                        setNumRue(lastTok);
+                        setRue(streetTokens.slice(0,-1).join(' '));
+                      } else { setRue(street); setNumRue(''); }
+                      const cpVille = (parts[1]||'').trim();
+                      const m = cpVille.match(/^(\d{4,5})\s+(.+)$/);
+                      if(m){setCodePostal(m[1]);setVille(m[2]);}
+                      else if(cpVille){
+                        if(/^\d{4,5}$/.test(cpVille))setCodePostal(cpVille);
+                        else setVille(cpVille);
+                      }
+                    }} placeholder="Rechercher votre adresse domicile…" />
                   </div>
                   <div>
                     <label style={LABEL_ST}>Rue</label>
@@ -1949,14 +2018,37 @@ function PoolChecklist() {
                     <label style={LABEL_ST}>Référence dossier</label>
                     <input value={refDossier} onChange={e=>setRefDossier(e.target.value)} placeholder="CHT-2025-042" style={INPUT_ST} />
                   </div>
+
                   {/* ── Adresse chantier ── */}
                   <div style={{gridColumn:'1/-1',marginTop:6}}>
                     <div style={{fontWeight:700,fontSize:12,color:'#64748b',textTransform:'uppercase',letterSpacing:'.5px',marginBottom:8,borderBottom:'1px solid #f0f4f8',paddingBottom:4}}>🏗️ Adresse du chantier</div>
                   </div>
-                  <div style={{gridColumn:'1/-1',display:'flex',gap:6,alignItems:'center',marginBottom:4}}>
+                  <div style={{gridColumn:'1/-1',display:'flex',gap:6,alignItems:'center',marginBottom:6}}>
                     <input type="checkbox" id="same_addr" style={{accentColor:'#0ea5e9',width:14,height:14,cursor:'pointer'}}
                       onChange={e=>{if(e.target.checked){setChantierRue(rue);setChantierNum(numRue);setChantierCP(codePostal);setChantierVille(ville);setChantierPays(pays);}}} />
                     <label htmlFor="same_addr" style={{fontSize:12,color:'#64748b',cursor:'pointer'}}>Même adresse que le domicile</label>
+                  </div>
+                  {/* Autocomplete chantier */}
+                  <div style={{gridColumn:'1/-1'}}>
+                    <label style={{...LABEL_ST,fontSize:11,color:'#0ea5e9'}}>Rechercher l&#39;adresse du chantier</label>
+                    <AddressAutocomplete value={chantierRue&&chantierNum?`${chantierRue} ${chantierNum}, ${chantierCP} ${chantierVille}`.trim():''} onChange={v=>{
+                      if(!v){setChantierRue('');setChantierNum('');setChantierCP('');setChantierVille('');return;}
+                      const parts = v.split(',');
+                      const street = (parts[0]||'').trim();
+                      const streetTokens = street.split(' ');
+                      const lastTok = streetTokens[streetTokens.length-1];
+                      if(/^\d+[a-zA-Z]?$/.test(lastTok)){
+                        setChantierNum(lastTok);
+                        setChantierRue(streetTokens.slice(0,-1).join(' '));
+                      } else { setChantierRue(street); setChantierNum(''); }
+                      const cpVille = (parts[1]||'').trim();
+                      const m = cpVille.match(/^(\d{4,5})\s+(.+)$/);
+                      if(m){setChantierCP(m[1]);setChantierVille(m[2]);}
+                      else if(cpVille){
+                        if(/^\d{4,5}$/.test(cpVille))setChantierCP(cpVille);
+                        else setChantierVille(cpVille);
+                      }
+                    }} placeholder="Rechercher l-adresse du chantier…" />
                   </div>
                   <div>
                     <label style={LABEL_ST}>Rue chantier</label>
@@ -1985,23 +2077,6 @@ function PoolChecklist() {
                     <div style={{background:'#eff9ff',borderRadius:9,padding:'8px 12px',fontSize:13,color:'#0369a1',fontWeight:500,minHeight:32}}>
                       {adresseChantier||<span style={{color:'#94a3b8',fontStyle:'italic'}}>Se remplit automatiquement…</span>}
                     </div>
-                  </div>
-                  <div style={{gridColumn:'1/-1'}}>
-                    <label style={{...LABEL_ST,fontSize:11,color:'#94a3b8'}}>Ou rechercher l&#39;adresse</label>
-                    <AddressAutocomplete value={adresseChantier} onChange={v=>{
-                      setAdresseChantier(v);
-                      const parts=v.split(',');
-                      if(parts.length>=2){
-                        const streetParts=parts[0].trim().split(' ');
-                        const lastPart=streetParts[streetParts.length-1];
-                        if(/^\d/.test(lastPart)){setChantierNum(lastPart);setChantierRue(streetParts.slice(0,-1).join(' '));}
-                        else setChantierRue(parts[0].trim());
-                        const cpVille=parts[1]?.trim()||'';
-                        const cpMatch=cpVille.match(/^(\d{4,5})\s+(.+)$/);
-                        if(cpMatch){setChantierCP(cpMatch[1]);setChantierVille(cpMatch[2]);}
-                        else setChantierVille(cpVille);
-                      }
-                    }} placeholder="Ou recherchez une adresse (Nominatim)…" />
                   </div>
                   <div>
                     <label style={LABEL_ST}>Technicien</label>
