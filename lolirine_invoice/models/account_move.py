@@ -7,6 +7,8 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+GARDE_MEUBLE_JOURNAL_ID = 9
+
 
 class AccountMove(models.Model):
     _inherit = "account.move"
@@ -305,10 +307,51 @@ class AccountMove(models.Model):
                 move.partner_unpaid_count = 0
                 move.partner_total_due = 0.0
 
+    # ==================== WARNINGS / CONTROLES ====================
+
+    @api.onchange('invoice_date', 'journal_id')
+    def _onchange_warn_invoice_date(self):
+        if (
+            self.journal_id.id == GARDE_MEUBLE_JOURNAL_ID
+            and self.invoice_date
+            and self.invoice_date.day != 20
+        ):
+            return {
+                'warning': {
+                    'title': 'Date inhabituelle',
+                    'message': (
+                        'La date de facturation est le %s, '
+                        'alors que les factures garde-meuble sont normalement '
+                        'generees le 20 du mois via le cron automatique.\n\n'
+                        'Verifiez que cette creation est intentionnelle.'
+                    ) % self.invoice_date.strftime('%d/%m/%Y'),
+                }
+            }
+
     # ==================== ACTIONS EXISTANTES ====================
 
     def action_post(self):
         """Override pour envoyer automatiquement la facture apres confirmation"""
+        # Warning chatter si facture garde-meuble creee manuellement
+        for move in self:
+            if (
+                move.journal_id.id == GARDE_MEUBLE_JOURNAL_ID
+                and move.move_type == 'out_invoice'
+                and not move.invoice_origin
+                and not self.env.context.get('cron_invoice')
+            ):
+                move.message_post(
+                    body=(
+                        '⚠️ <b>Facture créée manuellement</b> — '
+                        'cette facture n\'est pas issue du cron de facturation automatique. '
+                        'Date : %s. Utilisateur : %s.'
+                    ) % (
+                        move.invoice_date or 'non définie',
+                        self.env.user.name,
+                    ),
+                    message_type='notification',
+                )
+
         res = super().action_post()
         for move in self:
             if move.move_type in ('out_invoice', 'out_refund'):
