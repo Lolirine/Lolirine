@@ -145,53 +145,89 @@ function ClientAutocomplete({ value, onChange, onSelectPartner, placeholder }) {
    AddressAutocomplete
 ═══════════════════════════════════════════════════ */
 function AddressAutocomplete({ value, onChange, placeholder }) {
-  const [suggs, setSuggs] = useState([]);
-  const [open, setOpen]   = useState(false);
-  const [busy, setBusy]   = useState(false);
+  const [inputVal, setInputVal] = useState(value||'');
+  const [suggs, setSuggs]       = useState([]);
+  const [open, setOpen]         = useState(false);
+  const [busy, setBusy]         = useState(false);
   const timer = useRef(null);
   const wrap  = useRef(null);
+
+  /* Synchroniser si la valeur externe change (ex: case "même adresse") */
+  useEffect(()=>{
+    setInputVal(value||'');
+  }, [value]);
+
   useEffect(() => {
     const h = e => { if(wrap.current && !wrap.current.contains(e.target)) setOpen(false); };
     document.addEventListener('mousedown', h);
     return () => document.removeEventListener('mousedown', h);
   }, []);
+
   function handleChange(v) {
-    onChange(v);
+    setInputVal(v);
     clearTimeout(timer.current);
     if(v.length < 4) { setSuggs([]); setOpen(false); return; }
     timer.current = setTimeout(() => doSearch(v), 450);
   }
+
+  function handleClear() {
+    setInputVal('');
+    setSuggs([]); setOpen(false);
+    onChange('');
+  }
+
   async function doSearch(v) {
     setBusy(true);
     try {
       const res = await fetch(
-        'https://nominatim.openstreetmap.org/search?'+new URLSearchParams({q:v,countrycodes:'be,lu,fr,nl',format:'json',limit:'6',addressdetails:'1'}),
-        {mode:'cors',headers:{'Accept-Language':'fr'}}
+        'https://nominatim.openstreetmap.org/search?'+new URLSearchParams({
+          q: v, countrycodes: 'be,lu,fr,nl', format: 'json', limit: '6', addressdetails: '1'
+        }),
+        {mode:'cors', headers:{'Accept-Language':'fr'}}
       );
       const data = await res.json();
       const list = data.map(d => {
-        const a = d.address||{};
-        const parts = [a.road&&(a.road+(a.house_number?' '+a.house_number:'')),a.postcode,a.city||a.town||a.village||a.municipality].filter(Boolean);
-        return parts.length>1?parts.join(', '):d.display_name.split(',').slice(0,3).join(',').trim();
+        const a = d.address || {};
+        const road   = a.road || a.pedestrian || a.footway || '';
+        const house  = a.house_number || '';
+        const cp     = a.postcode || '';
+        const city   = a.city || a.town || a.village || a.municipality || '';
+        const parts  = [road && (house ? road+' '+house : road), cp && city ? cp+' '+city : cp||city].filter(Boolean);
+        return parts.length > 0 ? parts.join(', ') : d.display_name.split(',').slice(0,3).join(', ').trim();
       }).filter(Boolean);
       setSuggs(list); setOpen(list.length>0);
     } catch { setSuggs([]); setOpen(false); }
     setBusy(false);
   }
-  const IS = {width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,padding:'9px 28px 9px 13px',fontFamily:'inherit',fontSize:14,outline:'none',boxSizing:'border-box'};
+
+  function selectSugg(s) {
+    setInputVal(s);
+    setSuggs([]); setOpen(false);
+    onChange(s);
+  }
+
+  const IS = {width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,padding:'9px 28px 9px 13px',
+    fontFamily:'inherit',fontSize:14,outline:'none',boxSizing:'border-box'};
   return (
     <div ref={wrap} style={{position:'relative'}}>
       <div style={{position:'relative'}}>
-        <input value={value} onChange={e=>handleChange(e.target.value)} onFocus={()=>suggs.length&&setOpen(true)}
-          placeholder={placeholder||'Adresse du chantier…'} style={IS} />
-        <span style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',fontSize:12,color:'#94a3b8',cursor:value?'pointer':'default'}}
-          onClick={()=>value&&onChange('')}>{busy?'⌛':value?'✕':''}</span>
+        <input value={inputVal} onChange={e=>handleChange(e.target.value)}
+          onFocus={()=>suggs.length&&setOpen(true)}
+          placeholder={placeholder||'Adresse…'} style={IS} />
+        <span style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',fontSize:12,
+          color:'#94a3b8',cursor:inputVal?'pointer':'default'}}
+          onClick={()=>inputVal&&handleClear()}>
+          {busy?'⌛':inputVal?'✕':''}
+        </span>
       </div>
       {open&&suggs.length>0&&(
-        <div style={{position:'absolute',top:'100%',left:0,right:0,zIndex:900,background:'#fff',border:'1.5px solid #dde4ed',borderRadius:9,boxShadow:'0 8px 24px rgba(0,0,0,.12)',marginTop:3,maxHeight:200,overflowY:'auto'}}>
+        <div style={{position:'absolute',top:'100%',left:0,right:0,zIndex:900,background:'#fff',
+          border:'1.5px solid #dde4ed',borderRadius:9,boxShadow:'0 8px 24px rgba(0,0,0,.12)',
+          marginTop:3,maxHeight:200,overflowY:'auto'}}>
           {suggs.map((s,i)=>(
-            <div key={i} onClick={()=>{onChange(s);setOpen(false);setSuggs([]);}}
-              style={{padding:'8px 13px',cursor:'pointer',fontSize:12,color:'#334155',borderBottom:i<suggs.length-1?'1px solid #f0f4f8':'none',display:'flex',gap:6}}
+            <div key={i} onClick={()=>selectSugg(s)}
+              style={{padding:'8px 13px',cursor:'pointer',fontSize:12,color:'#334155',
+                borderBottom:i<suggs.length-1?'1px solid #f0f4f8':'none',display:'flex',gap:6}}
               onMouseEnter={e=>e.currentTarget.style.background='#f0f9ff'}
               onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
               <span style={{color:'#0ea5e9',flexShrink:0}}>📍</span>{s}
@@ -202,6 +238,7 @@ function AddressAutocomplete({ value, onChange, placeholder }) {
     </div>
   );
 }
+
 
 /* ═══════════════════════════════════════════════════
    HistoryModal
@@ -1973,7 +2010,7 @@ function PoolChecklist() {
                   {/* Autocomplete domicile */}
                   <div style={{gridColumn:'1/-1'}}>
                     <label style={{...LABEL_ST,fontSize:11,color:'#0ea5e9'}}>Rechercher l&#39;adresse domicile</label>
-                    <AddressAutocomplete value={rue&&numRue?`${rue} ${numRue}, ${codePostal} ${ville}`.trim():''} onChange={v=>{
+                    <AddressAutocomplete value={[rue&&(numRue?rue+' '+numRue:rue),codePostal&&ville?codePostal+' '+ville:codePostal||ville].filter(Boolean).join(', ')} onChange={v=>{
                       if(!v){setRue('');setNumRue('');setCodePostal('');setVille('');return;}
                       const parts = v.split(',');
                       const street = (parts[0]||'').trim();
@@ -2031,7 +2068,7 @@ function PoolChecklist() {
                   {/* Autocomplete chantier */}
                   <div style={{gridColumn:'1/-1'}}>
                     <label style={{...LABEL_ST,fontSize:11,color:'#0ea5e9'}}>Rechercher l&#39;adresse du chantier</label>
-                    <AddressAutocomplete value={chantierRue&&chantierNum?`${chantierRue} ${chantierNum}, ${chantierCP} ${chantierVille}`.trim():''} onChange={v=>{
+                    <AddressAutocomplete value={[chantierRue&&(chantierNum?chantierRue+' '+chantierNum:chantierRue),chantierCP&&chantierVille?chantierCP+' '+chantierVille:chantierCP||chantierVille].filter(Boolean).join(', ')} onChange={v=>{
                       if(!v){setChantierRue('');setChantierNum('');setChantierCP('');setChantierVille('');return;}
                       const parts = v.split(',');
                       const street = (parts[0]||'').trim();
