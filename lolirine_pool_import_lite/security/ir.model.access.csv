@@ -1,0 +1,13 @@
+# -*- coding: utf-8 -*-
+# Access rights for pool catalog image extraction models
+
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+# pool.catalog.pdf.image
+access_pool_catalog_pdf_image_manager,pool.catalog.pdf.image.manager,model_pool_catalog_pdf_image,base.group_user,1,1,1,1
+access_pool_catalog_pdf_image_user,pool.catalog.pdf.image.user,model_pool_catalog_pdf_image,base.group_portal,1,0,0,0
+
+# Wizards
+access_pool_catalog_image_reassign_wizard,pool.catalog.image.reassign.wizard,model_pool_catalog_image_reassign_wizard,base.group_user,1,1,1,1
+access_pool_catalog_image_push_wizard,pool.catalog.image.push.wizard,model_pool_catalog_image_push_wizard,base.group_user,1,1,1,1
+access_pool_catalog_image_bulk_wizard,pool.catalog.image.bulk.wizard,model_pool_catalog_image_bulk_wizard,base.group_user,1,1,1,1
