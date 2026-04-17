@@ -3,4 +3,4 @@ pdf2image
 PyMuPDF>=1.21.0
 pywebpush>=2.0.0
 Pillow>=9.0.0
-
+numpy==1.26.4
