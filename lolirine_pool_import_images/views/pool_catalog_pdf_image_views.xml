@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vue Kanban fonctionnelle -->
+    <!-- Vue Kanban corrigée pour Odoo 19 -->
     <record id="view_pool_catalog_pdf_image_kanban" model="ir.ui.view">
         <field name="name">pool.catalog.pdf.image.kanban</field>
         <field name="model">pool.catalog.pdf.image</field>
@@ -9,18 +9,26 @@
                 <field name="name"/>
                 <field name="role"/>
                 <field name="image_final"/>
+                <field name="id"/>
                 
                 <templates>
                     <t t-name="card">
                         <div class="oe_kanban_card" style="width: 200px;">
-                            <div style="height: 120px; text-align: center;">
-                                <img t-att-src="kanban_image('pool.catalog.pdf.image', 'image_final', record.id.raw_value)" 
-                                     style="max-width: 100%; max-height: 100%;"/>
+                            <div style="height: 120px; text-align: center; background: #f8f9fa; border: 1px solid #dee2e6;">
+                                <t t-if="record.image_final.raw_value">
+                                    <img t-att-src="'/web/image/pool.catalog.pdf.image/' + record.id.raw_value + '/image_final'" 
+                                         style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
+                                </t>
+                                <t t-else="">
+                                    <div style="padding-top: 40px; color: #6c757d;">
+                                        <i class="fa fa-image fa-2x"></i><br/>Aucune image
+                                    </div>
+                                </t>
                             </div>
                             <div class="p-2">
                                 <strong><t t-esc="record.name.value"/></strong>
                                 <br/>
-                                <span t-att-class="'badge ' + (record.role.raw_value == 'primary' ? 'bg-warning' : 'bg-secondary')">
+                                <span t-att-class="'badge ' + (record.role.raw_value == 'primary' ? 'bg-warning text-dark' : record.role.raw_value == 'secondary' ? 'bg-info text-white' : 'bg-secondary')">
                                     <t t-esc="record.role.value"/>
                                 </span>
                             </div>
