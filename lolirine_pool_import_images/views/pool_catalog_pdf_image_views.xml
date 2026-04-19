@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue Kanban fonctionnelle -->
+    <record id="view_pool_catalog_pdf_image_kanban" model="ir.ui.view">
+        <field name="name">pool.catalog.pdf.image.kanban</field>
+        <field name="model">pool.catalog.pdf.image</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="role"/>
+                <field name="image_final"/>
+                
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card" style="width: 200px;">
+                            <div style="height: 120px; text-align: center;">
+                                <img t-att-src="kanban_image('pool.catalog.pdf.image', 'image_final', record.id.raw_value)" 
+                                     style="max-width: 100%; max-height: 100%;"/>
+                            </div>
+                            <div class="p-2">
+                                <strong><t t-esc="record.name.value"/></strong>
+                                <br/>
+                                <span t-att-class="'badge ' + (record.role.raw_value == 'primary' ? 'bg-warning' : 'bg-secondary')">
+                                    <t t-esc="record.role.value"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <!-- Vue Liste simple -->
+    <record id="view_pool_catalog_pdf_image_list" model="ir.ui.view">
+        <field name="name">pool.catalog.pdf.image.list</field>
+        <field name="model">pool.catalog.pdf.image</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="role"/>
+                <field name="matched_product_id"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- Vue Formulaire simple -->
+    <record id="view_pool_catalog_pdf_image_form" model="ir.ui.view">
+        <field name="name">pool.catalog.pdf.image.form</field>
+        <field name="model">pool.catalog.pdf.image</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <h1><field name="name"/></h1>
+                    <group>
+                        <field name="role"/>
+                        <field name="matched_product_id"/>
+                        <field name="image_final" widget="image"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Action principale -->
+    <record id="action_pool_catalog_pdf_image" model="ir.actions.act_window">
+        <field name="name">Images Extraites</field>
+        <field name="res_model">pool.catalog.pdf.image</field>
+        <field name="view_mode">kanban,list,form</field>
+    </record>
+
+    <!-- EXTENSION avec le VRAI nom de vue -->
+    <record id="view_pool_catalog_pdf_import_form_images" model="ir.ui.view">
+        <field name="name">pool.catalog.pdf.import.form.images</field>
+        <field name="model">pool.catalog.pdf.import</field>
+        <field name="inherit_id" ref="lolirine_pool_import.pool_catalog_pdf_import_form"/>
+        <field name="arch" type="xml">
+            <!-- Ajouter bouton dans l'en-tête -->
+            <xpath expr="//header" position="inside">
+                <button name="action_extract_images_lite" 
+                        string="🖼️ Extraire les images" 
+                        type="object" 
+                        class="btn-success"
+                        help="Extrait automatiquement les images du PDF et les associe aux produits"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Menu autonome -->
+    <menuitem id="menu_pool_images_root" 
+              name="Pool Images" 
+              sequence="100"/>
+              
+    <menuitem id="menu_pool_catalog_images" 
+              name="Images Extraites" 
+              parent="menu_pool_images_root"
+              action="action_pool_catalog_pdf_image"
+              sequence="10"/>
+</odoo>
