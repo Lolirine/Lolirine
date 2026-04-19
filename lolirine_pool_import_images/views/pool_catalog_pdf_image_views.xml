@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vue Kanban corrigée pour Odoo 19 -->
+    <!-- Vue Kanban avec produit associé affiché -->
     <record id="view_pool_catalog_pdf_image_kanban" model="ir.ui.view">
         <field name="name">pool.catalog.pdf.image.kanban</field>
         <field name="model">pool.catalog.pdf.image</field>
@@ -10,10 +10,13 @@
                 <field name="role"/>
                 <field name="image_final"/>
                 <field name="id"/>
+                <field name="matched_product_id"/>
+                <field name="quality_score"/>
+                <field name="confidence_score"/>
                 
                 <templates>
                     <t t-name="card">
-                        <div class="oe_kanban_card" style="width: 200px;">
+                        <div class="oe_kanban_card" style="width: 220px;">
                             <div style="height: 120px; text-align: center; background: #f8f9fa; border: 1px solid #dee2e6;">
                                 <t t-if="record.image_final.raw_value">
                                     <img t-att-src="'/web/image/pool.catalog.pdf.image/' + record.id.raw_value + '/image_final'" 
@@ -26,11 +29,25 @@
                                 </t>
                             </div>
                             <div class="p-2">
-                                <strong><t t-esc="record.name.value"/></strong>
-                                <br/>
-                                <span t-att-class="'badge ' + (record.role.raw_value == 'primary' ? 'bg-warning text-dark' : record.role.raw_value == 'secondary' ? 'bg-info text-white' : 'bg-secondary')">
-                                    <t t-esc="record.role.value"/>
-                                </span>
+                                <div style="font-size: 11px; color: #6c757d; margin-bottom: 4px;">
+                                    <t t-esc="record.name.value"/>
+                                </div>
+                                <div style="font-weight: bold; color: #495057; margin-bottom: 6px;">
+                                    <t t-if="record.matched_product_id.raw_value">
+                                        🏷️ <t t-esc="record.matched_product_id.value"/>
+                                    </t>
+                                    <t t-else="">
+                                        ❓ Aucun produit associé
+                                    </t>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span t-att-class="'badge ' + (record.role.raw_value == 'primary' ? 'bg-warning text-dark' : record.role.raw_value == 'secondary' ? 'bg-info text-white' : 'bg-secondary')">
+                                        <t t-esc="record.role.value"/>
+                                    </span>
+                                    <span style="font-size: 10px; color: #6c757d;">
+                                        Q:<t t-esc="record.quality_score.value"/>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </t>
@@ -39,15 +56,18 @@
         </field>
     </record>
     
-    <!-- Vue Liste simple -->
+    <!-- Vue Liste enrichie -->
     <record id="view_pool_catalog_pdf_image_list" model="ir.ui.view">
         <field name="name">pool.catalog.pdf.image.list</field>
         <field name="model">pool.catalog.pdf.image</field>
         <field name="arch" type="xml">
             <list>
+                <field name="page_number"/>
                 <field name="name"/>
-                <field name="role"/>
                 <field name="matched_product_id"/>
+                <field name="role" widget="badge" decoration-warning="role == 'primary'" decoration-info="role == 'secondary'" decoration-danger="role == 'rejected'"/>
+                <field name="quality_score" widget="progressbar"/>
+                <field name="confidence_score" widget="progressbar"/>
             </list>
         </field>
     </record>
