@@ -1,71 +1,49 @@
 # -*- coding: utf-8 -*-
 {
-    'name': '🖼️ Lolirine Pool Import - Images',
-    'version': '19.0.1.0.0',
-    'category': 'Sales/Sales',
-    'summary': 'Extension extraction d\'images pour catalogues pool PDF',
+    'name': 'Pool Import Images - Extraction Lite',
+    'version': '1.0.0',
+    'category': 'Tools',
+    'summary': 'Extraction d\'images des catalogues PDF - Version allégée sans OpenCV',
     'description': """
-🖼️ Lolirine Pool Import - Extension Images
-==========================================
+Pool Import Images - Extraction Lite
+===================================
 
 Extension du module lolirine_pool_import pour extraire automatiquement
 les images des catalogues PDF et les associer aux produits.
 
+Version Lite : Utilise uniquement PIL/Pillow pour éviter les conflits
+de dépendances avec d'autres modules.
+
 Fonctionnalités :
------------------
-* ✅ **Extraction automatique** d'images depuis catalogues SCP/Fluidra
-* ✅ **3 variantes par image** : Raw, Trimmed (bordures), Enhanced (netteté)  
-* ✅ **Interface intuitive** : Kanban pour attribution Principale/Secondaire/Rejetée
-* ✅ **Push vers production** : Création product.template avec images
-* ✅ **Version stable** : Utilise PyMuPDF + PIL (pas d'OpenCV)
+- Extraction automatique d'images embarquées des PDF
+- 3 variantes par image (brute, détourée, optimisée)  
+- Association intelligente images ↔ produits
+- Interface de révision (Principale/Secondaire/Rejetée)
+- Score de qualité et confiance automatiques
+- Compatible Odoo 19 Enterprise
 
-Workflow :
-----------
-1. Import PDF via lolirine_pool_import (comme d'habitude)
-2. Nouveau bouton "🖼️ Extraire les images" 
-3. Processing automatique + association intelligente
-4. Révision manuelle via interface kanban
-5. Push sélectif vers les fiches produits
-
-Technique :
------------
-* Extraction via images embarquées PDF (très fiable)
-* Amélioration qualité : netteté +30%, contraste +10%
-* Association par ordre d'apparition sur page
-* Compatible Odoo 19, dépendances minimales
-
-Parfait pour vos catalogues SCP et Fluidra ! 🏊‍♂️
-    """,
+Dépendances :
+- lolirine_pool_import
+- PyMuPDF (fitz)
+- PIL/Pillow
+""",
     'author': 'Lolirine SRL',
-    'website': 'https://lolirinepoolstore.be',
-    'license': 'LGPL-3',
-    
+    'website': 'https://lolirine.be',
     'depends': [
         'base',
-        'product',
-        'website',
-        'website_sale',
-        'lolirine_pool_import',  # Module parent obligatoire
+        'lolirine_pool_import'
     ],
-    
     'external_dependencies': {
-        'python': [
-            'PyMuPDF',  # Déjà installé
-            'Pillow',   # Déjà installé  
-            # numpy,   # Utilise seulement numpy de base (pas de versions spécifiques)
-        ],
+        'python': ['fitz', 'PIL', 'numpy']
     },
-    
     'data': [
-        # Security
         'security/ir.model.access.csv',
-        
-        # Views
         'views/pool_catalog_pdf_image_views.xml',
     ],
-    
+    'demo': [],
     'installable': True,
     'auto_install': False,
     'application': False,
-    'sequence': 101,
+    'license': 'LGPL-3',
+    'sequence': 100,
 }
