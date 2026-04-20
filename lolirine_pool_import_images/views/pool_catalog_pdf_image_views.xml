@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- SEULEMENT le bouton d'extraction avancée - Version simplifiée -->
+        <!-- SEULEMENT le bouton d'extraction avancée -->
         <record id="view_pool_catalog_pdf_import_form_images_advanced" model="ir.ui.view">
             <field name="name">pool.catalog.pdf.import.form.advanced</field>
             <field name="model">pool.catalog.pdf.import</field>
@@ -16,28 +16,5 @@
                 </xpath>
             </field>
         </record>
-
-        <!-- Nouveaux champs pour le modèle image - SANS héritage de vue -->
-        <record id="pool_catalog_pdf_image_bbox_fields" model="ir.model.fields">
-            <field name="model_id" ref="model_pool_catalog_pdf_image"/>
-            <field name="name">bbox_x</field>
-            <field name="field_description">Position X</field>
-            <field name="ttype">float</field>
-        </record>
-        
-        <record id="pool_catalog_pdf_image_bbox_y_fields" model="ir.model.fields">
-            <field name="model_id" ref="model_pool_catalog_pdf_image"/>
-            <field name="name">bbox_y</field>
-            <field name="field_description">Position Y</field>
-            <field name="ttype">float</field>
-        </record>
-        
-        <record id="pool_catalog_pdf_image_trimmed_fields" model="ir.model.fields">
-            <field name="model_id" ref="model_pool_catalog_pdf_image"/>
-            <field name="name">image_trimmed</field>
-            <field name="field_description">Image Détourée</field>
-            <field name="ttype">binary</field>
-        </record>
-
     </data>
 </odoo>
