@@ -51,7 +51,7 @@ class PoolCatalogPdfImport(models.Model):
         """
         self.ensure_one()
         
-        if not self.pdf_file:
+        if not self.source_pdf:
             raise UserError("Aucun fichier PDF n'est attaché à cet import.")
         
         if self.image_extraction_state == 'in_progress':
@@ -64,7 +64,7 @@ class PoolCatalogPdfImport(models.Model):
             })
             
             # Décoder le PDF
-            pdf_data = base64.b64decode(self.pdf_file)
+            pdf_data = base64.b64decode(self.source_pdf)
             doc = fitz.open(stream=pdf_data, filetype="pdf")
             total_pages = len(doc)
             
