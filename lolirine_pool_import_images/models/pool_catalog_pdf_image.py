@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-pool_catalog_pdf_image.py
-=========================
-Modèle pour stocker les images extraites des catalogues PDF avec métadonnées
-et système d'attribution aux produits (principale/secondaire).
+pool_catalog_pdf_image.py - VERSION COMPLÈTE AVEC NOUVEAUX CHAMPS
+================================================================
+Modèle enrichi avec champs pour extraction avancée (Sprint 1)
 """
 
 from odoo import api, fields, models, tools, _
@@ -39,10 +38,14 @@ class PoolCatalogPdfImage(models.Model):
     
     # Métadonnées d'extraction
     page_number = fields.Integer(string='Page', required=True, index=True)
+    
+    # NOUVEAUX CHAMPS SPRINT 1 - Position dans PDF
     bbox_x = fields.Float(string='Position X', digits=(12, 2))
     bbox_y = fields.Float(string='Position Y', digits=(12, 2))  
     bbox_width = fields.Float(string='Largeur', digits=(12, 2))
     bbox_height = fields.Float(string='Hauteur', digits=(12, 2))
+    
+    # Scores qualité
     quality_score = fields.Float(
         string='Score qualité', 
         digits=(3, 3),
@@ -54,14 +57,14 @@ class PoolCatalogPdfImage(models.Model):
         help="Confiance de l'association automatique avec le produit (0-1)"
     )
     
-    # Images (3 variantes)
+    # Images (3 variantes) - SPRINT 1
     image_raw = fields.Binary(
         string='Image brute',
         help="Image extraite directement du PDF"
     )
     image_trimmed = fields.Binary(
         string='Image détourée', 
-        help="Image avec bordures automatiquement supprimées"
+        help="Image avec bordures automatiquement supprimées (Sprint 1)"
     )
     image_enhanced = fields.Binary(
         string='Image optimisée',
@@ -77,7 +80,7 @@ class PoolCatalogPdfImage(models.Model):
     )
     image_variant = fields.Selection([
         ('raw', 'Brute'),
-        ('trimmed', 'Détourée'),
+        ('trimmed', 'Détourée'),     # NOUVEAU Sprint 1
         ('enhanced', 'Optimisée')
     ], string='Variante utilisée', default='enhanced')
     
@@ -105,8 +108,9 @@ class PoolCatalogPdfImage(models.Model):
         compute='_compute_display_name'
     )
     
-    # Notes utilisateur
+    # Notes utilisateur + amélioration
     notes = fields.Text(string='Notes')
+    enhancement_notes = fields.Text(string='Notes Amélioration Sprint 1')
     
     @api.depends('page_number', 'matched_product_id', 'quality_score')
     def _compute_name(self):
@@ -131,16 +135,25 @@ class PoolCatalogPdfImage(models.Model):
                 'unassigned': '❓'
             }.get(record.role, '')
             
-            record.display_name = f"{role_icon} {record.name} [{record.image_variant}]"
+            variant_icon = {
+                'enhanced': '✨',
+                'trimmed': '✂️',
+                'raw': '📷'
+            }.get(record.image_variant, '')
+            
+            record.display_name = f"{role_icon} {record.name} {variant_icon}"
     
     @api.depends('image_raw', 'image_trimmed', 'image_enhanced', 'image_variant')
     def _compute_image_final(self):
         for record in self:
-            variant_field = f'image_{record.image_variant}'
-            if hasattr(record, variant_field):
-                record.image_final = getattr(record, variant_field)
+            if record.image_variant == 'trimmed' and record.image_trimmed:
+                record.image_final = record.image_trimmed
+            elif record.image_variant == 'enhanced' and record.image_enhanced:
+                record.image_final = record.image_enhanced
+            elif record.image_variant == 'raw' and record.image_raw:
+                record.image_final = record.image_raw
             else:
-                # Fallback sur enhanced si disponible, sinon trimmed, sinon raw
+                # Fallback intelligent - priorité aux versions améliorées
                 record.image_final = (record.image_enhanced or 
                                     record.image_trimmed or 
                                     record.image_raw)
@@ -161,11 +174,64 @@ class PoolCatalogPdfImage(models.Model):
                         f"Changez d'abord l'autre image en 'Secondaire' ou 'Rejetée'."
                     )
     
+    # NOUVELLES ACTIONS SPRINT 1
+    def action_switch_to_trimmed(self):
+        """Basculer vers la version détourée"""
+        self.ensure_one()
+        if self.image_trimmed:
+            self.image_variant = 'trimmed'
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'message': '✂️ Basculé vers la version détourée',
+                    'type': 'info'
+                }
+            }
+        else:
+            raise UserError("Aucune version détourée disponible pour cette image")
+    
+    def action_switch_to_enhanced(self):
+        """Basculer vers la version optimisée"""
+        self.ensure_one() 
+        if self.image_enhanced:
+            self.image_variant = 'enhanced'
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'message': '✨ Basculé vers la version optimisée',
+                    'type': 'success'
+                }
+            }
+        else:
+            raise UserError("Aucune version optimisée disponible pour cette image")
+    
+    def action_preview_all_variants(self):
+        """Action pour prévisualiser les 3 variantes côte à côte"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Variantes Sprint 1 - {self.name}',
+            'res_model': 'pool.catalog.pdf.image',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+            'views': [(False, 'form')],
+            'context': {
+                'form_view_initial_mode': 'readonly',
+                'show_variants_comparison': True
+            }
+        }
+    
+    # Actions héritées des versions précédentes
     def action_set_primary(self):
-        """Marquer cette image comme principale (et les autres du même produit comme secondaires)."""
+        """Marquer cette image comme principale"""
         self.ensure_one()
         if not self.matched_product_id:
-            raise UserError("Impossible de définir comme principale : aucun produit associé.")
+            self._try_auto_match()
+            if not self.matched_product_id:
+                raise UserError("Impossible de définir comme principale : aucun produit associé. Utilisez 'Réassigner le produit' d'abord.")
         
         # Marquer les autres images du même produit comme secondaires
         other_images = self.search([
@@ -182,7 +248,7 @@ class PoolCatalogPdfImage(models.Model):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'message': f"Image définie comme principale pour {self.matched_product_id.name}",
+                'message': f"🌟 Image définie comme principale pour {self.matched_product_id.name}",
                 'type': 'success'
             }
         }
@@ -190,12 +256,46 @@ class PoolCatalogPdfImage(models.Model):
     def action_set_secondary(self):
         """Marquer comme image secondaire."""
         self.ensure_one()
+        if not self.matched_product_id:
+            self._try_auto_match()
         self.role = 'secondary'
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'message': "📷 Image marquée comme secondaire",
+                'type': 'success'
+            }
+        }
     
-    def action_set_rejected(self):
-        """Marquer comme rejetée."""
+    def action_delete_image(self):
+        """Supprimer cette image après confirmation."""
         self.ensure_one()
-        self.role = 'rejected'
+        name = self.name
+        self.unlink()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'message': f"🗑️ Image '{name}' supprimée avec succès",
+                'type': 'success'
+            }
+        }
+    
+    def _try_auto_match(self):
+        """Essayer de faire l'association automatique pour cette image."""
+        self.ensure_one()
+        
+        # Récupérer les produits de la même page
+        page_products = self.pdf_import_id.product_ids.filtered(
+            lambda p: p.page_number == self.page_number
+        )
+        
+        if page_products:
+            # Association simple : premier produit disponible de la page
+            self.matched_product_id = page_products[0]
+            self.confidence_score = 0.7  # Confiance modérée
+            _logger.info(f"Auto-association image {self.id} -> produit {page_products[0].name}")
     
     def action_reassign_product(self):
         """Ouvrir wizard de réassignation manuelle."""
@@ -206,112 +306,4 @@ class PoolCatalogPdfImage(models.Model):
             'view_mode': 'form',
             'target': 'new',
             'context': {'default_image_id': self.id}
-        }
-    
-    def action_preview_variants(self):
-        """Prévisualiser les 3 variantes de l'image."""
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': f'Variantes - {self.name}',
-            'res_model': 'pool.catalog.pdf.image',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'new',
-            'views': [(False, 'form')],
-            'context': {'form_view_initial_mode': 'readonly'}
-        }
-    
-    def enhance_image_sharpness(self, image_data):
-        """
-        Améliore la netteté de l'image avec PIL uniquement (version lite).
-        """
-        if not image_data:
-            return image_data
-        
-        try:
-            # Décoder l'image
-            img_pil = Image.open(io.BytesIO(base64.b64decode(image_data)))
-            
-            # Amélioration de la netteté avec PIL
-            sharpness_enhancer = ImageEnhance.Sharpness(img_pil)
-            sharpened_img = sharpness_enhancer.enhance(1.3)  # +30% netteté
-            
-            # Légère amélioration du contraste
-            contrast_enhancer = ImageEnhance.Contrast(sharpened_img)
-            final_img = contrast_enhancer.enhance(1.1)  # +10% contraste
-            
-            # Réencoder en base64
-            output = io.BytesIO()
-            final_img.save(output, format='PNG', optimize=True)
-            return base64.b64encode(output.getvalue())
-            
-        except Exception as e:
-            _logger.warning(f"Erreur amélioration netteté image {self.id}: {e}")
-            return image_data  # Retourner l'original en cas d'erreur
-    
-    @api.model
-    def create(self, vals):
-        """Override create pour améliorer automatiquement la netteté de l'image enhanced."""
-        record = super().create(vals)
-        
-        # Améliorer la netteté de l'image enhanced si disponible
-        if record.image_enhanced:
-            enhanced_sharp = record.enhance_image_sharpness(record.image_enhanced)
-            if enhanced_sharp != record.image_enhanced:
-                record.write({'image_enhanced': enhanced_sharp})
-        
-        return record
-
-
-class PoolCatalogPdfProduct(models.Model):
-    _inherit = 'pool.catalog.pdf.product'
-    
-    # Relation vers les images
-    image_ids = fields.One2many(
-        'pool.catalog.pdf.image',
-        'matched_product_id',
-        string='Images extraites'
-    )
-    image_count = fields.Integer(
-        string='Nb images',
-        compute='_compute_image_count'
-    )
-    primary_image_id = fields.Many2one(
-        'pool.catalog.pdf.image',
-        string='Image principale',
-        compute='_compute_primary_image',
-        store=True
-    )
-    secondary_image_ids = fields.One2many(
-        'pool.catalog.pdf.image',
-        'matched_product_id',
-        string='Images secondaires',
-        domain=[('role', '=', 'secondary')]
-    )
-    
-    @api.depends('image_ids')
-    def _compute_image_count(self):
-        for record in self:
-            record.image_count = len(record.image_ids.filtered(lambda img: img.role != 'rejected'))
-    
-    @api.depends('image_ids.role')
-    def _compute_primary_image(self):
-        for record in self:
-            primary = record.image_ids.filtered(lambda img: img.role == 'primary')
-            record.primary_image_id = primary[0] if primary else False
-    
-    def action_view_images(self):
-        """Ouvrir la vue des images pour ce produit."""
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': f'Images - {self.name}',
-            'res_model': 'pool.catalog.pdf.image',
-            'view_mode': 'kanban,tree,form',
-            'domain': [('matched_product_id', '=', self.id)],
-            'context': {
-                'default_matched_product_id': self.id,
-                'search_default_not_rejected': 1,
-            }
         }
