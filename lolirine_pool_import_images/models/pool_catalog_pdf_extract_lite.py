@@ -44,7 +44,7 @@ class PoolCatalogPdfImport(models.Model):
         help="Ratio maximum de pixels 'texte-like' toléré dans l'image"
     )
 
-    def action_extract_images_enhanced(self):
+    def action_extract_images_advanced(self):
         """
         Extraction d'images avec filtrage intelligent amélioré.
         Remplace action_extract_images_lite avec meilleure détection.
@@ -423,5 +423,6 @@ class PoolCatalogPdfImport(models.Model):
             return 0.5  # Score par défaut
 
     # Remplacer l'action par défaut par la version améliorée
-    action_extract_images = action_extract_images_enhanced
-    action_extract_images_lite = action_extract_images_enhanced  # Alias
+    action_extract_images = action_extract_images_advanced
+    action_extract_images_enhanced = action_extract_images_advanced  # Alias
+    action_extract_images_lite = action_extract_images_advanced  # Alias
