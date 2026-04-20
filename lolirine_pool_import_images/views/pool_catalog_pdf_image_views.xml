@@ -158,11 +158,10 @@
             </field>
         </record>
 
-        <!-- Menu -->
+        <!-- Menu - SANS PARENT POUR LE TEST -->
         <menuitem 
             id="menu_pool_catalog_pdf_image"
-            name="Images Extraites"
-            parent="lolirine_pool_import.menu_pool_catalog_pdf"
+            name="Images Extraites - TEST"
             action="action_pool_catalog_pdf_image"
             sequence="20"/>
 
