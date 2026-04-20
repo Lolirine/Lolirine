@@ -112,7 +112,7 @@ class PoolCatalogPdfImage(models.Model):
     def _compute_name(self):
         for record in self:
             if record.matched_product_id:
-                name = f"P{record.page_number} - {record.matched_product_id.supplier_ref or record.matched_product_id.name}"
+                name = f"P{record.page_number} - {record.matched_product_id.name}"
             else:
                 name = f"Page {record.page_number} - Image #{record.id or 'nouveau'}"
             
