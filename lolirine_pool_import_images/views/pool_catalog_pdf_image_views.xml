@@ -1,169 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Vue Kanban pour les Images Extraites - AVEC TEST ROUGE -->
-        <record id="view_pool_catalog_pdf_image_kanban" model="ir.ui.view">
-            <field name="name">pool.catalog.pdf.image.kanban</field>
-            <field name="model">pool.catalog.pdf.image</field>
-            <field name="type">kanban</field>
+        <!-- Vue Form enrichie avec bouton extraction avancée -->
+        <record id="view_pool_catalog_pdf_import_form_images_advanced" model="ir.ui.view">
+            <field name="name">pool.catalog.pdf.import.form.advanced</field>
+            <field name="model">pool.catalog.pdf.import</field>
+            <field name="inherit_id" ref="lolirine_pool_import.view_pool_catalog_pdf_import_form"/>
             <field name="arch" type="xml">
-                <kanban>
-                    <field name="name"/>
-                    <field name="role"/>
-                    <field name="image_final"/>
-                    <field name="id"/>
-                    <field name="matched_product_id"/>
-                    <field name="quality_score"/>
-                    <field name="confidence_score"/>
-                    
-                    <templates>
-                        <t t-name="card">
-                            <!-- TEST ROUGE FORCÉ -->
-                            <div style="background: red; color: white; padding: 10px; margin-bottom: 5px;">
-                                TEST FORCÉ - ROLE: <t t-esc="record.role.raw_value"/>
-                                - PRODUIT: <t t-esc="record.matched_product_id.raw_value"/>
-                            </div>
-                            
-                            <div class="oe_kanban_card" style="width: 240px;">
-                                <!-- Boutons d'action en coin -->
-                                <div class="dropdown" style="position: absolute; top: 5px; right: 5px; z-index: 10;">
-                                    <button class="btn btn-sm btn-secondary dropdown-toggle" style="padding: 2px 8px; opacity: 0.8;" data-bs-toggle="dropdown">
-                                        ⋮
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item text-success" name="action_set_primary" type="object">🌟 Marquer comme Principale</a></li>
-                                        <li><a class="dropdown-item text-info" name="action_set_secondary" type="object">📷 Marquer comme Secondaire</a></li>
-                                        <li><a class="dropdown-item text-warning" name="action_reassign_product" type="object">🏷️ Réassigner le produit</a></li>
-                                        <li><hr class="dropdown-divider"/></li>
-                                        <li><a class="dropdown-item text-danger" name="action_delete_image" type="object">🗑️ Supprimer cette image</a></li>
-                                    </ul>
-                                </div>
-                                
-                                <div style="height: 120px; text-align: center; background: #f8f9fa; border: 1px solid #dee2e6;">
-                                    <t t-if="record.image_final.raw_value">
-                                        <img t-att-src="'/web/image/pool.catalog.pdf.image/' + record.id.raw_value + '/image_final'" 
-                                             style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
-                                    </t>
-                                    <t t-else="">
-                                        <div style="padding-top: 40px; color: #6c757d;">
-                                            <i class="fa fa-image fa-2x"></i><br/>Aucune image
-                                        </div>
-                                    </t>
-                                </div>
-                                <div class="p-2">
-                                    <div style="font-size: 11px; color: #6c757d; margin-bottom: 4px;">
-                                        <t t-esc="record.name.value"/>
-                                    </div>
-                                    <div style="font-weight: bold; color: #495057; margin-bottom: 6px; min-height: 20px;">
-                                        <t t-if="record.matched_product_id.raw_value">
-                                            🏷️ <t t-esc="record.matched_product_id.value"/>
-                                        </t>
-                                        <t t-else="">
-                                            <span style="color: #dc3545;">❓ Aucun produit associé</span>
-                                        </t>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span t-att-class="'badge ' + (record.role.raw_value == 'primary' ? 'bg-warning text-dark' : record.role.raw_value == 'secondary' ? 'bg-info text-white' : record.role.raw_value == 'rejected' ? 'bg-danger' : 'bg-secondary')">
-                                            <t t-esc="record.role.value"/>
-                                        </span>
-                                        <span style="font-size: 10px; color: #6c757d;">
-                                            Q:<t t-esc="record.quality_score.value"/>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </t>
-                    </templates>
-                </kanban>
-            </field>
-        </record>
-
-        <!-- Vue Liste -->
-        <record id="view_pool_catalog_pdf_image_list" model="ir.ui.view">
-            <field name="name">pool.catalog.pdf.image.list</field>
-            <field name="model">pool.catalog.pdf.image</field>
-            <field name="type">list</field>
-            <field name="arch" type="xml">
-                <list string="Images Extraites" create="false">
-                    <field name="name"/>
-                    <field name="page_number"/>
-                    <field name="role"/>
-                    <field name="matched_product_id"/>
-                    <field name="quality_score"/>
-                    <field name="confidence_score"/>
-                    <field name="original_width"/>
-                    <field name="original_height"/>
-                </list>
-            </field>
-        </record>
-
-        <!-- Vue Form -->
-        <record id="view_pool_catalog_pdf_image_form" model="ir.ui.view">
-            <field name="name">pool.catalog.pdf.image.form</field>
-            <field name="model">pool.catalog.pdf.image</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Image Extraite">
-                    <sheet>
-                        <div class="oe_title">
-                            <h1>
-                                <field name="name"/>
-                            </h1>
-                        </div>
+                <xpath expr="//header" position="inside">
+                    <!-- Nouveau bouton extraction avancée -->
+                    <button name="action_extract_images_advanced" 
+                            type="object" 
+                            string="🔍 Extraction Avancée OCR"
+                            class="btn-primary"
+                            help="Extraction avec détourage précis et optimisation qualité"/>
+                </xpath>
+                
+                <!-- Section images avec variantes -->
+                <xpath expr="//page[@string='Résultats']" position="after">
+                    <page string="Images Avancées">
                         <group>
                             <group>
-                                <field name="page_number"/>
-                                <field name="role"/>
-                                <field name="matched_product_id"/>
-                                <field name="confidence_score"/>
+                                <field name="image_count" readonly="1"/>
+                                <field name="extraction_status" readonly="1"/>
                             </group>
                             <group>
+                                <label for="extraction_notes" string="Algorithme"/>
+                                <div>
+                                    <div>✨ Détourage précis OpenCV</div>
+                                    <div>🎨 Optimisation e-commerce</div>
+                                    <div>📊 Score qualité 4 critères</div>
+                                    <div>🔍 3 variantes par image</div>
+                                </div>
+                            </group>
+                        </group>
+                        
+                        <!-- Liste images avec actions enrichies -->
+                        <field name="extracted_image_ids" 
+                               context="{'default_pdf_import_id': active_id}"
+                               mode="tree,kanban">
+                            <tree string="Images Extraites Avancées">
+                                <field name="name"/>
+                                <field name="page_number"/>
+                                <field name="quality_score"/>
+                                <field name="role"/>
+                                <field name="matched_product_id"/>
+                                <field name="image_variant"/>
+                                <button name="action_preview_all_variants" 
+                                        type="object" 
+                                        title="Prévisualiser variantes"
+                                        icon="fa-eye"/>
+                                <button name="action_switch_to_trimmed" 
+                                        type="object" 
+                                        title="Version détourée"
+                                        icon="fa-crop"
+                                        attrs="{'invisible': [('image_trimmed', '=', False)]}"/>
+                                <button name="action_switch_to_enhanced" 
+                                        type="object" 
+                                        title="Version optimisée"
+                                        icon="fa-magic"
+                                        attrs="{'invisible': [('image_enhanced', '=', False)]}"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Vue Form Image enrichie avec variantes -->
+        <record id="view_pool_catalog_pdf_image_form_advanced" model="ir.ui.view">
+            <field name="name">pool.catalog.pdf.image.form.advanced</field>
+            <field name="model">pool.catalog.pdf.image</field>
+            <field name="inherit_id" ref="lolirine_pool_import_images.view_pool_catalog_pdf_image_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@string='Images']" position="replace">
+                    <page string="Variantes Images">
+                        <group string="🎯 Comparaison Variantes (Sprint 1)">
+                            <group>
+                                <field name="image_variant"/>
                                 <field name="quality_score"/>
                                 <field name="original_width"/>
                                 <field name="original_height"/>
-                                <field name="image_variant"/>
+                            </group>
+                            <group>
+                                <field name="bbox_x"/>
+                                <field name="bbox_y"/>
+                                <field name="bbox_width"/>
+                                <field name="bbox_height"/>
                             </group>
                         </group>
-                        <notebook>
-                            <page string="Images">
-                                <group>
-                                    <field name="image_raw" widget="image" options="{'size': [300, 300]}"/>
-                                    <field name="image_trimmed" widget="image" options="{'size': [300, 300]}"/>
-                                    <field name="image_enhanced" widget="image" options="{'size': [300, 300]}"/>
-                                    <field name="image_final" widget="image" options="{'size': [300, 300]}"/>
+                        
+                        <!-- Comparaison côte à côte des 3 variantes -->
+                        <group string="🔍 Aperçu Variantes">
+                            <group col="3">
+                                <group string="📷 Brute">
+                                    <field name="image_raw" widget="image" options="{'size': [250, 250]}"/>
+                                    <div>Image originale extraite</div>
                                 </group>
-                            </page>
-                            <page string="Notes">
-                                <field name="notes" nolabel="1"/>
-                            </page>
-                        </notebook>
-                    </sheet>
-                </form>
+                                <group string="✂️ Détourée">
+                                    <field name="image_trimmed" widget="image" options="{'size': [250, 250]}"/>
+                                    <div>Bordures supprimées</div>
+                                    <button name="action_switch_to_trimmed" 
+                                            type="object" 
+                                            string="Utiliser cette version"
+                                            class="btn-secondary"
+                                            attrs="{'invisible': [('image_trimmed', '=', False)]}"/>
+                                </group>
+                                <group string="✨ Optimisée">
+                                    <field name="image_enhanced" widget="image" options="{'size': [250, 250]}"/>
+                                    <div>Netteté +30%, Contraste +20%</div>
+                                    <button name="action_switch_to_enhanced" 
+                                            type="object" 
+                                            string="Utiliser cette version"
+                                            class="btn-primary"
+                                            attrs="{'invisible': [('image_enhanced', '=', False)]}"/>
+                                </group>
+                            </group>
+                        </group>
+                        
+                        <!-- Image finale utilisée -->
+                        <group string="🎯 Image Finale Utilisée">
+                            <field name="image_final" widget="image" options="{'size': [400, 400]}"/>
+                            <field name="enhancement_notes" readonly="1"/>
+                        </group>
+                    </page>
+                </xpath>
             </field>
         </record>
 
-        <!-- Action -->
-        <record id="action_pool_catalog_pdf_image" model="ir.actions.act_window">
-            <field name="name">Images Extraites</field>
-            <field name="res_model">pool.catalog.pdf.image</field>
-            <field name="view_mode">kanban,list,form</field>
-            <field name="context">{}</field>
-            <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
-                    Aucune image extraite
-                </p>
-                <p>
-                    Utilisez l'extraction d'images depuis un import PDF pour voir les images ici.
-                </p>
+        <!-- Vue kanban enrichie avec indicateurs qualité -->
+        <record id="view_pool_catalog_pdf_image_kanban_advanced" model="ir.ui.view">
+            <field name="name">pool.catalog.pdf.image.kanban.advanced</field>
+            <field name="model">pool.catalog.pdf.image</field>
+            <field name="inherit_id" ref="lolirine_pool_import_images.view_pool_catalog_pdf_image_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//span[contains(@style, 'font-size: 10px')]" position="replace">
+                    <!-- Indicateurs qualité enrichis -->
+                    <div style="font-size: 9px; color: #6c757d;">
+                        <span>Q:<t t-esc="record.quality_score.value"/></span>
+                        <span style="margin-left: 5px;">
+                            <t t-if="record.image_variant.raw_value == 'enhanced'">✨</t>
+                            <t t-elif="record.image_variant.raw_value == 'trimmed'">✂️</t>
+                            <t t-else="">📷</t>
+                        </span>
+                    </div>
+                </xpath>
+                
+                <!-- Actions enrichies -->
+                <xpath expr="//ul[@class='dropdown-menu']" position="inside">
+                    <li><hr class="dropdown-divider"/></li>
+                    <li><a class="dropdown-item text-info" name="action_preview_all_variants" type="object">🔍 Voir toutes variantes</a></li>
+                    <li><a class="dropdown-item text-warning" name="action_switch_to_trimmed" type="object">✂️ Version détourée</a></li>
+                    <li><a class="dropdown-item text-success" name="action_switch_to_enhanced" type="object">✨ Version optimisée</a></li>
+                </xpath>
             </field>
         </record>
-
-        <!-- Menu - SANS PARENT POUR LE TEST -->
-        <menuitem 
-            id="menu_pool_catalog_pdf_image"
-            name="Images Extraites - TEST"
-            action="action_pool_catalog_pdf_image"
-            sequence="20"/>
 
     </data>
 </odoo>
