@@ -5,7 +5,7 @@
         <record id="view_pool_catalog_pdf_import_form_images_advanced" model="ir.ui.view">
             <field name="name">pool.catalog.pdf.import.form.advanced</field>
             <field name="model">pool.catalog.pdf.import</field>
-            <field name="inherit_id" ref="lolirine_pool_import.view_pool_catalog_pdf_import_form"/>
+            <field name="inherit_id" ref="lolirine_pool_import.pool_catalog_pdf_import_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//header" position="inside">
                     <!-- Nouveau bouton extraction avancée -->
