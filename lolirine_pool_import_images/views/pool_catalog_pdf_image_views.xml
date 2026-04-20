@@ -1,127 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vue Kanban avec produit associé affiché -->
-    <record id="view_pool_catalog_pdf_image_kanban" model="ir.ui.view">
-        <field name="name">pool.catalog.pdf.image.kanban</field>
-        <field name="model">pool.catalog.pdf.image</field>
-        <field name="arch" type="xml">
-            <kanban>
-                <field name="name"/>
-                <field name="role"/>
-                <field name="image_final"/>
-                <field name="id"/>
-                <field name="matched_product_id"/>
-                <field name="quality_score"/>
-                <field name="confidence_score"/>
-                
-                <templates>
-                    <t t-name="card">
-                        <div class="oe_kanban_card" style="width: 220px;">
-                            <div style="height: 120px; text-align: center; background: #f8f9fa; border: 1px solid #dee2e6;">
-                                <t t-if="record.image_final.raw_value">
-                                    <img t-att-src="'/web/image/pool.catalog.pdf.image/' + record.id.raw_value + '/image_final'" 
-                                         style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
-                                </t>
-                                <t t-else="">
-                                    <div style="padding-top: 40px; color: #6c757d;">
-                                        <i class="fa fa-image fa-2x"></i><br/>Aucune image
-                                    </div>
-                                </t>
+    <data>
+        <!-- Vue Kanban pour les Images Extraites - AVEC TEST ROUGE -->
+        <record id="view_pool_catalog_pdf_image_kanban" model="ir.ui.view">
+            <field name="name">pool.catalog.pdf.image.kanban</field>
+            <field name="model">pool.catalog.pdf.image</field>
+            <field name="type">kanban</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <field name="name"/>
+                    <field name="role"/>
+                    <field name="image_final"/>
+                    <field name="id"/>
+                    <field name="matched_product_id"/>
+                    <field name="quality_score"/>
+                    <field name="confidence_score"/>
+                    
+                    <templates>
+                        <t t-name="card">
+                            <!-- TEST ROUGE FORCÉ -->
+                            <div style="background: red; color: white; padding: 10px; margin-bottom: 5px;">
+                                TEST FORCÉ - ROLE: <t t-esc="record.role.raw_value"/>
+                                - PRODUIT: <t t-esc="record.matched_product_id.raw_value"/>
                             </div>
-                            <div class="p-2">
-                                <div style="font-size: 11px; color: #6c757d; margin-bottom: 4px;">
-                                    <t t-esc="record.name.value"/>
+                            
+                            <div class="oe_kanban_card" style="width: 240px;">
+                                <!-- Boutons d'action en coin -->
+                                <div class="dropdown" style="position: absolute; top: 5px; right: 5px; z-index: 10;">
+                                    <button class="btn btn-sm btn-secondary dropdown-toggle" style="padding: 2px 8px; opacity: 0.8;" data-bs-toggle="dropdown">
+                                        ⋮
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item text-success" name="action_set_primary" type="object">🌟 Marquer comme Principale</a></li>
+                                        <li><a class="dropdown-item text-info" name="action_set_secondary" type="object">📷 Marquer comme Secondaire</a></li>
+                                        <li><a class="dropdown-item text-warning" name="action_reassign_product" type="object">🏷️ Réassigner le produit</a></li>
+                                        <li><hr class="dropdown-divider"/></li>
+                                        <li><a class="dropdown-item text-danger" name="action_delete_image" type="object">🗑️ Supprimer cette image</a></li>
+                                    </ul>
                                 </div>
-                                <div style="font-weight: bold; color: #495057; margin-bottom: 6px;">
-                                    <t t-if="record.matched_product_id.raw_value">
-                                        🏷️ <t t-esc="record.matched_product_id.value"/>
+                                
+                                <div style="height: 120px; text-align: center; background: #f8f9fa; border: 1px solid #dee2e6;">
+                                    <t t-if="record.image_final.raw_value">
+                                        <img t-att-src="'/web/image/pool.catalog.pdf.image/' + record.id.raw_value + '/image_final'" 
+                                             style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
                                     </t>
                                     <t t-else="">
-                                        ❓ Aucun produit associé
+                                        <div style="padding-top: 40px; color: #6c757d;">
+                                            <i class="fa fa-image fa-2x"></i><br/>Aucune image
+                                        </div>
                                     </t>
                                 </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span t-att-class="'badge ' + (record.role.raw_value == 'primary' ? 'bg-warning text-dark' : record.role.raw_value == 'secondary' ? 'bg-info text-white' : 'bg-secondary')">
-                                        <t t-esc="record.role.value"/>
-                                    </span>
-                                    <span style="font-size: 10px; color: #6c757d;">
-                                        Q:<t t-esc="record.quality_score.value"/>
-                                    </span>
+                                <div class="p-2">
+                                    <div style="font-size: 11px; color: #6c757d; margin-bottom: 4px;">
+                                        <t t-esc="record.name.value"/>
+                                    </div>
+                                    <div style="font-weight: bold; color: #495057; margin-bottom: 6px; min-height: 20px;">
+                                        <t t-if="record.matched_product_id.raw_value">
+                                            🏷️ <t t-esc="record.matched_product_id.value"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span style="color: #dc3545;">❓ Aucun produit associé</span>
+                                        </t>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span t-att-class="'badge ' + (record.role.raw_value == 'primary' ? 'bg-warning text-dark' : record.role.raw_value == 'secondary' ? 'bg-info text-white' : record.role.raw_value == 'rejected' ? 'bg-danger' : 'bg-secondary')">
+                                            <t t-esc="record.role.value"/>
+                                        </span>
+                                        <span style="font-size: 10px; color: #6c757d;">
+                                            Q:<t t-esc="record.quality_score.value"/>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Vue Liste -->
+        <record id="view_pool_catalog_pdf_image_list" model="ir.ui.view">
+            <field name="name">pool.catalog.pdf.image.list</field>
+            <field name="model">pool.catalog.pdf.image</field>
+            <field name="type">list</field>
+            <field name="arch" type="xml">
+                <list string="Images Extraites" create="false">
+                    <field name="name"/>
+                    <field name="page_number"/>
+                    <field name="role"/>
+                    <field name="matched_product_id"/>
+                    <field name="quality_score"/>
+                    <field name="confidence_score"/>
+                    <field name="original_width"/>
+                    <field name="original_height"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vue Form -->
+        <record id="view_pool_catalog_pdf_image_form" model="ir.ui.view">
+            <field name="name">pool.catalog.pdf.image.form</field>
+            <field name="model">pool.catalog.pdf.image</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Image Extraite">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"/>
+                            </h1>
                         </div>
-                    </t>
-                </templates>
-            </kanban>
-        </field>
-    </record>
-    
-    <!-- Vue Liste enrichie -->
-    <record id="view_pool_catalog_pdf_image_list" model="ir.ui.view">
-        <field name="name">pool.catalog.pdf.image.list</field>
-        <field name="model">pool.catalog.pdf.image</field>
-        <field name="arch" type="xml">
-            <list>
-                <field name="page_number"/>
-                <field name="name"/>
-                <field name="matched_product_id"/>
-                <field name="role" widget="badge" decoration-warning="role == 'primary'" decoration-info="role == 'secondary'" decoration-danger="role == 'rejected'"/>
-                <field name="quality_score" widget="progressbar"/>
-                <field name="confidence_score" widget="progressbar"/>
-            </list>
-        </field>
-    </record>
-    
-    <!-- Vue Formulaire simple -->
-    <record id="view_pool_catalog_pdf_image_form" model="ir.ui.view">
-        <field name="name">pool.catalog.pdf.image.form</field>
-        <field name="model">pool.catalog.pdf.image</field>
-        <field name="arch" type="xml">
-            <form>
-                <sheet>
-                    <h1><field name="name"/></h1>
-                    <group>
-                        <field name="role"/>
-                        <field name="matched_product_id"/>
-                        <field name="image_final" widget="image"/>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
-    
-    <!-- Action principale -->
-    <record id="action_pool_catalog_pdf_image" model="ir.actions.act_window">
-        <field name="name">Images Extraites</field>
-        <field name="res_model">pool.catalog.pdf.image</field>
-        <field name="view_mode">kanban,list,form</field>
-    </record>
+                        <group>
+                            <group>
+                                <field name="page_number"/>
+                                <field name="role"/>
+                                <field name="matched_product_id"/>
+                                <field name="confidence_score"/>
+                            </group>
+                            <group>
+                                <field name="quality_score"/>
+                                <field name="original_width"/>
+                                <field name="original_height"/>
+                                <field name="image_variant"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Images">
+                                <group>
+                                    <field name="image_raw" widget="image" options="{'size': [300, 300]}"/>
+                                    <field name="image_trimmed" widget="image" options="{'size': [300, 300]}"/>
+                                    <field name="image_enhanced" widget="image" options="{'size': [300, 300]}"/>
+                                    <field name="image_final" widget="image" options="{'size': [300, 300]}"/>
+                                </group>
+                            </page>
+                            <page string="Notes">
+                                <field name="notes" nolabel="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <!-- EXTENSION avec le VRAI nom de vue -->
-    <record id="view_pool_catalog_pdf_import_form_images" model="ir.ui.view">
-        <field name="name">pool.catalog.pdf.import.form.images</field>
-        <field name="model">pool.catalog.pdf.import</field>
-        <field name="inherit_id" ref="lolirine_pool_import.pool_catalog_pdf_import_form"/>
-        <field name="arch" type="xml">
-            <!-- Ajouter bouton dans l'en-tête -->
-            <xpath expr="//header" position="inside">
-                <button name="action_extract_images_lite" 
-                        string="🖼️ Extraire les images" 
-                        type="object" 
-                        class="btn-success"
-                        help="Extrait automatiquement les images du PDF et les associe aux produits"/>
-            </xpath>
-        </field>
-    </record>
+        <!-- Action -->
+        <record id="action_pool_catalog_pdf_image" model="ir.actions.act_window">
+            <field name="name">Images Extraites</field>
+            <field name="res_model">pool.catalog.pdf.image</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Aucune image extraite
+                </p>
+                <p>
+                    Utilisez l'extraction d'images depuis un import PDF pour voir les images ici.
+                </p>
+            </field>
+        </record>
 
-    <!-- Menu autonome -->
-    <menuitem id="menu_pool_images_root" 
-              name="Pool Images" 
-              sequence="100"/>
-              
-    <menuitem id="menu_pool_catalog_images" 
-              name="Images Extraites" 
-              parent="menu_pool_images_root"
-              action="action_pool_catalog_pdf_image"
-              sequence="10"/>
+        <!-- Menu -->
+        <menuitem 
+            id="menu_pool_catalog_pdf_image"
+            name="Images Extraites"
+            parent="lolirine_pool_import.menu_pool_catalog_pdf"
+            action="action_pool_catalog_pdf_image"
+            sequence="20"/>
+
+    </data>
 </odoo>
