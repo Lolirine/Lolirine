@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Vue Form enrichie avec bouton extraction avancée -->
+        <!-- SEULEMENT le bouton d'extraction avancée - Version simplifiée -->
         <record id="view_pool_catalog_pdf_import_form_images_advanced" model="ir.ui.view">
             <field name="name">pool.catalog.pdf.import.form.advanced</field>
             <field name="model">pool.catalog.pdf.import</field>
@@ -17,93 +17,26 @@
             </field>
         </record>
 
-        <!-- Vue Form Image enrichie avec variantes -->
-        <record id="view_pool_catalog_pdf_image_form_advanced" model="ir.ui.view">
-            <field name="name">pool.catalog.pdf.image.form.advanced</field>
-            <field name="model">pool.catalog.pdf.image</field>
-            <field name="inherit_id" ref="lolirine_pool_import_images.view_pool_catalog_pdf_image_form"/>
-            <field name="arch" type="xml">
-                <xpath expr="//page[@string='Images']" position="replace">
-                    <page string="Variantes Images">
-                        <group string="🎯 Comparaison Variantes (Sprint 1)">
-                            <group>
-                                <field name="image_variant"/>
-                                <field name="quality_score"/>
-                                <field name="original_width"/>
-                                <field name="original_height"/>
-                            </group>
-                            <group>
-                                <field name="bbox_x"/>
-                                <field name="bbox_y"/>
-                                <field name="bbox_width"/>
-                                <field name="bbox_height"/>
-                            </group>
-                        </group>
-                        
-                        <!-- Comparaison côte à côte des 3 variantes -->
-                        <group string="🔍 Aperçu Variantes">
-                            <group col="3">
-                                <group string="📷 Brute">
-                                    <field name="image_raw" widget="image" options="{'size': [250, 250]}"/>
-                                    <div>Image originale extraite</div>
-                                </group>
-                                <group string="✂️ Détourée">
-                                    <field name="image_trimmed" widget="image" options="{'size': [250, 250]}"/>
-                                    <div>Bordures supprimées</div>
-                                    <button name="action_switch_to_trimmed" 
-                                            type="object" 
-                                            string="Utiliser cette version"
-                                            class="btn-secondary"
-                                            attrs="{'invisible': [('image_trimmed', '=', False)]}"/>
-                                </group>
-                                <group string="✨ Optimisée">
-                                    <field name="image_enhanced" widget="image" options="{'size': [250, 250]}"/>
-                                    <div>Netteté +30%, Contraste +20%</div>
-                                    <button name="action_switch_to_enhanced" 
-                                            type="object" 
-                                            string="Utiliser cette version"
-                                            class="btn-primary"
-                                            attrs="{'invisible': [('image_enhanced', '=', False)]}"/>
-                                </group>
-                            </group>
-                        </group>
-                        
-                        <!-- Image finale utilisée -->
-                        <group string="🎯 Image Finale Utilisée">
-                            <field name="image_final" widget="image" options="{'size': [400, 400]}"/>
-                            <field name="enhancement_notes" readonly="1"/>
-                        </group>
-                    </page>
-                </xpath>
-            </field>
+        <!-- Nouveaux champs pour le modèle image - SANS héritage de vue -->
+        <record id="pool_catalog_pdf_image_bbox_fields" model="ir.model.fields">
+            <field name="model_id" ref="model_pool_catalog_pdf_image"/>
+            <field name="name">bbox_x</field>
+            <field name="field_description">Position X</field>
+            <field name="ttype">float</field>
         </record>
-
-        <!-- Vue kanban enrichie avec indicateurs qualité -->
-        <record id="view_pool_catalog_pdf_image_kanban_advanced" model="ir.ui.view">
-            <field name="name">pool.catalog.pdf.image.kanban.advanced</field>
-            <field name="model">pool.catalog.pdf.image</field>
-            <field name="inherit_id" ref="lolirine_pool_import_images.view_pool_catalog_pdf_image_kanban"/>
-            <field name="arch" type="xml">
-                <xpath expr="//span[contains(@style, 'font-size: 10px')]" position="replace">
-                    <!-- Indicateurs qualité enrichis -->
-                    <div style="font-size: 9px; color: #6c757d;">
-                        <span>Q:<t t-esc="record.quality_score.value"/></span>
-                        <span style="margin-left: 5px;">
-                            <t t-if="record.image_variant.raw_value == 'enhanced'">✨</t>
-                            <t t-elif="record.image_variant.raw_value == 'trimmed'">✂️</t>
-                            <t t-else="">📷</t>
-                        </span>
-                    </div>
-                </xpath>
-                
-                <!-- Actions enrichies -->
-                <xpath expr="//ul[@class='dropdown-menu']" position="inside">
-                    <li><hr class="dropdown-divider"/></li>
-                    <li><a class="dropdown-item text-info" name="action_preview_all_variants" type="object">🔍 Voir toutes variantes</a></li>
-                    <li><a class="dropdown-item text-warning" name="action_switch_to_trimmed" type="object">✂️ Version détourée</a></li>
-                    <li><a class="dropdown-item text-success" name="action_switch_to_enhanced" type="object">✨ Version optimisée</a></li>
-                </xpath>
-            </field>
+        
+        <record id="pool_catalog_pdf_image_bbox_y_fields" model="ir.model.fields">
+            <field name="model_id" ref="model_pool_catalog_pdf_image"/>
+            <field name="name">bbox_y</field>
+            <field name="field_description">Position Y</field>
+            <field name="ttype">float</field>
+        </record>
+        
+        <record id="pool_catalog_pdf_image_trimmed_fields" model="ir.model.fields">
+            <field name="model_id" ref="model_pool_catalog_pdf_image"/>
+            <field name="name">image_trimmed</field>
+            <field name="field_description">Image Détourée</field>
+            <field name="ttype">binary</field>
         </record>
 
     </data>
