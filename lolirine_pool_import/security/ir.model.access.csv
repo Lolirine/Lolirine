@@ -26,3 +26,6 @@ access_pool_catalog_extraction_image_manager,pool.catalog.extraction.image.manag
 access_pool_catalog_pdf_parser,pool.catalog.pdf.parser,model_pool_catalog_pdf_parser,base.group_system,1,1,1,1
 access_pool_catalog_pdf_import,pool.catalog.pdf.import,model_pool_catalog_pdf_import,base.group_user,1,1,1,1
 access_pool_catalog_pdf_product,pool.catalog.pdf.product,model_pool_catalog_pdf_product,base.group_user,1,1,1,1
+access_pool_catalog_pdf_image,pool.catalog.pdf.image,model_pool_catalog_pdf_image,base.group_user,1,1,1,1
+access_pool_catalog_pdf_image_manager,pool.catalog.pdf.image.manager,model_pool_catalog_pdf_image,base.group_system,1,1,1,1
+access_pool_catalog_pdf_image_batch_review,pool.catalog.pdf.image.batch.review,model_pool_catalog_pdf_image_batch_review,base.group_user,1,1,1,1
