@@ -75,15 +75,6 @@
                            statusbar_visible="unassigned,secondary_proposed,secondary_validated,primary"/>
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                        <button name="action_view_images"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-image"
-                                invisible="not product_id">
-                            <field name="product_id" widget="statinfo" string="Produit"/>
-                        </button>
-                    </div>
                     <div class="oe_title">
                         <h1>
                             <field name="display_name" readonly="1"/>
