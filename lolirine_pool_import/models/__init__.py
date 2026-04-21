@@ -8,3 +8,6 @@ from . import pool_variant_image
 
 from . import pool_catalog_pdf_parser
 from . import pool_catalog_pdf
+from . import pool_catalog_pdf_image
+from . import pool_catalog_pdf_import_images
+from . import pool_catalog_pdf_product_images
