@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ======================================================== -->
+    <!-- LIST VIEW : pool.catalog.pdf.image                         -->
+    <!-- ======================================================== -->
+    <record id="view_pool_catalog_pdf_image_list" model="ir.ui.view">
+        <field name="name">pool.catalog.pdf.image.list</field>
+        <field name="model">pool.catalog.pdf.image</field>
+        <field name="arch" type="xml">
+            <list string="Images extraites"
+                  multi_edit="1"
+                  default_order="page_number, product_id, combined_score desc">
+                <field name="image_data_thumb" widget="image" options="{'size': [64, 64]}"/>
+                <field name="page_number"/>
+                <field name="matched_reference"/>
+                <field name="product_id" optional="show"/>
+                <field name="role" widget="badge"
+                       decoration-success="role == 'primary'"
+                       decoration-info="role in ('secondary_proposed', 'secondary_validated')"
+                       decoration-muted="role == 'rejected'"/>
+                <field name="validated" widget="boolean_toggle"/>
+                <field name="quality_score" widget="progressbar" optional="hide"/>
+                <field name="confidence_score" widget="progressbar" optional="hide"/>
+                <field name="combined_score" widget="progressbar"/>
+                <field name="extraction_method" optional="hide"/>
+                <field name="width_px" optional="hide"/>
+                <field name="height_px" optional="hide"/>
+                <field name="file_size_kb" optional="hide"/>
+                <field name="pushed_to_product" widget="boolean_toggle" optional="hide"/>
+                <field name="note" optional="hide"/>
+                <button name="action_set_primary"
+                        type="object"
+                        string="🥇 Principale"
+                        invisible="role == 'primary'"/>
+                <button name="action_validate_secondary"
+                        type="object"
+                        string="✅ Valider"
+                        invisible="role != 'secondary_proposed'"/>
+                <button name="action_reject"
+                        type="object"
+                        string="❌ Rejeter"
+                        invisible="role == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ======================================================== -->
+    <!-- FORM VIEW : pool.catalog.pdf.image                         -->
+    <!-- ======================================================== -->
+    <record id="view_pool_catalog_pdf_image_form" model="ir.ui.view">
+        <field name="name">pool.catalog.pdf.image.form</field>
+        <field name="model">pool.catalog.pdf.image</field>
+        <field name="arch" type="xml">
+            <form string="Image extraite">
+                <header>
+                    <button name="action_set_primary"
+                            type="object"
+                            string="🥇 Marquer principale"
+                            class="btn-primary"
+                            invisible="role == 'primary' or not product_id"/>
+                    <button name="action_validate_secondary"
+                            type="object"
+                            string="✅ Valider comme secondaire"
+                            class="btn-success"
+                            invisible="role not in ('secondary_proposed', 'unassigned') or not product_id"/>
+                    <button name="action_reject"
+                            type="object"
+                            string="❌ Rejeter"
+                            invisible="role == 'rejected'"/>
+                    <button name="action_reset"
+                            type="object"
+                            string="↻ Réinitialiser"/>
+                    <field name="role" widget="statusbar"
+                           statusbar_visible="unassigned,secondary_proposed,secondary_validated,primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_images"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-image"
+                                invisible="not product_id">
+                            <field name="product_id" widget="statinfo" string="Produit"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Association">
+                            <field name="pdf_import_id" readonly="1"/>
+                            <field name="page_number" readonly="1"/>
+                            <field name="product_id"
+                                   options="{'no_create': True}"
+                                   domain="[('pdf_import_id', '=', pdf_import_id)]"/>
+                            <field name="matched_reference"/>
+                            <field name="validated" widget="boolean_toggle"/>
+                        </group>
+                        <group string="Qualité &amp; Confiance">
+                            <field name="quality_score" widget="progressbar"/>
+                            <field name="confidence_score" widget="progressbar"/>
+                            <field name="combined_score" widget="progressbar"/>
+                            <field name="extraction_method"/>
+                            <field name="width_px"/>
+                            <field name="height_px"/>
+                            <field name="file_size_kb"/>
+                            <field name="pushed_to_product" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <group string="Image">
+                        <field name="image_data" widget="image" nolabel="1"
+                               options="{'size': [512, 512]}"/>
+                    </group>
+                    <group string="Position dans le PDF">
+                        <field name="bbox_x"/>
+                        <field name="bbox_y"/>
+                        <field name="bbox_width"/>
+                        <field name="bbox_height"/>
+                    </group>
+                    <group string="Note">
+                        <field name="note" nolabel="1" placeholder="Notes de révision..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ======================================================== -->
+    <!-- SEARCH VIEW                                               -->
+    <!-- ======================================================== -->
+    <record id="view_pool_catalog_pdf_image_search" model="ir.ui.view">
+        <field name="name">pool.catalog.pdf.image.search</field>
+        <field name="model">pool.catalog.pdf.image</field>
+        <field name="arch" type="xml">
+            <search string="Images extraites">
+                <field name="matched_reference"/>
+                <field name="product_id"/>
+                <field name="pdf_import_id"/>
+                <field name="page_number"/>
+                <separator/>
+                <filter name="primary" string="🥇 Principales"
+                        domain="[('role', '=', 'primary')]"/>
+                <filter name="secondary_proposed" string="🔵 Secondaires à valider"
+                        domain="[('role', '=', 'secondary_proposed')]"/>
+                <filter name="secondary_validated" string="✅ Secondaires validées"
+                        domain="[('role', '=', 'secondary_validated')]"/>
+                <filter name="unassigned" string="Non assignées"
+                        domain="[('role', '=', 'unassigned')]"/>
+                <filter name="rejected" string="❌ Rejetées"
+                        domain="[('role', '=', 'rejected')]"/>
+                <separator/>
+                <filter name="matched" string="Matchées à un produit"
+                        domain="[('product_id', '!=', False)]"/>
+                <filter name="unmatched" string="Non matchées"
+                        domain="[('product_id', '=', False)]"/>
+                <filter name="not_validated" string="Non validées"
+                        domain="[('validated', '=', False)]"/>
+                <filter name="pushed" string="Poussées vers produit"
+                        domain="[('pushed_to_product', '=', True)]"/>
+                <separator/>
+                <filter name="high_confidence" string="Confiance ≥ 60%"
+                        domain="[('confidence_score', '&gt;=', 0.6)]"/>
+                <filter name="low_confidence" string="Confiance &lt; 30%"
+                        domain="[('confidence_score', '&lt;', 0.3)]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="group_by_product" string="Produit"
+                            context="{'group_by': 'product_id'}"/>
+                    <filter name="group_by_role" string="Rôle"
+                            context="{'group_by': 'role'}"/>
+                    <filter name="group_by_page" string="Page"
+                            context="{'group_by': 'page_number'}"/>
+                    <filter name="group_by_import" string="Import PDF"
+                            context="{'group_by': 'pdf_import_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ======================================================== -->
+    <!-- ACTION                                                    -->
+    <!-- ======================================================== -->
+    <record id="action_pool_catalog_pdf_image" model="ir.actions.act_window">
+        <field name="name">Images extraites</field>
+        <field name="res_model">pool.catalog.pdf.image</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_pool_catalog_pdf_image_search"/>
+        <field name="context">{'search_default_group_by_product': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiley_face">Aucune image extraite</p>
+            <p>Lancez une extraction depuis un import PDF pour voir apparaître les images ici.</p>
+        </field>
+    </record>
+
+</odoo>
