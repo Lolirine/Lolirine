@@ -84,8 +84,7 @@
                         <group string="Association">
                             <field name="pdf_import_id" readonly="1"/>
                             <field name="page_number" readonly="1"/>
-                            <field name="product_id"
-                                   options="{'no_create': True}"
+                            <field name="product_id" options="{'no_create': True}"/>
                             <field name="matched_reference"/>
                             <field name="validated" widget="boolean_toggle"/>
                         </group>
@@ -151,7 +150,7 @@
                 <filter name="pushed" string="Poussées vers produit"
                         domain="[('pushed_to_product', '=', True)]"/>
                 <separator/>
-                <filter name="high_confidence" string="Confiance ≥ 60%"
+                <filter name="high_confidence" string="Confiance &gt;= 60%"
                         domain="[('confidence_score', '&gt;=', 0.6)]"/>
                 <filter name="low_confidence" string="Confiance &lt; 30%"
                         domain="[('confidence_score', '&lt;', 0.3)]"/>
@@ -180,7 +179,7 @@
         <field name="context">{'search_default_group_by_product': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiley_face">Aucune image extraite</p>
-            <p>Lancez une extraction depuis un import PDF pour voir apparaître les images ici.</p>
+            <p>Lancez une extraction depuis un import PDF pour voir apparaitre les images ici.</p>
         </field>
     </record>
 
