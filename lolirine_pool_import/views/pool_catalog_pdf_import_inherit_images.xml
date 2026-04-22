@@ -16,7 +16,7 @@
                         type="object"
                         string="Extraire les images"
                         class="btn-primary"
-                        invisible="image_extraction_state == 'in_progress' or not pdf_file"/>
+                        invisible="image_extraction_state == 'in_progress' or not source_pdf"/>
                 <button name="action_reassign_roles"
                         type="object"
                         string="Reassigner roles"
