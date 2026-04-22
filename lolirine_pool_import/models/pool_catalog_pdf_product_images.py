@@ -33,6 +33,7 @@ class PoolCatalogPdfProductImages(models.Model):
         string='Image principale',
         compute='_compute_image_aggregates',
         store=False,
+        search='_search_primary_image_id',
     )
     primary_image_preview = fields.Binary(
         string='Aperçu principal',
