@@ -2,46 +2,34 @@
 <odoo>
 
     <!-- ========================================================== -->
-    <!-- HÉRITAGE : pool.catalog.pdf.import — boutons extraction      -->
+    <!-- HERITAGE : pool.catalog.pdf.import - boutons extraction     -->
     <!-- ========================================================== -->
     <record id="view_pool_catalog_pdf_import_form_images" model="ir.ui.view">
         <field name="name">pool.catalog.pdf.import.form.images</field>
         <field name="model">pool.catalog.pdf.import</field>
-        <field name="inherit_id" ref="lolirine_pool_import.view_pool_catalog_pdf_import_form"/>
+        <field name="inherit_id" ref="lolirine_pool_import.pool_catalog_pdf_import_form"/>
         <field name="arch" type="xml">
-
-            <!-- Bouton smart "Images" dans la button_box existante -->
-            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
-                <button name="action_view_extracted_images"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-picture-o"
-                        invisible="image_count == 0">
-                    <field name="image_count" widget="statinfo" string="Images"/>
-                </button>
-            </xpath>
 
             <!-- Boutons d'extraction dans le header -->
             <xpath expr="//header" position="inside">
                 <button name="action_extract_images"
                         type="object"
-                        string="📸 Extraire les images"
+                        string="Extraire les images"
                         class="btn-primary"
                         invisible="image_extraction_state == 'in_progress' or not pdf_file"/>
                 <button name="action_reassign_roles"
                         type="object"
-                        string="↻ Réassigner rôles"
+                        string="Reassigner roles"
                         invisible="image_count == 0"/>
-                <button name="%(action_pool_catalog_pdf_image_batch_review)d"
-                        type="action"
-                        string="⚙️ Revue en masse"
-                        context="{'default_scope': 'import', 'default_pdf_import_id': id}"
+                <button name="action_view_extracted_images"
+                        type="object"
+                        string="Voir les images"
                         invisible="image_count == 0"/>
             </xpath>
 
             <!-- Onglet "Images extraites" dans le notebook existant -->
             <xpath expr="//notebook" position="inside">
-                <page string="📸 Images extraites" name="images_tab">
+                <page string="Images extraites" name="images_tab">
                     <group>
                         <group>
                             <field name="image_extraction_state" readonly="1"/>
@@ -58,9 +46,7 @@
                            nolabel="1"
                            widget="text"
                            invisible="not image_extraction_log"/>
-                    <field name="image_ids"
-                           nolabel="1"
-                           context="{'default_pdf_import_id': id}">
+                    <field name="image_ids" nolabel="1">
                         <list default_order="page_number, product_id, combined_score desc"
                               multi_edit="1">
                             <field name="image_data_thumb" widget="image" options="{'size': [48, 48]}"/>
@@ -75,60 +61,11 @@
                             <field name="combined_score" widget="progressbar"/>
                             <field name="extraction_method" optional="hide"/>
                             <button name="action_set_primary" type="object"
-                                    string="🥇" invisible="role == 'primary'"/>
+                                    string="Principale" invisible="role == 'primary'"/>
                             <button name="action_validate_secondary" type="object"
-                                    string="✅" invisible="role != 'secondary_proposed'"/>
+                                    string="Valider" invisible="role != 'secondary_proposed'"/>
                             <button name="action_reject" type="object"
-                                    string="❌" invisible="role == 'rejected'"/>
-                        </list>
-                    </field>
-                </page>
-            </xpath>
-
-        </field>
-    </record>
-
-    <!-- ========================================================== -->
-    <!-- HÉRITAGE : pool.catalog.pdf.product — onglet Images         -->
-    <!-- ========================================================== -->
-    <record id="view_pool_catalog_pdf_product_form_images" model="ir.ui.view">
-        <field name="name">pool.catalog.pdf.product.form.images</field>
-        <field name="model">pool.catalog.pdf.product</field>
-        <field name="inherit_id" ref="lolirine_pool_import.view_pool_catalog_pdf_product_form"/>
-        <field name="arch" type="xml">
-
-            <!-- Page "Images" dans le notebook existant -->
-            <xpath expr="//notebook" position="inside">
-                <page string="📸 Images extraites" name="product_images_tab">
-                    <group>
-                        <group>
-                            <field name="primary_image_preview"
-                                   widget="image"
-                                   options="{'size': [200, 200]}"
-                                   invisible="not primary_image_preview"/>
-                        </group>
-                        <group>
-                            <field name="secondary_proposed_count" readonly="1"/>
-                            <field name="secondary_validated_count" readonly="1"/>
-                        </group>
-                    </group>
-                    <field name="image_ids" nolabel="1">
-                        <list default_order="combined_score desc" multi_edit="1">
-                            <field name="image_data_thumb" widget="image" options="{'size': [64, 64]}"/>
-                            <field name="page_number"/>
-                            <field name="role" widget="badge"
-                                   decoration-success="role == 'primary'"
-                                   decoration-info="role in ('secondary_proposed', 'secondary_validated')"
-                                   decoration-muted="role == 'rejected'"/>
-                            <field name="validated" widget="boolean_toggle"/>
-                            <field name="combined_score" widget="progressbar"/>
-                            <field name="extraction_method" optional="hide"/>
-                            <button name="action_set_primary" type="object"
-                                    string="🥇" invisible="role == 'primary'"/>
-                            <button name="action_validate_secondary" type="object"
-                                    string="✅" invisible="role != 'secondary_proposed'"/>
-                            <button name="action_reject" type="object"
-                                    string="❌" invisible="role == 'rejected'"/>
+                                    string="Rejeter" invisible="role == 'rejected'"/>
                         </list>
                     </field>
                 </page>
