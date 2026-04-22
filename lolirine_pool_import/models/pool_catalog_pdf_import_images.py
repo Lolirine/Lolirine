@@ -202,9 +202,9 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         # Pré-charger les produits existants groupés par page
         products_by_page = {}
         for p in self.product_ids:
-            if p.page_number:
-                products_by_page.setdefault(p.page_number, []).append(p)
-
+            if p.page:
+                products_by_page.setdefault(p.page, []).append(p)
+              
         for page_num in range(len(doc)):
             try:
                 page = doc[page_num]
