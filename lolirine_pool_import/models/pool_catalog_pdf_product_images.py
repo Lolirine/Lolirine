@@ -64,7 +64,14 @@ class PoolCatalogPdfProductImages(models.Model):
             rec.secondary_proposed_count = len(
                 rec.image_ids.filtered(lambda i: i.role == 'secondary_proposed')
             )
-
+    def _search_primary_image_id(self, operator, value):
+        """Recherche via les images liées avec role=primary."""
+        images = self.env['pool.catalog.pdf.image'].search([
+            ('role', '=', 'primary'),
+            ('id', operator, value) if operator in ('=', '!=', 'in', 'not in') else ('id', '=', value),
+        ])
+        return [('id', 'in', images.mapped('product_id').ids)]
+      
     # =========================================================================
     # ACTIONS
     # =========================================================================
