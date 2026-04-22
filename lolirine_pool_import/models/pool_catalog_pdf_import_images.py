@@ -5,22 +5,25 @@ Extension de pool.catalog.pdf.import
 
 Ajoute l'extraction d'images au module lolirine_pool_import existant.
 
-Stratégie double :
-  1. Image native embarquée (doc.extract_image(xref)) quand le ratio d'aspect
-     de l'image native correspond au bbox affiché (tolérance 5%).
-     → Meilleure qualité, résolution max, fond déjà détouré par SCP/Fluidra.
-  2. Rendu clippé à 300 DPI (page.get_pixmap(clip=bbox)) sinon.
-     → Strictement limité au bbox → aucun débordement possible.
+Noms de champs adaptes au schema existant :
+  - source_pdf (fichier PDF encode base64)
+  - product_ids (O2M vers pool.catalog.pdf.product)
+  - page_num (numero de page sur le produit)
+  - ref (reference du produit)
+  - import_id (M2O retour depuis le produit)
 
-Puis trim PIL sur bords uniformes (blanc/transparent) pour finir le détourage.
+Strategie double :
+  1. Image native embarquee (doc.extract_image(xref)) quand le ratio d'aspect
+     de l'image native correspond au bbox affiche (tolerance 5%).
+  2. Rendu clippe a 300 DPI (page.get_pixmap(clip=bbox)) sinon.
+Puis trim PIL sur bords uniformes (blanc/transparent).
 
-Matching au produit :
-  - page.get_image_rects(xref) donne la position à l'écran
+Matching au produit par proximite textuelle :
+  - page.get_image_rects(xref) donne la position a l'ecran
   - page.get_text("blocks") donne les blocs texte avec leurs bboxes
-  - Pattern regex pour capturer les références SCP/Fluidra
-  - Score de confiance = 1 - (distance_euclidienne / 300)
-  - On matche uniquement contre les pool.catalog.pdf.product déjà extraits
-    pour cette même page
+  - Regex sur pattern de reference
+  - Score de confiance base sur la distance euclidienne
+  - Match uniquement contre les pool.catalog.pdf.product de la meme page
 """
 
 import base64
@@ -34,14 +37,13 @@ from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
-# Pattern pour capturer références SCP (ex: 1478, 64170, WEL-250-0106)
-# et Fluidra (ex: 70342, AR0048, W0012A)
+# Pattern pour capturer des references (SCP: 1478, 64170 / Fluidra: 70342, AR0048, W0012A)
 REF_PATTERN = re.compile(r'\b([A-Z]{0,4}\d{3,6}(?:[-/][A-Z0-9]{2,8})?)\b')
 
-# Tailles minimales pour exclure icônes/logos/pictos
+# Tailles minimales pour exclure icones/logos/pictos
 MIN_IMAGE_WIDTH_PT = 40
 MIN_IMAGE_HEIGHT_PT = 40
-MIN_IMAGE_AREA_PT = 3000  # 40*75 minimum pour un vrai visuel produit
+MIN_IMAGE_AREA_PT = 3000
 
 
 class PoolCatalogPdfImportImageExtract(models.Model):
@@ -62,23 +64,23 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         compute='_compute_image_counts',
     )
     image_secondary_proposed_count = fields.Integer(
-        string='Secondaires à valider',
+        string='Secondaires a valider',
         compute='_compute_image_counts',
     )
     image_unmatched_count = fields.Integer(
-        string='Non matchées',
+        string='Non matchees',
         compute='_compute_image_counts',
     )
 
-    # --- État de l'extraction d'images ---
+    # --- Etat de l'extraction d'images ---
     image_extraction_state = fields.Selection(
         [
-            ('draft', 'Non démarrée'),
+            ('draft', 'Non demarree'),
             ('in_progress', 'En cours'),
-            ('done', 'Terminée'),
+            ('done', 'Terminee'),
             ('error', 'Erreur'),
         ],
-        string='État extraction images',
+        string='Etat extraction images',
         default='draft',
         copy=False,
     )
@@ -111,10 +113,10 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         self.ensure_one()
 
         if not self.source_pdf:
-            raise UserError(_("Aucun fichier PDF n'est attaché à cet import."))
+            raise UserError(_("Aucun fichier PDF n'est attache a cet import."))
 
         if self.image_extraction_state == 'in_progress':
-            raise UserError(_("Une extraction est déjà en cours."))
+            raise UserError(_("Une extraction est deja en cours."))
 
         # Effacer les anciennes images si on relance
         if self.image_ids:
@@ -122,7 +124,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
 
         self.write({
             'image_extraction_state': 'in_progress',
-            'image_extraction_log': _("Démarrage extraction images..."),
+            'image_extraction_log': _("Demarrage extraction images..."),
         })
         self.env.cr.commit()
 
@@ -132,7 +134,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             self.write({
                 'image_extraction_state': 'done',
                 'image_extraction_log': (self.image_extraction_log or '') +
-                    _("\n✅ Extraction terminée : %d images, %d matchées, %d principales.") % (
+                    _("\nOK Extraction terminee : %d images, %d matchees, %d principales.") % (
                         self.image_count,
                         self.image_count - self.image_unmatched_count,
                         self.image_primary_count,
@@ -143,16 +145,16 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             self.write({
                 'image_extraction_state': 'error',
                 'image_extraction_log': (self.image_extraction_log or '') +
-                    _("\n❌ Erreur : %s") % str(e),
+                    _("\nKO Erreur : %s") % str(e),
             })
-            raise UserError(_("Échec de l'extraction : %s") % str(e))
+            raise UserError(_("Echec de l'extraction : %s") % str(e))
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _("Extraction terminée"),
-                'message': _("%d images extraites, %d associées à un produit.") % (
+                'title': _("Extraction terminee"),
+                'message': _("%d images extraites, %d associees a un produit.") % (
                     self.image_count,
                     self.image_count - self.image_unmatched_count,
                 ),
@@ -165,7 +167,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         """Ouvre la liste des images extraites pour cet import."""
         self.ensure_one()
         return {
-            'name': _("Images – %s") % self.name,
+            'name': _("Images - %s") % (self.name or ''),
             'type': 'ir.actions.act_window',
             'res_model': 'pool.catalog.pdf.image',
             'view_mode': 'list,form',
@@ -177,7 +179,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         }
 
     def action_reassign_roles(self):
-        """Réassigne automatiquement les rôles (primary/secondary) sans réextraire."""
+        """Reassigne automatiquement les roles (primary/secondary) sans reextraire."""
         self.ensure_one()
         self._assign_image_roles()
         return True
@@ -187,11 +189,11 @@ class PoolCatalogPdfImportImageExtract(models.Model):
     # =========================================================================
 
     def _extract_all_images_from_pdf(self):
-        """Extrait toutes les images du PDF avec stratégie double."""
+        """Extrait toutes les images du PDF avec strategie double."""
         try:
             import fitz  # PyMuPDF
         except ImportError:
-            raise UserError(_("PyMuPDF (fitz) n'est pas installé sur le serveur."))
+            raise UserError(_("PyMuPDF (fitz) n'est pas installe sur le serveur."))
 
         pdf_data = base64.b64decode(self.source_pdf)
         doc = fitz.open(stream=pdf_data, filetype="pdf")
@@ -199,21 +201,21 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         log_lines = [_("Traitement de %d pages...") % len(doc)]
         created_vals_list = []
 
-        # Pré-charger les produits existants groupés par page
+        # Pre-charger les produits existants groupes par page
         products_by_page = {}
         for p in self.product_ids:
-            if p.page:
-                products_by_page.setdefault(p.page, []).append(p)
-              
+            if p.page_num:
+                products_by_page.setdefault(p.page_num, []).append(p)
+
         for page_num in range(len(doc)):
             try:
                 page = doc[page_num]
                 page_idx = page_num + 1
 
-                # Collecter les références texte de la page avec leur position
+                # Collecter les references texte de la page avec leur position
                 text_refs = self._collect_text_references(page)
 
-                # Produits déjà extraits pour cette page
+                # Produits deja extraits pour cette page
                 page_products = products_by_page.get(page_idx, [])
 
                 # Parcourir toutes les images de la page
@@ -226,19 +228,19 @@ class PoolCatalogPdfImportImageExtract(models.Model):
 
             except Exception as e:
                 _logger.warning("Page %d : %s", page_num + 1, e)
-                log_lines.append(_("⚠️ Page %d : %s") % (page_num + 1, e))
+                log_lines.append(_("Avertissement page %d : %s") % (page_num + 1, e))
 
         doc.close()
 
-        # Création en batch (plus rapide que create() unique dans une boucle)
+        # Creation en batch
         if created_vals_list:
             self.env['pool.catalog.pdf.image'].create(created_vals_list)
 
-        log_lines.append(_("→ %d images créées") % len(created_vals_list))
+        log_lines.append(_("-> %d images creees") % len(created_vals_list))
         self.image_extraction_log = "\n".join(log_lines)
 
     def _collect_text_references(self, page):
-        """Retourne [(ref, bbox, center), ...] pour tous les refs trouvés sur la page."""
+        """Retourne [{'ref', 'bbox', 'center'}, ...] pour tous les refs trouves sur la page."""
         refs = []
         try:
             blocks = page.get_text("blocks")
@@ -253,7 +255,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
                 continue
             for match in REF_PATTERN.finditer(text):
                 ref = match.group(1)
-                # Filtrer les pseudo-refs parasites (années, pages, etc.)
+                # Filtrer les pseudo-refs parasites (annees, pages, etc.)
                 if ref.isdigit() and (len(ref) < 3 or len(ref) > 6):
                     continue
                 if ref in ('2024', '2025', '2026', '2027'):
@@ -266,7 +268,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         return refs
 
     def _extract_single_image(self, doc, page, page_num, img_info, text_refs, page_products):
-        """Extrait une image unique avec stratégie double + trim + matching."""
+        """Extrait une image unique avec strategie double + trim + matching."""
         try:
             import fitz
             from PIL import Image, ImageChops
@@ -275,7 +277,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
 
         xref = img_info[0]
 
-        # 1. Récupérer les positions à l'écran (peut donner plusieurs placements)
+        # 1. Recuperer les positions a l'ecran
         try:
             rects = page.get_image_rects(xref)
         except Exception:
@@ -286,13 +288,13 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         display_w = rect.width
         display_h = rect.height
 
-        # Filtre taille minimale (exclut icônes/logos/pictos)
+        # Filtre taille minimale (exclut icones/logos/pictos)
         if display_w < MIN_IMAGE_WIDTH_PT or display_h < MIN_IMAGE_HEIGHT_PT:
             return None
         if display_w * display_h < MIN_IMAGE_AREA_PT:
             return None
 
-        # 2. Stratégie native
+        # 2. Strategie native
         try:
             native = doc.extract_image(xref)
             native_w = native['width']
@@ -312,13 +314,13 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             ar_diff = abs(display_ar - native_ar) / max(display_ar, native_ar, 0.001)
             use_native = ar_diff <= 0.05
 
-        # 4. Récupérer les bytes selon la stratégie choisie
+        # 4. Recuperer les bytes selon la strategie choisie
         if use_native and native_bytes:
             image_bytes = native_bytes
             extraction_method = 'native'
             final_w, final_h = native_w, native_h
         else:
-            # Rendu clippé 300 DPI
+            # Rendu clippe 300 DPI
             try:
                 mat = fitz.Matrix(300 / 72, 300 / 72)
                 pix = page.get_pixmap(matrix=mat, clip=rect, alpha=False)
@@ -333,7 +335,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         # 5. Trim des bords uniformes avec PIL
         trimmed_bytes, trim_w, trim_h = self._trim_image_borders(image_bytes)
 
-        # 6. Calcul du score de qualité
+        # 6. Calcul du score de qualite
         quality = self._compute_quality_score(trim_w, trim_h, display_w, display_h)
 
         # 7. Matching avec produits de la page
@@ -376,7 +378,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             if img.mode in ('P', 'CMYK', 'L'):
                 img = img.convert('RGBA' if 'transparency' in img.info else 'RGB')
 
-            # Stratégie selon mode
+            # Strategie selon mode
             if img.mode == 'RGBA':
                 # Trim via alpha si disponible
                 bbox = img.getbbox()
@@ -388,7 +390,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
                 bbox = diff.getbbox()
 
             if bbox:
-                # Padding de sécurité pour ne pas couper l'objet
+                # Padding de securite pour ne pas couper l'objet
                 padding = 8
                 left = max(0, bbox[0] - padding)
                 top = max(0, bbox[1] - padding)
@@ -396,7 +398,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
                 bottom = min(img.size[1], bbox[3] + padding)
                 img = img.crop((left, top, right, bottom))
 
-            # Sauver en PNG optimisé
+            # Sauver en PNG optimise
             output = io.BytesIO()
             save_mode = 'RGBA' if img.mode == 'RGBA' else 'RGB'
             if img.mode != save_mode:
@@ -409,7 +411,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             return image_bytes, 0, 0
 
     def _compute_quality_score(self, w, h, display_w, display_h):
-        """Score qualité 0-1 basé sur taille, ratio, et rapport pixels/points."""
+        """Score qualite 0-1 base sur taille, ratio, et rapport pixels/points."""
         if not w or not h:
             return 0.0
 
@@ -426,7 +428,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         else:
             score += 0.05
 
-        # Ratio d'aspect raisonnable (produit = généralement carré-ish)
+        # Ratio d'aspect raisonnable
         ar = w / h if h else 1
         if 0.5 <= ar <= 2.0:
             score += 0.35
@@ -435,7 +437,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         else:
             score += 0.05
 
-        # Densité pixels/points (haute résolution = bon)
+        # Densite pixels/points (haute resolution = bon)
         if display_w and display_h:
             px_per_pt = (w * h) / (display_w * display_h)
             if px_per_pt > 10:
@@ -448,19 +450,17 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         return min(1.0, score)
 
     def _match_image_to_product(self, img_center, text_refs, page_products):
-        """Trouve le produit le plus proche par proximité textuelle.
+        """Trouve le produit le plus proche par proximite textuelle.
         Retourne (product_record|None, reference|None, confidence 0-1).
         """
         if not text_refs or not page_products:
             return None, None, 0.0
 
-        # Index des produits par référence
+        # Index des produits par reference (champ 'ref' sur pool.catalog.pdf.product)
         product_by_ref = {}
         for p in page_products:
-            for ref_field in ('reference', 'type_code'):
-                val = getattr(p, ref_field, None)
-                if val:
-                    product_by_ref[val.strip().upper()] = p
+            if p.ref:
+                product_by_ref[p.ref.strip().upper()] = p
 
         if not product_by_ref:
             return None, None, 0.0
@@ -492,7 +492,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         return best_match['product'], best_match['ref'], confidence
 
     # =========================================================================
-    # CORE : ASSIGNATION DES RÔLES
+    # CORE : ASSIGNATION DES ROLES
     # =========================================================================
 
     def _assign_image_roles(self):
@@ -500,7 +500,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         self.ensure_one()
         Image = self.env['pool.catalog.pdf.image']
 
-        # Reset des rôles sur toutes les images matchées
+        # Reset des roles sur toutes les images matchees
         matched_images = self.image_ids.filtered('product_id')
         matched_images.write({'role': 'unassigned', 'validated': False})
 
@@ -510,11 +510,11 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             by_product.setdefault(img.product_id.id, Image)
             by_product[img.product_id.id] |= img
 
-        # Pour chaque produit : trier par score combiné, assigner les rôles
+        # Pour chaque produit : trier par score combine, assigner les roles
         for product_id, imgs in by_product.items():
             sorted_imgs = imgs.sorted(key=lambda i: i.combined_score, reverse=True)
-            # Meilleure image = principale (auto-validée)
+            # Meilleure image = principale (auto-validee)
             sorted_imgs[0].write({'role': 'primary', 'validated': True})
-            # Autres = secondaires proposées (à valider manuellement)
+            # Autres = secondaires proposees (a valider manuellement)
             if len(sorted_imgs) > 1:
                 sorted_imgs[1:].write({'role': 'secondary_proposed', 'validated': False})
