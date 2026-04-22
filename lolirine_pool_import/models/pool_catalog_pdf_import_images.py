@@ -110,7 +110,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         """Lance l'extraction d'images depuis le PDF pour cet import."""
         self.ensure_one()
 
-        if not self.pdf_file:
+        if not self.source_file:
             raise UserError(_("Aucun fichier PDF n'est attaché à cet import."))
 
         if self.image_extraction_state == 'in_progress':
@@ -193,7 +193,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         except ImportError:
             raise UserError(_("PyMuPDF (fitz) n'est pas installé sur le serveur."))
 
-        pdf_data = base64.b64decode(self.pdf_file)
+        pdf_data = base64.b64decode(self.source_file)
         doc = fitz.open(stream=pdf_data, filetype="pdf")
 
         log_lines = [_("Traitement de %d pages...") % len(doc)]
