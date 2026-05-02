@@ -48,6 +48,7 @@
         "account",
         "account_followup",  # Pour personnaliser le rapport de relance
         "sale_subscription",
+        "storage_plan_module",
         "project_sale_subscription",  # Pour le patch set_close
         "sale_subscription_partnership",  # Pour le patch set_close
         "mail",
