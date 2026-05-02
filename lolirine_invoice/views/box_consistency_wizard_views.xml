@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================== FORM VIEW ==================== -->
+    <record id="view_lolirine_box_consistency_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.box.consistency.wizard.form</field>
+        <field name="model">lolirine.box.consistency.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Audit de cohérence box ↔ contrat">
+                <header>
+                    <button name="action_run_audit"
+                            type="object"
+                            string="Lancer l'audit"
+                            class="btn-primary"/>
+                    <button name="action_filter_inconsistent"
+                            type="object"
+                            string="Voir uniquement les incohérences"
+                            class="btn-warning"
+                            invisible="total_inconsistent == 0"/>
+                    <button name="action_filter_vacant"
+                            type="object"
+                            string="Voir les box vacants"
+                            class="btn-info"
+                            invisible="total_vacant == 0"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Audit de cohérence box ↔ contrat</h1>
+                        <p class="text-muted">
+                            Compare le plan d'étage (storage.box) avec les contrats actifs (sale.order is_subscription).
+                            Détecte les box occupés sans contrat, les contrats sans box, les conflits, etc.
+                        </p>
+                    </div>
+                    <group>
+                        <group string="Synthèse" invisible="not has_results">
+                            <field name="total_boxes"/>
+                            <field name="total_ok"/>
+                            <field name="total_vacant"/>
+                            <field name="total_inconsistent"
+                                   class="text-danger fw-bold"
+                                   invisible="total_inconsistent == 0"/>
+                        </group>
+                        <group string="Détail incohérences" invisible="total_inconsistent == 0">
+                            <field name="total_multiple_so"
+                                   class="text-danger fw-bold"
+                                   invisible="total_multiple_so == 0"/>
+                            <field name="total_partner_mismatch"
+                                   class="text-danger fw-bold"
+                                   invisible="total_partner_mismatch == 0"/>
+                            <field name="total_plan_orphan"
+                                   class="text-warning fw-bold"
+                                   invisible="total_plan_orphan == 0"/>
+                            <field name="total_so_orphan"
+                                   class="text-warning fw-bold"
+                                   invisible="total_so_orphan == 0"/>
+                            <field name="total_occupied_no_so"
+                                   class="text-warning"
+                                   invisible="total_occupied_no_so == 0"/>
+                            <field name="total_no_box_product"
+                                   class="text-warning"
+                                   invisible="total_no_box_product == 0"/>
+                        </group>
+                    </group>
+                    <field name="has_results" invisible="1"/>
+                    <notebook invisible="not has_results">
+                        <page string="Tous les box" name="all_results">
+                            <field name="consistency_line_ids">
+                                <list create="false" delete="false" edit="false"
+                                      decoration-success="status == 'ok'"
+                                      decoration-info="status == 'vacant'"
+                                      decoration-warning="status in ('plan_orphan', 'so_orphan', 'occupied_no_so', 'no_box_product')"
+                                      decoration-danger="status in ('multiple_so', 'partner_mismatch')">
+                                    <field name="status" widget="badge"
+                                           decoration-success="status == 'ok'"
+                                           decoration-info="status == 'vacant'"
+                                           decoration-warning="status in ('plan_orphan', 'so_orphan', 'occupied_no_so', 'no_box_product')"
+                                           decoration-danger="status in ('multiple_so', 'partner_mismatch')"/>
+                                    <field name="box_code"/>
+                                    <field name="box_id" optional="hide"/>
+                                    <field name="product_tmpl_id" optional="hide"/>
+                                    <field name="plan_partner_id" optional="show"/>
+                                    <field name="expected_partner_id" optional="show"/>
+                                    <field name="plan_subscription_id" optional="hide"/>
+                                    <field name="active_so_ids" widget="many2many_tags" optional="show"/>
+                                    <field name="date_available" optional="hide"/>
+                                    <field name="details" optional="show"/>
+                                    <field name="priority" invisible="1"/>
+                                    <button name="action_open_box"
+                                            type="object"
+                                            icon="fa-cube"
+                                            title="Ouvrir le box dans le plan"
+                                            invisible="not box_id"/>
+                                    <button name="action_open_first_so"
+                                            type="object"
+                                            icon="fa-file-text-o"
+                                            title="Ouvrir le SO actif"
+                                            invisible="not active_so_ids"/>
+                                    <button name="action_open_plan_so"
+                                            type="object"
+                                            icon="fa-link"
+                                            title="Ouvrir le SO référencé par le plan"
+                                            invisible="not plan_subscription_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button special="cancel" string="Fermer" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ==================== LIST VIEW (pour filtres ciblés) ==================== -->
+    <record id="view_lolirine_box_consistency_line_list" model="ir.ui.view">
+        <field name="name">lolirine.box.consistency.line.list</field>
+        <field name="model">lolirine.box.consistency.line</field>
+        <field name="arch" type="xml">
+            <list create="false" delete="false" edit="false"
+                  decoration-success="status == 'ok'"
+                  decoration-info="status == 'vacant'"
+                  decoration-warning="status in ('plan_orphan', 'so_orphan', 'occupied_no_so', 'no_box_product')"
+                  decoration-danger="status in ('multiple_so', 'partner_mismatch')">
+                <field name="status" widget="badge"/>
+                <field name="box_code"/>
+                <field name="plan_partner_id"/>
+                <field name="expected_partner_id"/>
+                <field name="active_so_ids" widget="many2many_tags"/>
+                <field name="plan_subscription_id"/>
+                <field name="date_available"/>
+                <field name="details"/>
+                <field name="priority" invisible="1"/>
+                <button name="action_open_box" type="object" icon="fa-cube"
+                        invisible="not box_id"/>
+                <button name="action_open_first_so" type="object" icon="fa-file-text-o"
+                        invisible="not active_so_ids"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ==================== ACTION ==================== -->
+    <record id="action_lolirine_box_consistency_wizard" model="ir.actions.act_window">
+        <field name="name">Audit cohérence box ↔ contrat</field>
+        <field name="res_model">lolirine.box.consistency.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ==================== MENU ==================== -->
+    <menuitem id="menu_lolirine_box_consistency_wizard"
+              name="Audit cohérence box ↔ contrat"
+              parent="account.menu_finance_receivables"
+              action="action_lolirine_box_consistency_wizard"
+              sequence="101"/>
+
+</odoo>
