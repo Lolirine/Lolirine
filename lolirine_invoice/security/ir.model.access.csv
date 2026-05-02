@@ -9,3 +9,5 @@ access_lolirine_invoice_mass_send_wizard,lolirine.invoice.mass.send.wizard,model
 access_lolirine_invoice_mass_send_line,lolirine.invoice.mass.send.line,model_lolirine_invoice_mass_send_line,base.group_user,1,1,1,1
 access_lolirine_invoice_export_wizard,lolirine.invoice.export.wizard,model_lolirine_invoice_export_wizard,base.group_user,1,1,1,1
 access_lolirine_refund_wizard,lolirine.refund.wizard,model_lolirine_refund_wizard,account.group_account_user,1,1,1,1
+access_lolirine_invoice_audit_wizard,lolirine.invoice.audit.wizard,model_lolirine_invoice_audit_wizard,account.group_account_invoice,1,1,1,1
+access_lolirine_invoice_audit_line,lolirine.invoice.audit.line,model_lolirine_invoice_audit_line,account.group_account_invoice,1,1,1,1
