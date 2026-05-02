@@ -813,18 +813,38 @@ class SaleSubscription(models.Model):
         for subscription in self:
             if hasattr(subscription, 'is_subscription') and not subscription.is_subscription:
                 continue
+        
             vals = {'subscription_state': '6_churn'}
             if close_reason_id:
                 vals['close_reason_id'] = close_reason_id
             subscription.write(vals)
-            msg = "Abonnement cloture."
+        
+            # IMPORTANT : forcer next_invoice_date / recurring_next_date à False
+            # APRÈS le write subscription_state, sinon le compute Odoo
+            # _compute_next_invoice_date les recalcule depuis start_date.
+            post_close_vals = {}
+            if 'next_invoice_date' in subscription._fields:
+            post_close_vals['next_invoice_date'] = False
+            if 'recurring_next_date' in subscription._fields:
+                post_close_vals['recurring_next_date'] = False
+            if 'end_date' in subscription._fields and not subscription.end_date:
+                post_close_vals['end_date'] = fields.Date.today()
+            if post_close_vals:
+                subscription.write(post_close_vals)
+        
+            msg = "Abonnement clôturé."
             if close_reason_id:
                 try:
                     reason = self.env['sale.order.close.reason'].browse(close_reason_id)
                     if reason.exists():
-                        msg = "Abonnement cloture. Raison: %s" % reason.name
+                        msg = "Abonnement clôturé. Raison : %s" % reason.name
                 except Exception:
                     pass
-            subscription.message_post(body=msg, message_type='notification')
-            _logger.info("Abonnement %s cloture via patch set_close()", subscription.name)
+        
+            subscription.message_post(
+                body=msg,
+                message_type='notification',
+                subtype_xmlid='mail.mt_note',  # note interne — pas de notif aux followers
+            )
+            _logger.info("Abonnement %s clôturé via patch set_close()", subscription.name)
         return True
