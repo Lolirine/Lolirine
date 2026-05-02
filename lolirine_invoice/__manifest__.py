@@ -56,6 +56,7 @@
     "data": [
         # Security
         "security/ir.model.access.csv",
+        "security/lolirine_invoice_audit_security.csv",
         # Reports
         "report/external_layout_lolirine.xml",
         "report/report_invoice_lolirine.xml",
@@ -74,6 +75,7 @@
         "views/invoice_reminder_views.xml",
         "views/invoice_dashboard_views.xml",
         "views/account_move_views.xml",
+        "views/invoice_audit_wizard_views.xml",
         # Menus (en dernier)
         "views/menu_views.xml",
     ],
