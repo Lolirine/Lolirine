@@ -20,6 +20,11 @@ STATUS_PRIORITY = {
     'ok': 8,
 }
 
+INCONSISTENT_STATUSES = (
+    'multiple_so', 'partner_mismatch', 'plan_orphan',
+    'so_orphan', 'occupied_no_so',
+)
+
 
 class LolirineBoxConsistencyWizard(models.TransientModel):
     _name = 'lolirine.box.consistency.wizard'
@@ -42,6 +47,7 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
     total_occupied_no_so = fields.Integer(string="⚠ Occupé sans SO", compute='_compute_stats')
     total_no_box_product = fields.Integer(string="⚠ SO sans box", compute='_compute_stats')
     total_inconsistent = fields.Integer(string="Total incohérences", compute='_compute_stats')
+    total_resyncable = fields.Integer(compute='_compute_stats')
 
     @api.depends('consistency_line_ids', 'consistency_line_ids.status')
     def _compute_stats(self):
@@ -58,10 +64,11 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
             wiz.total_occupied_no_so = len(lines.filtered(lambda l: l.status == 'occupied_no_so'))
             wiz.total_no_box_product = len(lines.filtered(lambda l: l.status == 'no_box_product'))
             wiz.total_inconsistent = len(lines.filtered(
-                lambda l: l.status in (
-                    'multiple_so', 'partner_mismatch', 'plan_orphan',
-                    'so_orphan', 'occupied_no_so', 'no_box_product',
-                )
+                lambda l: l.status in INCONSISTENT_STATUSES + ('no_box_product',)
+            ))
+            # Lignes effectivement resynchronisables (qui ont un box associé)
+            wiz.total_resyncable = len(lines.filtered(
+                lambda l: l.status in INCONSISTENT_STATUSES and l.box_id
             ))
 
     # ==================== ACTION : LANCER L'AUDIT ====================
@@ -70,7 +77,6 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
         self.ensure_one()
         self.consistency_line_ids.unlink()
 
-        # 1. Vérifier que storage.box existe
         if 'storage.box' not in self.env:
             raise UserError(_(
                 "Le module 'storage_plan_module' n'est pas installé ou le modèle storage.box est introuvable."
@@ -78,34 +84,26 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
 
         all_boxes = self.env['storage.box'].search([])
 
-        # 2. Abonnements actifs
         active_subs = self.env['sale.order'].search([
             ('is_subscription', '=', True),
             ('state', '=', 'sale'),
             ('subscription_state', 'in', ['3_progress', '4_paused', '5_renewed']),
         ])
 
-        # 3. Index : produit.template.id → liste de SOs actifs qui le référencent
         so_by_template = {}
         for so in active_subs:
             for line in so.order_line:
                 if not line.product_id or line.display_type:
                     continue
-                # Skip frais de dossier
                 if 'FRAIS' in (line.product_id.default_code or '').upper():
                     continue
                 tmpl_id = line.product_id.product_tmpl_id.id
                 so_by_template.setdefault(tmpl_id, []).append(so)
 
-        # 4. Pour chaque box, déterminer le statut
         line_vals_list = []
-        seen_templates = set()
 
         for box in all_boxes:
             tmpl_id = box.product_tmpl_id.id if box.product_tmpl_id else False
-            if tmpl_id:
-                seen_templates.add(tmpl_id)
-
             sos_for_box = so_by_template.get(tmpl_id, []) if tmpl_id else []
 
             vals = {
@@ -119,7 +117,6 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
                 'active_so_ids': [(6, 0, [s.id for s in sos_for_box])],
             }
 
-            # CAS 1 : Plusieurs SOs actifs sur le même box (CRITIQUE)
             if len(sos_for_box) > 1:
                 vals['status'] = 'multiple_so'
                 vals['expected_partner_id'] = sos_for_box[0].partner_id.id
@@ -128,13 +125,11 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
                     ', '.join(s.name for s in sos_for_box),
                 )
 
-            # CAS 2 : Un seul SO actif
             elif len(sos_for_box) == 1:
                 so = sos_for_box[0]
                 vals['expected_partner_id'] = so.partner_id.id
 
                 if box.current_subscription_id and box.current_subscription_id.id == so.id:
-                    # Plan et SO d'accord sur le contrat
                     if (box.current_partner_id
                             and box.current_partner_id.id != so.partner_id.id):
                         vals['status'] = 'partner_mismatch'
@@ -146,7 +141,6 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
                         vals['status'] = 'ok'
                         vals['details'] = ""
                 elif box.current_subscription_id:
-                    # Plan référence un autre SO
                     old_so = box.current_subscription_id
                     vals['status'] = 'plan_orphan'
                     vals['details'] = ("Plan référence %s (état: %s) "
@@ -156,18 +150,14 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
                         so.name,
                     )
                 else:
-                    # Plan vide mais SO actif existe
                     vals['status'] = 'so_orphan'
-                    vals['details'] = ("SO actif %s (%s) non reflété dans le plan "
-                                       "(current_subscription_id vide)") % (
+                    vals['details'] = ("SO actif %s (%s) non reflété dans le plan") % (
                         so.name,
                         so.partner_id.name or '?',
                     )
 
-            # CAS 3 : Aucun SO actif
             else:
                 if box.current_subscription_id:
-                    # Plan référence un SO mais aucun n'est actif
                     vals['status'] = 'plan_orphan'
                     vals['details'] = ("Plan référence %s (état: %s) "
                                        "mais aucun SO actif réel") % (
@@ -176,12 +166,10 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
                             or box.current_subscription_id.state,
                     )
                 elif not box.date_available:
-                    # Plan dit occupé (date_available vide) mais aucun SO actif
                     vals['status'] = 'occupied_no_so'
                     vals['details'] = ("Plan dit occupé (date_available vide) "
                                        "mais aucun SO actif")
                 else:
-                    # Vacant légitime
                     vals['status'] = 'vacant'
                     vals['details'] = "Disponible depuis le %s" % (
                         box.date_available.strftime('%d/%m/%Y'),
@@ -189,7 +177,7 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
 
             line_vals_list.append((0, 0, vals))
 
-        # 5. SOs actifs sur des produits sans storage.box correspondant
+        # SOs actifs sur des produits sans storage.box correspondant
         all_box_template_ids = set(all_boxes.mapped('product_tmpl_id.id'))
         for so in active_subs:
             for sline in so.order_line:
@@ -217,10 +205,57 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
         self.consistency_line_ids = line_vals_list
         return self._reload()
 
-    # ==================== ACTIONS ====================
+    # ==================== ACTIONS DE RESYNCHRONISATION ====================
+
+    def action_resync_all_inconsistent(self):
+        """Force le recompute de _compute_current_customer sur tous les box
+        dont l'audit a détecté une incohérence."""
+        self.ensure_one()
+        boxes_to_sync = self.consistency_line_ids.filtered(
+            lambda l: l.status in INCONSISTENT_STATUSES and l.box_id
+        ).mapped('box_id')
+
+        if not boxes_to_sync:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _("Resynchronisation"),
+                    'message': _("Aucun box à resynchroniser."),
+                    'type': 'info',
+                },
+            }
+
+        synced_count = 0
+        errors = []
+        for box in boxes_to_sync:
+            try:
+                box._compute_current_customer()
+                synced_count += 1
+            except Exception as e:
+                errors.append("%s: %s" % (box.display_name, str(e)[:100]))
+                _logger.exception("Erreur resync box %s", box.display_name)
+
+        # Re-run l'audit pour montrer le résultat
+        self.action_run_audit()
+
+        msg = _("%d box resynchronisé(s).") % synced_count
+        if errors:
+            msg += _(" Erreurs : %s") % ' | '.join(errors[:5])
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Resynchronisation terminée"),
+                'message': msg,
+                'type': 'success' if not errors else 'warning',
+                'sticky': bool(errors),
+                'next': self._reload(),
+            },
+        }
 
     def action_filter_inconsistent(self):
-        """Ouvre une vue filtrée sur les incohérences uniquement."""
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
@@ -235,7 +270,6 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
         }
 
     def action_filter_vacant(self):
-        """Ouvre une vue filtrée sur les box vacants (info commerciale)."""
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
@@ -353,4 +387,34 @@ class LolirineBoxConsistencyLine(models.TransientModel):
             'res_id': self.plan_subscription_id.id,
             'view_mode': 'form',
             'target': 'current',
+        }
+
+    def action_resync_box(self):
+        """Force le recompute de _compute_current_customer sur ce box.
+
+        Utile pour corriger les box dont les valeurs stockées sont obsolètes
+        (cas des SO clôturés en 6_churn ou cancel non reflétés dans le plan).
+        """
+        self.ensure_one()
+        if not self.box_id:
+            raise UserError(_("Aucun box associé à cette ligne."))
+
+        try:
+            self.box_id._compute_current_customer()
+        except Exception as e:
+            _logger.exception("Erreur resync box %s", self.box_id.display_name)
+            raise UserError(_("Erreur lors de la resynchronisation : %s") % e)
+
+        # Re-run audit pour rafraîchir l'affichage
+        self.wizard_id.action_run_audit()
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Box resynchronisé"),
+                'message': _("Le box %s a été resynchronisé avec succès.") % self.box_code,
+                'type': 'success',
+                'next': self.wizard_id._reload(),
+            },
         }
