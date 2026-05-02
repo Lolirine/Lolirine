@@ -56,7 +56,6 @@
     "data": [
         # Security
         "security/ir.model.access.csv",
-        "security/lolirine_invoice_audit_security.csv",
         # Reports
         "report/external_layout_lolirine.xml",
         "report/report_invoice_lolirine.xml",
