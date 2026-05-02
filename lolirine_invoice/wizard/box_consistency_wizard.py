@@ -258,7 +258,6 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
                 'message': msg,
                 'type': 'success' if not errors else 'warning',
                 'sticky': bool(errors),
-                'next': self._reload(),
             },
         }
 
@@ -423,6 +422,5 @@ class LolirineBoxConsistencyLine(models.TransientModel):
                 'title': _("Box resynchronisé"),
                 'message': _("Le box %s a été resynchronisé avec succès.") % self.box_code,
                 'type': 'success',
-                'next': self.wizard_id._reload(),
             },
         }
