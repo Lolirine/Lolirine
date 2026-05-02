@@ -10,6 +10,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 GARDE_MEUBLE_JOURNAL_ID = 9
+ANOMALY_TOLERANCE = 0.05  # tolérance en euros pour comparaisons
 
 
 class LolirineInvoiceAuditWizard(models.TransientModel):
@@ -18,7 +19,6 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
 
     @api.model
     def _default_target_date(self):
-        """Par défaut : le 20 du mois courant si on est >= 20, sinon le 20 du mois précédent."""
         today = fields.Date.today()
         if today.day >= 20:
             return today.replace(day=20)
@@ -33,7 +33,6 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
         string="Date du cycle",
         default=_default_target_date,
         required=True,
-        help="Date de facturation à auditer (typiquement le 20 du mois)",
     )
     journal_id = fields.Many2one(
         'account.journal',
@@ -41,6 +40,11 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
         default=_default_journal,
         required=True,
         domain="[('type', '=', 'sale')]",
+    )
+    detect_anomalies = fields.Boolean(
+        string="Détecter les anomalies",
+        default=True,
+        help="Compare chaque facture avec son contrat source (prix, quantités, total)",
     )
 
     audit_line_ids = fields.One2many(
@@ -58,9 +62,10 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
     total_no_email = fields.Integer(string="Sans email", compute='_compute_stats')
     total_draft = fields.Integer(string="Brouillons", compute='_compute_stats')
     total_cancelled = fields.Integer(string="Annulées seules", compute='_compute_stats')
+    total_anomalies = fields.Integer(string="🚨 Anomalies", compute='_compute_stats')
     total_amount = fields.Float(string="Total facturé (TTC)", compute='_compute_stats')
 
-    @api.depends('audit_line_ids', 'audit_line_ids.status')
+    @api.depends('audit_line_ids', 'audit_line_ids.status', 'audit_line_ids.is_anomaly')
     def _compute_stats(self):
         for wiz in self:
             lines = wiz.audit_line_ids
@@ -73,6 +78,7 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
             wiz.total_no_email = len(lines.filtered(lambda l: l.status == 'no_email'))
             wiz.total_draft = len(lines.filtered(lambda l: l.status == 'draft'))
             wiz.total_cancelled = len(lines.filtered(lambda l: l.status == 'cancelled_only'))
+            wiz.total_anomalies = len(lines.filtered(lambda l: l.is_anomaly))
             wiz.total_amount = sum(lines.mapped('amount'))
 
     # ==================== ACTION : LANCER L'AUDIT ====================
@@ -81,7 +87,6 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
         self.ensure_one()
         self.audit_line_ids.unlink()
 
-        # 1. Abonnements actifs valides à la date cible
         active_subs = self.env['sale.order'].search([
             ('is_subscription', '=', True),
             ('state', '=', 'sale'),
@@ -92,7 +97,6 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
                 ('end_date', '>=', self.target_date),
         ])
 
-        # 2. Pré-fetch des factures du journal pour la date (perf)
         all_invoices = self.env['account.move'].search([
             ('move_type', '=', 'out_invoice'),
             ('invoice_date', '=', self.target_date),
@@ -104,7 +108,6 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
                 invoices_by_origin.setdefault(inv.invoice_origin, self.env['account.move'])
                 invoices_by_origin[inv.invoice_origin] |= inv
 
-        # 3. Pour chaque abonnement, déterminer le statut
         line_vals_list = []
         for so in active_subs:
             invs = invoices_by_origin.get(so.name, self.env['account.move'])
@@ -112,8 +115,6 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
             cancelled = invs.filtered(lambda i: i.state == 'cancel')
             drafts = invs.filtered(lambda i: i.state == 'draft')
 
-            # Cycle décalé légitime : prochaine facturation après la date cible
-            # (cas typique : abonnement démarré récemment avec facture initiale couvrant 2 mois)
             is_legit_skip = (
                 so.next_invoice_date
                 and so.next_invoice_date > self.target_date
@@ -126,6 +127,9 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
                 'subscription_id': so.id,
                 'partner_id': so.partner_id.id,
                 'amount': 0.0,
+                'expected_amount': so.amount_total,
+                'is_anomaly': False,
+                'anomaly_details': '',
             }
 
             if posted:
@@ -142,6 +146,13 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
                 else:
                     vals['status'] = 'not_sent'
                     vals['notes'] = "À envoyer"
+
+                # Détection d'anomalies sur facture postée
+                if self.detect_anomalies:
+                    is_anomaly, details = self._detect_anomalies(inv, so)
+                    vals['is_anomaly'] = is_anomaly
+                    vals['anomaly_details'] = details
+
             elif drafts:
                 vals['invoice_id'] = drafts[0].id
                 vals['amount'] = drafts[0].amount_total
@@ -161,10 +172,98 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
             line_vals_list.append((0, 0, vals))
 
         self.audit_line_ids = line_vals_list
-
         return self._reload()
 
-    # ==================== ACTION : ENVOYER LA SÉLECTION ====================
+    # ==================== DÉTECTION D'ANOMALIES ====================
+
+    def _detect_anomalies(self, invoice, so):
+        """
+        Compare la facture postée avec son contrat source.
+        Retourne (is_anomaly: bool, details: str).
+        """
+        if not invoice or not so or invoice.state != 'posted':
+            return False, ''
+
+        anomalies = []
+
+        # Détection : facture initiale avec frais de dossier (cycle 1)
+        # On exclut alors la comparaison de total mais on garde celle des prix unitaires
+        has_initial_fees = any(
+            'FRAIS' in (l.product_id.default_code or '').upper()
+            for l in invoice.invoice_line_ids
+        )
+
+        # 1. Comparaison ligne à ligne (prix + quantité)
+        for inv_line in invoice.invoice_line_ids:
+            if not inv_line.product_id or inv_line.display_type:
+                continue
+
+            # Skip frais de dossier (one-shot)
+            if 'FRAIS' in (inv_line.product_id.default_code or '').upper():
+                continue
+
+            so_lines = inv_line.sale_line_ids
+            if not so_lines:
+                anomalies.append(
+                    "Ligne sans SO : %s (%.2f€)" % (
+                        inv_line.product_id.name or inv_line.name,
+                        inv_line.price_subtotal,
+                    )
+                )
+                continue
+
+            for sl in so_lines:
+                # Prix unitaire
+                if abs(inv_line.price_unit - sl.price_unit) > ANOMALY_TOLERANCE:
+                    anomalies.append(
+                        "Prix divergent %s : SO=%.2f€ INV=%.2f€ (Δ=%+.2f€)" % (
+                            inv_line.product_id.default_code or inv_line.product_id.name,
+                            sl.price_unit,
+                            inv_line.price_unit,
+                            inv_line.price_unit - sl.price_unit,
+                        )
+                    )
+                # Quantité (pour les box uniquement, pas les frais)
+                if abs(inv_line.quantity - sl.product_uom_qty) > ANOMALY_TOLERANCE:
+                    anomalies.append(
+                        "Qté divergente %s : SO=%g INV=%g" % (
+                            inv_line.product_id.default_code or inv_line.product_id.name,
+                            sl.product_uom_qty,
+                            inv_line.quantity,
+                        )
+                    )
+
+        # 2. Comparaison du total (sauf si frais de dossier sur la facture)
+        if not has_initial_fees:
+            expected_total = so.amount_total
+            actual_total = invoice.amount_total
+            if abs(actual_total - expected_total) > ANOMALY_TOLERANCE:
+                anomalies.append(
+                    "Total divergent : SO=%.2f€ INV=%.2f€ (Δ=%+.2f€)" % (
+                        expected_total,
+                        actual_total,
+                        actual_total - expected_total,
+                    )
+                )
+
+        # 3. Lignes en SO mais pas en facture (sauf frais)
+        invoiced_products = invoice.invoice_line_ids.mapped('product_id')
+        for sl in so.order_line:
+            if not sl.product_id or sl.display_type:
+                continue
+            if 'FRAIS' in (sl.product_id.default_code or '').upper():
+                continue
+            if sl.product_id not in invoiced_products:
+                anomalies.append(
+                    "Ligne SO non facturée : %s (%.2f€)" % (
+                        sl.product_id.default_code or sl.product_id.name,
+                        sl.price_subtotal,
+                    )
+                )
+
+        return bool(anomalies), ' | '.join(anomalies)
+
+    # ==================== ENVOI GROUPÉ ====================
 
     def action_send_selected(self):
         self.ensure_one()
@@ -210,10 +309,21 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
         self.audit_line_ids.write({'selected': False})
         return self._reload()
 
+    def action_filter_anomalies(self):
+        """Ouvre une nouvelle fenêtre filtrée sur les anomalies uniquement."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Anomalies détectées"),
+            'res_model': 'lolirine.invoice.audit.line',
+            'view_mode': 'list,form',
+            'domain': [('wizard_id', '=', self.id), ('is_anomaly', '=', True)],
+            'target': 'current',
+        }
+
     # ==================== HELPERS ====================
 
     def _reload(self):
-        """Réouvre le même wizard pour conserver le contexte."""
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'lolirine.invoice.audit.wizard',
@@ -224,7 +334,6 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
         }
 
     def _send_invoice_lolirine(self, invoice):
-        """Envoie une facture avec le template Lolirine en pièce jointe."""
         if invoice.state != 'posted':
             return False, "Facture non postée"
         if not invoice.partner_id.email:
@@ -235,7 +344,7 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
             raise_if_not_found=False,
         )
         if not report:
-            return False, "Template lolirine_invoice.action_report_invoice_lolirine introuvable"
+            return False, "Template Lolirine introuvable"
 
         try:
             pdf_content, _ext = report._render_qweb_pdf(report.id, [invoice.id])
@@ -324,7 +433,7 @@ class LolirineInvoiceAuditWizard(models.TransientModel):
 class LolirineInvoiceAuditLine(models.TransientModel):
     _name = 'lolirine.invoice.audit.line'
     _description = "Ligne d'audit de facturation"
-    _order = 'status, subscription_id'
+    _order = 'is_anomaly desc, status, subscription_id'
 
     wizard_id = fields.Many2one(
         'lolirine.invoice.audit.wizard',
@@ -339,6 +448,7 @@ class LolirineInvoiceAuditLine(models.TransientModel):
     partner_email = fields.Char(related='partner_id.email', string="Email", readonly=True)
     invoice_id = fields.Many2one('account.move', string="Facture", readonly=True)
     amount = fields.Float(string="TTC", readonly=True)
+    expected_amount = fields.Float(string="TTC attendu (SO)", readonly=True)
 
     status = fields.Selection([
         ('ok', '✓ OK'),
@@ -351,6 +461,9 @@ class LolirineInvoiceAuditLine(models.TransientModel):
     ], string="Statut", readonly=True, index=True)
 
     notes = fields.Char(string="Notes", readonly=True)
+
+    is_anomaly = fields.Boolean(string="🚨", readonly=True, index=True)
+    anomaly_details = fields.Char(string="Détails anomalie", readonly=True)
 
     def action_open_subscription(self):
         self.ensure_one()
