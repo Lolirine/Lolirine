@@ -44,6 +44,8 @@
                             <field name="total_boxes"/>
                             <field name="total_ok"/>
                             <field name="total_vacant"/>
+                            <field name="total_personal_use"
+                                   invisible="total_personal_use == 0"/>
                             <field name="total_inconsistent"
                                    class="text-danger fw-bold"
                                    invisible="total_inconsistent == 0"/>
@@ -75,12 +77,12 @@
                             <field name="consistency_line_ids">
                                 <list create="false" delete="false" edit="false"
                                       decoration-success="status == 'ok'"
-                                      decoration-info="status == 'vacant'"
+                                      decoration-info="status in ('vacant', 'personal_use')"
                                       decoration-warning="status in ('plan_orphan', 'so_orphan', 'occupied_no_so', 'no_box_product')"
                                       decoration-danger="status in ('multiple_so', 'partner_mismatch')">
                                     <field name="status" widget="badge"
                                            decoration-success="status == 'ok'"
-                                           decoration-info="status == 'vacant'"
+                                           decoration-info="status in ('vacant', 'personal_use')"
                                            decoration-warning="status in ('plan_orphan', 'so_orphan', 'occupied_no_so', 'no_box_product')"
                                            decoration-danger="status in ('multiple_so', 'partner_mismatch')"/>
                                     <field name="box_code"/>
@@ -112,7 +114,7 @@
                                             type="object"
                                             icon="fa-refresh"
                                             title="Resynchroniser ce box (force recompute)"
-                                            invisible="not box_id or status in ('ok', 'vacant', 'no_box_product')"/>
+                                            invisible="not box_id or status in ('ok', 'vacant', 'personal_use', 'no_box_product')"/>
                                 </list>
                             </field>
                         </page>
@@ -132,7 +134,7 @@
         <field name="arch" type="xml">
             <list create="false" delete="false" edit="false"
                   decoration-success="status == 'ok'"
-                  decoration-info="status == 'vacant'"
+                  decoration-info="status in ('vacant', 'personal_use')"
                   decoration-warning="status in ('plan_orphan', 'so_orphan', 'occupied_no_so', 'no_box_product')"
                   decoration-danger="status in ('multiple_so', 'partner_mismatch')">
                 <field name="status" widget="badge"/>
@@ -150,7 +152,7 @@
                         invisible="not active_so_ids"/>
                 <button name="action_resync_box" type="object" icon="fa-refresh"
                         title="Resynchroniser"
-                        invisible="not box_id or status in ('ok', 'vacant', 'no_box_product')"/>
+                        invisible="not box_id or status in ('ok', 'vacant', 'personal_use', 'no_box_product')"/>
             </list>
         </field>
     </record>
