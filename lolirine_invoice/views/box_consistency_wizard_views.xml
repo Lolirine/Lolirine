@@ -12,6 +12,12 @@
                             type="object"
                             string="Lancer l'audit"
                             class="btn-primary"/>
+                    <button name="action_resync_all_inconsistent"
+                            type="object"
+                            string="🔄 Tout resynchroniser"
+                            class="btn-success"
+                            confirm="Cette action va forcer le recalcul de current_subscription_id sur tous les box incohérents. Continuer ?"
+                            invisible="total_resyncable == 0"/>
                     <button name="action_filter_inconsistent"
                             type="object"
                             string="Voir uniquement les incohérences"
@@ -29,8 +35,10 @@
                         <p class="text-muted">
                             Compare le plan d'étage (storage.box) avec les contrats actifs (sale.order is_subscription).
                             Détecte les box occupés sans contrat, les contrats sans box, les conflits, etc.
+                            Le bouton 🔄 permet de resynchroniser un ou tous les box incohérents.
                         </p>
                     </div>
+                    <field name="total_resyncable" invisible="1"/>
                     <group>
                         <group string="Synthèse" invisible="not has_results">
                             <field name="total_boxes"/>
@@ -100,6 +108,11 @@
                                             icon="fa-link"
                                             title="Ouvrir le SO référencé par le plan"
                                             invisible="not plan_subscription_id"/>
+                                    <button name="action_resync_box"
+                                            type="object"
+                                            icon="fa-refresh"
+                                            title="Resynchroniser ce box (force recompute)"
+                                            invisible="not box_id or status in ('ok', 'vacant', 'no_box_product')"/>
                                 </list>
                             </field>
                         </page>
@@ -135,6 +148,9 @@
                         invisible="not box_id"/>
                 <button name="action_open_first_so" type="object" icon="fa-file-text-o"
                         invisible="not active_so_ids"/>
+                <button name="action_resync_box" type="object" icon="fa-refresh"
+                        title="Resynchroniser"
+                        invisible="not box_id or status in ('ok', 'vacant', 'no_box_product')"/>
             </list>
         </field>
     </record>
