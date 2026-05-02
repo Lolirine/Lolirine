@@ -16,8 +16,9 @@ STATUS_PRIORITY = {
     'so_orphan': 4,
     'occupied_no_so': 5,
     'no_box_product': 6,
-    'vacant': 7,
-    'ok': 8,
+    'personal_use': 7,
+    'vacant': 8,
+    'ok': 9,
 }
 
 INCONSISTENT_STATUSES = (
@@ -40,6 +41,7 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
     total_boxes = fields.Integer(string="Box analysés", compute='_compute_stats')
     total_ok = fields.Integer(string="✓ OK", compute='_compute_stats')
     total_vacant = fields.Integer(string="○ Vacants (libres)", compute='_compute_stats')
+    total_personal_use = fields.Integer(string="🏠 Usage personnel", compute='_compute_stats')
     total_multiple_so = fields.Integer(string="🚨 Conflits multi-SO", compute='_compute_stats')
     total_partner_mismatch = fields.Integer(string="🚨 Partner divergent", compute='_compute_stats')
     total_plan_orphan = fields.Integer(string="⚠ Plan orphelin", compute='_compute_stats')
@@ -57,6 +59,7 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
             wiz.total_boxes = len(lines)
             wiz.total_ok = len(lines.filtered(lambda l: l.status == 'ok'))
             wiz.total_vacant = len(lines.filtered(lambda l: l.status == 'vacant'))
+            wiz.total_personal_use = len(lines.filtered(lambda l: l.status == 'personal_use'))
             wiz.total_multiple_so = len(lines.filtered(lambda l: l.status == 'multiple_so'))
             wiz.total_partner_mismatch = len(lines.filtered(lambda l: l.status == 'partner_mismatch'))
             wiz.total_plan_orphan = len(lines.filtered(lambda l: l.status == 'plan_orphan'))
@@ -165,6 +168,10 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
                         box.current_subscription_id.subscription_state
                             or box.current_subscription_id.state,
                     )
+                elif getattr(box, 'is_personal_use', False):
+                    # Box utilisé personnellement par le gérant — pas une incohérence
+                    vals['status'] = 'personal_use'
+                    vals['details'] = "Usage personnel (non commercialisé)"
                 elif not box.date_available:
                     vals['status'] = 'occupied_no_so'
                     vals['details'] = ("Plan dit occupé (date_available vide) "
@@ -327,6 +334,7 @@ class LolirineBoxConsistencyLine(models.TransientModel):
     status = fields.Selection([
         ('ok', '✓ OK'),
         ('vacant', '○ Vacant'),
+        ('personal_use', '🏠 Usage personnel'),
         ('multiple_so', '🚨 Conflit multi-SO'),
         ('partner_mismatch', '🚨 Partner divergent'),
         ('plan_orphan', '⚠ Plan orphelin'),
