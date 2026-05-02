@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_lolirine_invoice_audit_wizard,lolirine.invoice.audit.wizard,model_lolirine_invoice_audit_wizard,account.group_account_invoice,1,1,1,1
-access_lolirine_invoice_audit_line,lolirine.invoice.audit.line,model_lolirine_invoice_audit_line,account.group_account_invoice,1,1,1,1
