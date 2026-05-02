@@ -14,33 +14,33 @@ class AccountMove(models.Model):
     _inherit = "account.move"
 
     # ==================== CHAMPS EXISTANTS ====================
-    
+
     auto_send_invoice = fields.Boolean(
         string="Envoi automatique",
         default=False,
         help="Si active, la facture sera envoyee automatiquement par email apres confirmation"
     )
-    
+
     auto_send_peppol = fields.Boolean(
         string="Envoi automatique Peppol",
         default=False,
         help="Si active, la facture sera envoyee automatiquement via Peppol apres confirmation"
     )
-    
+
     peppol_sent = fields.Boolean(
         string="Envoyee via Peppol",
         default=False,
         copy=False,
         help="Indique si la facture a ete envoyee via Peppol"
     )
-    
+
     peppol_sent_date = fields.Datetime(
         string="Date envoi Peppol",
         copy=False
     )
 
     # ==================== NOUVEAUX CHAMPS - TAGS ====================
-    
+
     invoice_tag_ids = fields.Many2many(
         'lolirine.invoice.tag',
         'account_move_tag_rel',
@@ -51,12 +51,12 @@ class AccountMove(models.Model):
     )
 
     # ==================== NOUVEAUX CHAMPS - NOTES INTERNES ====================
-    
+
     internal_note = fields.Text(
         string='Note interne',
         help='Note visible uniquement en interne, non imprimee sur la facture'
     )
-    
+
     internal_note_important = fields.Boolean(
         string='Note importante',
         default=False,
@@ -64,25 +64,25 @@ class AccountMove(models.Model):
     )
 
     # ==================== NOUVEAUX CHAMPS - RELANCES ====================
-    
+
     reminder_ids = fields.One2many(
         'lolirine.invoice.reminder',
         'invoice_id',
         string='Relances'
     )
-    
+
     reminder_count = fields.Integer(
         string='Nb Relances',
         compute='_compute_reminder_count',
         store=True
     )
-    
+
     last_reminder_date = fields.Date(
         string='Derniere relance',
         compute='_compute_last_reminder',
         store=True
     )
-    
+
     last_reminder_type = fields.Selection([
         ('reminder_1', '1er Rappel'),
         ('reminder_2', '2eme Rappel'),
@@ -90,12 +90,12 @@ class AccountMove(models.Model):
         ('formal_notice', 'Mise en demeure'),
         ('lawyer', 'Transmission avocat'),
     ], string='Dernier type relance', compute='_compute_last_reminder', store=True)
-    
+
     next_reminder_date = fields.Date(
         string='Prochaine relance',
         compute='_compute_next_reminder'
     )
-    
+
     reminder_status = fields.Selection([
         ('none', 'Aucune'),
         ('reminder_1', '1er Rappel'),
@@ -106,24 +106,24 @@ class AccountMove(models.Model):
     ], string='Statut relance', compute='_compute_reminder_status', store=True)
 
     # ==================== NOUVEAUX CHAMPS - ECHEANCES ====================
-    
+
     days_until_due = fields.Integer(
         string='Jours avant echeance',
         compute='_compute_days_until_due'
     )
-    
+
     days_overdue = fields.Integer(
         string='Jours de retard',
         compute='_compute_days_overdue',
         store=True
     )
-    
+
     is_overdue = fields.Boolean(
         string='En retard',
         compute='_compute_is_overdue',
         store=True
     )
-    
+
     overdue_level = fields.Selection([
         ('ok', 'A jour'),
         ('warning', 'Bientot du'),
@@ -132,30 +132,30 @@ class AccountMove(models.Model):
     ], string='Niveau urgence', compute='_compute_overdue_level', store=True)
 
     # ==================== NOUVEAUX CHAMPS - PENALITES ====================
-    
+
     penalty_amount = fields.Monetary(
         string='Penalites de retard',
         compute='_compute_penalty_amount',
         help='Penalites calculees selon le taux legal belge (10.5%)'
     )
-    
+
     total_with_penalty = fields.Monetary(
         string='Total avec penalites',
         compute='_compute_penalty_amount'
     )
 
     # ==================== NOUVEAUX CHAMPS - HISTORIQUE CLIENT ====================
-    
+
     partner_invoice_count = fields.Integer(
         string='Factures client',
         compute='_compute_partner_invoice_count'
     )
-    
+
     partner_unpaid_count = fields.Integer(
         string='Impayees client',
         compute='_compute_partner_invoice_count'
     )
-    
+
     partner_total_due = fields.Monetary(
         string='Total du client',
         compute='_compute_partner_invoice_count'
@@ -365,19 +365,19 @@ class AccountMove(models.Model):
         """Envoyer la facture automatiquement par email avec PDF Lolirine attache"""
         self.ensure_one()
         import base64
-        
+
         if not self.partner_id.email:
             self.message_post(
                 body="Envoi automatique impossible : le client n'a pas d'adresse email configuree.",
                 message_type='notification'
             )
             return False
-        
+
         try:
             report = self.env.ref('lolirine_invoice.action_report_invoice_lolirine', raise_if_not_found=False)
             if not report:
                 report = self.env.ref('account.account_invoices', raise_if_not_found=False)
-            
+
             attachment_ids = []
             if report:
                 pdf_content, _unused = report._render_qweb_pdf(report.id, [self.id])
@@ -390,7 +390,7 @@ class AccountMove(models.Model):
                     'mimetype': 'application/pdf',
                 })
                 attachment_ids.append(attachment.id)
-            
+
             body_html = f"""
 <div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
     <p>Bonjour {self.partner_id.name},</p>
@@ -421,7 +421,7 @@ class AccountMove(models.Model):
     <p>Cordialement,<br/><strong>Lolirine Garde-Meubles</strong><br/>Feron Rodney<br/>Tel. : 0497/44 41 46</p>
 </div>
             """
-            
+
             mail = self.env['mail.mail'].sudo().create({
                 'subject': f"Envoi de votre facture mensuelle {self.name} - Garde-meubles Lolirine",
                 'body_html': body_html,
@@ -439,7 +439,7 @@ class AccountMove(models.Model):
                 message_type='notification'
             )
             return True
-            
+
         except Exception as e:
             _logger.error("Erreur envoi facture %s: %s", self.name, str(e))
             self.message_post(
@@ -740,19 +740,19 @@ class AccountMove(models.Model):
 
 class ResPartner(models.Model):
     _inherit = "res.partner"
-    
+
     auto_send_invoice = fields.Boolean(
         string="Envoi auto factures email",
         default=False,
         help="Si active, les factures de ce client seront envoyees automatiquement par email"
     )
-    
+
     auto_send_peppol = fields.Boolean(
         string="Envoi auto factures Peppol",
         default=False,
         help="Si active, les factures de ce client seront envoyees automatiquement via Peppol"
     )
-    
+
     invoice_overdue_count = fields.Integer(
         string='Factures en retard',
         compute='_compute_invoice_stats'
@@ -761,7 +761,7 @@ class ResPartner(models.Model):
         string='Montant en retard',
         compute='_compute_invoice_stats'
     )
-    
+
     @api.onchange('vat')
     def _onchange_vat_peppol(self):
         if self.vat and not self.peppol_endpoint:
@@ -785,18 +785,18 @@ class ResPartner(models.Model):
 
 class SaleSubscription(models.Model):
     _inherit = "sale.order"
-    
+
     auto_send_peppol = fields.Boolean(
         string="Envoi auto Peppol",
         default=False,
         help="Si active, les factures generees seront envoyees automatiquement via Peppol"
     )
-    
+
     @api.onchange('partner_id')
     def _onchange_partner_peppol(self):
         if self.partner_id and self.partner_id.auto_send_peppol:
             self.auto_send_peppol = True
-    
+
     def _create_invoices(self, grouped=False, final=False, date=None):
         moves = super()._create_invoices(grouped=grouped, final=final, date=date)
         for move in moves:
@@ -813,25 +813,25 @@ class SaleSubscription(models.Model):
         for subscription in self:
             if hasattr(subscription, 'is_subscription') and not subscription.is_subscription:
                 continue
-        
+
             vals = {'subscription_state': '6_churn'}
             if close_reason_id:
                 vals['close_reason_id'] = close_reason_id
             subscription.write(vals)
-        
+
             # IMPORTANT : forcer next_invoice_date / recurring_next_date à False
             # APRÈS le write subscription_state, sinon le compute Odoo
             # _compute_next_invoice_date les recalcule depuis start_date.
             post_close_vals = {}
             if 'next_invoice_date' in subscription._fields:
-            post_close_vals['next_invoice_date'] = False
+                post_close_vals['next_invoice_date'] = False
             if 'recurring_next_date' in subscription._fields:
                 post_close_vals['recurring_next_date'] = False
             if 'end_date' in subscription._fields and not subscription.end_date:
                 post_close_vals['end_date'] = fields.Date.today()
             if post_close_vals:
                 subscription.write(post_close_vals)
-        
+
             msg = "Abonnement clôturé."
             if close_reason_id:
                 try:
@@ -840,7 +840,7 @@ class SaleSubscription(models.Model):
                         msg = "Abonnement clôturé. Raison : %s" % reason.name
                 except Exception:
                     pass
-        
+
             subscription.message_post(
                 body=msg,
                 message_type='notification',
