@@ -75,6 +75,7 @@
         "views/invoice_dashboard_views.xml",
         "views/account_move_views.xml",
         "views/invoice_audit_wizard_views.xml",
+        "views/box_consistency_wizard_views.xml",
         # Menus (en dernier)
         "views/menu_views.xml",
     ],
