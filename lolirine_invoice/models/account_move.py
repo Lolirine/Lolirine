@@ -847,4 +847,91 @@ class SaleSubscription(models.Model):
                 subtype_xmlid='mail.mt_note',  # note interne — pas de notif aux followers
             )
             _logger.info("Abonnement %s clôturé via patch set_close()", subscription.name)
+
+            # Synchronisation du plan d'étage (storage.box)
+            subscription._sync_storage_boxes()
+
         return True
+
+    # ==================== SYNCHRONISATION storage.box ====================
+
+    # Champs pour lesquels une modification doit déclencher la resync du plan d'étage
+    _BOX_SYNC_TRIGGER_FIELDS = ('subscription_state', 'state', 'is_subscription', 'partner_id', 'order_line')
+
+    def write(self, vals):
+        """Détecte les changements pertinents et resynchronise les box du plan."""
+        # Récupère les templates concernés AVANT le write (pour capter aussi les retraits de lignes)
+        sync_needed = any(k in vals for k in self._BOX_SYNC_TRIGGER_FIELDS)
+        templates_before = set()
+        if sync_needed:
+            templates_before = self._collect_box_templates()
+
+        result = super().write(vals)
+
+        if sync_needed:
+            templates_after = self._collect_box_templates()
+            all_templates = templates_before | templates_after
+            if all_templates:
+                self._sync_storage_boxes(template_ids=all_templates)
+
+        return result
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        # Synchroniser les box pour les nouveaux abonnements
+        subs = records.filtered(lambda r: r.is_subscription)
+        if subs:
+            subs._sync_storage_boxes()
+        return records
+
+    def _collect_box_templates(self):
+        """Retourne l'ensemble des product.template.id référencés par les lignes des SOs."""
+        template_ids = set()
+        for so in self:
+            if not so.is_subscription:
+                continue
+            for line in so.order_line:
+                if not line.product_id or line.display_type:
+                    continue
+                if line.product_id.product_tmpl_id:
+                    template_ids.add(line.product_id.product_tmpl_id.id)
+        return template_ids
+
+    def _sync_storage_boxes(self, template_ids=None):
+        """
+        Force le recompute de _compute_current_customer sur les box dont le produit
+        est référencé par les SOs courants (ou par les template_ids fournis).
+
+        Pourquoi ce hook explicite ? Parce que _compute_current_customer dans
+        storage_plan_module fait un search() sur sale.order avec un filtre
+        sur subscription_state. Odoo ne peut pas auto-déclencher le recompute
+        sur ces changements transversaux sans un depends path explicite.
+        """
+        if 'storage.box' not in self.env:
+            return  # storage_plan_module pas installé
+
+        if template_ids is None:
+            template_ids = self._collect_box_templates()
+
+        if not template_ids:
+            return
+
+        boxes = self.env['storage.box'].search([
+            ('product_tmpl_id', 'in', list(template_ids)),
+        ])
+        if not boxes:
+            return
+
+        try:
+            boxes._compute_current_customer()
+            _logger.debug(
+                "Storage box sync : %s box(es) recalculé(s) depuis SO write/create",
+                len(boxes),
+            )
+        except Exception as e:
+            # Ne JAMAIS bloquer le write SO à cause d'un échec de sync plan
+            _logger.error(
+                "Erreur lors de la sync storage.box (template_ids=%s) : %s",
+                template_ids, e,
+            )
