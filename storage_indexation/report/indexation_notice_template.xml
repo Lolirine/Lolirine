@@ -8,8 +8,46 @@
     <template id="report_indexation_notice">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-call="web.external_layout">
-                    <div class="page" style="font-family: Arial, sans-serif; font-size: 11pt;">
+                <t t-set="company" t-value="o.indexation_id.company_id or env.company"/>
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 11pt; padding: 0;">
+
+                        <!-- ===== EN-TÊTE LOLIRINE AVEC LOGO ===== -->
+                        <div style="border-bottom: 3px solid #C91E18; padding-bottom: 15px; margin-bottom: 30px;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <!-- Logo société (gauche) -->
+                                    <td style="width: 120px; vertical-align: top;">
+                                        <img t-if="company.logo"
+                                             t-att-src="image_data_uri(company.logo)"
+                                             style="max-width: 120px; max-height: 80px;"
+                                             alt="Logo Lolirine"/>
+                                    </td>
+
+                                    <!-- Coordonnées société (droite) -->
+                                    <td style="vertical-align: top; text-align: right; padding-left: 20px;">
+                                        <h2 style="margin: 0 0 5px 0; color: #C91E18; font-size: 18pt;">
+                                            <span t-out="company.name or ''">Lolirine SRL</span>
+                                        </h2>
+                                        <div style="font-size: 9pt; color: #555; line-height: 1.5;">
+                                            <span t-if="company.street" t-out="company.street"/>
+                                            <span t-if="company.street2"> — <t t-out="company.street2"/></span>
+                                            <br/>
+                                            <span t-out="company.zip or ''"/>
+                                            <span t-out="company.city or ''"/>
+                                            <span t-if="company.country_id">, <t t-out="company.country_id.name"/></span>
+                                            <br/>
+                                            <span t-if="company.vat">TVA : <t t-out="company.vat"/><br/></span>
+                                            <span style="color: #C91E18;">📧 gardemeublelolirine@gmail.com</span>
+                                            <br/>
+                                            <span style="color: #C91E18;">📞 0497 / 444 146</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- ===== CONTENU DU DOCUMENT ===== -->
 
                         <!-- Référence et date -->
                         <div style="text-align: right; margin-bottom: 30px; font-size: 10pt; color: #666;">
@@ -184,6 +222,17 @@
                             <p style="margin: 0 0 5px 0;">Cordialement,</p>
                             <p style="margin: 0; font-weight: bold;">L'équipe Lolirine Garde-meuble</p>
                             <p style="margin: 0; font-size: 10pt; color: #666;">Rodney Feron, gérant</p>
+                        </div>
+
+                        <!-- ===== PIED DE PAGE LOLIRINE ===== -->
+                        <div style="margin-top: 50px; border-top: 2px solid #C91E18; padding-top: 10px; font-size: 8pt; color: #888; text-align: center;">
+                            <strong t-out="company.name or 'Lolirine SRL'">Lolirine SRL</strong>
+                            — TVA <span t-out="company.vat or 'BE0650891279'"/>
+                            <br/>
+                            <span t-if="company.street" t-out="company.street"/>,
+                            <span t-out="company.zip or ''"/>
+                            <span t-out="company.city or ''"/>
+                            — gardemeublelolirine@gmail.com — 0497 / 444 146
                         </div>
 
                     </div>
