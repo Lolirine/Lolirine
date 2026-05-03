@@ -205,13 +205,6 @@
         <field name="target">new</field>
     </record>
 
-    <!-- Élément de menu sous "Comptabilité > Outils" (à adapter selon ton menu) -->
-    <menuitem id="menu_lolirine_indexation_audit_wizard"
-              name="🔍 Audit indexation annuelle"
-              parent="account.menu_finance_entries_actions"
-              action="action_lolirine_indexation_audit_wizard"
-              sequence="50"/>
-    
     <!-- Menu sous Facturation > Clients (à côté des autres wizards Lolirine) -->
     <menuitem id="menu_lolirine_indexation_audit_wizard"
               name="Audit indexation annuelle"
