@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =====================================================================
+         FORMULAIRE PRINCIPAL DU WIZARD
+         ===================================================================== -->
+    <record id="view_lolirine_indexation_audit_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.indexation.audit.wizard.form</field>
+        <field name="model">lolirine.indexation.audit.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Audit indexation annuelle">
+                <header>
+                    <button name="action_run_audit"
+                            string="🔍 Lancer l'audit"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="action_select_all"
+                            string="✓ Tout sélectionner"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="not has_results or total_pending == 0"/>
+                    <button name="action_deselect_all"
+                            string="☐ Tout désélectionner"
+                            type="object"
+                            invisible="not has_results or selected_count == 0"/>
+                    <button name="action_filter_pending"
+                            string="🟢 Voir uniquement à indexer"
+                            type="object"
+                            invisible="not has_results or total_pending == 0"/>
+                    <button name="action_create_indexation_draft"
+                            string="📝 Créer brouillon d'indexation"
+                            type="object"
+                            class="btn-success"
+                            invisible="selected_count == 0"
+                            confirm="Créer un brouillon d'indexation avec les lignes sélectionnées ? L'indexation ne sera PAS appliquée immédiatement — elle restera en brouillon, à confirmer puis appliquer manuellement."/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Audit indexation box ↔ contrat</h1>
+                        <p class="text-muted">
+                            Audit informatif des abonnements éligibles à indexation annuelle.
+                            <br/>Aucune indexation n'est appliquée automatiquement —
+                            ce wizard permet de visualiser et de créer un brouillon
+                            que vous pourrez confirmer puis appliquer manuellement.
+                        </p>
+                    </div>
+
+                    <group>
+                        <group string="Paramètres">
+                            <field name="company_id" options="{'no_create': True}"/>
+                            <field name="target_date"/>
+                            <field name="target_index_id"
+                                   options="{'no_create': True}"/>
+                            <field name="include_new_contracts"/>
+                        </group>
+
+                        <group string="Synthèse" invisible="not has_results">
+                            <field name="total_subscriptions"/>
+                            <field name="total_pending"
+                                   class="text-success fw-bold"/>
+                            <field name="total_recently_indexed"
+                                   invisible="total_recently_indexed == 0"/>
+                            <field name="total_new"
+                                   invisible="total_new == 0"/>
+                            <field name="total_blocked"
+                                   class="text-danger"
+                                   invisible="total_blocked == 0"/>
+                        </group>
+                    </group>
+
+                    <group string="Impact financier potentiel"
+                           invisible="not has_results or total_pending == 0">
+                        <group>
+                            <field name="total_old_amount"/>
+                            <field name="total_new_amount"/>
+                        </group>
+                        <group>
+                            <field name="total_increase"
+                                   class="text-success fw-bold"/>
+                            <field name="total_increase_yearly"
+                                   class="text-success fw-bold"/>
+                        </group>
+                    </group>
+
+                    <group string="Sélection en cours"
+                           invisible="selected_count == 0">
+                        <field name="selected_count" class="fw-bold"/>
+                        <field name="selected_increase" class="fw-bold"/>
+                    </group>
+
+                    <notebook invisible="not has_results">
+                        <page string="Détail par abonnement" name="lines">
+                            <field name="audit_line_ids"
+                                   nolabel="1"
+                                   context="{'default_wizard_id': id}">
+                                <list editable="bottom"
+                                      create="false"
+                                      delete="false"
+                                      decoration-success="status == 'pending'"
+                                      decoration-info="status == 'recently_indexed'"
+                                      decoration-muted="status == 'new_contract'"
+                                      decoration-danger="status in ('no_base_index', 'error_calc')">
+                                    <field name="selected"
+                                           widget="boolean_toggle"
+                                           readonly="status != 'pending'"/>
+                                    <field name="status" widget="badge"
+                                           decoration-success="status == 'pending'"
+                                           decoration-info="status == 'recently_indexed'"
+                                           decoration-muted="status == 'new_contract'"
+                                           decoration-danger="status in ('no_base_index', 'error_calc')"/>
+                                    <field name="subscription_id"
+                                           readonly="1"
+                                           options="{'no_open': True}"/>
+                                    <field name="partner_id" readonly="1"/>
+                                    <field name="product_id"
+                                           readonly="1"
+                                           optional="show"/>
+                                    <field name="start_date"
+                                           readonly="1"
+                                           optional="show"/>
+                                    <field name="age_months"
+                                           readonly="1"
+                                           optional="hide"/>
+                                    <field name="last_indexation_date"
+                                           readonly="1"
+                                           optional="show"/>
+                                    <field name="base_index_value"
+                                           readonly="1"
+                                           string="Indice base"
+                                           optional="show"/>
+                                    <field name="target_index_value"
+                                           readonly="1"
+                                           string="Indice cible"
+                                           optional="hide"/>
+                                    <field name="old_price"
+                                           readonly="1"
+                                           string="Loyer actuel"/>
+                                    <field name="new_price"
+                                           readonly="1"
+                                           string="Loyer indexé"/>
+                                    <field name="price_increase"
+                                           readonly="1"
+                                           string="Augm."
+                                           decoration-success="price_increase > 0"
+                                           decoration-muted="price_increase == 0"
+                                           decoration-danger="price_increase &lt; 0"/>
+                                    <field name="increase_percentage"
+                                           readonly="1"
+                                           string="%"
+                                           decoration-success="increase_percentage > 0"
+                                           decoration-muted="increase_percentage == 0"
+                                           decoration-danger="increase_percentage &lt; 0"
+                                           optional="show"/>
+                                    <field name="error_msg"
+                                           readonly="1"
+                                           optional="show"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <button name="action_open_subscription"
+                                            type="object"
+                                            icon="fa-external-link"
+                                            title="Ouvrir l'abonnement"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+
+                    <div class="alert alert-info"
+                         role="alert"
+                         invisible="not has_results">
+                        <strong>ℹ️ Mode informatif</strong>
+                        Aucun prix n'a encore été modifié. Pour appliquer
+                        l'indexation, sélectionne les lignes souhaitées puis
+                        clique sur <em>"📝 Créer brouillon d'indexation"</em>.
+                        Le brouillon devra ensuite être confirmé puis appliqué
+                        manuellement sur la fiche d'indexation.
+                    </div>
+
+                    <div class="alert alert-warning"
+                         role="alert"
+                         invisible="not has_results or total_blocked == 0">
+                        <strong>⚠️ Lignes bloquées</strong>
+                        <field name="total_blocked" readonly="1" nolabel="1"/>
+                        ligne(s) ne peuvent pas être indexées (indice de base
+                        manquant ou erreur de calcul). À investiguer manuellement.
+                    </div>
+                </sheet>
+
+                <footer>
+                    <button string="Fermer" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- =====================================================================
+         ACTION MENU
+         ===================================================================== -->
+    <record id="action_lolirine_indexation_audit_wizard"
+            model="ir.actions.act_window">
+        <field name="name">Audit indexation annuelle</field>
+        <field name="res_model">lolirine.indexation.audit.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Élément de menu sous "Comptabilité > Outils" (à adapter selon ton menu) -->
+    <menuitem id="menu_lolirine_indexation_audit_wizard"
+              name="🔍 Audit indexation annuelle"
+              parent="account.menu_finance_entries_actions"
+              action="action_lolirine_indexation_audit_wizard"
+              sequence="50"/>
+
+</odoo>
