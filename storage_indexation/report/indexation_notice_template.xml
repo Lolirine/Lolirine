@@ -48,7 +48,7 @@
                         </h2>
 
                         <p style="margin: 0 0 15px 0;">
-                            <strong>Madame, Monsieur <span t-out="o.partner_id.name or ''">[Client]</span>,</strong>
+                            <strong>Bonjour <span t-out="o.partner_id.name or ''">[Client]</span>,</strong>
                         </p>
 
                         <p style="margin: 0 0 15px 0; text-align: justify;">
