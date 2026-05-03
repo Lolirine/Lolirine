@@ -377,21 +377,6 @@ class LolirineIndexationAuditWizard(models.TransientModel):
         self.audit_line_ids.write({'selected': False})
         return self._reload()
 
-    def action_filter_pending(self):
-        """Affiche uniquement les lignes pending."""
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('Lignes à indexer'),
-            'res_model': 'lolirine.indexation.audit.line',
-            'view_mode': 'list',
-            'domain': [
-                ('wizard_id', '=', self.id),
-                ('status', '=', 'pending'),
-            ],
-            'target': 'new',
-        }
-
     def action_create_indexation_draft(self):
         """Crée un brouillon storage.indexation avec les lignes sélectionnées.
 
