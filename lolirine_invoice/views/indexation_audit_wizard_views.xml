@@ -23,10 +23,6 @@
                             string="☐ Tout désélectionner"
                             type="object"
                             invisible="not has_results or selected_count == 0"/>
-                    <button name="action_filter_pending"
-                            string="🟢 Voir uniquement à indexer"
-                            type="object"
-                            invisible="not has_results or total_pending == 0"/>
                     <button name="action_create_indexation_draft"
                             string="📝 Créer brouillon d'indexation"
                             type="object"
