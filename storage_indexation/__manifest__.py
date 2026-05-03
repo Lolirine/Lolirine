@@ -52,9 +52,12 @@ Compatibilité:
         # Rapports (AVANT les templates email qui les référencent)
         'report/indexation_report.xml',
         'report/indexation_report_template.xml',
+        'report/indexation_notice_action.xml',
+        'report/indexation_notice_template.xml',
         # Données avec dépendances
         'data/ir_cron_data.xml',
         'data/mail_template_data.xml',
+        'data/indexation_email_template.xml',
         # Vues
         'views/storage_price_index_views.xml',
         'views/storage_indexation_views.xml',
