@@ -78,6 +78,7 @@
         "views/invoice_audit_wizard_views.xml",
         "views/box_consistency_wizard_views.xml",
         "views/indexation_audit_wizard_views.xml",
+        "views/indexation_send_wizard_views.xml",
         # Menus (en dernier)
         "views/menu_views.xml",
     ],
