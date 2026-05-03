@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =====================================================================
+         ACTION DE RAPPORT PDF — Notice d'indexation
+         ===================================================================== -->
+    <record id="action_report_indexation_notice"
+            model="ir.actions.report">
+        <field name="name">Notification d'indexation</field>
+        <field name="model">storage.indexation.line</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">storage_indexation.report_indexation_notice</field>
+        <field name="report_file">storage_indexation.report_indexation_notice</field>
+        <field name="binding_model_id" ref="storage_indexation.model_storage_indexation_line"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Indexation - %s' % (object.partner_id.name or 'client')</field>
+    </record>
+
+</odoo>
