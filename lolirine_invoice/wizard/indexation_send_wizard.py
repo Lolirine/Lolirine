@@ -270,8 +270,34 @@ class LolirineIndexationSendWizard(models.TransientModel):
             }
         }
 
-    def action_send_all(self):
-        """Envoie les notifications à tous les clients (mode normal ou test)."""
+    # ========================================================================
+    # CHAMPS DE CONFIRMATION (étape 2 du double-clic de sécurité)
+    # ========================================================================
+
+    confirmation_step = fields.Selection(
+        [('initial', 'Initial'),
+         ('confirm', 'Confirmation')],
+        default='initial',
+        readonly=True,
+    )
+    confirmation_text = fields.Char(
+        string="Pour confirmer, tape : ENVOYER",
+        help="Saisie obligatoire pour confirmer l'envoi réel à tous les clients."
+    )
+
+    # ========================================================================
+    # LIMITE DE SÉCURITÉ MODE TEST
+    # ========================================================================
+
+    MAX_TEST_EMAILS = 5
+
+    def action_request_send_confirmation(self):
+        """Étape 1 du double-clic : affiche le récap et demande confirmation
+        explicite avant d'envoyer.
+
+        En mode test : limite à 5 emails maximum.
+        En mode réel : exige saisie du mot 'ENVOYER' pour valider.
+        """
         self.ensure_one()
 
         lines_to_send = self.indexation_id.line_ids.filtered(
@@ -283,6 +309,68 @@ class LolirineIndexationSendWizard(models.TransientModel):
                 "Aucune ligne à envoyer. Toutes les lignes sont déjà "
                 "notifiées ou n'ont pas d'email destinataire."
             ))
+
+        # 🛟 PROTECTION 1 : Limite stricte en mode test
+        if self.test_mode and len(lines_to_send) > self.MAX_TEST_EMAILS:
+            raise UserError(_(
+                "🛟 PROTECTION MODE TEST\n\n"
+                "L'envoi est limité à %(max)d emails maximum en mode test "
+                "pour éviter de saturer ta boîte Gmail "
+                "(rate limit, boucles, etc.).\n\n"
+                "Tu as actuellement %(total)d lignes à envoyer.\n\n"
+                "👉 Pour tester :\n"
+                "   • Utilise 'M'envoyer cet aperçu' (1 seul email)\n"
+                "   • OU réduis manuellement le nombre de lignes en marquant "
+                "certaines comme déjà notifiées."
+            ) % {'max': self.MAX_TEST_EMAILS, 'total': len(lines_to_send)})
+
+        # 🛟 PROTECTION 2 : Demande confirmation explicite
+        self.confirmation_step = 'confirm'
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'lolirine.indexation.send.wizard',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+            'context': self.env.context,
+        }
+
+    def action_send_all(self):
+        """Envoie les notifications à tous les clients (mode normal ou test).
+
+        Cette méthode n'est appelée QU'APRÈS confirmation explicite via
+        action_request_send_confirmation. Vérifie la saisie du mot 'ENVOYER'
+        en mode réel.
+        """
+        self.ensure_one()
+
+        # 🛟 PROTECTION 3 : Exige le mot 'ENVOYER' en mode réel
+        if not self.test_mode:
+            if (self.confirmation_text or '').strip().upper() != 'ENVOYER':
+                raise UserError(_(
+                    "Saisie incorrecte.\n\n"
+                    "Pour confirmer l'envoi RÉEL aux clients, tu dois saisir "
+                    "exactement le mot 'ENVOYER' (en majuscules) dans le "
+                    "champ de confirmation.\n\n"
+                    "Si tu n'es pas sûr, clique 'Annuler' et reviens "
+                    "quand tu seras prêt."
+                ))
+
+        lines_to_send = self.indexation_id.line_ids.filtered(
+            lambda l: not l.notification_sent and l.partner_id.email
+        )
+
+        if not lines_to_send:
+            raise UserError(_(
+                "Aucune ligne à envoyer. Toutes les lignes sont déjà "
+                "notifiées ou n'ont pas d'email destinataire."
+            ))
+
+        # Re-vérification de la limite mode test (sécurité ceinture+bretelles)
+        if self.test_mode and len(lines_to_send) > self.MAX_TEST_EMAILS:
+            raise UserError(_(
+                "Mode test : limite de %d emails dépassée."
+            ) % self.MAX_TEST_EMAILS)
 
         template = self._get_email_template()
         if not template:
