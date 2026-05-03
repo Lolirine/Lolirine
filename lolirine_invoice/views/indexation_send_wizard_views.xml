@@ -10,6 +10,53 @@
         <field name="arch" type="xml">
             <form string="Envoi des notifications d'indexation">
                 <sheet>
+                    <!-- ÉTAPE 2 : ÉCRAN DE CONFIRMATION -->
+                    <div invisible="confirmation_step != 'confirm'">
+                        <div class="oe_title">
+                            <h1 style="color: #C91E18;">
+                                ⚠️ Confirmation d'envoi
+                            </h1>
+                        </div>
+
+                        <div class="alert alert-warning" role="alert" invisible="test_mode">
+                            <h4 style="margin-top: 0;">🚨 Action irréversible</h4>
+                            <p>
+                                Tu es sur le point d'envoyer des notifications
+                                d'indexation <strong>aux vrais clients</strong>.
+                            </p>
+                            <p style="margin-bottom: 0;">
+                                <strong>Récap :</strong>
+                                <field name="total_lines" readonly="1" nolabel="1" class="oe_inline"/>
+                                lignes au total —
+                                <field name="total_companies" readonly="1" nolabel="1" class="oe_inline"/>
+                                sociétés (PDF + email),
+                                <field name="total_individuals" readonly="1" nolabel="1" class="oe_inline"/>
+                                particuliers (email seul).
+                            </p>
+                        </div>
+
+                        <div class="alert alert-info" role="alert" invisible="not test_mode">
+                            <h4 style="margin-top: 0;">🧪 Mode test confirmé</h4>
+                            <p style="margin-bottom: 0;">
+                                Maximum
+                                <field name="total_lines" readonly="1" nolabel="1" class="oe_inline"/>
+                                emails seront envoyés à
+                                <field name="test_email" readonly="1" nolabel="1" class="oe_inline"/>
+                                (limite de sécurité : 5 maximum).
+                            </p>
+                        </div>
+
+                        <group invisible="test_mode">
+                            <field name="confirmation_text"
+                                   placeholder="Tape ENVOYER en majuscules pour confirmer"
+                                   required="not test_mode"/>
+                        </group>
+
+                        <field name="confirmation_step" invisible="1"/>
+                    </div>
+
+                    <!-- ÉTAPE 1 : ÉCRAN INITIAL -->
+                    <div invisible="confirmation_step == 'confirm'">
                     <div class="oe_title">
                         <h1>📧 Envoi des notifications d'indexation</h1>
                         <p class="text-muted">
@@ -60,6 +107,8 @@
                         <field name="test_email" readonly="1" nolabel="1"/>
                         au lieu des vrais destinataires.
                         Aucun client réel ne recevra d'email.
+                        <br/>
+                        <strong>Limite de sécurité : 5 emails maximum en mode test.</strong>
                     </div>
 
                     <notebook>
@@ -86,14 +135,24 @@
                             </div>
                         </page>
                     </notebook>
+                    </div>
                 </sheet>
 
                 <footer>
-                    <button name="action_send_all"
+                    <!-- Boutons étape initiale -->
+                    <button name="action_request_send_confirmation"
                             string="📨 Envoyer à tous"
                             type="object"
                             class="btn-success"
-                            confirm="Confirmes-tu l'envoi des notifications d'indexation à tous les clients concernés ?"/>
+                            invisible="confirmation_step == 'confirm'"/>
+
+                    <!-- Boutons étape confirmation -->
+                    <button name="action_send_all"
+                            string="✅ Confirmer l'envoi"
+                            type="object"
+                            class="btn-danger"
+                            invisible="confirmation_step != 'confirm'"/>
+
                     <button string="Annuler"
                             class="btn-secondary"
                             special="cancel"/>
