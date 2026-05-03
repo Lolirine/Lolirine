@@ -248,17 +248,21 @@ class LolirineIndexationSendWizard(models.TransientModel):
         if will_attach_pdf:
             attachment_ids = self._generate_pdf_attachment(self.preview_line_id)
 
-        template.with_context(
-            force_email_to=test_email
-        ).send_mail(
-            self.preview_line_id.id,
-            force_send=True,
-            email_values={
-                'email_to': test_email,
-                'partner_ids': [],  # Bypass partners
-                'attachment_ids': [(6, 0, attachment_ids)],
-            },
-        )
+        # 🛟 Détache temporairement les rapports auto du template pour éviter
+        # le doublon de PDF (Odoo génère sinon automatiquement le PDF en plus
+        # de notre attachement manuel).
+        with self._temporarily_detach_template_reports(template):
+            template.with_context(
+                force_email_to=test_email
+            ).send_mail(
+                self.preview_line_id.id,
+                force_send=True,
+                email_values={
+                    'email_to': test_email,
+                    'partner_ids': [],  # Bypass partners
+                    'attachment_ids': [(6, 0, attachment_ids)],
+                },
+            )
 
         return {
             'type': 'ir.actions.client',
@@ -379,54 +383,58 @@ class LolirineIndexationSendWizard(models.TransientModel):
         sent_count = 0
         errors = []
 
-        for line in lines_to_send:
-            try:
-                # Décide si PDF joint
-                will_attach_pdf = (
-                    self.attach_pdf_for_companies
-                    and line.partner_id.is_company
-                )
+        # 🛟 Détache temporairement les rapports auto du template pour éviter
+        # le doublon de PDF (Odoo génère sinon automatiquement le PDF en plus
+        # de notre attachement manuel).
+        with self._temporarily_detach_template_reports(template):
+            for line in lines_to_send:
+                try:
+                    # Décide si PDF joint
+                    will_attach_pdf = (
+                        self.attach_pdf_for_companies
+                        and line.partner_id.is_company
+                    )
 
-                attachment_ids = []
-                if will_attach_pdf:
-                    attachment_ids = self._generate_pdf_attachment(line)
+                    attachment_ids = []
+                    if will_attach_pdf:
+                        attachment_ids = self._generate_pdf_attachment(line)
 
-                # Détermination du destinataire
-                if self.test_mode:
-                    target_email = self.test_email
-                    email_values = {
-                        'email_to': target_email,
-                        'partner_ids': [],
-                        'attachment_ids': [(6, 0, attachment_ids)],
-                    }
-                else:
-                    target_email = line.partner_id.email
-                    email_values = {
-                        'attachment_ids': [(6, 0, attachment_ids)],
-                    }
+                    # Détermination du destinataire
+                    if self.test_mode:
+                        target_email = self.test_email
+                        email_values = {
+                            'email_to': target_email,
+                            'partner_ids': [],
+                            'attachment_ids': [(6, 0, attachment_ids)],
+                        }
+                    else:
+                        target_email = line.partner_id.email
+                        email_values = {
+                            'attachment_ids': [(6, 0, attachment_ids)],
+                        }
 
-                template.send_mail(
-                    line.id,
-                    force_send=True,
-                    email_values=email_values,
-                )
+                    template.send_mail(
+                        line.id,
+                        force_send=True,
+                        email_values=email_values,
+                    )
 
-                # Marquer comme notifié seulement en mode normal
-                if not self.test_mode:
-                    line.write({
-                        'notification_sent': True,
-                        'notification_date': fields.Datetime.now(),
-                    })
+                    # Marquer comme notifié seulement en mode normal
+                    if not self.test_mode:
+                        line.write({
+                            'notification_sent': True,
+                            'notification_date': fields.Datetime.now(),
+                        })
 
-                sent_count += 1
+                    sent_count += 1
 
-            except Exception as e:
-                _logger.exception(
-                    "Erreur envoi notification ligne %s", line.id
-                )
-                errors.append(
-                    f"{line.partner_id.name} ({line.subscription_id.name}) : {e}"
-                )
+                except Exception as e:
+                    _logger.exception(
+                        "Erreur envoi notification ligne %s", line.id
+                    )
+                    errors.append(
+                        f"{line.partner_id.name} ({line.subscription_id.name}) : {e}"
+                    )
 
         # Mise à jour de l'indexation parente si non test
         if not self.test_mode and sent_count:
@@ -478,6 +486,39 @@ class LolirineIndexationSendWizard(models.TransientModel):
             'storage_indexation.email_template_indexation_notification',
             raise_if_not_found=False
         )
+
+    def _temporarily_detach_template_reports(self, template):
+        """Context manager qui détache temporairement les rapports liés au
+        template, puis les réattache à la sortie.
+
+        Pourquoi ? Si le template a `report_template_ids` configuré, Odoo
+        attache automatiquement le PDF à chaque envoi. Mais nous voulons
+        contrôler manuellement (PDF pour sociétés seulement, pas pour
+        particuliers). Sans ce détachement, on aurait 2 PDFs : celui d'Odoo
+        (auto) + le nôtre (manuel).
+
+        Usage :
+            with self._temporarily_detach_template_reports(template):
+                template.send_mail(...)
+        """
+        from contextlib import contextmanager
+
+        @contextmanager
+        def _ctx():
+            # Backup des rapports actuels
+            original_reports = template.report_template_ids
+            had_reports = bool(original_reports)
+
+            try:
+                if had_reports:
+                    template.report_template_ids = [(5, 0, 0)]  # détache tous
+                yield
+            finally:
+                # Réattache les rapports d'origine
+                if had_reports:
+                    template.report_template_ids = [(6, 0, original_reports.ids)]
+
+        return _ctx()
 
     def _generate_pdf_attachment(self, line):
         """Génère le PDF d'indexation pour une ligne et le retourne en
