@@ -5,3 +5,4 @@ from . import lolirine_refund_wizard
 from . import invoice_audit_wizard
 from . import box_consistency_wizard
 from . import indexation_audit_wizard
+from . import indexation_send_wizard
