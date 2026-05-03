@@ -15,3 +15,4 @@ access_lolirine_box_consistency_wizard,lolirine.box.consistency.wizard,model_lol
 access_lolirine_box_consistency_line,lolirine.box.consistency.line,model_lolirine_box_consistency_line,account.group_account_invoice,1,1,1,1
 access_lolirine_indexation_audit_wizard_user,lolirine.indexation.audit.wizard.user,model_lolirine_indexation_audit_wizard,base.group_user,1,1,1,1
 access_lolirine_indexation_audit_line_user,lolirine.indexation.audit.line.user,model_lolirine_indexation_audit_line,base.group_user,1,1,1,1
+access_lolirine_indexation_send_wizard_user,lolirine.indexation.send.wizard.user,model_lolirine_indexation_send_wizard,base.group_user,1,1,1,1
