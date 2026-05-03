@@ -13,3 +13,5 @@ access_lolirine_invoice_audit_wizard,lolirine.invoice.audit.wizard,model_lolirin
 access_lolirine_invoice_audit_line,lolirine.invoice.audit.line,model_lolirine_invoice_audit_line,account.group_account_invoice,1,1,1,1
 access_lolirine_box_consistency_wizard,lolirine.box.consistency.wizard,model_lolirine_box_consistency_wizard,account.group_account_invoice,1,1,1,1
 access_lolirine_box_consistency_line,lolirine.box.consistency.line,model_lolirine_box_consistency_line,account.group_account_invoice,1,1,1,1
+access_lolirine_indexation_audit_wizard_user,lolirine.indexation.audit.wizard.user,model_lolirine_indexation_audit_wizard,base.group_user,1,1,1,1
+access_lolirine_indexation_audit_line_user,lolirine.indexation.audit.line.user,model_lolirine_indexation_audit_line,base.group_user,1,1,1,1
