@@ -289,11 +289,19 @@ class LolirineIndexationAuditWizard(models.TransientModel):
                     continue
                 if not sol.product_id:
                     continue
-                # Filtrer aux lignes récurrentes (vraies lignes d'abonnement)
-                is_recurring = (
-                    getattr(sol.product_id, 'recurring_invoice', False)
-                    or sub.is_subscription  # fallback
-                )
+                # Filtrer aux lignes récurrentes (vraies lignes d'abonnement).
+                # NE PAS utiliser sub.is_subscription comme fallback : sinon les
+                # frais de dossier (recurring_invoice=False) seraient considérés
+                # comme récurrents juste parce qu'ils sont sur un SO d'abonnement.
+                if 'recurring_invoice' in sol.product_id._fields:
+                    is_recurring = bool(sol.product_id.recurring_invoice)
+                elif hasattr(sol, 'temporal_type'):
+                    is_recurring = sol.temporal_type == 'subscription'
+                elif hasattr(sol, 'recurrence_id') and sol.recurrence_id:
+                    is_recurring = True
+                else:
+                    # Par défaut, exclure (sécurité contre les faux positifs)
+                    is_recurring = False
                 if not is_recurring:
                     continue
 
