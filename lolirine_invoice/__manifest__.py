@@ -61,6 +61,7 @@
         "report/external_layout_lolirine.xml",
         "report/report_invoice_lolirine.xml",
         "report/report_followup_lolirine.xml",
+        "report/contract_close_report.xml",
         # Data
         "data/mail_template.xml",
         "data/reminder_templates.xml",
@@ -70,6 +71,7 @@
         "wizard/invoice_send_wizard_views.xml",
         "wizard/invoice_wizard_views.xml",
         "wizard/lolirine_refund_wizard_views.xml",
+        "wizard/contract_close_wizard_views.xml",
         # Views
         "views/invoice_tag_views.xml",
         "views/invoice_reminder_views.xml",
