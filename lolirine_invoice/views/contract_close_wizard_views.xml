@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =====================================================================
+         FORMULAIRE WIZARD DE CLÔTURE
+         ===================================================================== -->
+    <record id="view_lolirine_contract_close_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.contract.close.wizard.form</field>
+        <field name="model">lolirine.contract.close.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Clôture de contrat">
+                <field name="confirmation_step" invisible="1"/>
+                <field name="has_calculation" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+
+                <sheet>
+
+                    <!-- ============================================ -->
+                    <!-- ÉTAPE 1 : SAISIE INITIALE                    -->
+                    <!-- ============================================ -->
+                    <div invisible="confirmation_step != 'initial'">
+                        <div class="oe_title">
+                            <h1>📋 Clôture de contrat</h1>
+                            <p class="text-muted">
+                                Wizard de clôture avec calcul automatique des prorata,
+                                envoi du mail récap au client et libération des box.
+                            </p>
+                        </div>
+
+                        <group>
+                            <group string="Contrat à clôturer">
+                                <field name="subscription_id" readonly="1"
+                                       options="{'no_open': False}"/>
+                                <field name="partner_id" readonly="1"
+                                       options="{'no_open': False}"/>
+                                <field name="end_date"/>
+                            </group>
+
+                            <group string="Options d'envoi">
+                                <field name="send_email"/>
+                                <field name="detail_per_box"
+                                       invisible="not send_email"/>
+                                <field name="attach_pdf_for_companies"
+                                       invisible="not send_email"/>
+                                <field name="test_mode"
+                                       invisible="not send_email"/>
+                                <field name="test_email"
+                                       invisible="not test_mode"
+                                       required="test_mode"/>
+                            </group>
+                        </group>
+
+                        <div class="alert alert-info" role="alert">
+                            <strong>ℹ️ Comment ça marche :</strong>
+                            <ul style="margin-bottom: 0;">
+                                <li>Saisis la date de fin du contrat</li>
+                                <li>Le wizard calculera les prorata éventuels</li>
+                                <li>Tu pourras prévisualiser avant de confirmer</li>
+                                <li>Les factures seront créées en <strong>brouillon</strong> (à valider manuellement)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- ============================================ -->
+                    <!-- ÉTAPE 2 : APERÇU                              -->
+                    <!-- ============================================ -->
+                    <div invisible="confirmation_step != 'preview'">
+                        <div class="oe_title">
+                            <h1>📊 Aperçu de la clôture</h1>
+                            <p class="text-muted">
+                                Vérifie les montants et le mail récap avant de confirmer.
+                            </p>
+                        </div>
+
+                        <group>
+                            <group string="Récapitulatif">
+                                <field name="subscription_id" readonly="1"
+                                       options="{'no_open': False}"/>
+                                <field name="partner_id" readonly="1"/>
+                                <field name="end_date" readonly="1"/>
+                            </group>
+
+                            <group string="Total à facturer">
+                                <field name="prorata_total_ht"
+                                       widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"/>
+                                <field name="prorata_total_ttc"
+                                       widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"
+                                       class="text-success fw-bold"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="📋 Détail des prorata" name="prorata">
+                                <field name="prorata_line_ids" nolabel="1">
+                                    <list create="false" delete="false" edit="false">
+                                        <field name="product_id"/>
+                                        <field name="period_start"/>
+                                        <field name="period_end"/>
+                                        <field name="days_to_bill"/>
+                                        <field name="days_in_month" optional="hide"/>
+                                        <field name="monthly_price"
+                                               widget="monetary"
+                                               options="{'currency_field': 'currency_id'}"/>
+                                        <field name="amount_ht"
+                                               widget="monetary"
+                                               options="{'currency_field': 'currency_id'}"/>
+                                        <field name="amount_ttc"
+                                               widget="monetary"
+                                               options="{'currency_field': 'currency_id'}"/>
+                                        <field name="will_create_invoice"
+                                               widget="boolean_toggle"/>
+                                        <field name="note" optional="hide"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+
+                            <page string="📧 Aperçu du mail" name="email_preview"
+                                  invisible="not send_email">
+                                <button name="action_send_preview_to_self"
+                                        string="✉️ M'envoyer cet aperçu"
+                                        type="object"
+                                        class="btn-secondary"/>
+                                <div style="margin-top: 15px; border: 1px solid #dee2e6;
+                                           border-radius: 4px; background: white; padding: 10px;">
+                                    <field name="email_preview_html"
+                                           nolabel="1"
+                                           readonly="1"
+                                           widget="html"/>
+                                </div>
+                            </page>
+                        </notebook>
+                    </div>
+
+                    <!-- ============================================ -->
+                    <!-- ÉTAPE 3 : CONFIRMATION                       -->
+                    <!-- ============================================ -->
+                    <div invisible="confirmation_step != 'confirm'">
+                        <div class="oe_title">
+                            <h1 style="color: #C91E18;">⚠️ Confirmation de clôture</h1>
+                        </div>
+
+                        <div class="alert alert-warning" role="alert">
+                            <h4 style="margin-top: 0;">🚨 Action irréversible</h4>
+                            <p>Tu vas clôturer le contrat
+                                <strong>
+                                    <field name="subscription_id" readonly="1" nolabel="1"
+                                           class="oe_inline"
+                                           options="{'no_open': True}"/>
+                                </strong>
+                                à la date du
+                                <strong>
+                                    <field name="end_date" readonly="1" nolabel="1"
+                                           class="oe_inline"/>
+                                </strong>
+                                pour le client
+                                <strong>
+                                    <field name="partner_id" readonly="1" nolabel="1"
+                                           class="oe_inline"
+                                           options="{'no_open': True}"/>
+                                </strong>.
+                            </p>
+                            <p style="margin-bottom: 0;">
+                                <strong>Actions qui seront effectuées :</strong>
+                            </p>
+                            <ul>
+                                <li>Création de facture(s) de prorata en
+                                    <strong>brouillon</strong> (total :
+                                    <field name="prorata_total_ttc" readonly="1" nolabel="1"
+                                           widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"
+                                           class="oe_inline"/>)
+                                </li>
+                                <li>Passage du contrat en <strong>'Churn'</strong></li>
+                                <li>Libération automatique des box associées</li>
+                                <li>Envoi du mail récap au client (si option cochée)</li>
+                            </ul>
+                        </div>
+
+                        <group>
+                            <field name="confirmation_text"
+                                   placeholder="Tape CLOTURER en majuscules pour confirmer"
+                                   required="1"/>
+                        </group>
+                    </div>
+
+                    <!-- ============================================ -->
+                    <!-- ÉTAPE 4 : RÉCAP FINAL                        -->
+                    <!-- ============================================ -->
+                    <div invisible="confirmation_step != 'done'">
+                        <field name="final_message" nolabel="1" readonly="1" widget="html"/>
+                        <field name="created_invoice_ids" invisible="1"/>
+                    </div>
+
+                </sheet>
+
+                <footer>
+                    <!-- ÉTAPE 1 : Bouton "Calculer le prorata" -->
+                    <button name="action_compute_prorata"
+                            string="🔍 Calculer le prorata"
+                            type="object"
+                            class="btn-primary"
+                            invisible="confirmation_step != 'initial'"/>
+
+                    <!-- ÉTAPE 2 : Bouton "Continuer vers la confirmation" -->
+                    <button name="action_request_confirmation"
+                            string="→ Continuer"
+                            type="object"
+                            class="btn-primary"
+                            invisible="confirmation_step != 'preview'"/>
+
+                    <!-- ÉTAPE 3 : Bouton "Confirmer" -->
+                    <button name="action_execute_close"
+                            string="✅ Confirmer la clôture"
+                            type="object"
+                            class="btn-danger"
+                            invisible="confirmation_step != 'confirm'"/>
+
+                    <!-- ÉTAPE 4 : Boutons fin -->
+                    <button name="action_view_invoices"
+                            string="→ Voir les factures"
+                            type="object"
+                            class="btn-primary"
+                            invisible="confirmation_step != 'done'"/>
+
+                    <!-- Annuler (toutes étapes sauf 'done') -->
+                    <button string="Annuler"
+                            class="btn-secondary"
+                            special="cancel"
+                            invisible="confirmation_step == 'done'"/>
+
+                    <!-- Fermer (étape 'done') -->
+                    <button string="Fermer"
+                            class="btn-secondary"
+                            special="cancel"
+                            invisible="confirmation_step != 'done'"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- =====================================================================
+         ACTION + BOUTON SUR LA FICHE sale.order
+         ===================================================================== -->
+    <record id="action_lolirine_contract_close_wizard"
+            model="ir.actions.act_window">
+        <field name="name">Clôturer ce contrat</field>
+        <field name="res_model">lolirine.contract.close.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Bouton sur la fiche du contrat (sale.order) -->
+    <record id="view_sale_order_form_inherit_lolirine_close"
+            model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.lolirine.close</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="%(action_lolirine_contract_close_wizard)d"
+                        string="📋 Clôturer ce contrat"
+                        type="action"
+                        class="btn-secondary"
+                        invisible="not is_subscription or subscription_state in (False, '6_churn', '1_draft', '2_renewal')"
+                        context="{'active_id': id}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
