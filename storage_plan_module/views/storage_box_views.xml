@@ -33,13 +33,24 @@
                 <header>
                     <button name="action_make_available" string="Rendre disponible" 
                             type="object" class="oe_highlight" 
-                            invisible="status == 'disponible'"/>
+                            invisible="status == 'disponible' or is_personal_use"/>
                     <button name="action_make_occupied" string="Marquer occupé" 
                             type="object" 
-                            invisible="status == 'occupe'"/>
+                            invisible="status == 'occupe' or is_personal_use"/>
                     <button name="action_make_maintenance" string="En maintenance" 
                             type="object" 
-                            invisible="status == 'maintenance'"/>
+                            invisible="status == 'maintenance' or is_personal_use"/>
+                    <button name="action_mark_as_personal" type="object"
+                            string="🏠 Marquer comme box personnelle"
+                            class="btn-secondary"
+                            invisible="is_personal_use"
+                            confirm="Marquer cette box comme box d'usage personnel ? Le statut sera mis à 'En inspection' et elle ne sera plus louable."/>
+                    <button name="action_unmark_as_personal" type="object"
+                            string="↩️ Remettre en exploitation"
+                            class="btn-secondary"
+                            invisible="not is_personal_use"
+                            confirm="Remettre cette box en exploitation normale ? Son statut redeviendra 'Disponible' et elle pourra être louée."/>
+                    <field name="is_personal_use" invisible="1"/>
                     <field name="status" widget="statusbar" 
                            statusbar_visible="disponible,reserve,occupe"/>
                 </header>
@@ -73,6 +84,14 @@
                         </button>
                     </div>
                     
+                    <!-- Bandeau d'information pour les box personnelles -->
+                    <div class="alert alert-info" role="alert" invisible="not is_personal_use">
+                        <i class="fa fa-home me-2"/>
+                        <strong>Box d'usage personnel</strong> — Cette box est marquée comme usage personnel
+                        et n'est pas disponible à la location. Cliquez sur "↩️ Remettre en exploitation"
+                        pour la rendre à nouveau louable.
+                    </div>
+                    
                     <group>
                         <group string="Informations générales">
                             <field name="name"/>
@@ -81,6 +100,7 @@
                             <field name="date_available" 
                                    invisible="status == 'disponible'"
                                    placeholder="Date de disponibilité prévue"/>
+                            <field name="is_personal_use" string="Usage personnel"/>
                         </group>
                         <group string="Dimensions">
                             <field name="width"/>
