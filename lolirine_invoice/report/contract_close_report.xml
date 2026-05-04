@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =====================================================================
+         ACTION DE RAPPORT PDF — Confirmation de clôture
+         ===================================================================== -->
+    <record id="action_report_contract_close"
+            model="ir.actions.report">
+        <field name="name">Confirmation de clôture</field>
+        <field name="model">lolirine.contract.close.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">lolirine_invoice.report_contract_close</field>
+        <field name="report_file">lolirine_invoice.report_contract_close</field>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Cloture - %s' % (object.subscription_id.name or 'contrat')</field>
+    </record>
+
+    <!-- =====================================================================
+         TEMPLATE QWEB
+         ===================================================================== -->
+    <template id="report_contract_close">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="company" t-value="o.company_id or env.company"/>
+                <t t-set="billable_lines" t-value="o.prorata_line_ids.filtered('will_create_invoice')"/>
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 11pt; padding: 0;">
+
+                        <!-- ===== EN-TÊTE LOLIRINE AVEC LOGO ===== -->
+                        <div style="border-bottom: 3px solid #C91E18; padding-bottom: 15px; margin-bottom: 30px;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 120px; vertical-align: top;">
+                                        <img t-if="company.logo"
+                                             t-att-src="image_data_uri(company.logo)"
+                                             style="max-width: 120px; max-height: 80px;"
+                                             alt="Logo Lolirine"/>
+                                    </td>
+                                    <td style="vertical-align: top; text-align: right; padding-left: 20px;">
+                                        <h2 style="margin: 0 0 5px 0; color: #C91E18; font-size: 18pt;">
+                                            <span t-out="company.name or ''">Lolirine SRL</span>
+                                        </h2>
+                                        <div style="font-size: 9pt; color: #555; line-height: 1.5;">
+                                            <span t-if="company.street" t-out="company.street"/>
+                                            <span t-if="company.street2"> — <t t-out="company.street2"/></span>
+                                            <br/>
+                                            <span t-out="company.zip or ''"/>
+                                            <span t-out="company.city or ''"/>
+                                            <span t-if="company.country_id">, <t t-out="company.country_id.name"/></span>
+                                            <br/>
+                                            <span t-if="company.vat">TVA : <t t-out="company.vat"/><br/></span>
+                                            <span style="color: #C91E18;">📧 gardemeublelolirine@gmail.com</span>
+                                            <br/>
+                                            <span style="color: #C91E18;">📞 0497 / 444 146</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Référence & date -->
+                        <div style="text-align: right; margin-bottom: 30px; font-size: 10pt; color: #666;">
+                            <p style="margin: 0;">
+                                Référence : <strong t-out="o.subscription_id.name or '-'">CTR/-/-</strong>
+                            </p>
+                            <p style="margin: 0;">
+                                Boninne, le
+                                <span t-out="o.end_date.strftime('%d/%m/%Y') if o.end_date else '-'">-</span>
+                            </p>
+                        </div>
+
+                        <!-- Bloc destinataire -->
+                        <div style="margin-bottom: 40px;">
+                            <p style="margin: 0;">
+                                <strong t-out="o.partner_id.name or ''">[Client]</strong>
+                            </p>
+                            <p style="margin: 0;" t-if="o.partner_id.street">
+                                <span t-out="o.partner_id.street">-</span>
+                            </p>
+                            <p style="margin: 0;" t-if="o.partner_id.street2">
+                                <span t-out="o.partner_id.street2">-</span>
+                            </p>
+                            <p style="margin: 0;">
+                                <span t-out="o.partner_id.zip or ''">-</span>
+                                <span t-out="o.partner_id.city or ''">-</span>
+                            </p>
+                        </div>
+
+                        <h2 style="color: #C91E18; font-size: 16pt; margin-bottom: 20px;">
+                            Objet : Confirmation de clôture de contrat
+                        </h2>
+
+                        <p style="margin: 0 0 15px 0;">
+                            <strong>Bonjour <span t-out="o.partner_id.name or ''">[Client]</span>,</strong>
+                        </p>
+
+                        <p style="margin: 0 0 15px 0; text-align: justify;">
+                            Nous vous confirmons par la présente la clôture de votre contrat
+                            de location de box <strong t-out="o.subscription_id.name or ''">[contrat]</strong>,
+                            à la date du
+                            <strong t-out="o.end_date.strftime('%d/%m/%Y') if o.end_date else '-'">[date]</strong>.
+                        </p>
+
+                        <!-- Détail des prorata -->
+                        <h3 style="color: #C91E18; font-size: 13pt; margin: 25px 0 10px 0;
+                                   border-bottom: 2px solid #C91E18; padding-bottom: 5px;">
+                            Détail du solde final
+                        </h3>
+
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <thead>
+                                <tr style="background-color: #f4f4f4;">
+                                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Box</th>
+                                    <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Période</th>
+                                    <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Jours</th>
+                                    <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Montant TTC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="billable_lines" t-as="pl">
+                                    <tr>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">
+                                            <span t-out="pl.product_id.name or '?'">-</span>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                                            <span t-out="pl.period_start.strftime('%d/%m/%Y') if pl.period_start else '-'">-</span>
+                                            →
+                                            <span t-out="pl.period_end.strftime('%d/%m/%Y') if pl.period_end else '-'">-</span>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">
+                                            <span t-out="pl.days_to_bill">0</span>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">
+                                            <span t-out="'%.2f' % pl.amount_ttc">0.00</span> €
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background-color: #fff8f7;">
+                                    <td colspan="3" style="padding: 10px; border: 1px solid #ddd; text-align: right;">
+                                        <strong>Total à régler :</strong>
+                                    </td>
+                                    <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">
+                                        <strong style="color: #C91E18; font-size: 13pt;">
+                                            <span t-out="'%.2f' % o.prorata_total_ttc">0.00</span> €
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <p style="margin: 20px 0; text-align: justify;">
+                            Une (ou plusieurs) facture(s) vous seront envoyée(s) séparément
+                            pour le solde de cette clôture. Merci de procéder à leur règlement
+                            dans les délais habituels.
+                        </p>
+
+                        <p style="margin: 20px 0;">
+                            Nous vous remercions sincèrement pour la confiance que vous nous
+                            avez accordée durant la durée de votre contrat. Nous restons à
+                            votre entière disposition pour toute future collaboration.
+                        </p>
+
+                        <p style="margin: 20px 0;">
+                            Pour toute question relative à cette clôture, n'hésitez pas à
+                            nous contacter par email à
+                            <strong>gardemeublelolirine@gmail.com</strong>
+                            ou par téléphone au <strong>0497 / 444 146</strong>.
+                        </p>
+
+                        <!-- Signature -->
+                        <div style="margin-top: 40px;">
+                            <p style="margin: 0 0 5px 0;">Cordialement,</p>
+                            <p style="margin: 0; font-weight: bold;">L'équipe Lolirine Garde-meuble</p>
+                            <p style="margin: 0; font-size: 10pt; color: #666;">Rodney Feron, gérant</p>
+                        </div>
+
+                        <!-- Pied de page -->
+                        <div style="margin-top: 50px; border-top: 2px solid #C91E18;
+                                    padding-top: 10px; font-size: 8pt; color: #888;
+                                    text-align: center;">
+                            <strong t-out="company.name or 'Lolirine SRL'">Lolirine SRL</strong>
+                            — TVA <span t-out="company.vat or 'BE0650891279'"/>
+                            <br/>
+                            <span t-if="company.street" t-out="company.street"/>,
+                            <span t-out="company.zip or ''"/>
+                            <span t-out="company.city or ''"/>
+                            — gardemeublelolirine@gmail.com — 0497 / 444 146
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
