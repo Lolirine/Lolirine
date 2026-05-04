@@ -71,7 +71,6 @@
         "wizard/invoice_send_wizard_views.xml",
         "wizard/invoice_wizard_views.xml",
         "wizard/lolirine_refund_wizard_views.xml",
-        "wizard/contract_close_wizard_views.xml",
         # Views
         "views/invoice_tag_views.xml",
         "views/invoice_reminder_views.xml",
@@ -81,6 +80,7 @@
         "views/box_consistency_wizard_views.xml",
         "views/indexation_audit_wizard_views.xml",
         "views/indexation_send_wizard_views.xml",
+        "views/contract_close_wizard_views.xml",
         # Menus (en dernier)
         "views/menu_views.xml",
     ],
