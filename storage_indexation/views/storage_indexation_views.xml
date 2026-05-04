@@ -24,7 +24,6 @@
             </list>
         </field>
     </record>
-
     <!-- Vue formulaire des indexations -->
     <record id="view_storage_indexation_form" model="ir.ui.view">
         <field name="name">storage.indexation.form</field>
@@ -108,7 +107,6 @@
                             </div>
                         </div>
                     </div>
-
                     <group>
                         <group>
                             <field name="index_type"/>
@@ -118,10 +116,13 @@
                         <group>
                             <field name="base_index_id" options="{'no_create': True}"/>
                             <field name="new_index_id" options="{'no_create': True}"/>
-                            <field name="indexation_rate" widget="float" digits="[16, 2]" nolabel="1" class="oe_inline"/>
+                            <label for="indexation_rate"/>
+                            <div class="o_row">
+                                <field name="indexation_rate" widget="float" digits="[16, 2]" nolabel="1" class="oe_inline"/>
+                                <span class="oe_inline ms-1">%</span>
+                            </div>
                         </group>
                     </group>
-
                     <notebook>
                         <page string="Lignes d'indexation" name="lines">
                             <field name="line_ids" readonly="state == 'applied'">
@@ -134,7 +135,7 @@
                                     <field name="old_price" sum="Total actuel"/>
                                     <field name="new_price" sum="Nouveau total"/>
                                     <field name="price_increase" sum="Augmentation"/>
-                                    <field name="increase_percentage" widget="percentage"/>
+                                    <field name="increase_percentage" widget="float" digits="[16, 2]" string="% Augm."/>
                                     <field name="notification_sent" widget="boolean_toggle"/>
                                     <field name="applied" widget="boolean"/>
                                     <button name="action_view_subscription" type="object" 
@@ -159,7 +160,6 @@
             </form>
         </field>
     </record>
-
     <!-- Vue Kanban -->
     <record id="view_storage_indexation_kanban" model="ir.ui.view">
         <field name="name">storage.indexation.kanban</field>
@@ -195,7 +195,6 @@
             </kanban>
         </field>
     </record>
-
     <!-- Action principale -->
     <record id="action_storage_indexation" model="ir.actions.act_window">
         <field name="name">Indexations</field>
@@ -211,7 +210,6 @@
             </p>
         </field>
     </record>
-
     <!-- Vue liste des lignes d'indexation -->
     <record id="view_storage_indexation_line_tree" model="ir.ui.view">
         <field name="name">storage.indexation.line.tree</field>
@@ -225,12 +223,11 @@
                 <field name="old_price"/>
                 <field name="new_price"/>
                 <field name="price_increase"/>
-                <field name="increase_percentage" widget="percentage"/>
+                <field name="increase_percentage" widget="float" digits="[16, 2]" string="% Augm."/>
                 <field name="applied" widget="boolean"/>
             </list>
         </field>
     </record>
-
     <!-- Action pour les lignes -->
     <record id="action_storage_indexation_line" model="ir.actions.act_window">
         <field name="name">Détails des indexations</field>
