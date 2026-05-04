@@ -13,7 +13,7 @@
                 <field name="date"/>
                 <field name="index_type"/>
                 <field name="new_index_id"/>
-                <field name="indexation_rate" widget="percentage"/>
+                <field name="indexation_rate" widget="float" digits="[16, 2]" string="Taux (%)"/>
                 <field name="subscription_count"/>
                 <field name="total_increase" sum="Total"/>
                 <field name="state" widget="badge" 
@@ -118,7 +118,7 @@
                         <group>
                             <field name="base_index_id" options="{'no_create': True}"/>
                             <field name="new_index_id" options="{'no_create': True}"/>
-                            <field name="indexation_rate" widget="percentage"/>
+                            <field name="indexation_rate" widget="float" digits="[16, 2]" nolabel="1" class="oe_inline"/>
                         </group>
                     </group>
 
