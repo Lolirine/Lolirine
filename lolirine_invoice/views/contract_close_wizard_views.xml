@@ -183,7 +183,7 @@
                         <group>
                             <field name="confirmation_text"
                                    placeholder="Tape CLOTURER en majuscules pour confirmer"
-                                   required="1"/>
+                                   required="confirmation_step == 'confirm'"/>
                         </group>
                     </div>
 
