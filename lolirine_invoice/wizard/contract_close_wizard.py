@@ -453,19 +453,37 @@ class LolirineContractCloseWizard(models.TransientModel):
         - On prend la dernière facture postée
         - last_billed_until = dernier jour du mois de invoice_date
 
+        On cherche par DEUX critères pour récupérer toutes les factures :
+        - invoice_origin = nom du contrat (factures manuelles)
+        - subscription_id sur la ligne = id du contrat (factures auto Odoo 19)
+
         Returns:
             date ou None si jamais facturé.
         """
         sub = self.subscription_id
 
-        # Chercher les factures postées liées à ce SO et ce produit
-        invoice_lines = self.env['account.move.line'].search([
+        # Recherche 1 : par invoice_origin
+        invoice_lines_by_origin = self.env['account.move.line'].search([
             ('move_id.invoice_origin', '=', sub.name),
             ('move_id.state', '=', 'posted'),
             ('move_id.move_type', 'in', ('out_invoice', 'out_refund')),
             ('product_id', '=', sol.product_id.id),
             ('display_type', '=', 'product'),
         ])
+
+        # Recherche 2 : par subscription_id sur la ligne (Odoo 19 auto-billing)
+        invoice_lines_by_sub = self.env['account.move.line']
+        if 'subscription_id' in self.env['account.move.line']._fields:
+            invoice_lines_by_sub = self.env['account.move.line'].search([
+                ('subscription_id', '=', sub.id),
+                ('move_id.state', '=', 'posted'),
+                ('move_id.move_type', 'in', ('out_invoice', 'out_refund')),
+                ('product_id', '=', sol.product_id.id),
+                ('display_type', '=', 'product'),
+            ])
+
+        # Union des deux recherches (sans doublons)
+        invoice_lines = invoice_lines_by_origin | invoice_lines_by_sub
 
         if not invoice_lines:
             return None
