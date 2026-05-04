@@ -74,10 +74,11 @@ class StorageIndexation(models.Model):
 
     # Résultats du calcul
     indexation_rate = fields.Float(
-        string="Taux d'indexation (%)",
-        digits=(5, 4),
+        string="Taux d'indexation",
+        digits=(16, 2),
         compute='_compute_indexation_rate',
-        store=True
+        store=True,
+        help="Taux d'indexation calculé entre l'indice de base et le nouvel indice (en pourcentage, ex: 3.38 = 3,38%)",
     )
 
     # Lignes d'indexation
