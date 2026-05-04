@@ -266,7 +266,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Taux d'indexation:</strong></td>
-                                <td colspan="3"><t t-esc="'%.4f' % doc.indexation_rate"/>%</td>
+                                <td colspan="3"><t t-esc="'%.2f' % doc.indexation_rate"/>%</td>
                             </tr>
                         </table>
 
