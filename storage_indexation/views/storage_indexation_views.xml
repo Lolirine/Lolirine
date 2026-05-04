@@ -118,7 +118,7 @@
                             <field name="new_index_id" options="{'no_create': True}"/>
                             <label for="indexation_rate"/>
                             <div>
-                                <field name="indexation_rate" widget="float" digits="[16, 2]" nolabel="1" class="oe_inline"/>
+                                <field name="indexation_rate" widget="float" digits="[16, 2]" nolabel="1" class="oe_inline"/> %
                             </div>
                         </group>
                     </group>
