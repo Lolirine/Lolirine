@@ -70,11 +70,50 @@ class LolirineContractCloseWizard(models.TransientModel):
     # ========================================================================
 
     end_date = fields.Date(
-        string="Date de fin du contrat",
+        string="Date de fin demandée par le client",
         required=True,
         default=fields.Date.context_today,
-        help="Date à laquelle le contrat se termine. Le prorata sera calculé "
-             "sur la base de cette date (jusqu'à et y compris ce jour)."
+        help="Date à laquelle le client souhaite arrêter (ou date à laquelle "
+             "il a réellement quitté le box). Cette date sera comparée à la "
+             "date minimale légale (date d'avertissement + délai de préavis)."
+    )
+
+    # ========================================================================
+    # PRÉAVIS
+    # ========================================================================
+
+    notice_date = fields.Date(
+        string="Date d'avertissement par le client",
+        required=True,
+        default=fields.Date.context_today,
+        help="Date à laquelle le client nous a officiellement prévenus de sa "
+             "volonté de clôturer son contrat (par mail, téléphone, courrier)."
+    )
+    notice_period_days = fields.Integer(
+        string="Délai de préavis (jours)",
+        default=15,
+        required=True,
+        help="Nombre de jours de préavis exigés par les conditions générales. "
+             "Standard Lolirine : 15 jours."
+    )
+    legal_end_date = fields.Date(
+        string="Date de fin minimale légale",
+        compute='_compute_legal_end_date',
+        store=False,
+        help="Date à partir de laquelle la clôture peut prendre effet "
+             "(date d'avertissement + délai de préavis)."
+    )
+    effective_end_date = fields.Date(
+        string="Date de fin effective (facturée)",
+        compute='_compute_effective_end_date',
+        store=False,
+        help="Date réellement utilisée pour calculer le prorata. C'est le "
+             "maximum entre la date demandée et la date min légale."
+    )
+    notice_respected = fields.Boolean(
+        string="Préavis respecté",
+        compute='_compute_notice_respected',
+        store=False,
     )
     send_email = fields.Boolean(
         string="Envoyer le mail récap au client",
@@ -181,6 +220,38 @@ class LolirineContractCloseWizard(models.TransientModel):
             wiz.prorata_total_ht = sum(wiz.prorata_line_ids.mapped('amount_ht'))
             wiz.prorata_total_ttc = sum(wiz.prorata_line_ids.mapped('amount_ttc'))
 
+    # ========================================================================
+    # COMPUTES PRÉAVIS
+    # ========================================================================
+
+    @api.depends('notice_date', 'notice_period_days')
+    def _compute_legal_end_date(self):
+        for wiz in self:
+            if wiz.notice_date and wiz.notice_period_days:
+                wiz.legal_end_date = wiz.notice_date + timedelta(
+                    days=wiz.notice_period_days
+                )
+            else:
+                wiz.legal_end_date = False
+
+    @api.depends('end_date', 'legal_end_date')
+    def _compute_effective_end_date(self):
+        for wiz in self:
+            if wiz.end_date and wiz.legal_end_date:
+                wiz.effective_end_date = max(wiz.end_date, wiz.legal_end_date)
+            elif wiz.end_date:
+                wiz.effective_end_date = wiz.end_date
+            else:
+                wiz.effective_end_date = False
+
+    @api.depends('end_date', 'legal_end_date')
+    def _compute_notice_respected(self):
+        for wiz in self:
+            if wiz.end_date and wiz.legal_end_date:
+                wiz.notice_respected = wiz.end_date >= wiz.legal_end_date
+            else:
+                wiz.notice_respected = True
+
     @api.depends('prorata_line_ids')
     def _compute_has_calculation(self):
         for wiz in self:
@@ -210,11 +281,21 @@ class LolirineContractCloseWizard(models.TransientModel):
         if not self.subscription_id:
             raise UserError(_("Aucun contrat sélectionné."))
 
-        if self.end_date < (self.subscription_id.start_date or date.min):
+        if self.notice_date and self.end_date and self.notice_date > self.end_date + timedelta(days=180):
+            # Cas absurde : avertissement plus de 6 mois après la date de fin
+            raise UserError(_(
+                "La date d'avertissement (%s) est trop éloignée de la date "
+                "de fin demandée (%s). Vérifie les dates saisies."
+            ) % (self.notice_date, self.end_date))
+
+        # On utilise effective_end_date (qui prend en compte le préavis)
+        date_for_calc = self.effective_end_date or self.end_date
+
+        if date_for_calc < (self.subscription_id.start_date or date.min):
             raise UserError(_(
                 "La date de fin (%s) ne peut pas être antérieure à la date "
                 "de début du contrat (%s)."
-            ) % (self.end_date, self.subscription_id.start_date))
+            ) % (date_for_calc, self.subscription_id.start_date))
 
         # Vide les lignes existantes
         self.prorata_line_ids.unlink()
@@ -225,7 +306,7 @@ class LolirineContractCloseWizard(models.TransientModel):
             if not self._is_line_recurring(sol):
                 continue
 
-            prorata_data = self._compute_prorata_for_line(sol)
+            prorata_data = self._compute_prorata_for_line(sol, date_for_calc)
             if prorata_data:
                 new_lines.append((0, 0, prorata_data))
 
@@ -291,14 +372,13 @@ class LolirineContractCloseWizard(models.TransientModel):
 
         return True
 
-    def _compute_prorata_for_line(self, sol):
+    def _compute_prorata_for_line(self, sol, end_date_to_use):
         """Calcule le prorata d'une ligne d'abonnement.
 
-        Logique :
-        - On regarde la dernière facture postée pour cette ligne
-        - On détermine la dernière date couverte (last_billed_until)
-        - Si end_date <= last_billed_until : pas de prorata (déjà couvert)
-        - Sinon : on calcule du jour suivant last_billed_until jusqu'à end_date
+        Args:
+            sol: sale.order.line à proratiser
+            end_date_to_use: Date de fin effective (qui peut différer de
+                self.end_date si le préavis force une date plus tardive)
 
         Returns:
             dict avec les valeurs pour créer une lolirine.contract.close.prorata.line,
@@ -309,9 +389,9 @@ class LolirineContractCloseWizard(models.TransientModel):
         # 1. Trouver la dernière période facturée pour ce produit
         last_billed = self._get_last_billed_date(sol)
 
-        # 2. Période à facturer : last_billed + 1 → end_date
+        # 2. Période à facturer : last_billed + 1 → end_date_to_use
         period_start = last_billed + timedelta(days=1) if last_billed else sub.start_date
-        period_end = self.end_date
+        period_end = end_date_to_use
 
         if period_start > period_end:
             # Déjà tout facturé
@@ -365,6 +445,14 @@ class LolirineContractCloseWizard(models.TransientModel):
         """Trouve la dernière date couverte par une facture postée pour ce
         produit dans ce contrat.
 
+        Modèle de facturation Lolirine : facture émise le 20 du mois pour le
+        mois en cours (terme échu). Donc une facture datée du 20/04/2026
+        couvre la période du 01/04 au 30/04.
+
+        Logique :
+        - On prend la dernière facture postée
+        - last_billed_until = dernier jour du mois de invoice_date
+
         Returns:
             date ou None si jamais facturé.
         """
@@ -376,28 +464,30 @@ class LolirineContractCloseWizard(models.TransientModel):
             ('move_id.state', '=', 'posted'),
             ('move_id.move_type', 'in', ('out_invoice', 'out_refund')),
             ('product_id', '=', sol.product_id.id),
+            ('display_type', '=', 'product'),
         ])
 
         if not invoice_lines:
             return None
 
-        # En Odoo 19, la période de service d'une ligne est sur deferred_start_date
-        # / deferred_end_date OU subscription_start_date / subscription_end_date
-        last_dates = []
-        for line in invoice_lines:
-            for date_field in ('subscription_end_date',
-                               'deferred_end_date'):
-                if date_field in line._fields:
-                    val = line[date_field]
-                    if val:
-                        last_dates.append(val)
-                        break
+        # Récupérer la date de la facture la plus récente (mois facturé = mois courant)
+        invoice_dates = [
+            line.move_id.invoice_date for line in invoice_lines
+            if line.move_id.invoice_date
+        ]
 
-        if not last_dates:
-            # Fallback : prendre la date de facturation la plus récente
-            return max(invoice_lines.mapped('move_id.invoice_date') or [None])
+        if not invoice_dates:
+            return None
 
-        return max(last_dates)
+        last_invoice_date = max(invoice_dates)
+
+        # Le mois facturé est le mois de invoice_date
+        # last_billed_until = dernier jour de ce mois
+        year = last_invoice_date.year
+        month = last_invoice_date.month
+        days_in_month = calendar.monthrange(year, month)[1]
+
+        return date(year, month, days_in_month)
 
     def _compute_prorata_amount(self, monthly_price, period_start, period_end):
         """Calcule le montant HT du prorata pour une période.
@@ -539,10 +629,10 @@ class LolirineContractCloseWizard(models.TransientModel):
             invoices |= inv
 
         # ====================================================================
-        # 2. Passer le contrat en churn
+        # 2. Passer le contrat en churn (avec la date effective)
         # ====================================================================
         sub.write({
-            'end_date': self.end_date,
+            'end_date': self.effective_end_date or self.end_date,
         })
         # set_close() en patch séparé : on appelle la bonne méthode
         if hasattr(sub, 'set_close'):
@@ -615,7 +705,7 @@ class LolirineContractCloseWizard(models.TransientModel):
         invoice_vals = {
             'move_type': 'out_invoice',
             'partner_id': self.partner_id.id,
-            'invoice_date': self.end_date,
+            'invoice_date': self.effective_end_date or self.end_date,
             'invoice_origin': sub.name,
             'company_id': self.company_id.id,
             'currency_id': self.currency_id.id,
@@ -686,9 +776,40 @@ class LolirineContractCloseWizard(models.TransientModel):
             details_block = ""
 
         partner_name = self.partner_id.name or '[Client]'
-        end_date_str = self.end_date.strftime('%d/%m/%Y') if self.end_date else '-'
+        end_date_str = (self.effective_end_date or self.end_date).strftime('%d/%m/%Y') \
+            if (self.effective_end_date or self.end_date) else '-'
         total_str = f"{self.prorata_total_ttc:.2f}"
         contract_name = self.subscription_id.name
+
+        # Bloc préavis (si applicable)
+        notice_block = ""
+        if self.notice_date:
+            notice_str = self.notice_date.strftime('%d/%m/%Y')
+            if not self.notice_respected and self.legal_end_date:
+                requested_str = self.end_date.strftime('%d/%m/%Y') if self.end_date else '-'
+                legal_str = self.legal_end_date.strftime('%d/%m/%Y')
+                notice_block = f"""
+                <div style="background-color: #fff8e1; border-left: 4px solid #f57c00;
+                            padding: 15px 20px; margin: 20px 0;">
+                    <p style="margin: 0 0 5px 0; font-weight: bold; color: #e65100;">
+                        ⚠️ Note concernant le préavis
+                    </p>
+                    <p style="margin: 0; font-size: 13px;">
+                        Vous nous avez prévenus le <strong>{notice_str}</strong>
+                        d'une fin souhaitée au <strong>{requested_str}</strong>.<br/>
+                        Conformément aux conditions générales (préavis de
+                        {self.notice_period_days} jours), la facturation est
+                        étendue jusqu'au <strong>{legal_str}</strong>.
+                    </p>
+                </div>
+                """
+            else:
+                notice_block = f"""
+                <p style="margin: 10px 0; font-size: 13px; color: #555;">
+                    <em>Préavis reçu le <strong>{notice_str}</strong> — délai
+                    de {self.notice_period_days} jours respecté ✓</em>
+                </p>
+                """
 
         return f"""
 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -706,6 +827,8 @@ class LolirineContractCloseWizard(models.TransientModel):
 
         <p>Nous vous confirmons la clôture de votre contrat de location de box
         <strong>{contract_name}</strong>, à la date du <strong>{end_date_str}</strong>.</p>
+
+        {notice_block}
 
         <div style="background-color: #f9f9f9; border-left: 4px solid #C91E18;
                     padding: 15px 20px; margin: 20px 0;">
