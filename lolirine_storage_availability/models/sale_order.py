@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
@@ -15,7 +14,7 @@ class SaleOrder(models.Model):
             ('is_storage_box', '=', True),
             ('storage_status', '=', 'rented')
         ])
-        
+
         return [
             '|',
             ('is_storage_box', '=', False),  # Tous les produits non-box
@@ -34,23 +33,23 @@ class SaleOrderLine(models.Model):
         store=True
     )
 
-    @api.constrains('product_template_id', 'order_id')
+    @api.constrains('product_id', 'order_id')
     def _check_box_availability(self):
         """Vérifie que le box n'est pas déjà loué dans un autre abonnement actif"""
         for line in self:
             if not line.product_template_id or not line.order_id:
                 continue
-                
+
             product = line.product_template_id
             order = line.order_id
-            
+
             # Vérifier seulement pour les box de stockage dans les abonnements
             if not product.is_storage_box:
                 continue
-            
+
             if not order.is_subscription:
                 continue
-            
+
             # Chercher si ce produit est déjà dans un autre abonnement actif
             existing_lines = self.env['sale.order.line'].search([
                 ('product_template_id', '=', product.id),
@@ -59,7 +58,7 @@ class SaleOrderLine(models.Model):
                 ('order_id.state', '=', 'sale'),
                 ('order_id.subscription_state', 'in', ['3_progress', '4_paused']),
             ], limit=1)
-            
+
             if existing_lines:
                 existing_order = existing_lines.order_id
                 raise ValidationError(_(
@@ -75,11 +74,11 @@ class SaleOrderLine(models.Model):
         """Avertit si le produit sélectionné est déjà loué"""
         if not self.product_id:
             return
-            
+
         product_tmpl = self.product_template_id
         if not product_tmpl or not product_tmpl.is_storage_box:
             return
-        
+
         # Vérifier si déjà dans un abonnement actif
         if product_tmpl.storage_status == 'rented' and product_tmpl.current_subscription_id:
             # Vérifier si c'est pour le même abonnement (modification)
@@ -98,7 +97,7 @@ class SaleOrderLine(models.Model):
                         )
                     }
                 }
-        
+
         # Vérifier aussi via recherche directe dans les lignes d'abonnement
         existing_lines = self.env['sale.order.line'].search([
             ('product_template_id', '=', product_tmpl.id),
@@ -106,7 +105,7 @@ class SaleOrderLine(models.Model):
             ('order_id.state', '=', 'sale'),
             ('order_id.subscription_state', 'in', ['3_progress', '4_paused']),
         ], limit=1)
-        
+
         if existing_lines:
             existing_order = existing_lines.order_id
             # Vérifier que ce n'est pas le même abonnement
