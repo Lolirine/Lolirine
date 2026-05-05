@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Hérite de la vue form de storage.box (storage_plan_module) pour ajouter
+         les boutons "Marquer comme personnelle" et "Remettre en exploitation".
+         Le champ is_personal_use est défini dans lolirine_invoice. -->
+    <record id="view_storage_box_form_lolirine" model="ir.ui.view">
+        <field name="name">storage.box.form.lolirine.personal_use</field>
+        <field name="model">storage.box</field>
+        <field name="inherit_id" ref="storage_plan_module.view_storage_box_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Modifier les boutons existants pour les masquer si is_personal_use -->
+            <xpath expr="//button[@name='action_make_available']" position="attributes">
+                <attribute name="invisible">status == 'disponible' or is_personal_use</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_make_occupied']" position="attributes">
+                <attribute name="invisible">status == 'occupe' or is_personal_use</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_make_maintenance']" position="attributes">
+                <attribute name="invisible">status == 'maintenance' or is_personal_use</attribute>
+            </xpath>
+
+            <!-- Ajouter nos 2 boutons + le champ invisible avant le statusbar -->
+            <xpath expr="//header/field[@name='status']" position="before">
+                <button name="action_mark_as_personal" type="object"
+                        string="🏠 Marquer comme box personnelle"
+                        class="btn-secondary"
+                        invisible="is_personal_use"
+                        confirm="Marquer cette box comme box d'usage personnel ? Le statut sera mis à 'En inspection' et elle ne sera plus louable."/>
+                <button name="action_unmark_as_personal" type="object"
+                        string="↩️ Remettre en exploitation"
+                        class="btn-secondary"
+                        invisible="not is_personal_use"
+                        confirm="Remettre cette box en exploitation normale ? Son statut redeviendra 'Disponible' et elle pourra être louée."/>
+                <field name="is_personal_use" invisible="1"/>
+            </xpath>
+
+            <!-- Bandeau d'information pour les box personnelles -->
+            <xpath expr="//sheet/div[@name='button_box']" position="after">
+                <div class="alert alert-info" role="alert" invisible="not is_personal_use">
+                    <i class="fa fa-home me-2"/>
+                    <strong>Box d'usage personnel</strong> — Cette box est marquée comme usage personnel
+                    et n'est pas disponible à la location. Cliquez sur "↩️ Remettre en exploitation"
+                    pour la rendre à nouveau louable.
+                </div>
+            </xpath>
+
+            <!-- Ajouter is_personal_use dans le groupe "Informations générales" -->
+            <xpath expr="//field[@name='date_available']" position="after">
+                <field name="is_personal_use" string="Usage personnel"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
