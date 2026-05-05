@@ -193,40 +193,7 @@ class StorageBox(models.Model):
     
     def action_make_maintenance(self):
         self.status = 'maintenance'
-
-    def action_mark_as_personal(self):
-        """Bouton : marque la box comme usage personnel + statut 'inspection'."""
-        for box in self:
-            if box.current_subscription_id:
-                raise UserError(_(
-                    "Impossible : la box %(box)s est sous contrat (%(sub)s pour %(client)s).\n"
-                    "Vous devez d'abord clôturer le contrat avant de la marquer comme personnelle."
-                ) % {
-                    'box': box.name,
-                    'sub': box.current_subscription_id.name,
-                    'client': box.current_customer_name or '',
-                })
-            box.write({
-                'is_personal_use': True,
-                'status': 'inspection',
-            })
-            box.message_post(
-                body=_("Box marquée comme usage personnel — statut mis à 'En inspection'.")
-            )
-        return True
-
-    def action_unmark_as_personal(self):
-        """Bouton : retire le statut personnel + remet en disponible."""
-        for box in self:
-            box.write({
-                'is_personal_use': False,
-                'status': 'disponible',
-            })
-            box.message_post(
-                body=_("Box remise en exploitation — statut mis à 'Disponible'.")
-            )
-        return True
-        
+           
     def action_view_on_website(self):
         """Ouvre la page du plan interactif sur le site web"""
         return {
