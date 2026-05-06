@@ -55,7 +55,7 @@ class LolirineNotifyController(http.Controller):
     #  Enregistrement d'un abonnement push
     # ─────────────────────────────────────────────────────
 
-    @http.route('/lolirine/notify/subscribe', type='json', auth='user', methods=['POST'], csrf=False)
+    @http.route('/lolirine/notify/subscribe', type='jsonrpc', auth='user', methods=['POST'], csrf=False)
     def subscribe_push(self, endpoint, p256dh, auth, user_agent=None, **kwargs):
         """Enregistre ou met à jour un abonnement Web Push."""
         try:
@@ -74,7 +74,7 @@ class LolirineNotifyController(http.Controller):
     #  Désenregistrement d'un abonnement push
     # ─────────────────────────────────────────────────────
 
-    @http.route('/lolirine/notify/unsubscribe', type='json', auth='user', methods=['POST'], csrf=False)
+    @http.route('/lolirine/notify/unsubscribe', type='jsonrpc', auth='user', methods=['POST'], csrf=False)
     def unsubscribe_push(self, endpoint, **kwargs):
         """Révoque un abonnement Web Push."""
         try:
@@ -88,7 +88,7 @@ class LolirineNotifyController(http.Controller):
     #  Statut de l'abonnement courant
     # ─────────────────────────────────────────────────────
 
-    @http.route('/lolirine/notify/status', type='json', auth='user', methods=['POST'], csrf=False)
+    @http.route('/lolirine/notify/status', type='jsonrpc', auth='user', methods=['POST'], csrf=False)
     def push_status(self, endpoint=None, **kwargs):
         """Vérifie si l'endpoint est enregistré et actif."""
         if not endpoint:
@@ -103,7 +103,7 @@ class LolirineNotifyController(http.Controller):
     #  Test de notification (admin seulement)
     # ─────────────────────────────────────────────────────
 
-    @http.route('/lolirine/notify/test', type='json', auth='user', methods=['POST'], csrf=False)
+    @http.route('/lolirine/notify/test', type='jsonrpc', auth='user', methods=['POST'], csrf=False)
     def test_notification(self, **kwargs):
         """Envoie une notification de test sur tous les canaux."""
         if not request.env.user.has_group('base.group_system'):
