@@ -1,0 +1,26 @@
+// Fond rouge clair sur toute la ligne pour les factures en paiement manuel à effectuer
+// Cible les lignes de liste contenant une cellule avec decoration-danger
+.o_list_view .o_data_row:has(td.text-danger) {
+    background-color: #fce4e4 !important;
+
+    // Annule le rouge texte par défaut de decoration-danger pour garder la lisibilité
+    td.text-danger {
+        color: inherit !important;
+    }
+
+    // Garde une bordure gauche rouge plus marquée comme indicateur supplémentaire
+    td:first-child {
+        border-left: 3px solid #dc3545 !important;
+    }
+}
+
+// Hover un peu plus prononcé pour confirmer l'interaction
+.o_list_view .o_data_row:has(td.text-danger):hover {
+    background-color: #f9d4d4 !important;
+}
+
+// Sélection (clic) garde un fond cohérent
+.o_list_view .o_data_row.o_data_row_selected:has(td.text-danger),
+.o_list_view .o_data_row:has(td.text-danger) td.o_list_record_selector input:checked ~ * {
+    background-color: #f9c4c4 !important;
+}
