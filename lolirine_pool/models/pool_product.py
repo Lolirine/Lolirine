@@ -19,7 +19,7 @@ class PoolProductCategory(models.Model):
         string='Catégorie parente',
         ondelete='cascade'
     )
-    parent_path = fields.Char(index=True, unaccent=False)
+    parent_path = fields.Char(index=True)
     child_ids = fields.One2many(
         'pool.product.category',
         'parent_id',
