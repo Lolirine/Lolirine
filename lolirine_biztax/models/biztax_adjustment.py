@@ -2,7 +2,6 @@
 """
 Biztax Adjustment Model - Fiscal adjustments for Belgian tax declarations
 Handles DNA (Dépenses Non Admises), deductions, provisions, etc.
-
 IMPORTANT Odoo 19: Le champ company_id n'existe plus sur account.account
 Le domaine sur account_id ne doit pas utiliser company_id
 """
@@ -26,14 +25,13 @@ class BiztaxAdjustment(models.Model):
     name = fields.Char(
         string='Description',
         required=True,
-        tracking=True,
     )
-    
+
     sequence = fields.Integer(
         string='Séquence',
         default=10,
     )
-    
+
     declaration_id = fields.Many2one(
         'biztax.declaration',
         string='Déclaration',
@@ -41,7 +39,7 @@ class BiztaxAdjustment(models.Model):
         ondelete='cascade',
         index=True,
     )
-    
+
     # -------------------------------------------------------------------------
     # ACCOUNTING FIELDS - SANS DOMAINE company_id (n'existe plus en Odoo 19)
     # -------------------------------------------------------------------------
@@ -52,7 +50,7 @@ class BiztaxAdjustment(models.Model):
         # IMPORTANT: Pas de domain sur company_id car ce champ n'existe plus
         # sur account.account dans Odoo 19
     )
-    
+
     currency_id = fields.Many2one(
         'res.currency',
         string='Devise',
@@ -60,13 +58,13 @@ class BiztaxAdjustment(models.Model):
         store=True,
         readonly=True,
     )
-    
+
     tax_code_id = fields.Many2one(
         'biztax.tax.code',
         string='Code fiscal XBRL',
         help="Code de la taxonomie be-tax correspondant",
     )
-    
+
     move_line_ids = fields.Many2many(
         'account.move.line',
         'biztax_adjustment_move_line_rel',
@@ -75,7 +73,7 @@ class BiztaxAdjustment(models.Model):
         string='Écritures comptables',
         help="Lignes comptables liées à cet ajustement",
     )
-    
+
     # -------------------------------------------------------------------------
     # CLASSIFICATION FIELDS
     # -------------------------------------------------------------------------
@@ -99,13 +97,13 @@ class BiztaxAdjustment(models.Model):
         ('loss_carryforward', 'Report de pertes'),
         ('other_increase', 'Autre majoration'),
         ('other_decrease', 'Autre diminution'),
-    ], string='Catégorie', default='dna', required=True, tracking=True)
-    
+    ], string='Catégorie', default='dna', required=True)
+
     adjustment_type = fields.Selection([
         ('increase', 'Majoration (réintégration)'),
         ('decrease', 'Diminution (déduction)'),
-    ], string='Type d\'ajustement', required=True, default='increase', tracking=True)
-    
+    ], string='Type d\'ajustement', required=True, default='increase')
+
     # -------------------------------------------------------------------------
     # AMOUNT FIELDS
     # -------------------------------------------------------------------------
@@ -113,21 +111,20 @@ class BiztaxAdjustment(models.Model):
         string='Montant',
         currency_field='currency_id',
         required=True,
-        tracking=True,
     )
-    
+
     base_amount = fields.Monetary(
         string='Montant de base',
         currency_field='currency_id',
         help="Montant comptable avant application du pourcentage DNA",
     )
-    
+
     dna_percentage = fields.Float(
         string='Pourcentage DNA',
         default=100.0,
         help="Pourcentage de la dépense non admise fiscalement",
     )
-    
+
     signed_amount = fields.Monetary(
         string='Montant signé',
         currency_field='currency_id',
@@ -135,7 +132,7 @@ class BiztaxAdjustment(models.Model):
         store=True,
         help="Montant positif pour majorations, négatif pour diminutions",
     )
-    
+
     # -------------------------------------------------------------------------
     # VEHICLE-SPECIFIC FIELDS (for DNA vehicles)
     # -------------------------------------------------------------------------
@@ -143,7 +140,7 @@ class BiztaxAdjustment(models.Model):
         string='Émissions CO2 (g/km)',
         help="Pour calcul automatique DNA véhicule selon Art. 66 CIR92",
     )
-    
+
     vehicle_fuel_type = fields.Selection([
         ('diesel', 'Diesel'),
         ('petrol', 'Essence'),
@@ -152,14 +149,14 @@ class BiztaxAdjustment(models.Model):
         ('hybrid_petrol', 'Hybride essence'),
         ('cng', 'CNG/LPG'),
     ], string='Type de carburant')
-    
+
     vehicle_deduction_rate = fields.Float(
         string='Taux de déduction véhicule (%)',
         compute='_compute_vehicle_deduction_rate',
         store=True,
         help="Taux calculé selon émissions CO2 et type de carburant",
     )
-    
+
     # -------------------------------------------------------------------------
     # DOCUMENTATION FIELDS
     # -------------------------------------------------------------------------
@@ -167,12 +164,12 @@ class BiztaxAdjustment(models.Model):
         string='Base légale',
         help="Article CIR92 ou référence légale",
     )
-    
+
     notes = fields.Text(
         string='Notes',
         help="Détails et justification de l'ajustement",
     )
-    
+
     # -------------------------------------------------------------------------
     # COMPUTED FIELDS
     # -------------------------------------------------------------------------
@@ -183,7 +180,7 @@ class BiztaxAdjustment(models.Model):
                 record.signed_amount = -abs(record.amount)
             else:
                 record.signed_amount = abs(record.amount)
-    
+
     @api.depends('vehicle_co2', 'vehicle_fuel_type')
     def _compute_vehicle_deduction_rate(self):
         """
@@ -197,7 +194,7 @@ class BiztaxAdjustment(models.Model):
             if not record.vehicle_co2 or not record.vehicle_fuel_type:
                 record.vehicle_deduction_rate = 0
                 continue
-                
+
             if record.vehicle_fuel_type == 'electric':
                 record.vehicle_deduction_rate = 100
             elif record.vehicle_fuel_type in ('diesel', 'hybrid_diesel'):
@@ -206,7 +203,7 @@ class BiztaxAdjustment(models.Model):
             else:  # essence, hybrid_petrol, cng
                 rate = 120 - (0.5 * record.vehicle_co2 * 0.95)
                 record.vehicle_deduction_rate = max(50, min(100, rate))
-    
+
     # -------------------------------------------------------------------------
     # ONCHANGE METHODS
     # -------------------------------------------------------------------------
@@ -214,7 +211,7 @@ class BiztaxAdjustment(models.Model):
     def _onchange_category(self):
         """Set adjustment_type based on category"""
         decrease_categories = [
-            'rdt', 'innovation', 'investment', 'nid', 
+            'rdt', 'innovation', 'investment', 'nid',
             'loss_carryforward', 'plus_value_exempt',
             'other_decrease'
         ]
@@ -222,13 +219,13 @@ class BiztaxAdjustment(models.Model):
             self.adjustment_type = 'decrease'
         elif self.category and self.category != 'other_decrease':
             self.adjustment_type = 'increase'
-    
+
     @api.onchange('base_amount', 'dna_percentage')
     def _onchange_base_amount(self):
         """Calculate amount from base_amount and percentage"""
         if self.base_amount and self.dna_percentage:
             self.amount = self.base_amount * (self.dna_percentage / 100)
-    
+
     @api.onchange('vehicle_co2', 'vehicle_fuel_type', 'base_amount')
     def _onchange_vehicle_fields(self):
         """Auto-calculate DNA for vehicles"""
@@ -236,7 +233,7 @@ class BiztaxAdjustment(models.Model):
             if self.vehicle_deduction_rate:
                 self.dna_percentage = 100 - self.vehicle_deduction_rate
                 self.amount = self.base_amount * (self.dna_percentage / 100)
-    
+
     # -------------------------------------------------------------------------
     # CONSTRAINTS
     # -------------------------------------------------------------------------
@@ -249,7 +246,7 @@ class BiztaxAdjustment(models.Model):
                     "Utilisez le type d'ajustement pour indiquer s'il s'agit "
                     "d'une majoration ou d'une diminution."
                 ))
-    
+
     @api.constrains('dna_percentage')
     def _check_dna_percentage(self):
         for record in self:
