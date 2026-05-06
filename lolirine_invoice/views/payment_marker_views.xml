@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Onglet Comptabilité du fournisseur : ajout de la case à cocher -->
+    <record id="view_partner_form_lolirine_manual_payment" model="ir.ui.view">
+        <field name="name">res.partner.form.lolirine.manual.payment</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='accounting']" position="inside">
+                <group string="Lolirine — Paiement">
+                    <field name="lolirine_manual_payment"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Form facture fournisseur : champ override + champ calculé caché -->
+    <record id="view_in_invoice_form_lolirine_payment_override" model="ir.ui.view">
+        <field name="name">account.move.form.lolirine.payment.override</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_reference']" position="after">
+                <field name="lolirine_payment_override"
+                       invisible="move_type not in ('in_invoice', 'in_refund')"/>
+                <field name="lolirine_manual_payment" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Liste factures fournisseurs : décoration warning + colonne -->
+    <record id="view_in_invoice_tree_lolirine_manual_payment" model="ir.ui.view">
+        <field name="name">account.move.list.lolirine.manual.payment</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_in_invoice_tree"/>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="decoration-warning">
+                    lolirine_manual_payment and payment_state in ('not_paid', 'partial') and state == 'posted'
+                </attribute>
+            </list>
+            <field name="payment_state" position="after">
+                <field name="lolirine_manual_payment"
+                       string="Paiement manuel"
+                       optional="hide"
+                       widget="boolean_toggle"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Filtre rapide dans la search view -->
+    <record id="view_account_invoice_filter_lolirine_manual_payment" model="ir.ui.view">
+        <field name="name">account.move.search.lolirine.manual.payment</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <filter name="late" position="after">
+                <separator/>
+                <filter name="lolirine_manual_payment_todo"
+                        string="Paiement manuel à effectuer"
+                        domain="[
+                            ('lolirine_manual_payment', '=', True),
+                            ('payment_state', 'in', ('not_paid', 'partial')),
+                            ('state', '=', 'posted'),
+                            ('move_type', 'in', ('in_invoice', 'in_refund'))
+                        ]"/>
+            </filter>
+        </field>
+    </record>
+</odoo>
