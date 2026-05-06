@@ -69,7 +69,7 @@ class AiChatController(http.Controller):
         text_lines.append('Recommande ces produits quand pertinent.')
         return '\n'.join(text_lines), product_ids
 
-    @http.route('/ai_chat/config', type='json', auth='public', website=True)
+    @http.route('/ai_chat/config', type='jsonrpc', auth='public', website=True)
     def get_config(self):
         # Check if chat is restricted to a specific website
         website_id_str = self._get_param('website_id', '')
@@ -94,7 +94,7 @@ class AiChatController(http.Controller):
             'teaser_interval': int(self._get_param('teaser_interval', '24')),
         }
 
-    @http.route('/ai_chat/send', type='json', auth='public', website=True, csrf=True)
+    @http.route('/ai_chat/send', type='jsonrpc', auth='public', website=True, csrf=True)
     def send_message(self, session_id=None, message='', conversation_history=None):
         api_key = self._get_param('api_key', '')
         if not api_key:
@@ -225,7 +225,7 @@ class AiChatController(http.Controller):
             'tokens': {'input': tokens_in, 'output': tokens_out},
         }
 
-    @http.route('/ai_chat/rate', type='json', auth='public', website=True)
+    @http.route('/ai_chat/rate', type='jsonrpc', auth='public', website=True)
     def rate_conversation(self, session_id, rating):
         if not session_id or str(rating) not in ('1', '2', '3', '4', '5'):
             return {'error': 'Parametre invalide'}
@@ -237,7 +237,7 @@ class AiChatController(http.Controller):
             return {'success': True}
         return {'error': 'Conversation non trouvee'}
 
-    @http.route('/ai_chat/close', type='json', auth='public', website=True)
+    @http.route('/ai_chat/close', type='jsonrpc', auth='public', website=True)
     def close_conversation(self, session_id):
         if not session_id:
             return {'error': 'Parametre invalide'}
