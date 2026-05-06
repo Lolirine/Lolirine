@@ -109,7 +109,7 @@ class LolirineContactForm(http.Controller):
         """Page de remerciement après soumission"""
         return request.render('lolirine_contact_form.contact_form_thanks')
 
-    @http.route('/api/config/google-api-key', type='json', auth='public', cors='*')
+    @http.route('/api/config/google-api-key', type='jsonrpc', auth='public', cors='*')
     def get_google_api_key(self, **kwargs):
         """Récupérer la clé API Google depuis les paramètres système"""
         try:
@@ -122,7 +122,7 @@ class LolirineContactForm(http.Controller):
             _logger.error(f"Erreur lors de la récupération de la clé API Google: {str(e)}")
             return {'api_key': '', 'error': str(e)}
 
-    @http.route('/api/address/validate-vat', type='json', auth='public', cors='*')
+    @http.route('/api/address/validate-vat', type='jsonrpc', auth='public', cors='*')
     def validate_vat(self, vat='', **kwargs):
         """Valider un numéro de TVA belge et récupérer les infos entreprise"""
         # Nettoyer le numéro de TVA
