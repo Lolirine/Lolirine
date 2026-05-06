@@ -50,7 +50,7 @@ class HomepageRecommendationsController(http.Controller):
             'website_id': website_id,
         }
 
-    @http.route('/shop/track/view', type='json', auth='public', website=True)
+    @http.route('/shop/track/view', type='jsonrpc', auth='public', website=True)
     def track_product_view(self, product_id, is_template=False):
         if not self._is_lolirine_pool_website():
             return {'success': False, 'error': 'Not on Lolirine Pool website'}
@@ -84,7 +84,7 @@ class HomepageRecommendationsController(http.Controller):
             _logger.error(f"Erreur tracking vue produit: {e}")
             return {'success': False, 'error': str(e)}
 
-    @http.route('/shop/recommendations', type='json', auth='public', website=True)
+    @http.route('/shop/recommendations', type='jsonrpc', auth='public', website=True)
     def get_recommendations(self, section=None, limit=12, category_id=None):
         if not self._is_lolirine_pool_website():
             return {'success': False, 'error': 'Not on Lolirine Pool website', 'products': []}
@@ -187,7 +187,7 @@ class HomepageRecommendationsController(http.Controller):
             _logger.error(f"Erreur récupération recommandations: {e}")
             return {'success': False, 'error': str(e), 'products': []}
 
-    @http.route('/shop/recommendations/all', type='json', auth='public', website=True)
+    @http.route('/shop/recommendations/all', type='jsonrpc', auth='public', website=True)
     def get_all_recommendations(self):
         if not self._is_lolirine_pool_website():
             return {'success': False, 'error': 'Not on Lolirine Pool website', 'recommendations': {}}
@@ -255,7 +255,7 @@ class HomepageRecommendationsController(http.Controller):
     # -------------------------------------------------------------------------
     # NOUVELLE ROUTE — fallback catégories principales (sans restriction website)
     # -------------------------------------------------------------------------
-    @http.route('/shop/main_categories', type='json', auth='public', website=True)
+    @http.route('/shop/main_categories', type='jsonrpc', auth='public', website=True)
     def get_main_categories(self, limit=6):
         """
         Retourne les catégories racines du shop pour le site courant.
@@ -277,7 +277,7 @@ class HomepageRecommendationsController(http.Controller):
             _logger.error(f"Erreur récupération catégories principales: {e}")
             return {'success': False, 'categories': []}
 
-    @http.route('/shop/preferences/categories', type='json', auth='public', website=True)
+    @http.route('/shop/preferences/categories', type='jsonrpc', auth='public', website=True)
     def get_preferred_categories(self, limit=5):
         if not self._is_lolirine_pool_website():
             return {'success': False, 'error': 'Not on Lolirine Pool website', 'categories': []}
