@@ -36,7 +36,7 @@ class PoolChecklistController(http.Controller):
         })
 
     # ─── Recherche produits catalogue ──────────────────────────────────
-    @http.route('/pool-checklist/products', type='json', auth='user',
+    @http.route('/pool-checklist/products', type='jsonrpc', auth='user',
                 website=True, methods=['POST'], csrf=False)
     def search_products(self, query='', limit=20, category_id=None,
                         supplier_id=None, sort='name', **kwargs):
@@ -120,7 +120,7 @@ class PoolChecklistController(http.Controller):
         return {'products': result, 'total': len(result)}
 
     # ─── Catégories du catalogue Pool Store ────────────────────────────
-    @http.route('/pool-checklist/categories', type='json', auth='user',
+    @http.route('/pool-checklist/categories', type='jsonrpc', auth='user',
                 website=True, methods=['POST'], csrf=False)
     def get_categories(self, parent_id=None, **kwargs):
         """
@@ -205,7 +205,7 @@ class PoolChecklistController(http.Controller):
         return {'categories': result}
 
     # ─── Fournisseurs actifs Pool Store ────────────────────────────────
-    @http.route('/pool-checklist/suppliers', type='json', auth='user',
+    @http.route('/pool-checklist/suppliers', type='jsonrpc', auth='user',
                 website=True, methods=['POST'], csrf=False)
     def get_suppliers(self, **kwargs):
         """
@@ -230,7 +230,7 @@ class PoolChecklistController(http.Controller):
         ]}
 
     # ─── Proxy IA Anthropic ────────────────────────────────────────────
-    @http.route('/pool-checklist/ai-suggest', type='json', auth='user',
+    @http.route('/pool-checklist/ai-suggest', type='jsonrpc', auth='user',
                 website=True, methods=['POST'], csrf=False)
     def ai_suggest(self, item_text='', section_label='', **kwargs):
         if not item_text:
@@ -288,7 +288,7 @@ class PoolChecklistController(http.Controller):
         return {'products': result}
 
     # ─── Autocomplétion partenaires ────────────────────────────────────
-    @http.route('/pool-checklist/search-partner', type='json', auth='user',
+    @http.route('/pool-checklist/search-partner', type='jsonrpc', auth='user',
                 website=True, methods=['POST'], csrf=False)
     def search_partner(self, query='', limit=8, **kwargs):
         if not query or len(query.strip()) < 2:
@@ -304,7 +304,7 @@ class PoolChecklistController(http.Controller):
         ]}
 
     # ─── Création devis ────────────────────────────────────────────────
-    @http.route('/pool-checklist/create-quote', type='json', auth='user',
+    @http.route('/pool-checklist/create-quote', type='jsonrpc', auth='user',
                 website=True, methods=['POST'], csrf=False)
     def create_quote(self, partner_id=None, partner_name='', ref_dossier='',
                      note='', payment_term='', lines=None, fiche_id=None, **kwargs):
