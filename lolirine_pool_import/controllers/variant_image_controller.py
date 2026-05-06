@@ -6,7 +6,7 @@ import base64
 
 class VariantImageController(http.Controller):
 
-    @http.route('/pool/variant_images/<int:tmpl_id>', type='json',
+    @http.route('/pool/variant_images/<int:tmpl_id>', type='jsonrpc',
                 auth='public', website=True, methods=['POST'])
     def get_variant_images_json(self, tmpl_id, **kwargs):
         template = request.env['product.template'].sudo().browse(tmpl_id)
