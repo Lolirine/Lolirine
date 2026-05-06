@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from datetime import date
@@ -14,10 +13,9 @@ class ApartmentTenant(models.Model):
 
     partner_id = fields.Many2one(
         'res.partner',
-        string='Contact',
+        string='Partenaire',
         required=True,
         ondelete='cascade',
-        auto_join=True,
     )
     reference = fields.Char(
         string='Référence',
@@ -26,15 +24,15 @@ class ApartmentTenant(models.Model):
         default=lambda self: _('Nouveau'),
     )
     active = fields.Boolean(default=True)
-    
+
     # Informations personnelles
-    birth_date = fields.Date(string='Date de naissance')
-    birth_place = fields.Char(string='Lieu de naissance')
+    birth_date = fields.Date(string='Date de naissance (locataire)')
+    birth_place = fields.Char(string='Lieu de naissance (locataire)')
     nationality_id = fields.Many2one('res.country', string='Nationalité')
     national_id = fields.Char(string='N° registre national')
     id_card_number = fields.Char(string='N° carte d\'identité')
     id_card_expiry = fields.Date(string='Expiration carte d\'identité')
-    
+
     # Situation professionnelle
     profession = fields.Char(string='Profession')
     employer = fields.Char(string='Employeur')
@@ -49,22 +47,22 @@ class ApartmentTenant(models.Model):
         ('unemployed', 'Sans emploi'),
         ('other', 'Autre'),
     ], string='Type de contrat')
-    
+
     # Contact d'urgence
     emergency_contact_name = fields.Char(string='Contact d\'urgence')
     emergency_contact_phone = fields.Char(string='Tél. contact d\'urgence')
     emergency_contact_relation = fields.Char(string='Relation')
-    
+
     # Garant
     guarantor_name = fields.Char(string='Nom du garant')
     guarantor_address = fields.Text(string='Adresse du garant')
     guarantor_phone = fields.Char(string='Tél. garant')
     guarantor_email = fields.Char(string='Email garant')
-    
+
     # Compte bancaire
     bank_account = fields.Char(string='IBAN')
     bank_name = fields.Char(string='Banque')
-    
+
     # Relations
     lease_ids = fields.One2many(
         'apartment.lease',
@@ -82,7 +80,7 @@ class ApartmentTenant(models.Model):
         'tenant_id',
         string='Documents',
     )
-    
+
     # Compteurs
     lease_count = fields.Integer(
         string='Nombre de baux',
@@ -92,9 +90,9 @@ class ApartmentTenant(models.Model):
         string='Nombre de documents',
         compute='_compute_document_count',
     )
-    
+
     # Notes
-    notes = fields.Text(string='Notes')
+    notes = fields.Text(string='Notes locataire')
 
     @api.model_create_multi
     def create(self, vals_list):
