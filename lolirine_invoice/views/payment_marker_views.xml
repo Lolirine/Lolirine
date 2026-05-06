@@ -35,7 +35,7 @@
         <field name="inherit_id" ref="account.view_in_invoice_tree"/>
         <field name="arch" type="xml">
             <list position="attributes">
-                <attribute name="decoration-warning">lolirine_manual_payment and payment_state in ('not_paid', 'partial') and state == 'posted'</attribute>
+                <attribute name="decoration-danger">lolirine_manual_payment and payment_state in ('not_paid', 'partial') and state == 'posted'</attribute>
             </list>
             <xpath expr="//list" position="inside">
                 <field name="lolirine_manual_payment"
