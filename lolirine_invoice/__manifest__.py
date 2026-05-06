@@ -82,6 +82,7 @@
         "views/indexation_send_wizard_views.xml",
         "views/contract_close_wizard_views.xml",
         "views/storage_box_views.xml",
+        "views/payment_marker_views.xml",
         # Menus (en dernier)
         "views/menu_views.xml",
     ],
