@@ -6,7 +6,7 @@ from odoo.http import request
 
 class BuyPanelController(http.Controller):
 
-    @http.route('/shop/buypanel/info', type='json', auth='public', methods=['POST'], website=True, csrf=False)
+    @http.route('/shop/buypanel/info', type='jsonrpc', auth='public', methods=['POST'], website=True, csrf=False)
     def buypanel_info(self, product_id=None, **kwargs):
         if not product_id:
             return {}
