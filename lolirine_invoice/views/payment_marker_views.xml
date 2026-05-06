@@ -35,16 +35,16 @@
         <field name="inherit_id" ref="account.view_in_invoice_tree"/>
         <field name="arch" type="xml">
             <list position="attributes">
-                <attribute name="decoration-warning">
-                    lolirine_manual_payment and payment_state in ('not_paid', 'partial') and state == 'posted'
-                </attribute>
+                <attribute name="decoration-warning">lolirine_manual_payment and payment_state in ('not_paid', 'partial') and state == 'posted'</attribute>
             </list>
-            <field name="payment_state" position="after">
+            <xpath expr="//list" position="inside">
                 <field name="lolirine_manual_payment"
                        string="Paiement manuel"
                        optional="hide"
                        widget="boolean_toggle"/>
-            </field>
+                <field name="payment_state" column_invisible="True"/>
+                <field name="state" column_invisible="True"/>
+            </xpath>
         </field>
     </record>
 
@@ -58,12 +58,7 @@
                 <separator/>
                 <filter name="lolirine_manual_payment_todo"
                         string="Paiement manuel à effectuer"
-                        domain="[
-                            ('lolirine_manual_payment', '=', True),
-                            ('payment_state', 'in', ('not_paid', 'partial')),
-                            ('state', '=', 'posted'),
-                            ('move_type', 'in', ('in_invoice', 'in_refund'))
-                        ]"/>
+                        domain="[('lolirine_manual_payment', '=', True), ('payment_state', 'in', ('not_paid', 'partial')), ('state', '=', 'posted'), ('move_type', 'in', ('in_invoice', 'in_refund'))]"/>
             </filter>
         </field>
     </record>
