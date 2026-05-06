@@ -157,7 +157,7 @@ class StoragePlanController(http.Controller):
             ]
         )
     
-    @http.route('/storage/box/<int:box_id>/details', type='json', auth='public')
+    @http.route('/storage/box/<int:box_id>/details', type='jsonrpc', auth='public')
     def box_details(self, box_id, **kwargs):
         """Récupère les détails d'un box"""
         box = request.env['storage.box'].sudo().browse(box_id)
@@ -166,7 +166,7 @@ class StoragePlanController(http.Controller):
         
         return box.get_box_details()
     
-    @http.route('/storage/box/<int:box_id>/reserve', type='json', auth='public')
+    @http.route('/storage/box/<int:box_id>/reserve', type='jsonrpc', auth='public')
     def reserve_box(self, box_id, customer_name, customer_email, customer_phone, 
                     reservation_type='reservation', notes='', **kwargs):
         """Crée une réservation pour un box"""
@@ -200,7 +200,7 @@ class StoragePlanController(http.Controller):
         except Exception as e:
             return {'error': str(e)}
     
-    @http.route('/storage/box/<int:box_id>/appointment', type='json', auth='public')
+    @http.route('/storage/box/<int:box_id>/appointment', type='jsonrpc', auth='public')
     def book_appointment(self, box_id, customer_name, customer_email, customer_phone, 
                         appointment_date=None, notes='', **kwargs):
         """Crée une demande de rendez-vous pour un box"""
@@ -233,7 +233,7 @@ class StoragePlanController(http.Controller):
         except Exception as e:
             return {'error': str(e)}
     
-    @http.route('/storage/boxes/search', type='json', auth='public')
+    @http.route('/storage/boxes/search', type='jsonrpc', auth='public')
     def search_boxes(self, status=None, min_volume=None, max_volume=None, 
                      min_price=None, max_price=None, floor_id=None, **kwargs):
         """Recherche des boxes selon des critères"""
