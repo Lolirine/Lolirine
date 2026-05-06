@@ -4,7 +4,7 @@ from odoo.http import request, Response
 
 class WishlistController(http.Controller):
 
-    @http.route('/shop/wishlist/config', type='json', auth='public',
+    @http.route('/shop/wishlist/config', type='jsonrpc', auth='public',
                 methods=['POST'], website=True, csrf=False)
     def wishlist_config(self, **kwargs):
         """Retourne la config (textes + couleurs) pour le JS."""
