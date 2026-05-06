@@ -6,7 +6,7 @@ from odoo.http import request
 
 class StorageBoxController(http.Controller):
     
-    @http.route('/storage_box/get_data/<int:product_id>', type='json', auth='public', website=True, cors='*')
+    @http.route('/storage_box/get_data/<int:product_id>', type='jsonrpc', auth='public', website=True, cors='*')
     def get_storage_box_data(self, product_id, **kwargs):
         """Endpoint API pour récupérer les données d'un box de stockage"""
         product = request.env['product.template'].sudo().browse(product_id)
