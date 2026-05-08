@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Hérite de la vue principale du formulaire abonnement (sale.subscription.order.primary.form)
+        pour ajouter un domain sur la recherche produit dans order_line.
+        Le domain [('is_pool_product', '=', False)] exclut les produits Pool Store
+        et ne montre que les produits Garde-meuble + produits techniques (livraison, frais, etc.).
+    -->
+    <record id="view_subscription_form_filter_pool_products" model="ir.ui.view">
+        <field name="name">sale.subscription.form.filter.pool.products</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_subscription.sale_subscription_primary_form_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Filtre sur product_template_id (recherche par modèle dans la liste des lignes) -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_template_id']" position="attributes">
+                <attribute name="domain">[('is_pool_product', '=', False)]</attribute>
+            </xpath>
+
+            <!-- Filtre sur product_id (variante, si présent dans la vue) -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_id']" position="attributes">
+                <attribute name="domain">[('product_tmpl_id.is_pool_product', '=', False)]</attribute>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>
