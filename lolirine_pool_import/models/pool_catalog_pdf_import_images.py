@@ -192,7 +192,12 @@ class PoolCatalogPdfImportImageExtract(models.Model):
     # =========================================================================
 
     def _extract_all_images_from_pdf(self):
-        """Extrait toutes les images du PDF en mode capture pure 300 DPI."""
+        """Extrait toutes les images du PDF en mode capture pure 300 DPI.
+
+        Commit page par page pour resister aux timeouts workers HTTP/cron.
+        En cas d'interruption, les images deja extraites sont preservees et
+        l'etat reste 'in_progress' jusqu'a la fin reelle.
+        """
         try:
             import fitz  # PyMuPDF
         except ImportError:
@@ -201,8 +206,10 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         pdf_data = base64.b64decode(self.source_pdf)
         doc = fitz.open(stream=pdf_data, filetype="pdf")
 
-        log_lines = [_("Traitement de %d pages...") % len(doc)]
-        created_vals_list = []
+        total_pages = len(doc)
+        log_lines = [_("Traitement de %d pages...") % total_pages]
+        self.image_extraction_log = "\n".join(log_lines)
+        self.env.cr.commit()
 
         # Pre-charger les produits existants groupes par page
         products_by_page = {}
@@ -210,30 +217,48 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             if p.page_num:
                 products_by_page.setdefault(p.page_num, []).append(p)
 
-        for page_num in range(len(doc)):
+        Image = self.env['pool.catalog.pdf.image']
+        total_created = 0
+
+        for page_num in range(total_pages):
+            page_vals = []
             try:
                 page = doc[page_num]
                 page_idx = page_num + 1
 
-                # Collecter les references texte de la page avec leur position
                 text_refs = self._collect_text_references(page)
-
-                # Produits deja extraits pour cette page
                 page_products = products_by_page.get(page_idx, [])
 
-                # Parcourir toutes les images de la page
                 for img_info in page.get_images(full=True):
                     vals = self._extract_single_image(
                         doc, page, page_idx, img_info, text_refs, page_products
                     )
                     if vals:
-                        created_vals_list.append(vals)
+                        page_vals.append(vals)
 
             except Exception as e:
-                _logger.warning("Page %d : %s", page_num + 1, e)
-                log_lines.append(_("Avertissement page %d : %s") % (page_num + 1, e))
+                _logger.warning("Page %d : %s", page_idx, e)
+                log_lines.append(_("Avertissement page %d : %s") % (page_idx, e))
+
+            # Commit immediat des images de la page
+            if page_vals:
+                Image.create(page_vals)
+                total_created += len(page_vals)
+
+            # Log d'avancement toutes les 5 pages
+            if page_idx % 5 == 0 or page_idx == total_pages:
+                log_lines.append(
+                    _("  Page %d/%d -> %d images cumulees")
+                    % (page_idx, total_pages, total_created)
+                )
+                self.image_extraction_log = "\n".join(log_lines)
+                self.env.cr.commit()
 
         doc.close()
+
+        log_lines.append(_("-> %d images creees au total") % total_created)
+        self.image_extraction_log = "\n".join(log_lines)
+        self.env.cr.commit()
 
         # Creation en batch
         if created_vals_list:
