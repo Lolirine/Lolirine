@@ -38,7 +38,7 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 # Pattern pour capturer des references (SCP: 1478, 64170 / Fluidra: 70342, AR0048, W0012A)
-REF_PATTERN = re.compile(r'\b([A-Z]{0,4}\d{3,6}(?:[-/][A-Z0-9]{2,8})?)\b')
+REF_PATTERN = re.compile(r'\b([A-Z]{2,4}-\d{3,4}-\d{3,4}|[A-Z]{1,4}\d{3,8}[A-Z]{0,3}|\d{4,8})\b')
 
 # Tailles minimales pour exclure icones/logos/pictos
 MIN_IMAGE_WIDTH_PT = 40
@@ -256,7 +256,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             for match in REF_PATTERN.finditer(text):
                 ref = match.group(1)
                 # Filtrer les pseudo-refs parasites (annees, pages, etc.)
-                if ref.isdigit() and (len(ref) < 3 or len(ref) > 6):
+                if ref.isdigit() and (len(ref) < 4 or len(ref) > 8):
                     continue
                 if ref in ('2024', '2025', '2026', '2027'):
                     continue
