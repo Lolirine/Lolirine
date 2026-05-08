@@ -12,11 +12,14 @@ Noms de champs adaptes au schema existant :
   - ref (reference du produit)
   - import_id (M2O retour depuis le produit)
 
-Strategie double :
-  1. Image native embarquee (doc.extract_image(xref)) quand le ratio d'aspect
-     de l'image native correspond au bbox affiche (tolerance 5%).
-  2. Rendu clippe a 300 DPI (page.get_pixmap(clip=bbox)) sinon.
-Puis trim PIL sur bords uniformes (blanc/transparent).
+Strategie de capture pure :
+  - Rendu clippe a 300 DPI via page.get_pixmap(matrix, clip=rect, alpha=False)
+  - Restitue exactement ce que l'oeil voit dans le PDF (pas d'aspect "scanner")
+  - Evite les surprises CMJN -> RGB et masques alpha sombres
+  - Aucun debordement possible (clip strictement borne au bbox de l'image)
+  - Resolution constante (~4x les dimensions du bbox affiche) quel que soit
+    l'encodage source SCP/Fluidra
+Puis trim PIL sur bords uniformes (blanc/transparent) pour finir le detourage.
 
 Matching au produit par proximite textuelle :
   - page.get_image_rects(xref) donne la position a l'ecran
@@ -189,7 +192,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
     # =========================================================================
 
     def _extract_all_images_from_pdf(self):
-        """Extrait toutes les images du PDF avec strategie double."""
+        """Extrait toutes les images du PDF en mode capture pure 300 DPI."""
         try:
             import fitz  # PyMuPDF
         except ImportError:
@@ -268,77 +271,61 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         return refs
 
     def _extract_single_image(self, doc, page, page_num, img_info, text_refs, page_products):
-        """Extrait une image unique avec strategie double + trim + matching."""
+        """Extrait une image en mode capture pure (rendu clippe 300 DPI).
+
+        Avantages vs extraction native :
+        - Couleurs fideles a l'affichage ecran (pas d'aspect "scanner medical")
+        - Pas de drame CMJN -> RGB ni masque alpha sombre
+        - Bords stricts au bbox affiche (clip=rect) -> aucun debordement
+        - Resolution constante (~4x les dimensions du bbox) quel que soit
+          l'encodage source SCP/Fluidra
+        """
         try:
             import fitz
-            from PIL import Image, ImageChops
+            from PIL import Image, ImageChops  # noqa: F401  (utilise par _trim_image_borders)
         except ImportError:
             return None
 
         xref = img_info[0]
 
-        # 1. Recuperer les positions a l'ecran
+        # 1. Recuperer la position a l'ecran
         try:
             rects = page.get_image_rects(xref)
         except Exception:
             rects = []
         if not rects:
             return None
+
         rect = rects[0]
         display_w = rect.width
         display_h = rect.height
 
-        # Filtre taille minimale (exclut icones/logos/pictos)
+        # Filtre taille minimale (exclut icones / logos / pictos)
         if display_w < MIN_IMAGE_WIDTH_PT or display_h < MIN_IMAGE_HEIGHT_PT:
             return None
         if display_w * display_h < MIN_IMAGE_AREA_PT:
             return None
 
-        # 2. Strategie native
+        # 2. Capture pure : rendu clippe a 300 DPI
         try:
-            native = doc.extract_image(xref)
-            native_w = native['width']
-            native_h = native['height']
-            native_bytes = native['image']
+            mat = fitz.Matrix(300 / 72, 300 / 72)
+            pix = page.get_pixmap(matrix=mat, clip=rect, alpha=False)
+            image_bytes = pix.tobytes('png')
+            final_w, final_h = pix.width, pix.height
         except Exception as e:
-            _logger.debug("Native extract failed xref=%s : %s", xref, e)
-            native = None
-            native_w = native_h = 0
-            native_bytes = None
+            _logger.warning(
+                "Capture clippee echouee page=%d xref=%s : %s",
+                page_num, xref, e,
+            )
+            return None
 
-        # 3. Comparer les ratios d'aspect
-        use_native = False
-        if native and native_w and native_h:
-            display_ar = display_w / display_h if display_h else 1
-            native_ar = native_w / native_h if native_h else 1
-            ar_diff = abs(display_ar - native_ar) / max(display_ar, native_ar, 0.001)
-            use_native = ar_diff <= 0.05
-
-        # 4. Recuperer les bytes selon la strategie choisie
-        if use_native and native_bytes:
-            image_bytes = native_bytes
-            extraction_method = 'native'
-            final_w, final_h = native_w, native_h
-        else:
-            # Rendu clippe 300 DPI
-            try:
-                mat = fitz.Matrix(300 / 72, 300 / 72)
-                pix = page.get_pixmap(matrix=mat, clip=rect, alpha=False)
-                image_bytes = pix.tobytes('png')
-                final_w, final_h = pix.width, pix.height
-                extraction_method = 'clipped'
-            except Exception as e:
-                _logger.warning("Clipped render failed page=%d xref=%s : %s",
-                                page_num, xref, e)
-                return None
-
-        # 5. Trim des bords uniformes avec PIL
+        # 3. Trim des bords uniformes avec PIL
         trimmed_bytes, trim_w, trim_h = self._trim_image_borders(image_bytes)
 
-        # 6. Calcul du score de qualite
+        # 4. Calcul du score de qualite
         quality = self._compute_quality_score(trim_w, trim_h, display_w, display_h)
 
-        # 7. Matching avec produits de la page
+        # 5. Matching avec les produits de la page
         img_center = ((rect.x0 + rect.x1) / 2, (rect.y0 + rect.y1) / 2)
         matched_product, matched_ref, confidence = self._match_image_to_product(
             img_center, text_refs, page_products
@@ -354,7 +341,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             'bbox_width': display_w,
             'bbox_height': display_h,
             'image_data': base64.b64encode(trimmed_bytes),
-            'extraction_method': extraction_method,
+            'extraction_method': 'clipped',
             'width_px': trim_w or final_w,
             'height_px': trim_h or final_h,
             'quality_score': quality,
