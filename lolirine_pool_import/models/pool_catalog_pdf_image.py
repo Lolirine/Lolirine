@@ -205,8 +205,18 @@ class PoolCatalogPdfImage(models.Model):
 
     @api.depends('product_id.product_id', 'product_id.product_id.website_url')
     def _compute_website_url(self):
-        """URL publique du produit sur le Pool Store (website_id=6)."""
-        base = "https://www.lolirinepoolstore.be"
+        """URL publique du produit sur le Pool Store (website_id=6).
+
+        Le domaine est lu dynamiquement depuis le record website,
+        pas hardcode, pour suivre une eventuelle migration de domaine.
+        """
+        # Lecture du domaine du Pool Store une seule fois par batch
+        pool_store_website = self.env['website'].browse(6)
+        base = (pool_store_website.domain or '').rstrip('/')
+        # Fallback si le champ domain est vide en base
+        if not base:
+            base = "https://www.lolirinepoolstore.be"
+
         for rec in self:
             template = rec.product_id.product_id if rec.product_id else False
             if template and template.website_url and template.website_published:
