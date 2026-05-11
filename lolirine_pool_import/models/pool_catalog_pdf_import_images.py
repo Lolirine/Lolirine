@@ -13,7 +13,7 @@ Noms de champs adaptes au schema existant :
   - import_id (M2O retour depuis le produit)
 
 Strategie de capture pure :
-  - Rendu clippe a 200 DPI via page.get_pixmap(matrix, clip=rect, alpha=False)
+  - Rendu clippe a 300 DPI via page.get_pixmap(matrix, clip=rect, alpha=False)
   - Restitue exactement ce que l'oeil voit dans le PDF (pas d'aspect "scanner")
   - Evite les surprises CMJN -> RGB et masques alpha sombres
   - Aucun debordement possible (clip strictement borne au bbox de l'image)
@@ -30,6 +30,12 @@ Robustesse :
   - Commit page par page (resiste aux timeouts workers HTTP/cron)
   - Mode reprise : si interrompu, skip les pages deja extraites au relance
   - Pour forcer un reset complet : .with_context(force_reset=True).action_extract_images()
+
+Push vers Odoo :
+  - action_push_to_products propage les images validees vers les product.template
+  - L'image 'primary' devient image_1920 du produit Odoo
+  - Les images 'secondary_validated' deviennent product.image extra
+  - Idempotent (flag pushed_to_product)
 """
 
 import base64
@@ -52,8 +58,11 @@ MIN_IMAGE_WIDTH_PT = 80
 MIN_IMAGE_HEIGHT_PT = 80
 MIN_IMAGE_AREA_PT = 8000
 
-# DPI de rendu (200 = bon compromis qualite web / consommation memoire)
+# DPI de rendu (300 = qualite optimale, 200 = compromis RAM)
 RENDER_DPI = 300
+
+# Largeur minimale (px) pour push vers product.template
+MIN_PUSH_WIDTH_PX = 300
 
 
 class PoolCatalogPdfImportImageExtract(models.Model):
@@ -599,7 +608,6 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             # Chercher la ref la plus proche qui existe dans le catalogue
             best = None
             best_dist = float('inf')
-            import math
             for tr in page_refs:
                 ref_upper = tr['ref'].upper()
                 if ref_upper not in product_by_ref:
@@ -651,6 +659,133 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': _("Rematch termine"),
+                'message': msg,
+                'type': 'success',
+                'sticky': False,
+            },
+        }
+
+    # =========================================================================
+    # PUSH VERS PRODUCT.TEMPLATE
+    # =========================================================================
+
+    def action_push_to_products(self):
+        """Pousse les images validees vers les product.template Odoo lies.
+
+        Pour chaque pool.catalog.pdf.product avec un product_id (product.template) :
+          - L'image 'primary' devient image_1920 du produit Odoo
+          - Les images 'secondary_validated' deviennent product.image extra
+
+        Filtres appliques :
+          - role IN ('primary', 'secondary_validated')
+          - pushed_to_product == False (idempotence)
+          - product_id.product_id != False (pool.product lie a un product.template)
+          - width_px >= MIN_PUSH_WIDTH_PX (qualite suffisante)
+          - image_data != False
+
+        Skip silencieux pour les images en 'unassigned', 'rejected', 'secondary_proposed'.
+        """
+        self.ensure_one()
+
+        # Images candidates
+        candidates = self.image_ids.filtered(
+            lambda i: (
+                i.role in ('primary', 'secondary_validated')
+                and not i.pushed_to_product
+                and i.product_id
+                and i.product_id.product_id  # le pool.product est lie a un product.template
+                and i.width_px >= MIN_PUSH_WIDTH_PX
+                and i.image_data
+            )
+        )
+
+        if not candidates:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _("Rien a pousser"),
+                    'message': _("Aucune image eligible "
+                                 "(role primary/secondary_validated, non deja poussee, "
+                                 "produit Odoo lie, taille >= %d px).") % MIN_PUSH_WIDTH_PX,
+                    'type': 'warning',
+                    'sticky': False,
+                },
+            }
+
+        _logger.info(
+            "Push %s : %d images candidates", self.name, len(candidates)
+        )
+
+        ProductImage = self.env['product.image']
+        nb_primary_pushed = 0
+        nb_secondary_pushed = 0
+        nb_skipped_no_template = 0
+        touched_templates = set()
+        log_lines = []
+
+        for img in candidates:
+            pool_product = img.product_id
+            template = pool_product.product_id
+
+            if not template:
+                nb_skipped_no_template += 1
+                continue
+
+            try:
+                if img.role == 'primary':
+                    # Ecrase l'image principale du product.template
+                    template.write({'image_1920': img.image_data})
+                    nb_primary_pushed += 1
+                    log_lines.append(
+                        _("  Primary -> %s (ref %s)")
+                        % (template.display_name[:40], pool_product.ref or '?')
+                    )
+                else:
+                    # role == 'secondary_validated' -> product.image extra
+                    ProductImage.create({
+                        'name': pool_product.ref or template.name,
+                        'product_tmpl_id': template.id,
+                        'image_1920': img.image_data,
+                    })
+                    nb_secondary_pushed += 1
+
+                img.write({'pushed_to_product': True})
+                touched_templates.add(template.id)
+
+            except Exception as e:
+                _logger.warning(
+                    "Push echoue image=%s template=%s : %s",
+                    img.id, template.id, e
+                )
+                log_lines.append(
+                    _("  ECHEC image %d : %s") % (img.id, e)
+                )
+
+        # Commit final
+        self.env.cr.commit()
+
+        msg = _(
+            "Push termine : %d principales, %d secondaires, "
+            "%d produits Odoo mis a jour. "
+            "%d images sans product.template lie (skippees)."
+        ) % (nb_primary_pushed, nb_secondary_pushed,
+             len(touched_templates), nb_skipped_no_template)
+
+        full_log = msg
+        if log_lines:
+            full_log += "\n" + "\n".join(log_lines[:50])
+            if len(log_lines) > 50:
+                full_log += _("\n... (%d lignes supplementaires omises)") % (len(log_lines) - 50)
+
+        self.image_extraction_log = (self.image_extraction_log or '') + "\n\n" + full_log
+        _logger.info(msg)
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Push termine"),
                 'message': msg,
                 'type': 'success',
                 'sticky': False,
