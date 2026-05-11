@@ -124,6 +124,46 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             rec.image_unmatched_count = len(imgs.filtered(lambda i: not i.product_id))
 
     # =========================================================================
+    # HELPERS
+    # =========================================================================
+
+    def _open_source_pdf(self):
+        """Ouvre le PDF source via PyMuPDF, en preferant la lecture directe
+        depuis le filestore (mmap, faible RAM) au lieu du base64 en memoire.
+
+        Crucial pour les gros PDFs (>100 MB) qui sinon explosent la RAM.
+
+        Retourne un objet fitz.Document ouvert. A fermer apres usage.
+        """
+        import fitz
+        import os
+
+        # Chercher l'attachment du source_pdf
+        att = self.env['ir.attachment'].search([
+            ('res_model', '=', 'pool.catalog.pdf.import'),
+            ('res_field', '=', 'source_pdf'),
+            ('res_id', '=', self.id),
+        ], limit=1)
+
+        # Si on a un fichier sur le filestore, ouverture directe (mmap)
+        if att and att.type == 'binary' and att.store_fname:
+            filestore = self.env['ir.attachment']._filestore()
+            pdf_path = os.path.join(filestore, att.store_fname)
+            if os.path.exists(pdf_path):
+                _logger.info(
+                    "Ouverture PDF en mode fichier (filestore) : %s (%.1f MB)",
+                    pdf_path, att.file_size / 1024 / 1024,
+                )
+                return fitz.open(pdf_path)
+
+        # Fallback : base64 en memoire (pour les petits PDFs en db_datas)
+        if not self.source_pdf:
+            raise UserError(_("Aucun PDF source disponible."))
+        _logger.info("Ouverture PDF en mode stream (base64 en RAM)")
+        pdf_data = base64.b64decode(self.source_pdf)
+        return fitz.open(stream=pdf_data, filetype="pdf")
+  
+    # =========================================================================
     # ACTIONS UI
     # =========================================================================
 
@@ -232,8 +272,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         except ImportError:
             raise UserError(_("PyMuPDF (fitz) n'est pas installe sur le serveur."))
 
-        pdf_data = base64.b64decode(self.source_pdf)
-        doc = fitz.open(stream=pdf_data, filetype="pdf")
+        doc = self._open_source_pdf()
 
         total_pages = len(doc)
         log_lines = [_("Traitement de %d pages...") % total_pages]
