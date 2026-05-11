@@ -348,7 +348,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
                 self.env.cr.commit()
 
         doc.close()
-        del doc, pdf_data
+        del doc
         gc.collect()
 
         log_lines.append(_("-> %d images creees au total cette session") % total_created)
