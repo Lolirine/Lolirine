@@ -48,12 +48,12 @@ _logger = logging.getLogger(__name__)
 REF_PATTERN = re.compile(r'\b([A-Z]{2,4}-\d{3,4}-\d{3,4}|[A-Z]{1,4}\d{3,8}[A-Z]{0,3}|\d{4,8})\b')
 
 # Tailles minimales pour exclure icones/logos/pictos
-MIN_IMAGE_WIDTH_PT = 40
-MIN_IMAGE_HEIGHT_PT = 40
-MIN_IMAGE_AREA_PT = 3000
+MIN_IMAGE_WIDTH_PT = 80
+MIN_IMAGE_HEIGHT_PT = 80
+MIN_IMAGE_AREA_PT = 8000
 
 # DPI de rendu (200 = bon compromis qualite web / consommation memoire)
-RENDER_DPI = 200
+RENDER_DPI = 300
 
 
 class PoolCatalogPdfImportImageExtract(models.Model):
