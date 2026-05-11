@@ -624,8 +624,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         _logger.info("Rematch %s : %d images, %d produits indexes",
                      self.name, len(self.image_ids), len(product_by_ref))
 
-        pdf_data = base64.b64decode(self.source_pdf)
-        doc = fitz.open(stream=pdf_data, filetype="pdf")
+        doc = self._open_source_pdf()
         total_pages = len(doc)
 
         # Pre-collecter les refs par page (texte complet)
