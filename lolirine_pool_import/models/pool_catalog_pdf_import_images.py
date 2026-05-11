@@ -544,6 +544,119 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         confidence = max(0.0, min(1.0, 1.0 - (best_distance / 300.0)))
         return best_match['product'], best_match['ref'], confidence
 
+    def action_rematch_images(self):
+        """Re-tente le matching produit pour toutes les images existantes,
+        sans re-extraire. Utile quand le matching initial a echoue a cause
+        d'un decalage de pages entre produits et images.
+
+        Strategie : pour chaque image, lire le texte du PDF autour de sa
+        position, detecter les refs, et matcher contre TOUS les produits
+        de l'import (pas seulement ceux de la meme page).
+        """
+        self.ensure_one()
+
+        if not self.source_pdf:
+            raise UserError(_("Aucun PDF attache."))
+        if not self.image_ids:
+            raise UserError(_("Aucune image a rematcher."))
+
+        try:
+            import fitz
+        except ImportError:
+            raise UserError(_("PyMuPDF non installe."))
+
+        # Index global : toutes les refs produits de l'import
+        product_by_ref = {}
+        for p in self.product_ids:
+            if p.ref:
+                product_by_ref[p.ref.strip().upper()] = p
+        if not product_by_ref:
+            raise UserError(_("Aucun produit avec reference dans cet import."))
+
+        _logger.info("Rematch %s : %d images, %d produits indexes",
+                     self.name, len(self.image_ids), len(product_by_ref))
+
+        pdf_data = base64.b64decode(self.source_pdf)
+        doc = fitz.open(stream=pdf_data, filetype="pdf")
+        total_pages = len(doc)
+
+        # Pre-collecter les refs par page (texte complet)
+        refs_by_page = {}
+        for page_idx in range(total_pages):
+            page = doc[page_idx]
+            page_num = page_idx + 1
+            text_refs = self._collect_text_references(page)
+            refs_by_page[page_num] = text_refs
+
+        # Rematcher chaque image
+        updated = 0
+        cleared = 0
+        for img in self.image_ids:
+            page_refs = refs_by_page.get(img.page_number, [])
+            img_center = (img.bbox_x + img.bbox_width / 2,
+                          img.bbox_y + img.bbox_height / 2)
+
+            # Chercher la ref la plus proche qui existe dans le catalogue
+            best = None
+            best_dist = float('inf')
+            import math
+            for tr in page_refs:
+                ref_upper = tr['ref'].upper()
+                if ref_upper not in product_by_ref:
+                    continue
+                d = math.sqrt(
+                    (tr['center'][0] - img_center[0]) ** 2 +
+                    (tr['center'][1] - img_center[1]) ** 2
+                )
+                if d < best_dist:
+                    best_dist = d
+                    best = {
+                        'product': product_by_ref[ref_upper],
+                        'ref': tr['ref'],
+                        'distance': d,
+                    }
+
+            if best:
+                confidence = max(0.0, min(1.0, 1.0 - (best['distance'] / 300.0)))
+                if (img.product_id.id != best['product'].id
+                        or img.matched_reference != best['ref']):
+                    img.write({
+                        'product_id': best['product'].id,
+                        'matched_reference': best['ref'],
+                        'confidence_score': confidence,
+                    })
+                    updated += 1
+            else:
+                # Aucune ref valide trouvee : on nettoie l'ancien match s'il y en avait
+                if img.product_id:
+                    img.write({
+                        'product_id': False,
+                        'matched_reference': False,
+                        'confidence_score': 0.0,
+                        'role': 'unassigned',
+                    })
+                    cleared += 1
+
+        doc.close()
+
+        # Reassigner les roles
+        self._assign_image_roles()
+
+        msg = _("Rematch termine : %d images mises a jour, %d nettoyees.") % (updated, cleared)
+        self.image_extraction_log = (self.image_extraction_log or '') + "\n" + msg
+        _logger.info(msg)
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Rematch termine"),
+                'message': msg,
+                'type': 'success',
+                'sticky': False,
+            },
+        }
+
     # =========================================================================
     # CORE : ASSIGNATION DES ROLES
     # =========================================================================
