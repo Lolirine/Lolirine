@@ -122,12 +122,18 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             raise UserError(_("Une extraction est deja en cours."))
 
         # Effacer les anciennes images si on relance
-        if self.image_ids:
+        # Mode reprise : si des images existent deja et qu'on n'a pas force le reset,
+        # on reprend la ou on s'est arrete (skip des pages deja traitees).
+        # Pour forcer un reset complet, passer en context : with_context(force_reset=True)
+        force_reset = self.env.context.get('force_reset', False)
+        if force_reset and self.image_ids:
+            _logger.info("Reset force : suppression de %d images", len(self.image_ids))
             self.image_ids.unlink()
 
         self.write({
             'image_extraction_state': 'in_progress',
-            'image_extraction_log': _("Demarrage extraction images..."),
+            'image_extraction_log': (self.image_extraction_log or '') +
+                _("\n[Reprise] Demarrage / reprise extraction..."),
         })
         self.env.cr.commit()
 
