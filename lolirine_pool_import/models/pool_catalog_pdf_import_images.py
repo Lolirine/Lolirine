@@ -13,12 +13,10 @@ Noms de champs adaptes au schema existant :
   - import_id (M2O retour depuis le produit)
 
 Strategie de capture pure :
-  - Rendu clippe a 300 DPI via page.get_pixmap(matrix, clip=rect, alpha=False)
+  - Rendu clippe a 200 DPI via page.get_pixmap(matrix, clip=rect, alpha=False)
   - Restitue exactement ce que l'oeil voit dans le PDF (pas d'aspect "scanner")
   - Evite les surprises CMJN -> RGB et masques alpha sombres
   - Aucun debordement possible (clip strictement borne au bbox de l'image)
-  - Resolution constante (~4x les dimensions du bbox affiche) quel que soit
-    l'encodage source SCP/Fluidra
 Puis trim PIL sur bords uniformes (blanc/transparent) pour finir le detourage.
 
 Matching au produit par proximite textuelle :
@@ -27,9 +25,15 @@ Matching au produit par proximite textuelle :
   - Regex sur pattern de reference
   - Score de confiance base sur la distance euclidienne
   - Match uniquement contre les pool.catalog.pdf.product de la meme page
+
+Robustesse :
+  - Commit page par page (resiste aux timeouts workers HTTP/cron)
+  - Mode reprise : si interrompu, skip les pages deja extraites au relance
+  - Pour forcer un reset complet : .with_context(force_reset=True).action_extract_images()
 """
 
 import base64
+import gc
 import io
 import logging
 import math
@@ -47,6 +51,9 @@ REF_PATTERN = re.compile(r'\b([A-Z]{2,4}-\d{3,4}-\d{3,4}|[A-Z]{1,4}\d{3,8}[A-Z]{
 MIN_IMAGE_WIDTH_PT = 40
 MIN_IMAGE_HEIGHT_PT = 40
 MIN_IMAGE_AREA_PT = 3000
+
+# DPI de rendu (200 = bon compromis qualite web / consommation memoire)
+RENDER_DPI = 200
 
 
 class PoolCatalogPdfImportImageExtract(models.Model):
@@ -112,7 +119,17 @@ class PoolCatalogPdfImportImageExtract(models.Model):
     # =========================================================================
 
     def action_extract_images(self):
-        """Lance l'extraction d'images depuis le PDF pour cet import."""
+        """Lance l'extraction d'images depuis le PDF pour cet import.
+
+        Comportement par defaut : MODE REPRISE
+          - Conserve les images deja extraites
+          - Skip les pages deja traitees
+          - Reprend la ou ca s'etait arrete
+
+        Pour forcer un reset complet (effacer toutes les images existantes
+        et tout reextraire depuis zero) :
+          imp.with_context(force_reset=True).action_extract_images()
+        """
         self.ensure_one()
 
         if not self.source_pdf:
@@ -121,10 +138,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         if self.image_extraction_state == 'in_progress':
             raise UserError(_("Une extraction est deja en cours."))
 
-        # Effacer les anciennes images si on relance
-        # Mode reprise : si des images existent deja et qu'on n'a pas force le reset,
-        # on reprend la ou on s'est arrete (skip des pages deja traitees).
-        # Pour forcer un reset complet, passer en context : with_context(force_reset=True)
+        # Mode reset force : on efface tout avant de relancer
         force_reset = self.env.context.get('force_reset', False)
         if force_reset and self.image_ids:
             _logger.info("Reset force : suppression de %d images", len(self.image_ids))
@@ -133,7 +147,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         self.write({
             'image_extraction_state': 'in_progress',
             'image_extraction_log': (self.image_extraction_log or '') +
-                _("\n[Reprise] Demarrage / reprise extraction..."),
+                _("\n[Run] Demarrage / reprise extraction..."),
         })
         self.env.cr.commit()
 
@@ -198,11 +212,11 @@ class PoolCatalogPdfImportImageExtract(models.Model):
     # =========================================================================
 
     def _extract_all_images_from_pdf(self):
-        """Extrait toutes les images du PDF en mode capture pure 300 DPI.
+        """Extrait toutes les images du PDF en mode capture pure.
 
-        Commit page par page pour resister aux timeouts workers HTTP/cron.
-        En cas d'interruption, les images deja extraites sont preservees et
-        l'etat reste 'in_progress' jusqu'a la fin reelle.
+        - Commit page par page (resiste aux timeouts)
+        - Liberation memoire active (gc + invalidate_all)
+        - Mode reprise automatique : skip les pages deja traitees
         """
         try:
             import fitz  # PyMuPDF
@@ -225,6 +239,20 @@ class PoolCatalogPdfImportImageExtract(models.Model):
 
         Image = self.env['pool.catalog.pdf.image']
         total_created = 0
+
+        # Mode reprise : recuperer la liste des pages deja traitees
+        already_done_pages = set(
+            Image.search([
+                ('pdf_import_id', '=', self.id),
+            ]).mapped('page_number')
+        )
+        if already_done_pages:
+            log_lines.append(
+                _("Reprise : %d pages deja traitees seront sautees.")
+                % len(already_done_pages)
+            )
+            self.image_extraction_log = "\n".join(log_lines)
+            self.env.cr.commit()
 
         for page_num in range(total_pages):
             page_vals = []
@@ -255,22 +283,30 @@ class PoolCatalogPdfImportImageExtract(models.Model):
             if page_vals:
                 Image.create(page_vals)
                 total_created += len(page_vals)
+                page_vals.clear()
+
+            # Liberation memoire active apres chaque page
+            self.env.cr.commit()
+            self.env.invalidate_all()
+            gc.collect()
 
             # Log d'avancement toutes les 5 pages
             if page_idx % 5 == 0 or page_idx == total_pages:
                 log_lines.append(
-                    _("  Page %d/%d -> %d images cumulees")
+                    _("  Page %d/%d -> %d images cumulees (cette session)")
                     % (page_idx, total_pages, total_created)
                 )
                 self.image_extraction_log = "\n".join(log_lines)
                 self.env.cr.commit()
 
         doc.close()
+        del doc, pdf_data
+        gc.collect()
 
-        log_lines.append(_("-> %d images creees au total") % total_created)
+        log_lines.append(_("-> %d images creees au total cette session") % total_created)
         self.image_extraction_log = "\n".join(log_lines)
         self.env.cr.commit()
-       
+
     def _collect_text_references(self, page):
         """Retourne [{'ref', 'bbox', 'center'}, ...] pour tous les refs trouves sur la page."""
         refs = []
@@ -300,14 +336,13 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         return refs
 
     def _extract_single_image(self, doc, page, page_num, img_info, text_refs, page_products):
-        """Extrait une image en mode capture pure (rendu clippe 300 DPI).
+        """Extrait une image en mode capture pure (rendu clippe RENDER_DPI).
 
         Avantages vs extraction native :
         - Couleurs fideles a l'affichage ecran (pas d'aspect "scanner medical")
         - Pas de drame CMJN -> RGB ni masque alpha sombre
         - Bords stricts au bbox affiche (clip=rect) -> aucun debordement
-        - Resolution constante (~4x les dimensions du bbox) quel que soit
-          l'encodage source SCP/Fluidra
+        - Resolution constante quel que soit l'encodage source SCP/Fluidra
         """
         try:
             import fitz
@@ -335,12 +370,14 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         if display_w * display_h < MIN_IMAGE_AREA_PT:
             return None
 
-        # 2. Capture pure : rendu clippe a 300 DPI
+        # 2. Capture pure : rendu clippe a RENDER_DPI
         try:
-            mat = fitz.Matrix(200 / 72, 200 / 72)
+            scale = RENDER_DPI / 72
+            mat = fitz.Matrix(scale, scale)
             pix = page.get_pixmap(matrix=mat, clip=rect, alpha=False)
             image_bytes = pix.tobytes('png')
             final_w, final_h = pix.width, pix.height
+            del pix
         except Exception as e:
             _logger.warning(
                 "Capture clippee echouee page=%d xref=%s : %s",
