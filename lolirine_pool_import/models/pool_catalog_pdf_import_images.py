@@ -337,7 +337,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
 
         # 2. Capture pure : rendu clippe a 300 DPI
         try:
-            mat = fitz.Matrix(300 / 72, 300 / 72)
+            mat = fitz.Matrix(200 / 72, 200 / 72)
             pix = page.get_pixmap(matrix=mat, clip=rect, alpha=False)
             image_bytes = pix.tobytes('png')
             final_w, final_h = pix.width, pix.height
