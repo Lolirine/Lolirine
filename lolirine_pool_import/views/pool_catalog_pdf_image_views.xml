@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <!-- ======================================================== -->
     <!-- LIST VIEW : pool.catalog.pdf.image                         -->
     <!-- ======================================================== -->
@@ -15,6 +14,7 @@
                 <field name="page_number"/>
                 <field name="matched_reference"/>
                 <field name="product_id" optional="show"/>
+                <field name="final_product_id" optional="show"/>
                 <field name="role" widget="badge"
                        decoration-success="role == 'primary'"
                        decoration-info="role in ('secondary_proposed', 'secondary_validated')"
@@ -27,7 +27,8 @@
                 <field name="width_px" optional="hide"/>
                 <field name="height_px" optional="hide"/>
                 <field name="file_size_kb" optional="hide"/>
-                <field name="pushed_to_product" widget="boolean_toggle" optional="hide"/>
+                <field name="pushed_to_product" widget="boolean_toggle" optional="show"/>
+                <field name="website_url" widget="url" optional="hide"/>
                 <field name="note" optional="hide"/>
                 <button name="action_set_primary"
                         type="object"
@@ -41,10 +42,19 @@
                         type="object"
                         string="Rejeter"
                         invisible="role == 'rejected'"/>
+                <button name="action_open_product_template"
+                        type="object"
+                        string="Produit Odoo"
+                        icon="fa-cube"
+                        invisible="not final_product_id"/>
+                <button name="action_open_product_website"
+                        type="object"
+                        string="Site"
+                        icon="fa-external-link"
+                        invisible="not website_url"/>
             </list>
         </field>
     </record>
-
     <!-- ======================================================== -->
     <!-- FORM VIEW : pool.catalog.pdf.image                         -->
     <!-- ======================================================== -->
@@ -54,15 +64,25 @@
         <field name="arch" type="xml">
             <form string="Image extraite">
                 <header>
+                    <button name="action_open_product_template"
+                            type="object"
+                            string="Ouvrir le produit Odoo"
+                            class="btn-primary"
+                            icon="fa-cube"
+                            invisible="not final_product_id"/>
+                    <button name="action_open_product_website"
+                            type="object"
+                            string="Voir sur le site"
+                            class="btn-secondary"
+                            icon="fa-external-link"
+                            invisible="not website_url"/>
                     <button name="action_set_primary"
                             type="object"
                             string="Marquer principale"
-                            class="btn-primary"
                             invisible="role == 'primary' or not product_id"/>
                     <button name="action_validate_secondary"
                             type="object"
                             string="Valider comme secondaire"
-                            class="btn-success"
                             invisible="role not in ('secondary_proposed', 'unassigned') or not product_id"/>
                     <button name="action_reject"
                             type="object"
@@ -86,6 +106,9 @@
                             <field name="page_number" readonly="1"/>
                             <field name="product_id" options="{'no_create': True}"/>
                             <field name="matched_reference"/>
+                            <field name="final_product_id" readonly="1"/>
+                            <field name="website_url" widget="url" readonly="1"
+                                   invisible="not website_url"/>
                             <field name="validated" widget="boolean_toggle"/>
                         </group>
                         <group string="Qualite et Confiance">
@@ -116,7 +139,6 @@
             </form>
         </field>
     </record>
-
     <!-- ======================================================== -->
     <!-- ACTION                                                    -->
     <!-- ======================================================== -->
@@ -125,5 +147,4 @@
         <field name="res_model">pool.catalog.pdf.image</field>
         <field name="view_mode">list,form</field>
     </record>
-
 </odoo>
