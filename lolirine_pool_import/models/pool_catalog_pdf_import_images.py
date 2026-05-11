@@ -228,9 +228,14 @@ class PoolCatalogPdfImportImageExtract(models.Model):
 
         for page_num in range(total_pages):
             page_vals = []
+            page_idx = page_num + 1
+
+            # Skip si page deja traitee (mode reprise)
+            if page_idx in already_done_pages:
+                continue
+
             try:
                 page = doc[page_num]
-                page_idx = page_num + 1
 
                 text_refs = self._collect_text_references(page)
                 page_products = products_by_page.get(page_idx, [])
