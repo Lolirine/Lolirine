@@ -215,7 +215,7 @@ class PoolCatalogPdfImage(models.Model):
         base = (pool_store_website.domain or '').rstrip('/')
         # Fallback si le champ domain est vide en base
         if not base:
-            base = "https://www.lolirinepoolstore.be"
+            base = "https://lolirine-pool.be"
 
         for rec in self:
             template = rec.product_id.product_id if rec.product_id else False
