@@ -259,14 +259,7 @@ class PoolCatalogPdfImportImageExtract(models.Model):
         log_lines.append(_("-> %d images creees au total") % total_created)
         self.image_extraction_log = "\n".join(log_lines)
         self.env.cr.commit()
-
-        # Creation en batch
-        if created_vals_list:
-            self.env['pool.catalog.pdf.image'].create(created_vals_list)
-
-        log_lines.append(_("-> %d images creees") % len(created_vals_list))
-        self.image_extraction_log = "\n".join(log_lines)
-
+       
     def _collect_text_references(self, page):
         """Retourne [{'ref', 'bbox', 'center'}, ...] pour tous les refs trouves sur la page."""
         refs = []
