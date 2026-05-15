@@ -1,6 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_pool_image_search_source_user,pool.image.search.source.user,model_pool_image_search_source,base.group_user,1,1,1,0
-access_pool_image_search_source_manager,pool.image.search.source.manager,model_pool_image_search_source,base.group_system,1,1,1,1
-access_pool_image_search_session_user,pool.image.search.session.user,model_pool_image_search_session,base.group_user,1,1,1,1
-access_pool_image_search_candidate_user,pool.image.search.candidate.user,model_pool_image_search_candidate,base.group_user,1,1,1,1
-access_pool_image_search_launch_wizard_user,pool.image.search.launch.wizard.user,model_pool_image_search_launch_wizard,base.group_user,1,1,1,1
