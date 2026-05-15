@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST -->
+    <record id="view_pool_image_search_session_list" model="ir.ui.view">
+        <field name="name">pool.image.search.session.list</field>
+        <field name="model">pool.image.search.session</field>
+        <field name="arch" type="xml">
+            <list string="Sessions de recherche" decoration-info="state == 'running'"
+                  decoration-success="state == 'done'"
+                  decoration-muted="state == 'cancelled'"
+                  decoration-danger="state == 'failed'">
+                <field name="name"/>
+                <field name="create_date"/>
+                <field name="product_count"/>
+                <field name="candidate_count"/>
+                <field name="auto_validated_count"/>
+                <field name="pending_count"/>
+                <field name="progress_percent" widget="progressbar"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'queued'"
+                       decoration-warning="state == 'running'"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'failed'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM -->
+    <record id="view_pool_image_search_session_form" model="ir.ui.view">
+        <field name="name">pool.image.search.session.form</field>
+        <field name="model">pool.image.search.session</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_queue" type="object"
+                            string="Mettre en file" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_run_now" type="object"
+                            string="▶ Lancer maintenant" class="btn-secondary"
+                            invisible="state not in ('draft', 'queued')"/>
+                    <button name="action_cancel" type="object"
+                            string="Annuler"
+                            invisible="state not in ('queued', 'running')"/>
+                    <button name="action_apply_all_main" type="object"
+                            string="Appliquer toutes les images principales"
+                            class="btn-secondary"
+                            invisible="state != 'done'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,queued,running,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_candidates" type="object"
+                                class="oe_stat_button" icon="fa-image">
+                            <field name="candidate_count" string="Candidats" widget="statinfo"/>
+                        </button>
+                        <button name="action_view_products" type="object"
+                                class="oe_stat_button" icon="fa-cube">
+                            <field name="product_count" string="Produits" widget="statinfo"/>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="display_name" readonly="1"/></h1>
+                    </div>
+
+                    <group>
+                        <group string="Progression">
+                            <field name="progress_percent" widget="progressbar"
+                                   options="{'current_value': 'progress_done', 'max_value': 'progress_total'}"/>
+                            <field name="progress_done"/>
+                            <field name="progress_total"/>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="duration_seconds"/>
+                        </group>
+                        <group string="Statistiques">
+                            <field name="auto_validated_count"/>
+                            <field name="pending_count"/>
+                            <field name="rejected_count"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Configuration">
+                            <group>
+                                <group>
+                                    <field name="max_candidates_per_product"/>
+                                    <field name="auto_validate_threshold"/>
+                                    <field name="max_image_size"/>
+                                </group>
+                                <group>
+                                    <field name="enable_bg_removal"/>
+                                    <field name="enable_webp"/>
+                                    <field name="enable_phash_dedup"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Produits ciblés">
+                            <field name="product_ids">
+                                <list>
+                                    <field name="default_code"/>
+                                    <field name="name"/>
+                                    <field name="image_candidate_count"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes &amp; Erreurs">
+                            <field name="notes" placeholder="Notes..."/>
+                            <field name="error_log" readonly="1"
+                                   placeholder="Pas d'erreur"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- SEARCH -->
+    <record id="view_pool_image_search_session_search" model="ir.ui.view">
+        <field name="name">pool.image.search.session.search</field>
+        <field name="model">pool.image.search.session</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <separator/>
+                <filter name="draft" string="Brouillon" domain="[('state', '=', 'draft')]"/>
+                <filter name="queued" string="En file" domain="[('state', '=', 'queued')]"/>
+                <filter name="running" string="En cours" domain="[('state', '=', 'running')]"/>
+                <filter name="done" string="Terminées" domain="[('state', '=', 'done')]"/>
+                <filter name="failed" string="Échecs" domain="[('state', '=', 'failed')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_pool_image_search_session" model="ir.actions.act_window">
+        <field name="name">Sessions de recherche</field>
+        <field name="res_model">pool.image.search.session</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- KANBAN -->
+    <record id="view_pool_image_search_candidate_kanban" model="ir.ui.view">
+        <field name="name">pool.image.search.candidate.kanban</field>
+        <field name="model">pool.image.search.candidate</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="product_id"
+                    class="o_kanban_dashboard o_pool_image_candidate_kanban"
+                    records_draggable="false"
+                    js_class="pool_image_candidate_kanban">
+                <field name="id"/>
+                <field name="product_id"/>
+                <field name="image_thumb"/>
+                <field name="state"/>
+                <field name="score"/>
+                <field name="quality_label"/>
+                <field name="color_class"/>
+                <field name="rank"/>
+                <field name="source_name"/>
+                <field name="source_url"/>
+                <field name="width"/>
+                <field name="height"/>
+                <field name="auto_validated"/>
+                <field name="applied"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="oe_kanban_card o_pool_candidate_card oe_kanban_global_click state-#{record.state.raw_value}">
+                            <div class="o_pool_candidate_image">
+                                <img t-att-src="kanban_image('pool.image.search.candidate', 'image_thumb', record.id.raw_value)"
+                                     t-att-alt="record.product_id.value"
+                                     class="img-fluid"/>
+                                <div class="o_pool_candidate_score_badge"
+                                     t-attf-class="o_pool_candidate_score_badge bg-#{record.color_class.raw_value}">
+                                    <span t-esc="Math.round(record.score.raw_value)"/>%
+                                </div>
+                                <div t-if="record.auto_validated.raw_value" class="o_pool_auto_badge">
+                                    ⚡ Auto
+                                </div>
+                                <div t-if="record.state.raw_value === 'main'" class="o_pool_state_badge bg-success">
+                                    ⭐ Principale
+                                </div>
+                                <div t-if="record.state.raw_value === 'gallery'" class="o_pool_state_badge bg-info">
+                                    🖼️ Galerie
+                                </div>
+                                <div t-if="record.state.raw_value === 'rejected'" class="o_pool_state_badge bg-danger">
+                                    ✗ Rejeté
+                                </div>
+                            </div>
+                            <div class="o_pool_candidate_meta">
+                                <div class="o_pool_candidate_title">
+                                    <strong>#<field name="rank"/></strong>
+                                    <span class="text-muted ms-2">
+                                        <field name="width"/>×<field name="height"/>
+                                    </span>
+                                </div>
+                                <div class="text-muted small">
+                                    <field name="source_name"/>
+                                </div>
+                            </div>
+                            <div class="o_pool_candidate_actions">
+                                <button name="action_set_main" type="object"
+                                        class="btn btn-sm btn-success"
+                                        title="Définir comme image principale">
+                                    ⭐
+                                </button>
+                                <button name="action_set_gallery" type="object"
+                                        class="btn btn-sm btn-info"
+                                        title="Ajouter à la galerie">
+                                    +
+                                </button>
+                                <button name="action_remove_bg_again" type="object"
+                                        class="btn btn-sm btn-secondary"
+                                        title="Détourer à nouveau">
+                                    🪄
+                                </button>
+                                <button name="action_reject" type="object"
+                                        class="btn btn-sm btn-outline-danger"
+                                        title="Rejeter">
+                                    ✗
+                                </button>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- LIST -->
+    <record id="view_pool_image_search_candidate_list" model="ir.ui.view">
+        <field name="name">pool.image.search.candidate.list</field>
+        <field name="model">pool.image.search.candidate</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'main'"
+                  decoration-info="state == 'gallery'"
+                  decoration-muted="state == 'rejected'">
+                <field name="product_id"/>
+                <field name="rank"/>
+                <field name="image_thumb" widget="image" options="{'size': [60, 60]}"/>
+                <field name="score" widget="progressbar"/>
+                <field name="quality_label"/>
+                <field name="source_name"/>
+                <field name="width"/>
+                <field name="height"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'main'"
+                       decoration-info="state == 'gallery'"
+                       decoration-warning="state == 'pending'"
+                       decoration-danger="state == 'rejected'"/>
+                <field name="auto_validated" widget="boolean_toggle"/>
+                <field name="applied" widget="boolean_toggle" readonly="1"/>
+                <button name="action_set_main" type="object"
+                        string="⭐" icon="fa-star" title="Principal"/>
+                <button name="action_set_gallery" type="object"
+                        string="+" icon="fa-plus" title="Galerie"/>
+                <button name="action_reject" type="object"
+                        string="✗" icon="fa-times" title="Rejeter"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM -->
+    <record id="view_pool_image_search_candidate_form" model="ir.ui.view">
+        <field name="name">pool.image.search.candidate.form</field>
+        <field name="model">pool.image.search.candidate</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_set_main" type="object"
+                            string="⭐ Définir comme principale" class="btn-success"
+                            invisible="state == 'main'"/>
+                    <button name="action_set_gallery" type="object"
+                            string="+ Ajouter à la galerie" class="btn-info"
+                            invisible="state == 'gallery'"/>
+                    <button name="action_remove_bg_again" type="object"
+                            string="🪄 Re-détourer" class="btn-secondary"/>
+                    <button name="action_reject" type="object"
+                            string="✗ Rejeter" class="btn-outline-danger"
+                            invisible="state == 'rejected'"/>
+                    <button name="action_reset_pending" type="object"
+                            string="↻ Réinitialiser"
+                            invisible="state == 'pending'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="pending,main,gallery"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Produit">
+                            <field name="product_id"/>
+                            <field name="session_id"/>
+                            <field name="rank"/>
+                            <field name="score" widget="progressbar"/>
+                            <field name="quality_label"/>
+                        </group>
+                        <group string="Source">
+                            <field name="source_name"/>
+                            <field name="source_url" widget="url"/>
+                            <field name="image_url" widget="url"/>
+                            <field name="width"/>
+                            <field name="height"/>
+                            <field name="phash"/>
+                            <field name="auto_validated" readonly="1"/>
+                            <field name="applied" readonly="1"/>
+                            <field name="applied_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Image traitée">
+                            <field name="image_main" widget="image"
+                                   options="{'preview_image': 'image_main', 'size': [600, 600]}"/>
+                        </page>
+                        <page string="Image brute">
+                            <field name="image_raw" widget="image"
+                                   options="{'preview_image': 'image_raw', 'size': [600, 600]}"/>
+                        </page>
+                        <page string="Sans fond" invisible="not image_no_bg">
+                            <field name="image_no_bg" widget="image"
+                                   options="{'preview_image': 'image_no_bg', 'size': [600, 600]}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- SEARCH -->
+    <record id="view_pool_image_search_candidate_search" model="ir.ui.view">
+        <field name="name">pool.image.search.candidate.search</field>
+        <field name="model">pool.image.search.candidate</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_id"/>
+                <field name="session_id"/>
+                <field name="source_name"/>
+                <separator/>
+                <filter name="pending" string="À valider" domain="[('state', '=', 'pending')]"/>
+                <filter name="main" string="Principale" domain="[('state', '=', 'main')]"/>
+                <filter name="gallery" string="Galerie" domain="[('state', '=', 'gallery')]"/>
+                <filter name="rejected" string="Rejetés" domain="[('state', '=', 'rejected')]"/>
+                <separator/>
+                <filter name="high_score" string="Score élevé (≥70)" domain="[('score', '&gt;=', 70)]"/>
+                <filter name="auto_validated" string="Auto-validés" domain="[('auto_validated', '=', True)]"/>
+                <filter name="applied" string="Appliqués" domain="[('applied', '=', True)]"/>
+                <group expand="0" string="Grouper par">
+                    <filter name="group_by_product" string="Produit" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_by_session" string="Session" context="{'group_by': 'session_id'}"/>
+                    <filter name="group_by_state" string="Statut" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_pool_image_search_candidate" model="ir.actions.act_window">
+        <field name="name">Candidats images</field>
+        <field name="res_model">pool.image.search.candidate</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_pending': 1, 'search_default_group_by_product': 1}</field>
+    </record>
+
+</odoo>

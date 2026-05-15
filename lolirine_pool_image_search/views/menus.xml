@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_pool_image_search_root"
+              name="Recherche images"
+              parent="sale.sale_menu_root"
+              sequence="50"/>
+
+    <menuitem id="menu_pool_image_search_sessions"
+              name="Sessions de recherche"
+              parent="menu_pool_image_search_root"
+              action="action_pool_image_search_session"
+              sequence="10"/>
+
+    <menuitem id="menu_pool_image_search_candidates"
+              name="Candidats images"
+              parent="menu_pool_image_search_root"
+              action="action_pool_image_search_candidate"
+              sequence="20"/>
+
+    <menuitem id="menu_pool_image_search_sources"
+              name="Sources de scraping"
+              parent="menu_pool_image_search_root"
+              action="action_pool_image_search_source"
+              sequence="30"/>
+
+    <!-- Action sur les sources -->
+    <record id="action_pool_image_search_source" model="ir.actions.act_window">
+        <field name="name">Sources de scraping</field>
+        <field name="res_model">pool.image.search.source</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_pool_image_search_source_list" model="ir.ui.view">
+        <field name="name">pool.image.search.source.list</field>
+        <field name="model">pool.image.search.source</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="priority"/>
+                <field name="name"/>
+                <field name="domain"/>
+                <field name="strategy"/>
+                <field name="active"/>
+                <field name="daily_quota"/>
+                <field name="requests_today" readonly="1"/>
+                <field name="success_rate" widget="progressbar" readonly="1"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>
