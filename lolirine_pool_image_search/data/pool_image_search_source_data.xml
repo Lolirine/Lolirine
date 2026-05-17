@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Sources fournisseurs directes (priorité haute) -->
+        <record id="source_fluidra" model="pool.image.search.source">
+            <field name="name">Fluidra (direct)</field>
+            <field name="domain">fluidra.com</field>
+            <field name="strategy">direct_search</field>
+            <field name="priority">10</field>
+            <field name="daily_quota">500</field>
+            <field name="active">True</field>
+            <field name="notes">Scraping direct sur https://www.fluidra.com/search</field>
+        </record>
+
+        <record id="source_scp" model="pool.image.search.source">
+            <field name="name">SCP Europe (direct)</field>
+            <field name="domain">scpeurope.com</field>
+            <field name="strategy">direct_search</field>
+            <field name="priority">15</field>
+            <field name="daily_quota">500</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- Marques majeures via DDG site: -->
+        <record id="source_pentair" model="pool.image.search.source">
+            <field name="name">Pentair</field>
+            <field name="domain">pentair.com</field>
+            <field name="strategy">ddg_site</field>
+            <field name="priority">20</field>
+            <field name="daily_quota">300</field>
+        </record>
+
+        <record id="source_hayward" model="pool.image.search.source">
+            <field name="name">Hayward</field>
+            <field name="domain">hayward.com</field>
+            <field name="strategy">ddg_site</field>
+            <field name="priority">21</field>
+            <field name="daily_quota">300</field>
+        </record>
+
+        <record id="source_zodiac" model="pool.image.search.source">
+            <field name="name">Zodiac</field>
+            <field name="domain">zodiac-poolcare.com</field>
+            <field name="strategy">ddg_site</field>
+            <field name="priority">22</field>
+            <field name="daily_quota">300</field>
+        </record>
+
+        <record id="source_astralpool" model="pool.image.search.source">
+            <field name="name">AstralPool</field>
+            <field name="domain">astralpool.com</field>
+            <field name="strategy">ddg_site</field>
+            <field name="priority">23</field>
+            <field name="daily_quota">300</field>
+        </record>
+
+        <record id="source_bwt" model="pool.image.search.source">
+            <field name="name">BWT</field>
+            <field name="domain">bwt-pool.com</field>
+            <field name="strategy">ddg_site</field>
+            <field name="priority">24</field>
+            <field name="daily_quota">300</field>
+        </record>
+
+        <!-- Fallback DDG général -->
+        <record id="source_ddg_fallback" model="pool.image.search.source">
+            <field name="name">DuckDuckGo (fallback global)</field>
+            <field name="domain">duckduckgo</field>
+            <field name="strategy">ddg_site</field>
+            <field name="priority">99</field>
+            <field name="daily_quota">200</field>
+        </record>
+
+    </data>
+</odoo>
