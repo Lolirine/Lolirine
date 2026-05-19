@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Server action visible dans le menu "Actions" de la vue liste des
+        transactions bancaires. Permet de sélectionner une ou plusieurs
+        lignes et de lancer le wizard d'annulation d'attribution sur le lot.
+    -->
+    <record id="action_server_unmatch_bank_lines" model="ir.actions.server">
+        <field name="name">Annuler l'attribution</field>
+        <field name="model_id" ref="account.model_account_bank_statement_line"/>
+        <field name="binding_model_id" ref="account.model_account_bank_statement_line"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': "Annuler l'attribution bancaire",
+        'res_model': 'lolirine.bank.unmatch.wizard',
+        'view_mode': 'form',
+        'target': 'new',
+        'context': {
+            'default_bank_line_ids': [(6, 0, records.ids)],
+        },
+    }
+        </field>
+    </record>
+
+</odoo>
