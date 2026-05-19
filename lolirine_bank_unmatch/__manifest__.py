@@ -12,9 +12,8 @@ des écritures comptables actuelles.
 
 Utilisation :
 -------------
-Depuis n'importe quelle vue liste des transactions bancaires (par exemple
-Comptabilité > écritures comptables filtrées sur le journal bancaire),
-sélectionner une ou plusieurs lignes puis cliquer sur le menu
+Aller dans **Comptabilité > Annuler attribution bancaire**.
+Sélectionner une ou plusieurs transactions, puis cliquer sur le menu
 **Actions > Annuler l'attribution**.
 
 Le wizard de confirmation s'affiche avec :
@@ -37,6 +36,7 @@ Comportement technique :
     'data': [
         'security/ir.model.access.csv',
         'wizards/unmatch_wizard_views.xml',
+        'views/bank_statement_line_views.xml',
         'data/server_action.xml',
     ],
     'installable': True,
