@@ -20,52 +20,12 @@
         </field>
     </record>
 
-    <!-- Vue de recherche avec filtres pré-définis -->
-    <record id="view_account_bank_statement_line_search_lolirine" model="ir.ui.view">
-        <field name="name">account.bank.statement.line.search.lolirine</field>
-        <field name="model">account.bank.statement.line</field>
-        <field name="arch" type="xml">
-            <search string="Rechercher transactions bancaires">
-                <field name="payment_ref"/>
-                <field name="partner_id"/>
-                <field name="journal_id"/>
-                <field name="amount"/>
-                <filter name="filter_attributed"
-                        string="Avec partenaire"
-                        domain="[('partner_id','!=',False)]"/>
-                <filter name="filter_unattributed"
-                        string="Sans partenaire"
-                        domain="[('partner_id','=',False)]"/>
-                <separator/>
-                <filter name="filter_reconciled"
-                        string="Lettrées"
-                        domain="[('is_reconciled','=',True)]"/>
-                <filter name="filter_unreconciled"
-                        string="Non lettrées"
-                        domain="[('is_reconciled','=',False)]"/>
-                <group expand="0" string="Regrouper par">
-                    <filter name="group_journal"
-                            string="Journal"
-                            context="{'group_by': 'journal_id'}"/>
-                    <filter name="group_partner"
-                            string="Partenaire"
-                            context="{'group_by': 'partner_id'}"/>
-                    <filter name="group_date"
-                            string="Date"
-                            context="{'group_by': 'date'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-
     <!-- Action fenêtre -->
     <record id="action_bank_statement_lines_lolirine" model="ir.actions.act_window">
         <field name="name">Transactions bancaires (annulation attribution)</field>
         <field name="res_model">account.bank.statement.line</field>
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_account_bank_statement_line_list_lolirine"/>
-        <field name="search_view_id" ref="view_account_bank_statement_line_search_lolirine"/>
-        <field name="context">{'search_default_filter_attributed': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Aucune transaction bancaire à afficher.
