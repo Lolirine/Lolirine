@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_lolirine_bank_unmatch_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.bank.unmatch.wizard.form</field>
+        <field name="model">lolirine.bank.unmatch.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Annuler l'attribution bancaire">
+
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading mb-2">
+                        <i class="fa fa-exclamation-triangle me-1"/>
+                        Annulation d'attribution bancaire
+                    </h4>
+                    <p class="mb-1">
+                        Cette action va <strong>remettre la transaction en suspense</strong>
+                        et supprimer le partenaire associé.
+                    </p>
+                    <p class="mb-1">
+                        Les éventuels <strong>lettrages comptables seront défaits</strong>
+                        (facture marquée payée → redeviendra impayée).
+                    </p>
+                    <p class="mb-0">
+                        Vous pourrez ensuite la rapprocher correctement via le widget
+                        de rapprochement bancaire.
+                    </p>
+                </div>
+
+                <field name="line_count" invisible="1"/>
+                <field name="is_single" invisible="1"/>
+                <field name="single_line_id" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="single_currency_id" invisible="1"/>
+
+                <!-- Mode UNIQUE : aperçu détaillé -->
+                <group invisible="not is_single" string="Détails de la transaction">
+                    <group>
+                        <field name="single_date" readonly="1"/>
+                        <field name="single_amount" readonly="1" widget="monetary"
+                               options="{'currency_field': 'single_currency_id'}"/>
+                        <field name="single_journal_id" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="single_partner_id" readonly="1"/>
+                        <field name="single_is_reconciled" readonly="1"/>
+                        <field name="single_payment_ref" readonly="1"/>
+                    </group>
+                </group>
+
+                <group invisible="not is_single" string="Écritures comptables actuelles">
+                    <field name="current_lines_preview" nolabel="1" colspan="2"/>
+                </group>
+
+                <!-- Mode MULTIPLE : liste des transactions sélectionnées -->
+                <group invisible="is_single" string="Transactions sélectionnées">
+                    <field name="bank_line_ids" nolabel="1" readonly="1">
+                        <list create="false" edit="false" delete="false">
+                            <field name="date"/>
+                            <field name="journal_id"/>
+                            <field name="partner_id"/>
+                            <field name="payment_ref"/>
+                            <field name="amount" widget="monetary"/>
+                            <field name="is_reconciled" widget="boolean_toggle"/>
+                        </list>
+                    </field>
+                </group>
+
+                <footer>
+                    <button name="action_confirm_unmatch"
+                            type="object"
+                            string="Confirmer l'annulation"
+                            class="btn-warning"
+                            confirm="Êtes-vous sûr de vouloir annuler l'attribution de cette/ces transaction(s) bancaire(s) ? Les lettrages comptables seront défaits."/>
+                    <button special="cancel"
+                            string="Annuler"
+                            class="btn-secondary"/>
+                </footer>
+
+            </form>
+        </field>
+    </record>
+
+</odoo>
