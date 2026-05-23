@@ -17,6 +17,7 @@
         "views/res_partner_views.xml",
         "views/sale_order_views.xml",
         "views/portal_templates.xml",
+        "views/fix_next_invoice_required.xml",
     ],
     "installable": True,
     "application": True,
