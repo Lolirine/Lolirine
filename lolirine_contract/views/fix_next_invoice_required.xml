@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Corrige le blocage "Champs obligatoires manquants" survenant au clic
+        sur les boutons type="object" (Fin de contrat, Caution remboursée, ...)
+        pour les abonnements clôturés / en pause de facturation.
+
+        Cause : la vue native sale_subscription rend next_invoice_date
+        required="plan_id and state == 'sale'", alors que ce champ est vide et
+        masqué dès que subscription_state vaut 6_churn (Perte) ou 5_renewed.
+        Le save() forcé par les boutons ré-évalue ce required et bloque.
+
+        On aligne donc la condition required sur la visibilité réelle du champ :
+        exigé uniquement quand l'abonnement est actif (3_progress) ou en pause
+        (4_paused).
+    -->
+    <record id="view_subscription_fix_next_invoice_required" model="ir.ui.view">
+        <field name="name">sale.subscription.order.form.fix.next.invoice.required</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_subscription.sale_subscription_order_view_form"/>
+        <field name="arch" type="xml">
+            <field name="next_invoice_date" position="attributes">
+                <attribute name="required">subscription_state in ['3_progress', '4_paused'] and plan_id and state == 'sale'</attribute>
+            </field>
+        </field>
+    </record>
+
+</odoo>
