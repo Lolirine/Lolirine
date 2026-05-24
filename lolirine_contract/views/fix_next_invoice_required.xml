@@ -2,27 +2,34 @@
 <odoo>
 
     <!--
-        Corrige le blocage "Champs obligatoires manquants" survenant au clic
-        sur les boutons type="object" (Fin de contrat, Caution remboursée, ...)
-        pour les abonnements clôturés / en pause de facturation.
+        Déblocage du message natif "Champs obligatoires manquants" survenant au
+        clic sur les boutons type="object" (Fin de contrat, Caution remboursée)
+        d'un abonnement clôturé (subscription_state = 6_churn).
 
-        Cause : la vue native sale_subscription rend next_invoice_date
-        required="plan_id and state == 'sale'", alors que ce champ est vide et
-        masqué dès que subscription_state vaut 6_churn (Perte) ou 5_renewed.
-        Le save() forcé par les boutons ré-évalue ce required et bloque.
+        La vue native sale_subscription déclare DEUX champs next_invoice_date
+        (un par groupe : sales_team.group_sale_manager et son inverse), tous deux
+        avec required="plan_id and state == 'sale'". Sur un contrat perdu, ce
+        champ est vide -> le save() forcé par les boutons est refusé.
 
-        On aligne donc la condition required sur la visibilité réelle du champ :
-        exigé uniquement quand l'abonnement est actif (3_progress) ou en pause
-        (4_paused).
+        On neutralise le required des DEUX variantes pour qu'il ne s'applique
+        qu'aux abonnements reellement actifs ou en pause.
     -->
     <record id="view_subscription_fix_next_invoice_required" model="ir.ui.view">
         <field name="name">sale.subscription.order.form.fix.next.invoice.required</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale_subscription.sale_subscription_order_view_form"/>
         <field name="arch" type="xml">
-            <field name="next_invoice_date" position="attributes">
+
+            <!-- Variante manager -->
+            <xpath expr="//field[@name='next_invoice_date'][@groups='sales_team.group_sale_manager']" position="attributes">
                 <attribute name="required">subscription_state in ['3_progress', '4_paused'] and plan_id and state == 'sale'</attribute>
-            </field>
+            </xpath>
+
+            <!-- Variante non-manager -->
+            <xpath expr="//field[@name='next_invoice_date'][@groups='!sales_team.group_sale_manager']" position="attributes">
+                <attribute name="required">subscription_state in ['3_progress', '4_paused'] and plan_id and state == 'sale'</attribute>
+            </xpath>
+
         </field>
     </record>
 
