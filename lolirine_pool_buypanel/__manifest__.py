@@ -8,6 +8,7 @@
     'depends': ['website_sale', 'stock'],
     'data': [
         'views/product_page.xml',
+        'views/product_accessories.xml',
     ],
     'assets': {
         'web.assets_frontend': [
