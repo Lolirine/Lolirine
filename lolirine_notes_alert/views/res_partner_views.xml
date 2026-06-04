@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_notes_alert" model="ir.ui.view">
+        <field name="name">res.partner.form.notes.alert</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Bandeau d'alerte au tout debut du sheet -->
+            <xpath expr="//sheet" position="before">
+                <field name="has_important_note" invisible="1"/>
+                <div class="alert alert-warning mb-0 rounded-0"
+                     role="alert"
+                     invisible="not has_important_note"
+                     style="border-left: 5px solid #f0ad4e; font-size: 1.05em;">
+                    <i class="fa fa-exclamation-triangle me-2" title="Note importante"/>
+                    <strong>Attention :</strong> une note importante est enregistree sur ce client.
+                    Pensez a la consulter dans l'onglet
+                    <strong>Notes internes</strong> avant toute action sensible
+                    (cloture, facturation finale, modification de contrat).
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

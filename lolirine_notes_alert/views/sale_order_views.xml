@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_subscription_notes_alert" model="ir.ui.view">
+        <field name="name">sale.subscription.order.form.notes.alert</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_subscription.sale_subscription_order_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//sheet" position="before">
+                <field name="has_important_internal_note" invisible="1"/>
+                <div class="alert alert-warning mb-0 rounded-0"
+                     role="alert"
+                     invisible="not has_important_internal_note"
+                     style="border-left: 5px solid #f0ad4e; font-size: 1.05em;">
+                    <i class="fa fa-exclamation-triangle me-2" title="Note interne importante"/>
+                    <strong>Attention :</strong> une note interne est enregistree sur cet abonnement.
+                    Pensez a la consulter dans l'onglet
+                    <strong>Note interne</strong> avant toute action
+                    (cloture, prorogation, modification de loyer).
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
