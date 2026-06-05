@@ -9,6 +9,7 @@
     'data': [
         'views/product_page.xml',
         'views/product_accessories.xml',
+        'data/menu_chimie.xml',
     ],
     'assets': {
         'web.assets_frontend': [
