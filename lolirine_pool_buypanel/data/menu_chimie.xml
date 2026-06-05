@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <!-- Méga-menu Chimie de l'eau — catalogue SCP 2026 p.187-206
+         Adopté en base via ir.model.data (script scp_chimie_megamenu.py)
+         AVANT le déploiement de ce fichier. -->
+    <record id="menu_chimie" model="website.menu">
+      <field name="name">Chimie de l'eau</field>
+      <field name="parent_id" ref="menu_pool_root"/>
+      <field name="website_id" ref="website_pool_store"/>
+      <field name="sequence">35</field>
+      <field name="url">#</field>
+      <field name="is_mega_menu" eval="True"/>
+      <field name="mega_menu_classes">border-top-0</field>
+      <field name="mega_menu_content"><![CDATA[<section class="s_mega_menu_odoo_menu pt16 o_colored_level o_cc o_cc1">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-4 pt16 pb24">
+                <h4 class="h5 fw-bold mt-0">Désinfection</h4>
+                <div class="s_hr pt4 pb16">
+                    <hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/>
+                </div>
+                <nav class="nav flex-column">
+                    <a href="/shop/category/185" class="nav-link px-0" data-name="Menu Item">Chlore stabilisé</a>
+                    <a href="/shop/category/186" class="nav-link px-0" data-name="Menu Item">Chlore choc</a>
+                    <a href="/shop/category/284" class="nav-link px-0" data-name="Menu Item">Chlore non stabilisé</a>
+                    <a href="/shop/category/187" class="nav-link px-0" data-name="Menu Item">Brome</a>
+                    <a href="/shop/category/188" class="nav-link px-0" data-name="Menu Item">Oxygène actif</a>
+                    <a href="/shop/category/286" class="nav-link px-0" data-name="Menu Item">Distribution chimique</a>
+                </nav>
+            </div>
+            <div class="col-12 col-lg-4 pt16 pb24">
+                <h4 class="h5 fw-bold mt-0">Équilibre &amp; soin de l'eau</h4>
+                <div class="s_hr pt4 pb16">
+                    <hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/>
+                </div>
+                <nav class="nav flex-column">
+                    <a href="/shop/category/184" class="nav-link px-0" data-name="Menu Item">Équilibre de l'eau</a>
+                    <a href="/shop/category/189" class="nav-link px-0" data-name="Menu Item">Antialgues &amp; algicides</a>
+                    <a href="/shop/category/190" class="nav-link px-0" data-name="Menu Item">Floculants &amp; clarifiants</a>
+                    <a href="/shop/category/191" class="nav-link px-0" data-name="Menu Item">Détartrants &amp; séquestrants</a>
+                    <a href="/shop/category/193" class="nav-link px-0" data-name="Menu Item">Hivernage</a>
+                </nav>
+            </div>
+            <div class="col-12 col-lg-4 pt16 pb24">
+                <h4 class="h5 fw-bold mt-0">Compléments &amp; analyse</h4>
+                <div class="s_hr pt4 pb16">
+                    <hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/>
+                </div>
+                <nav class="nav flex-column">
+                    <a href="/shop/category/192" class="nav-link px-0" data-name="Menu Item">Produits complémentaires</a>
+                    <a href="/shop/category/285" class="nav-link px-0" data-name="Menu Item">Analyse de l'eau</a>
+                    <a href="/shop?search=Lo-Chlor" class="nav-link px-0" data-name="Menu Item">Lo-Chlor</a>
+                    <a href="/shop?search=AquaFinesse" class="nav-link px-0" data-name="Menu Item">AquaFinesse</a>
+                    <a href="/shop?search=Kikao" class="nav-link px-0" data-name="Menu Item">Kikao</a>
+                    <a href="/shop?search=Toucan" class="nav-link px-0" data-name="Menu Item">Toucan</a>
+                    <a href="/shop/category/183" class="nav-link px-0 fw-bold" data-name="Menu Item">→ Toute la chimie de l'eau</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>]]></field>
+    </record>
+  </data>
+</odoo>
