@@ -17,7 +17,7 @@
         'web.assets_frontend': [
             'lolirine_pool_buypanel/static/src/css/buypanel.css',
             'lolirine_pool_buypanel/static/src/js/buypanel.js',
-            'lolirine_pool_buypanel/static/src/scss/lolirine_glass.scss',
+            'lolirine_pool_buypanel/static/src/scss/lolirine_glass.css',
         ],
     },
     'installable': True,
