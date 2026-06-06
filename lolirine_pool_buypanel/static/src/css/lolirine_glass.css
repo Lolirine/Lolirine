@@ -56,3 +56,26 @@ html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar input.sear
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.6);
 }
+
+/* --- Sous-menus dépliés du menu latéral : voile clair sur la glace cyan --- */
+/* Pas de backdrop-filter ici : ils sont DANS la navbar déjà vitrée,
+   un blur imbriqué rend mal sous Safari. Le voile blanc suffit. */
+html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar .dropdown-menu,
+html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar ul.show,
+html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar .o_mega_menu {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 0.5rem;
+    box-shadow: none;
+}
+
+/* Liens des sous-menus : blanc pour la lisibilité sur le cyan */
+html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar .dropdown-menu .dropdown-item,
+html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar ul.show .nav-link {
+    color: #fff;
+}
+html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar .dropdown-menu .dropdown-item:hover,
+html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar .dropdown-menu .dropdown-item:focus,
+html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar ul.show .nav-link:hover {
+    background: rgba(255, 255, 255, 0.22);
+}
