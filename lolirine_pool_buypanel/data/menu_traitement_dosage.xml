@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Méga-menu "Traitement &amp; Dosage" — catalogue SCP 2026 p.207-245
+             xml_id adopté en base le 06/06/2026 (menu #232, website 6).
+             noupdate=1 : ce record n'écrase jamais la version en base ;
+             il ne sert qu'à recréer le menu sur une base vierge. -->
+        <record id="menu_traitement_dosage" model="website.menu">
+            <field name="name">Traitement &amp; Dosage</field>
+            <field name="parent_id" eval="164"/>
+            <field name="website_id" eval="6"/>
+            <field name="url">#</field>
+            <field name="sequence" eval="50"/>
+            <field name="is_mega_menu" eval="True"/>
+            <field name="mega_menu_classes">border-top-0</field>
+            <field name="mega_menu_content"><![CDATA[<section class="s_mega_menu_odoo_menu pt16 o_colored_level o_cc o_cc1">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-4 pt16 pb24">
+                <h4 class="h5 fw-bold mt-0">Production &amp; désinfection</h4>
+                <div class="s_hr pt4 pb16">
+                    <hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/>
+                </div>
+                <nav class="nav flex-column">
+                    <a href="/shop/category/178" class="nav-link px-0" data-name="Menu Item">Électrolyseurs au sel</a>
+                    <a href="/shop/category/181" class="nav-link px-0" data-name="Menu Item">Traitement UV &amp; AOP</a>
+                    <a href="/shop/category/180" class="nav-link px-0" data-name="Menu Item">Sel piscine</a>
+                    <a href="/shop/category/289" class="nav-link px-0" data-name="Menu Item">Cellules de remplacement</a>
+                </nav>
+            </div>
+            <div class="col-12 col-lg-4 pt16 pb24">
+                <h4 class="h5 fw-bold mt-0">Régulation &amp; dosage</h4>
+                <div class="s_hr pt4 pb16">
+                    <hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/>
+                </div>
+                <nav class="nav flex-column">
+                    <a href="/shop/category/179" class="nav-link px-0" data-name="Menu Item">Régulateurs pH &amp; Redox</a>
+                    <a href="/shop/category/182" class="nav-link px-0" data-name="Menu Item">Pompes doseuses &amp; distribution</a>
+                    <a href="/shop/category/288" class="nav-link px-0" data-name="Menu Item">Sondes &amp; accessoires de régulation</a>
+                </nav>
+            </div>
+            <div class="col-12 col-lg-4 pt16 pb24">
+                <h4 class="h5 fw-bold mt-0">Domotique &amp; marques</h4>
+                <div class="s_hr pt4 pb16">
+                    <hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/>
+                </div>
+                <nav class="nav flex-column">
+                    <a href="/shop/category/287" class="nav-link px-0" data-name="Menu Item">Gestion connectée &amp; domotique</a>
+                    <a href="/shop?search=PoolCop" class="nav-link px-0" data-name="Menu Item">PoolCop</a>
+                    <a href="/shop?search=Hayward" class="nav-link px-0" data-name="Menu Item">Hayward</a>
+                    <a href="/shop?search=Avady" class="nav-link px-0" data-name="Menu Item">Avady</a>
+                    <a href="/shop?search=Davey" class="nav-link px-0" data-name="Menu Item">Davey</a>
+                    <a href="/shop?search=Pentair" class="nav-link px-0" data-name="Menu Item">Pentair</a>
+                    <a href="/shop/category/177" class="nav-link px-0 fw-bold" data-name="Menu Item">→ Tout le traitement de l'eau</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>]]></field>
+        </record>
+    </data>
+</odoo>
