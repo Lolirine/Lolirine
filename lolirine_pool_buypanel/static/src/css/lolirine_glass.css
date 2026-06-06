@@ -149,11 +149,10 @@ html[data-website-id="6"] .o_carousel_product_card {
     overflow: hidden; /* garde les coins arrondis sur l'image produit */
 }
 
-/* Panneau filtres : variantes de conteneur selon layout */
-html[data-website-id="6"] #products_grid_before,
-html[data-website-id="6"] .o_wsale_products_grid_before,
-html[data-website-id="6"] #o_wsale_container aside,
-html[data-website-id="6"] .o_wsale_filmstrip_wrapper + aside {
+/* --- Panneau filtres boutique : carte glace bornée au contenu --- */
+/* La glace est posée sur le rail interne (pas l'aside sticky pleine
+   hauteur) : la carte s'arrête au dernier filtre. */
+html[data-website-id="6"] #products_grid_before .o_wsale_products_grid_before_rail {
     background: rgba(255, 255, 255, 0.62);
     -webkit-backdrop-filter: blur(16px) saturate(1.5);
     backdrop-filter: blur(16px) saturate(1.5);
@@ -161,4 +160,28 @@ html[data-website-id="6"] .o_wsale_filmstrip_wrapper + aside {
     border-radius: 0.75rem;
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
     padding: 1rem;
+    height: auto !important;       /* annule le vh-100 Bootstrap */
+    max-height: calc(100vh - 2rem); /* ne déborde jamais de l'écran */
+    overflow-y: auto;
+}
+
+/* L'aside garde son sticky mais reste transparent */
+html[data-website-id="6"] aside#products_grid_before {
+    background: transparent;
+}
+
+/* Sous-blocs internes : fonds Bootstrap neutralisés, la glace
+   du rail suffit. Pas de blur imbriqué. */
+html[data-website-id="6"] #products_grid_before .accordion,
+html[data-website-id="6"] #products_grid_before .accordion-item,
+html[data-website-id="6"] #products_grid_before .accordion-button {
+    background: transparent !important;
+}
+
+/* Champ de recherche des marques, verre clair lisible */
+html[data-website-id="6"] #products_grid_before input.search-query,
+html[data-website-id="6"] #products_grid_before input[type="search"],
+html[data-website-id="6"] #products_grid_before input[type="text"] {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.6);
 }
