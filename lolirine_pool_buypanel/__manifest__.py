@@ -11,6 +11,7 @@
         'views/product_accessories.xml',
         'data/menu_chimie.xml',
         'data/menu_traitement_dosage.xml',
+        'data/menu_chauffage.xml',
     ],
     'assets': {
         'web.assets_frontend': [
