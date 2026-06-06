@@ -120,3 +120,31 @@ html[data-website-id="6"] .o_carousel_product_card {
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
     overflow: hidden; /* garde les coins arrondis sur l'image produit */
 }
+
+/* --- Produits alternatifs : carte glace sur le bloc entier --- */
+html[data-website-id="6"] #o_wsale_alternative_products,
+html[data-website-id="6"] .o_wsale_alternative_products {
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    padding: 1.5rem;
+}
+
+/* --- Cartes produits (grille boutique + carrousels) : glace légère --- */
+/* Blur réduit à 12px : une grille de cartes toutes floutées coûte cher
+   en perfs Safari. Si le scroll rame, supprimer les deux lignes
+   backdrop-filter ici — le voile blanc suffit visuellement. */
+html[data-website-id="6"] .oe_product_cell,
+html[data-website-id="6"] .o_wsale_product_grid_wrapper .card,
+html[data-website-id="6"] .o_carousel_product_card {
+    background: rgba(255, 255, 255, 0.62) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    backdrop-filter: blur(12px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    overflow: hidden; /* garde les coins arrondis sur l'image produit */
+}
