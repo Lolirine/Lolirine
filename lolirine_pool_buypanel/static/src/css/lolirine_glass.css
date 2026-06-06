@@ -79,3 +79,16 @@ html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar .dropdown-
 html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar ul.show .nav-link:hover {
     background: rgba(255, 255, 255, 0.22);
 }
+
+/* --- Description produit & caractéristiques : carte glace globale --- */
+/* Posée sur le conteneur commun #product_full_description : couvre TOUS
+   les produits, y compris les descriptions v3 legacy sans wrapper. */
+html[data-website-id="6"] #product_full_description {
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    padding: 1.5rem;
+}
