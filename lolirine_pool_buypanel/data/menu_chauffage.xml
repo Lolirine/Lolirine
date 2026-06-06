@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Méga-menu "Chauffage" — catalogue SCP 2026 p.247-264
+             xml_id adopté en base le 06/06/2026 (website 6, seq 55).
+             noupdate=1 : ce record n'écrase jamais la version en base ;
+             il ne sert qu'à recréer le menu sur une base vierge. -->
+        <record id="menu_chauffage" model="website.menu">
+            <field name="name">Chauffage</field>
+            <field name="parent_id" eval="164"/>
+            <field name="website_id" eval="6"/>
+            <field name="url">#</field>
+            <field name="sequence" eval="55"/>
+            <field name="is_mega_menu" eval="True"/>
+            <field name="mega_menu_classes">border-top-0</field>
+            <field name="mega_menu_content"><![CDATA[<section class="s_mega_menu_odoo_menu pt16 o_colored_level o_cc o_cc1">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-4 pt16 pb24">
+                <h4 class="h5 fw-bold mt-0">Chauffer l'eau</h4>
+                <div class="s_hr pt4 pb16">
+                    <hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/>
+                </div>
+                <nav class="nav flex-column">
+                    <a href="/shop/category/127" class="nav-link px-0" data-name="Menu Item">Pompes à chaleur</a>
+                    <a href="/shop/category/290" class="nav-link px-0" data-name="Menu Item">Réchauffeurs électriques</a>
+                    <a href="/shop/category/291" class="nav-link px-0" data-name="Menu Item">Échangeurs de chaleur</a>
+                </nav>
+            </div>
+            <div class="col-12 col-lg-4 pt16 pb24">
+                <h4 class="h5 fw-bold mt-0">Confort &amp; entretien</h4>
+                <div class="s_hr pt4 pb16">
+                    <hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/>
+                </div>
+                <nav class="nav flex-column">
+                    <a href="/shop/category/293" class="nav-link px-0" data-name="Menu Item">Déshumidificateurs</a>
+                    <a href="/shop/category/292" class="nav-link px-0" data-name="Menu Item">Entretien &amp; accessoires</a>
+                </nav>
+            </div>
+            <div class="col-12 col-lg-4 pt16 pb24">
+                <h4 class="h5 fw-bold mt-0">Marques</h4>
+                <div class="s_hr pt4 pb16">
+                    <hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/>
+                </div>
+                <nav class="nav flex-column">
+                    <a href="/shop?search=AquaX" class="nav-link px-0" data-name="Menu Item">Fairland AquaX</a>
+                    <a href="/shop?search=Garden Pac" class="nav-link px-0" data-name="Menu Item">Garden Pac</a>
+                    <a href="/shop?search=iGarden" class="nav-link px-0" data-name="Menu Item">iGarden</a>
+                    <a href="/shop?search=Energyline" class="nav-link px-0" data-name="Menu Item">Hayward</a>
+                    <a href="/shop?search=Poolstyle" class="nav-link px-0" data-name="Menu Item">Poolstyle</a>
+                    <a href="/shop?search=Elecro" class="nav-link px-0" data-name="Menu Item">Elecro</a>
+                    <a href="/shop/category/102" class="nav-link px-0 fw-bold" data-name="Menu Item">→ Tout le chauffage</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>]]></field>
+        </record>
+    </data>
+</odoo>
