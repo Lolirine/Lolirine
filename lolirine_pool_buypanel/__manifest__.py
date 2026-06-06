@@ -10,6 +10,7 @@
         'views/product_page.xml',
         'views/product_accessories.xml',
         'data/menu_chimie.xml',
+        'data/menu_traitement_dosage.xml',
     ],
     'assets': {
         'web.assets_frontend': [
