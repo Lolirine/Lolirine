@@ -1,0 +1,42 @@
+/* ============================================================
+   LOLIRINE POOL STORE — Effet "glace" (glassmorphism)
+   lolirine_pool_buypanel/static/src/css/lolirine_glass.css
+   Chargé APRÈS le CSS principal : surcharge les fonds opaques
+   des zones du buypanel par un verre dépoli translucide.
+   Réglages : opacité des rgba() et flou (16px).
+   ============================================================ */
+
+/* --- Badges de confiance : glace teintée (codes couleur conservés) --- */
+.lp-trust-grid .lp-trust-item {
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+}
+.lp-trust-grid .lp-trust-item:nth-child(1) { background: rgba(214, 244, 226, 0.55); } /* vert */
+.lp-trust-grid .lp-trust-item:nth-child(2) { background: rgba(214, 228, 250, 0.55); } /* bleu */
+.lp-trust-grid .lp-trust-item:nth-child(3) { background: rgba(252, 234, 214, 0.55); } /* orange */
+.lp-trust-grid .lp-trust-item:nth-child(4) { background: rgba(240, 224, 250, 0.55); } /* violet */
+
+/* --- Bloc informations produit --- */
+.lp-product-info {
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    padding: 1rem;
+}
+
+/* --- Barre contact --- */
+.lp-contact-bar {
+    background: rgba(255, 255, 255, 0.68);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+}
