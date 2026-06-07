@@ -3,3 +3,4 @@ from . import pool_supplier
 from . import pool_import
 from . import pool_product
 from . import product_template
+from . import product_brand_sync
