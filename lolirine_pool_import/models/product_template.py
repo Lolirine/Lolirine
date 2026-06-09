@@ -333,9 +333,7 @@ class ProductTemplate(models.Model):
             'description_sale': data.get('descriptionFr'),
             'standard_price': data.get('purchasePrice', 0),
             'list_price': data.get('sellingPrice') or (
-                supplier.calculate_selling_price(
-                    data.get('purchasePrice', 0),
-                    category_name=data.get('category'))
+                round(supplier.calculate_sale_price(data.get('purchasePrice', 0)), 2)
                 if supplier and data.get('purchasePrice') else 0),
             'is_pool_product': True,
             'categ_id': category.id if category else False,
