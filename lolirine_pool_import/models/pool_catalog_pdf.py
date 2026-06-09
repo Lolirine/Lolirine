@@ -547,17 +547,16 @@ class PoolCatalogPdfProduct(models.Model):
             template.write({'standard_price': price_net})
             _logger.info(f"Cout mis a jour: {template.name} -> {price_net}EUR")
         else:
-            # Prix de vente : marge fournisseur (catégorie sinon défaut), jamais 0
+            # Prix de vente : marge fournisseur, jamais 0
             if self.supplier_id:
-                selling = self.supplier_id.calculate_selling_price(
-                    price_net, category_name=self.category or None)
+                selling = self.supplier_id.calculate_sale_price(price_net)
             else:
-                selling = round(price_net * 1.35, 2)
+                selling = round(price_net * 1.30, 2)
             vals = {
                 'name':           self.name or f"Produit {self.ref}",
                 'default_code':   f"POOL-{self.ref}",
                 'standard_price': price_net,
-                'list_price':     selling,
+                'list_price':     round(selling, 2),
                 'sale_ok':        True,
                 'purchase_ok':    True,
             }
