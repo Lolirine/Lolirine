@@ -332,7 +332,12 @@ class ProductTemplate(models.Model):
             'x_description_nl': data.get('descriptionNl'),
             'description_sale': data.get('descriptionFr'),
             'standard_price': data.get('purchasePrice', 0),
-            'list_price': data.get('sellingPrice', 0),
+            'list_price': data.get('sellingPrice') or (
+                supplier.calculate_selling_price(
+                    data.get('purchasePrice', 0),
+                    category_name=data.get('category'))
+                if supplier and data.get('purchasePrice') else 0),
+            'is_pool_product': True,
             'categ_id': category.id if category else False,
             'type': 'product',
             'sale_ok': True,
