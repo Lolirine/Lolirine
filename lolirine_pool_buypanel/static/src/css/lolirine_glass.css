@@ -219,3 +219,17 @@ body.editor_enable #wrapwrap main .oe_structure > .s_text_block {
     background: rgba(255, 255, 255, 0.90) !important;
     pointer-events: auto !important;
 }
+
+/* --- Zones de structure VIDES (oe_empty) : jamais de glace --- */
+html[data-website-id="6"] #wrapwrap main .oe_structure.oe_empty {
+    background: transparent !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* En édition, hauteur de drop sur les structures vides */
+body.editor_enable #wrapwrap main .oe_structure.oe_empty {
+    min-height: 60px;
+}
