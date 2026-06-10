@@ -2,7 +2,7 @@
    LOLIRINE POOL STORE — Effet "glace" (glassmorphism)
    lolirine_pool_buypanel/static/src/css/lolirine_glass.css
    Chargé APRÈS le CSS principal : surcharge les fonds opaques
-   des zones du buypanel par un verre dépoli translucide.
+   des zones par un verre dépoli translucide.
    Réglages : opacité des rgba() et flou (16px).
    ============================================================ */
 
@@ -93,32 +93,15 @@ html[data-website-id="6"] #product_full_description {
     padding: 1.5rem;
 }
 
-/* --- Produits alternatifs : carte glace sur le bloc entier --- */
-html[data-website-id="6"] #o_wsale_alternative_products,
-html[data-website-id="6"] .o_wsale_alternative_products {
-    background: rgba(255, 255, 255, 0.62);
-    -webkit-backdrop-filter: blur(16px) saturate(1.5);
-    backdrop-filter: blur(16px) saturate(1.5);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-radius: 0.75rem;
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
-    padding: 1.5rem;
-}
-
-/* --- Cartes produits (grille boutique + carrousels) : glace légère --- */
-/* Blur réduit à 12px : une grille de cartes toutes floutées coûte cher
-   en perfs Safari. Si le scroll rame, supprimer les deux lignes
-   backdrop-filter ici — le voile blanc suffit visuellement. */
-html[data-website-id="6"] .oe_product_cell,
-html[data-website-id="6"] .o_wsale_product_grid_wrapper .card,
-html[data-website-id="6"] .o_carousel_product_card {
-    background: rgba(255, 255, 255, 0.62) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(1.4);
-    backdrop-filter: blur(12px) saturate(1.4);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-radius: 0.75rem;
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
-    overflow: hidden; /* garde les coins arrondis sur l'image produit */
+/* Description VIDE (oe_empty) : pas de glace, sinon bande "fantôme"
+   non éditable sur les produits sans website_description. */
+html[data-website-id="6"] #product_full_description.oe_empty {
+    background: transparent !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
 }
 
 /* --- Produits alternatifs : carte glace sur le bloc entier --- */
@@ -160,7 +143,7 @@ html[data-website-id="6"] #products_grid_before .o_wsale_products_grid_before_ra
     border-radius: 0.75rem;
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
     padding: 1rem;
-    height: auto !important;       /* annule le vh-100 Bootstrap */
+    height: auto !important;        /* annule le vh-100 Bootstrap */
     max-height: calc(100vh - 2rem); /* ne déborde jamais de l'écran */
     overflow-y: auto;
 }
@@ -184,4 +167,55 @@ html[data-website-id="6"] #products_grid_before input[type="search"],
 html[data-website-id="6"] #products_grid_before input[type="text"] {
     background: rgba(255, 255, 255, 0.75);
     border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================================
+   GÉNÉRALISATION — habillage glace des sections de contenu
+   Site 6 uniquement. Cible les conteneurs de PREMIER NIVEAU
+   (sections / blocs éditoriaux), JAMAIS leurs enfants.
+   Garde :not(.oe_empty):not(:empty) pour ne jamais vitrer une
+   zone vide (sinon bande fantôme non éditable, cf. description).
+   ============================================================ */
+html[data-website-id="6"] #wrapwrap main .oe_structure > section:not(.o_colored_level):not(.oe_empty):not(:empty):not(.lp-no-glass),
+html[data-website-id="6"] #wrapwrap main .oe_structure > .s_text_block:not(.oe_empty):not(:empty):not(.lp-no-glass) {
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+/* Anti-imbrication : une section vitrée dans une section vitrée
+   redevient transparente (le parent porte déjà la glace). */
+html[data-website-id="6"] #wrapwrap main .oe_structure section section,
+html[data-website-id="6"] #wrapwrap main .oe_structure .s_text_block .s_text_block {
+    background: transparent !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 0;
+    box-shadow: none;
+}
+
+/* ============================================================
+   EXCEPTION MODE ÉDITION — neutralise la glace en édition.
+   Le backdrop-filter crée des contextes d'empilement qui
+   gênent les dropzones : on le désactive pour rendre les zones
+   cliquables et faire apparaître "Glissez un bloc ici".
+   Si le déblocage ne se fait pas, vérifier la classe portée par
+   <body> en mode édition (inspecteur) et l'ajouter au sélecteur.
+   ============================================================ */
+body.editor_enable [class*="lp-"],
+body.editor_enable #product_full_description,
+body.editor_enable #o_wsale_alternative_products,
+body.editor_enable .oe_product_cell,
+body.editor_enable #products_grid_before .o_wsale_products_grid_before_rail,
+body.editor_enable #wrapwrap main .oe_structure > section,
+body.editor_enable #wrapwrap main .oe_structure > .s_text_block {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(255, 255, 255, 0.90) !important;
+    pointer-events: auto !important;
 }
