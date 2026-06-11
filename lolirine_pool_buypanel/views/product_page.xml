@@ -60,7 +60,6 @@
         <xpath expr="//form[@t-if='is_add_to_cart_possible']" position="after">
             <t t-if="website.id == 6">
 
-                <!-- Badges de confiance -->
                 <div class="lp-trust-grid mt-3">
                     <div class="lp-trust-item">
                         <svg viewBox="0 0 16 16" fill="none">
@@ -113,7 +112,6 @@
                     </div>
                 </div>
 
-                <!-- Infos produit rapides -->
                 <div id="lp_buypanel_info" class="lp-product-info mt-3" style="display:none;">
                     <div class="lp-info-label">Informations produit</div>
                     <table class="lp-info-table">
@@ -140,7 +138,6 @@
                     </table>
                 </div>
 
-                <!-- Barre contact -->
                 <div class="lp-contact-bar mt-3">
                     <div>
                         <strong>Une question sur ce produit ?</strong>
@@ -156,11 +153,9 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         Héritage 3 : zone Caractéristiques techniques.
-         Champ HTML dédié (x_specs_techniques) rendu en t-field :
-         éditable nativement par l'éditeur, distinct de la
-         description. S'affiche seulement s'il y a du contenu
-         (ou en édition sur le site 6 pour pouvoir le remplir).
+         Héritage 3 : zone Caractéristiques techniques (t-field)
+         Champ HTML dédié, éditable nativement, distinct de la
+         description. Affiché si rempli OU en mode édition.
          ═══════════════════════════════════════════════════════ -->
     <template id="lolirine_extra_specs_zone"
               inherit_id="website_sale.product"
@@ -171,9 +166,10 @@
                      class="o_lp_extra_specs container mt-3"
                      data-name="Caractéristiques techniques">
                 <h4 class="mb-3">Caractéristiques techniques</h4>
-                <div t-field="product.x_specs_techniques"
-                     class="o_lp_specs_content"/>
+                <div t-field="product.x_specs_techniques" class="o_lp_specs_content"/>
             </section>
         </xpath>
 
     </template>
+
+</odoo>
