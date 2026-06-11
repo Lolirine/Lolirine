@@ -234,12 +234,3 @@ body.editor_enable #wrapwrap main .oe_structure.oe_empty {
     min-height: 60px;
 }
 
-/* Zone caractéristiques complémentaires : hauteur de drop confortable
-   en édition, et glace quand elle contient du contenu. */
-body.editor_enable html[data-website-id="6"] #oe_structure_lp_extra_specs,
-body.editor_enable #oe_structure_lp_extra_specs {
-    min-height: 80px;
-}
-
-/* Quand remplie : la section parente prend la glace via la règle
-   de généralisation. Rien à ajouter — c'est automatique. */
