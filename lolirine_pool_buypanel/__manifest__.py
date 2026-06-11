@@ -9,7 +9,6 @@
     'data': [
         'views/product_page.xml',
         'views/product_accessories.xml',
-        'views/product_template_views.xml',
         'data/menu_chimie.xml',
         'data/menu_traitement_dosage.xml',
         'data/menu_chauffage.xml',
