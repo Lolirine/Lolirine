@@ -154,11 +154,12 @@
 
     </template>
 
+
     <!-- ═══════════════════════════════════════════════════════
          Héritage 3 : zone éditable libre sous la description.
-         PAS de t-if ici : l'éditeur Odoo refuse de rendre
-         éditable une zone enveloppée d'un t-if. Le ciblage
-         site 6 se fait par website_id sur la vue (voir shell).
+         PAS de t-if : l'éditeur refuse de rendre éditable une
+         zone enveloppée d'un t-if. Visible sur tous les sites
+         mais vide ailleurs (donc invisible de fait).
          ═══════════════════════════════════════════════════════ -->
     <template id="lolirine_extra_specs_zone"
               inherit_id="website_sale.product"
@@ -174,3 +175,5 @@
         </xpath>
 
     </template>
+
+</odoo>
