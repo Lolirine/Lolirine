@@ -169,25 +169,6 @@ html[data-website-id="6"] #products_grid_before input[type="text"] {
     border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
-/* ============================================================
-   GÉNÉRALISATION — habillage glace des sections de contenu
-   Site 6 uniquement. Cible les conteneurs de PREMIER NIVEAU
-   (sections / blocs éditoriaux), JAMAIS leurs enfants.
-   Garde :not(.oe_empty):not(:empty) pour ne jamais vitrer une
-   zone vide (sinon bande fantôme non éditable, cf. description).
-   ============================================================ */
-html[data-website-id="6"] #wrapwrap main .oe_structure > section:not(.o_colored_level):not(.oe_empty):not(:empty):not(.lp-no-glass),
-html[data-website-id="6"] #wrapwrap main .oe_structure > .s_text_block:not(.oe_empty):not(:empty):not(.lp-no-glass) {
-    background: rgba(255, 255, 255, 0.62);
-    -webkit-backdrop-filter: blur(16px) saturate(1.5);
-    backdrop-filter: blur(16px) saturate(1.5);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-radius: 0.75rem;
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-}
-
 /* Anti-imbrication : une section vitrée dans une section vitrée
    redevient transparente (le parent porte déjà la glace). */
 html[data-website-id="6"] #wrapwrap main .oe_structure section section,
@@ -263,3 +244,18 @@ html[data-website-id="6"] .o_wsale_product_details_content_section_accordion {
     padding: 0 !important;
 }
 
+html[data-website-id="6"] .lp-glass {
+    background: rgba(255, 255, 255, 0.62) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.5) !important;
+    backdrop-filter: blur(16px) saturate(1.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.55) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12) !important;
+    padding: 1.25rem !important;
+    margin-bottom: 1rem !important;
+}
+body.editor_enable .lp-glass {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(255, 255, 255, 0.90) !important;
+}
