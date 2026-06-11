@@ -262,3 +262,25 @@ html[data-website-id="6"] .o_wsale_product_details_content_section_accordion {
     box-shadow: none !important;
     padding: 0 !important;
 }
+
+/* ============================================================
+   CLASSE MANUELLE lp-glass — effet verre à la demande.
+   En édition : sélectionner un bloc → ajouter la classe
+   "lp-glass" (panneau Personnaliser → Classes, ou éditeur HTML).
+   La glace s'applique. Retirer la classe = retirer la glace.
+   ============================================================ */
+html[data-website-id="6"] .lp-glass {
+    background: rgba(255, 255, 255, 0.62) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.5) !important;
+    backdrop-filter: blur(16px) saturate(1.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.55) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12) !important;
+    padding: 1.25rem !important;
+    margin-bottom: 1rem !important;
+}
+body.editor_enable .lp-glass {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(255, 255, 255, 0.90) !important;
+}
