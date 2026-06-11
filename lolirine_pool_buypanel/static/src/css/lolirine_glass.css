@@ -1,12 +1,12 @@
 /* ============================================================
    LOLIRINE POOL STORE — Effet "glace" (glassmorphism)
    lolirine_pool_buypanel/static/src/css/lolirine_glass.css
-   Chargé APRÈS le CSS principal : surcharge les fonds opaques
-   des zones par un verre dépoli translucide.
-   Réglages : opacité des rgba() et flou (16px).
+   Approche : règles NOMMÉES sur les zones connues + classe
+   manuelle .lp-glass pour vitrer à la demande en édition.
+   Aucune généralisation automatique (évite bandes parasites).
    ============================================================ */
 
-/* --- Badges de confiance : glace teintée (codes couleur conservés) --- */
+/* --- Badges de confiance : glace teintée --- */
 .lp-trust-grid .lp-trust-item {
     background: rgba(255, 255, 255, 0.55);
     -webkit-backdrop-filter: blur(16px) saturate(1.5);
@@ -15,10 +15,10 @@
     border-radius: 0.75rem;
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
 }
-.lp-trust-grid .lp-trust-item:nth-child(1) { background: rgba(214, 244, 226, 0.55); } /* vert */
-.lp-trust-grid .lp-trust-item:nth-child(2) { background: rgba(214, 228, 250, 0.55); } /* bleu */
-.lp-trust-grid .lp-trust-item:nth-child(3) { background: rgba(252, 234, 214, 0.55); } /* orange */
-.lp-trust-grid .lp-trust-item:nth-child(4) { background: rgba(240, 224, 250, 0.55); } /* violet */
+.lp-trust-grid .lp-trust-item:nth-child(1) { background: rgba(214, 244, 226, 0.55); }
+.lp-trust-grid .lp-trust-item:nth-child(2) { background: rgba(214, 228, 250, 0.55); }
+.lp-trust-grid .lp-trust-item:nth-child(3) { background: rgba(252, 234, 214, 0.55); }
+.lp-trust-grid .lp-trust-item:nth-child(4) { background: rgba(240, 224, 250, 0.55); }
 
 /* --- Bloc informations produit --- */
 .lp-product-info {
@@ -41,25 +41,19 @@
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
 }
 
-/* --- Menu latéral (header sidebar) : glace cyan — site 6 uniquement --- */
+/* --- Menu latéral (header sidebar) : glace cyan --- */
 html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar {
     background: rgba(0, 168, 216, 0.55) !important;
     -webkit-backdrop-filter: blur(18px) saturate(1.6);
     backdrop-filter: blur(18px) saturate(1.6);
     border-right: 1px solid rgba(255, 255, 255, 0.35);
 }
-
-/* La barre de recherche du menu, en verre plus clair pour rester lisible */
 html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar input.search-query {
     background: rgba(255, 255, 255, 0.75);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.6);
 }
-
-/* --- Sous-menus dépliés du menu latéral : voile clair sur la glace cyan --- */
-/* Pas de backdrop-filter ici : ils sont DANS la navbar déjà vitrée,
-   un blur imbriqué rend mal sous Safari. Le voile blanc suffit. */
 html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar .dropdown-menu,
 html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar ul.show,
 html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar .o_mega_menu {
@@ -68,8 +62,6 @@ html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar .o_mega_me
     border-radius: 0.5rem;
     box-shadow: none;
 }
-
-/* Liens des sous-menus : blanc pour la lisibilité sur le cyan */
 html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar .dropdown-menu .dropdown-item,
 html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar ul.show .nav-link {
     color: #fff;
@@ -80,9 +72,7 @@ html[data-website-id="6"] #wrapwrap > header.o_header_sidebar .navbar ul.show .n
     background: rgba(255, 255, 255, 0.22);
 }
 
-/* --- Description produit & caractéristiques : carte glace globale --- */
-/* Posée sur le conteneur commun #product_full_description : couvre TOUS
-   les produits, y compris les descriptions v3 legacy sans wrapper. */
+/* --- Description produit : carte glace --- */
 html[data-website-id="6"] #product_full_description {
     background: rgba(255, 255, 255, 0.62);
     -webkit-backdrop-filter: blur(16px) saturate(1.5);
@@ -92,9 +82,7 @@ html[data-website-id="6"] #product_full_description {
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
     padding: 1.5rem;
 }
-
-/* Description VIDE (oe_empty) : pas de glace, sinon bande "fantôme"
-   non éditable sur les produits sans website_description. */
+/* Description vide : pas de glace (évite la bande fantôme) */
 html[data-website-id="6"] #product_full_description.oe_empty {
     background: transparent !important;
     -webkit-backdrop-filter: none !important;
@@ -102,117 +90,6 @@ html[data-website-id="6"] #product_full_description.oe_empty {
     border: 0 !important;
     box-shadow: none !important;
     padding: 0 !important;
-}
-
-/* --- Produits alternatifs : carte glace sur le bloc entier --- */
-html[data-website-id="6"] #o_wsale_alternative_products,
-html[data-website-id="6"] .o_wsale_alternative_products {
-    background: rgba(255, 255, 255, 0.62);
-    -webkit-backdrop-filter: blur(16px) saturate(1.5);
-    backdrop-filter: blur(16px) saturate(1.5);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-radius: 0.75rem;
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
-    padding: 1.5rem;
-}
-
-/* --- Cartes produits (grille boutique + carrousels) : glace légère --- */
-/* Blur réduit à 12px : une grille de cartes toutes floutées coûte cher
-   en perfs Safari. Si le scroll rame, supprimer les deux lignes
-   backdrop-filter ici — le voile blanc suffit visuellement. */
-html[data-website-id="6"] .oe_product_cell,
-html[data-website-id="6"] .o_wsale_product_grid_wrapper .card,
-html[data-website-id="6"] .o_carousel_product_card {
-    background: rgba(255, 255, 255, 0.62) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(1.4);
-    backdrop-filter: blur(12px) saturate(1.4);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-radius: 0.75rem;
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
-    overflow: hidden; /* garde les coins arrondis sur l'image produit */
-}
-
-/* --- Panneau filtres boutique : carte glace bornée au contenu --- */
-/* La glace est posée sur le rail interne (pas l'aside sticky pleine
-   hauteur) : la carte s'arrête au dernier filtre. */
-html[data-website-id="6"] #products_grid_before .o_wsale_products_grid_before_rail {
-    background: rgba(255, 255, 255, 0.62);
-    -webkit-backdrop-filter: blur(16px) saturate(1.5);
-    backdrop-filter: blur(16px) saturate(1.5);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-radius: 0.75rem;
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
-    padding: 1rem;
-    height: auto !important;        /* annule le vh-100 Bootstrap */
-    max-height: calc(100vh - 2rem); /* ne déborde jamais de l'écran */
-    overflow-y: auto;
-}
-
-/* L'aside garde son sticky mais reste transparent */
-html[data-website-id="6"] aside#products_grid_before {
-    background: transparent;
-}
-
-/* Sous-blocs internes : fonds Bootstrap neutralisés, la glace
-   du rail suffit. Pas de blur imbriqué. */
-html[data-website-id="6"] #products_grid_before .accordion,
-html[data-website-id="6"] #products_grid_before .accordion-item,
-html[data-website-id="6"] #products_grid_before .accordion-button {
-    background: transparent !important;
-}
-
-/* Champ de recherche des marques, verre clair lisible */
-html[data-website-id="6"] #products_grid_before input.search-query,
-html[data-website-id="6"] #products_grid_before input[type="search"],
-html[data-website-id="6"] #products_grid_before input[type="text"] {
-    background: rgba(255, 255, 255, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-}
-
-/* Anti-imbrication : une section vitrée dans une section vitrée
-   redevient transparente (le parent porte déjà la glace). */
-html[data-website-id="6"] #wrapwrap main .oe_structure section section,
-html[data-website-id="6"] #wrapwrap main .oe_structure .s_text_block .s_text_block {
-    background: transparent !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    border: 0;
-    box-shadow: none;
-}
-
-/* ============================================================
-   EXCEPTION MODE ÉDITION — neutralise la glace en édition.
-   Le backdrop-filter crée des contextes d'empilement qui
-   gênent les dropzones : on le désactive pour rendre les zones
-   cliquables et faire apparaître "Glissez un bloc ici".
-   Si le déblocage ne se fait pas, vérifier la classe portée par
-   <body> en mode édition (inspecteur) et l'ajouter au sélecteur.
-   ============================================================ */
-body.editor_enable [class*="lp-"],
-body.editor_enable #product_full_description,
-body.editor_enable #o_wsale_alternative_products,
-body.editor_enable .oe_product_cell,
-body.editor_enable #products_grid_before .o_wsale_products_grid_before_rail,
-body.editor_enable #wrapwrap main .oe_structure > section,
-body.editor_enable #wrapwrap main .oe_structure > .s_text_block {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    background: rgba(255, 255, 255, 0.90) !important;
-    pointer-events: auto !important;
-}
-
-/* --- Zones de structure VIDES (oe_empty) : jamais de glace --- */
-html[data-website-id="6"] #wrapwrap main .oe_structure.oe_empty {
-    background: transparent !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    border: 0 !important;
-    box-shadow: none !important;
-}
-
-/* En édition, hauteur de drop sur les structures vides */
-body.editor_enable #wrapwrap main .oe_structure.oe_empty {
-    min-height: 60px;
 }
 
 /* --- Zone Caractéristiques techniques : carte glace dédiée --- */
@@ -225,16 +102,66 @@ html[data-website-id="6"] .o_lp_extra_specs {
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
     padding: 1.5rem;
 }
-
 body.editor_enable .o_lp_extra_specs {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     background: rgba(255, 255, 255, 0.90) !important;
 }
 
-/* Section accordéon des specs produit : jamais d'effet glace.
-   Quand elle a du contenu, Odoo applique son propre style ;
-   vide, elle ne crée plus de bande blanche fantôme. */
+/* --- Produits alternatifs --- */
+html[data-website-id="6"] #o_wsale_alternative_products,
+html[data-website-id="6"] .o_wsale_alternative_products {
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    padding: 1.5rem;
+}
+
+/* --- Cartes produits (grille + carrousels) --- */
+html[data-website-id="6"] .oe_product_cell,
+html[data-website-id="6"] .o_wsale_product_grid_wrapper .card,
+html[data-website-id="6"] .o_carousel_product_card {
+    background: rgba(255, 255, 255, 0.62) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    backdrop-filter: blur(12px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    overflow: hidden;
+}
+
+/* --- Panneau filtres boutique --- */
+html[data-website-id="6"] #products_grid_before .o_wsale_products_grid_before_rail {
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    padding: 1rem;
+    height: auto !important;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+}
+html[data-website-id="6"] aside#products_grid_before {
+    background: transparent;
+}
+html[data-website-id="6"] #products_grid_before .accordion,
+html[data-website-id="6"] #products_grid_before .accordion-item,
+html[data-website-id="6"] #products_grid_before .accordion-button {
+    background: transparent !important;
+}
+html[data-website-id="6"] #products_grid_before input.search-query,
+html[data-website-id="6"] #products_grid_before input[type="search"],
+html[data-website-id="6"] #products_grid_before input[type="text"] {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* --- Section accordéon specs Odoo : jamais de glace (évite bande fantôme) --- */
 html[data-website-id="6"] .o_wsale_product_details_content_section_accordion {
     background: transparent !important;
     -webkit-backdrop-filter: none !important;
@@ -244,6 +171,22 @@ html[data-website-id="6"] .o_wsale_product_details_content_section_accordion {
     padding: 0 !important;
 }
 
+/* --- oe_structure vide en haut de la sidebar boutique : pas de glace --- */
+html[data-website-id="6"] #oe_structure_website_sale_sidebar_top:empty,
+html[data-website-id="6"] #oe_structure_website_sale_sidebar_top.oe_empty {
+    background: transparent !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* ============================================================
+   CLASSE MANUELLE lp-glass — effet verre à la demande.
+   En édition : sélectionner un bloc → ajouter la classe "lp-glass".
+   ============================================================ */
 html[data-website-id="6"] .lp-glass {
     background: rgba(255, 255, 255, 0.62) !important;
     -webkit-backdrop-filter: blur(16px) saturate(1.5) !important;
@@ -258,4 +201,16 @@ body.editor_enable .lp-glass {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     background: rgba(255, 255, 255, 0.90) !important;
+}
+
+/* --- Mode édition : neutraliser la glace des zones nommées --- */
+body.editor_enable [class*="lp-"],
+body.editor_enable #product_full_description,
+body.editor_enable #o_wsale_alternative_products,
+body.editor_enable .oe_product_cell,
+body.editor_enable #products_grid_before .o_wsale_products_grid_before_rail {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(255, 255, 255, 0.90) !important;
+    pointer-events: auto !important;
 }
