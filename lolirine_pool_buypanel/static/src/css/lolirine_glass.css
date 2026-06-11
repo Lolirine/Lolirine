@@ -161,16 +161,6 @@ html[data-website-id="6"] #products_grid_before input[type="text"] {
     border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
-/* --- Section accordéon specs Odoo : jamais de glace (évite bande fantôme) --- */
-html[data-website-id="6"] .o_wsale_product_details_content_section_accordion {
-    background: transparent !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-}
-
 /* --- oe_structure vide en haut de la sidebar boutique : pas de glace --- */
 html[data-website-id="6"] #oe_structure_website_sale_sidebar_top:empty,
 html[data-website-id="6"] #oe_structure_website_sale_sidebar_top.oe_empty {
