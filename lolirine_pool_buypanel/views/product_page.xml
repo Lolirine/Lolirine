@@ -156,24 +156,24 @@
 
 
     <!-- ═══════════════════════════════════════════════════════
-         Héritage 3 : zone éditable libre sous la description.
-         PAS de t-if : l'éditeur refuse de rendre éditable une
-         zone enveloppée d'un t-if. Visible sur tous les sites
-         mais vide ailleurs (donc invisible de fait).
+         Héritage 3 : zone Caractéristiques techniques.
+         Champ HTML dédié (x_specs_techniques) rendu en t-field :
+         éditable nativement par l'éditeur, distinct de la
+         description. S'affiche seulement s'il y a du contenu
+         (ou en édition sur le site 6 pour pouvoir le remplir).
          ═══════════════════════════════════════════════════════ -->
     <template id="lolirine_extra_specs_zone"
               inherit_id="website_sale.product"
               active="True">
 
         <xpath expr="//div[@id='product_full_description']" position="after">
-            <section class="o_lp_extra_specs container mt-3"
-                     data-name="Caractéristiques complémentaires">
-                <div class="oe_structure"
-                     id="oe_structure_lp_extra_specs"
-                     data-name="Zone caractéristiques"/>
+            <section t-if="product.x_specs_techniques or editable"
+                     class="o_lp_extra_specs container mt-3"
+                     data-name="Caractéristiques techniques">
+                <h4 class="mb-3">Caractéristiques techniques</h4>
+                <div t-field="product.x_specs_techniques"
+                     class="o_lp_specs_content"/>
             </section>
         </xpath>
 
     </template>
-
-</odoo>
