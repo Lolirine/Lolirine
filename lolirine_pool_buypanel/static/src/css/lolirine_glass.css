@@ -250,3 +250,15 @@ body.editor_enable .o_lp_extra_specs {
     backdrop-filter: none !important;
     background: rgba(255, 255, 255, 0.90) !important;
 }
+
+/* Section accordéon des specs produit : jamais d'effet glace.
+   Quand elle a du contenu, Odoo applique son propre style ;
+   vide, elle ne crée plus de bande blanche fantôme. */
+html[data-website-id="6"] .o_wsale_product_details_content_section_accordion {
+    background: transparent !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
