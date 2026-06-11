@@ -214,3 +214,26 @@ body.editor_enable #products_grid_before .o_wsale_products_grid_before_rail {
     background: rgba(255, 255, 255, 0.90) !important;
     pointer-events: auto !important;
 }
+
+/* --- Accordéon specs Odoo : glacé quand rempli, transparent si vide --- */
+
+/* Glace UNIQUEMENT si l'accordéon contient un accordion-item (= rempli) */
+html[data-website-id="6"] .o_wsale_product_details_content_section_accordion:has(.accordion-item) {
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    padding: 1rem;
+}
+
+/* Vide (pas d'accordion-item) : transparent, pas de bande */
+html[data-website-id="6"] .o_wsale_product_details_content_section_accordion:not(:has(.accordion-item)) {
+    background: transparent !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
