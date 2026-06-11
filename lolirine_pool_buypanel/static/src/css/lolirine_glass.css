@@ -227,3 +227,14 @@ html[data-website-id="6"] .o_wsale_product_details_content_section_accordion:not
     box-shadow: none !important;
     padding: 0 !important;
 }
+
+/* Espacement avant le bloc Produits alternatifs */
+html[data-website-id="6"] #o_wsale_alternative_products,
+html[data-website-id="6"] .o_wsale_alternative_products {
+    margin-top: 1.5rem;
+}
+
+/* Marge sous l'accordéon specs (quand rempli) pour séparer du bloc suivant */
+html[data-website-id="6"] .o_wsale_product_details_content_section_accordion:has(.accordion-item) {
+    margin-bottom: 1.5rem !important;
+}
