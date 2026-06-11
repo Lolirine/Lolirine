@@ -154,20 +154,18 @@
 
     </template>
 
-
     <!-- ═══════════════════════════════════════════════════════
-         Héritage 3 : website_sale.product
-         → Zone éditable libre sous la description produit.
-           oe_structure simple (sans not_nearest) : accepte le drop
-           de texte/blocs et s'adapte à la hauteur du contenu.
+         Héritage 3 : zone éditable libre sous la description.
+         PAS de t-if ici : l'éditeur Odoo refuse de rendre
+         éditable une zone enveloppée d'un t-if. Le ciblage
+         site 6 se fait par website_id sur la vue (voir shell).
          ═══════════════════════════════════════════════════════ -->
     <template id="lolirine_extra_specs_zone"
               inherit_id="website_sale.product"
               active="True">
 
         <xpath expr="//div[@id='product_full_description']" position="after">
-            <section t-if="website.id == 6"
-                     class="o_lp_extra_specs container mt-3"
+            <section class="o_lp_extra_specs container mt-3"
                      data-name="Caractéristiques complémentaires">
                 <div class="oe_structure"
                      id="oe_structure_lp_extra_specs"
@@ -176,5 +174,3 @@
         </xpath>
 
     </template>
-
-</odoo>
