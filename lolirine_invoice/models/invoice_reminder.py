@@ -4,13 +4,17 @@ from odoo.exceptions import UserError
 from datetime import timedelta
 import logging
 import base64
+
 _logger = logging.getLogger(__name__)
+
+
 class InvoiceReminder(models.Model):
     """Suivi des relances pour factures impayees"""
     _name = 'lolirine.invoice.reminder'
     _description = 'Relance facture'
     _order = 'date desc, id desc'
     _inherit = ['mail.thread']
+
     name = fields.Char(
         string='Reference',
         compute='_compute_name',
@@ -98,6 +102,7 @@ class InvoiceReminder(models.Model):
         related='invoice_id.company_id',
         store=True
     )
+
     @api.depends('invoice_id', 'reminder_type', 'date')
     def _compute_name(self):
         type_names = {
@@ -112,6 +117,7 @@ class InvoiceReminder(models.Model):
                 rec.name = f"{type_names.get(rec.reminder_type, 'REL')}/{rec.invoice_id.name}"
             else:
                 rec.name = 'Nouvelle relance'
+
     @api.depends('invoice_id.invoice_date_due')
     def _compute_days_overdue(self):
         today = fields.Date.today()
@@ -121,6 +127,7 @@ class InvoiceReminder(models.Model):
                 rec.days_overdue = max(0, delta.days)
             else:
                 rec.days_overdue = 0
+
     @api.depends('invoice_id.amount_residual', 'days_overdue')
     def _compute_penalty_amount(self):
         """Calcul des penalites selon le taux legal belge (10.5% annuel pour 2024)"""
@@ -130,6 +137,7 @@ class InvoiceReminder(models.Model):
                 rec.penalty_amount = rec.invoice_id.amount_residual * (annual_rate / 365) * rec.days_overdue
             else:
                 rec.penalty_amount = 0.0
+
     # ==================== AJOUT FRAIS - FACTURE SÉPARÉE ====================
     def _add_fee_to_invoice(self):
         """Créer une facture SÉPARÉE pour les frais de relance.
@@ -183,6 +191,24 @@ class InvoiceReminder(models.Model):
             self.fee_added = True
             return
         
+        # Taxe 0% (hors champ) — REQUISE par Peppol/UBL BIS Billing 3.0 :
+        # une ligne de facture sans aucune taxe fait échouer la validation
+        # ("Chaque ligne de facture doit comporter au moins une taxe").
+        # On résout la taxe AVANT le try pour qu'une éventuelle erreur de
+        # configuration remonte clairement au lieu d'être avalée par l'except.
+        tax0 = self.env['account.tax'].search([
+            ('type_tax_use', '=', 'sale'),
+            ('amount', '=', 0.0),
+            ('active', '=', True),
+            ('name', '=', '0%'),
+        ], limit=1)
+        if not tax0:
+            raise UserError(_(
+                "Taxe « 0%% » introuvable : configurez une taxe de vente à 0%% "
+                "active nommée « 0%% » avant d'émettre des frais de relance "
+                "(requis pour la facturation électronique Peppol)."
+            ))
+        
         try:
             # Produit "Frais administratifs de gestion d'impayé"
             product = self.env['product.product'].browse(8859)
@@ -198,7 +224,7 @@ class InvoiceReminder(models.Model):
                     'name': f"{line_data['label']} - Facture {inv.name} impayée",
                     'quantity': 1,
                     'price_unit': line_data['amount'],
-                    'tax_ids': [(5, 0, 0)],  # Pas de TVA sur les frais de relance
+                    'tax_ids': [(6, 0, tax0.ids)],  # Taxe 0% (hors champ) — requise par Peppol/UBL
                 }
                 if product:
                     line_vals['product_id'] = product.id
@@ -233,6 +259,7 @@ class InvoiceReminder(models.Model):
                 body=f"⚠️ Impossible de créer la facture de frais automatiquement : {e}",
                 message_type='notification'
             )
+
     # ==================== GENERATION PDF FACTURE ====================
     def _generate_invoice_pdf(self):
         """Générer le PDF de la facture et retourner la liste d'IDs d'attachment"""
@@ -263,6 +290,7 @@ class InvoiceReminder(models.Model):
             _logger.warning(f"Erreur génération PDF pour {inv.name}: {e}")
         
         return attachment_ids
+
     # ==================== ENVOI EMAIL ====================
     def action_send_reminder(self):
         """Envoyer la relance par email avec PDF facture en PJ"""
@@ -319,6 +347,7 @@ class InvoiceReminder(models.Model):
                 'sticky': False,
             }
         }
+
     def _get_type_label(self):
         labels = {
             'reminder_1': '1er Rappel',
@@ -328,6 +357,7 @@ class InvoiceReminder(models.Model):
             'lawyer': 'Transmission avocat',
         }
         return labels.get(self.reminder_type, 'Relance')
+
     def _build_reminder_email(self):
         """Construit le sujet et le corps HTML de l'email selon le type"""
         self.ensure_one()
@@ -366,9 +396,11 @@ class InvoiceReminder(models.Model):
             return self._build_email_formal_notice(partner, inv_name, due_date, amount_due, days, penalty, payment_ref)
         else:
             return (f"Relance - Facture {inv_name}", "<p>Relance</p>")
+
     # ==================== TEMPLATES EMAIL HTML ====================
     def _email_style(self):
         return 'font-family: Arial, sans-serif; font-size: 13px; color: #333;'
+
     def _email_table_row(self, label, value, bold=False, color=None):
         style_val = ''
         if bold:
@@ -380,6 +412,7 @@ class InvoiceReminder(models.Model):
             <td style="padding: 8px 12px; border: 1px solid #ddd; background-color: #f5f5f5; font-weight: bold; width: 180px;">{label}</td>
             <td style="padding: 8px 12px; border: 1px solid #ddd;{style_val}">{value}</td>
         </tr>"""
+
     def _email_payment_block(self, payment_ref):
         return f"""
     <p><strong>Modalités de paiement :</strong></p>
@@ -388,6 +421,7 @@ class InvoiceReminder(models.Model):
         <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
         <li>Titulaire : Lolirine SRL</li>
     </ul>"""
+
     def _email_signature(self):
         return """
     <p style="margin-top: 25px;">
@@ -396,6 +430,7 @@ class InvoiceReminder(models.Model):
         Tél. : 0497/44 41 46<br/>
         Email : <a href="mailto:gardemeublelolirine@gmail.com">gardemeublelolirine@gmail.com</a>
     </p>"""
+
     # -------------------- 1er RAPPEL --------------------
     def _build_email_reminder_1(self, partner, inv_name, due_date, amount_due, days, payment_ref):
         subject = f"Rappel de paiement - Facture {inv_name} impayée"
@@ -431,6 +466,7 @@ class InvoiceReminder(models.Model):
     {self._email_signature()}
 </div>"""
         return subject, body
+
     # -------------------- 2ème RAPPEL --------------------
     def _build_email_reminder_2(self, partner, inv_name, due_date, amount_due, days, payment_ref):
         subject = f"2ème Rappel - Facture {inv_name} impayée"
@@ -466,6 +502,7 @@ class InvoiceReminder(models.Model):
     {self._email_signature()}
 </div>"""
         return subject, body
+
     # -------------------- 3ème RAPPEL --------------------
     def _build_email_reminder_3(self, partner, inv_name, due_date, amount_due, days, penalty, payment_ref):
         subject = f"URGENT - 3ème Rappel - Facture {inv_name} impayée"
@@ -505,6 +542,7 @@ class InvoiceReminder(models.Model):
     {self._email_signature()}
 </div>"""
         return subject, body
+
     # -------------------- MISE EN DEMEURE --------------------
     def _build_email_formal_notice(self, partner, inv_name, due_date, amount_due, days, penalty, payment_ref):
         subject = f"MISE EN DEMEURE - Facture {inv_name}"
@@ -573,13 +611,17 @@ class InvoiceReminder(models.Model):
     </p>
 </div>"""
         return subject, body
+
     # ==================== ACTIONS ====================
     def action_mark_paid(self):
         self.write({'state': 'paid'})
+
     def action_cancel(self):
         self.write({'state': 'cancelled'})
+
     def action_reset_draft(self):
         self.write({'state': 'draft'})
+
     # ==================== AUTO-RELANCE CRON ====================
     @api.model
     def _cron_auto_reminder(self):
@@ -648,6 +690,7 @@ class InvoiceReminder(models.Model):
         
         _logger.info(f"=== Fin auto-relance: {reminders_created} creees, {reminders_sent} envoyees ===")
         return {'created': reminders_created, 'sent': reminders_sent}
+
     @api.model
     def _get_reminder_type_for_days(self, days_overdue, config):
         if days_overdue >= config.formal_notice_days:
@@ -659,6 +702,7 @@ class InvoiceReminder(models.Model):
         elif days_overdue >= config.reminder_1_days:
             return 'reminder_1'
         return False
+
     @api.model
     def _cron_check_paid(self):
         open_reminders = self.search([
@@ -667,10 +711,13 @@ class InvoiceReminder(models.Model):
         for reminder in open_reminders:
             if reminder.invoice_id.payment_state in ('paid', 'reversed'):
                 reminder.write({'state': 'paid'})
+
+
 class InvoiceReminderConfig(models.Model):
     """Configuration des delais de relance"""
     _name = 'lolirine.invoice.reminder.config'
     _description = 'Configuration relances'
+
     name = fields.Char(string='Nom', default='Configuration par defaut')
     
     reminder_1_days = fields.Integer(
