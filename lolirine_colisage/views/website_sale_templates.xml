@@ -1,24 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Mention "Vendu par colis de N pièces" au-dessus du bouton Ajouter au panier -->
-    <template id="product_colisage_notice"
-              inherit_id="website_sale.product"
-              name="Mention colisage">
-        <xpath expr="//div[hasclass('o_wsale_product_details_content_section_cta')]" position="before">
-            <div t-if="product.x_colisage and product.x_colisage &gt; 1"
-                 class="o_wsale_product_details_content_section alert alert-info py-2 px-3 mb-3"
-                 role="status">
-                <i class="fa fa-cubes me-2"/>
-                <span>
-                    Vendu par colis de <t t-out="product.x_colisage"/> pièces — la quantité
-                    s'ajuste automatiquement par multiples de <t t-out="product.x_colisage"/>.
-                </span>
-            </div>
-        </xpath>
-    </template>
-
-    <!-- Quantité par défaut, minimum et pas calés sur le colisage -->
+    <!-- Quantité par défaut, minimum et pas calés sur le colisage.
+         La mention "Vendu par colis de N" est posée en JS (colisage.js),
+         au-dessus de l'input quantité réel, pour rester compatible avec le
+         buy panel personnalisé du Pool Store. -->
     <template id="product_colisage_quantity"
               inherit_id="website_sale.product_quantity"
               name="Colisage : quantité par défaut">
