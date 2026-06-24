@@ -54,16 +54,20 @@ class BuyPanelController(http.Controller):
 
         delivery_str = f"{fmt_date(delivery_min)} — {fmt_date(delivery_max)}"
 
-        # ── Marque ────────────────────────────────────────
+        # ── Marque : uniquement la vraie marque, jamais le distributeur ──
+        BRAND_BLACKLIST = {
+            'scp', 'scp benelux', 'sibo', 'benelux',
+            'fluidra', 'fluidra benelux',
+        }
         brand = ''
         for line in tmpl.attribute_line_ids:
             if 'marque' in (line.attribute_id.name or '').lower():
                 vals = line.product_template_value_ids.filtered(lambda v: v.ptav_active)
-                if vals:
+                if vals and vals[0].name and vals[0].name.strip().lower() not in BRAND_BLACKLIST:
                     brand = vals[0].name
-                    break
-        if not brand and tmpl.seller_ids:
-            brand = tmpl.seller_ids[0].partner_id.name or ''
+                break
+        # Pas de fallback seller_ids : si pas de vraie marque, brand reste vide
+        # → le JS (if info.brand) laisse la ligne « Marque » masquée.
 
         # ── Garantie ──────────────────────────────────────
         warranty = ''
