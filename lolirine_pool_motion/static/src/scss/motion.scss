@@ -1,0 +1,64 @@
+/*
+ * motion.scss
+ * - Pré-masque les éléments à révéler (anti-flash), UNIQUEMENT quand :
+ *     . le JS a tourné  (.o_motion_ready posée par motion_boot.js)
+ *     . le failsafe n'a pas déclenché (.o_motion_failsafe absente)
+ *     . l'utilisateur n'a pas demandé moins de mouvement
+ *     . l'élément n'est pas déjà révélé (.o_motion_revealed)
+ *   => si le JS échoue, rien ne reste invisible.
+ * - Polish hover des cartes produit (CSS = pas de jank).
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+    .o_motion_ready:not(.o_motion_failsafe) {
+        [data-motion-reveal]:not(.o_motion_revealed) {
+            opacity: 0;
+        }
+        // Items de cascade : masqués seulement s'ils sont explicitement marqués
+        // (sinon on ne touche pas aux enfants génériques d'un conteneur).
+        [data-motion-stagger] [data-motion-item]:not(.o_motion_revealed) {
+            opacity: 0;
+        }
+    }
+}
+
+// Survol des cartes produit : élévation douce, géré en pur CSS.
+.oe_product {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+
+    @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+        &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        }
+        // Zoom léger de l'image produit au survol de la carte.
+        .oe_product_image img,
+        img.o_image_64_cover,
+        .o_wsale_product_information ~ a img {
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        &:hover .oe_product_image img {
+            transform: scale(1.04);
+        }
+    }
+}
+
+// Évite que le zoom d'image déborde de la carte.
+.oe_product .oe_product_image,
+.oe_product .o_wsale_product_grid_wrapper {
+    overflow: hidden;
+}
+
+// Sécurité accessibilité : sous reduced-motion on neutralise tout transform.
+@media (prefers-reduced-motion: reduce) {
+    .oe_product,
+    .oe_product:hover,
+    [data-motion-reveal],
+    [data-motion-stagger] [data-motion-item] {
+        transition: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+    }
+}
