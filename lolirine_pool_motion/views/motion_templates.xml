@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--
+      Bouton "retour en haut" injecté dans toutes les pages du site.
+      Le comportement (apparition au scroll, scroll fluide) est géré par
+      back_to_top.interaction.js ; le style par motion.scss.
+      Caché par défaut (.o_motion_top, opacity:0) tant que le JS ne l'affiche pas.
+    -->
+    <template id="back_to_top" inherit_id="website.layout" name="Motion: Retour en haut">
+        <xpath expr="//div[@id='wrapwrap']" position="inside">
+            <button type="button"
+                    class="o_motion_top btn btn-primary"
+                    aria-label="Retour en haut de page"
+                    data-motion-top="1">
+                <i class="fa fa-arrow-up" role="img" aria-hidden="true"/>
+            </button>
+        </xpath>
+    </template>
+</odoo>
