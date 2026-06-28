@@ -19,6 +19,10 @@
         [data-motion-stagger] [data-motion-item]:not(.o_motion_revealed) {
             opacity: 0;
         }
+        // Grille boutique : pré-masquage des cartes pour la cascade au chargement.
+        #products_grid:not([data-motion-stagger]) .oe_product:not(.o_motion_revealed) {
+            opacity: 0;
+        }
     }
 }
 
@@ -51,14 +55,51 @@
     overflow: hidden;
 }
 
+/* ===================== Vague 1 ===================== */
+
+// Header : préparer le transform piloté par JS (évite un 1er saut).
+header#top {
+    will-change: transform;
+}
+
+// Bouton retour-en-haut (injecté par motion_templates.xml).
+.o_motion_top {
+    position: fixed;
+    right: clamp(16px, 3vw, 32px);
+    bottom: clamp(16px, 3vw, 32px);
+    z-index: 1030;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    opacity: 0; // caché tant que le JS ne l'affiche pas
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+
+    i {
+        line-height: 1;
+    }
+    &:hover {
+        @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+            transform: translateY(-2px);
+        }
+    }
+}
+
 // Sécurité accessibilité : sous reduced-motion on neutralise tout transform.
 @media (prefers-reduced-motion: reduce) {
     .oe_product,
     .oe_product:hover,
     [data-motion-reveal],
-    [data-motion-stagger] [data-motion-item] {
+    [data-motion-stagger] [data-motion-item],
+    #products_grid .oe_product {
         transition: none !important;
         transform: none !important;
         opacity: 1 !important;
+    }
+    header#top {
+        transform: none !important;
     }
 }
