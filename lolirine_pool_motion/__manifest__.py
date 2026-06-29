@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Lolirine Pool Store — Motion",
-    "version": "19.0.2.1.0",
+    "version": "19.0.2.2.0",
     "category": "Website",
     "summary": "Animations frontend (Motion One) pilotées par la classe Interaction d'Odoo 19",
     "description": """
