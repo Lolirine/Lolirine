@@ -199,6 +199,14 @@ export class MotionMiniCart extends Interaction {
         this.busy = true;
         try {
             const data = await this._fetchCart();
+            if (data && data.error) {
+                this.body.innerHTML = "";
+                const err = document.createElement("div");
+                err.className = "o_motion_drawer_empty";
+                err.textContent = "Panier indisponible : " + data.error;
+                this.body.appendChild(err);
+                return;
+            }
             this._render(data, animate);
         } catch {
             this.body.innerHTML = "";
