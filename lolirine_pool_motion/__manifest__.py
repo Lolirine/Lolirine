@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Lolirine Pool Store — Motion",
-    "version": "19.0.1.1.0",
+    "version": "19.0.2.0.0",
     "category": "Website",
     "summary": "Animations frontend (Motion One) pilotées par la classe Interaction d'Odoo 19",
     "description": """
@@ -47,6 +47,8 @@ Moteur : Motion (motion.dev) v12, build UMD local (window.Motion).
             "lolirine_pool_motion/static/src/js/header_scroll.interaction.js",
             "lolirine_pool_motion/static/src/js/back_to_top.interaction.js",
             "lolirine_pool_motion/static/src/js/add_to_cart_flyer.interaction.js",
+            # --- Vague 2 ---
+            "lolirine_pool_motion/static/src/js/mini_cart.interaction.js",
         ],
     },
     "installable": True,
