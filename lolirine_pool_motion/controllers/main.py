@@ -37,6 +37,7 @@ class LolirineMotionCart(http.Controller):
                 lines.append(
                     {
                         "id": line.id,
+                        "product_id": product.id,
                         "name": product.display_name or (line.name or ""),
                         "qty": line.product_uom_qty,
                         "price_total": line.price_total,
