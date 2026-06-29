@@ -313,17 +313,15 @@ header#top {
     }
 }
 
-/* ===================== Glass : récap de commande (/shop/cart) ===================== */
+/* ===================== Glass : récap de commande (checkout) ===================== */
 /*
  * Effet "verre dépoli" derrière la carte récapitulative du panier.
- * Scopé via #o_cart_total (présent uniquement sur la page panier) -> ne touche
- * aucune autre carte du site. Préfixe -webkit- impératif pour Safari.
- * Si la carte n'est pas captée, voir le check console fourni dans le chat.
+ * En Odoo 19 la page panier est la 1re étape du checkout (body.o_website_sale_checkout)
+ * et la carte est un .card contenant un .card-body (sans id). On scope sous le body
+ * du checkout pour ne toucher que cette page. Préfixe -webkit- impératif (Safari).
  */
-#o_cart_total .card,
-#o_cart_total > div.card,
-.o_cart_summary .card,
-#o_wsale_cart_summary .card {
+body.o_website_sale_checkout .card:has(> .card-body),
+body.o_website_sale_checkout > div .card {
     background: rgba(255, 255, 255, 0.45) !important;
     -webkit-backdrop-filter: blur(14px) saturate(140%);
     backdrop-filter: blur(14px) saturate(140%);
@@ -332,17 +330,20 @@ header#top {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
-/* Les champs/boutons internes gardent leur fond pour rester lisibles ;
-   on adoucit juste l'input code promo pour s'accorder au verre. */
-#o_cart_total .card input.form-control {
+/* Le card-body doit rester transparent pour laisser voir le flou de la carte. */
+body.o_website_sale_checkout .card > .card-body {
+    background: transparent !important;
+}
+
+/* L'input code promo s'accorde au verre, sans devenir illisible. */
+body.o_website_sale_checkout .card input.form-control {
     background: rgba(255, 255, 255, 0.7);
 }
 
 /* Repli sans backdrop-filter (vieux navigateurs) : fond plus opaque. */
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-    #o_cart_total .card,
-    .o_cart_summary .card,
-    #o_wsale_cart_summary .card {
+    body.o_website_sale_checkout .card:has(> .card-body),
+    body.o_website_sale_checkout > div .card {
         background: rgba(255, 255, 255, 0.92) !important;
     }
 }
