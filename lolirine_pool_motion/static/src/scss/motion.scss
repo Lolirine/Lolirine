@@ -312,3 +312,37 @@ header#top {
         transition: none !important;
     }
 }
+
+/* ===================== Glass : récap de commande (/shop/cart) ===================== */
+/*
+ * Effet "verre dépoli" derrière la carte récapitulative du panier.
+ * Scopé via #o_cart_total (présent uniquement sur la page panier) -> ne touche
+ * aucune autre carte du site. Préfixe -webkit- impératif pour Safari.
+ * Si la carte n'est pas captée, voir le check console fourni dans le chat.
+ */
+#o_cart_total .card,
+#o_cart_total > div.card,
+.o_cart_summary .card,
+#o_wsale_cart_summary .card {
+    background: rgba(255, 255, 255, 0.45) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Les champs/boutons internes gardent leur fond pour rester lisibles ;
+   on adoucit juste l'input code promo pour s'accorder au verre. */
+#o_cart_total .card input.form-control {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+/* Repli sans backdrop-filter (vieux navigateurs) : fond plus opaque. */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    #o_cart_total .card,
+    .o_cart_summary .card,
+    #o_wsale_cart_summary .card {
+        background: rgba(255, 255, 255, 0.92) !important;
+    }
+}
