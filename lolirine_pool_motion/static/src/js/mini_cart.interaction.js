@@ -7,12 +7,12 @@ import { getMotion, prefersReducedMotion } from "./motion_helpers";
 /*
  * Mini-cart drawer (vagues 2 / 2.1).
  *
- *  - S'ouvre quand la quantité du panier augmente (MutationObserver sur
- *    .my_cart_quantity) et au clic sur l'icône panier.
+ *  - S'ouvre AUTOMATIQUEMENT quand la quantité du panier augmente
+ *    (MutationObserver sur .my_cart_quantity) -> complément du flyer.
+ *  - L'icône panier du header n'est plus interceptée : elle navigue
+ *    normalement vers la page panier (résumé / checkout).
  *  - Contenu lu depuis /lolirine_motion/cart (endpoint JSON lecture seule).
- *  - v2.1 : édition de quantité (− / +) et suppression de ligne via la route
- *    officielle /shop/cart/update_json, puis rafraîchissement du drawer.
- *    On ne réécrit jamais la logique panier d'Odoo : on l'appelle.
+ *  - Édition de quantité (− / +) et suppression via /shop/cart/update_json.
  */
 export class MotionMiniCart extends Interaction {
     static selector = ".o_motion_drawer";
@@ -36,20 +36,17 @@ export class MotionMiniCart extends Interaction {
         this.body = this.el.querySelector(".o_motion_drawer_body");
         this.totalEl = this.el.querySelector(".o_motion_drawer_total_val");
 
+        // Liens panier HORS drawer (sert à localiser l'en-tête pour l'observer).
+        // On n'intercepte plus le clic : l'icône panier navigue normalement.
         this.cartLinks = Array.from(
             document.querySelectorAll('a[href$="/shop/cart"]')
-        );
+        ).filter((a) => !a.closest(".o_motion_drawer"));
         this.lastCount = this._badgeCount();
 
-        this.onCartClick = this.onCartClick.bind(this);
         this.observer = null;
     }
 
     start() {
-        this.cartLinks.forEach((a) =>
-            a.addEventListener("click", this.onCartClick)
-        );
-
         const target =
             this.cartLinks[0]?.closest("header") ||
             this.cartLinks[0]?.parentElement ||
@@ -126,14 +123,6 @@ export class MotionMiniCart extends Interaction {
     }
 
     /* ---------- open / close ---------- */
-
-    onCartClick(ev) {
-        if (ev.metaKey || ev.ctrlKey || ev.button === 1) {
-            return;
-        }
-        ev.preventDefault();
-        this.open();
-    }
 
     onKey(ev) {
         if (ev.key === "Escape" && this.isOpen) {
@@ -255,7 +244,6 @@ export class MotionMiniCart extends Interaction {
             row.dataset.productId = line.product_id;
             row.dataset.qty = q;
 
-            // Zone cliquable -> fiche produit.
             const link = document.createElement("a");
             link.className = "o_motion_drawer_link";
             link.href = line.url || "/shop";
@@ -282,7 +270,6 @@ export class MotionMiniCart extends Interaction {
             link.appendChild(img);
             link.appendChild(info);
 
-            // Contrôles quantité.
             const controls = document.createElement("div");
             controls.className = "o_motion_drawer_controls";
             const dec = this._qbtn("dec", "fa-minus", "Diminuer la quantité");
@@ -294,7 +281,6 @@ export class MotionMiniCart extends Interaction {
             controls.appendChild(val);
             controls.appendChild(inc);
 
-            // Colonne droite : prix + suppression.
             const right = document.createElement("div");
             right.className = "o_motion_drawer_right";
             const price = document.createElement("div");
@@ -323,12 +309,12 @@ export class MotionMiniCart extends Interaction {
         }
     }
 
-    /* ---------- édition (v2.1) ---------- */
+    /* ---------- édition ---------- */
 
     onBodyClick(ev) {
         const btn = ev.target.closest("[data-act]");
         if (!btn) {
-            return; // clic sur le lien produit : navigation normale.
+            return;
         }
         ev.preventDefault();
         const row = btn.closest("[data-line-id]");
@@ -378,9 +364,6 @@ export class MotionMiniCart extends Interaction {
 
     destroy() {
         this.observer?.disconnect();
-        this.cartLinks.forEach((a) =>
-            a.removeEventListener("click", this.onCartClick)
-        );
         document.body.style.overflow = "";
     }
 }
