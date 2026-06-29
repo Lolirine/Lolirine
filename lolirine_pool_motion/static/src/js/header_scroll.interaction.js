@@ -6,15 +6,19 @@ import { getMotion, prefersReducedMotion } from "./motion_helpers";
 
 /*
  * Header rétractable : se cache en descendant, réapparaît en remontant.
+ * Conçu pour une barre HORIZONTALE en haut uniquement.
  *
  * Garde-fous (no-op si une condition n'est pas réunie) :
- *   - bail si l'effet natif Odoo "Disappears"/"Fade out" est actif (doublon).
- *   - bail si le header n'est pas réellement fixe/sticky (sinon ça n'a pas de sens).
  *   - bail si reduced-motion ou lib absente.
  *   - opt-out explicite : <header data-motion-header="off">.
+ *   - bail si l'effet natif Odoo "Disappears"/"Fade out" est actif (doublon).
+ *   - bail si le header n'est pas fixe/sticky (sinon ça n'a pas de sens).
+ *   - bail si le layout est une SIDEBAR verticale (large<haut) : on ne fait
+ *     jamais glisser une colonne de navigation hors de l'écran. Détection
+ *     géométrique (indépendante du thème) + marqueurs de classe Odoo.
  *
- * Conseil : régler l'effet de défilement du header sur "Fixe" dans l'éditeur,
- * puis cette interaction ajoute le masquage/réapparition fluide par-dessus.
+ * Conseil (barre horizontale) : régler l'effet de défilement du header sur
+ * "Fixe" dans l'éditeur, puis cette interaction ajoute le masquage fluide.
  */
 export class MotionHeaderScroll extends Interaction {
     static selector = "header#top";
@@ -28,6 +32,21 @@ export class MotionHeaderScroll extends Interaction {
         this.onScroll = this.onScroll.bind(this);
     }
 
+    _isSidebar() {
+        // Marqueurs de thème connus pour un header vertical / latéral.
+        const cls = this.el.className || "";
+        if (/o_header_sidebar|o_header_vertical|o_sidebar/.test(cls)) {
+            return true;
+        }
+        if (document.body.classList.contains("o_header_sidebar")) {
+            return true;
+        }
+        // Détection géométrique : une vraie barre horizontale est LARGE et BASSE.
+        const r = this.el.getBoundingClientRect();
+        const isTopBar = r.width >= window.innerWidth * 0.6 && r.height <= window.innerHeight * 0.5;
+        return !isTopBar;
+    }
+
     _eligible() {
         if (!this.motion || this.reduced) {
             return false;
@@ -35,14 +54,15 @@ export class MotionHeaderScroll extends Interaction {
         if (this.el.dataset.motionHeader === "off") {
             return false;
         }
-        // Doublon avec un effet natif Odoo : on laisse Odoo gérer.
         if (
             this.el.classList.contains("o_header_disappears") ||
             this.el.classList.contains("o_header_fade_out")
         ) {
             return false;
         }
-        // N'agir que si le header est réellement fixe/sticky.
+        if (this._isSidebar()) {
+            return false; // sidebar : on laisse la navigation en place.
+        }
         const pos = getComputedStyle(this.el).position;
         return pos === "fixed" || pos === "sticky";
     }
