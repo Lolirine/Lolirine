@@ -347,3 +347,21 @@ body.o_website_sale_checkout .card input.form-control {
         background: rgba(255, 255, 255, 0.92) !important;
     }
 }
+
+/* Panneau de verre autour du résumé de gauche (#shop_cart : lignes produits).
+   Donne deux panneaux vitrés cohérents côte à côte avec la carte de droite. */
+body.o_website_sale_checkout #shop_cart {
+    background: rgba(255, 255, 255, 0.45);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    padding: 1.25rem 1.5rem;
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    body.o_website_sale_checkout #shop_cart {
+        background: rgba(255, 255, 255, 0.92);
+    }
+}
