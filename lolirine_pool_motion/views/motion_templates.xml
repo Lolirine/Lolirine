@@ -16,4 +16,42 @@
             </button>
         </xpath>
     </template>
+
+    <!--
+      Mini-cart drawer (vague 2). Coquille vide injectée site-wide ; le contenu
+      est rendu par mini_cart.interaction.js à partir de /lolirine_motion/cart,
+      le style par motion.scss. Lecture seule (liens vers panier/commande).
+    -->
+    <template id="mini_cart_drawer" inherit_id="website.layout" name="Motion: Mini-cart drawer">
+        <xpath expr="//div[@id='wrapwrap']" position="inside">
+            <div class="o_motion_drawer" data-motion-drawer="1" aria-hidden="true">
+                <div class="o_motion_drawer_overlay"/>
+                <aside class="o_motion_drawer_panel" role="dialog" aria-modal="true"
+                       aria-label="Mon panier">
+                    <header class="o_motion_drawer_head">
+                        <span class="o_motion_drawer_title">Mon panier</span>
+                        <button type="button" class="o_motion_drawer_close btn"
+                                aria-label="Fermer le panier">
+                            <i class="fa fa-times" aria-hidden="true"/>
+                        </button>
+                    </header>
+                    <div class="o_motion_drawer_body">
+                        <div class="o_motion_drawer_loading">Chargement…</div>
+                    </div>
+                    <footer class="o_motion_drawer_foot">
+                        <div class="o_motion_drawer_total">
+                            <span>Total</span>
+                            <span class="o_motion_drawer_total_val">—</span>
+                        </div>
+                        <a href="/shop/cart" class="btn btn-outline-secondary w-100 mb-2">
+                            Voir le panier
+                        </a>
+                        <a href="/shop/checkout" class="btn btn-primary w-100">
+                            Commander
+                        </a>
+                    </footer>
+                </aside>
+            </div>
+        </xpath>
+    </template>
 </odoo>
