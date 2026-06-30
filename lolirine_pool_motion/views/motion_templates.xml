@@ -54,4 +54,25 @@
             </div>
         </xpath>
     </template>
+<!--
+      Quickview produit (vague 2). Overlay vide injecté site-wide ; le contenu
+      est rendu par quickview.interaction.js depuis /lolirine_motion/product/<id>.
+    -->
+    <template id="quickview" inherit_id="website.layout" name="Motion: Quickview produit">
+        <xpath expr="//div[@id='wrapwrap']" position="inside">
+            <div class="o_motion_qv" data-motion-quickview="1" aria-hidden="true">
+                <div class="o_motion_qv_overlay"/>
+                <div class="o_motion_qv_dialog" role="dialog" aria-modal="true"
+                     aria-label="Aperçu produit">
+                    <button type="button" class="o_motion_qv_close btn"
+                            aria-label="Fermer l'aperçu">
+                        <i class="fa fa-times" aria-hidden="true"/>
+                    </button>
+                    <div class="o_motion_qv_content">
+                        <div class="o_motion_qv_loading">Chargement…</div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>    
 </odoo>
