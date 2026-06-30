@@ -642,6 +642,7 @@ header .o_wsale_my_cart .my_cart_quantity {
     color: rgba(0, 0, 0, 0.7);
     font-size: 0.95rem;
     line-height: 1.5;
+    white-space: pre-line;
     margin-bottom: 1.25rem;
     max-height: 9rem;
     overflow: auto;
