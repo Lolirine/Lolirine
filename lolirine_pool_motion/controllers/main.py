@@ -88,3 +88,59 @@ class LolirineMotionCart(http.Controller):
             except Exception:  # noqa: BLE001
                 _logger.exception("sale_get_order a échoué, tentative request.cart")
         return getattr(request, "cart", None) or None
+
+    # ------------------------------------------------------------------
+    # Quickview produit (vague 2) — lecture seule.
+    # ------------------------------------------------------------------
+    @http.route(
+        "/lolirine_motion/product/<int:tmpl_id>",
+        type="http",
+        auth="public",
+        website=True,
+        methods=["GET"],
+        sitemap=False,
+    )
+    def motion_product(self, tmpl_id, **kw):
+        payload = {}
+        try:
+            tmpl = request.env["product.template"].sudo().browse(tmpl_id)
+            if not tmpl.exists() or not tmpl.is_published:
+                return request.make_response(
+                    json.dumps({"error": "not_found"}),
+                    headers=[("Content-Type", "application/json")],
+                )
+
+            # Prix via la logique website (pricelist/taxes) avec repli.
+            price = list_price = tmpl.list_price
+            try:
+                combo = tmpl._get_combination_info()
+                price = combo.get("price", price)
+                list_price = combo.get("list_price", list_price)
+            except Exception:  # noqa: BLE001
+                _logger.exception("quickview: _get_combination_info indispo, repli list_price")
+
+            currency = request.website.currency_id
+            variants = tmpl.product_variant_ids
+            default_variant = tmpl.product_variant_id
+
+            payload = {
+                "id": tmpl.id,
+                "name": tmpl.display_name or tmpl.name or "",
+                "price": price,
+                "list_price": list_price,
+                "has_discount": bool(list_price and price and list_price > price),
+                "currency": (currency.name if currency else "EUR") or "EUR",
+                "image_url": "/web/image/product.template/%s/image_512" % tmpl.id,
+                "url": tmpl.website_url or "/shop",
+                "description": (tmpl.description_sale or "").strip(),
+                "has_variants": len(variants) > 1 or bool(tmpl.attribute_line_ids),
+                "variant_id": default_variant.id if default_variant else False,
+            }
+        except Exception as e:  # noqa: BLE001
+            _logger.exception("lolirine_pool_motion: échec endpoint quickview")
+            payload = {"error": str(e)}
+
+        return request.make_response(
+            json.dumps(payload),
+            headers=[("Content-Type", "application/json")],
+        )
