@@ -368,9 +368,9 @@ body.o_website_sale_checkout #shop_cart {
 
 /* ===================== Pastilles header : panier + wishlist (sidebar) ===================== */
 /*
- * Pastilles RONDES à fond BLANC, plus imposantes, icône à la couleur de marque,
- * badge rouge cerclé de blanc. Style partagé panier + wishlist.
- * NB: vérifier le sélecteur wishlist (.o_wsale_my_wish) sur l'instance.
+ * Pastilles RONDES en VERRE prononcé (glassmorphism), plus imposantes,
+ * icône à la couleur de marque, badge rouge cerclé de blanc.
+ * Préfixe -webkit- impératif (Safari). Repli opaque si pas de backdrop-filter.
  */
 header .o_wsale_my_cart,
 header .o_wsale_my_wish {
@@ -383,8 +383,14 @@ header .o_wsale_my_wish {
     width: 3.4rem;
     height: 3.4rem;
     border-radius: 50% !important;
-    background-color: #fff !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+    // Verre prononcé.
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18),
+        inset 0 1px 1px rgba(255, 255, 255, 0.4);
 
     i.fa-shopping-cart,
     i.fa-stack,
@@ -392,25 +398,21 @@ header .o_wsale_my_wish {
     i.fa-heart-o {
         font-size: 1.6rem;
         line-height: 1;
-        color: var(--pool-primary, #0ea5e9) !important;
+        color: #fff !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
     }
 
     @media (hover: hover) and (prefers-reduced-motion: no-preference) {
         &:hover {
             transform: scale(1.12);
-            background-color: #fff !important;
-            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.3);
-            i.fa-shopping-cart,
-            i.fa-stack,
-            i.fa-heart,
-            i.fa-heart-o {
-                color: var(--pool-primary-dark, #0284c7) !important;
-            }
+            background-color: rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.26),
+                inset 0 1px 1px rgba(255, 255, 255, 0.5);
         }
     }
 }
 
-// Badges de quantité : rouge cerclé de blanc, bien lisibles sur les pastilles.
+// Badges de quantité : rouge cerclé de blanc, bien lisibles sur le verre.
 header .o_wsale_my_cart .my_cart_quantity,
 header .o_wsale_my_wish .my_wish_quantity,
 header .o_wsale_my_wish sup.badge {
@@ -423,6 +425,29 @@ header .o_wsale_my_wish sup.badge {
     border: 2px solid #fff;
     background-color: var(--pool-red, #dc2626) !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+// Repli sans backdrop-filter : verre simulé par un blanc semi-opaque.
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    header .o_wsale_my_cart,
+    header .o_wsale_my_wish {
+        background-color: rgba(255, 255, 255, 0.75) !important;
+    }
+    header .o_wsale_my_cart i,
+    header .o_wsale_my_wish i {
+        color: var(--pool-primary, #0ea5e9) !important;
+        text-shadow: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    header .o_wsale_my_cart,
+    header .o_wsale_my_cart:hover,
+    header .o_wsale_my_wish,
+    header .o_wsale_my_wish:hover {
+        transform: none !important;
+        transition: none !important;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
