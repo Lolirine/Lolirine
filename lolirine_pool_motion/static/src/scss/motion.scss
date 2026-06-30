@@ -488,3 +488,173 @@ header .o_wsale_my_cart .my_cart_quantity {
         transition: none !important;
     }
 }
+
+/* ===================== Quickview produit (overlay) ===================== */
+
+// Loupe sur les cartes produit (apparaît au survol, pas de décalage de mise en page).
+.oe_product {
+    position: relative;
+}
+.o_motion_qv_btn {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    z-index: 5;
+    width: 2.4rem;
+    height: 2.4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--pool-primary, #0ea5e9);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+        background 0.2s ease;
+
+    i {
+        font-size: 1rem;
+        line-height: 1;
+    }
+    &:hover {
+        background: #fff;
+        color: var(--pool-primary-dark, #0284c7);
+    }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .oe_product:hover .o_motion_qv_btn {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+@media (hover: none), (prefers-reduced-motion: reduce) {
+    .o_motion_qv_btn {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.o_motion_qv {
+    position: fixed;
+    inset: 0;
+    z-index: 1060;
+    pointer-events: none;
+    visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+
+    &.is-open {
+        pointer-events: auto;
+        visibility: visible;
+    }
+}
+.o_motion_qv_overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+}
+.o_motion_qv_dialog {
+    position: relative;
+    width: 760px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow: auto;
+    background: rgba(255, 255, 255, 0.92);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+}
+.o_motion_qv_close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 2;
+    border: 0;
+    background: transparent;
+    padding: 0.4rem 0.6rem;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.55);
+    &:hover {
+        color: #000;
+    }
+}
+.o_motion_qv_content {
+    display: flex;
+    flex-wrap: wrap;
+}
+.o_motion_qv_loading {
+    padding: 3rem 1rem;
+    width: 100%;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.55);
+}
+.o_motion_qv_media {
+    flex: 1 1 320px;
+    min-width: 280px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img {
+        max-width: 100%;
+        max-height: 360px;
+        object-fit: contain;
+        border-radius: 12px;
+    }
+}
+.o_motion_qv_info {
+    flex: 1 1 320px;
+    min-width: 280px;
+    padding: 1.75rem 1.75rem 1.75rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+}
+.o_motion_qv_title {
+    font-size: 1.4rem;
+    margin: 0 0 0.75rem;
+}
+.o_motion_qv_price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    .o_motion_qv_oldprice {
+        text-decoration: line-through;
+        color: rgba(0, 0, 0, 0.45);
+        font-size: 1rem;
+    }
+    .o_motion_qv_nowprice {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--pool-primary-dark, #0284c7);
+    }
+}
+.o_motion_qv_desc {
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+    max-height: 9rem;
+    overflow: auto;
+}
+.o_motion_qv_actions {
+    margin-top: auto;
+}
+
+@media (max-width: 575.98px) {
+    .o_motion_qv_info {
+        padding: 0 1.25rem 1.5rem;
+    }
+    .o_motion_qv_media {
+        padding: 1.25rem 1.25rem 0.5rem;
+    }
+}
