@@ -49,6 +49,7 @@ Moteur : Motion (motion.dev) v12, build UMD local (window.Motion).
             "lolirine_pool_motion/static/src/js/add_to_cart_flyer.interaction.js",
             # --- Vague 2 ---
             "lolirine_pool_motion/static/src/js/mini_cart.interaction.js",
+            "lolirine_pool_motion/static/src/js/cart_icon.interaction.js",
         ],
     },
     "installable": True,
