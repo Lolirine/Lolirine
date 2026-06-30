@@ -4,6 +4,7 @@ import logging
 
 from odoo import http
 from odoo.http import request
+from odoo.tools import html2plaintext
 
 _logger = logging.getLogger(__name__)
 
@@ -132,7 +133,7 @@ class LolirineMotionCart(http.Controller):
                 "currency": (currency.name if currency else "EUR") or "EUR",
                 "image_url": "/web/image/product.template/%s/image_512" % tmpl.id,
                 "url": tmpl.website_url or "/shop",
-                "description": (tmpl.description_sale or "").strip(),
+                "description": self._short_specs(tmpl),
                 "has_variants": len(variants) > 1 or bool(tmpl.attribute_line_ids),
                 "variant_id": default_variant.id if default_variant else False,
             }
@@ -144,3 +145,26 @@ class LolirineMotionCart(http.Controller):
             json.dumps(payload),
             headers=[("Content-Type", "application/json")],
         )
+
+    def _short_specs(self, tmpl):
+        """Extrait court : caractéristiques techniques en priorité, puis replis.
+        Convertit le HTML en texte, garde les lignes non vides, limite la taille.
+        """
+        for field in ("x_specs_techniques", "description_sale", "website_description"):
+            if field not in tmpl._fields:
+                continue
+            raw = tmpl[field]
+            if not raw:
+                continue
+            txt = html2plaintext(raw or "")
+            lines = [ln.strip() for ln in txt.splitlines() if ln.strip()]
+            if not lines:
+                continue
+            lines = lines[:6]  # max 6 lignes
+            txt = "\n".join(lines)
+            if len(txt) > 320:
+                txt = txt[:320].rsplit(" ", 1)[0] + "…"
+            elif len(lines) == 6:
+                txt += "…"
+            return txt
+        return ""
