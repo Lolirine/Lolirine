@@ -408,7 +408,7 @@ export class MotionQuickview extends Interaction {
         }
         btn.textContent = "Ajout…";
         try {
-            const result = await this._rpc("/shop/cart/update_json", {
+            const result = await this._rpc("/shop/cart/update", {
                 product_id: this.currentVariantId,
                 add_qty: 1,
             });
