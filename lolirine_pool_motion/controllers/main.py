@@ -10,11 +10,11 @@ _logger = logging.getLogger(__name__)
 
 
 class LolirineMotionCart(http.Controller):
-    """Endpoint LECTURE-SEULE pour le mini-cart drawer.
+    """Endpoints LECTURE-SEULE pour le mini-cart drawer et le quickview.
 
     Robuste aux variantes d'API e-commerce (Odoo 17 vs 18/19) et ne renvoie
     jamais de 500 : en cas de souci, renvoie {"error": "..."} en JSON pour que
-    le drawer affiche la cause réelle (et trace côté serveur).
+    le front affiche la cause réelle (et trace côté serveur).
     """
 
     @http.route(
@@ -91,7 +91,7 @@ class LolirineMotionCart(http.Controller):
         return getattr(request, "cart", None) or None
 
     # ------------------------------------------------------------------
-    # Quickview produit (vague 2) — lecture seule.
+    # Quickview produit (vague 2, option 2 : variantes) — lecture seule.
     # ------------------------------------------------------------------
     @http.route(
         "/lolirine_motion/product/<int:tmpl_id>",
@@ -136,6 +136,12 @@ class LolirineMotionCart(http.Controller):
                 "description": self._short_specs(tmpl),
                 "has_variants": len(variants) > 1 or bool(tmpl.attribute_line_ids),
                 "variant_id": default_variant.id if default_variant else False,
+                "attributes": self._attributes(tmpl),
+                "default_combination": (
+                    default_variant.product_template_attribute_value_ids.ids
+                    if default_variant
+                    else []
+                ),
             }
         except Exception as e:  # noqa: BLE001
             _logger.exception("lolirine_pool_motion: échec endpoint quickview")
@@ -168,3 +174,32 @@ class LolirineMotionCart(http.Controller):
                 txt += "…"
             return txt
         return ""
+
+    def _attributes(self, tmpl):
+        """Attributs réellement variables (>1 valeur), pour le sélecteur quickview.
+        Renvoie les ids de product.template.attribute.value (ptav) à passer ensuite
+        à la route officielle /website_sale/get_combination_info.
+        """
+        out = []
+        for line in tmpl.attribute_line_ids:
+            values = []
+            for ptav in line.product_template_value_ids:
+                if hasattr(ptav, "ptav_active") and not ptav.ptav_active:
+                    continue
+                pav = ptav.product_attribute_value_id
+                values.append(
+                    {
+                        "id": ptav.id,
+                        "name": ptav.name,
+                        "color": (pav.html_color or "") if pav else "",
+                    }
+                )
+            if len(values) > 1:
+                out.append(
+                    {
+                        "name": line.attribute_id.name,
+                        "display_type": line.attribute_id.display_type or "radio",
+                        "values": values,
+                    }
+                )
+        return out
