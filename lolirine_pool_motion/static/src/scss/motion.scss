@@ -700,17 +700,55 @@ header .o_wsale_my_cart .my_cart_quantity {
     border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-/* ===================== Vague 3 : compteurs de chiffres-clés ===================== */
+/* ===================== Vague 3 : compteurs de chiffres-clés (verre) ===================== */
 .o_motion_stats {
+    .container {
+        // Carte de verre qui englobe les 4 chiffres.
+        background: rgba(255, 255, 255, 0.16);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+        backdrop-filter: blur(18px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15),
+            inset 0 1px 1px rgba(255, 255, 255, 0.4);
+        padding: 2.25rem 1.5rem;
+    }
+
     .o_motion_stat_num {
         font-size: clamp(2rem, 5vw, 3.2rem);
         font-weight: 800;
         line-height: 1;
-        color: var(--pool-primary-dark, #0284c7);
+        color: #fff;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     }
     .o_motion_stat_label {
         margin-top: 0.4rem;
         font-size: 0.95rem;
-        color: rgba(0, 0, 0, 0.6);
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    // Séparateurs verticaux discrets entre les chiffres (desktop).
+    @media (min-width: 768px) {
+        .col-md-3:not(:last-child) .o_motion_stat_num::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            height: 2.4rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        .col-md-3 {
+            position: relative;
+        }
+    }
+
+    // Repli sans backdrop-filter : verre bleuté semi-opaque.
+    @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+        .container {
+            background: rgba(14, 165, 233, 0.55);
+        }
     }
 }
