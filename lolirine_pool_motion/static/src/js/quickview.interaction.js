@@ -394,23 +394,39 @@ export class MotionQuickview extends Interaction {
     }
 
     async _add(btn) {
-        if (this.adding || !this.currentVariantId) {
+        if (this.adding) {
+            return;
+        }
+        if (!this.currentVariantId) {
+            btn.textContent = "Variante non résolue";
             return;
         }
         this.adding = true;
         btn.disabled = true;
-        const label = btn.textContent;
+        if (!btn.dataset.label) {
+            btn.dataset.label = btn.textContent;
+        }
         btn.textContent = "Ajout…";
         try {
-            await this._rpc("/shop/cart/update_json", {
+            const result = await this._rpc("/shop/cart/update_json", {
                 product_id: this.currentVariantId,
                 add_qty: 1,
             });
+            if (result === undefined || result === null) {
+                throw new Error("réponse vide de update_json");
+            }
             await this._refreshBadge();
-            this.close();
-        } catch {
             btn.disabled = false;
-            btn.textContent = label;
+            btn.textContent = btn.dataset.label;
+            this.close();
+        } catch (e) {
+            btn.disabled = false;
+            btn.textContent = "Erreur : " + (e.message || "ajout impossible");
+            // eslint-disable-next-line no-console
+            console.error("[quickview] ajout panier:", e, "variant=", this.currentVariantId);
+            setTimeout(() => {
+                btn.textContent = btn.dataset.label || "Ajouter au panier";
+            }, 3000);
         } finally {
             this.adding = false;
         }
