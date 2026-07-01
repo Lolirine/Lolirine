@@ -162,19 +162,28 @@ class LolirineMotionCart(http.Controller):
         methods=["POST"],
         csrf=False,
     )
+    @http.route(
+        "/lolirine_motion/cart/add",
+        type="json",
+        auth="public",
+        website=True,
+        methods=["POST"],
+        csrf=False,
+    )
     def motion_cart_add(self, product_id, quantity=1, **kw):
         try:
             pid = int(product_id)
             qty = int(quantity or 1)
-            order = request.website.sale_get_order(force_create=True)
+            order = self._get_cart_force()
+            if not order:
+                return {"error": "panier introuvable (aucune API compatible)"}
 
-            # Odoo garde l'API interne _cart_update ; replis défensifs si renommée.
             if hasattr(order, "_cart_update"):
                 order._cart_update(product_id=pid, add_qty=qty)
             elif hasattr(order, "_cart_add"):
                 order._cart_add(product_id=pid, quantity=qty)
             else:
-                return {"error": "API panier introuvable sur cette version"}
+                return {"error": "API panier (_cart_update) introuvable"}
 
             return {
                 "count": int(order.cart_quantity or 0),
@@ -183,6 +192,29 @@ class LolirineMotionCart(http.Controller):
         except Exception as e:  # noqa: BLE001
             _logger.exception("lolirine_pool_motion: échec ajout panier")
             return {"error": str(e)}
+
+    def _get_cart_force(self):
+        """Récupère (ou crée) le panier courant, tolérant aux API d'Odoo 17/18/19."""
+        website = request.website
+        # Odoo <= 18
+        if hasattr(website, "sale_get_order"):
+            try:
+                return website.sale_get_order(force_create=True)
+            except Exception:  # noqa: BLE001
+                _logger.exception("sale_get_order(force_create) indispo")
+        # Odoo 19 : helper porté sur request
+        for attr in ("sale_get_order", "_get_and_cache_current_order"):
+            fn = getattr(request, attr, None)
+            if callable(fn):
+                try:
+                    try:
+                        return fn(force_create=True)
+                    except TypeError:
+                        return fn()
+                except Exception:  # noqa: BLE001
+                    _logger.exception("request.%s indispo", attr)
+        # Dernier repli : attribut cart
+        return getattr(request, "cart", None) or None
     def _short_specs(self, tmpl):
         """Extrait court : caractéristiques techniques en priorité, puis replis.
         Convertit le HTML en texte, garde les lignes non vides, limite la taille.
