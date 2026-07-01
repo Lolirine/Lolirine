@@ -409,11 +409,12 @@ export class MotionQuickview extends Interaction {
         btn.textContent = "Ajout…";
         try {
             const result = await this._rpc("/shop/cart/update", {
+                line_id: false,
                 product_id: this.currentVariantId,
-                add_qty: 1,
+                quantity: 1,
             });
             if (result === undefined || result === null) {
-                throw new Error("réponse vide de update_json");
+                throw new Error("réponse vide de update_cart");
             }
             await this._refreshBadge();
             btn.disabled = false;
@@ -431,7 +432,7 @@ export class MotionQuickview extends Interaction {
             this.adding = false;
         }
     }
-
+    
     async _refreshBadge() {
         try {
             const res = await fetch("/lolirine_motion/cart", {
