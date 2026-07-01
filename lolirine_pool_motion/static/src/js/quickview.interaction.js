@@ -408,12 +408,13 @@ export class MotionQuickview extends Interaction {
         }
         btn.textContent = "Ajout…";
         try {
-            const result = await this._rpc("/shop/cart/update", {
-                line_id: false,
+            const result = await this._rpc("/lolirine_motion/cart/add", {
                 product_id: this.currentVariantId,
-                product_template_id: this.tmplId,
                 quantity: 1,
             });
+            if (result && result.error) {
+                throw new Error(result.error);
+            }
             if (result && result.warning) {
                 throw new Error(result.warning);
             }
