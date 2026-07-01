@@ -659,3 +659,43 @@ header .o_wsale_my_cart .my_cart_quantity {
         padding: 1.25rem 1.25rem 0.5rem;
     }
 }
+
+/* ===================== Quickview : ajustements de disposition ===================== */
+.o_motion_qv_info {
+    gap: 0.15rem;
+}
+.o_motion_qv_title {
+    font-size: 1.35rem;
+    line-height: 1.25;
+    margin-bottom: 0.4rem;
+}
+.o_motion_qv_price {
+    margin-bottom: 0.9rem;
+}
+// Specs : dégradé en bas au lieu d'une coupe franche.
+.o_motion_qv_desc {
+    position: relative;
+    max-height: 7.5rem;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    padding-bottom: 0.25rem;
+    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+}
+// Pastilles : plus d'air, alignement régulier.
+.o_motion_qv_attrs {
+    margin-bottom: 1rem;
+}
+.o_motion_qv_opts {
+    gap: 0.5rem;
+}
+.o_motion_qv_pill {
+    padding: 0.4rem 0.85rem;
+    border-radius: 10px;
+}
+// Actions : le bouton respire, séparé des pastilles.
+.o_motion_qv_actions {
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
