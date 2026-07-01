@@ -151,7 +151,38 @@ class LolirineMotionCart(http.Controller):
             json.dumps(payload),
             headers=[("Content-Type", "application/json")],
         )
+    # ------------------------------------------------------------------
+    # Ajout au panier — délègue à l'API interne d'Odoo (stable).
+    # ------------------------------------------------------------------
+    @http.route(
+        "/lolirine_motion/cart/add",
+        type="json",
+        auth="public",
+        website=True,
+        methods=["POST"],
+        csrf=False,
+    )
+    def motion_cart_add(self, product_id, quantity=1, **kw):
+        try:
+            pid = int(product_id)
+            qty = int(quantity or 1)
+            order = request.website.sale_get_order(force_create=True)
 
+            # Odoo garde l'API interne _cart_update ; replis défensifs si renommée.
+            if hasattr(order, "_cart_update"):
+                order._cart_update(product_id=pid, add_qty=qty)
+            elif hasattr(order, "_cart_add"):
+                order._cart_add(product_id=pid, quantity=qty)
+            else:
+                return {"error": "API panier introuvable sur cette version"}
+
+            return {
+                "count": int(order.cart_quantity or 0),
+                "amount_total": order.amount_total,
+            }
+        except Exception as e:  # noqa: BLE001
+            _logger.exception("lolirine_pool_motion: échec ajout panier")
+            return {"error": str(e)}
     def _short_specs(self, tmpl):
         """Extrait court : caractéristiques techniques en priorité, puis replis.
         Convertit le HTML en texte, garde les lignes non vides, limite la taille.
