@@ -192,7 +192,38 @@ class LolirineMotionCart(http.Controller):
         except Exception as e:  # noqa: BLE001
             _logger.exception("lolirine_pool_motion: échec ajout panier")
             return {"error": str(e)}
+    @http.route(
+        "/lolirine_motion/cart/set",
+        type="json",
+        auth="public",
+        website=True,
+        methods=["POST"],
+        csrf=False,
+    )
+    def motion_cart_set(self, line_id, product_id, set_qty, **kw):
+        """Fixe la quantité d'une ligne (set_qty=0 => suppression). Délègue à Odoo."""
+        try:
+            order = self._get_cart_force()
+            if not order:
+                return {"error": "panier introuvable"}
 
+            kwargs = {
+                "product_id": int(product_id),
+                "line_id": int(line_id),
+                "set_qty": int(set_qty),
+            }
+            if hasattr(order, "_cart_update"):
+                order._cart_update(**kwargs)
+            else:
+                return {"error": "API panier (_cart_update) introuvable"}
+
+            return {
+                "count": int(order.cart_quantity or 0),
+                "amount_total": order.amount_total,
+            }
+        except Exception as e:  # noqa: BLE001
+            _logger.exception("lolirine_pool_motion: échec maj ligne panier")
+            return {"error": str(e)}
     def _get_cart_force(self):
         """Récupère (ou crée) le panier courant, tolérant aux API d'Odoo 17/18/19."""
         website = request.website
