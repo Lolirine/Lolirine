@@ -290,7 +290,7 @@ export class MotionQuickview extends Interaction {
         const actions = document.createElement("div");
         actions.className = "o_motion_qv_actions";
 
-        if (hasAttrs || data.variant_id) {
+        if (data.variant_id) {
             this.addBtn = document.createElement("button");
             this.addBtn.type = "button";
             this.addBtn.className = "btn btn-primary w-100";
