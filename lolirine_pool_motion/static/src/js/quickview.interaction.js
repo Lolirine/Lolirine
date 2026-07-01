@@ -411,12 +411,22 @@ export class MotionQuickview extends Interaction {
             const result = await this._rpc("/shop/cart/update", {
                 line_id: false,
                 product_id: this.currentVariantId,
+                product_template_id: this.tmplId,
                 quantity: 1,
             });
-            if (result === undefined || result === null) {
-                throw new Error("réponse vide de update_cart");
+            if (result && result.warning) {
+                throw new Error(result.warning);
             }
-            await this._refreshBadge();
+            // La réponse contient déjà la nouvelle quantité : on met le badge à jour
+            // directement (ce qui déclenche rebond + ouverture du drawer).
+            if (result && typeof result.cart_quantity === "number") {
+                const badge = document.querySelector(".my_cart_quantity");
+                if (badge) {
+                    badge.textContent = result.cart_quantity;
+                }
+            } else {
+                await this._refreshBadge();
+            }
             btn.disabled = false;
             btn.textContent = btn.dataset.label;
             this.close();
@@ -424,7 +434,7 @@ export class MotionQuickview extends Interaction {
             btn.disabled = false;
             btn.textContent = "Erreur : " + (e.message || "ajout impossible");
             // eslint-disable-next-line no-console
-            console.error("[quickview] ajout panier:", e, "variant=", this.currentVariantId);
+            console.error("[quickview] ajout panier:", e, "variant=", this.currentVariantId, "tmpl=", this.tmplId);
             setTimeout(() => {
                 btn.textContent = btn.dataset.label || "Ajouter au panier";
             }, 3000);
