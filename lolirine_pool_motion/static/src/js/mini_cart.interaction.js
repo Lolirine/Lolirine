@@ -340,25 +340,25 @@ export class MotionMiniCart extends Interaction {
         this._setQty(lineId, productId, newQty, row);
     }
 
-    async _setQty(lineId, productId, qty, row) {
-        if (this.updating) {
-            return;
-        }
-        this.updating = true;
-        row?.classList.add("is-updating");
+    async _setQty(lineId, productId, setQty) {
         try {
-            await this._rpc("/shop/cart/update_json", {
+            const result = await this._rpc("/lolirine_motion/cart/set", {
                 line_id: lineId,
                 product_id: productId,
-                set_qty: qty,
+                set_qty: setQty,
             });
-            const data = await this._fetchCart();
-            this._render(data, false);
-            this._updateBadge(data.count);
-        } catch {
-            row?.classList.remove("is-updating");
-        } finally {
-            this.updating = false;
+            if (result && result.error) {
+                throw new Error(result.error);
+            }
+            // Met à jour le badge (déclenche rebond) puis recharge le drawer.
+            const badge = document.querySelector(".my_cart_quantity");
+            if (badge && result && typeof result.count === "number") {
+                badge.textContent = result.count;
+            }
+            await this._load();
+        } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error("[mini-cart] maj ligne:", e);
         }
     }
 
