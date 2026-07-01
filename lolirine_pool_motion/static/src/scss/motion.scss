@@ -699,3 +699,18 @@ header .o_wsale_my_cart .my_cart_quantity {
     padding-top: 0.75rem;
     border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
+
+/* ===================== Vague 3 : compteurs de chiffres-clés ===================== */
+.o_motion_stats {
+    .o_motion_stat_num {
+        font-size: clamp(2rem, 5vw, 3.2rem);
+        font-weight: 800;
+        line-height: 1;
+        color: var(--pool-primary-dark, #0284c7);
+    }
+    .o_motion_stat_label {
+        margin-top: 0.4rem;
+        font-size: 0.95rem;
+        color: rgba(0, 0, 0, 0.6);
+    }
+}
