@@ -4,6 +4,7 @@ from odoo import models, fields, api
 
 class StorageBox(models.Model):
     _name = 'storage.box'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Box de stockage'
     _order = 'floor_id, name'
 
@@ -41,7 +42,7 @@ class StorageBox(models.Model):
         ('bientot_dispo', 'Bientôt disponible'),
         ('inspection', 'En inspection'),
         ('technique', 'Technique'),
-    ], string='Statut', required=True, default='disponible')
+    ], string='Statut', required=True, default='disponible', tracking=True)
     
     # Date de disponibilité
     date_available = fields.Date(string='Disponible à partir du',
