@@ -752,3 +752,72 @@ header .o_wsale_my_cart .my_cart_quantity {
         }
     }
 }
+
+/* ===================== Vague 3 : ruban de marques (marquee) ===================== */
+.o_motion_marquee {
+    .container {
+        // Carte de verre, cohérente avec les compteurs.
+        background: rgba(255, 255, 255, 0.16);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+        backdrop-filter: blur(18px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15),
+            inset 0 1px 1px rgba(255, 255, 255, 0.4);
+        padding: 1.5rem 1rem;
+    }
+    .o_motion_marquee_title {
+        text-align: center;
+        color: #fff;
+        font-weight: 700;
+        margin-bottom: 1.1rem;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    }
+    // Fenêtre : masque un fondu sur les deux bords.
+    .o_motion_marquee_viewport {
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+        mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    }
+    // Piste : le jeu est dupliqué 2× -> translation de -50% = boucle sans couture.
+    .o_motion_marquee_track {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        width: max-content;
+        animation: o_motion_marquee_scroll 55s linear infinite;
+    }
+    &:hover .o_motion_marquee_track {
+        animation-play-state: paused;
+    }
+    // Pastille blanche : normalise les fonds mélangés, lisible sur l'image piscine.
+    .o_motion_chip {
+        flex: 0 0 auto;
+        height: 64px;
+        min-width: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 1.1rem;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+        img {
+            max-height: 36px;
+            max-width: 130px;
+            object-fit: contain;
+        }
+    }
+}
+@keyframes o_motion_marquee_scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .o_motion_marquee .o_motion_marquee_track {
+        animation: none;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+    }
+}
