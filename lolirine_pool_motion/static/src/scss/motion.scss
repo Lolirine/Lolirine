@@ -843,43 +843,49 @@ header .o_wsale_my_cart .my_cart_quantity {
 
 /* ===================== Vague 3 : boutons de redirection en verre ===================== */
 /*
- * Cible les CTA de NAVIGATION (liens .btn) et exclut les zones transactionnelles
- * (panier, checkout, formulaires) où une couleur pleine est préférable.
+ * Verre sur les CTA de NAVIGATION uniquement. Texte BLEU marque (lisible sur
+ * fonds clairs comme sombres). Exclusion stricte du panier / achat / checkout.
  */
-a.btn-primary:not(.o_motion_keep):not([name="add_to_cart"]):not(#add_to_cart),
-a.btn.btn-primary:not(.o_motion_keep) {
-    // On ne touche PAS aux boutons dans le tunnel de commande / panier / formulaires.
-    &:not(.o_motion_qv_actions *) {
-        background-color: rgba(255, 255, 255, 0.16) !important;
-        background-image: none !important;
-        -webkit-backdrop-filter: blur(14px) saturate(160%);
-        backdrop-filter: blur(14px) saturate(160%);
-        border: 1px solid rgba(255, 255, 255, 0.5) !important;
-        color: #fff !important;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15),
-            inset 0 1px 1px rgba(255, 255, 255, 0.35);
-        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-            background-color 0.2s ease, box-shadow 0.2s ease;
+a.btn-primary:not(.o_motion_keep):not(#add_to_cart):not([name="add_to_cart"]):not(.a-submit) {
+    // pas dans le tunnel de commande / panier / quickview / formulaires
+    background-color: rgba(255, 255, 255, 0.22) !important;
+    background-image: none !important;
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    color: var(--pool-primary-dark, #0284c7) !important;
+    font-weight: 600;
+    text-shadow: none;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12),
+        inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 0.2s ease, box-shadow 0.2s ease;
 
-        &:hover {
-            background-color: rgba(255, 255, 255, 0.28) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22),
-                inset 0 1px 1px rgba(255, 255, 255, 0.45);
-            color: #fff !important;
-        }
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.38) !important;
+        transform: translateY(-2px);
+        color: var(--pool-primary-dark, #0284c7) !important;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18),
+            inset 0 1px 1px rgba(255, 255, 255, 0.6);
     }
 }
 
-// Zones à NE JAMAIS mettre en verre (paiement, panier, checkout) : on force le plein.
-.o_website_sale_checkout a.btn-primary,
-#o_cart_summary a.btn-primary,
-form a.btn-primary,
-.o_motion_qv a.btn-primary {
-    background-image: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+// Exclusions dures : panier, achat, checkout, quickview, formulaires -> plein.
+#add_to_cart,
+a#add_to_cart,
+[name="add_to_cart"],
+.o_website_sale_checkout .btn-primary,
+#o_cart_summary .btn-primary,
+.o_motion_qv .btn-primary,
+.js_add_cart_json,
+form .btn-primary {
+    background-color: var(--pool-primary, #0ea5e9) !important;
+    background-image: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    color: #fff !important;
+    border: 0 !important;
+    text-shadow: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
