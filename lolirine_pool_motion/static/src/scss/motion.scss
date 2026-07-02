@@ -848,7 +848,7 @@ header .o_wsale_my_cart .my_cart_quantity {
  */
 a.btn-primary:not(.o_motion_keep):not(#add_to_cart):not([name="add_to_cart"]):not(.a-submit) {
     // pas dans le tunnel de commande / panier / quickview / formulaires
-    background-color: rgba(255, 255, 255, 0.22) !important;
+    background-color: rgba(255, 255, 255, 0.40) !important;
     background-image: none !important;
     -webkit-backdrop-filter: blur(14px) saturate(160%);
     backdrop-filter: blur(14px) saturate(160%);
@@ -870,26 +870,38 @@ a.btn-primary:not(.o_motion_keep):not(#add_to_cart):not([name="add_to_cart"]):no
     }
 }
 
-// Exclusions dures : panier, achat, checkout, quickview, formulaires -> plein.
+// Panier / achat : VERRE TEINTÉ BLEU (couleur de marque conservée, effet glass).
 #add_to_cart,
 a#add_to_cart,
 [name="add_to_cart"],
+.js_add_cart_json {
+    background-color: rgba(14, 165, 233, 0.55) !important;  /* --pool-primary teinté */
+    background-image: none !important;
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3),
+        inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        background-color: rgba(2, 132, 199, 0.68) !important;
+        box-shadow: 0 10px 28px rgba(2, 132, 199, 0.4),
+            inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    }
+}
+
+// Checkout / paiement : on garde du PLEIN opaque (lisibilité + confiance).
 .o_website_sale_checkout .btn-primary,
 #o_cart_summary .btn-primary,
 .o_motion_qv .btn-primary,
-.js_add_cart_json,
-form .btn-primary {
+form.o_wsale_payment_form .btn-primary {
     background-color: var(--pool-primary, #0ea5e9) !important;
     background-image: none !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     color: #fff !important;
     border: 0 !important;
-    text-shadow: none !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    a.btn-primary:hover {
-        transform: none !important;
-    }
 }
