@@ -840,3 +840,50 @@ header .o_wsale_my_cart .my_cart_quantity {
         background-color: rgba(255, 255, 255, 0.7) !important;
     }
 }
+
+/* ===================== Vague 3 : boutons de redirection en verre ===================== */
+/*
+ * Cible les CTA de NAVIGATION (liens .btn) et exclut les zones transactionnelles
+ * (panier, checkout, formulaires) où une couleur pleine est préférable.
+ */
+a.btn-primary:not(.o_motion_keep):not([name="add_to_cart"]):not(#add_to_cart),
+a.btn.btn-primary:not(.o_motion_keep) {
+    // On ne touche PAS aux boutons dans le tunnel de commande / panier / formulaires.
+    &:not(.o_motion_qv_actions *) {
+        background-color: rgba(255, 255, 255, 0.16) !important;
+        background-image: none !important;
+        -webkit-backdrop-filter: blur(14px) saturate(160%);
+        backdrop-filter: blur(14px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        color: #fff !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15),
+            inset 0 1px 1px rgba(255, 255, 255, 0.35);
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+            background-color 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.28) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22),
+                inset 0 1px 1px rgba(255, 255, 255, 0.45);
+            color: #fff !important;
+        }
+    }
+}
+
+// Zones à NE JAMAIS mettre en verre (paiement, panier, checkout) : on force le plein.
+.o_website_sale_checkout a.btn-primary,
+#o_cart_summary a.btn-primary,
+form a.btn-primary,
+.o_motion_qv a.btn-primary {
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    a.btn-primary:hover {
+        transform: none !important;
+    }
+}
