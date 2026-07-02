@@ -821,3 +821,22 @@ header .o_wsale_my_cart .my_cart_quantity {
         width: 100%;
     }
 }
+
+/* ===================== Vague 3 : hero bienvenue en verre ===================== */
+.s_text_cover .o_grid_item.o_colored_level:not(.oe_img_bg) {
+    // Verre prononcé, cohérent avec les compteurs / le ruban.
+    background-color: rgba(255, 255, 255, 0.42) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15),
+        inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+// Repli sans backdrop-filter : on garde un blanc plus opaque pour la lisibilité.
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .s_text_cover .o_grid_item.o_colored_level:not(.oe_img_bg) {
+        background-color: rgba(255, 255, 255, 0.7) !important;
+    }
+}
