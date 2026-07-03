@@ -316,6 +316,17 @@ export class MotionQuickview extends Interaction {
         this.content.appendChild(info);
 
         if (hasAttrs) {
+            // Filet de sécurité : si aucun défaut n'a été présélectionné par
+            // attribut, on active la 1re pastille de chaque groupe -> combinaison
+            // toujours valide au chargement.
+            this.content.querySelectorAll(".o_motion_qv_attr").forEach((row) => {
+                if (!row.querySelector(".o_motion_qv_pill.is-selected")) {
+                    const first = row.querySelector(".o_motion_qv_pill");
+                    if (first) {
+                        first.classList.add("is-selected");
+                    }
+                }
+            });
             this._recompute();
         }
     }
