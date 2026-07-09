@@ -94,11 +94,10 @@ class StoragePriceIndex(models.Model):
 
     notes = fields.Text(string='Notes')
 
-    _sql_constraints = [
-        ('unique_index_date_type',
-         'UNIQUE(date, index_type, company_id)',
-         'Un seul indice par date et type est autorisé par société!')
-    ]
+    unique_index_date_type = models.Constraint(
+        'UNIQUE(date, index_type, company_id)',
+        "Un seul indice par date et type est autorisé par société!",
+    )
 
     @api.depends('date')
     def _compute_year_month(self):
