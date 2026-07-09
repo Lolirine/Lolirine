@@ -13,7 +13,7 @@ class ACT365CardholderGroup(models.Model):
         string='Nom du groupe',
         required=True,
     )
-    _act365_id = fields.Char(
+    act365_id = fields.Char(
         string='ID ACT365',
         required=True,
         index=True,
@@ -31,7 +31,7 @@ class ACT365CardholderGroup(models.Model):
         default=True,
     )
 
-    act365_id_unique = models.Constraint(
+    _act365_id_unique = models.Constraint(
         'unique(act365_id)',
         "L'ID ACT365 doit être unique!",
     )
