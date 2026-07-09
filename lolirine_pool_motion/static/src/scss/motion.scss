@@ -7,6 +7,14 @@
  *     . l'élément n'est pas déjà révélé (.o_motion_revealed)
  *   => si le JS échoue, rien ne reste invisible.
  * - Polish hover des cartes produit (CSS = pas de jank).
+ *
+ * NOTE SCOPE (fix fuite de style vers le site garde-meuble) :
+ * Les règles purement fonctionnelles/animations (.o_motion_*, .oe_product hover)
+ * restent globales : elles sont neutres et ne provoquent pas de fuite de couleur.
+ * En revanche, TOUTES les règles "visuelles" (verre / couleur bleue de marque)
+ * appliquées à des sélecteurs GENERIQUES présents sur les deux sites
+ * (a.btn-primary, header .o_wsale_my_cart, .s_text_cover, .o_motion_qv_btn ...)
+ * sont scopées sous html[data-website-id="6"] pour ne toucher QUE le Pool Store.
  */
 
 @media (prefers-reduced-motion: no-preference) {
@@ -316,12 +324,12 @@ header#top {
 /* ===================== Glass : récap de commande (checkout) ===================== */
 /*
  * Effet "verre dépoli" derrière la carte récapitulative du panier.
- * En Odoo 19 la page panier est la 1re étape du checkout (body.o_website_sale_checkout)
- * et la carte est un .card contenant un .card-body (sans id). On scope sous le body
- * du checkout pour ne toucher que cette page. Préfixe -webkit- impératif (Safari).
+ * Déjà scopé sous body.o_website_sale_checkout : ne concerne que le tunnel
+ * de commande (partagé mais neutre visuellement hors checkout). On ajoute quand
+ * même le scope website pour éviter toute fuite éventuelle.
  */
-body.o_website_sale_checkout .card:has(> .card-body),
-body.o_website_sale_checkout > div .card {
+html[data-website-id="6"] body.o_website_sale_checkout .card:has(> .card-body),
+html[data-website-id="6"] body.o_website_sale_checkout > div .card {
     background: rgba(255, 255, 255, 0.45) !important;
     -webkit-backdrop-filter: blur(14px) saturate(140%);
     backdrop-filter: blur(14px) saturate(140%);
@@ -331,26 +339,26 @@ body.o_website_sale_checkout > div .card {
 }
 
 /* Le card-body doit rester transparent pour laisser voir le flou de la carte. */
-body.o_website_sale_checkout .card > .card-body {
+html[data-website-id="6"] body.o_website_sale_checkout .card > .card-body {
     background: transparent !important;
 }
 
 /* L'input code promo s'accorde au verre, sans devenir illisible. */
-body.o_website_sale_checkout .card input.form-control {
+html[data-website-id="6"] body.o_website_sale_checkout .card input.form-control {
     background: rgba(255, 255, 255, 0.7);
 }
 
 /* Repli sans backdrop-filter (vieux navigateurs) : fond plus opaque. */
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-    body.o_website_sale_checkout .card:has(> .card-body),
-    body.o_website_sale_checkout > div .card {
+    html[data-website-id="6"] body.o_website_sale_checkout .card:has(> .card-body),
+    html[data-website-id="6"] body.o_website_sale_checkout > div .card {
         background: rgba(255, 255, 255, 0.92) !important;
     }
 }
 
 /* Panneau de verre autour du résumé de gauche (#shop_cart : lignes produits).
    Donne deux panneaux vitrés cohérents côte à côte avec la carte de droite. */
-body.o_website_sale_checkout #shop_cart {
+html[data-website-id="6"] body.o_website_sale_checkout #shop_cart {
     background: rgba(255, 255, 255, 0.45);
     -webkit-backdrop-filter: blur(14px) saturate(140%);
     backdrop-filter: blur(14px) saturate(140%);
@@ -361,19 +369,18 @@ body.o_website_sale_checkout #shop_cart {
 }
 
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-    body.o_website_sale_checkout #shop_cart {
+    html[data-website-id="6"] body.o_website_sale_checkout #shop_cart {
         background: rgba(255, 255, 255, 0.92);
     }
 }
 
 /* ===================== Pastilles header : panier + wishlist (sidebar) ===================== */
 /*
- * Pastilles RONDES en VERRE prononcé (glassmorphism), plus imposantes,
- * icône à la couleur de marque, badge rouge cerclé de blanc.
- * Préfixe -webkit- impératif (Safari). Repli opaque si pas de backdrop-filter.
+ * Pastilles RONDES en VERRE prononcé (glassmorphism). SCOPÉ au Pool Store :
+ * le header du garde-meuble ne doit pas être vitré.
  */
-header .o_wsale_my_cart,
-header .o_wsale_my_wish {
+html[data-website-id="6"] header .o_wsale_my_cart,
+html[data-website-id="6"] header .o_wsale_my_wish {
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
         background-color 0.2s ease, box-shadow 0.2s ease;
 
@@ -413,9 +420,9 @@ header .o_wsale_my_wish {
 }
 
 // Badges de quantité : rouge cerclé de blanc, bien lisibles sur le verre.
-header .o_wsale_my_cart .my_cart_quantity,
-header .o_wsale_my_wish .my_wish_quantity,
-header .o_wsale_my_wish sup.badge {
+html[data-website-id="6"] header .o_wsale_my_cart .my_cart_quantity,
+html[data-website-id="6"] header .o_wsale_my_wish .my_wish_quantity,
+html[data-website-id="6"] header .o_wsale_my_wish sup.badge {
     font-size: 0.72rem;
     font-weight: 700;
     min-width: 1.3rem;
@@ -429,47 +436,29 @@ header .o_wsale_my_wish sup.badge {
 
 // Repli sans backdrop-filter : verre simulé par un blanc semi-opaque.
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-    header .o_wsale_my_cart,
-    header .o_wsale_my_wish {
+    html[data-website-id="6"] header .o_wsale_my_cart,
+    html[data-website-id="6"] header .o_wsale_my_wish {
         background-color: rgba(255, 255, 255, 0.75) !important;
     }
-    header .o_wsale_my_cart i,
-    header .o_wsale_my_wish i {
+    html[data-website-id="6"] header .o_wsale_my_cart i,
+    html[data-website-id="6"] header .o_wsale_my_wish i {
         color: var(--pool-primary, #0ea5e9) !important;
         text-shadow: none;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    header .o_wsale_my_cart,
-    header .o_wsale_my_cart:hover,
-    header .o_wsale_my_wish,
-    header .o_wsale_my_wish:hover {
-        transform: none !important;
-        transition: none !important;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    header .o_wsale_my_cart,
-    header .o_wsale_my_cart:hover,
-    header .o_wsale_my_wish,
-    header .o_wsale_my_wish:hover {
-        transform: none !important;
-        transition: none !important;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    header .o_wsale_my_cart,
-    header .o_wsale_my_cart:hover {
+    html[data-website-id="6"] header .o_wsale_my_cart,
+    html[data-website-id="6"] header .o_wsale_my_cart:hover,
+    html[data-website-id="6"] header .o_wsale_my_wish,
+    html[data-website-id="6"] header .o_wsale_my_wish:hover {
         transform: none !important;
         transition: none !important;
     }
 }
 
 // Badge de quantité : plus lisible, contour blanc pour détacher du fond.
-header .o_wsale_my_cart .my_cart_quantity {
+html[data-website-id="6"] header .o_wsale_my_cart .my_cart_quantity {
     font-size: 0.72rem;
     font-weight: 700;
     min-width: 1.25rem;
@@ -481,21 +470,17 @@ header .o_wsale_my_cart .my_cart_quantity {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
-@media (prefers-reduced-motion: reduce) {
-    header .o_wsale_my_cart,
-    header .o_wsale_my_cart:hover {
-        transform: none !important;
-        transition: none !important;
-    }
-}
-
 /* ===================== Quickview produit (overlay) ===================== */
 
-// Loupe sur les cartes produit (apparaît au survol, pas de décalage de mise en page).
+// La carte produit doit être un référentiel pour la loupe absolue.
+// (Neutre : pas de couleur, on peut laisser global.)
 .oe_product {
     position: relative;
 }
-.o_motion_qv_btn {
+
+// Loupe sur les cartes produit (apparaît au survol). SCOPÉ Pool Store :
+// le garde-meuble n'a pas de quickview et ne doit pas voir ce bouton stylé.
+html[data-website-id="6"] .o_motion_qv_btn {
     position: absolute;
     top: 0.6rem;
     right: 0.6rem;
@@ -526,13 +511,13 @@ header .o_wsale_my_cart .my_cart_quantity {
     }
 }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .oe_product:hover .o_motion_qv_btn {
+    html[data-website-id="6"] .oe_product:hover .o_motion_qv_btn {
         opacity: 1;
         transform: scale(1);
     }
 }
 @media (hover: none), (prefers-reduced-motion: reduce) {
-    .o_motion_qv_btn {
+    html[data-website-id="6"] .o_motion_qv_btn {
         opacity: 1;
         transform: none;
     }
@@ -701,7 +686,9 @@ header .o_wsale_my_cart .my_cart_quantity {
 }
 
 /* ===================== Vague 3 : compteurs de chiffres-clés (verre) ===================== */
-.o_motion_stats {
+/* Classes .o_motion_stats posées uniquement sur les pages Pool : neutre ailleurs,
+   mais on scope par sécurité pour garantir zéro fuite. */
+html[data-website-id="6"] .o_motion_stats {
     .container {
         // Carte de verre qui englobe les 4 chiffres.
         background: rgba(255, 255, 255, 0.16);
@@ -754,7 +741,7 @@ header .o_wsale_my_cart .my_cart_quantity {
 }
 
 /* ===================== Vague 3 : ruban de marques (marquee) ===================== */
-.o_motion_marquee {
+html[data-website-id="6"] .o_motion_marquee {
     .container {
         // Carte de verre, cohérente avec les compteurs.
         background: rgba(255, 255, 255, 0.16);
@@ -814,7 +801,7 @@ header .o_wsale_my_cart .my_cart_quantity {
     to { transform: translateX(-50%); }
 }
 @media (prefers-reduced-motion: reduce) {
-    .o_motion_marquee .o_motion_marquee_track {
+    html[data-website-id="6"] .o_motion_marquee .o_motion_marquee_track {
         animation: none;
         flex-wrap: wrap;
         justify-content: center;
@@ -823,7 +810,9 @@ header .o_wsale_my_cart .my_cart_quantity {
 }
 
 /* ===================== Vague 3 : hero bienvenue en verre ===================== */
-.s_text_cover .o_grid_item.o_colored_level:not(.oe_img_bg) {
+/* .s_text_cover est un snippet GÉNÉRIQUE présent sur les deux sites :
+   IL FAUT scoper sous website 6 pour ne pas vitrer le hero du garde-meuble. */
+html[data-website-id="6"] .s_text_cover .o_grid_item.o_colored_level:not(.oe_img_bg) {
     // Verre prononcé, cohérent avec les compteurs / le ruban.
     background-color: rgba(255, 255, 255, 0.42) !important;
     -webkit-backdrop-filter: blur(18px) saturate(150%);
@@ -836,17 +825,20 @@ header .o_wsale_my_cart .my_cart_quantity {
 
 // Repli sans backdrop-filter : on garde un blanc plus opaque pour la lisibilité.
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-    .s_text_cover .o_grid_item.o_colored_level:not(.oe_img_bg) {
+    html[data-website-id="6"] .s_text_cover .o_grid_item.o_colored_level:not(.oe_img_bg) {
         background-color: rgba(255, 255, 255, 0.7) !important;
     }
 }
 
 /* ===================== Vague 3 : boutons de redirection en verre ===================== */
 /*
- * Verre sur les CTA de NAVIGATION uniquement. Texte BLEU marque (lisible sur
- * fonds clairs comme sombres). Exclusion stricte du panier / achat / checkout.
+ * Verre sur les CTA de NAVIGATION. Texte BLEU marque.
+ * a.btn-primary est un sélecteur GÉNÉRIQUE présent sur les deux sites :
+ * IL FAUT scoper sous website 6, sinon les boutons rouges du garde-meuble
+ * deviennent glass bleu (bug corrigé ici).
+ * Exclusion stricte du panier / achat / checkout.
  */
-a.btn-primary:not(.o_motion_keep):not(#add_to_cart):not([name="add_to_cart"]):not(.a-submit) {
+html[data-website-id="6"] a.btn-primary:not(.o_motion_keep):not(#add_to_cart):not([name="add_to_cart"]):not(.a-submit) {
     // pas dans le tunnel de commande / panier / quickview / formulaires
     background-color: rgba(255, 255, 255, 0.62) !important;
     background-image: none !important;
@@ -871,10 +863,10 @@ a.btn-primary:not(.o_motion_keep):not(#add_to_cart):not([name="add_to_cart"]):no
 }
 
 // Panier / achat : VERRE TEINTÉ BLEU (couleur de marque conservée, effet glass).
-#add_to_cart,
-a#add_to_cart,
-[name="add_to_cart"],
-.js_add_cart_json {
+html[data-website-id="6"] #add_to_cart,
+html[data-website-id="6"] a#add_to_cart,
+html[data-website-id="6"] [name="add_to_cart"],
+html[data-website-id="6"] .js_add_cart_json {
     background-color: rgba(14, 165, 233, 0.50) !important;  /* --pool-primary teinté */
     background-image: none !important;
     -webkit-backdrop-filter: blur(14px) saturate(160%);
@@ -894,10 +886,10 @@ a#add_to_cart,
 }
 
 // Checkout / paiement : on garde du PLEIN opaque (lisibilité + confiance).
-.o_website_sale_checkout .btn-primary,
-#o_cart_summary .btn-primary,
-.o_motion_qv .btn-primary,
-form.o_wsale_payment_form .btn-primary {
+html[data-website-id="6"] .o_website_sale_checkout .btn-primary,
+html[data-website-id="6"] #o_cart_summary .btn-primary,
+html[data-website-id="6"] .o_motion_qv .btn-primary,
+html[data-website-id="6"] form.o_wsale_payment_form .btn-primary {
     background-color: var(--pool-primary, #0ea5e9) !important;
     background-image: none !important;
     -webkit-backdrop-filter: none !important;
