@@ -183,7 +183,7 @@ class BiztaxAnnexeType(models.Model):
         help="Types MIME autorisés, séparés par virgule",
     )
     
-    code_unique = models.Constraint(
+    _code_unique = models.Constraint(
         'UNIQUE(code)',
         "Le code du type d'annexe doit être unique",
     )
