@@ -136,11 +136,10 @@ class KmVehiculePersonnel(models.Model):
         default=lambda self: self.env.company,
     )
 
-    _sql_constraints = [
-        ('immatriculation_unique', 
-         'UNIQUE(immatriculation, company_id)', 
-         'Cette immatriculation existe déjà!')
-    ]
+    immatriculation_unique = models.Constraint(
+        'UNIQUE(immatriculation, company_id)',
+        "Cette immatriculation existe déjà!",
+    )
 
     def action_voir_trajets(self):
         """Ouvre la liste des trajets pour ce véhicule personnel"""
