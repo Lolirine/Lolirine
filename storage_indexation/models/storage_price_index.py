@@ -94,7 +94,7 @@ class StoragePriceIndex(models.Model):
 
     notes = fields.Text(string='Notes')
 
-    unique_index_date_type = models.Constraint(
+    _unique_index_date_type = models.Constraint(
         'UNIQUE(date, index_type, company_id)',
         "Un seul indice par date et type est autorisé par société!",
     )
