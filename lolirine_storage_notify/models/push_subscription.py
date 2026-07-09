@@ -21,7 +21,7 @@ class LolirineStoragePushSubscription(models.Model):
     last_push  = fields.Datetime(string='Dernier push envoyé')
     last_seen  = fields.Datetime(string='Dernière activité')
 
-    endpoint_uniq = models.Constraint(
+    _endpoint_uniq = models.Constraint(
         'unique(endpoint)',
         "Un abonnement identique existe déjà.",
     )
