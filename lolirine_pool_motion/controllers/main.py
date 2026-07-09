@@ -156,7 +156,7 @@ class LolirineMotionCart(http.Controller):
     # ------------------------------------------------------------------
     @http.route(
         "/lolirine_motion/cart/add",
-        type="json",
+        type="jsonrpc",
         auth="public",
         website=True,
         methods=["POST"],
@@ -164,7 +164,7 @@ class LolirineMotionCart(http.Controller):
     )
     @http.route(
         "/lolirine_motion/cart/add",
-        type="json",
+        type="jsonrpc",
         auth="public",
         website=True,
         methods=["POST"],
@@ -194,7 +194,7 @@ class LolirineMotionCart(http.Controller):
             return {"error": str(e)}
     @http.route(
         "/lolirine_motion/cart/set",
-        type="json",
+        type="jsonrpc",
         auth="public",
         website=True,
         methods=["POST"],
