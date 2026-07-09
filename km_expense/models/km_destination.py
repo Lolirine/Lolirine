@@ -153,7 +153,7 @@ class KmDestinationDistance(models.Model):
         for record in self:
             record.distance_aller_retour = record.distance_km * 2
 
-    unique_destination_depart = models.Constraint(
+    _unique_destination_depart = models.Constraint(
         'UNIQUE(destination_id, lieu_depart_id)',
         "Une distance existe déjà pour ce couple lieu de départ / destination!",
     )
