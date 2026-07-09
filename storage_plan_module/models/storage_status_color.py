@@ -24,9 +24,10 @@ class StorageStatusColor(models.Model):
     active = fields.Boolean(string='Actif', default=True)
     show_in_legend = fields.Boolean(string='Afficher dans la légende', default=True)
 
-    _sql_constraints = [
-        ('status_key_unique', 'unique(status_key)', 'Ce statut a déjà une couleur définie!')
-    ]
+    status_key_unique = models.Constraint(
+        'unique(status_key)',
+        "Ce statut a déjà une couleur définie!",
+    )
 
     def _get_color_hex(self):
         """Convertit l'index de couleur Odoo en code hexadécimal"""
