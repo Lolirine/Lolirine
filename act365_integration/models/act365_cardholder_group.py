@@ -13,7 +13,7 @@ class ACT365CardholderGroup(models.Model):
         string='Nom du groupe',
         required=True,
     )
-    act365_id = fields.Char(
+    _act365_id = fields.Char(
         string='ID ACT365',
         required=True,
         index=True,
