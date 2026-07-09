@@ -24,7 +24,7 @@ class StorageStatusColor(models.Model):
     active = fields.Boolean(string='Actif', default=True)
     show_in_legend = fields.Boolean(string='Afficher dans la légende', default=True)
 
-    status_key_unique = models.Constraint(
+    _status_key_unique = models.Constraint(
         'unique(status_key)',
         "Ce statut a déjà une couleur définie!",
     )
