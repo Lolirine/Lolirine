@@ -136,7 +136,7 @@ class KmVehiculePersonnel(models.Model):
         default=lambda self: self.env.company,
     )
 
-    immatriculation_unique = models.Constraint(
+    _immatriculation_unique = models.Constraint(
         'UNIQUE(immatriculation, company_id)',
         "Cette immatriculation existe déjà!",
     )
