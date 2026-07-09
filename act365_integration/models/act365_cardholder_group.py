@@ -31,10 +31,10 @@ class ACT365CardholderGroup(models.Model):
         default=True,
     )
 
-    _sql_constraints = [
-        ('act365_id_unique', 'unique(act365_id)', 
-         'L\'ID ACT365 doit être unique!'),
-    ]
+    act365_id_unique = models.Constraint(
+        'unique(act365_id)',
+        "L'ID ACT365 doit être unique!",
+    )
 
     @api.model
     def get_default_group(self):
