@@ -59,7 +59,7 @@ class PoolImageSearchCandidate(models.Model):
         ('main', 'Image principale'),
         ('gallery', 'Galerie'),
         ('rejected', 'Rejeté'),
-    ], string='Statut', default='pending', tracking=True, index=True)
+    ], string='Statut', default='pending', index=True)
 
     auto_validated = fields.Boolean(string='Auto-validé', default=False)
     applied = fields.Boolean(string='Appliqué au produit', default=False)
