@@ -89,7 +89,7 @@ class BiztaxDeclarationType(models.Model):
         string="Codes fiscaux applicables",
     )
     
-    code_unique = models.Constraint(
+    _code_unique = models.Constraint(
         'UNIQUE(code)',
         "Le code du type de déclaration doit être unique",
     )
