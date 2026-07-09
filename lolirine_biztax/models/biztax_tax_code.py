@@ -67,6 +67,7 @@ class BiztaxTaxCode(models.Model):
         for record in self:
             record.display_name = f"[{record.code}] {record.name}"
     
-    _sql_constraints = [
-        ('code_unique', 'UNIQUE(code)', 'Le code fiscal doit être unique!')
-    ]
+    code_unique = models.Constraint(
+        'UNIQUE(code)',
+        "Le code fiscal doit être unique!",
+    )
