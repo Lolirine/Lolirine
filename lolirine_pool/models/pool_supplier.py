@@ -117,7 +117,7 @@ class PoolSupplier(models.Model):
         string='Historique des imports'
     )
     
-    code_unique = models.Constraint(
+    _code_unique = models.Constraint(
         'unique(code)',
         "Le code fournisseur doit être unique !",
     )
