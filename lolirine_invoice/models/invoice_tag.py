@@ -19,9 +19,10 @@ class InvoiceTag(models.Model):
         compute='_compute_invoice_count'
     )
     
-    _sql_constraints = [
-        ('name_uniq', 'unique (name)', 'Le nom du tag doit etre unique !'),
-    ]
+    name_uniq = models.Constraint(
+        'unique (name)',
+        "Le nom du tag doit etre unique !",
+    )
 
     def _compute_invoice_count(self):
         for tag in self:
