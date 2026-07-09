@@ -34,7 +34,7 @@ class PoolImageSearchSession(models.Model):
         ('done', 'Terminée'),
         ('cancelled', 'Annulée'),
         ('failed', 'Échec'),
-    ], string='Statut', default='draft', tracking=True)
+    ], string='Statut', default='draft')
 
     # Produits ciblés
     product_ids = fields.Many2many(
