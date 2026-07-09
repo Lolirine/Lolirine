@@ -117,9 +117,10 @@ class PoolSupplier(models.Model):
         string='Historique des imports'
     )
     
-    _sql_constraints = [
-        ('code_unique', 'unique(code)', 'Le code fournisseur doit être unique !'),
-    ]
+    code_unique = models.Constraint(
+        'unique(code)',
+        "Le code fournisseur doit être unique !",
+    )
     
     @api.depends('partner_id')
     def _compute_product_count(self):
