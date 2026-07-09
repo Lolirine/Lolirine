@@ -788,7 +788,7 @@ class KmTrajetCategorie(models.Model):
         default=lambda self: self.env.company,
     )
 
-    code_unique = models.Constraint(
+    _code_unique = models.Constraint(
         'UNIQUE(code, company_id)',
         "Le code doit être unique!",
     )
