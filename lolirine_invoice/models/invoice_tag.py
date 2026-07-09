@@ -19,7 +19,7 @@ class InvoiceTag(models.Model):
         compute='_compute_invoice_count'
     )
     
-    name_uniq = models.Constraint(
+    _name_uniq = models.Constraint(
         'unique (name)',
         "Le nom du tag doit etre unique !",
     )
