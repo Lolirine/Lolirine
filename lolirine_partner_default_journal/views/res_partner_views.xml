@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue heritee pour ajouter les 2 champs dans la section Comptabilite
+         (page "Facturation") de la fiche partenaire. La page existante est
+         'sales_purchases' dans la vue standard base.view_partner_form ; on
+         ajoute nos champs a la suite des champs comptables existants. -->
+
+    <record id="view_partner_form_default_journal" model="ir.ui.view">
+        <field name="name">res.partner.form.default.journal</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
+        <field name="arch" type="xml">
+
+            <!-- On accroche apres 'property_account_payable_id' pour le champ
+                 achat, et apres 'property_account_receivable_id' pour vente.
+                 Si ces xpaths ne matchent pas, on tombera sur le fallback en
+                 fin de la section 'Accounting'. -->
+
+            <xpath expr="//field[@name='property_account_payable_id']"
+                   position="after">
+                <field name="property_purchase_journal_id"
+                       options="{'no_create': True}"
+                       groups="account.group_account_invoice"/>
+            </xpath>
+
+            <xpath expr="//field[@name='property_account_receivable_id']"
+                   position="after">
+                <field name="property_sale_journal_id"
+                       options="{'no_create': True}"
+                       groups="account.group_account_invoice"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
