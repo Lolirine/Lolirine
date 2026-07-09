@@ -25,6 +25,7 @@ class PenaltyType(models.Model):
     sequence = fields.Integer(string='Séquence', default=10)
     active = fields.Boolean(string='Actif', default=True)
 
-    _sql_constraints = [
-        ('code_uniq', 'unique(code)', 'Le code doit être unique !'),
-    ]
+    code_uniq = models.Constraint(
+        'unique(code)',
+        "Le code doit être unique !",
+    )
