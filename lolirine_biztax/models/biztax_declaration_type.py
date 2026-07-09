@@ -89,9 +89,10 @@ class BiztaxDeclarationType(models.Model):
         string="Codes fiscaux applicables",
     )
     
-    _sql_constraints = [
-        ('code_unique', 'UNIQUE(code)', 'Le code du type de déclaration doit être unique'),
-    ]
+    code_unique = models.Constraint(
+        'UNIQUE(code)',
+        "Le code du type de déclaration doit être unique",
+    )
     
     def name_get(self):
         """Display name with code"""
@@ -182,9 +183,10 @@ class BiztaxAnnexeType(models.Model):
         help="Types MIME autorisés, séparés par virgule",
     )
     
-    _sql_constraints = [
-        ('code_unique', 'UNIQUE(code)', 'Le code du type d\'annexe doit être unique'),
-    ]
+    code_unique = models.Constraint(
+        'UNIQUE(code)',
+        "Le code du type d'annexe doit être unique",
+    )
     
     def name_get(self):
         """Display name with code"""
