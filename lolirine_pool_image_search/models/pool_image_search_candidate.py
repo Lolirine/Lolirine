@@ -46,7 +46,7 @@ class PoolImageSearchCandidate(models.Model):
     image_no_bg = fields.Image(string='Sans fond', attachment=True)
 
     # Scoring & dimensions
-    score = fields.Float(string='Score (%)', default=0.0, group_operator='avg')
+    score = fields.Float(string='Score (%)', default=0.0, aggregator='avg')
     width = fields.Integer(string='Largeur')
     height = fields.Integer(string='Hauteur')
     phash = fields.Char(string='Hash perceptuel', index=True)
