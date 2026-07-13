@@ -12,6 +12,7 @@
         'data/menu_chimie.xml',
         'data/menu_traitement_dosage.xml',
         'data/menu_chauffage.xml',
+        'data/website_menus_ajouts.xml',
     ],
     'assets': {
         'web.assets_frontend': [
