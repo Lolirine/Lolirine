@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Ajouts du 13/07/2026 — 5 méga-menus à reporter dans data/website_menus.xml
+  du module lolirine_pool_buypanel (site 6, Lolirine Pool Store).
+
+  Si votre fichier possède déjà l'enveloppe <odoo><data noupdate="1">,
+  ne copiez que les 5 <record> ci-dessous, dans l'ordre des séquences
+  (48, 70, 80, 90, 100), au milieu des records existants.
+
+  Les xml_id correspondants existent déjà en base (posés le 13/07 avec
+  noupdate) : le prochain déploiement fera correspondre sans recréer.
+-->
+<odoo>
+  <data noupdate="1">
+
+    <!-- seq 48 — créé le 13/07/2026, id base 236 -->
+    <record id="menu_nettoyage_robots" model="website.menu">
+        <field name="name">Nettoyage &amp; Robots</field>
+        <field name="parent_id" ref="menu_pool_root"/>
+        <field name="website_id">6</field>
+        <field name="sequence">48</field>
+        <field name="url">/shop/category/nettoyage-robots-87</field>
+        <field name="is_mega_menu" eval="True"/>
+        <field name="mega_menu_classes">border-top-0</field>
+        <field name="mega_menu_content"><![CDATA[
+<section class="s_mega_menu_cards o_cc o_cc1 pt16 pb16" data-name="Méga menu Nettoyage &amp; Robots">
+  <div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
+          <a class="nav-link p-0" href="/shop/category/nettoyage-robots-robots-automatiques-88">
+            <div class="card h-100 border-top-0">
+              <img class="card-img-top" src="/web/image/product.public.category/88/image_512" alt="Robots automatiques" loading="lazy"/>
+              <div class="card-body px-0 py-2 text-center">
+                <h6 class="card-title mb-0">Robots automatiques</h6>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
+          <a class="nav-link p-0" href="/shop/category/nettoyage-robots-aspirateurs-balais-89">
+            <div class="card h-100 border-top-0">
+              <img class="card-img-top" src="/web/image/product.public.category/89/image_512" alt="Aspirateurs & Balais" loading="lazy"/>
+              <div class="card-body px-0 py-2 text-center">
+                <h6 class="card-title mb-0">Aspirateurs & Balais</h6>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
+          <a class="nav-link p-0" href="/shop/category/nettoyage-robots-epuisettes-brosses-90">
+            <div class="card h-100 border-top-0">
+              <img class="card-img-top" src="/web/image/product.public.category/90/image_512" alt="Épuisettes & Brosses" loading="lazy"/>
+              <div class="card-body px-0 py-2 text-center">
+                <h6 class="card-title mb-0">Épuisettes & Brosses</h6>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
+          <a class="nav-link p-0" href="/shop/category/nettoyage-robots-manches-tuyaux-91">
+            <div class="card h-100 border-top-0">
+              <img class="card-img-top" src="/web/image/product.public.category/91/image_512" alt="Manches & Tuyaux" loading="lazy"/>
+              <div class="card-body px-0 py-2 text-center">
+                <h6 class="card-title mb-0">Manches & Tuyaux</h6>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6 mb-3">
+          <a class="nav-link p-0" href="/shop/category/nettoyage-robots-accessoires-nettoyage-92">
+            <div class="card h-100 border-top-0">
+              <img class="card-img-top" src="/web/image/product.public.category/92/image_512" alt="Accessoires nettoyage" loading="lazy"/>
+              <div class="card-body px-0 py-2 text-center">
+                <h6 class="card-title mb-0">Accessoires nettoyage</h6>
+              </div>
+            </div>
+          </a>
+        </div>
+    </div>
+  </div>
+</section>
+        ]]></field>
+    </record>
+
+    <!-- seq 70 — consolidation du 13/07/2026, id base 225 -->
+    <record id="menu_pieces_sceller_plomberie" model="website.menu">
+        <field name="name">Pièces à sceller &amp; Plomberie</field>
+        <field name="parent_id" ref="menu_pool_root"/>
+        <field name="website_id">6</field>
+        <field name="sequence">70</field>
+        <field name="url">#</field>
+        <field name="is_mega_menu" eval="True"/>
+        <field name="mega_menu_classes">border-top-0</field>
+        <field name="mega_menu_content"><![CDATA[
+    <section class="s_mega_menu_odoo_menu pt16 o_colored_level o_cc o_cc1">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Skimmers Weltico</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/208" class="nav-link px-0" data-name="Menu Item">Skimmers Weltico</a>
+                        <a href="/shop/category/209" class="nav-link px-0" data-name="Menu Item">Couvercles &amp; rehausses</a>
+                        <a href="/shop/category/213" class="nav-link px-0" data-name="Menu Item">Accessoires de couleur</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Pièces Weltico</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/210" class="nav-link px-0" data-name="Menu Item">Refoulements &amp; prises balais</a>
+                        <a href="/shop/category/211" class="nav-link px-0" data-name="Menu Item">Bondes de fond</a>
+                        <a href="/shop/category/212" class="nav-link px-0" data-name="Menu Item">Traversées de paroi</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Hayward</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/215" class="nav-link px-0" data-name="Menu Item">Skimmers Hayward</a>
+                        <a href="/shop/category/216" class="nav-link px-0" data-name="Menu Item">Accessoires Hayward</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Plomberie</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--o-color-4);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/217" class="nav-link px-0" data-name="Menu Item">Module de régulation Acis</a>
+                        <a href="/shop/category/218" class="nav-link px-0" data-name="Menu Item">Bassins hors sol</a>
+                        <a href="/shop/category/219" class="nav-link px-0" data-name="Menu Item">Tuyauterie</a>
+                        <a href="/shop/category/220" class="nav-link px-0" data-name="Menu Item">Plomberie</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+        ]]></field>
+    </record>
+
+    <!-- seq 80 — consolidation du 13/07/2026, id base 226 -->
+    <record id="menu_raccorderie_pvc" model="website.menu">
+        <field name="name">Raccorderie PVC</field>
+        <field name="parent_id" ref="menu_pool_root"/>
+        <field name="website_id">6</field>
+        <field name="sequence">80</field>
+        <field name="url">#</field>
+        <field name="is_mega_menu" eval="True"/>
+        <field name="mega_menu_classes">border-top-0</field>
+        <field name="mega_menu_content"><![CDATA[
+    <section class="s_mega_menu_odoo_menu pt16 o_colored_level o_cc o_cc1">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Raccords à coller</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/223" class="nav-link px-0" data-name="Menu Item">Coudes</a>
+                        <a href="/shop/category/224" class="nav-link px-0" data-name="Menu Item">Tés</a>
+                        <a href="/shop/category/232" class="nav-link px-0" data-name="Menu Item">Croix</a>
+                        <a href="/shop/category/233" class="nav-link px-0" data-name="Menu Item">Bouchons</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Manchons &amp; réductions</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/225" class="nav-link px-0" data-name="Menu Item">Manchons</a>
+                        <a href="/shop/category/226" class="nav-link px-0" data-name="Menu Item">Réductions</a>
+                        <a href="/shop/category/227" class="nav-link px-0" data-name="Menu Item">Unions</a>
+                        <a href="/shop/category/234" class="nav-link px-0" data-name="Menu Item">Embouts filetés</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Vannes, clapets &amp; collecteurs</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/222" class="nav-link px-0" data-name="Menu Item">Vannes</a>
+                        <a href="/shop/category/228" class="nav-link px-0" data-name="Menu Item">Clapets</a>
+                        <a href="/shop/category/229" class="nav-link px-0" data-name="Menu Item">Collecteurs</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Fixations &amp; tout voir</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--o-color-4);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/230" class="nav-link px-0" data-name="Menu Item">Colliers</a>
+                        <a href="/shop/category/231" class="nav-link px-0" data-name="Menu Item">Adaptateurs</a>
+                        <a href="/shop/category/221" class="nav-link px-0" data-name="Menu Item">Voir toute la Raccorderie PVC</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+        ]]></field>
+    </record>
+
+    <!-- seq 90 — consolidation du 13/07/2026, id base 227 -->
+    <record id="menu_structures" model="website.menu">
+        <field name="name">Structures</field>
+        <field name="parent_id" ref="menu_pool_root"/>
+        <field name="website_id">6</field>
+        <field name="sequence">90</field>
+        <field name="url">#</field>
+        <field name="is_mega_menu" eval="True"/>
+        <field name="mega_menu_classes">border-top-0</field>
+        <field name="mega_menu_content"><![CDATA[
+    <section class="s_mega_menu_odoo_menu pt16 o_colored_level o_cc o_cc1">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Construction</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/236" class="nav-link px-0" data-name="Menu Item">Blocs polystyrène</a>
+                        <a href="/shop/category/238" class="nav-link px-0" data-name="Menu Item">Accessoires de construction</a>
+                        <a href="/shop/category/241" class="nav-link px-0" data-name="Menu Item">Locaux techniques</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Piscines hors-sol</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/240" class="nav-link px-0" data-name="Menu Item">Piscines hors-sol bois</a>
+                        <a href="/shop/category/242" class="nav-link px-0" data-name="Menu Item">Piscines résine &amp; galvanisé</a>
+                        <a href="/shop/category/239" class="nav-link px-0" data-name="Menu Item">Piscines tubulaires</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Accès &amp; manutention</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/237" class="nav-link px-0" data-name="Menu Item">Escaliers</a>
+                        <a href="/shop/category/243" class="nav-link px-0" data-name="Menu Item">Échelles hors-sol</a>
+                        <a href="/shop/category/244" class="nav-link px-0" data-name="Menu Item">Enrouleurs</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Revêtement &amp; tout voir</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--o-color-4);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/245" class="nav-link px-0" data-name="Menu Item">Couvertures &amp; feutres</a>
+                        <a href="/shop/category/246" class="nav-link px-0" data-name="Menu Item">Liners hors-sol</a>
+                        <a href="/shop/category/235" class="nav-link px-0" data-name="Menu Item">Voir toutes les Structures</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+        ]]></field>
+    </record>
+
+    <!-- seq 100 — consolidation du 13/07/2026, id base 228 -->
+    <record id="menu_construction_revetement" model="website.menu">
+        <field name="name">Construction &amp; Revêtement</field>
+        <field name="parent_id" ref="menu_pool_root"/>
+        <field name="website_id">6</field>
+        <field name="sequence">100</field>
+        <field name="url">#</field>
+        <field name="is_mega_menu" eval="True"/>
+        <field name="mega_menu_classes">border-top-0</field>
+        <field name="mega_menu_content"><![CDATA[
+    <section class="s_mega_menu_odoo_menu pt16 o_colored_level o_cc o_cc1">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Membranes armées</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/251" class="nav-link px-0" data-name="Menu Item">Proflex &amp; Haogenplast</a>
+                        <a href="/shop/category/252" class="nav-link px-0" data-name="Menu Item">Renolit Alkor</a>
+                        <a href="/shop/category/253" class="nav-link px-0" data-name="Menu Item">Cefil Pool</a>
+                        <a href="/shop/category/254" class="nav-link px-0" data-name="Menu Item">Piscines commerciales</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Liners &amp; PVC</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/158" class="nav-link px-0" data-name="Menu Item">Membranes &amp; Liners</a>
+                        <a href="/shop/category/247" class="nav-link px-0" data-name="Menu Item">Liners sur mesure Albon</a>
+                        <a href="/shop/category/255" class="nav-link px-0" data-name="Menu Item">PVC liquide &amp; vernis</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Pose &amp; accessoires</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--primary);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/248" class="nav-link px-0" data-name="Menu Item">Feutres &amp; protection sous liner</a>
+                        <a href="/shop/category/249" class="nav-link px-0" data-name="Menu Item">Joncs, rails &amp; profilés liner</a>
+                        <a href="/shop/category/159" class="nav-link px-0" data-name="Menu Item">Skimmers &amp; Pièces à sceller</a>
+                    </nav>
+                </div>
+                <div class="col-12 col-lg-3 pt16 pb24">
+                    <h4 class="h5 fw-bold mt-0">Structure &amp; tout voir</h4>
+                    <div class="s_hr pt4 pb16"><hr class="w-100 mx-auto" style="border-top-width: 2px; border-top-color: var(--o-color-4);"/></div>
+                    <nav class="nav flex-column">
+                        <a href="/shop/category/157" class="nav-link px-0" data-name="Menu Item">Blocs &amp; Structure</a>
+                        <a href="/shop/category/160" class="nav-link px-0" data-name="Menu Item">Inox &amp; Accessoires</a>
+                        <a href="/shop/category/156" class="nav-link px-0" data-name="Menu Item">Voir tout Construction &amp; Revêtement</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+        ]]></field>
+    </record>
+
+  </data>
+</odoo>
