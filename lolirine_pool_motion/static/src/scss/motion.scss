@@ -897,3 +897,13 @@ html[data-website-id="6"] form.o_wsale_payment_form .btn-primary {
     color: #fff !important;
     border: 0 !important;
 }
+
+/* ===================== Zoom-loupe au survol (fiche produit) ===================== */
+#o-carousel-product {
+    .carousel-item {
+        overflow: hidden;
+    }
+    .carousel-item.active img {
+        cursor: zoom-in;
+    }
+}
