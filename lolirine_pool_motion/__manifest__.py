@@ -51,6 +51,7 @@ Moteur : Motion (motion.dev) v12, build UMD local (window.Motion).
             "lolirine_pool_motion/static/src/js/mini_cart.interaction.js",
             "lolirine_pool_motion/static/src/js/cart_icon.interaction.js",
             "lolirine_pool_motion/static/src/js/quickview.interaction.js",
+            "lolirine_pool_motion/static/src/js/image_zoom.interaction.js",
         ],
     },
     "installable": True,
