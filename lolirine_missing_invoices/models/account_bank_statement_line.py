@@ -105,9 +105,14 @@ class AccountBankStatementLine(models.Model):
     # Search (champ non stocké)
     # ------------------------------------------------------------------
     def _search_x_invoice_status(self, operator, value):
+        # Odoo 19 : les domaines sont normalises avant d'atteindre cette methode.
+        # ('=', 'missing') devient ('in', OrderedSet(['missing'])) -> il faut
+        # accepter tout iterable (list, tuple, set, OrderedSet), pas seulement
+        # list/tuple.
         if operator not in ('=', '!=', 'in', 'not in'):
-            return [('id', 'in', [])]
-        values = value if isinstance(value, (list, tuple)) else [value]
+            raise NotImplementedError()
+        values = {value} if isinstance(value, str) else set(value)
+        negative = operator in ('!=', 'not in')
         # Seules les lignes non rapprochées peuvent être found/missing
         lines = self.search([
             ('is_reconciled', '=', False),
@@ -117,11 +122,8 @@ class AccountBankStatementLine(models.Model):
         if 'na' in values:
             # 'na' couvre aussi tout le reste (rapprochées) -> domaine inversé
             other = lines - matched
-            neg = operator in ('!=', 'not in')
-            return [('id', 'not in' if not neg else 'in', other.ids)]
-        if operator in ('!=', 'not in'):
-            return [('id', 'not in', matched.ids)]
-        return [('id', 'in', matched.ids)]
+            return [('id', 'in' if negative else 'not in', other.ids)]
+        return [('id', 'not in' if negative else 'in', matched.ids)]
 
     # ------------------------------------------------------------------
     # Helpers
