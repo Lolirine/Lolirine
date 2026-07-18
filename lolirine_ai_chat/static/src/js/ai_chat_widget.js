@@ -138,6 +138,12 @@
         this._welcome();
     };
 
+    // Purge d'éventuels conteneurs orphelins d'une exécution précédente.
+        document.querySelectorAll("[id='lolirine-ai-chat-container']")
+            .forEach(function(n) { n.remove(); });
+        document.querySelectorAll(".lai-teaser")
+            .forEach(function(n) { n.remove(); });
+    
     Chat.prototype._bind = function() {
         var self = this;
         this.tog.addEventListener("click", function() { self._toggle(); });
