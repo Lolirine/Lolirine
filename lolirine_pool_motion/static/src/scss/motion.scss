@@ -1072,17 +1072,7 @@ html[data-website-id="6"] .o_motion_buybar {
     }
 }
 
-/* Mini-cart : dégage le pied du drawer de la zone du widget de chat. */
-html[data-website-id="6"] .o_motion_drawer_foot {
-    padding-bottom: 6rem;
-}
-@media (max-width: 767.98px) {
-    html[data-website-id="6"] .o_motion_drawer_foot {
-        padding-bottom: 5.5rem;
-    }
-}
-
-/* Mini-cart : le pied (Total / Voir le panier / Commander) colle au bas du panneau. */
+/* ===== Mini-cart : pied collé au bas du panneau (bloc unique) ===== */
 html[data-website-id="6"] .o_motion_drawer_body {
     flex: 1 1 auto;
     min-height: 0;
@@ -1091,4 +1081,5 @@ html[data-website-id="6"] .o_motion_drawer_body {
 html[data-website-id="6"] .o_motion_drawer_foot {
     margin-top: auto;
     flex: 0 0 auto;
+    padding-bottom: 0.9rem;
 }
