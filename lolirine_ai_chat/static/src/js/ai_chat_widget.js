@@ -124,9 +124,7 @@
             '<span class="lai-toggle-icon">\ud83d\udcac</span>' +
             '<span class="lai-badge">1</span></button>';
 
-        var root = document.getElementById("lolirine-ai-chat-root");
-        if (root) root.appendChild(this.el);
-        else document.body.appendChild(this.el);
+        document.body.appendChild(this.el);
 
         this.win = this.el.querySelector(".lai-chat-window");
         this.area = this.el.querySelector(".lai-messages");
