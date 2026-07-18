@@ -298,26 +298,30 @@ header#top {
     flex: 0 0 auto;
 }
 
-.o_motion_drawer_foot {
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom, 0px));
-
-    .o_motion_drawer_total {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        font-weight: 600;
-        margin-bottom: 0.85rem;
-
-        .o_motion_drawer_total_val {
-            font-size: 1.15rem;
-        }
-    }
+/* Mini-cart : le drawer s'arrête au-dessus du widget de chat. */
+html[data-website-id="6"] .o_motion_drawer {
+    top: 0;
+    bottom: 7rem;
+    height: auto;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    border-bottom-left-radius: 18px;
+    overflow: hidden;
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.18);
 }
-
-@media (prefers-reduced-motion: reduce) {
-    .o_motion_drawer_line {
-        transition: none !important;
+html[data-website-id="6"] .o_motion_drawer_body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+html[data-website-id="6"] .o_motion_drawer_foot {
+    flex: 0 0 auto;
+    padding-bottom: 0.9rem;
+}
+@media (max-width: 767.98px) {
+    html[data-website-id="6"] .o_motion_drawer {
+        bottom: 6rem;
     }
 }
 
