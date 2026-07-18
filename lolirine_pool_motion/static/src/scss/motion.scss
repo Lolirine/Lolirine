@@ -907,3 +907,61 @@ html[data-website-id="6"] form.o_wsale_payment_form .btn-primary {
         cursor: zoom-in;
     }
 }
+
+/* ===================== Mascotte "Bulle" (yeux suiveurs) ===================== */
+.o_motion_mascot {
+    position: fixed;
+    left: 1.4rem;
+    bottom: 1.4rem;
+    z-index: 1035;
+    width: 74px;
+    height: 82px;
+    opacity: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.22));
+
+    svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+    .o_motion_mascot_body {
+        fill: var(--pool-primary, #0ea5e9);
+        fill-opacity: 0.92;
+    }
+    .o_motion_mascot_shine {
+        fill: #fff;
+        opacity: 0.28;
+    }
+    .o_motion_mascot_eye {
+        fill: #fff;
+    }
+    .o_motion_mascot_pupil {
+        fill: #0b3a52;
+        transition: transform 0.12s ease-out;
+    }
+    // Clignement : on aplatit les yeux une fraction de seconde.
+    .o_motion_mascot_eyes {
+        transform-origin: center 72px;
+        transition: transform 0.08s ease-in-out;
+        &.is-blinking {
+            transform: scaleY(0.12);
+        }
+    }
+}
+
+@media (max-width: 991.98px) {
+    .o_motion_mascot {
+        display: none;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .o_motion_mascot {
+        display: none;
+    }
+}
+@media print {
+    .o_motion_mascot {
+        display: none;
+    }
+}
