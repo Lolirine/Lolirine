@@ -1071,3 +1071,13 @@ html[data-website-id="6"] .o_motion_buybar {
         display: none;
     }
 }
+
+/* Mini-cart : dégage le pied du drawer de la zone du widget de chat. */
+html[data-website-id="6"] .o_motion_drawer_foot {
+    padding-bottom: 6rem;
+}
+@media (max-width: 767.98px) {
+    html[data-website-id="6"] .o_motion_drawer_foot {
+        padding-bottom: 5.5rem;
+    }
+}
