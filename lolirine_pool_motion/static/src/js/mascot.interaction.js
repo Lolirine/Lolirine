@@ -4,11 +4,12 @@ import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
 import { getMotion, prefersReducedMotion } from "./motion_helpers";
 
+const STORAGE_KEY = "lolirine_mascot_off";
+
 /*
- * Mascotte "Bulle" : petite goutte d'eau en bas à gauche dont les yeux
- * suivent le curseur. Cligne des yeux aléatoirement, sursaute au clic.
- * Injectée site-wide, purement décorative (aria-hidden), désactivée sur
- * mobile et en prefers-reduced-motion.
+ * Mascotte "Bulle" : goutte d'eau dont les yeux suivent le curseur.
+ * Cligne des yeux, sursaute au clic, et peut être désactivée par le visiteur
+ * via une petite croix (choix mémorisé dans le navigateur).
  */
 export class MotionMascot extends Interaction {
     static selector = "#wrapwrap";
@@ -26,11 +27,19 @@ export class MotionMascot extends Interaction {
         this.el_mascot = null;
         this.pupils = [];
         this.blinkTimer = null;
+        this.onClose = this.onClose.bind(this);
+    }
+
+    _isDisabled() {
+        try {
+            return window.localStorage.getItem(STORAGE_KEY) === "1";
+        } catch {
+            return false;
+        }
     }
 
     start() {
-        // Pas de mascotte sur petit écran ni en mouvement réduit.
-        if (this.reduced || window.innerWidth < 992) {
+        if (this.reduced || window.innerWidth < 992 || this._isDisabled()) {
             return;
         }
         if (document.querySelector(".o_motion_mascot")) {
@@ -41,6 +50,8 @@ export class MotionMascot extends Interaction {
         wrap.className = "o_motion_mascot";
         wrap.setAttribute("aria-hidden", "true");
         wrap.innerHTML = `
+            <button type="button" class="o_motion_mascot_close"
+                    title="Masquer la mascotte" aria-label="Masquer la mascotte">&times;</button>
             <svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
               <path class="o_motion_mascot_body"
                     d="M50 4 C74 38 92 58 92 74 A42 42 0 0 1 8 74 C8 58 26 38 50 4 Z"/>
@@ -57,8 +68,9 @@ export class MotionMascot extends Interaction {
         this.el_mascot = wrap;
         this.pupils = Array.from(wrap.querySelectorAll(".o_motion_mascot_pupil"));
         this.eyesGroup = wrap.querySelector(".o_motion_mascot_eyes");
+        wrap.querySelector(".o_motion_mascot_close")
+            ?.addEventListener("click", this.onClose);
 
-        // Entrée en douceur.
         if (this.motion) {
             this.motion.animate(
                 wrap,
@@ -68,8 +80,31 @@ export class MotionMascot extends Interaction {
         } else {
             wrap.style.opacity = "1";
         }
-
         this._scheduleBlink();
+    }
+
+    onClose(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        try {
+            window.localStorage.setItem(STORAGE_KEY, "1");
+        } catch {
+            /* mode privé : la mascotte reviendra au prochain chargement */
+        }
+        const wrap = this.el_mascot;
+        if (!wrap) {
+            return;
+        }
+        clearTimeout(this.blinkTimer);
+        if (this.motion) {
+            this.motion
+                .animate(wrap, { opacity: [1, 0], scale: [1, 0.6], y: [0, 16] },
+                         { duration: 0.3, ease: [0.4, 0, 1, 1] })
+                .finished?.then(() => wrap.remove());
+        } else {
+            wrap.remove();
+        }
+        this.el_mascot = null;
     }
 
     _scheduleBlink() {
@@ -77,9 +112,7 @@ export class MotionMascot extends Interaction {
         this.blinkTimer = setTimeout(() => {
             if (this.eyesGroup) {
                 this.eyesGroup.classList.add("is-blinking");
-                setTimeout(() => {
-                    this.eyesGroup?.classList.remove("is-blinking");
-                }, 160);
+                setTimeout(() => this.eyesGroup?.classList.remove("is-blinking"), 160);
             }
             this._scheduleBlink();
         }, delay);
@@ -95,7 +128,7 @@ export class MotionMascot extends Interaction {
         const dx = ev.clientX - cx;
         const dy = ev.clientY - cy;
         const dist = Math.hypot(dx, dy) || 1;
-        const max = 3.6; // amplitude du regard (unités SVG)
+        const max = 3.6;
         const ox = (dx / dist) * Math.min(max, dist / 40);
         const oy = (dy / dist) * Math.min(max, dist / 40);
         for (const p of this.pupils) {
@@ -107,11 +140,8 @@ export class MotionMascot extends Interaction {
         if (!this.el_mascot || !this.motion) {
             return;
         }
-        this.motion.animate(
-            this.el_mascot,
-            { scale: [1, 0.86, 1.06, 1] },
-            { duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }
-        );
+        this.motion.animate(this.el_mascot, { scale: [1, 0.86, 1.06, 1] },
+                            { duration: 0.45, ease: [0.34, 1.56, 0.64, 1] });
     }
 
     destroy() {
