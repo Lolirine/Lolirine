@@ -908,18 +908,26 @@ html[data-website-id="6"] form.o_wsale_payment_form .btn-primary {
     }
 }
 
-/* ===================== Mascotte "Bulle" (yeux suiveurs) ===================== */
-.o_motion_mascot {
+/* ===================== Mascotte "Bulle" (suit le pointeur) ===================== */
+html[data-website-id="6"] .o_motion_mascot {
     position: fixed;
-    left: 1.4rem;
-    bottom: 1.4rem;
-    z-index: 1035;
-    width: 74px;
-    height: 82px;
+    top: 0;
+    left: 0;
+    z-index: 2147483000;
+    width: 52px;
+    height: 58px;
     opacity: 0;
     pointer-events: none;
-    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.22));
+    filter: drop-shadow(0 5px 14px rgba(0, 0, 0, 0.25));
+    transition: opacity 0.35s ease;
+    will-change: transform;
 
+    &.is-on {
+        opacity: 1;
+    }
+    &.is-parked {
+        pointer-events: auto;
+    }
     svg {
         width: 100%;
         height: 100%;
@@ -927,7 +935,7 @@ html[data-website-id="6"] form.o_wsale_payment_form .btn-primary {
     }
     .o_motion_mascot_body {
         fill: var(--pool-primary, #0ea5e9);
-        fill-opacity: 0.92;
+        fill-opacity: 0.94;
     }
     .o_motion_mascot_shine {
         fill: #fff;
@@ -938,9 +946,8 @@ html[data-website-id="6"] form.o_wsale_payment_form .btn-primary {
     }
     .o_motion_mascot_pupil {
         fill: #0b3a52;
-        transition: transform 0.12s ease-out;
+        transition: transform 0.1s ease-out;
     }
-    // Clignement : on aplatit les yeux une fraction de seconde.
     .o_motion_mascot_eyes {
         transform-origin: center 72px;
         transition: transform 0.08s ease-in-out;
@@ -948,55 +955,37 @@ html[data-website-id="6"] form.o_wsale_payment_form .btn-primary {
             transform: scaleY(0.12);
         }
     }
-}
-
-@media (max-width: 991.98px) {
-    .o_motion_mascot {
-        display: none;
-    }
-}
-@media (prefers-reduced-motion: reduce) {
-    .o_motion_mascot {
-        display: none;
-    }
-}
-@media print {
-    .o_motion_mascot {
-        display: none;
-    }
-}
-
-/* ===== Mascotte : taille réduite + bouton de fermeture ===== */
-.o_motion_mascot {
-    width: 56px;
-    height: 62px;
-
     .o_motion_mascot_close {
         position: absolute;
-        top: -6px;
-        right: -6px;
-        width: 20px;
-        height: 20px;
+        top: -7px;
+        right: -7px;
+        width: 19px;
+        height: 19px;
         padding: 0;
-        line-height: 18px;
-        font-size: 15px;
+        line-height: 17px;
+        font-size: 14px;
         border: 0;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.92);
+        background: rgba(255, 255, 255, 0.95);
         color: rgba(0, 0, 0, 0.55);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
         cursor: pointer;
-        pointer-events: auto;
         opacity: 0;
-        transform: scale(0.7);
+        transform: scale(0.6);
         transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    &:hover .o_motion_mascot_close {
+    &.is-parked:hover .o_motion_mascot_close {
         opacity: 1;
         transform: scale(1);
     }
 }
-.o_motion_mascot:hover {
-    pointer-events: auto;
-}
 
+@media (max-width: 991.98px), (hover: none) {
+    .o_motion_mascot { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .o_motion_mascot { display: none; }
+}
+@media print {
+    .o_motion_mascot { display: none; }
+}
