@@ -404,8 +404,10 @@
     // Init - skip backend
     function go() {
         if (document.querySelector(".o_main_navbar") && !document.querySelector("#wrapwrap")) return;
+        // Garde anti-double-injection : un seul widget par page, quel que soit
+        // le nombre d'exécutions du script.
+        if (window.__lolirineAiChatStarted) return;
+        window.__lolirineAiChatStarted = true;
+        if (document.getElementById("lolirine-ai-chat-container")) return;
         var c = new Chat(); c.init();
     }
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go);
-    else go();
-})();
