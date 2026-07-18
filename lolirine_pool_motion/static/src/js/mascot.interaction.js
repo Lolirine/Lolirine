@@ -7,9 +7,14 @@ import { getMotion, prefersReducedMotion } from "./motion_helpers";
 const STORAGE_KEY = "lolirine_mascot_off";
 
 /*
- * Mascotte "Bulle" : goutte d'eau dont les yeux suivent le curseur.
- * Cligne des yeux, sursaute au clic, et peut être désactivée par le visiteur
- * via une petite croix (choix mémorisé dans le navigateur).
+ * Mascotte "Bulle" : petite goutte d'eau qui SUIT LE POINTEUR avec un léger
+ * retard, en se plaçant à côté du curseur (curseur natif conservé).
+ *  - ses yeux regardent le curseur ;
+ *  - elle cligne des yeux aléatoirement ;
+ *  - après ~2,5 s sans mouvement elle "se gare" : elle devient survolable et
+ *    affiche une croix pour être désactivée (choix mémorisé) ;
+ *  - desktop uniquement, décorative (aria-hidden), pointer-events neutralisés
+ *    tant qu'elle suit la souris.
  */
 export class MotionMascot extends Interaction {
     static selector = "#wrapwrap";
@@ -17,7 +22,7 @@ export class MotionMascot extends Interaction {
     dynamicContent = {
         _document: {
             "t-on-mousemove": this.onMove,
-            "t-on-click": this.onClick,
+            "t-on-mousedown": this.onDown,
         },
     };
 
@@ -26,7 +31,16 @@ export class MotionMascot extends Interaction {
         this.reduced = prefersReducedMotion();
         this.el_mascot = null;
         this.pupils = [];
+        this.eyesGroup = null;
         this.blinkTimer = null;
+        this.idleTimer = null;
+        this.raf = null;
+        this.tx = window.innerWidth * 0.5;
+        this.ty = window.innerHeight * 0.7;
+        this.cx = this.tx;
+        this.cy = this.ty;
+        this.hasMoved = false;
+        this.tick = this.tick.bind(this);
         this.onClose = this.onClose.bind(this);
     }
 
@@ -40,6 +54,9 @@ export class MotionMascot extends Interaction {
 
     start() {
         if (this.reduced || window.innerWidth < 992 || this._isDisabled()) {
+            return;
+        }
+        if (!window.matchMedia("(hover: hover)").matches) {
             return;
         }
         if (document.querySelector(".o_motion_mascot")) {
@@ -71,41 +88,63 @@ export class MotionMascot extends Interaction {
         wrap.querySelector(".o_motion_mascot_close")
             ?.addEventListener("click", this.onClose);
 
-        if (this.motion) {
-            this.motion.animate(
-                wrap,
-                { opacity: [0, 1], y: [24, 0], scale: [0.8, 1] },
-                { duration: 0.6, ease: [0.34, 1.56, 0.64, 1], delay: 0.8 }
-            );
-        } else {
-            wrap.style.opacity = "1";
-        }
         this._scheduleBlink();
+        this.raf = requestAnimationFrame(this.tick);
     }
 
-    onClose(ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        try {
-            window.localStorage.setItem(STORAGE_KEY, "1");
-        } catch {
-            /* mode privé : la mascotte reviendra au prochain chargement */
+    /* ---------- suivi du pointeur ---------- */
+
+    onMove(ev) {
+        // décalage : la bulle se place en bas à droite du curseur
+        this.tx = ev.clientX + 26;
+        this.ty = ev.clientY + 26;
+        if (!this.hasMoved) {
+            this.hasMoved = true;
+            this.cx = this.tx;
+            this.cy = this.ty;
+            this.el_mascot?.classList.add("is-on");
         }
+        this.el_mascot?.classList.remove("is-parked");
+        clearTimeout(this.idleTimer);
+        this.idleTimer = setTimeout(() => {
+            this.el_mascot?.classList.add("is-parked");
+        }, 2500);
+    }
+
+    tick() {
+        // interpolation : la bulle rattrape le curseur en douceur
+        this.cx += (this.tx - this.cx) * 0.14;
+        this.cy += (this.ty - this.cy) * 0.14;
         const wrap = this.el_mascot;
-        if (!wrap) {
+        if (wrap) {
+            wrap.style.transform =
+                `translate(${this.cx}px, ${this.cy}px) translate(-50%, -50%)`;
+            // les yeux regardent le curseur
+            const dx = this.tx - 26 - this.cx;
+            const dy = this.ty - 26 - this.cy;
+            const dist = Math.hypot(dx, dy) || 1;
+            const amp = Math.min(3.6, dist / 6);
+            const ox = (dx / dist) * amp;
+            const oy = (dy / dist) * amp;
+            for (const p of this.pupils) {
+                p.style.transform = `translate(${ox}px, ${oy}px)`;
+            }
+        }
+        this.raf = requestAnimationFrame(this.tick);
+    }
+
+    onDown() {
+        if (!this.el_mascot || !this.motion) {
             return;
         }
-        clearTimeout(this.blinkTimer);
-        if (this.motion) {
-            this.motion
-                .animate(wrap, { opacity: [1, 0], scale: [1, 0.6], y: [0, 16] },
-                         { duration: 0.3, ease: [0.4, 0, 1, 1] })
-                .finished?.then(() => wrap.remove());
-        } else {
-            wrap.remove();
+        const svg = this.el_mascot.querySelector("svg");
+        if (svg) {
+            this.motion.animate(svg, { scale: [1, 0.82, 1.08, 1] },
+                                { duration: 0.4, ease: [0.34, 1.56, 0.64, 1] });
         }
-        this.el_mascot = null;
     }
+
+    /* ---------- clignement ---------- */
 
     _scheduleBlink() {
         const delay = 2600 + Math.random() * 4200;
@@ -118,34 +157,38 @@ export class MotionMascot extends Interaction {
         }, delay);
     }
 
-    onMove(ev) {
-        if (!this.el_mascot || !this.pupils.length) {
-            return;
-        }
-        const r = this.el_mascot.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const cy = r.top + r.height * 0.66;
-        const dx = ev.clientX - cx;
-        const dy = ev.clientY - cy;
-        const dist = Math.hypot(dx, dy) || 1;
-        const max = 3.6;
-        const ox = (dx / dist) * Math.min(max, dist / 40);
-        const oy = (dy / dist) * Math.min(max, dist / 40);
-        for (const p of this.pupils) {
-            p.style.transform = `translate(${ox}px, ${oy}px)`;
-        }
-    }
+    /* ---------- désactivation ---------- */
 
-    onClick() {
-        if (!this.el_mascot || !this.motion) {
+    onClose(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        try {
+            window.localStorage.setItem(STORAGE_KEY, "1");
+        } catch {
+            /* mode privé : la mascotte reviendra au prochain chargement */
+        }
+        const wrap = this.el_mascot;
+        this.el_mascot = null;
+        clearTimeout(this.blinkTimer);
+        clearTimeout(this.idleTimer);
+        cancelAnimationFrame(this.raf);
+        if (!wrap) {
             return;
         }
-        this.motion.animate(this.el_mascot, { scale: [1, 0.86, 1.06, 1] },
-                            { duration: 0.45, ease: [0.34, 1.56, 0.64, 1] });
+        if (this.motion) {
+            this.motion
+                .animate(wrap, { opacity: [1, 0], scale: [1, 0.5] },
+                         { duration: 0.28, ease: [0.4, 0, 1, 1] })
+                .finished?.then(() => wrap.remove());
+        } else {
+            wrap.remove();
+        }
     }
 
     destroy() {
         clearTimeout(this.blinkTimer);
+        clearTimeout(this.idleTimer);
+        cancelAnimationFrame(this.raf);
         this.el_mascot?.remove();
     }
 }
