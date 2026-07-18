@@ -965,3 +965,76 @@ html[data-website-id="6"] form.o_wsale_payment_form .btn-primary {
         display: none;
     }
 }
+
+/* ===== Mascotte : taille réduite + bouton de fermeture ===== */
+.o_motion_mascot {
+    width: 56px;
+    height: 62px;
+
+    .o_motion_mascot_close {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        line-height: 18px;
+        font-size: 15px;
+        border: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.92);
+        color: rgba(0, 0, 0, 0.55);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        pointer-events: auto;
+        opacity: 0;
+        transform: scale(0.7);
+        transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    &:hover .o_motion_mascot_close {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.o_motion_mascot:hover {
+    pointer-events: auto;
+}
+
+/* ===== Curseur suiveur ===== */
+.o_motion_cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2147483000;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--pool-primary, #0ea5e9);
+    background: rgba(14, 165, 233, 0.10);
+    pointer-events: none;
+    opacity: 0;
+    transition: width 0.18s ease, height 0.18s ease, background 0.18s ease,
+        border-color 0.18s ease, opacity 0.2s ease;
+    &.is-on {
+        opacity: 1;
+    }
+    &.is-hover {
+        width: 52px;
+        height: 52px;
+        background: rgba(14, 165, 233, 0.18);
+        border-color: var(--pool-primary-dark, #0284c7);
+    }
+    &.is-down {
+        background: rgba(14, 165, 233, 0.32);
+    }
+}
+@media (max-width: 991.98px), (hover: none) {
+    .o_motion_cursor {
+        display: none;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .o_motion_cursor {
+        display: none;
+    }
+}
