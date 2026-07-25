@@ -53,6 +53,18 @@ export class MotionMascot extends Interaction {
     }
 
     start() {
+        // Mascotte réservée au frontend du Pool Store (site 6).
+        // #wrapwrap existe sur tous les sites : sans ce filtre, Bulle
+        // fuit sur le garde-meuble (site 1) sans son CSS -> goutte noire.
+        if (document.documentElement.dataset.websiteId !== "6") {
+            return;
+        }
+        // Jamais dans l'éditeur de site : évite qu'un fragment de mascotte
+        // se fige dans l'arch d'une vue lors d'une sauvegarde.
+        if (document.querySelector(".o_website_preview") ||
+            document.body.classList.contains("editor_enable")) {
+            return;
+        }
         if (this.reduced || window.innerWidth < 992 || this._isDisabled()) {
             return;
         }
