@@ -1083,3 +1083,28 @@ html[data-website-id="6"] .o_motion_drawer_foot {
     flex: 0 0 auto;
     padding-bottom: 0.9rem;
 }
+
+/* ---- Page « Résultats de recherche » (/website/search) : panneau glass ---- */
+html[data-website-id="6"] {
+    #wrap > .container:has(> form.o_searchbar_form):has(> h1.h3-fs) {
+        background: rgba(255, 255, 255, .55);
+        backdrop-filter: blur(14px) saturate(160%);
+        -webkit-backdrop-filter: blur(14px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, .45);
+        border-radius: 1rem;
+        box-shadow: 0 8px 32px rgba(15, 68, 112, .12);
+        padding: 2rem !important;      /* remplace les pt24/pb24 utilitaires */
+        margin-top: 1.5rem;
+        margin-bottom: 2rem;
+
+        /* lignes de résultats : léger relief au survol, cohérent avec les cartes */
+        a.dropdown-item {
+            border-radius: .75rem;
+            transition: background .15s ease;
+
+            &:hover {
+                background: rgba(255, 255, 255, .65);
+            }
+        }
+    }
+}
