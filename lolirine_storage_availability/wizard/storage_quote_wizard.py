@@ -22,8 +22,15 @@ class StorageQuoteWizard(models.TransientModel):
         'sale.order.template',
         string='Modele de devis',
         default=lambda self: self._default_quote_template(),
-        help="Modele de devis abonnement habituel : son plan de recurrence "
-             "et ses conditions generales seront repris sur le devis.",
+        help="Le devis sera lie a ce modele : conditions generales, "
+             "validite, plan de recurrence et options de signature "
+             "seront repris automatiquement.",
+    )
+    include_template_lines = fields.Boolean(
+        string='Inclure les lignes du modele',
+        default=True,
+        help="Ajoute au devis les lignes definies dans le modele "
+             "(ex : frais de dossier), en plus des box selectionnes.",
     )
     plan_id = fields.Many2one(
         'sale.subscription.plan',
@@ -83,23 +90,44 @@ class StorageQuoteWizard(models.TransientModel):
         if not self.plan_id:
             raise UserError(_("Aucun plan de recurrence defini."))
 
+        template = self.sale_order_template_id
+        line_commands = []
+
+        # Lignes du modele de devis (frais de dossier, sections, etc.)
+        if template and self.include_template_lines:
+            tmpl_ctx = template.with_context(
+                lang=self.partner_id.lang or self.env.user.lang)
+            line_commands += [
+                Command.create(line._prepare_order_line_values())
+                for line in tmpl_ctx.sale_order_template_line_ids
+            ]
+
+        # Lignes box
+        line_commands += [
+            Command.create({
+                'product_id': tmpl.product_variant_id.id,
+                'product_uom_qty': 1.0,
+            })
+            for tmpl in self.box_product_ids
+        ]
+
         order_vals = {
             'partner_id': self.partner_id.id,
             'plan_id': self.plan_id.id,
             'origin': _("Devis box - fiche client"),
-            'order_line': [
-                Command.create({
-                    'product_id': tmpl.product_variant_id.id,
-                    'product_uom_qty': 1.0,
-                })
-                for tmpl in self.box_product_ids
-            ],
+            'order_line': line_commands,
         }
-        # Reprise des conditions generales du modele de devis abonnement
-        if self.sale_order_template_id and self.sale_order_template_id.note:
-            order_vals['note'] = self.sale_order_template_id.note
+        # Lier le modele : les computes standards appliquent note (CGV),
+        # validity_date, require_signature/payment et journal du modele.
+        if template:
+            order_vals['sale_order_template_id'] = template.id
 
         return self.env['sale.order'].create(order_vals)
+
+    def _get_box_mail_template(self):
+        return self.env.ref(
+            'lolirine_storage_availability.mail_template_box_quote',
+            raise_if_not_found=False)
 
     def action_create_quote(self):
         """Cree le devis en brouillon et ouvre sa fiche."""
@@ -118,4 +146,9 @@ class StorageQuoteWizard(models.TransientModel):
         corps du message modifiable + PDF du devis en piece jointe.
         Rien n'est envoye tant que l'utilisateur ne confirme pas."""
         order = self._create_quote()
-        return order.action_quotation_send()
+        action = order.action_quotation_send()
+        # Utiliser le modele d'e-mail dedie aux devis box s'il existe
+        box_template = self._get_box_mail_template()
+        if box_template and isinstance(action.get('context'), dict):
+            action['context']['default_template_id'] = box_template.id
+        return action
