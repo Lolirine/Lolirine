@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_storage_quote_wizard_user,storage.quote.wizard user,model_storage_quote_wizard,base.group_user,1,1,1,1
