@@ -5,7 +5,7 @@
             <t t-foreach="docs" t-as="o">
                 <div class="article" style="font-family: Arial, sans-serif; font-size: 11pt; padding: 10px 20px;">
                     <meta charset="UTF-8"/>
-                    
+
                     <!-- En-tête avec logo et coordonnées -->
                     <table style="width: 100%; margin-bottom: 15px;">
                         <tr>
@@ -22,7 +22,7 @@
                             </td>
                         </tr>
                     </table>
-                    
+
                     <!-- Informations client et devis -->
                     <table style="width: 100%; margin-bottom: 15px;">
                         <tr>
@@ -49,46 +49,60 @@
                                         <td style="padding: 5px; text-align: right;">Devis N°:</td>
                                         <td style="padding: 5px; text-align: right;"><strong><t t-esc="o.name"/></strong></td>
                                     </tr>
+                                    <tr t-if="o.validity_date">
+                                        <td style="padding: 5px; text-align: right;">Valable jusqu'au:</td>
+                                        <td style="padding: 5px; text-align: right;"><strong><t t-esc="o.validity_date" t-options="{'widget': 'date'}"/></strong></td>
+                                    </tr>
                                 </table>
                             </td>
                         </tr>
                     </table>
-                    
+
                     <!-- Objet -->
                     <h2 style="color: #c0392b; font-size: 14pt; margin: 10px 0 15px 0;">
                         Objet : Offre de prix pour la location d'un box de stockage
                     </h2>
-                    
-                    <!-- Tableau des lignes -->
+
+                    <!-- Tableau des lignes (montants TVAC) -->
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
                         <thead>
                             <tr style="background-color: #c0392b; color: white;">
                                 <th style="padding: 8px; text-align: left; width: 50%;">Désignation</th>
                                 <th style="padding: 8px; text-align: center; width: 10%;">Qté</th>
-                                <th style="padding: 8px; text-align: right; width: 20%;">Prix unit. HTVA</th>
-                                <th style="padding: 8px; text-align: right; width: 20%;">Total HTVA</th>
+                                <th style="padding: 8px; text-align: right; width: 20%;">Prix unit. TVAC</th>
+                                <th style="padding: 8px; text-align: right; width: 20%;">Total TVAC</th>
                             </tr>
                         </thead>
                         <tbody>
                             <t t-foreach="o.order_line" t-as="line">
-                                <tr style="border-bottom: 1px solid #eee;">
+                                <tr t-if="line.display_type == 'line_section'" style="background-color: #f2f2f2;">
+                                    <td colspan="4" style="padding: 6px 8px; font-weight: bold;"><t t-esc="line.name"/></td>
+                                </tr>
+                                <tr t-elif="line.display_type == 'line_note'">
+                                    <td colspan="4" style="padding: 4px 8px; font-style: italic; font-size: 9pt;"><t t-esc="line.name"/></td>
+                                </tr>
+                                <tr t-else="" style="border-bottom: 1px solid #eee;">
                                     <td style="padding: 8px;"><t t-esc="line.name"/></td>
                                     <td style="padding: 8px; text-align: center;"><t t-esc="int(line.product_uom_qty)"/></td>
-                                    <td style="padding: 8px; text-align: right;"><t t-esc="'%.2f' % line.price_unit"/> €</td>
-                                    <td style="padding: 8px; text-align: right;"><t t-esc="'%.2f' % line.price_subtotal"/> €</td>
+                                    <td style="padding: 8px; text-align: right;">
+                                        <t t-esc="'%.2f' % (line.price_total / line.product_uom_qty if line.product_uom_qty else line.price_total)"/> €
+                                    </td>
+                                    <td style="padding: 8px; text-align: right;"><t t-esc="'%.2f' % line.price_total"/> €</td>
                                 </tr>
                             </t>
                         </tbody>
                     </table>
-                    
+
                     <!-- Totaux -->
-                    <table style="width: 220px; margin-left: auto; margin-bottom: 20px;">
+                    <table style="width: 240px; margin-left: auto; margin-bottom: 20px;">
                         <tr>
                             <td style="padding: 3px; text-align: right;">Total HTVA:</td>
                             <td style="padding: 3px; text-align: right; width: 80px;"><t t-esc="'%.2f' % o.amount_untaxed"/> €</td>
                         </tr>
                         <tr>
-                            <td style="padding: 3px; text-align: right;">TVA (21%):</td>
+                            <td style="padding: 3px; text-align: right;">
+                                TVA<t t-if="o.order_line.tax_ids"> (<t t-esc="', '.join(o.order_line.tax_ids.mapped('description') or o.order_line.tax_ids.mapped('name'))"/>)</t>:
+                            </td>
                             <td style="padding: 3px; text-align: right;"><t t-esc="'%.2f' % o.amount_tax"/> €</td>
                         </tr>
                         <tr style="font-weight: bold; font-size: 12pt;">
@@ -96,7 +110,7 @@
                             <td style="padding: 5px 3px; text-align: right;"><t t-esc="'%.2f' % o.amount_total"/> €</td>
                         </tr>
                     </table>
-                    
+
                     <!-- Conditions -->
                     <div style="margin-bottom: 15px;">
                         <h3 style="font-size: 11pt; margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 3px;">Conditions et validité de l'offre</h3>
@@ -108,13 +122,13 @@
                             <p style="margin: 1px 0;">Préavis de départ : le client doit prévenir 15 jours avant la fin de la période en cours.</p>
                             <p style="margin: 1px 0;">Assurance : le locataire doit souscrire sa propre assurance couvrant le contenu entreposé et les risques liés à l'occupation du box.</p>
                             <p style="margin: 1px 0;">Accès et usage : l'espace loué est strictement réservé au stockage de biens licites et non dangereux.</p>
-                            <p style="margin: 1px 0;">Montant indiqué : tous les montants sont TVAC (toutes taxes comprises).</p>
+                            <p style="margin: 1px 0;">Montant indiqué : tous les montants sont TVAC (toutes taxes comprises) ; le détail HTVA/TVA figure dans le récapitulatif ci-dessus.</p>
                             <p style="margin: 1px 0;">Renouvellement : tacite de mois en mois sauf préavis respecté.</p>
                             <p style="margin: 1px 0;">Restitution : le box doit être vidé et rendu propre à la fin de la location.</p>
                             <p style="margin: 1px 0;">Validité du devis : 30 jours à compter de sa date d'émission.</p>
                         </div>
                     </div>
-                    
+
                     <!-- Signature -->
                     <div style="margin-top: 20px;">
                         <p style="margin-bottom: 3px;">Pour accord, le client:</p>
@@ -122,7 +136,7 @@
                         <p style="margin-top: 15px; margin-bottom: 3px;">Date:</p>
                         <div style="border-bottom: 1px solid #333; width: 200px; height: 20px;"></div>
                     </div>
-                    
+
                 </div>
                 <p style="page-break-after: always;"/>
             </t>
