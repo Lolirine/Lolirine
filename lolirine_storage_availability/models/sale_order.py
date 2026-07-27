@@ -9,7 +9,6 @@ class SaleOrder(models.Model):
     @api.model
     def get_available_box_domain(self):
         """Retourne le domaine pour filtrer les box disponibles"""
-        # Trouver tous les produits déjà loués dans des abonnements actifs
         rented_products = self.env['product.template'].search([
             ('is_storage_box', '=', True),
             ('storage_status', '=', 'rented')
@@ -17,11 +16,32 @@ class SaleOrder(models.Model):
 
         return [
             '|',
-            ('is_storage_box', '=', False),  # Tous les produits non-box
+            ('is_storage_box', '=', False),
             '&',
-            ('is_storage_box', '=', True),   # OU les box
-            ('id', 'not in', rented_products.ids)  # qui ne sont pas loués
+            ('is_storage_box', '=', True),
+            ('id', 'not in', rented_products.ids)
         ]
+
+    def action_confirm(self):
+        """Bloque la confirmation (pas la creation du devis) si un box
+        est deja attribue a un autre abonnement actif."""
+        for order in self:
+            if not order.is_subscription:
+                continue
+            for line in order.order_line:
+                conflict = line._get_box_conflict_line()
+                if conflict:
+                    existing_order = conflict.order_id
+                    raise ValidationError(_(
+                        "Impossible de confirmer : le box '%(box_name)s' est deja "
+                        "attribue a l'abonnement '%(subscription_name)s' "
+                        "(%(partner_name)s).\n\n"
+                        "Cloturez d'abord cet abonnement ou retirez ce box du devis.",
+                        box_name=line.product_template_id.name,
+                        subscription_name=existing_order.name,
+                        partner_name=existing_order.partner_id.name
+                    ))
+        return super().action_confirm()
 
 
 class SaleOrderLine(models.Model):
@@ -33,45 +53,50 @@ class SaleOrderLine(models.Model):
         store=True
     )
 
+    def _get_box_conflict_line(self):
+        """Retourne la ligne d'un AUTRE abonnement actif (en cours ou en pause)
+        qui contient deja ce box, ou un recordset vide."""
+        self.ensure_one()
+        product = self.product_template_id
+        if not product or not product.is_storage_box:
+            return self.env['sale.order.line']
+        return self.env['sale.order.line'].search([
+            ('product_template_id', '=', product.id),
+            ('order_id', '!=', self.order_id.id),
+            ('order_id.is_subscription', '=', True),
+            ('order_id.state', '=', 'sale'),
+            ('order_id.subscription_state', 'in', ['3_progress', '4_paused']),
+        ], limit=1)
+
     @api.constrains('product_id', 'order_id')
     def _check_box_availability(self):
-        """Vérifie que le box n'est pas déjà loué dans un autre abonnement actif"""
+        """Verifie la disponibilite du box UNIQUEMENT sur les commandes deja
+        confirmees (ajout d'une ligne a un abonnement en cours).
+        Les devis en brouillon ou envoyes sont libres : on peut chiffrer un
+        box loue, le controle se fait a la confirmation (action_confirm)."""
         for line in self:
             if not line.product_template_id or not line.order_id:
                 continue
-
-            product = line.product_template_id
-            order = line.order_id
-
-            # Vérifier seulement pour les box de stockage dans les abonnements
-            if not product.is_storage_box:
+            if line.order_id.state != 'sale':
+                continue
+            if not line.order_id.is_subscription:
                 continue
 
-            if not order.is_subscription:
-                continue
-
-            # Chercher si ce produit est déjà dans un autre abonnement actif
-            existing_lines = self.env['sale.order.line'].search([
-                ('product_template_id', '=', product.id),
-                ('order_id', '!=', order.id),
-                ('order_id.is_subscription', '=', True),
-                ('order_id.state', '=', 'sale'),
-                ('order_id.subscription_state', 'in', ['3_progress', '4_paused']),
-            ], limit=1)
-
-            if existing_lines:
-                existing_order = existing_lines.order_id
+            conflict = line._get_box_conflict_line()
+            if conflict:
+                existing_order = conflict.order_id
                 raise ValidationError(_(
-                    "Le box '%(box_name)s' est déjà attribué à l'abonnement '%(subscription_name)s' (%(partner_name)s).\n\n"
-                    "Veuillez d'abord clôturer cet abonnement ou choisir un autre box.",
-                    box_name=product.name,
+                    "Le box '%(box_name)s' est deja attribue a l'abonnement "
+                    "'%(subscription_name)s' (%(partner_name)s).\n\n"
+                    "Veuillez d'abord cloturer cet abonnement ou choisir un autre box.",
+                    box_name=line.product_template_id.name,
                     subscription_name=existing_order.name,
                     partner_name=existing_order.partner_id.name
                 ))
 
     @api.onchange('product_id')
     def _onchange_product_check_box_availability(self):
-        """Avertit si le produit sélectionné est déjà loué"""
+        """Avertit (sans bloquer) si le produit selectionne est deja loue"""
         if not self.product_id:
             return
 
@@ -79,48 +104,26 @@ class SaleOrderLine(models.Model):
         if not product_tmpl or not product_tmpl.is_storage_box:
             return
 
-        # Vérifier si déjà dans un abonnement actif
-        if product_tmpl.storage_status == 'rented' and product_tmpl.current_subscription_id:
-            # Vérifier si c'est pour le même abonnement (modification)
-            if self.order_id and product_tmpl.current_subscription_id.id != self.order_id.id:
-                return {
-                    'warning': {
-                        'title': _("Box déjà loué"),
-                        'message': _(
-                            "Attention : Le box '%(box_name)s' est actuellement loué par %(tenant_name)s "
-                            "dans l'abonnement %(subscription_name)s.\n\n"
-                            "Vous ne pourrez pas confirmer cette commande tant que "
-                            "l'autre abonnement est actif.",
-                            box_name=self.product_id.name,
-                            tenant_name=product_tmpl.current_tenant_id.name or 'N/A',
-                            subscription_name=product_tmpl.current_subscription_id.name or 'N/A'
-                        )
-                    }
-                }
-
-        # Vérifier aussi via recherche directe dans les lignes d'abonnement
-        existing_lines = self.env['sale.order.line'].search([
+        conflict = self.env['sale.order.line'].search([
             ('product_template_id', '=', product_tmpl.id),
             ('order_id.is_subscription', '=', True),
             ('order_id.state', '=', 'sale'),
             ('order_id.subscription_state', 'in', ['3_progress', '4_paused']),
         ], limit=1)
 
-        if existing_lines:
-            existing_order = existing_lines.order_id
-            # Vérifier que ce n'est pas le même abonnement
-            if self.order_id and existing_order.id != self.order_id.id:
-                return {
-                    'warning': {
-                        'title': _("Box déjà loué"),
-                        'message': _(
-                            "Attention : Le box '%(box_name)s' est actuellement attribué "
-                            "à l'abonnement %(subscription_name)s (%(partner_name)s).\n\n"
-                            "Vous ne pourrez pas confirmer cette commande tant que "
-                            "l'autre abonnement est actif.",
-                            box_name=self.product_id.name,
-                            subscription_name=existing_order.name,
-                            partner_name=existing_order.partner_id.name
-                        )
-                    }
+        if conflict and (not self.order_id or conflict.order_id.id != self.order_id.id):
+            existing_order = conflict.order_id
+            return {
+                'warning': {
+                    'title': _("Box deja loue"),
+                    'message': _(
+                        "Attention : le box '%(box_name)s' est actuellement attribue "
+                        "a l'abonnement %(subscription_name)s (%(partner_name)s).\n\n"
+                        "Vous pouvez etablir ce devis, mais vous ne pourrez pas le "
+                        "confirmer tant que l'autre abonnement est actif.",
+                        box_name=self.product_id.name,
+                        subscription_name=existing_order.name,
+                        partner_name=existing_order.partner_id.name
+                    )
                 }
+            }
