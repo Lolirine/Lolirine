@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="mail_template_box_quote" model="mail.template">
+            <field name="name">Garde-meuble : envoi devis box</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">Votre devis {{ object.name }} — Lolirine Garde-Meuble</field>
+            <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.partner_id.id }}</field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-size: 13px; color: #333;">
+    <p>Bonjour <t t-out="object.partner_id.name or ''"/>,</p>
+    <p>
+        Nous vous remercions de l'intérêt que vous portez à notre garde-meuble.
+        Veuillez trouver ci-joint votre devis
+        <strong t-out="object.name or ''"/>
+        <t t-if="object.amount_total">
+            d'un montant de
+            <strong t-out="format_amount(object.amount_total, object.currency_id) or ''"/>
+            par mois (TVAC)</t>.
+    </p>
+    <table style="border-collapse: collapse; width: 100%; margin: 12px 0;">
+        <tr style="background-color: #C91E18; color: #fff;">
+            <th style="padding: 6px 10px; text-align: left;">Description</th>
+            <th style="padding: 6px 10px; text-align: right;">Prix mensuel TVAC</th>
+        </tr>
+        <t t-foreach="object.order_line.filtered(lambda l: not l.display_type)" t-as="line">
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 6px 10px;" t-out="line.name or ''"/>
+                <td style="padding: 6px 10px; text-align: right;"
+                    t-out="format_amount(line.price_total, object.currency_id) or ''"/>
+            </tr>
+        </t>
+    </table>
+    <p>
+        <strong>À retenir :</strong>
+    </p>
+    <ul>
+        <li>Accès à votre box <strong>24h/24, 7j/7</strong> par badge individuel ;</li>
+        <li>Site sécurisé : vidéosurveillance et locaux propres et secs ;</li>
+        <li>Location <strong>sans engagement de longue durée</strong> — renouvellement de mois en mois ;</li>
+        <li t-if="object.validity_date">
+            Devis valable jusqu'au
+            <strong t-out="format_date(object.validity_date) or ''"/> ;
+        </li>
+    </ul>
+    <p>
+        L'ensemble des conditions (caution, frais de dossier, préavis, assurance)
+        figure dans le devis joint. Vous pouvez l'accepter et le signer
+        directement en ligne via le lien du document.
+    </p>
+    <p>
+        Nous restons à votre disposition pour toute question ou pour organiser
+        une visite du site.
+    </p>
+    <p>
+        Bien cordialement,<br/>
+        <t t-out="object.user_id.name or object.company_id.name or ''"/><br/>
+        <t t-out="object.company_id.name or ''"/>
+        <t t-if="object.company_id.phone">
+            — <t t-out="object.company_id.phone"/>
+        </t>
+        <t t-if="object.company_id.email">
+            — <t t-out="object.company_id.email"/>
+        </t>
+    </p>
+</div>
+            </field>
+        </record>
+
+    </data>
+</odoo>
