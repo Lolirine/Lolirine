@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_storage_quote_wizard_form" model="ir.ui.view">
+        <field name="name">storage.quote.wizard.form</field>
+        <field name="model">storage.quote.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Devis box de stockage">
+                <group>
+                    <field name="partner_id"/>
+                    <field name="sale_order_template_id"
+                           options="{'no_create': True}"/>
+                    <field name="plan_id"
+                           options="{'no_create': True}"/>
+                </group>
+                <div class="alert alert-warning" role="alert"
+                     invisible="not warning_message">
+                    <field name="warning_message" readonly="1" nolabel="1"/>
+                </div>
+                <field name="box_product_ids">
+                    <list>
+                        <field name="name"/>
+                        <field name="storage_status"/>
+                        <field name="current_tenant_id"/>
+                        <field name="list_price" string="Prix mensuel"
+                               widget="monetary"/>
+                    </list>
+                </field>
+                <footer>
+                    <button string="Creer le devis"
+                            name="action_create_quote"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Creer et preparer l'e-mail"
+                            name="action_create_and_send"
+                            type="object"
+                            class="btn-secondary"/>
+                    <button string="Annuler" special="cancel"
+                            class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_storage_quote_wizard" model="ir.actions.act_window">
+        <field name="name">Devis box</field>
+        <field name="res_model">storage.quote.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="view_partner_form_storage_quote" model="ir.ui.view">
+        <field name="name">res.partner.form.storage.quote</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button"
+                        type="action"
+                        name="%(lolirine_storage_availability.action_storage_quote_wizard)d"
+                        icon="fa-cubes"
+                        context="{'default_partner_id': id}">
+                    <span class="o_stat_text">Devis box</span>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
