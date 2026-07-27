@@ -101,7 +101,7 @@
                         </tr>
                         <tr>
                             <td style="padding: 3px; text-align: right;">
-                                TVA<t t-if="o.order_line.tax_ids"> (<t t-esc="', '.join(o.order_line.tax_ids.mapped('description') or o.order_line.tax_ids.mapped('name'))"/>)</t>:
+                                TVA<t t-if="o.order_line.tax_ids"> (<t t-esc="', '.join(sorted(set(o.order_line.tax_ids.mapped('name'))))"/>)</t>:
                             </td>
                             <td style="padding: 3px; text-align: right;"><t t-esc="'%.2f' % o.amount_tax"/> €</td>
                         </tr>
