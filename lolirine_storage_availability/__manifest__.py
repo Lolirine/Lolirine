@@ -44,6 +44,7 @@ Auteur: Lolirine SPRL
         'views/snippets.xml',
         'views/server_actions.xml',
         'views/storage_quote_wizard_views.xml',
+        'data/mail_template_box_quote.xml',
     ],
     'assets': {
         'web.assets_frontend': [
