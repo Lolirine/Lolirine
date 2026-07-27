@@ -43,7 +43,6 @@ Auteur: Lolirine SPRL
         'views/website_sale_templates.xml',
         'views/snippets.xml',
         'views/server_actions.xml',
-        'security/storage_quote_wizard_access.csv',
         'views/storage_quote_wizard_views.xml',
     ],
     'assets': {
