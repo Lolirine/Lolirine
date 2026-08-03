@@ -13,9 +13,19 @@
                 <field name="amount" sum="Total"/>
                 <field name="x_invoice_status" widget="badge"
                        decoration-danger="x_invoice_status == 'missing'"
-                       decoration-success="x_invoice_status == 'found'"/>
+                       decoration-warning="x_invoice_status == 'invoiced'"
+                       decoration-success="x_invoice_status == 'found'"
+                       decoration-info="x_invoice_status == 'reconciled'"
+                       decoration-muted="x_invoice_status in ['no_invoice', 'na']"/>
+                <field name="x_matched_move_ids" widget="many2many_tags"
+                       string="Factures liées" optional="show"/>
+                <field name="x_invoice_candidate_ids" widget="many2many_tags"
+                       string="Candidates" optional="hide"/>
                 <button name="action_open_candidates" type="object"
-                        string="Candidates" icon="fa-search"
+                        string="Voir factures" icon="fa-search"
+                        invisible="x_invoice_status not in ['found', 'invoiced', 'reconciled']"/>
+                <button name="action_x_link_single_candidate" type="object"
+                        string="Rapprocher" icon="fa-link"
                         invisible="x_invoice_status != 'found'"/>
             </list>
         </field>
@@ -29,46 +39,9 @@
                 <field name="payment_ref"/>
                 <field name="partner_id"/>
                 <field name="amount"/>
+
                 <filter name="filter_missing" string="Factures manquantes"
                         domain="[('x_invoice_status', '=', 'missing')]"/>
                 <filter name="filter_found" string="Facture candidate trouvée"
                         domain="[('x_invoice_status', '=', 'found')]"/>
-                <separator/>
-                <filter name="filter_out" string="Sorties (fournisseurs)"
-                        domain="[('amount', '&lt;', 0)]"/>
-                <filter name="filter_in" string="Entrées (clients)"
-                        domain="[('amount', '&gt;', 0)]"/>
-                <separator/>
-                <filter name="group_journal" string="Journal"
-                        context="{'group_by': 'journal_id'}"/>
-                <filter name="group_partner" string="Partenaire"
-                        context="{'group_by': 'partner_id'}"/>
-                <filter name="group_month" string="Mois"
-                        context="{'group_by': 'date:month'}"/>
-            </search>
-        </field>
-    </record>
-
-    <record id="action_missing_invoice_lines" model="ir.actions.act_window">
-        <field name="name">Factures manquantes</field>
-        <field name="res_model">account.bank.statement.line</field>
-        <field name="view_mode">list</field>
-        <field name="view_id" ref="view_missing_invoice_lines_list"/>
-        <field name="search_view_id" ref="view_missing_invoice_lines_search"/>
-        <field name="domain">[('is_reconciled', '=', False), ('state', '=', 'posted')]</field>
-        <field name="context">{'search_default_filter_missing': 1, 'search_default_filter_out': 1}</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Aucune transaction sans facture !
-            </p>
-            <p>Toutes les transactions bancaires non rapprochées ont une facture candidate dans la base.</p>
-        </field>
-    </record>
-
-    <menuitem id="menu_missing_invoice_lines"
-              name="Factures manquantes"
-              parent="account.menu_finance_payables"
-              action="action_missing_invoice_lines"
-              sequence="25"/>
-
-</odoo>
+                <filter name="filter_invoiced" string="Facture déjà soldée"
