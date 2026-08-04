@@ -256,7 +256,12 @@ class AccountBankStatementLine(models.Model):
                                       precision_digits=2) == 0
                 )
 
-            candidates = ref_open | amount_open | partner_total
+            # d) Combinaison de factures (OVH : principale + 0,30 EUR)
+            combo_match = self.env['account.move']
+            if ident and not (ref_open or amount_open or partner_total):
+                combo_match = line._x_combination_match(pool_open, target, ident)
+
+            candidates = ref_open | amount_open | partner_total | combo_match
             if candidates:
                 line.x_invoice_candidate_ids = candidates
                 line.x_invoice_status = 'found'
