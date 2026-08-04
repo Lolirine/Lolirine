@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Ajoute une ligne "Factures manquantes" sur la carte des journaux banque
+         du tableau de bord comptable. Si l'xpath casse sur une future version,
+         il suffit de retirer ce fichier du manifest : le menu liste reste fonctionnel. -->
+    <record id="account_journal_dashboard_kanban_inherit" model="ir.ui.view">
+        <field name="name">account.journal.dashboard.kanban.lolirine.missing</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//t[@t-name='JournalBodyBankCash']" position="inside">
+                <t t-if="dashboard.lolirine_missing_invoice_count &gt; 0">
+                    <div class="row">
+                        <div class="col overflow-hidden text-start">
+                            <a type="object" name="action_open_missing_invoices"
+                               class="text-danger fw-bold">Factures manquantes</a>
+                        </div>
+                        <div class="col-auto text-end">
+                            <span class="badge rounded-pill text-bg-danger">
+                                <t t-esc="dashboard.lolirine_missing_invoice_count"/>
+                            </span>
+                        </div>
+                    </div>
+                </t>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
