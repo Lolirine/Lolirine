@@ -22,6 +22,7 @@ Menu : Comptabilite > Fournisseurs > Factures manquantes
     'data': [
         'views/res_partner_views.xml',
         'views/statement_line_views.xml',
+        'views/journal_dashboard_views.xml',
     ],
     'installable': True,
     'application': False,
