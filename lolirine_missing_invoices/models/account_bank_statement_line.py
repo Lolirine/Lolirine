@@ -384,3 +384,32 @@ class AccountBankStatementLine(models.Model):
         })
         (suspense + aml).reconcile()
         return True
+
+    def _x_combination_match(self, pool, target, ident, tolerance=0.0):
+        """Cherche une combinaison de 2 ou 3 factures ouvertes du fournisseur
+        dont la somme des residuels egale le montant de la transaction.
+
+        Cas OVH : une facture principale plus une facture de 0,30 EUR, prelevees
+        ensemble. La tolerance couvre un eventuel frais de carte en plus.
+        """
+        from itertools import combinations
+        if not ident:
+            return self.env['account.move']
+        candidates = pool.filtered(
+            lambda m: m.partner_id.commercial_partner_id == ident)
+        if len(candidates) < 2:
+            return self.env['account.move']
+        for taille in (2, 3):
+            best = None
+            for combo in combinations(candidates, taille):
+                total = sum(abs(m.amount_residual_signed) for m in combo)
+                ecart = abs(total - target)
+                if ecart <= max(0.01, tolerance):
+                    if best is None or ecart < best[0]:
+                        best = (ecart, combo)
+            if best:
+                res = self.env['account.move']
+                for m in best[1]:
+                    res |= m
+                return res
+        return self.env['account.move']
