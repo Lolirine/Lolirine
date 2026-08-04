@@ -278,18 +278,44 @@ class AccountBankStatementLine(models.Model):
         dans le rapprochement bancaire.
         """
         done = self.env['account.bank.statement.line']
+        skipped = 0
         for line in self:
             if line.is_reconciled or line.x_invoice_status != 'found':
                 continue
             inv = line.x_invoice_candidate_ids
             if len(inv) != 1:
+                skipped += 1
                 continue
             if float_compare(abs(inv.amount_residual), abs(line.amount),
                              precision_digits=2) != 0:
+                skipped += 1
                 continue
             if line._x_link_invoice(inv):
                 done |= line
-        return done
+            else:
+                skipped += 1
+
+        if done:
+            message = f"{len(done)} transaction(s) rapprochée(s)."
+            if skipped:
+                message += f" {skipped} laissée(s) de côté (ambiguës)."
+            kind = 'success'
+        else:
+            message = ("Aucune transaction rapprochée : "
+                       "candidates multiples ou montants non concordants.")
+            kind = 'warning'
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': "Rapprochement automatique",
+                'message': message,
+                'type': kind,
+                'sticky': False,
+                'next': {'type': 'ir.actions.act_window_close'},
+            },
+        }
 
     def _x_link_invoice(self, invoice):
         """Bascule la ligne de suspens sur le compte tiers et lettre."""
