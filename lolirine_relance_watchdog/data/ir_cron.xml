@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="ir_cron_lolirine_relance_watchdog" model="ir.cron">
+        <field name="name">Lolirine - Surveillance des relances</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_lolirine_relance_watchdog()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="nextcall"
+               eval="(DateTime.now().replace(hour=7, minute=0, second=0, microsecond=0) + relativedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+
+    <record id="param_lolirine_relance_alert_days" model="ir.config_parameter">
+        <field name="key">lolirine_relance.alert_days</field>
+        <field name="value">10</field>
+    </record>
+
+</odoo>
