@@ -83,7 +83,7 @@ html[data-website-id="6"] #product_full_description {
     padding: 1.5rem;
 }
 /* Description vide : pas de glace (évite la bande fantôme) */
-html[data-website-id="6"] #product_full_description.oe_empty {
+html[data-website-id="6"] #product_full_description:not(:has(*)) {
     background: transparent !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
@@ -187,6 +187,7 @@ html[data-website-id="6"] .lp-glass {
     padding: 1.25rem !important;
     margin-bottom: 1rem !important;
 }
+body.editor_enable .o_lp_extra_specs,
 body.editor_enable .lp-glass {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
