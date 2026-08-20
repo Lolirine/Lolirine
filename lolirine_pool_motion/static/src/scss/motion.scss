@@ -1244,3 +1244,12 @@ html[data-website-id="6"] #wrap .o_search_result_item_detail p {
     }
     html[data-website-id="6"] #wrap .o_search_result_item img { height: 120px !important; }
 }
+
+/* Prix des résultats de recherche en bleu marque. */
+html[data-website-id="6"] #wrap .o_search_result_item .oe_currency_value,
+html[data-website-id="6"] #wrap .o_search_result_item [class*="price"],
+html[data-website-id="6"] #wrap .o_search_result_item b {
+    color: var(--pool-primary-dark, #0284c7) !important;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
