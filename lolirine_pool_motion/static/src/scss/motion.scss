@@ -1109,3 +1109,71 @@ html[data-website-id="6"] {
     }
 }
 
+/* ===================== Recherche : dropdown en grille horizontale ===================== */
+html[data-website-id="6"] .o_searchbar_form .o_dropdown_menu.show {
+    // On casse le calage étroit sous la barre : le menu déborde vers la droite.
+    max-width: min(920px, 78vw) !important;
+    width: min(920px, 78vw) !important;
+    left: 0 !important;
+    padding: 0.6rem !important;
+    // verre cohérent avec le reste du site
+    background: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 16px;
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.18);
+
+    // Grille de cartes.
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.6rem;
+
+    // Chaque suggestion = une carte verticale.
+    .dropdown-item {
+        display: flex !important;
+        flex-direction: column;
+        align-items: stretch;
+        border-radius: 12px;
+        padding: 0.75rem !important;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        background: #fff;
+        white-space: normal;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        &:hover, &:focus {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+            background: #fff;
+        }
+    }
+    // Le contenu de la carte passe en colonne (image au-dessus du texte).
+    .o_search_result_item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+    // Image agrandie, centrée en haut de la carte.
+    .o_image_64_contain {
+        width: 100% !important;
+        height: 130px !important;
+        object-fit: contain;
+        margin-bottom: 0.5rem;
+    }
+    // Le bouton « Tous les résultats » occupe toute la largeur, en bas.
+    button.dropdown-item {
+        grid-column: 1 / -1;
+        flex-direction: row !important;
+        justify-content: center;
+        background: transparent;
+        border: 0;
+        font-weight: 600;
+    }
+}
+
+@media (max-width: 767.98px) {
+    html[data-website-id="6"] .o_searchbar_form .o_dropdown_menu.show {
+        width: 92vw !important;
+        max-width: 92vw !important;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        .o_image_64_contain { height: 90px !important; }
+    }
+}
