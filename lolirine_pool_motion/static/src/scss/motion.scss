@@ -1112,8 +1112,8 @@ html[data-website-id="6"] {
 /* ===================== Recherche : dropdown en grille horizontale ===================== */
 html[data-website-id="6"] .o_searchbar_form .o_dropdown_menu.show {
     // On casse le calage étroit sous la barre : le menu déborde vers la droite.
-    max-width: min(920px, 78vw) !important;
-    width: min(920px, 78vw) !important;
+    max-width: 920px !important;
+    width: 78vw !important;
     left: 0 !important;
     padding: 0.6rem !important;
     // verre cohérent avec le reste du site
