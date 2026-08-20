@@ -1178,18 +1178,69 @@ html[data-website-id="6"] .o_searchbar_form .o_dropdown_menu.show {
     }
 }
 
-/* ===================== Page de résultats de recherche : vignettes agrandies ===================== */
-html[data-website-id="6"] .o_search_result_item img {
-    width: 110px !important;
-    height: 110px !important;
+/* ===================== Page de résultats de recherche : grille de cartes ===================== */
+html[data-website-id="6"] #wrap .table-responsive {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1.1rem;
+    // neutralise le layout "table" d'origine
+    > table, > tbody, > thead { display: contents; }
+}
+
+html[data-website-id="6"] #wrap .o_search_result_item,
+html[data-website-id="6"] #wrap a.dropdown-item.text-wrap {
+    // chaque résultat = une carte
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 14px;
+    padding: 0.9rem !important;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+    }
+}
+
+// L'intérieur (le d-flex o_search_result_item) passe en colonne.
+html[data-website-id="6"] #wrap .o_search_result_item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.6rem;
+}
+
+// Image en haut, grande.
+html[data-website-id="6"] #wrap .o_search_result_item img {
+    width: 100% !important;
+    height: 170px !important;
     object-fit: contain !important;
     background: #fff;
     border-radius: 10px;
-    padding: 4px;
-    flex: 0 0 auto;
+    padding: 6px;
 }
-html[data-website-id="6"] .o_search_result_item {
-    padding: 0.85rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-    gap: 1rem;
+
+// Titre plus lisible, description tronquée à 3 lignes.
+html[data-website-id="6"] #wrap .o_search_result_item_detail {
+    .h6, h6, strong { font-size: 0.98rem; line-height: 1.25; }
+}
+html[data-website-id="6"] #wrap .o_search_result_item_detail p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 0.85rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 575.98px) {
+    html[data-website-id="6"] #wrap .table-responsive {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    html[data-website-id="6"] #wrap .o_search_result_item img { height: 120px !important; }
 }
