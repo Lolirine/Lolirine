@@ -56,6 +56,7 @@ Moteur : Motion (motion.dev) v12, build UMD local (window.Motion).
             "lolirine_pool_motion/static/src/js/buybar.interaction.js",
             "lolirine_pool_motion/static/src/js/search_limit_fix.js",
             "lolirine_pool_motion/static/src/js/search_sharp_images.interaction.js",
+            "lolirine_pool_motion/static/src/js/search_dropdown_sharp.interaction.js",
         ],
     },
     "installable": True,
