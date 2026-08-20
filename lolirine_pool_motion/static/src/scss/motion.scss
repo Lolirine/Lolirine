@@ -1177,3 +1177,19 @@ html[data-website-id="6"] .o_searchbar_form .o_dropdown_menu.show {
         .o_image_64_contain { height: 90px !important; }
     }
 }
+
+/* ===================== Page de résultats de recherche : vignettes agrandies ===================== */
+html[data-website-id="6"] .o_search_result_item img {
+    width: 110px !important;
+    height: 110px !important;
+    object-fit: contain !important;
+    background: #fff;
+    border-radius: 10px;
+    padding: 4px;
+    flex: 0 0 auto;
+}
+html[data-website-id="6"] .o_search_result_item {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    gap: 1rem;
+}
