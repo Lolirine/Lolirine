@@ -1677,6 +1677,236 @@ function FreeProductZone({ products, onAdd, onUpdate, onRemove }) {
 }
 
 /* ═══════════════════════════════════════════════════
+   PrintableBlank — fiche vierge à imprimer et emporter sur chantier
+   Rend la check-list du type choisi avec cases à cocher et lignes
+   pointillées à remplir à la main. Les données saisies sur place
+   sont ensuite réencodées dans l'application.
+═══════════════════════════════════════════════════ */
+function PrintableBlank({ type, onClose }) {
+  const [t, setT] = useState(type || 'entretien');
+  const [withSketch, setWithSketch] = useState(true);
+  const [withProducts, setWithProducts] = useState(true);
+
+  const sections = SECTIONS_DATA[t] || [];
+  const meta = INTERVENTION_TYPES.find(x => x.key === t) || {};
+  const nbItems = sections.reduce((a, s) => a + s.items.length, 0);
+
+  /* Un item contenant "______" attend une valeur : on lui laisse
+     une ligne plus longue. Sinon c'est un simple point à cocher. */
+  function itemNeedsValue(txt) {
+    if (/_{3,}/.test(txt)) { return true; }
+    if (/:\s*$/.test(txt)) { return true; }
+    return false;
+  }
+  function cleanItem(txt) {
+    return txt.replace(/_{3,}/g, '').replace(/:\s*$/, '').trim();
+  }
+
+  function Field({ label, wide }) {
+    return (
+      <div className="plc-field" style={wide ? {gridColumn: '1/-1'} : null}>
+        <span className="plc-field-label">{label}</span>
+        <span className="plc-field-fill" />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'#fff',zIndex:9996,overflowY:'auto'}}>
+
+      {/* ── Barre d'outils — jamais imprimée ── */}
+      <div className="plc-noprint"
+        style={{position:'sticky',top:0,zIndex:2,background:'#1e293b',padding:'11px 18px',
+          display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+        <span style={{fontSize:20}}>🖨️</span>
+        <div style={{flex:1,minWidth:180}}>
+          <div style={{fontWeight:800,fontSize:15,color:'#fff'}}>Fiche vierge à emporter</div>
+          <div style={{fontSize:11,color:'rgba(255,255,255,.6)',marginTop:1}}>
+            {nbItems} points · {sections.length} sections · à remplir à la main sur chantier
+          </div>
+        </div>
+        <select value={t} onChange={e => setT(e.target.value)}
+          style={{border:'none',borderRadius:7,padding:'6px 10px',fontSize:12,
+            fontFamily:'inherit',cursor:'pointer',outline:'none'}}>
+          {INTERVENTION_TYPES.map(it => (
+            <option key={it.key} value={it.key}>{it.icon + ' ' + it.label}</option>
+          ))}
+        </select>
+        <label style={{fontSize:11,color:'#fff',display:'flex',alignItems:'center',gap:4,cursor:'pointer'}}>
+          <input type="checkbox" checked={withSketch}
+            onChange={e => setWithSketch(e.target.checked)}
+            style={{accentColor:'#0ea5e9',cursor:'pointer'}} />
+          Plan de bassin
+        </label>
+        <label style={{fontSize:11,color:'#fff',display:'flex',alignItems:'center',gap:4,cursor:'pointer'}}>
+          <input type="checkbox" checked={withProducts}
+            onChange={e => setWithProducts(e.target.checked)}
+            style={{accentColor:'#0ea5e9',cursor:'pointer'}} />
+          Tableau matériel
+        </label>
+        <button onClick={() => window.print()}
+          style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:8,
+            padding:'8px 18px',fontWeight:700,fontSize:13,cursor:'pointer'}}>
+          🖨️ Imprimer
+        </button>
+        <button onClick={onClose}
+          style={{background:'rgba(255,255,255,.15)',color:'#fff',
+            border:'1.5px solid rgba(255,255,255,.35)',borderRadius:8,
+            padding:'8px 14px',fontSize:13,cursor:'pointer'}}>
+          ✕ Fermer
+        </button>
+      </div>
+
+      {/* ── Zone imprimée ── */}
+      <div id="plc-print" className="plc-sheet">
+        <div className="plc-sheet-page">
+
+          {/* En-tête */}
+          <div style={{display:'flex',alignItems:'flex-start',gap:'4mm',
+            borderBottom:'1.5pt solid #111',paddingBottom:'2mm',marginBottom:'3mm'}}>
+            <div style={{flex:1}}>
+              <h1>Fiche de visite chantier</h1>
+              <div style={{fontSize:'9.5pt',fontWeight:700}}>
+                {(meta.icon || '') + ' ' + (meta.label || t)}
+              </div>
+              <div style={{fontSize:'7.5pt',color:'#555',marginTop:'1mm'}}>
+                Lolirine Pool Store · lolirinepoolstore.be · BCE 0650.891.279
+              </div>
+            </div>
+            <div style={{textAlign:'right',fontSize:'8pt',color:'#444'}}>
+              <div style={{border:'.8pt solid #333',padding:'1.5mm 3mm',marginBottom:'1.5mm'}}>
+                <div style={{fontSize:'7pt',color:'#666'}}>Réf. dossier</div>
+                <div style={{minHeight:'5mm',minWidth:'32mm'}} />
+              </div>
+              <div>{nbItems} points de contrôle</div>
+            </div>
+          </div>
+
+          {/* Identification */}
+          <h2>1 · Identification</h2>
+          <div className="plc-grid2">
+            <Field label="Client" />
+            <Field label="Téléphone" />
+            <Field label="Adresse chantier" wide />
+            <Field label="Code postal / Ville" />
+            <Field label="E-mail" />
+            <Field label="Technicien" />
+            <Field label="Date de visite" />
+          </div>
+
+          {/* Plan de bassin */}
+          {withSketch && (
+            <div style={{pageBreakInside:'avoid'}}>
+              <h2>2 · Plan de bassin</h2>
+              <div className="plc-grid3">
+                <Field label="Longueur (m)" />
+                <Field label="Largeur (m)" />
+                <Field label="Prof. max (m)" />
+                <Field label="Forme" />
+                <Field label="Surface (m²)" />
+                <Field label="Volume (m³)" />
+              </div>
+              <div style={{fontSize:'7.5pt',color:'#666',margin:'1mm 0'}}>
+                Croquis — 1 carreau = 5 mm. Noter skimmers, bondes, refoulements, local technique.
+              </div>
+              <div className="plc-sketch" />
+            </div>
+          )}
+
+          {/* Check-list */}
+          <div className="plc-pagebreak">
+            <h2>{(withSketch ? '3' : '2') + ' · Check-list — ' + (meta.label || t)}</h2>
+            <div className="plc-legend">
+              <span><span className="plc-box" /> Conforme</span>
+              <span><span className="plc-box plc-box-warn" /> Attention</span>
+              <span><span className="plc-box plc-box-bad" /> Problème</span>
+              <span style={{color:'#666'}}>Ligne pointillée = valeur mesurée / précision</span>
+            </div>
+
+            {sections.map((s, si) => (
+              <div key={si} className="plc-section">
+                <div style={{fontWeight:800,fontSize:'9.5pt',background:'#f0f0f0',
+                  padding:'1.2mm 2mm',marginBottom:'1mm',borderLeft:'1.5pt solid #333'}}>
+                  {s.section}
+                </div>
+                {s.items.map((item, ii) => (
+                  <div key={ii} className="plc-item">
+                    <span className="plc-box" />
+                    <span className="plc-box plc-box-warn" />
+                    <span className="plc-box plc-box-bad" />
+                    <span className="plc-item-text">{cleanItem(item)}</span>
+                    <span className="plc-item-fill"
+                      style={itemNeedsValue(item) ? {flexBasis:'45mm'} : null} />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Matériel relevé */}
+          {withProducts && (
+            <div className="plc-pagebreak">
+              <h2>Matériel / produits à prévoir</h2>
+              <table style={{width:'100%',borderCollapse:'collapse',fontSize:'8.5pt'}}>
+                <thead>
+                  <tr>
+                    {['Désignation', 'Réf.', 'Qté', 'Unité', 'Fournisseur'].map((h, i) => (
+                      <th key={i} style={{border:'.6pt solid #333',padding:'1.5mm',
+                        background:'#f0f0f0',textAlign:'left',fontWeight:700}}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({length: 16}).map((_, i) => (
+                    <tr key={i}>
+                      <td style={{border:'.6pt solid #999',height:'6.5mm',width:'42%'}} />
+                      <td style={{border:'.6pt solid #999',width:'16%'}} />
+                      <td style={{border:'.6pt solid #999',width:'8%'}} />
+                      <td style={{border:'.6pt solid #999',width:'12%'}} />
+                      <td style={{border:'.6pt solid #999'}} />
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Observations */}
+          <div style={{pageBreakInside:'avoid',marginTop:'4mm'}}>
+            <h2>Observations générales</h2>
+            <div style={{fontSize:'7.5pt',color:'#666',marginBottom:'1mm'}}>
+              Conditions d'accès, contraintes, équipements existants, points à confirmer.
+            </div>
+            <div className="plc-notes-lines" />
+          </div>
+
+          {/* Signatures */}
+          <div className="plc-sign">
+            <div>
+              <div style={{fontSize:'8pt',fontWeight:700,marginBottom:'1mm'}}>
+                Technicien — nom et signature
+              </div>
+              <div className="plc-sign-box" />
+            </div>
+            <div>
+              <div style={{fontSize:'8pt',fontWeight:700,marginBottom:'1mm'}}>
+                Client — lu et approuvé
+              </div>
+              <div className="plc-sign-box" />
+            </div>
+          </div>
+
+          <div className="plc-foot">
+            Fiche à réencoder dans Odoo · /visite-chantier — Lolirine Pool Store
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
    PoolChecklist — Wizard 4 étapes
 ═══════════════════════════════════════════════════ */
 function PoolChecklist() {
@@ -1724,6 +1954,7 @@ function PoolChecklist() {
   const [statut, setStatut]     = useState('en_cours');
   const [itemData,setItemData]  = useState({});
   const [showPlanning,setShowPlanning] = useState(false);
+  const [showBlank,setShowBlank]       = useState(false);
   /* ID unique de la fiche — généré une fois, persisté en localStorage */
   const [ficheId] = useState(()=>{
     const stored = localStorage.getItem('pool_fiche_current_id');
@@ -1877,7 +2108,8 @@ function PoolChecklist() {
           <div style={{fontSize:12,color:'#94a3b8',marginTop:1}}>Diagnostic · intervention · produits liés · devis estimatif</div>
         </div>
         <div style={{display:'flex',gap:8,flexShrink:0}}>
-          <button onClick={()=>setShowPlanning(true)} style={{background:'rgba(255,255,255,.15)',color:'#fff',border:'1.5px solid rgba(255,255,255,.4)',borderRadius:8,padding:'6px 12px',cursor:'pointer',fontWeight:600,fontSize:12}}>📅 Planning</button>
+          <button onClick={()=>setShowPlanning(true)} style={{background:'#f1f5f9',color:'#475569',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'7px 13px',cursor:'pointer',fontWeight:600,fontSize:12}}>📅 Planning</button>
+          <button onClick={()=>setShowBlank(true)} style={{background:'#f1f5f9',color:'#475569',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'7px 13px',cursor:'pointer',fontWeight:600,fontSize:12}}>🖨️ Fiche vierge</button>
           <button onClick={()=>setShowHistory(true)} style={{background:'#f1f5f9',color:'#475569',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'7px 13px',cursor:'pointer',fontWeight:600,fontSize:12}}>📁 Historique</button>
           <button onClick={saveToHistory} style={{background:saved?'#16a34a':'#f1f5f9',color:saved?'#fff':'#475569',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'7px 13px',cursor:'pointer',fontWeight:600,fontSize:12,transition:'all .3s'}}>{saved?'✅ Sauvegardé':'💾 Sauvegarder'}</button>
           {lastSaved&&<span style={{fontSize:11,color:'#16a34a',display:'flex',alignItems:'center',gap:4,background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:8,padding:'4px 9px',whiteSpace:'nowrap'}}><span style={{width:6,height:6,borderRadius:'50%',background:'#16a34a',display:'inline-block'}}/>Auto {Math.round((Date.now()-lastSaved)/1000)}s</span>}
@@ -2321,6 +2553,7 @@ function PoolChecklist() {
       {/* Modals */}
       {showPlanning&&<PlanningModal type={type} clientName={[prenom,nom].filter(Boolean).join(' ')||denomination||'Client'} startDate={date} onClose={()=>setShowPlanning(false)} />
       }
+      {showBlank&&<PrintableBlank type={type} onClose={()=>setShowBlank(false)} />}
       {panel&&<ProductPanel item={panel.item} sectionLabel={panel.sectionLabel} onAdd={handleAddProducts} onClose={()=>setPanel(null)} />}
       {showQuote&&<QuoteModal products={products} clientInfo={clientInfo} ficheId={ficheId} onClose={()=>setShowQuote(false)} onCreated={()=>{}} />}
       {showHistory&&<HistoryModal onClose={()=>setShowHistory(false)} onLoad={loadRecord} />}
