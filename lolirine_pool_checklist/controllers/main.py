@@ -10,12 +10,16 @@ Routes :
   POST /pool-checklist/ai-suggest           → Proxy Anthropic (clé serveur)
   POST /pool-checklist/search-partner       → Autocomplétion partenaires Odoo
   POST /pool-checklist/create-quote         → Création devis sale.order
+  POST /pool-checklist/create-event         → Création rendez-vous calendar.event
 """
 
 import json
 import logging
 import urllib.request
 import urllib.error
+from datetime import datetime, timedelta
+
+import pytz
 
 from odoo import http
 from odoo.http import request
@@ -402,4 +406,126 @@ class PoolChecklistController(http.Controller):
             'name':         order.name,
             'partner_name': partner.name,
             'url':          f'{base.rstrip("/")}/odoo/sales/{order.id}',
+        }
+
+    # ─── Création rendez-vous calendrier ───────────────────────────────
+    @http.route('/pool-checklist/create-event', type='jsonrpc', auth='user',
+                website=True, methods=['POST'], csrf=False)
+    def create_event(self, partner_id=None, partner_name='', title='',
+                     start_local='', duration=2.0, location='',
+                     description='', reminder_minutes=None, fiche_id=None,
+                     intervention_type='', **kwargs):
+        """
+        Crée un calendar.event natif Odoo pour une visite chantier.
+
+        start_local : 'YYYY-MM-DD HH:MM' exprimé dans le fuseau de
+                      l'utilisateur — converti en UTC pour le stockage.
+        duration    : durée en heures (float).
+        """
+        env = request.env
+        user = env.user
+
+        if not start_local:
+            return {'error': 'Date et heure manquantes'}
+
+        # ── Conversion fuseau utilisateur -> UTC ───────────────────────
+        try:
+            naive = datetime.strptime(start_local.strip()[:16], '%Y-%m-%d %H:%M')
+        except ValueError:
+            return {'error': "Format de date invalide (attendu AAAA-MM-JJ HH:MM)"}
+
+        tz_name = user.tz or 'Europe/Brussels'
+        try:
+            tz = pytz.timezone(tz_name)
+        except Exception:
+            tz = pytz.timezone('Europe/Brussels')
+
+        start_utc = tz.localize(naive).astimezone(pytz.utc).replace(tzinfo=None)
+        try:
+            hours = float(duration) or 2.0
+        except (TypeError, ValueError):
+            hours = 2.0
+        hours = max(0.25, min(12.0, hours))
+        stop_utc = start_utc + timedelta(hours=hours)
+
+        # ── Partenaire ─────────────────────────────────────────────────
+        Partner = env['res.partner'].sudo()
+        partner = None
+        if partner_id:
+            try:
+                p = Partner.browse(int(partner_id))
+                if p.exists():
+                    partner = p
+            except Exception:
+                pass
+        if not partner and partner_name:
+            partner = Partner.search(
+                [('name', 'ilike', partner_name.strip()), ('type', '=', 'contact')],
+                limit=1) or None
+
+        attendees = [user.partner_id.id]
+        if partner and partner.id not in attendees:
+            attendees.append(partner.id)
+
+        # ── Lien de retour vers la fiche ───────────────────────────────
+        base = env['ir.config_parameter'].sudo().get_param('web.base.url', '')
+        body = description or ''
+        if fiche_id:
+            link = f'{base.rstrip("/")}/visite-chantier?fiche_id={fiche_id}'
+            body += (
+                f'\n\nFiche de visite : {link}'
+                '\n(la fiche est stockée dans le navigateur qui l\'a créée)'
+            )
+
+        vals = {
+            'name': title or 'Visite chantier',
+            'start': start_utc,
+            'stop': stop_utc,
+            'duration': hours,
+            'allday': False,
+            'location': location or '',
+            'description': body.strip(),
+            'user_id': user.id,
+            'partner_ids': [(6, 0, attendees)],
+        }
+
+        # ── Rappel ─────────────────────────────────────────────────────
+        if reminder_minutes:
+            try:
+                mins = int(reminder_minutes)
+            except (TypeError, ValueError):
+                mins = 0
+            if mins > 0:
+                Alarm = env['calendar.alarm'].sudo()
+                alarm = Alarm.search([
+                    ('alarm_type', '=', 'notification'),
+                    ('duration_minutes', '=', mins),
+                ], limit=1)
+                if not alarm:
+                    unit, qty = ('minutes', mins)
+                    if mins % 1440 == 0:
+                        unit, qty = ('days', mins // 1440)
+                    elif mins % 60 == 0:
+                        unit, qty = ('hours', mins // 60)
+                    alarm = Alarm.create({
+                        'name': f'{qty} {unit} avant',
+                        'alarm_type': 'notification',
+                        'interval': unit,
+                        'duration': qty,
+                    })
+                vals['alarm_ids'] = [(6, 0, [alarm.id])]
+
+        try:
+            event = env['calendar.event'].sudo().create(vals)
+        except Exception as e:
+            _logger.exception('[pool_checklist] Creation evenement echouee')
+            return {'error': str(e)}
+
+        return {
+            'event_id': event.id,
+            'name': event.name,
+            'start_local': naive.strftime('%d/%m/%Y à %H:%M'),
+            'duration': hours,
+            'partner_name': partner.name if partner else '',
+            'url': f'{base.rstrip("/")}/odoo/calendar/{event.id}',
         }
