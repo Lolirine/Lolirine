@@ -2,16 +2,17 @@
 <odoo>
     <!--
         Page /visite-chantier
-        Page HTML autonome — React 18 + Babel via CDN
+        Page HTML autonome — React 18 + Babel servis EN LOCAL (static/lib)
         Le JS JSX est servi depuis static/ et transpilé par Babel dans le navigateur
 
-        IMPORTANT — versions CDN épinglées.
+        IMPORTANT — les librairies ne sont plus appelées sur un CDN.
         Avec des URL flottantes (react@18, @babel/standalone), le CDN peut
         changer de version sans prévenir. C'est ce qui a cassé la page :
         le preset React de Babel est passé au JSX runtime "automatic", qui
         émet un « import { jsx } from "react/jsx-runtime" » impossible à
         injecter comme script classique -> page blanche.
-        Ne pas remettre d'URL sans numéro de version.
+        Les fichiers sont désormais dans static/lib/ — voir VERSIONS.txt.
+        Mise à jour : tools/vendor_libs.sh. Ne jamais revenir à une URL CDN.
     -->
     <template id="page_checklist" name="Fiche de visite chantier">
         <html lang="fr">
@@ -25,13 +26,10 @@
                 <link rel="stylesheet"
                       type="text/css"
                       t-att-href="'/lolirine_pool_checklist/static/src/css/pool_checklist.css'"/>
-                <!-- React 18 + ReactDOM + Babel standalone — VERSIONS ÉPINGLÉES -->
-                <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
-                        crossorigin="anonymous"/>
-                <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
-                        crossorigin="anonymous"/>
-                <script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"
-                        crossorigin="anonymous"/>
+                <!-- React 18 + ReactDOM + Babel standalone — SERVIS EN LOCAL -->
+                <script t-att-src="'/lolirine_pool_checklist/static/lib/react.production.min.js'"/>
+                <script t-att-src="'/lolirine_pool_checklist/static/lib/react-dom.production.min.js'"/>
+                <script t-att-src="'/lolirine_pool_checklist/static/lib/babel.min.js'"/>
                 <!-- Config frontend injectée côté serveur -->
                 <script>
                     window.LOLIRINE_CHECKLIST_CONFIG = {
@@ -58,6 +56,63 @@
                     .plc-err-detail { font-size: 11px; color: #7f1d1d; background: #fff;
                                       border-radius: 8px; padding: 10px; margin-top: 10px;
                                       overflow: auto; white-space: pre-wrap; }
+
+                    /* ── Fiche vierge à imprimer ─────────────────────── */
+                    .plc-sheet { font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+                                 color: #111; background: #fff; }
+                    .plc-sheet-page { max-width: 190mm; margin: 0 auto; padding: 10mm 8mm; }
+                    .plc-sheet h1 { font-size: 17pt; margin: 0 0 2mm; letter-spacing: -.3px; }
+                    .plc-sheet h2 { font-size: 11pt; margin: 5mm 0 2mm;
+                                    padding-bottom: 1mm; border-bottom: 1.5pt solid #111; }
+                    .plc-field { display: flex; align-items: flex-end; gap: 2mm;
+                                 margin-bottom: 2.5mm; font-size: 9pt; }
+                    .plc-field-label { white-space: nowrap; color: #333; font-weight: 600; }
+                    .plc-field-fill { flex: 1; border-bottom: .6pt dotted #777;
+                                      min-height: 5mm; }
+                    .plc-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 6mm; }
+                    .plc-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 6mm; }
+                    .plc-section { page-break-inside: avoid; break-inside: avoid;
+                                   margin-bottom: 4mm; }
+                    .plc-item { display: flex; align-items: flex-end; gap: 1.5mm;
+                                padding: .8mm 0; font-size: 8.5pt; line-height: 1.35;
+                                border-bottom: .3pt solid #e5e5e5; }
+                    .plc-box { width: 3.6mm; height: 3.6mm; border: .8pt solid #333;
+                               flex-shrink: 0; display: inline-block; margin-bottom: .5mm; }
+                    .plc-box-warn { border-color: #a86a00; }
+                    .plc-box-bad { border-color: #a32d2d; }
+                    .plc-item-text { flex: 0 1 auto; }
+                    .plc-item-fill { flex: 1 1 30mm; border-bottom: .6pt dotted #999;
+                                     min-width: 22mm; margin-left: 1.5mm; }
+                    .plc-sketch { border: .8pt solid #333; height: 62mm;
+                                  background-image:
+                                    linear-gradient(#eee .4pt, transparent .4pt),
+                                    linear-gradient(90deg, #eee .4pt, transparent .4pt);
+                                  background-size: 5mm 5mm; }
+                    .plc-notes-lines { border: .8pt solid #333; padding: 2mm;
+                                       background-image: linear-gradient(#ddd .4pt, transparent .4pt);
+                                       background-size: 100% 7mm; height: 56mm; }
+                    .plc-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm;
+                                margin-top: 5mm; page-break-inside: avoid; }
+                    .plc-sign-box { border: .8pt solid #333; height: 26mm; padding: 1.5mm;
+                                    font-size: 8pt; color: #555; }
+                    .plc-legend { font-size: 8pt; color: #444; display: flex; gap: 5mm;
+                                  flex-wrap: wrap; margin: 2mm 0 4mm; align-items: center; }
+                    .plc-foot { margin-top: 5mm; padding-top: 2mm;
+                                border-top: .6pt solid #999; font-size: 7.5pt;
+                                color: #666; text-align: center; }
+
+                    /* ── Règles d'impression ─────────────────────────── */
+                    @page { size: A4 portrait; margin: 10mm 9mm; }
+                    @media print {
+                        html, body { background: #fff !important; }
+                        body * { visibility: hidden; }
+                        #plc-print, #plc-print * { visibility: visible; }
+                        #plc-print { position: absolute; left: 0; top: 0;
+                                     width: 100%; margin: 0; padding: 0; }
+                        .plc-noprint { display: none !important; }
+                        .plc-sheet-page { max-width: none; padding: 0; }
+                        .plc-pagebreak { page-break-before: always; break-before: page; }
+                    }
                 </style>
             </head>
             <body>
@@ -113,15 +168,15 @@
                         }
 
                         if (typeof Babel === 'undefined') {
-                            showError('Babel ne s\'est pas chargé (accès à unpkg.com ?).', libState());
+                            showError('Babel ne s\'est pas chargé (fichier manquant dans static/lib ?).', libState());
                             return;
                         }
                         if (typeof React === 'undefined') {
-                            showError('React ne s\'est pas chargé (accès à unpkg.com ?).', libState());
+                            showError('React ne s\'est pas chargé (fichier manquant dans static/lib ?).', libState());
                             return;
                         }
                         if (typeof ReactDOM === 'undefined') {
-                            showError('ReactDOM ne s\'est pas chargé (accès à unpkg.com ?).', libState());
+                            showError('ReactDOM ne s\'est pas chargé (fichier manquant dans static/lib ?).', libState());
                             return;
                         }
 
@@ -145,7 +200,7 @@
                                 if (/^\s*import\s/m.test(out)) {
                                     throw new Error(
                                         'Babel a produit du code ESM malgre runtime "classic". '
-                                        + 'La version de @babel/standalone servie a change.');
+                                        + 'Verifier la version dans static/lib/VERSIONS.txt.');
                                 }
 
                                 var s = document.createElement('script');
