@@ -101,6 +101,22 @@
                                 border-top: .6pt solid #999; font-size: 7.5pt;
                                 color: #666; text-align: center; }
 
+
+                    /* ── Aperçu paginé A4 ────────────────────────────── */
+                    .plc-measure { position: absolute; left: -10000px; top: 0;
+                                   width: 192mm; visibility: hidden;
+                                   pointer-events: none; }
+                    .plc-pagewrap { padding: 18px 0 40px; }
+                    .plc-pageouter { margin: 0 auto 22px;
+                                     width: calc(210mm * var(--plc-zoom, 1)); }
+                    .plc-pagelabel { font-family: system-ui, sans-serif; font-size: 11px;
+                                     color: #64748b; margin-bottom: 5px;
+                                     text-align: right; font-weight: 600; }
+                    .plc-page { width: 210mm; min-height: 297mm; padding: 10mm 9mm;
+                                background: #fff; box-shadow: 0 2px 14px rgba(0,0,0,.16);
+                                transform: scale(var(--plc-zoom, 1));
+                                transform-origin: top left; }
+
                     /* ── Règles d'impression ─────────────────────────── */
                     @page { size: A4 portrait; margin: 10mm 9mm; }
                     @media print {
@@ -112,6 +128,13 @@
                         .plc-noprint { display: none !important; }
                         .plc-sheet-page { max-width: none; padding: 0; }
                         .plc-pagebreak { page-break-before: always; break-before: page; }
+                        .plc-measure { display: none !important; }
+                        .plc-pagewrap { padding: 0; }
+                        .plc-pageouter { width: auto; margin: 0; }
+                        .plc-page { width: auto; min-height: 0; padding: 0;
+                                    box-shadow: none; transform: none; }
+                        .plc-page-break { page-break-after: always;
+                                          break-after: page; }
                     }
                 </style>
             </head>
