@@ -37,7 +37,8 @@
                         productsEndpoint:  '/pool-checklist/products',
                         aiEndpoint:        '/pool-checklist/ai-suggest',
                         partnerEndpoint:   '/pool-checklist/search-partner',
-                        quoteEndpoint:     '/pool-checklist/create-quote'
+                        quoteEndpoint:     '/pool-checklist/create-quote',
+                        eventEndpoint:     '/pool-checklist/create-event'
                     };
                 </script>
                 <style>
