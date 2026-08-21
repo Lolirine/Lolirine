@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <!--
         Page /visite-chantier
         Page HTML autonome — React 18 + Babel via CDN
         Le JS JSX est servi depuis static/ et transpilé par Babel dans le navigateur
+
+        IMPORTANT — versions CDN épinglées.
+        Avec des URL flottantes (react@18, @babel/standalone), le CDN peut
+        changer de version sans prévenir. C'est ce qui a cassé la page :
+        le preset React de Babel est passé au JSX runtime "automatic", qui
+        émet un « import { jsx } from "react/jsx-runtime" » impossible à
+        injecter comme script classique -> page blanche.
+        Ne pas remettre d'URL sans numéro de version.
     -->
     <template id="page_checklist" name="Fiche de visite chantier">
         <html lang="fr">
@@ -12,23 +19,19 @@
                 <meta charset="UTF-8"/>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
                 <title>Fiche de visite chantier — Lolirine Pool Store</title>
-
                 <!-- Désactivation indexation -->
                 <meta name="robots" content="noindex, nofollow"/>
-
                 <!-- CSS module -->
                 <link rel="stylesheet"
                       type="text/css"
                       t-att-href="'/lolirine_pool_checklist/static/src/css/pool_checklist.css'"/>
-
-                <!-- React 18 + ReactDOM + Babel standalone -->
-                <script src="https://unpkg.com/react@18/umd/react.production.min.js"
+                <!-- React 18 + ReactDOM + Babel standalone — VERSIONS ÉPINGLÉES -->
+                <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
                         crossorigin="anonymous"/>
-                <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+                <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
                         crossorigin="anonymous"/>
-                <script src="https://unpkg.com/@babel/standalone/babel.min.js"
+                <script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"
                         crossorigin="anonymous"/>
-
                 <!-- Config frontend injectée côté serveur -->
                 <script>
                     window.LOLIRINE_CHECKLIST_CONFIG = {
@@ -39,23 +42,128 @@
                         quoteEndpoint:     '/pool-checklist/create-quote'
                     };
                 </script>
-
                 <style>
                     *, *::before, *::after { box-sizing: border-box; }
                     html, body { margin: 0; padding: 0; background: #f1f5f9; }
                     #pool-checklist-root { min-height: 100vh; }
+                    .plc-boot { font-family: system-ui, sans-serif; padding: 48px 24px;
+                                text-align: center; color: #64748b; }
+                    .plc-boot-title { font-size: 15px; font-weight: 600; color: #1e293b; }
+                    .plc-err { font-family: system-ui, sans-serif; max-width: 640px;
+                               margin: 48px auto; padding: 24px; border: 1.5px solid #fca5a5;
+                               border-radius: 12px; background: #fef2f2; }
+                    .plc-err-title { font-weight: 800; font-size: 16px; color: #a32d2d;
+                                     margin-bottom: 8px; }
+                    .plc-err-msg { font-size: 13px; color: #7f1d1d; }
+                    .plc-err-detail { font-size: 11px; color: #7f1d1d; background: #fff;
+                                      border-radius: 8px; padding: 10px; margin-top: 10px;
+                                      overflow: auto; white-space: pre-wrap; }
                 </style>
             </head>
             <body>
                 <!-- Point de montage React -->
-                <div id="pool-checklist-root"/>
+                <div id="pool-checklist-root">
+                    <!-- Remplacé par React au montage. Reste affiché si le
+                         chargement échoue : plus jamais de page blanche muette. -->
+                    <div class="plc-boot">
+                        <div style="font-size:32px;margin-bottom:12px">🏊</div>
+                        <div class="plc-boot-title">Chargement de la fiche de visite…</div>
+                    </div>
+                </div>
 
-                <!-- JS JSX transpilé par Babel dans le navigateur -->
-                <script type="text/babel"
-                        data-presets="react"
-                        t-att-src="'/lolirine_pool_checklist/static/src/js/pool_checklist.js'"/>
+                <!--
+                    Chargement + transpilation explicite du JSX.
+
+                    On n'utilise plus <script type="text/babel" src="..."> :
+                    cette forme (même avec data-presets="react") ne permet pas
+                    de passer d'OPTIONS au preset, donc on subit le runtime par
+                    défaut de la version servie. Ici on force runtime "classic"
+                    + pragma React.createElement : le code produit est du JS
+                    classique, injectable tel quel.
+                -->
+                <script type="text/javascript">
+                    (function () {
+                        var JS_URL = '/lolirine_pool_checklist/static/src/js/pool_checklist.js';
+
+                        function showError(msg, detail) {
+                            var root = document.getElementById('pool-checklist-root');
+                            if (!root) { return; }
+                            root.textContent = '';
+                            var box = document.createElement('div');
+                            box.className = 'plc-err';
+                            var t = document.createElement('div');
+                            t.className = 'plc-err-title';
+                            t.textContent = '⚠️ La fiche n\'a pas pu se charger';
+                            var m = document.createElement('div');
+                            m.className = 'plc-err-msg';
+                            m.textContent = msg;
+                            var d = document.createElement('pre');
+                            d.className = 'plc-err-detail';
+                            d.textContent = detail || '';
+                            box.appendChild(t);
+                            box.appendChild(m);
+                            box.appendChild(d);
+                            root.appendChild(box);
+                        }
+
+                        function libState() {
+                            return 'Babel: ' + (typeof Babel)
+                                 + ' | React: ' + (typeof React)
+                                 + ' | ReactDOM: ' + (typeof ReactDOM);
+                        }
+
+                        if (typeof Babel === 'undefined') {
+                            showError('Babel ne s\'est pas chargé (accès à unpkg.com ?).', libState());
+                            return;
+                        }
+                        if (typeof React === 'undefined') {
+                            showError('React ne s\'est pas chargé (accès à unpkg.com ?).', libState());
+                            return;
+                        }
+                        if (typeof ReactDOM === 'undefined') {
+                            showError('ReactDOM ne s\'est pas chargé (accès à unpkg.com ?).', libState());
+                            return;
+                        }
+
+                        fetch(JS_URL, { credentials: 'same-origin', cache: 'no-cache' })
+                            .then(function (r) {
+                                if (!r.ok) {
+                                    throw new Error('HTTP ' + r.status + ' sur ' + JS_URL);
+                                }
+                                return r.text();
+                            })
+                            .then(function (src) {
+                                var out = Babel.transform(src, {
+                                    filename: 'pool_checklist.js',
+                                    presets: [['react', {
+                                        runtime:    'classic',
+                                        pragma:     'React.createElement',
+                                        pragmaFrag: 'React.Fragment'
+                                    }]]
+                                }).code;
+
+                                if (/^\s*import\s/m.test(out)) {
+                                    throw new Error(
+                                        'Babel a produit du code ESM malgre runtime "classic". '
+                                        + 'La version de @babel/standalone servie a change.');
+                                }
+
+                                var s = document.createElement('script');
+                                s.type = 'text/javascript';
+                                s.textContent = out;
+                                document.body.appendChild(s);
+                            })
+                            .catch(function (e) {
+                                console.error('[pool_checklist] echec du chargement :', e);
+                                var detail = String(e);
+                                if (e) {
+                                    if (e.message) { detail = e.message; }
+                                }
+                                showError('Erreur pendant le chargement ou la transpilation du script.', detail);
+                            });
+                    })();
+                </script>
             </body>
         </html>
     </template>
-
 </odoo>
