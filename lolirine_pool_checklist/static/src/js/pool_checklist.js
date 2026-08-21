@@ -1677,6 +1677,265 @@ function FreeProductZone({ products, onAdd, onUpdate, onRemove }) {
 }
 
 /* ═══════════════════════════════════════════════════
+   ScheduleModal — planification d'une visite dans le
+   calendrier natif Odoo (calendar.event)
+
+   L'événement porte le client, l'adresse chantier, le type
+   d'intervention et un lien de retour vers la fiche. Il apparaît
+   dans l'app Calendrier d'Odoo et se synchronise avec Google /
+   Outlook si la synchronisation est configurée côté Odoo.
+═══════════════════════════════════════════════════ */
+const DUREES = [
+  { v: 0.5, l: '30 min' },
+  { v: 1,   l: '1 h' },
+  { v: 1.5, l: '1 h 30' },
+  { v: 2,   l: '2 h' },
+  { v: 3,   l: '3 h' },
+  { v: 4,   l: '4 h' },
+];
+const RAPPELS = [
+  { v: 0,    l: 'Aucun' },
+  { v: 30,   l: '30 min avant' },
+  { v: 60,   l: '1 h avant' },
+  { v: 120,  l: '2 h avant' },
+  { v: 1440, l: '1 jour avant' },
+  { v: 2880, l: '2 jours avant' },
+];
+
+function ScheduleModal({ clientInfo, type, ficheId, obs, onClose }) {
+  const cfg = window.LOLIRINE_CHECKLIST_CONFIG || {};
+  const meta = INTERVENTION_TYPES.find(x => x.key === type) || {};
+  const clientName = [clientInfo && clientInfo.prenom, clientInfo && clientInfo.nom]
+    .filter(Boolean).join(' ')
+    || (clientInfo && clientInfo.denomination) || '';
+
+  /* Par défaut : demain, 9 h */
+  const demain = new Date();
+  demain.setDate(demain.getDate() + 1);
+
+  const [date, setDate]     = useState(demain.toISOString().split('T')[0]);
+  const [heure, setHeure]   = useState('09:00');
+  const [duree, setDuree]   = useState(2);
+  const [rappel, setRappel] = useState(1440);
+  const [titre, setTitre]   = useState(
+    'Visite chantier' + (meta.label ? ' — ' + meta.label : '')
+    + (clientName ? ' — ' + clientName : '')
+  );
+  const [lieu, setLieu]     = useState((clientInfo && clientInfo.adresseChantier) || '');
+  const [note, setNote]     = useState('');
+  const [busy, setBusy]     = useState(false);
+  const [err, setErr]       = useState(null);
+  const [result, setResult] = useState(null);
+
+  const IS = {width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,
+    padding:'9px 12px',fontFamily:'inherit',fontSize:13,outline:'none',
+    boxSizing:'border-box'};
+  const LB = {fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',
+    letterSpacing:'.4px',display:'block',marginBottom:4};
+
+  /* Aperçu lisible de la plage horaire */
+  let apercu = '';
+  if (date && heure) {
+    const parts = heure.split(':');
+    const d = new Date(date + 'T' + heure + ':00');
+    if (!isNaN(d.getTime())) {
+      const fin = new Date(d.getTime() + duree * 3600000);
+      const jour = d.toLocaleDateString('fr-BE',
+        {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+      const hh = function (x) {
+        return String(x.getHours()).padStart(2,'0') + ':'
+             + String(x.getMinutes()).padStart(2,'0');
+      };
+      apercu = jour.charAt(0).toUpperCase() + jour.slice(1)
+             + ' · ' + hh(d) + ' → ' + hh(fin);
+    }
+  }
+
+  async function creer() {
+    if (!date || !heure) { setErr('Date et heure obligatoires.'); return; }
+    setBusy(true); setErr(null);
+    const corps = [
+      meta.label ? 'Type : ' + meta.label : '',
+      clientInfo && clientInfo.telephone ? 'Tél. : ' + clientInfo.telephone : '',
+      clientInfo && clientInfo.email ? 'E-mail : ' + clientInfo.email : '',
+      clientInfo && clientInfo.refDossier ? 'Réf. dossier : ' + clientInfo.refDossier : '',
+      note ? '\n' + note : '',
+      obs ? '\nObservations :\n' + obs : '',
+    ].filter(Boolean).join('\n');
+
+    try {
+      const r = await fetch(cfg.eventEndpoint || '/pool-checklist/create-event', {
+        method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({jsonrpc:'2.0', method:'call', id:1, params:{
+          partner_id: (clientInfo && clientInfo.odooId) || null,
+          partner_name: clientName,
+          title: titre,
+          start_local: date + ' ' + heure,
+          duration: duree,
+          location: lieu,
+          description: corps,
+          reminder_minutes: rappel,
+          fiche_id: ficheId,
+          intervention_type: type,
+        }}),
+      });
+      const d = await r.json();
+      if (d && d.result && d.result.error) { setErr(d.result.error); setBusy(false); return; }
+      setResult((d && d.result) || {});
+    } catch (e) {
+      setErr(e.message);
+    }
+    setBusy(false);
+  }
+
+  /* ── Confirmation ── */
+  if (result) {
+    return (
+      <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.6)',zIndex:9994,
+        display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <div style={{background:'#fff',borderRadius:16,padding:32,width:'min(460px,92vw)',
+          textAlign:'center',boxShadow:'0 24px 80px rgba(0,0,0,.25)'}}>
+          <div style={{fontSize:48,marginBottom:10}}>📅</div>
+          <div style={{fontWeight:800,fontSize:19,color:'#1e293b',marginBottom:6}}>
+            Rendez-vous planifié
+          </div>
+          {result.start_local && (
+            <div style={{fontSize:15,color:'#0ea5e9',fontWeight:700,marginBottom:4}}>
+              {result.start_local}
+            </div>
+          )}
+          {result.partner_name && (
+            <div style={{fontSize:13,color:'#64748b',marginBottom:18}}>
+              Client : {result.partner_name}
+            </div>
+          )}
+          <div style={{display:'flex',gap:9,justifyContent:'center'}}>
+            {result.url && (
+              <a href={result.url} target="_blank" rel="noreferrer"
+                style={{background:'#0ea5e9',color:'#fff',borderRadius:9,padding:'9px 20px',
+                  fontWeight:700,fontSize:13,textDecoration:'none'}}>
+                Ouvrir dans le calendrier →
+              </a>
+            )}
+            <button onClick={onClose}
+              style={{background:'none',border:'1.5px solid #e2e8f0',borderRadius:9,
+                padding:'9px 20px',fontWeight:600,fontSize:13,cursor:'pointer',color:'#475569'}}>
+              Fermer
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Formulaire ── */
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.55)',zIndex:9994,
+      display:'flex',alignItems:'center',justifyContent:'center',padding:8}}>
+      <div style={{background:'#fff',borderRadius:16,width:'min(600px,100%)',
+        maxHeight:'92vh',display:'flex',flexDirection:'column',
+        boxShadow:'0 24px 80px rgba(0,0,0,.25)',overflow:'hidden'}}>
+
+        <div style={{background:'#0ea5e9',padding:'14px 18px',display:'flex',
+          alignItems:'center',gap:10,flexShrink:0}}>
+          <span style={{fontSize:22}}>📅</span>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:800,fontSize:16,color:'#fff'}}>Planifier la visite</div>
+            <div style={{fontSize:11,color:'rgba(255,255,255,.75)',marginTop:1}}>
+              Ajouté au calendrier Odoo · {clientName || 'client non renseigné'}
+            </div>
+          </div>
+          <button onClick={onClose}
+            style={{background:'rgba(255,255,255,.2)',border:'none',borderRadius:7,
+              padding:'5px 12px',cursor:'pointer',fontSize:13,color:'#fff'}}>✕</button>
+        </div>
+
+        <div style={{overflowY:'auto',padding:'18px 20px',display:'flex',
+          flexDirection:'column',gap:14}}>
+
+          <div>
+            <label style={LB}>Intitulé</label>
+            <input value={titre} onChange={e => setTitre(e.target.value)} style={IS} />
+          </div>
+
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12}}>
+            <div>
+              <label style={LB}>Date</label>
+              <input type="date" value={date} onChange={e => setDate(e.target.value)} style={IS} />
+            </div>
+            <div>
+              <label style={LB}>Heure</label>
+              <input type="time" value={heure} onChange={e => setHeure(e.target.value)} style={IS} />
+            </div>
+            <div>
+              <label style={LB}>Durée</label>
+              <select value={duree} onChange={e => setDuree(parseFloat(e.target.value))}
+                style={{...IS,background:'#fff',cursor:'pointer'}}>
+                {DUREES.map(d => <option key={d.v} value={d.v}>{d.l}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {apercu && (
+            <div style={{background:'#eff9ff',borderRadius:9,padding:'10px 14px',
+              fontSize:13,color:'#0369a1',fontWeight:600}}>
+              🕐 {apercu}
+            </div>
+          )}
+
+          <div>
+            <label style={LB}>Lieu</label>
+            <input value={lieu} onChange={e => setLieu(e.target.value)}
+              placeholder="Adresse du chantier…" style={IS} />
+          </div>
+
+          <div>
+            <label style={LB}>Rappel</label>
+            <select value={rappel} onChange={e => setRappel(parseInt(e.target.value))}
+              style={{...IS,background:'#fff',cursor:'pointer'}}>
+              {RAPPELS.map(r => <option key={r.v} value={r.v}>{r.l}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label style={LB}>Note complémentaire</label>
+            <textarea value={note} onChange={e => setNote(e.target.value)} rows={3}
+              placeholder="Accès, code portail, personne à contacter sur place…"
+              style={{...IS,resize:'vertical',lineHeight:1.5}} />
+          </div>
+
+          {ficheId && (
+            <div style={{background:'#fffbeb',border:'1.5px solid #fde68a',borderRadius:9,
+              padding:'9px 13px',fontSize:11,color:'#92400e',lineHeight:1.5}}>
+              Un lien vers cette fiche sera joint au rendez-vous. La fiche étant
+              enregistrée dans ce navigateur, le lien ne la rouvrira que depuis
+              cet appareil.
+            </div>
+          )}
+        </div>
+
+        <div style={{padding:'12px 20px',borderTop:'1px solid #f0f4f8',display:'flex',
+          justifyContent:'flex-end',gap:9,alignItems:'center',flexShrink:0}}>
+          {err && <span style={{color:'#ef4444',fontSize:12,flex:1}}>{err}</span>}
+          <button onClick={onClose}
+            style={{background:'none',border:'1.5px solid #e2e8f0',borderRadius:9,
+              padding:'8px 18px',cursor:'pointer',fontSize:13,color:'#475569',fontWeight:600}}>
+            Annuler
+          </button>
+          <button onClick={creer} disabled={busy}
+            style={{background:busy?'#cbd5e1':'#0ea5e9',color:'#fff',border:'none',
+              borderRadius:9,padding:'8px 22px',fontWeight:700,fontSize:13,
+              cursor:busy?'wait':'pointer'}}>
+            {busy ? '⏳ Création…' : '📅 Créer le rendez-vous'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
    PrintableBlank — fiche vierge à imprimer et emporter sur chantier
 
    Deux modes d'affichage :
@@ -2106,6 +2365,7 @@ function PoolChecklist() {
   const [itemData,setItemData]  = useState({});
   const [showPlanning,setShowPlanning] = useState(false);
   const [showBlank,setShowBlank]       = useState(false);
+  const [showSched,setShowSched]       = useState(false);
   /* ID unique de la fiche — généré une fois, persisté en localStorage */
   const [ficheId] = useState(()=>{
     const stored = localStorage.getItem('pool_fiche_current_id');
@@ -2260,6 +2520,7 @@ function PoolChecklist() {
         </div>
         <div style={{display:'flex',gap:8,flexShrink:0}}>
           <button onClick={()=>setShowPlanning(true)} style={{background:'#f1f5f9',color:'#475569',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'7px 13px',cursor:'pointer',fontWeight:600,fontSize:12}}>📅 Planning</button>
+          <button onClick={()=>setShowSched(true)} style={{background:'#f1f5f9',color:'#475569',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'7px 13px',cursor:'pointer',fontWeight:600,fontSize:12}}>📅 Planifier</button>
           <button onClick={()=>setShowBlank(true)} style={{background:'#f1f5f9',color:'#475569',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'7px 13px',cursor:'pointer',fontWeight:600,fontSize:12}}>🖨️ Fiche vierge</button>
           <button onClick={()=>setShowHistory(true)} style={{background:'#f1f5f9',color:'#475569',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'7px 13px',cursor:'pointer',fontWeight:600,fontSize:12}}>📁 Historique</button>
           <button onClick={saveToHistory} style={{background:saved?'#16a34a':'#f1f5f9',color:saved?'#fff':'#475569',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'7px 13px',cursor:'pointer',fontWeight:600,fontSize:12,transition:'all .3s'}}>{saved?'✅ Sauvegardé':'💾 Sauvegarder'}</button>
@@ -2705,6 +2966,7 @@ function PoolChecklist() {
       {showPlanning&&<PlanningModal type={type} clientName={[prenom,nom].filter(Boolean).join(' ')||denomination||'Client'} startDate={date} onClose={()=>setShowPlanning(false)} />
       }
       {showBlank&&<PrintableBlank type={type} onClose={()=>setShowBlank(false)} />}
+      {showSched&&<ScheduleModal clientInfo={clientInfo} type={type} ficheId={ficheId} obs={obs} onClose={()=>setShowSched(false)} />}
       {panel&&<ProductPanel item={panel.item} sectionLabel={panel.sectionLabel} onAdd={handleAddProducts} onClose={()=>setPanel(null)} />}
       {showQuote&&<QuoteModal products={products} clientInfo={clientInfo} ficheId={ficheId} onClose={()=>setShowQuote(false)} onCreated={()=>{}} />}
       {showHistory&&<HistoryModal onClose={()=>setShowHistory(false)} onLoad={loadRecord} />}
