@@ -28,6 +28,7 @@ Moteur : Motion (motion.dev) v12, build UMD local (window.Motion).
     "depends": ["website"],
     "data": [
         "views/motion_templates.xml",
+        "views/product_suggested_template.xml",
     ],
     "assets": {
         "web.assets_frontend": [
