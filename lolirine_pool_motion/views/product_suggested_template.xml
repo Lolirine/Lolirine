@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="pool_suggested_products"
+              inherit_id="website_sale.alternative_products"
+              name="Complétez votre équipement">
+        <xpath expr="//div[@id='oe_structure_website_sale_recommended_products']" position="after">
+            <div t-if="product.x_pool_suggested_ids"
+                 class="container pt16 pb32 o_pool_suggested_wrap">
+                <div class="row s_nb_column_fixed">
+                    <div class="col-12">
+                        <h4 class="mb-1">Complétez votre équipement</h4>
+                        <p class="lead">D'autres produits qui pourraient vous être utiles</p>
+                    </div>
+                </div>
+                <div class="o_pool_suggested_row">
+                    <t t-foreach="product.x_pool_suggested_ids" t-as="sugg">
+                        <t t-if="sugg.is_published">
+                            <a class="o_pool_suggested_card"
+                               t-att-href="sugg.website_url">
+                                <div class="o_pool_suggested_img">
+                                    <img t-att-src="'/web/image/product.template/%s/image_256' % sugg.id"
+                                         t-att-alt="sugg.name" loading="lazy"/>
+                                </div>
+                                <div class="o_pool_suggested_name" t-esc="sugg.name"/>
+                                <div class="o_pool_suggested_price">
+                                    <span t-esc="sugg.list_price"
+                                          t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                                </div>
+                            </a>
+                        </t>
+                    </t>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>
