@@ -8,37 +8,39 @@ export class SuggestedMarquee extends Interaction {
     setup() {
         this.row = this.el.querySelector(".o_pool_suggested_row");
         if (!this.row) return;
-
-        // 1) on duplique les cartes pour une boucle sans couture
-        this.row.innerHTML += this.row.innerHTML;
-
-        this.pos = 0;
-        this.speed = 0.4;          // px par frame (~ lent) — ajuste ici
+        this.cards = Array.from(this.row.children);
+        this.index = 0;
         this.paused = false;
-        this._raf = null;
+        this.stepCards = 4;          // avance de 4 cartes
+        this.interval = 3500;        // pause en ms entre deux sauts
+        this._timer = null;
     }
 
     start() {
-        if (!this.row) return;
+        if (!this.row || this.cards.length <= this.stepCards) return;
 
-        // pause au survol
+        this.row.style.transition = "transform 0.6s ease";
+
         this.el.addEventListener("mouseenter", () => { this.paused = true; });
         this.el.addEventListener("mouseleave", () => { this.paused = false; });
 
-        const half = this.row.scrollWidth / 2;   // largeur d'un jeu de cartes
-        const step = () => {
+        const tick = () => {
             if (!this.paused) {
-                this.pos += this.speed;
-                if (this.pos >= half) this.pos -= half;   // boucle
-                this.row.style.transform = `translateX(${-this.pos}px)`;
+                this.index += this.stepCards;
+                // si on dépasse, on revient au début
+                if (this.index >= this.cards.length) {
+                    this.index = 0;
+                }
+                const target = this.cards[this.index];
+                const offset = target.offsetLeft - this.row.offsetLeft;
+                this.row.style.transform = `translateX(${-offset}px)`;
             }
-            this._raf = requestAnimationFrame(step);
         };
-        this._raf = requestAnimationFrame(step);
+        this._timer = setInterval(tick, this.interval);
     }
 
     destroy() {
-        if (this._raf) cancelAnimationFrame(this._raf);
+        if (this._timer) clearInterval(this._timer);
     }
 }
 
