@@ -1320,31 +1320,7 @@ html[data-website-id="6"] {
     font-size: 1.15rem;
   }
 }
-    .o_pool_suggested_img img {
-        width: 100%;
-        height: 150px;
-        object-fit: contain;
-        background: #fff;
-        border-radius: 10px;
-        padding: 6px;
-    }
-    .o_pool_suggested_name {
-        font-size: 0.9rem;
-        line-height: 1.25;
-        margin-top: 0.5rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .o_pool_suggested_price {
-        margin-top: auto;
-        padding-top: 0.4rem;
-        color: var(--pool-primary-dark, #0284c7);
-        font-weight: 700;
-    }
-}
-
+    
 /* Panneau glass autour de "Complétez votre équipement" */
 html[data-website-id="6"] .o_pool_suggested_wrap {
     background: rgba(255, 255, 255, 0.55);
