@@ -1264,8 +1264,8 @@ html[data-website-id="6"] .o_pool_suggested_wrap {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
     padding: 1.5rem 1.75rem;
     margin: 1.5rem auto 2.5rem;
-    max-width: 95%;              /* élargit au-delà du container standard */
-    width: 95%;
+    max-width: 95% !important;
+    width: 95% !important;
 }
 
   .o_pool_suggested_viewport {        // conteneur qui masque
