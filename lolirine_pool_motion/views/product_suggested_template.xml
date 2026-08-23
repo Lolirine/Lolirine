@@ -12,23 +12,25 @@
                         <p class="lead">D'autres produits qui pourraient vous être utiles</p>
                     </div>
                 </div>
-                <div class="o_pool_suggested_row">
-                    <t t-foreach="product.x_pool_suggested_ids" t-as="sugg">
-                        <t t-if="sugg.is_published">
-                            <a class="o_pool_suggested_card"
-                               t-att-href="sugg.website_url">
-                                <div class="o_pool_suggested_img">
-                                    <img t-att-src="'/web/image/product.template/%s/image_256' % sugg.id"
-                                         t-att-alt="sugg.name" loading="lazy"/>
-                                </div>
-                                <div class="o_pool_suggested_name" t-esc="sugg.name"/>
-                                <div class="o_pool_suggested_price">
-                                    <span t-esc="sugg.list_price"
-                                          t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
-                                </div>
-                            </a>
+                <div class="o_pool_suggested_viewport">
+                    <div class="o_pool_suggested_row">
+                        <t t-foreach="product.x_pool_suggested_ids" t-as="sugg">
+                            <t t-if="sugg.is_published">
+                                <a class="o_pool_suggested_card"
+                                   t-att-href="sugg.website_url">
+                                    <div class="o_pool_suggested_img">
+                                        <img t-att-src="'/web/image/product.template/%s/image_256' % sugg.id"
+                                             t-att-alt="sugg.name" loading="lazy"/>
+                                    </div>
+                                    <div class="o_pool_suggested_name" t-esc="sugg.name"/>
+                                    <div class="o_pool_suggested_price">
+                                        <span t-esc="sugg.list_price"
+                                              t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                                    </div>
+                                </a>
+                            </t>
                         </t>
-                    </t>
+                    </div>
                 </div>
             </div>
         </xpath>
