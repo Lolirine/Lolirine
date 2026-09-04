@@ -1020,6 +1020,7 @@ class LolirineBoxTransferWizard(models.TransientModel):
             'inv': invoice.name or 'brouillon',
             'total': invoice.amount_total,
             'contract': contract_line,
+            'boxline': box_line,
             'nextinv': self.next_invoice_date_after.strftime('%d/%m/%Y')
                        if self.next_invoice_date_after else '-',
             'deposit': deposit_line,
