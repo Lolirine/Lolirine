@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================ -->
+    <!-- VUE DU WIZARD                                                    -->
+    <!-- ================================================================ -->
+    <record id="view_lolirine_box_transfer_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.box.transfer.wizard.form</field>
+        <field name="model">lolirine.box.transfer.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Transfert de box">
+                <field name="confirmation_step" invisible="1"/>
+                <field name="has_calculation" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="candidate_line_ids" invisible="1"/>
+                <field name="available_box_ids" invisible="1"/>
+
+                <sheet>
+
+                    <!-- ======================================== -->
+                    <!-- ETAPE 1 : SAISIE                         -->
+                    <!-- ======================================== -->
+                    <div invisible="confirmation_step != 'initial'">
+                        <div class="oe_title">
+                            <h1>Transfert de box</h1>
+                            <p class="text-muted">
+                                Le client change de box sans quitter le site.
+                                Prorata sur l'ancien et le nouveau box,
+                                bascule de la ligne d'abonnement et ajustement
+                                de la caution.
+                            </p>
+                        </div>
+
+                        <group>
+                            <group string="Contrat">
+                                <field name="subscription_id"/>
+                                <field name="partner_id"/>
+                                <field name="contract_mode"/>
+                            </group>
+                            <group string="Options d'envoi">
+                                <field name="send_email"/>
+                                <field name="adjust_deposit"/>
+                                <field name="test_mode"/>
+                                <field name="test_email" invisible="not test_mode"/>
+                            </group>
+                        </group>
+
+                        <group>
+                            <group string="Box quitte">
+                                <field name="old_order_line_id"
+                                       options="{'no_create': True}"/>
+                                <field name="old_price_unit" widget="monetary"/>
+                                <field name="old_deposit" widget="monetary"/>
+                            </group>
+                            <group string="Box repris">
+                                <field name="new_box_product_id"
+                                       options="{'no_create': True}"/>
+                                <field name="new_price_unit" widget="monetary"/>
+                                <field name="new_price_ttc_info"/>
+                                <field name="new_deposit" widget="monetary"/>
+                            </group>
+                        </group>
+
+                        <group string="Caution">
+                            <field name="deposit_delta" widget="monetary"/>
+                            <field name="deposit_message" nolabel="1" colspan="2"/>
+                        </group>
+
+                        <group>
+                            <group string="Dates">
+                                <field name="new_start_date"/>
+                                <field name="old_end_date"/>
+                                <field name="overlap_days"/>
+                                <field name="effective_old_end_date"/>
+                                <field name="cycle_end_date"/>
+                                <field name="next_invoice_date_after"/>
+                            </group>
+                            <group string="Preavis">
+                                <field name="apply_notice"/>
+                                <field name="notice_date"
+                                       invisible="not apply_notice"/>
+                                <field name="notice_period_days"
+                                       invisible="not apply_notice"/>
+                                <field name="legal_end_date"
+                                       invisible="not apply_notice"/>
+                            </group>
+                        </group>
+
+                        <div class="alert alert-info" role="alert">
+                            <strong>Comment ca marche :</strong>
+                            <ul class="mb-0">
+                                <li>Le nouveau box est facture des sa prise, jusqu'a la fin du cycle</li>
+                                <li>L'ancien box est facture jusqu'a sa liberation effective</li>
+                                <li>Un demenagement qui s'etale = les deux box factures sur le chevauchement</li>
+                                <li>La prochaine facture recurrente est reportee pour eviter un doublon</li>
+                                <li>Une seule facture est creee, en brouillon</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- ======================================== -->
+                    <!-- ETAPE 2 : APERCU                         -->
+                    <!-- ======================================== -->
+                    <div invisible="confirmation_step != 'preview'">
+                        <div class="oe_title">
+                            <h1>Verification</h1>
+                        </div>
+
+                        <field name="warning_html" nolabel="1" readonly="1"/>
+
+                        <field name="prorata_line_ids" nolabel="1" readonly="1">
+                            <list create="false" delete="false">
+                                <field name="kind"/>
+                                <field name="product_id"/>
+                                <field name="period_start"/>
+                                <field name="period_end"/>
+                                <field name="days_to_bill"/>
+                                <field name="days_in_month"/>
+                                <field name="monthly_price"/>
+                                <field name="amount_ht" sum="Total HT"/>
+                                <field name="amount_ttc" sum="Total TTC"/>
+                                <field name="note"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list>
+                        </field>
+
+                        <group class="oe_subtotal_footer">
+                            <field name="prorata_total_ht" widget="monetary"/>
+                            <field name="prorata_total_ttc" widget="monetary"
+                                   class="oe_subtotal_footer_separator"/>
+                        </group>
+
+                        <separator string="Apercu du mail client"/>
+                        <field name="email_preview_html" nolabel="1" readonly="1"/>
+                    </div>
+
+                    <!-- ======================================== -->
+                    <!-- ETAPE 3 : CONFIRMATION                   -->
+                    <!-- ======================================== -->
+                    <div invisible="confirmation_step != 'confirm'">
+                        <div class="oe_title">
+                            <h1>Confirmation</h1>
+                        </div>
+                        <div class="alert alert-warning" role="alert">
+                            <p>Cette action va creer la facture de prorata en
+                            brouillon, basculer la ligne d'abonnement, reporter
+                            la prochaine facturation et mettre a jour le statut
+                            des deux box.</p>
+                            <p class="mb-0">Total :
+                                <field name="prorata_total_ttc" widget="monetary"
+                                       nolabel="1" readonly="1" class="oe_inline"/>
+                                TTC
+                            </p>
+                        </div>
+                        <group>
+                            <field name="confirmation_text"
+                                   placeholder="TRANSFERER"/>
+                        </group>
+                    </div>
+
+                    <!-- ======================================== -->
+                    <!-- ETAPE 4 : RECAP                          -->
+                    <!-- ======================================== -->
+                    <div invisible="confirmation_step != 'done'">
+                        <field name="final_message" nolabel="1" readonly="1"/>
+                        <field name="created_invoice_ids" invisible="1"/>
+                        <field name="new_subscription_id" invisible="1"/>
+                    </div>
+
+                </sheet>
+
+                <footer>
+                    <button name="action_compute_prorata" type="object"
+                            string="Calculer le prorata" class="btn-primary"
+                            invisible="confirmation_step != 'initial'"/>
+
+                    <button name="action_request_confirmation" type="object"
+                            string="Continuer" class="btn-primary"
+                            invisible="confirmation_step != 'preview'"/>
+                    <button name="action_send_preview_to_self" type="object"
+                            string="M'envoyer l'apercu"
+                            invisible="confirmation_step != 'preview'"/>
+
+                    <button name="action_execute_transfer" type="object"
+                            string="Executer le transfert" class="btn-danger"
+                            invisible="confirmation_step != 'confirm'"/>
+
+                    <button name="action_view_invoices" type="object"
+                            string="Voir la facture" class="btn-primary"
+                            invisible="confirmation_step != 'done'"/>
+
+                    <button string="Annuler" class="btn-secondary"
+                            special="cancel"
+                            invisible="confirmation_step == 'done'"/>
+                    <button string="Fermer" class="btn-secondary"
+                            special="cancel"
+                            invisible="confirmation_step != 'done'"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- ACTION                                                           -->
+    <!-- ================================================================ -->
+    <record id="action_lolirine_box_transfer_wizard" model="ir.actions.act_window">
+        <field name="name">Transferer ce box</field>
+        <field name="res_model">lolirine.box.transfer.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- BOUTON SUR LE FORMULAIRE CONTRAT                                 -->
+    <!-- ================================================================ -->
+    <record id="view_sale_order_form_inherit_lolirine_transfer" model="ir.ui.view">
+        <field name="name">sale.order.form.lolirine.box.transfer</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="%(action_lolirine_box_transfer_wizard)d"
+                        type="action"
+                        string="Transferer un box"
+                        invisible="state not in ('sale', 'done')"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
