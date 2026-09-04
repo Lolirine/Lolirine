@@ -7,3 +7,4 @@ from . import box_consistency_wizard
 from . import indexation_audit_wizard
 from . import indexation_send_wizard
 from . import contract_close_wizard
+from . import box_transfer_wizard
