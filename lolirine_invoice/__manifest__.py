@@ -81,6 +81,7 @@
         "views/indexation_audit_wizard_views.xml",
         "views/indexation_send_wizard_views.xml",
         "views/contract_close_wizard_views.xml",
+        "views/box_transfer_wizard_views.xml",
         "views/storage_box_views.xml",
         "views/payment_marker_views.xml",
         # Menus (en dernier)
