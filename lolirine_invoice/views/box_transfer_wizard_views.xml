@@ -37,6 +37,11 @@
                                 <field name="subscription_id"/>
                                 <field name="partner_id"/>
                                 <field name="contract_mode"/>
+                                <field name="validation_mode"
+                                       invisible="contract_mode != 'new_contract'"
+                                       required="contract_mode == 'new_contract'"/>
+                                <field name="send_quotation"
+                                       invisible="contract_mode != 'new_contract'"/>
                             </group>
                             <group string="Options d'envoi">
                                 <field name="send_email"/>
@@ -95,6 +100,8 @@
                                 <li>Un demenagement qui s'etale = les deux box factures sur le chevauchement</li>
                                 <li>La prochaine facture recurrente est reportee pour eviter un doublon</li>
                                 <li>Une seule facture est creee, en brouillon</li>
+                                <li>En mode nouveau contrat : devis a signer, box place en Reserve
+                                    jusqu'a sa confirmation</li>
                             </ul>
                         </div>
                     </div>
@@ -189,6 +196,9 @@
                     <button name="action_view_invoices" type="object"
                             string="Voir la facture" class="btn-primary"
                             invisible="confirmation_step != 'done'"/>
+                    <button name="action_view_new_contract" type="object"
+                            string="Ouvrir le nouveau contrat"
+                            invisible="confirmation_step != 'done' or not new_subscription_id"/>
 
                     <button string="Annuler" class="btn-secondary"
                             special="cancel"
