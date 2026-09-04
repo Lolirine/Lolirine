@@ -148,6 +148,18 @@ class LolirineBoxTransferWizard(models.TransientModel):
              "box change. Nouveau contrat : l'ancien passe en churn et un "
              "nouvel abonnement est cree.")
 
+    validation_mode = fields.Selection(
+        [('signature', "Signature en ligne obligatoire (portail)"),
+         ('manual', "Envoi simple, je confirme moi-meme ensuite")],
+        string="Validation du nouveau contrat", default='signature',
+        help="Signature : le client signe le devis depuis le portail, ce qui "
+             "confirme l'abonnement. Envoi simple : le devis part par mail et "
+             "tu le confirmes toi-meme.")
+    send_quotation = fields.Boolean(
+        string="Envoyer le devis au client", default=True,
+        help="Envoie le devis du nouveau box par mail des l'encodage du "
+             "transfert.")
+
     # ========================================================================
     # CAUTION
     # ========================================================================
@@ -727,13 +739,39 @@ class LolirineBoxTransferWizard(models.TransientModel):
             if fname in sub._fields and sub[fname]:
                 vals[fname] = sub[fname].id
 
+        if 'validity_date' in self.env['sale.order']._fields:
+            vals['validity_date'] = self.new_start_date + timedelta(days=30)
+        if 'require_signature' in self.env['sale.order']._fields:
+            vals['require_signature'] = (self.validation_mode == 'signature')
+
         new_sub = self.env['sale.order'].create(vals)
-        # next_invoice_date pose AVANT la confirmation : sinon une date
-        # passee declenche une facturation automatique parasite.
+        # Le devis reste en brouillon : c'est la signature du client (ou ta
+        # confirmation manuelle) qui activera l'abonnement. next_invoice_date
+        # est pose des maintenant pour qu'une date passee ne declenche pas
+        # une facturation retroactive au moment de la confirmation.
         new_sub.write({'next_invoice_date': self.next_invoice_date_after})
-        new_sub.with_context(lolirine_no_welcome=True).action_confirm()
-        new_sub.write({'next_invoice_date': self.next_invoice_date_after})
+
+        if self.send_quotation:
+            self._send_quotation(new_sub)
         return new_sub
+
+    def _send_quotation(self, new_sub):
+        """Envoie le devis du nouveau box au client."""
+        if self.test_mode:
+            _logger.info("Mode test : devis %s non envoye au client",
+                         new_sub.name)
+            return
+        template = self.env.ref('sale.email_template_edi_sale',
+                                raise_if_not_found=False)
+        if not template:
+            _logger.warning("Modele de mail de devis introuvable")
+            return
+        try:
+            template.send_mail(new_sub.id, force_send=True)
+            if new_sub.state == 'draft':
+                new_sub.write({'state': 'sent'})
+        except Exception:
+            _logger.exception("Erreur envoi du devis %s", new_sub.name)
 
     def _sync_boxes(self, subscription):
         """Met a jour storage.box (FR) et product.template (EN)."""
@@ -757,8 +795,11 @@ class LolirineBoxTransferWizard(models.TransientModel):
 
         new_box = self._storage_box(self.new_box_product_id)
         if new_box:
+            # Tant que le devis n'est pas confirme, le box est reserve et non
+            # loue : il sort du catalogue sans etre compte comme occupe.
+            confirmed = subscription.state in ('sale', 'done')
             new_box.write({
-                'status': 'occupe',
+                'status': 'occupe' if confirmed else 'reserve',
                 'current_partner_id': self.partner_id.id,
                 'current_subscription_id': subscription.id,
                 'date_available': False,
@@ -928,12 +969,24 @@ class LolirineBoxTransferWizard(models.TransientModel):
     # ========================================================================
 
     def _build_final_message(self, invoice, new_sub, email_sent):
-        contract_line = (
-            "Ligne remplacee sur <strong>%s</strong>, numero de contrat conserve"
-            % self.subscription_id.name
-            if self.contract_mode == 'same_contract' else
-            "Ancien contrat cloture, nouveau contrat <strong>%s</strong> cree"
-            % (new_sub.name or '-'))
+        if self.contract_mode == 'same_contract':
+            contract_line = (
+                "Ligne remplacee sur <strong>%s</strong>, numero de contrat "
+                "conserve" % self.subscription_id.name)
+            box_line = "Nouveau box passe en <strong>Occupe</strong>"
+        else:
+            how = ("a signer par le client sur le portail"
+                   if self.validation_mode == 'signature'
+                   else "a confirmer manuellement")
+            contract_line = (
+                "Ancien contrat cloture, devis <strong>%s</strong> cree pour "
+                "le nouveau box (%s)%s"
+                % (new_sub.name or '-', how,
+                   ", envoye au client" if self.send_quotation else ""))
+            box_line = (
+                "Nouveau box passe en <strong>Reserve</strong> : il ne sera "
+                "marque Occupe qu'a la confirmation du devis, mais il est "
+                "deja retire du catalogue")
         deposit_line = (
             "<li>%s</li>" % self.deposit_message
             if self.adjust_deposit and self.deposit_message else "")
@@ -950,7 +1003,7 @@ class LolirineBoxTransferWizard(models.TransientModel):
         <li>Facture <strong>%(inv)s</strong> creee en brouillon : %(total).2f &euro; TTC</li>
         <li>%(contract)s</li>
         <li>Prochaine facturation reportee au <strong>%(nextinv)s</strong></li>
-        <li>Statuts des deux box synchronises</li>
+        <li>Ancien box libere, %(boxline)s</li>
         %(deposit)s
         <li>Mail client : %(mail)s</li>
     </ul>
@@ -981,6 +1034,19 @@ class LolirineBoxTransferWizard(models.TransientModel):
             'view_mode': 'form',
             'target': 'new',
             'context': self.env.context,
+        }
+
+    def action_view_new_contract(self):
+        """Ouvre le devis cree pour le nouveau box."""
+        self.ensure_one()
+        if not self.new_subscription_id:
+            return
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Nouveau contrat'),
+            'res_model': 'sale.order',
+            'res_id': self.new_subscription_id.id,
+            'view_mode': 'form',
         }
 
     def action_view_invoices(self):
