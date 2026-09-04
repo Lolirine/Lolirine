@@ -18,3 +18,5 @@ access_lolirine_indexation_audit_line_user,lolirine.indexation.audit.line.user,m
 access_lolirine_indexation_send_wizard_user,lolirine.indexation.send.wizard.user,model_lolirine_indexation_send_wizard,base.group_user,1,1,1,1
 access_lolirine_contract_close_wizard,lolirine.contract.close.wizard.user,model_lolirine_contract_close_wizard,base.group_user,1,1,1,1
 access_lolirine_contract_close_prorata_line,lolirine.contract.close.prorata.line.user,model_lolirine_contract_close_prorata_line,base.group_user,1,1,1,1
+access_lolirine_box_transfer_wizard,lolirine.box.transfer.wizard,model_lolirine_box_transfer_wizard,base.group_user,1,1,1,1
+access_lolirine_box_transfer_prorata_line,lolirine.box.transfer.prorata.line,model_lolirine_box_transfer_prorata_line,base.group_user,1,1,1,1
