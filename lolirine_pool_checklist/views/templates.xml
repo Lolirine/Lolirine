@@ -171,20 +171,28 @@
                         /* Mode « pages » : on neutralise le zoom d'écran et
                            on laisse un saut après chaque page sauf la
                            dernière — sinon on sort une page blanche finale. */
-                        .plc-pagewrap { padding: 0; }
+                                                .plc-pagewrap { padding: 0; }
                         .plc-pagelabel { display: none !important; }
-                        .plc-pageouter { width: auto !important; margin: 0;
+                        .plc-pageouter { width: auto !important; margin: 0 !important;
                                          page-break-after: always;
                                          break-after: page; }
                         .plc-pageouter:last-child { page-break-after: auto;
                                                     break-after: auto; }
-                        .plc-page { width: auto !important; min-height: 0 !important;
+                        /* Hauteur figée à la surface imprimable (297 - 2×10 = 277)
+                           moins 2 mm de garde. Sans cette borne, un dépassement
+                           d'un millimètre suffit à créer une feuille fantôme. */
+                        .plc-page { width: auto !important;
+                                    height: 275mm !important;
+                                    min-height: 0 !important;
                                     padding: 0; box-shadow: none;
-                                    transform: none !important; }
+                                    transform: none !important;
+                                    overflow: hidden !important;
+                                    page-break-inside: avoid;
+                                    break-inside: avoid; }
                         .plc-page-break { page-break-after: always;
                                           break-after: page; }
-                    }
-                </style>
+                   }
+               </style>
             </head>
             <body>
                 <!-- Point de montage React -->
