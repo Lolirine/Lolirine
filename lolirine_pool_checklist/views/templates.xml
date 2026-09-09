@@ -118,22 +118,69 @@
                                 transform: scale(var(--plc-zoom, 1));
                                 transform-origin: top left; }
 
-                    /* ── Règles d'impression ─────────────────────────── */
+                    /* ══════════════════════════════════════════════════
+                         RÈGLES D'IMPRESSION
+
+                         La fiche vierge est rendue dans un overlay
+                         « position: fixed » : Safari ne pagine pas un
+                         élément fixe, il le rend une fois puis rogne —
+                         d'où des pages blanches.
+
+                         On n'utilise donc PLUS « visibility: hidden »,
+                         qui en plus conservait la hauteur de la coquille
+                         applicative (min-height: 100vh) et fabriquait à
+                         lui seul deux pages vides.
+
+                         À l'ouverture de la boîte d'impression, le script
+                         en bas de page CLONE #plc-print comme enfant
+                         direct du body (id plc-print-clone) et pose la
+                         classe .plc-printing sur le body. Le clone est en
+                         flux normal, hors de l'overlay : le navigateur le
+                         pagine normalement. Tout le reste passe en
+                         display: none.
+
+                         La classe .plc-printing conditionne le masquage :
+                         si le clone n'a pas pu être construit, on imprime
+                         la page telle quelle plutôt que du blanc.
+                       ══════════════════════════════════════════════════ */
                     @page { size: A4 portrait; margin: 10mm 9mm; }
                     @media print {
-                        html, body { background: #fff !important; }
-                        body * { visibility: hidden; }
-                        #plc-print, #plc-print * { visibility: visible; }
-                        #plc-print { position: absolute; left: 0; top: 0;
-                                     width: 100%; margin: 0; padding: 0; }
+                        html, body { background: #fff !important;
+                                     height: auto !important;
+                                     overflow: visible !important; }
+
+                        /* Masquage par display, jamais par visibility. */
+                        body.plc-printing > * { display: none !important; }
+                        body.plc-printing > #plc-print-clone {
+                            display: block !important;
+                            position: static !important;
+                            width: 100% !important;
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            overflow: visible !important;
+                        }
+                        #plc-print-clone { background: #fff !important; }
+
+                        /* Contenu de la fiche, à l'écran comme dans le clone. */
                         .plc-noprint { display: none !important; }
-                        .plc-sheet-page { max-width: none; padding: 0; }
-                        .plc-pagebreak { page-break-before: always; break-before: page; }
                         .plc-measure { display: none !important; }
+                        .plc-sheet-page { max-width: none; padding: 0; }
+                        .plc-pagebreak { page-break-before: always;
+                                         break-before: page; }
+
+                        /* Mode « pages » : on neutralise le zoom d'écran et
+                           on laisse un saut après chaque page sauf la
+                           dernière — sinon on sort une page blanche finale. */
                         .plc-pagewrap { padding: 0; }
-                        .plc-pageouter { width: auto; margin: 0; }
-                        .plc-page { width: auto; min-height: 0; padding: 0;
-                                    box-shadow: none; transform: none; }
+                        .plc-pagelabel { display: none !important; }
+                        .plc-pageouter { width: auto !important; margin: 0;
+                                         page-break-after: always;
+                                         break-after: page; }
+                        .plc-pageouter:last-child { page-break-after: auto;
+                                                    break-after: auto; }
+                        .plc-page { width: auto !important; min-height: 0 !important;
+                                    padding: 0; box-shadow: none;
+                                    transform: none !important; }
                         .plc-page-break { page-break-after: always;
                                           break-after: page; }
                     }
@@ -240,6 +287,64 @@
                                 }
                                 showError('Erreur pendant le chargement ou la transpilation du script.', detail);
                             });
+                    })();
+                </script>
+
+                <!--
+                    Extraction de la fiche pour l'impression.
+
+                    #plc-print vit dans un overlay position:fixed, que Safari
+                    refuse de paginer. On le CLONE comme enfant direct de
+                    <body> le temps de l'impression : le clone est en flux
+                    normal, donc paginé correctement, et React ne voit pas son
+                    arbre bouger sous lui (on copie, on ne déplace pas).
+
+                    Deux déclencheurs volontairement redondants : l'événement
+                    beforeprint, et matchMedia('print') — historiquement plus
+                    fiable sur Safari.
+                -->
+                <script type="text/javascript">
+                    (function () {
+                        var CLONE_ID = 'plc-print-clone';
+
+                        function removeClone() {
+                            var old = document.getElementById(CLONE_ID);
+                            if (old &amp;&amp; old.parentNode) {
+                                old.parentNode.removeChild(old);
+                            }
+                            document.body.classList.remove('plc-printing');
+                        }
+
+                        function buildClone() {
+                            removeClone();
+                            var src = document.getElementById('plc-print');
+                            if (!src) {
+                                // Rien à imprimer : on n'active pas .plc-printing,
+                                // la page s'imprime telle quelle plutôt que blanche.
+                                console.warn('[pool_checklist] #plc-print introuvable — impression non filtree.');
+                                return;
+                            }
+                            var clone = src.cloneNode(true);
+                            clone.id = CLONE_ID;
+                            clone.removeAttribute('style');
+                            document.body.appendChild(clone);
+                            document.body.classList.add('plc-printing');
+                        }
+
+                        window.addEventListener('beforeprint', buildClone);
+                        window.addEventListener('afterprint', removeClone);
+
+                        if (window.matchMedia) {
+                            var mq = window.matchMedia('print');
+                            var onChange = function (e) {
+                                if (e.matches) { buildClone(); } else { removeClone(); }
+                            };
+                            if (mq.addEventListener) {
+                                mq.addEventListener('change', onChange);
+                            } else if (mq.addListener) {
+                                mq.addListener(onChange);
+                            }
+                        }
                     })();
                 </script>
             </body>
