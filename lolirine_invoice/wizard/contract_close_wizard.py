@@ -10,6 +10,12 @@ Capitalise sur le travail manuel fait pour Mme LEMAL :
 - Libération automatique des box (via hook _sync_storage_boxes)
 - Génération PDF officiel pour les sociétés
 
+Gère également le cas particulier de l'ANNULATION AVANT MISE À DISPOSITION :
+le client se désiste avant d'avoir occupé le box. Dans ce cas, aucun loyer
+n'est proratisé et le préavis ne s'applique pas : seuls les frais de dossier
+sont dus, avec en option l'indemnité de 15 jours de redevance prévue à
+l'article 4.4 des conditions générales.
+
 Sécurité :
 - Aperçu obligatoire avant validation
 - Saisie du mot 'CLOTURER' pour confirmer
@@ -76,6 +82,35 @@ class LolirineContractCloseWizard(models.TransientModel):
         help="Date à laquelle le client souhaite arrêter (ou date à laquelle "
              "il a réellement quitté le box). Cette date sera comparée à la "
              "date minimale légale (date d'avertissement + délai de préavis)."
+    )
+
+    # ========================================================================
+    # ANNULATION AVANT MISE À DISPOSITION (art. 4.4 des CG)
+    # ========================================================================
+
+    cloture_avant_occupation = fields.Boolean(
+        string="Annulation avant mise à disposition",
+        default=False,
+        help="À cocher lorsque le client se désiste avant d'avoir occupé le "
+             "box. Aucun loyer n'est proratisé et le préavis ne s'applique "
+             "pas : seuls les frais de dossier sont dus (article 4.4 des "
+             "conditions générales)."
+    )
+    appliquer_indemnite_4_4 = fields.Boolean(
+        string="Appliquer l'indemnité de 15 jours (art. 4.4)",
+        default=False,
+        help="L'article 4.4 des conditions générales permet de réclamer, en "
+             "plus des frais de dossier, une indemnité égale à quinze jours "
+             "de redevance. Décoché par défaut : c'est un geste commercial "
+             "qui se décide au cas par cas."
+    )
+    frais_dossier_product_id = fields.Many2one(
+        'product.product',
+        string="Produit frais de dossier",
+        default=lambda self: self.env['product.product'].search(
+            [('default_code', '=', 'FRAIS-DOSSIER')], limit=1),
+        help="Produit utilisé pour facturer les frais de dossier lors d'une "
+             "annulation avant mise à disposition."
     )
 
     # ========================================================================
@@ -234,20 +269,26 @@ class LolirineContractCloseWizard(models.TransientModel):
             else:
                 wiz.legal_end_date = False
 
-    @api.depends('end_date', 'legal_end_date')
+    @api.depends('end_date', 'legal_end_date', 'cloture_avant_occupation')
     def _compute_effective_end_date(self):
         for wiz in self:
-            if wiz.end_date and wiz.legal_end_date:
+            if wiz.cloture_avant_occupation:
+                # Pas de préavis applicable : le box n'a jamais été occupé.
+                wiz.effective_end_date = wiz.end_date
+            elif wiz.end_date and wiz.legal_end_date:
                 wiz.effective_end_date = max(wiz.end_date, wiz.legal_end_date)
             elif wiz.end_date:
                 wiz.effective_end_date = wiz.end_date
             else:
                 wiz.effective_end_date = False
 
-    @api.depends('end_date', 'legal_end_date')
+    @api.depends('end_date', 'legal_end_date', 'cloture_avant_occupation')
     def _compute_notice_respected(self):
         for wiz in self:
-            if wiz.end_date and wiz.legal_end_date:
+            if wiz.cloture_avant_occupation:
+                # Notion sans objet : rien à reprocher au client.
+                wiz.notice_respected = True
+            elif wiz.end_date and wiz.legal_end_date:
                 wiz.notice_respected = wiz.end_date >= wiz.legal_end_date
             else:
                 wiz.notice_respected = True
@@ -257,7 +298,8 @@ class LolirineContractCloseWizard(models.TransientModel):
         for wiz in self:
             wiz.has_calculation = bool(wiz.prorata_line_ids)
 
-    @api.depends('prorata_line_ids', 'detail_per_box', 'send_email')
+    @api.depends('prorata_line_ids', 'detail_per_box', 'send_email',
+                 'cloture_avant_occupation', 'appliquer_indemnite_4_4')
     def _compute_email_preview(self):
         for wiz in self:
             if not wiz.has_calculation:
@@ -271,6 +313,21 @@ class LolirineContractCloseWizard(models.TransientModel):
             wiz.email_preview_html = wiz._render_email_preview()
 
     # ========================================================================
+    # ONCHANGE
+    # ========================================================================
+
+    @api.onchange('cloture_avant_occupation')
+    def _onchange_cloture_avant_occupation(self):
+        """Neutralise le préavis quand le box n'a jamais été occupé."""
+        for wiz in self:
+            if wiz.cloture_avant_occupation:
+                wiz.notice_period_days = 0
+            else:
+                wiz.appliquer_indemnite_4_4 = False
+                if not wiz.notice_period_days:
+                    wiz.notice_period_days = 15
+
+    # ========================================================================
     # ACTION 1 : CALCULER LE PRORATA
     # ========================================================================
 
@@ -280,6 +337,11 @@ class LolirineContractCloseWizard(models.TransientModel):
 
         if not self.subscription_id:
             raise UserError(_("Aucun contrat sélectionné."))
+
+        # Cas particulier : le client se désiste avant d'occuper le box.
+        # Aucun loyer n'est dû, seuls les frais de dossier (art. 4.4).
+        if self.cloture_avant_occupation:
+            return self._compute_annulation_avant_occupation()
 
         if self.notice_date and self.end_date and self.notice_date > self.end_date + timedelta(days=180):
             # Cas absurde : avertissement plus de 6 mois après la date de fin
@@ -323,6 +385,134 @@ class LolirineContractCloseWizard(models.TransientModel):
         })
 
         return self._reload_view()
+
+    # ========================================================================
+    # ANNULATION AVANT MISE À DISPOSITION
+    # ========================================================================
+
+    def _compute_annulation_avant_occupation(self):
+        """Construit les lignes pour une annulation avant mise à disposition.
+
+        Le box n'a jamais été occupé : aucun loyer n'est proratisé et le
+        préavis ne s'applique pas. On facture uniquement les frais de dossier,
+        et, si l'option est cochée, l'indemnité de quinze jours de redevance
+        prévue à l'article 4.4 des conditions générales.
+        """
+        self.ensure_one()
+
+        # Garde-fou : refuser si le contrat a déjà produit une facture de loyer.
+        # Dans ce cas, le box a été occupé et ce mode n'est pas le bon.
+        deja_facture = self.env['account.move.line'].search_count([
+            ('move_id.invoice_origin', '=', self.subscription_id.name),
+            ('move_id.state', '=', 'posted'),
+            ('move_id.move_type', '=', 'out_invoice'),
+            ('display_type', '=', 'product'),
+            ('product_id.default_code', 'not like', 'FRAIS-'),
+        ])
+        if deja_facture:
+            raise UserError(_(
+                "Ce contrat a déjà fait l'objet d'au moins une facture de "
+                "loyer : le box a donc été mis à disposition.\n\n"
+                "Décoche 'Annulation avant mise à disposition' et procède à "
+                "une clôture normale avec calcul du prorata."
+            ))
+
+        if not self.frais_dossier_product_id:
+            raise UserError(_(
+                "Produit FRAIS-DOSSIER introuvable. Renseigne-le dans le "
+                "champ 'Produit frais de dossier' avant de continuer."
+            ))
+
+        self.prorata_line_ids.unlink()
+
+        end_date = self.end_date or fields.Date.context_today(self)
+        new_lines = []
+
+        # --------------------------------------------------------------
+        # Ligne 1 : frais de dossier (toujours dus, non remboursables)
+        # --------------------------------------------------------------
+        sol_frais = self.subscription_id.order_line.filtered(
+            lambda l: l.product_id == self.frais_dossier_product_id
+        )[:1]
+        prix_frais = sol_frais.price_unit if sol_frais else (
+            self.frais_dossier_product_id.list_price or 15.0
+        )
+        taxes_frais = sol_frais.tax_ids if sol_frais else \
+            self.frais_dossier_product_id.taxes_id
+        ttc_frais = self._montant_ttc(
+            prix_frais, taxes_frais, self.frais_dossier_product_id
+        )
+
+        new_lines.append((0, 0, {
+            'product_id': self.frais_dossier_product_id.id,
+            'order_line_id': sol_frais.id if sol_frais else False,
+            'monthly_price': prix_frais,
+            'period_start': end_date,
+            'period_end': end_date,
+            'days_in_month': 0,
+            'days_to_bill': 0,
+            'amount_ht': prix_frais,
+            'amount_ttc': ttc_frais,
+            'note': "Frais de dossier — non remboursables (art. 4.4 des CG)",
+            'will_create_invoice': True,
+        }))
+
+        # --------------------------------------------------------------
+        # Ligne 2 : indemnité de 15 jours de redevance (optionnelle)
+        # --------------------------------------------------------------
+        if self.appliquer_indemnite_4_4:
+            # Quinze jours calendrier à compter de la date d'annulation,
+            # bornes incluses : d'où le +14 et non le +15.
+            periode_debut = end_date
+            periode_fin = end_date + timedelta(days=14)
+
+            for sol in self.subscription_id.order_line:
+                if not self._is_line_recurring(sol):
+                    continue
+
+                # Prorata calendaire : la méthode gère le nombre réel de jours
+                # du mois et le franchissement d'une fin de mois.
+                montant_ht, jours, jours_du_mois = self._compute_prorata_amount(
+                    sol.price_unit, periode_debut, periode_fin
+                )
+                montant_ttc = self._montant_ttc(
+                    montant_ht, sol.tax_ids, sol.product_id
+                )
+
+                new_lines.append((0, 0, {
+                    'product_id': sol.product_id.id,
+                    'order_line_id': sol.id,
+                    'monthly_price': sol.price_unit,
+                    'period_start': periode_debut,
+                    'period_end': periode_fin,
+                    'days_in_month': jours_du_mois,
+                    'days_to_bill': jours,
+                    'amount_ht': montant_ht,
+                    'amount_ttc': montant_ttc,
+                    'note': "Indemnité d'annulation — 15 jours de redevance "
+                            "(art. 4.4 des CG)",
+                    'will_create_invoice': True,
+                }))
+
+        self.write({
+            'prorata_line_ids': new_lines,
+            'notice_period_days': 0,
+            'confirmation_step': 'preview',
+        })
+
+        return self._reload_view()
+
+    def _montant_ttc(self, amount_ht, taxes, product):
+        """Calcule le montant TTC à partir d'un montant HT et de taxes."""
+        if not taxes:
+            return amount_ht
+        return taxes.compute_all(
+            amount_ht,
+            currency=self.currency_id,
+            quantity=1,
+            product=product,
+            partner=self.partner_id,
+        )['total_included']
 
     def _is_line_recurring(self, line):
         """Détermine si une ligne est récurrente ET représente un vrai loyer
@@ -415,18 +605,7 @@ class LolirineContractCloseWizard(models.TransientModel):
         )
 
         # 4. Calcul TTC en utilisant les taxes de la ligne
-        taxes = sol.tax_ids
-        if taxes:
-            tax_results = taxes.compute_all(
-                amount_ht,
-                currency=self.currency_id,
-                quantity=1,
-                product=sol.product_id,
-                partner=self.partner_id,
-            )
-            amount_ttc = tax_results['total_included']
-        else:
-            amount_ttc = amount_ht
+        amount_ttc = self._montant_ttc(amount_ht, sol.tax_ids, sol.product_id)
 
         return {
             'product_id': sol.product_id.id,
@@ -579,7 +758,7 @@ class LolirineContractCloseWizard(models.TransientModel):
 
         # Préparer attachment PDF si société
         attachment_ids = []
-        if self.attach_pdf_for_companies and self.partner_id.is_company:
+        if self._should_attach_pdf():
             attachment_ids = self._generate_pdf_attachment()
 
         mail = self.env['mail.mail'].sudo().create({
@@ -676,12 +855,17 @@ class LolirineContractCloseWizard(models.TransientModel):
         # ====================================================================
         # 4. Logger dans le chatter
         # ====================================================================
+        motif = (
+            "Annulation avant mise à disposition (art. 4.4)"
+            if self.cloture_avant_occupation else "Clôture de contrat"
+        )
         sub.message_post(
             body=_(
-                "📋 Contrat clôturé via wizard au %s.<br/>"
-                "%d facture(s) de prorata créée(s) en draft.<br/>"
+                "📋 %s via wizard au %s.<br/>"
+                "%d facture(s) créée(s) en draft.<br/>"
                 "Mail récap : %s"
             ) % (
+                motif,
                 self.end_date.strftime('%d/%m/%Y'),
                 len(invoices),
                 "✓ envoyé" if email_sent else (
@@ -708,17 +892,29 @@ class LolirineContractCloseWizard(models.TransientModel):
         """Crée une facture en DRAFT pour une ligne de prorata."""
         sub = self.subscription_id
         sol = prorata_line.order_line_id
+        product = prorata_line.product_id
 
-        # Description avec période
-        description = (
-            f"{sol.name or sol.product_id.name}\n"
-            f"Prorata du {prorata_line.period_start.strftime('%d/%m/%Y')} "
-            f"au {prorata_line.period_end.strftime('%d/%m/%Y')} "
-            f"({prorata_line.days_to_bill} jour(s))"
-        )
+        # Description : on ne parle de prorata que lorsqu'il y en a un.
+        if prorata_line.days_to_bill and prorata_line.period_start and prorata_line.period_end:
+            description = (
+                f"{sol.name or product.name}\n"
+                f"Prorata du {prorata_line.period_start.strftime('%d/%m/%Y')} "
+                f"au {prorata_line.period_end.strftime('%d/%m/%Y')} "
+                f"({prorata_line.days_to_bill} jour(s))"
+            )
+        else:
+            description = f"{product.name}"
+
+        # En annulation avant occupation, la note porte le fondement contractuel
+        if prorata_line.note:
+            description = f"{description}\n{prorata_line.note}"
+
+        # Taxes : celles de la ligne de contrat si elle existe, sinon celles
+        # du produit (cas des frais de dossier absents du contrat).
+        taxes = sol.tax_ids if sol else product.taxes_id
 
         # Compte de produit
-        account = sol.product_id.product_tmpl_id._get_product_accounts()['income']
+        account = product.product_tmpl_id._get_product_accounts()['income']
 
         invoice_vals = {
             'move_type': 'out_invoice',
@@ -729,10 +925,10 @@ class LolirineContractCloseWizard(models.TransientModel):
             'currency_id': self.currency_id.id,
             'invoice_line_ids': [(0, 0, {
                 'name': description,
-                'product_id': sol.product_id.id,
+                'product_id': product.id,
                 'quantity': 1,
                 'price_unit': prorata_line.amount_ht,
-                'tax_ids': [(6, 0, sol.tax_ids.ids)],
+                'tax_ids': [(6, 0, taxes.ids)],
                 'account_id': account.id if account else False,
             })],
         }
@@ -748,6 +944,9 @@ class LolirineContractCloseWizard(models.TransientModel):
     # ========================================================================
 
     def _render_email_subject(self):
+        if self.cloture_avant_occupation:
+            return (f"Annulation de votre réservation de box - "
+                    f"{self.subscription_id.name}")
         return f"Clôture de votre contrat de location box - {self.subscription_id.name}"
 
     def _render_email_body(self):
@@ -756,6 +955,9 @@ class LolirineContractCloseWizard(models.TransientModel):
 
     def _render_email_preview(self):
         """Construit l'aperçu HTML du mail."""
+        if self.cloture_avant_occupation:
+            return self._render_email_annulation()
+
         billable = self.prorata_line_ids.filtered('will_create_invoice')
 
         # Bloc détail par box (si demandé)
@@ -892,6 +1094,128 @@ class LolirineContractCloseWizard(models.TransientModel):
 </div>
         """
 
+    def _render_email_annulation(self):
+        """Mail spécifique à l'annulation avant mise à disposition.
+
+        Ne parle ni de préavis, ni de restitution de box, ni de décompte de
+        caution : rien de tout cela ne s'applique puisque le box n'a jamais
+        été occupé.
+        """
+        partner_name = self.partner_id.name or '[Client]'
+        contract_name = self.subscription_id.name
+        end_date_str = self.end_date.strftime('%d/%m/%Y') if self.end_date else '-'
+        total_str = f"{self.prorata_total_ttc:.2f}"
+
+        rows = ""
+        for pl in self.prorata_line_ids.filtered('will_create_invoice'):
+            rows += f"""
+            <tr>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e0e0e0;">
+                    {pl.note or pl.product_id.name or '?'}
+                </td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #e0e0e0;
+                           text-align: right;">
+                    {pl.amount_ttc:.2f} €
+                </td>
+            </tr>
+            """
+
+        # Mention de la renonciation à l'indemnité, si elle n'est pas réclamée
+        if self.appliquer_indemnite_4_4:
+            indemnite_block = """
+            <p style="margin: 15px 0; font-size: 13px;">
+                Conformément à l'article 4.4 de nos conditions générales, une
+                indemnité correspondant à quinze jours de redevance est due en
+                cas d'annulation avant la mise à disposition du box. Elle
+                figure dans le détail ci-dessus.
+            </p>
+            """
+        else:
+            indemnite_block = """
+            <p style="margin: 15px 0; font-size: 13px;">
+                L'article 4.4 de nos conditions générales prévoit, en cas
+                d'annulation avant la mise à disposition du box, une indemnité
+                correspondant à quinze jours de redevance en plus des frais de
+                dossier. <strong>Nous y renonçons</strong> : seuls les frais de
+                dossier vous sont facturés.
+            </p>
+            """
+
+        return f"""
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <div style="background-color: #C91E18; padding: 20px 30px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 22px;">
+            LOLIRINE GARDE-MEUBLE
+        </h1>
+        <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">
+            Annulation de votre réservation
+        </p>
+    </div>
+
+    <div style="padding: 30px; background-color: #ffffff;">
+        <p>Bonjour <strong>{partner_name}</strong>,</p>
+
+        <p>Nous avons bien pris note de votre demande d'annulation et avons
+        clôturé votre dossier <strong>{contract_name}</strong> à la date du
+        <strong>{end_date_str}</strong>. Le box n'ayant pas été mis à votre
+        disposition, aucun loyer ne vous est facturé.</p>
+
+        {indemnite_block}
+
+        <div style="background-color: #f9f9f9; border-left: 4px solid #C91E18;
+                    padding: 15px 20px; margin: 20px 0;">
+            <p style="margin: 0 0 5px 0; font-weight: bold; color: #C91E18;">
+                💰 Montant dû
+            </p>
+            <p style="margin: 0; font-size: 18px;">
+                <strong>{total_str} €</strong>
+            </p>
+        </div>
+
+        <h3 style="color: #C91E18; margin-top: 25px;">Détail</h3>
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid #e0e0e0;">
+            <thead>
+                <tr style="background-color: #C91E18; color: white;">
+                    <th style="padding: 10px 12px; text-align: left;">Objet</th>
+                    <th style="padding: 10px 12px; text-align: right;">Montant TTC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {rows}
+            </tbody>
+        </table>
+
+        <p style="margin-top: 25px;">
+            La facture correspondante vous sera envoyée séparément.
+        </p>
+
+        <p>Nous restons bien entendu à votre disposition le jour où votre
+        projet se concrétisera, et vous souhaitons bonne continuation.</p>
+
+        <div style="background-color: #f4f4f4; padding: 15px 20px; margin: 25px 0;
+                    border-radius: 4px;">
+            <p style="margin: 0 0 8px 0; font-weight: bold;">❓ Questions ?</p>
+            <p style="margin: 0; font-size: 13px;">
+                📧 <a href="mailto:gardemeublelolirine@gmail.com"
+                      style="color: #C91E18;">gardemeublelolirine@gmail.com</a><br/>
+                📞 <a href="tel:+32497444146" style="color: #C91E18;">0497 / 444 146</a>
+            </p>
+        </div>
+
+        <p>Cordialement,<br/>
+        <strong>L'équipe Lolirine Garde-meuble</strong></p>
+    </div>
+
+    <div style="background-color: #f4f4f4; padding: 15px 30px; text-align: center;
+                font-size: 11px; color: #888;">
+        <p style="margin: 0;">
+            <strong>Lolirine SRL</strong> — BCE BE 0650.891.279<br/>
+            gardemeublelolirine@gmail.com — 0497/444 146
+        </p>
+    </div>
+</div>
+        """
+
     def _send_recap_email(self, invoices):
         """Envoie le mail récap au client (ou en mode test)."""
         body_html = self._render_email_body()
@@ -911,7 +1235,7 @@ class LolirineContractCloseWizard(models.TransientModel):
 
         # PDF en pièce jointe si société
         attachment_ids = []
-        if self.attach_pdf_for_companies and self.partner_id.is_company:
+        if self._should_attach_pdf():
             attachment_ids = self._generate_pdf_attachment()
 
         mail = self.env['mail.mail'].sudo().create({
@@ -923,6 +1247,23 @@ class LolirineContractCloseWizard(models.TransientModel):
             'auto_delete': False,
         })
         mail.send()
+
+    def _should_attach_pdf(self):
+        """Détermine si le PDF officiel de clôture doit être joint.
+
+        Le rapport de clôture décrit un préavis, une date de libération et une
+        restitution de box : rien de tout cela ne s'applique à une annulation
+        avant mise à disposition. On ne le joint donc pas dans ce mode, pour
+        ne pas envoyer au client un document qui contredit le mail.
+        """
+        self.ensure_one()
+        if not self.attach_pdf_for_companies:
+            return False
+        if not self.partner_id.is_company:
+            return False
+        if self.cloture_avant_occupation:
+            return False
+        return True
 
     def _generate_pdf_attachment(self):
         """Génère le PDF de clôture et retourne son ID en attachment."""
@@ -980,13 +1321,31 @@ class LolirineContractCloseWizard(models.TransientModel):
         else:
             email_status = "<li>☐ Mail récap non envoyé (option décochée)</li>"
 
+        if self.cloture_avant_occupation:
+            titre = "✅ Annulation enregistrée"
+            intro = (
+                f"Le contrat <strong>{self.subscription_id.name}</strong> a été "
+                f"clôturé sans mise à disposition du box, à la date du "
+                f"<strong>{self.end_date.strftime('%d/%m/%Y')}</strong>.<br/>"
+                f"Aucun loyer n'a été facturé"
+                + (", l'indemnité de l'article 4.4 a été appliquée."
+                   if self.appliquer_indemnite_4_4
+                   else " et il a été renoncé à l'indemnité de l'article 4.4.")
+            )
+        else:
+            titre = "✅ Clôture effectuée avec succès"
+            intro = (
+                f"Le contrat <strong>{self.subscription_id.name}</strong> a été "
+                f"clôturé à la date du "
+                f"<strong>{self.end_date.strftime('%d/%m/%Y')}</strong>."
+            )
+
         return f"""
 <div style="font-family: Arial, sans-serif; padding: 20px;">
-    <h2 style="color: #28a745;">✅ Clôture effectuée avec succès</h2>
-    
-    <p>Le contrat <strong>{self.subscription_id.name}</strong> a été clôturé
-    à la date du <strong>{self.end_date.strftime('%d/%m/%Y')}</strong>.</p>
-    
+    <h2 style="color: #28a745;">{titre}</h2>
+
+    <p>{intro}</p>
+
     <h3 style="color: #C91E18;">Actions réalisées :</h3>
     <ul>
         {invoices_html}
@@ -994,7 +1353,7 @@ class LolirineContractCloseWizard(models.TransientModel):
         <li>✓ Box automatiquement libérées (via hook de synchro)</li>
         {email_status}
     </ul>
-    
+
     <p style="margin-top: 25px; padding: 15px; background-color: #fff3cd;
               border-left: 4px solid #ffc107;">
         <strong>⚠️ Prochaine étape :</strong> Les factures sont en
@@ -1044,7 +1403,10 @@ class LolirineContractCloseProrataLine(models.TransientModel):
     order_line_id = fields.Many2one(
         'sale.order.line',
         string="Ligne d'origine",
-        required=True,
+        required=False,
+        help="Ligne du contrat à l'origine de ce montant. Peut être vide "
+             "lorsque le montant ne correspond à aucune ligne du contrat "
+             "(frais de dossier absents du contrat, par exemple)."
     )
     product_id = fields.Many2one(
         'product.product',
