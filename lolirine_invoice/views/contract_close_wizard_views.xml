@@ -21,10 +21,16 @@
                     <!-- ============================================ -->
                     <div invisible="confirmation_step != 'initial'">
                         <div class="oe_title">
-                            <h1>📋 Clôture de contrat</h1>
-                            <p class="text-muted">
+                            <h1 invisible="cloture_avant_occupation">📋 Clôture de contrat</h1>
+                            <h1 invisible="not cloture_avant_occupation">🚫 Annulation avant mise à disposition</h1>
+                            <p class="text-muted" invisible="cloture_avant_occupation">
                                 Wizard de clôture avec calcul automatique des prorata,
                                 envoi du mail récap au client et libération des box.
+                            </p>
+                            <p class="text-muted" invisible="not cloture_avant_occupation">
+                                Le client se désiste avant d'avoir occupé le box :
+                                aucun loyer n'est proratisé, seuls les frais de
+                                dossier sont dus.
                             </p>
                         </div>
 
@@ -39,9 +45,9 @@
                             <group string="Options d'envoi">
                                 <field name="send_email"/>
                                 <field name="detail_per_box"
-                                       invisible="not send_email"/>
+                                       invisible="not send_email or cloture_avant_occupation"/>
                                 <field name="attach_pdf_for_companies"
-                                       invisible="not send_email"/>
+                                       invisible="not send_email or cloture_avant_occupation"/>
                                 <field name="test_mode"
                                        invisible="not send_email"/>
                                 <field name="test_email"
@@ -50,8 +56,50 @@
                             </group>
                         </group>
 
+                        <!-- ============================================ -->
+                        <!-- MODE ANNULATION AVANT MISE À DISPOSITION     -->
+                        <!-- ============================================ -->
+                        <group string="🚫 Annulation avant mise à disposition">
+                            <field name="cloture_avant_occupation"/>
+                            <field name="end_date"
+                                   string="Date d'annulation"
+                                   invisible="not cloture_avant_occupation"/>
+                            <field name="appliquer_indemnite_4_4"
+                                   invisible="not cloture_avant_occupation"/>
+                            <field name="frais_dossier_product_id"
+                                   invisible="not cloture_avant_occupation"
+                                   required="cloture_avant_occupation"
+                                   options="{'no_create': True}"/>
+                        </group>
+
+                        <div class="alert alert-info" role="alert"
+                             invisible="not cloture_avant_occupation">
+                            <strong>ℹ️ Ce que fera le wizard</strong>
+                            <p style="margin: 5px 0 0 0;">
+                                Le box n'ayant jamais été mis à disposition,
+                                aucun loyer ne sera proratisé et le préavis ne
+                                s'applique pas. Seuls les
+                                <strong>frais de dossier</strong> seront facturés
+                                <span invisible="not appliquer_indemnite_4_4">,
+                                    augmentés de l'<strong>indemnité de quinze
+                                    jours</strong> de redevance prévue à
+                                    l'article 4.4 des conditions générales
+                                    (calculée au prorata calendaire)</span>.
+                            </p>
+                            <p style="margin: 8px 0 0 0;"
+                               invisible="appliquer_indemnite_4_4">
+                                <em>L'indemnité de l'article 4.4 n'est pas
+                                réclamée : le mail au client mentionnera
+                                explicitement cette renonciation.</em>
+                            </p>
+                        </div>
+
+                        <!-- ============================================ -->
+                        <!-- PRÉAVIS (clôture normale uniquement)         -->
+                        <!-- ============================================ -->
                         <group string="📅 Préavis et date de fin"
-                               col="4">
+                               col="4"
+                               invisible="cloture_avant_occupation">
                             <field name="notice_date" colspan="2"/>
                             <field name="notice_period_days" colspan="2"/>
                             <field name="end_date" colspan="2"/>
@@ -63,7 +111,7 @@
                         </group>
 
                         <div class="alert alert-warning" role="alert"
-                             invisible="notice_respected or not notice_date or not end_date">
+                             invisible="cloture_avant_occupation or notice_respected or not notice_date or not end_date">
                             <strong>⚠️ Préavis NON respecté</strong>
                             <p style="margin: 5px 0 0 0;">
                                 Le client a indiqué une fin au
@@ -86,7 +134,7 @@
                         </div>
 
                         <div class="alert alert-success" role="alert"
-                             invisible="not notice_respected or not notice_date or not end_date">
+                             invisible="cloture_avant_occupation or not notice_respected or not notice_date or not end_date">
                             <strong>✓ Préavis respecté</strong>
                             <p style="margin: 5px 0 0 0;">
                                 Délai de
@@ -97,7 +145,8 @@
                             </p>
                         </div>
 
-                        <div class="alert alert-info" role="alert">
+                        <div class="alert alert-info" role="alert"
+                             invisible="cloture_avant_occupation">
                             <strong>ℹ️ Comment ça marche :</strong>
                             <ul style="margin-bottom: 0;">
                                 <li>Saisis la date de fin du contrat</li>
@@ -113,7 +162,8 @@
                     <!-- ============================================ -->
                     <div invisible="confirmation_step != 'preview'">
                         <div class="oe_title">
-                            <h1>📊 Aperçu de la clôture</h1>
+                            <h1 invisible="cloture_avant_occupation">📊 Aperçu de la clôture</h1>
+                            <h1 invisible="not cloture_avant_occupation">📊 Aperçu de l'annulation</h1>
                             <p class="text-muted">
                                 Vérifie les montants et le mail récap avant de confirmer.
                             </p>
@@ -124,11 +174,17 @@
                                 <field name="subscription_id" readonly="1"
                                        options="{'no_open': False}"/>
                                 <field name="partner_id" readonly="1"/>
-                                <field name="notice_date" readonly="1"/>
+                                <field name="notice_date" readonly="1"
+                                       invisible="cloture_avant_occupation"/>
                                 <field name="end_date" readonly="1"
-                                       string="Date demandée"/>
+                                       string="Date demandée"
+                                       invisible="cloture_avant_occupation"/>
+                                <field name="end_date" readonly="1"
+                                       string="Date d'annulation"
+                                       invisible="not cloture_avant_occupation"/>
                                 <field name="effective_end_date" readonly="1"
-                                       class="text-success fw-bold"/>
+                                       class="text-success fw-bold"
+                                       invisible="cloture_avant_occupation"/>
                             </group>
 
                             <group string="Total à facturer">
@@ -143,7 +199,7 @@
                         </group>
 
                         <div class="alert alert-warning" role="alert"
-                             invisible="notice_respected">
+                             invisible="cloture_avant_occupation or notice_respected">
                             <strong>⚠️ Préavis non respecté :</strong>
                             facturation étendue jusqu'au
                             <field name="effective_end_date" readonly="1"
@@ -154,12 +210,28 @@
                             demandé).
                         </div>
 
+                        <div class="alert alert-info" role="alert"
+                             invisible="not cloture_avant_occupation">
+                            <strong>🚫 Annulation avant mise à disposition :</strong>
+                            aucun loyer n'est facturé.
+                            <span invisible="not appliquer_indemnite_4_4">
+                                L'indemnité de quinze jours de l'article 4.4 est
+                                appliquée, au prorata calendaire.
+                            </span>
+                            <span invisible="appliquer_indemnite_4_4">
+                                Il est renoncé à l'indemnité de quinze jours
+                                prévue à l'article 4.4.
+                            </span>
+                        </div>
+
                         <!-- Champs invisibles nécessaires pour l'évaluation des conditions -->
                         <field name="notice_respected" invisible="1"/>
                         <field name="legal_end_date" invisible="1"/>
+                        <field name="cloture_avant_occupation" invisible="1"/>
+                        <field name="appliquer_indemnite_4_4" invisible="1"/>
 
                         <notebook>
-                            <page string="📋 Détail des prorata" name="prorata">
+                            <page string="📋 Détail des montants" name="prorata">
                                 <field name="prorata_line_ids" nolabel="1">
                                     <list create="false" delete="false" edit="false">
                                         <field name="product_id"/>
@@ -178,7 +250,7 @@
                                                options="{'currency_field': 'currency_id'}"/>
                                         <field name="will_create_invoice"
                                                widget="boolean_toggle"/>
-                                        <field name="note" optional="hide"/>
+                                        <field name="note"/>
                                         <field name="currency_id" column_invisible="1"/>
                                     </list>
                                 </field>
@@ -206,10 +278,17 @@
                     <!-- ============================================ -->
                     <div invisible="confirmation_step != 'confirm'">
                         <div class="oe_title">
-                            <h1 style="color: #C91E18;">⚠️ Confirmation de clôture</h1>
+                            <h1 style="color: #C91E18;" invisible="cloture_avant_occupation">
+                                ⚠️ Confirmation de clôture
+                            </h1>
+                            <h1 style="color: #C91E18;" invisible="not cloture_avant_occupation">
+                                ⚠️ Confirmation de l'annulation
+                            </h1>
                         </div>
 
-                        <div class="alert alert-warning" role="alert">
+                        <!-- Clôture normale -->
+                        <div class="alert alert-warning" role="alert"
+                             invisible="cloture_avant_occupation">
                             <h4 style="margin-top: 0;">🚨 Action irréversible</h4>
                             <p>Tu vas clôturer le contrat
                                 <strong>
@@ -246,6 +325,54 @@
                             </ul>
                         </div>
 
+                        <!-- Annulation avant mise à disposition -->
+                        <div class="alert alert-warning" role="alert"
+                             invisible="not cloture_avant_occupation">
+                            <h4 style="margin-top: 0;">🚨 Action irréversible</h4>
+                            <p>Tu vas enregistrer l'annulation du contrat
+                                <strong>
+                                    <field name="subscription_id" readonly="1" nolabel="1"
+                                           class="oe_inline"
+                                           options="{'no_open': True}"/>
+                                </strong>
+                                à la date du
+                                <strong>
+                                    <field name="end_date" readonly="1" nolabel="1"
+                                           class="oe_inline"/>
+                                </strong>
+                                pour le client
+                                <strong>
+                                    <field name="partner_id" readonly="1" nolabel="1"
+                                           class="oe_inline"
+                                           options="{'no_open': True}"/>
+                                </strong>,
+                                <strong>sans mise à disposition du box</strong>.
+                            </p>
+                            <p style="margin-bottom: 0;">
+                                <strong>Actions qui seront effectuées :</strong>
+                            </p>
+                            <ul>
+                                <li>Aucun loyer facturé</li>
+                                <li>Facturation des frais de dossier
+                                    <span invisible="not appliquer_indemnite_4_4">
+                                        et de l'indemnité de quinze jours (art. 4.4)
+                                    </span>
+                                    en <strong>brouillon</strong> (total :
+                                    <field name="prorata_total_ttc" readonly="1" nolabel="1"
+                                           widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"
+                                           class="oe_inline"/>)
+                                </li>
+                                <li>Passage du contrat en <strong>'Churn'</strong></li>
+                                <li>Libération automatique du box</li>
+                                <li>Envoi au client d'un mail d'annulation (sans
+                                    mention de préavis ni de restitution)</li>
+                            </ul>
+                        </div>
+
+                        <field name="cloture_avant_occupation" invisible="1"/>
+                        <field name="appliquer_indemnite_4_4" invisible="1"/>
+
                         <group>
                             <field name="confirmation_text"
                                    placeholder="Tape CLOTURER en majuscules pour confirmer"
@@ -269,7 +396,14 @@
                             string="🔍 Calculer le prorata"
                             type="object"
                             class="btn-primary"
-                            invisible="confirmation_step != 'initial'"/>
+                            invisible="confirmation_step != 'initial' or cloture_avant_occupation"/>
+
+                    <!-- ÉTAPE 1 bis : Bouton en mode annulation -->
+                    <button name="action_compute_prorata"
+                            string="🔍 Calculer les frais dus"
+                            type="object"
+                            class="btn-primary"
+                            invisible="confirmation_step != 'initial' or not cloture_avant_occupation"/>
 
                     <!-- ÉTAPE 2 : Bouton "Continuer vers la confirmation" -->
                     <button name="action_request_confirmation"
@@ -283,7 +417,13 @@
                             string="✅ Confirmer la clôture"
                             type="object"
                             class="btn-danger"
-                            invisible="confirmation_step != 'confirm'"/>
+                            invisible="confirmation_step != 'confirm' or cloture_avant_occupation"/>
+
+                    <button name="action_execute_close"
+                            string="✅ Confirmer l'annulation"
+                            type="object"
+                            class="btn-danger"
+                            invisible="confirmation_step != 'confirm' or not cloture_avant_occupation"/>
 
                     <!-- ÉTAPE 4 : Boutons fin -->
                     <button name="action_view_invoices"
