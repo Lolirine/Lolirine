@@ -56,6 +56,11 @@ POOL_WEBSITE_ID = 6
 # frappe coûterait plus cher que le gain de confort.
 RELEVANCE_MAX_CANDIDATES = 800
 
+# Catégories internes exclues du périmètre Pool Store. Le filtre par
+# website_id ne suffit pas : beaucoup d'articles garde-meuble ont
+# website_id à False et passeraient donc au travers.
+EXCLUDED_CATEGORY_NAMES = ['Garde-Meubles', 'Services']
+
 # Groupe requis pour recevoir les prix d'achat et les marges.
 # /visite-chantier est une route website : un portail connecté peut
 # l'atteindre. Les coûts ne doivent jamais partir vers son navigateur.
@@ -77,6 +82,25 @@ class PoolChecklistController(http.Controller):
             return user.has_group(COST_GROUP)
         except Exception:
             return False
+
+    def _excluded_categ_ids(self):
+        """Catégories internes hors Pool Store, descendance comprise."""
+        Categ = request.env['product.category'].sudo()
+        roots = Categ.search([('name', 'in', EXCLUDED_CATEGORY_NAMES)])
+        if not roots:
+            return []
+        return Categ.search([('id', 'child_of', roots.ids)]).ids
+
+    def _pool_scope_domain(self, prefix='product_tmpl_id.'):
+        """
+        Périmètre Pool Store : site 6 (ou pas de site) ET hors catégories
+        garde-meuble. prefix='' pour un domaine sur product.template.
+        """
+        dom = [(prefix + 'website_id', 'in', [False, POOL_WEBSITE_ID])]
+        excluded = self._excluded_categ_ids()
+        if excluded:
+            dom.append((prefix + 'categ_id', 'not in', excluded))
+        return dom
 
     def _best_seller(self, template, qty=1.0):
         """
@@ -154,23 +178,25 @@ class PoolChecklistController(http.Controller):
                 website=True, methods=['POST'], csrf=False)
     def search_products(self, query='', limit=30, offset=0, category_id=None,
                         supplier_id=None, sort='relevance',
-                        published_only=False, qty=1.0, **kwargs):
+                        published_only=False, all_websites=False,
+                        qty=1.0, **kwargs):
         """
-        Recherche multi-critères dans le catalogue.
+        Recherche multi-critères dans le catalogue Pool Store.
 
-        query          : texte libre (libellé, réf. interne, code-barres,
-                         réf. et libellé fournisseur, description, catégorie)
-        category_id    : product.public.category OU product.category (détecté)
-        supplier_id    : res.partner id
-        sort           : 'relevance' | 'name' | 'price_asc' | 'price_desc'
-                         | 'margin_desc'
-        published_only : True = uniquement les articles publiés sur le site
-        offset / limit : pagination ; `total` est le nombre RÉEL de résultats
-        qty            : quantité envisagée, pour choisir le bon palier
-                         fournisseur dans le calcul de marge
+        La recherche porte sur product.product (les VARIANTES), pas sur
+        product.template. Deux raisons :
+          · les variantes (coloris, dimensions, longueurs de liner) sont
+            justement ce qu'on choisit sur un chantier ;
+          · l'`id` renvoyé est alors un id de variante, celui qu'attend
+            create_quote. L'ancienne version renvoyait un id de template
+            que le devis passait à product.product.browse() : les deux
+            tables ayant des ids indépendants, le devis pouvait recevoir
+            un tout autre article, sans erreur visible.
+
+        all_websites=True lève le filtre Pool Store (garde-meuble inclus).
         """
         env = request.env
-        Tmpl = env['product.template'].sudo()
+        Product = env['product.product'].sudo()
 
         try:
             limit = max(1, min(200, int(limit)))
@@ -187,9 +213,11 @@ class PoolChecklistController(http.Controller):
 
         domain = [('sale_ok', '=', True), ('active', '=', True)]
 
+        if not all_websites:
+            domain += self._pool_scope_domain()
+
         if published_only:
-            domain += [('is_published', '=', True),
-                       ('website_id', 'in', [False, POOL_WEBSITE_ID])]
+            domain.append(('product_tmpl_id.is_published', '=', True))
 
         q = (query or '').strip()
         if q and len(q) >= 2:
@@ -198,10 +226,10 @@ class PoolChecklistController(http.Controller):
                 ('name', 'ilike', q),
                 ('default_code', 'ilike', q),
                 ('barcode', 'ilike', q),
-                ('description_sale', 'ilike', q),
-                ('categ_id.name', 'ilike', q),
-                ('seller_ids.product_code', 'ilike', q),
-                ('seller_ids.product_name', 'ilike', q),
+                ('product_tmpl_id.description_sale', 'ilike', q),
+                ('product_tmpl_id.categ_id.name', 'ilike', q),
+                ('product_tmpl_id.seller_ids.product_code', 'ilike', q),
+                ('product_tmpl_id.seller_ids.product_name', 'ilike', q),
             ]
 
         if category_id:
@@ -209,122 +237,129 @@ class PoolChecklistController(http.Controller):
                 cid = int(category_id)
                 pub_cat = env['product.public.category'].sudo().browse(cid)
                 if pub_cat.exists():
-                    domain.append(('public_categ_ids', 'child_of', cid))
+                    domain.append(('product_tmpl_id.public_categ_ids', 'child_of', cid))
                 else:
-                    domain.append(('categ_id', 'child_of', cid))
+                    domain.append(('product_tmpl_id.categ_id', 'child_of', cid))
             except (ValueError, TypeError):
                 pass
 
         if supplier_id:
             try:
-                domain.append(('seller_ids.partner_id', '=', int(supplier_id)))
+                domain.append(
+                    ('product_tmpl_id.seller_ids.partner_id', '=', int(supplier_id)))
             except (ValueError, TypeError):
                 pass
 
-        # ── Total réel, indépendant de la page affichée ────────────────
-        total = Tmpl.search_count(domain)
-
+        total = Product.search_count(domain)
         show_cost = self._can_see_cost()
 
         # ── Sélection de la page ───────────────────────────────────────
-        order_map = {
-            'name':       'name asc',
-            'price_asc':  'list_price asc, name asc',
-            'price_desc': 'list_price desc, name asc',
-        }
+        # `list_price` n'est pas stocké sur product.product : impossible de
+        # trier en SQL dessus. Les tris par prix, par pertinence et par
+        # marge se font donc en Python, et seulement tant que le nombre de
+        # correspondances reste raisonnable — au-delà, on retombe sur
+        # l'alphabétique et on le SIGNALE plutôt que de mentir sur l'ordre.
+        python_sorts = ('relevance', 'price_asc', 'price_desc', 'margin_desc')
+        sortable = (sort in python_sorts and total <= RELEVANCE_MAX_CANDIDATES)
+        degraded = (sort in python_sorts and not sortable)
 
-        ranked = False
-        if sort == 'relevance' and q and len(q) >= 2:
-            if total <= RELEVANCE_MAX_CANDIDATES:
-                candidates = Tmpl.search(domain, order='name asc')
-                ql = q.lower()
-                scored = sorted(
-                    candidates,
-                    key=lambda p: (
-                        -self._score(p.name, p.default_code,
-                                     p.seller_ids.mapped('product_code'), ql),
-                        (p.name or '').lower(),
-                    )
-                )
-                templates = Tmpl.browse([p.id for p in scored[offset:offset + limit]])
-                ranked = True
+        if sortable:
+            candidates = Product.search(domain, order='name asc')
+            ql = q.lower()
+
+            if sort == 'relevance' and q and len(q) >= 2:
+                ordered = sorted(candidates, key=lambda p: (
+                    -self._score(p.name, p.default_code,
+                                 p.product_tmpl_id.seller_ids.mapped('product_code'), ql),
+                    (p.name or '').lower(),
+                ))
+            elif sort == 'price_asc':
+                ordered = sorted(candidates, key=lambda p: (p.lst_price or 0.0))
+            elif sort == 'price_desc':
+                ordered = sorted(candidates, key=lambda p: -(p.lst_price or 0.0))
+            elif sort == 'margin_desc' and show_cost:
+                def _pct(p):
+                    best = self._best_seller(p.product_tmpl_id, qty)
+                    cost = (self._seller_price_company_currency(best)
+                            if best and best.price else float(p.standard_price or 0.0))
+                    price = float(p.lst_price or 0.0)
+                    if not cost or not price:
+                        return -9999.0
+                    return -((price - cost) / price * 100.0)
+                ordered = sorted(candidates, key=_pct)
             else:
-                # Trop de correspondances pour un classement utile :
-                # on retombe sur l'alphabétique et on le SIGNALE au front,
-                # pour que l'utilisateur sache qu'il doit affiner.
-                templates = Tmpl.search(domain, limit=limit, offset=offset,
-                                        order='name asc')
-        elif sort == 'margin_desc' and show_cost:
-            # La marge n'est pas un champ stocké : on ne peut pas trier en
-            # SQL. On classe la page courante, pas le catalogue entier —
-            # un tri global exigerait de charger tous les résultats.
-            templates = Tmpl.search(domain, limit=limit, offset=offset,
-                                    order='name asc')
+                ordered = sorted(candidates, key=lambda p: (p.name or '').lower())
+
+            variants = Product.browse([p.id for p in ordered[offset:offset + limit]])
         else:
-            templates = Tmpl.search(domain, limit=limit, offset=offset,
-                                    order=order_map.get(sort, 'name asc'))
+            variants = Product.search(domain, limit=limit, offset=offset,
+                                      order='name asc')
 
         # ── Sérialisation ──────────────────────────────────────────────
         result = []
-        for p in templates:
+        for p in variants:
+            tmpl = p.product_tmpl_id
+
             sellers = []
-            for s in p.seller_ids:
+            for sv in tmpl.seller_ids:
                 sellers.append({
-                    'id':       s.partner_id.id,
-                    'name':     s.partner_id.name or '',
-                    'ref':      s.product_code or '',
-                    'label':    s.product_name or '',
-                    'min_qty':  float(s.min_qty or 0),
-                    'delay':    int(s.delay or 0),
-                    'price':    (self._seller_price_company_currency(s)
-                                 if show_cost else 0.0),
+                    'id':      sv.partner_id.id,
+                    'name':    sv.partner_id.name or '',
+                    'ref':     sv.product_code or '',
+                    'label':   sv.product_name or '',
+                    'min_qty': float(sv.min_qty or 0),
+                    'delay':   int(sv.delay or 0),
+                    'price':   (self._seller_price_company_currency(sv)
+                                if show_cost else 0.0),
                 })
 
-            list_price = float(p.list_price or 0.0)
+            # Libellé de la variante : « Liner 75/100 » + « Bleu · 8x4 »
+            attrs = ', '.join(
+                v.name for v in p.product_template_attribute_value_ids if v.name)
+
+            list_price = float(p.lst_price or 0.0)
             item = {
-                'id':          p.id,
+                'id':          p.id,            # id de VARIANTE — celui du devis
+                'tmpl_id':     tmpl.id,
                 'name':        p.name,
+                'variant':     attrs,
+                'display':     (p.name + ' — ' + attrs) if attrs else p.name,
                 'ref':         p.default_code or '',
                 'barcode':     p.barcode or '',
-                'category':    p.categ_id.name if p.categ_id else '',
-                'categ_id':    p.categ_id.id if p.categ_id else None,
+                'category':    tmpl.categ_id.name if tmpl.categ_id else '',
+                'categ_id':    tmpl.categ_id.id if tmpl.categ_id else None,
                 'public_categs': [{'id': c.id, 'name': c.name}
-                                  for c in p.public_categ_ids],
+                                  for c in tmpl.public_categ_ids],
                 'unit':        p.uom_id.name if p.uom_id else 'pcs',
                 'price':       list_price,
-                'published':   bool(p.is_published),
+                'published':   bool(tmpl.is_published),
                 'suppliers':   sellers,
-                'description': (p.description_sale or '')[:120],
-                'image_url':   (f'/web/image/product.template/{p.id}/image_128'
+                'description': (tmpl.description_sale or '')[:120],
+                'image_url':   (f'/web/image/product.product/{p.id}/image_128'
                                 if p.image_128 else None),
             }
 
-            # ── Coût et marge ──────────────────────────────────────────
             if show_cost:
-                best = self._best_seller(p, qty)
+                best = self._best_seller(tmpl, qty)
                 cost, source = 0.0, 'none'
                 if best and (best.price or 0):
                     cost = self._seller_price_company_currency(best)
                     source = 'supplier'
                 elif p.standard_price:
+                    # standard_price est stocké PAR VARIANTE : plus fiable
+                    # que celui du template, mais toujours pas réapprovisionné
+                    # en dropshipping — d'où cost_source, à afficher.
                     cost = float(p.standard_price)
                     source = 'standard'
 
                 item['cost'] = cost
-                # Lire cette étiquette au moment de décider une remise :
-                # une marge calculée sur un coût faux est pire que pas de
-                # marge du tout.
                 item['cost_source'] = source
                 item['cost_supplier'] = best.partner_id.name if best else ''
                 item['standard_price'] = float(p.standard_price or 0.0)
-                if cost > 0:
+                if cost > 0 and list_price:
                     item['margin'] = list_price - cost
-                    item['margin_pct'] = round(
-                        (list_price - cost) / list_price * 100, 1
-                    ) if list_price else 0.0
-                    item['markup_pct'] = round(
-                        (list_price - cost) / cost * 100, 1
-                    )
+                    item['margin_pct'] = round((list_price - cost) / list_price * 100, 1)
+                    item['markup_pct'] = round((list_price - cost) / cost * 100, 1)
                 else:
                     item['margin'] = None
                     item['margin_pct'] = None
@@ -332,23 +367,16 @@ class PoolChecklistController(http.Controller):
 
             result.append(item)
 
-        if sort == 'margin_desc' and show_cost:
-            result.sort(key=lambda r: (r.get('margin_pct') is None,
-                                       -(r.get('margin_pct') or 0)))
-
         return {
-            'products':   result,
-            'total':      total,
-            'offset':     offset,
-            'limit':      limit,
-            'has_more':   offset + len(result) < total,
-            'ranked':     ranked,
-            'show_cost':  show_cost,
-            # True = trop de résultats pour classer par pertinence,
-            # le front peut inviter à préciser la recherche.
-            'truncated_ranking': bool(
-                q and sort == 'relevance' and total > RELEVANCE_MAX_CANDIDATES
-            ),
+            'products':  result,
+            'total':     total,
+            'offset':    offset,
+            'limit':     limit,
+            'has_more':  offset + len(result) < total,
+            'ranked':    sortable and sort == 'relevance',
+            'show_cost': show_cost,
+            'scope':     'all' if all_websites else 'pool',
+            'truncated_ranking': bool(degraded),
         }
 
     # ═══════════════════════════════════════════════════════════════════
@@ -383,13 +411,16 @@ class PoolChecklistController(http.Controller):
         rel, col_cat, col_tmpl = field.relation, field.column2, field.column1
         # column1 = colonne du modèle courant (product.template),
         # column2 = colonne du comodèle (product.public.category).
+        excluded = self._excluded_categ_ids()
         env.cr.execute(f"""
             SELECT rel.{col_cat} AS cat_id, COUNT(DISTINCT pt.id)
             FROM {rel} rel
             JOIN product_template pt ON pt.id = rel.{col_tmpl}
             WHERE pt.active = TRUE AND pt.sale_ok = TRUE
+              AND (pt.website_id IS NULL OR pt.website_id = %s)
+              AND (pt.categ_id IS NULL OR NOT (pt.categ_id = ANY(%s)))
             GROUP BY rel.{col_cat}
-        """)
+        """, (POOL_WEBSITE_ID, excluded or [0]))
         direct = dict(env.cr.fetchall())
 
         # ── Remontée aux ancêtres via parent_path ──────────────────────
@@ -507,11 +538,13 @@ class PoolChecklistController(http.Controller):
             JOIN res_partner rp ON rp.id = psi.partner_id
             JOIN product_template pt ON pt.id = psi.product_tmpl_id
             WHERE pt.sale_ok = TRUE AND pt.active = TRUE
+              AND (pt.website_id IS NULL OR pt.website_id = %s)
+              AND (pt.categ_id IS NULL OR NOT (pt.categ_id = ANY(%s)))
             GROUP BY rp.id, rp.name
             HAVING COUNT(DISTINCT pt.id) > 0
             ORDER BY COUNT(DISTINCT pt.id) DESC
             LIMIT %s
-        """, (limit,))
+        """, (POOL_WEBSITE_ID, self._excluded_categ_ids() or [0], limit))
         rows = env.cr.fetchall()
         return {'suppliers': [
             {'id': r[0], 'name': r[1], 'product_count': r[2]}
