@@ -664,6 +664,68 @@ function ProductRow({ p, i, selected, onToggle, showCost }) {
   );
 }
 
+/* Correspondance locale — mêmes champs que la recherche serveur,
+   pour qu'un filtre et une recherche ne donnent pas des résultats
+   contradictoires sur les mêmes lignes. Insensible à la casse et
+   aux accents : « pompe a chaleur » trouve « Pompe à chaleur ». */
+function plcNorm(s) {
+  return (s || '').toString().toLowerCase().normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+function plcMatchLocal(p, needle) {
+  if (!needle) { return true; }
+  const n = plcNorm(needle);
+  const champs = [p.name, p.ref, p.variant, p.barcode, p.category];
+  for (const s of (p.suppliers || [])) {
+    champs.push(s.ref, s.name, s.label);
+  }
+  return champs.some(c => plcNorm(c).indexOf(n) >= 0);
+}
+
+/* Champ de filtre + compteur honnête. `total` est le nombre RÉEL
+   côté serveur : sans lui, filtrer 30 lignes sur 177 laisserait
+   croire qu'un article n'existe pas. */
+function FilterBar({ value, onChange, shown, loaded, total, onSearchAll }) {
+  const tropPeu = value.trim().length >= 2 && shown <= 2 && loaded < total;
+  return (
+    <div style={{marginBottom:8}}>
+      <div style={{display:'flex',gap:8,alignItems:'center'}}>
+        <input value={value} onChange={e => onChange(e.target.value)}
+          placeholder="Filtrer dans la liste (nom, référence, variante…)"
+          style={{flex:1,border:'1.5px solid #e2e8f0',borderRadius:20,
+            padding:'6px 14px',fontFamily:'inherit',fontSize:12,
+            outline:'none',background:'#fff'}} />
+        {value && (
+          <button onClick={() => onChange('')}
+            style={{background:'none',border:'1.5px solid #e2e8f0',
+              borderRadius:20,padding:'5px 12px',cursor:'pointer',
+              fontSize:11,color:'#64748b',whiteSpace:'nowrap'}}>
+            ✕ Effacer
+          </button>
+        )}
+      </div>
+      {value.trim() && (
+        <div style={{fontSize:11,color:'#64748b',marginTop:5,
+          display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+          <span>
+            {shown} ligne{shown>1?'s':''} sur {loaded} chargée{loaded>1?'s':''}
+            {loaded < total && ` — ${total} au catalogue`}
+          </span>
+          {tropPeu && onSearchAll && (
+            <button onClick={onSearchAll}
+              style={{background:'#eff9ff',border:'1.5px solid #0ea5e9',
+                borderRadius:20,padding:'3px 11px',cursor:'pointer',
+                fontSize:11,color:'#0369a1',fontWeight:700}}>
+              🔍 Chercher « {value.trim()} » dans tout le catalogue
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProductPanel({ item, sectionLabel, onAdd, onClose }) {
   const cfg = window.LOLIRINE_CHECKLIST_CONFIG || {};
   const [tab, setTab] = useState(item ? 'search' : 'catalog');
@@ -682,6 +744,7 @@ function ProductPanel({ item, sectionLabel, onAdd, onClose }) {
   const [suppFilter, setSuppFilter] = useState(null);
   const [suppliers, setSuppliers]   = useState([]);
   const [showCost, setShowCost]     = useState(false);
+  const [filter, setFilter]         = useState('');
   const searchTimer = useRef(null);
 
   /* Catalogue */
@@ -735,7 +798,8 @@ function ProductPanel({ item, sectionLabel, onAdd, onClose }) {
   /* ── Produits d'une catégorie, paginés ── */
   async function loadCategoryProducts(catId, off) {
     const append = off > 0;
-    if (append) { setMore(true); } else { setCatBusy(true); setCatProds([]); setCatSel({}); }
+    if (append) { setMore(true); }
+    else { setCatBusy(true); setCatProds([]); setCatSel({}); setFilter(''); }
     setCurCat(catId);
     try {
       const d = await post('/pool-checklist/products', {
@@ -758,7 +822,8 @@ function ProductPanel({ item, sectionLabel, onAdd, onClose }) {
     if (!text) { setRes([]); setTotal(0); setSrc(null); return; }
     const append = off > 0;
     if (append) { setMore(true); }
-    else { setBusy(true); setRes([]); setSel({}); setSrc(null); setTruncRank(false); }
+    else { setBusy(true); setRes([]); setSel({}); setSrc(null);
+           setTruncRank(false); setFilter(''); }
     try {
       const d = await post('/pool-checklist/products', {
         query: text, limit: PLC_PAGE_SIZE, offset: off,
@@ -981,10 +1046,25 @@ function ProductPanel({ item, sectionLabel, onAdd, onClose }) {
                 </div>
               )}
 
+              {results.length > 0 && (
+                <FilterBar value={filter} onChange={setFilter}
+                  shown={results.filter(p => plcMatchLocal(p, filter)).length}
+                  loaded={results.length} total={total}
+                  onSearchAll={() => { const f = filter.trim(); setFilter('');
+                                       setQ(f); runSearch(f, 0); }} />
+              )}
               {results.map((p, i) => (
-                <ProductRow key={p.id ? p.id + '-' + i : i} p={p} i={i}
-                  selected={!!sel[i]} onToggle={toggle} showCost={showCost} />
+                plcMatchLocal(p, filter) ? (
+                  <ProductRow key={p.id ? p.id + '-' + i : i} p={p} i={i}
+                    selected={!!sel[i]} onToggle={toggle} showCost={showCost} />
+                ) : null
               ))}
+              {results.length > 0 && filter.trim() &&
+               results.filter(p => plcMatchLocal(p, filter)).length === 0 && (
+                <div style={{padding:24,textAlign:'center',color:'#94a3b8',fontSize:13}}>
+                  Aucune ligne chargée ne correspond à ce filtre.
+                </div>
+              )}
 
               {hasMoreSearch && (
                 <button onClick={() => runSearch(q, offset)} disabled={more} style={MORE_BTN}>
@@ -1053,10 +1133,23 @@ function ProductPanel({ item, sectionLabel, onAdd, onClose }) {
                   <div style={{fontSize:12,color:'#64748b',marginBottom:8,fontWeight:600}}>
                     {catProds.length} affiché{catProds.length>1?'s':''} sur {catTotal}
                   </div>
+                  <FilterBar value={filter} onChange={setFilter}
+                    shown={catProds.filter(p => plcMatchLocal(p, filter)).length}
+                    loaded={catProds.length} total={catTotal}
+                    onSearchAll={() => { const f = filter.trim(); setFilter('');
+                                         setQ(f); setTab('search'); runSearch(f, 0); }} />
                   {catProds.map((p, i) => (
-                    <ProductRow key={p.id ? p.id + '-' + i : i} p={p} i={i}
-                      selected={!!catSel[i]} onToggle={toggle} showCost={showCost} />
+                    plcMatchLocal(p, filter) ? (
+                      <ProductRow key={p.id ? p.id + '-' + i : i} p={p} i={i}
+                        selected={!!catSel[i]} onToggle={toggle} showCost={showCost} />
+                    ) : null
                   ))}
+                  {filter.trim() &&
+                   catProds.filter(p => plcMatchLocal(p, filter)).length === 0 && (
+                    <div style={{padding:24,textAlign:'center',color:'#94a3b8',fontSize:13}}>
+                      Aucune ligne chargée ne correspond à ce filtre.
+                    </div>
+                  )}
                   {hasMoreCatalog && (
                     <button onClick={() => loadCategoryProducts(curCat, catOffset)}
                       disabled={more} style={MORE_BTN}>
