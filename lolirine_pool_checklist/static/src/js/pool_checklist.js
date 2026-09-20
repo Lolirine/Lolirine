@@ -241,44 +241,292 @@ function AddressAutocomplete({ value, onChange, placeholder }) {
 
 
 /* ═══════════════════════════════════════════════════
-   HistoryModal
+   PERSISTANCE DES FICHES — stockage, auto-save, historique
+
+   REMPLACE intégralement le composant HistoryModal existant,
+   et s'insère à sa place (entre AddressAutocomplete et ProductPanel).
+
+   Ce qui change
+   ─────────────
+   · UNE FICHE = UN ENREGISTREMENT, identifié par ficheId. Écrire
+     deux fois la même fiche la met à jour au lieu d'en empiler une
+     copie. L'ancien saveToHistory faisait un push à chaque clic.
+   · AUTO-SAVE CONTINU, 1,2 s après la dernière frappe, au lieu d'un
+     intervalle de 30 s : les informations client sont enregistrées
+     dès l'encodage, pas une demi-minute plus tard.
+   · ficheId EST ÉCRIT dans l'enregistrement. Sans lui, le
+     rechargement par ?fiche_id= ne retrouvait jamais rien — c'est
+     ce qui cassait le lien posé dans les rendez-vous du calendrier.
+   · RECHERCHE dans l'historique (client, référence, adresse, ville)
+     et reprise directe à l'étape 4.
+
+   Limite à connaître : tout cela vit dans le localStorage du
+   navigateur. Une fiche commencée sur l'iMac n'existe pas sur le
+   téléphone. Pour ça il faudrait un modèle Odoo côté serveur —
+   voir la note de fin de message.
 ═══════════════════════════════════════════════════ */
-function HistoryModal({ onClose, onLoad }) {
-  const [records, setRecords] = useState([]);
-  useEffect(()=>{ try { setRecords(JSON.parse(localStorage.getItem('pool_checklist_history')||'[]').reverse()); } catch { setRecords([]); } },[]);
-  function del(i) {
+
+const PLC_STORE_KEY   = 'pool_checklist_history';
+const PLC_CURRENT_KEY = 'pool_fiche_current_id';
+const PLC_MAX_FICHES  = 80;
+
+function plcNewId() {
+  return 'fiche_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+function plcCurrentId() {
+  try {
+    const stored = localStorage.getItem(PLC_CURRENT_KEY);
+    if (stored) { return stored; }
+    const id = plcNewId();
+    localStorage.setItem(PLC_CURRENT_KEY, id);
+    return id;
+  } catch (e) { return plcNewId(); }
+}
+
+function plcSetCurrentId(id) {
+  try { localStorage.setItem(PLC_CURRENT_KEY, id); } catch (e) { /* mode privé */ }
+}
+
+function plcReadAll() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(PLC_STORE_KEY) || '[]');
+    return Array.isArray(raw) ? raw.filter(r => r && typeof r === 'object') : [];
+  } catch (e) { return []; }
+}
+
+function plcWriteAll(list) {
+  /* Le quota localStorage tourne autour de 5 Mo. Plutôt que de perdre
+     l'écriture en cours, on sacrifie les fiches les plus anciennes. */
+  let out = list.slice(-PLC_MAX_FICHES);
+  for (let attempt = 0; attempt < 6; attempt++) {
     try {
-      const s=JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
-      s.splice(s.length-1-i,1);
-      localStorage.setItem('pool_checklist_history',JSON.stringify(s));
-      setRecords(s.reverse());
-    } catch {}
+      localStorage.setItem(PLC_STORE_KEY, JSON.stringify(out));
+      return true;
+    } catch (e) {
+      if (out.length <= 1) {
+        console.warn('[pool_checklist] quota localStorage atteint');
+        return false;
+      }
+      out = out.slice(Math.ceil(out.length / 4));
+    }
   }
+  return false;
+}
+
+/* Écrit la fiche, en la remplaçant si son ficheId existe déjà. */
+function plcUpsert(record) {
+  if (!record || !record.ficheId) { return false; }
+  const list = plcReadAll();
+  const idx  = list.findIndex(r => r.ficheId === record.ficheId);
+  if (idx >= 0) { list[idx] = record; } else { list.push(record); }
+  return plcWriteAll(list);
+}
+
+function plcGet(ficheId) {
+  return plcReadAll().find(r => r.ficheId === ficheId) || null;
+}
+
+function plcDelete(ficheId) {
+  return plcWriteAll(plcReadAll().filter(r => r.ficheId !== ficheId));
+}
+
+/* Libellé client, quelle que soit la forme encodée */
+function plcClientLabel(r) {
+  const nom = [r.prenom, r.nom].filter(Boolean).join(' ').trim();
+  return nom || r.denomination || r.denominationSociale || 'Client non renseigné';
+}
+
+/* Texte sur lequel porte la recherche dans l'historique */
+function plcHaystack(r) {
+  return [plcClientLabel(r), r.refDossier, r.adresseChantier, r.chantierVille,
+          r.ville, r.technicien, r.email, r.telephone]
+    .filter(Boolean).join(' ').toLowerCase();
+}
+
+/* ── Auto-save : écrit 1,2 s après la dernière modification ── */
+function useAutoSave(ficheId, record, active) {
+  const [lastSaved, setLastSaved] = useState(null);
+  const timer = useRef(null);
+  /* On dépend du CONTENU sérialisé, pas de l'objet : un objet neuf est
+     recréé à chaque rendu et relancerait l'effet en boucle. */
+  const json = JSON.stringify(record);
+
+  useEffect(() => {
+    if (!active || !ficheId) { return; }
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      try {
+        const data = JSON.parse(json);
+        data.ficheId = ficheId;
+        data.savedAt = new Date().toISOString();
+        if (plcUpsert(data)) { setLastSaved(new Date()); }
+      } catch (e) {
+        console.warn('[pool_checklist] auto-save impossible :', e);
+      }
+    }, 1200);
+    return () => clearTimeout(timer.current);
+  }, [json, ficheId, active]);
+
+  return lastSaved;
+}
+
+/* ═══════════════════════════════════════════════════
+   HistoryModal — recherche, reprise, suppression
+═══════════════════════════════════════════════════ */
+function HistoryModal({ onClose, onLoad, currentFicheId }) {
+  const [records, setRecords] = useState([]);
+  const [q, setQ] = useState('');
+  const [confirmId, setConfirmId] = useState(null);
+
+  function refresh() {
+    const list = plcReadAll().slice();
+    list.sort((a, b) => String(b.savedAt || '').localeCompare(String(a.savedAt || '')));
+    setRecords(list);
+  }
+  useEffect(refresh, []);
+
+  function del(ficheId) {
+    plcDelete(ficheId);
+    setConfirmId(null);
+    refresh();
+  }
+
+  const needle = q.trim().toLowerCase();
+  const shown = needle ? records.filter(r => plcHaystack(r).indexOf(needle) >= 0) : records;
+
+  function progressOf(r) {
+    const sects = SECTIONS_DATA[r.type] || [];
+    const total = sects.reduce((a, s) => a + s.items.length, 0);
+    const done  = Object.values(r.itemState || {}).filter(v => v).length;
+    return {total: total, done: done, pct: total ? Math.round(done / total * 100) : 0};
+  }
+
+  function whenOf(r) {
+    if (!r.savedAt) { return ''; }
+    const d = new Date(r.savedAt);
+    if (isNaN(d.getTime())) { return ''; }
+    const mins = Math.round((Date.now() - d.getTime()) / 60000);
+    if (mins < 1)    { return "à l'instant"; }
+    if (mins < 60)   { return 'il y a ' + mins + ' min'; }
+    if (mins < 1440) { return 'il y a ' + Math.round(mins / 60) + ' h'; }
+    return d.toLocaleDateString('fr-BE', {day:'2-digit', month:'2-digit', year:'2-digit'});
+  }
+
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center'}}>
-      <div style={{background:'#fff',borderRadius:16,padding:24,width:'min(560px,95vw)',maxHeight:'80vh',display:'flex',flexDirection:'column',boxShadow:'0 20px 60px rgba(0,0,0,.2)'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
-          <h3 style={{margin:0,fontSize:16,color:'#1e293b',fontWeight:700}}>📋 Historique des fiches</h3>
-          <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:7,padding:'4px 12px',cursor:'pointer',fontSize:13,color:'#6b7a8d'}}>✕</button>
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',zIndex:9999,
+      display:'flex',alignItems:'center',justifyContent:'center',padding:8}}>
+      <div style={{background:'#fff',borderRadius:16,width:'min(680px,100%)',
+        maxHeight:'85vh',display:'flex',flexDirection:'column',
+        boxShadow:'0 20px 60px rgba(0,0,0,.2)',overflow:'hidden'}}>
+
+        <div style={{padding:'16px 20px 12px',borderBottom:'1px solid #f0f4f8',flexShrink:0}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',
+            marginBottom:12}}>
+            <h3 style={{margin:0,fontSize:16,color:'#1e293b',fontWeight:700}}>
+              📋 Fiches enregistrées
+              <span style={{fontWeight:400,fontSize:12,color:'#94a3b8',marginLeft:8}}>
+                {records.length} au total
+              </span>
+            </h3>
+            <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',
+              borderRadius:7,padding:'4px 12px',cursor:'pointer',fontSize:13,
+              color:'#6b7a8d'}}>✕</button>
+          </div>
+          <input value={q} onChange={e => setQ(e.target.value)} autoFocus
+            placeholder="Client, référence dossier, adresse, ville…"
+            style={{width:'100%',border:'1.5px solid #dde4ed',borderRadius:9,
+              padding:'9px 13px',fontFamily:'inherit',fontSize:13,outline:'none',
+              boxSizing:'border-box'}} />
         </div>
-        {records.length===0
-          ? <div style={{textAlign:'center',padding:'30px 0',color:'#94a3b8',fontSize:13}}>Aucune fiche sauvegardée</div>
-          : <div style={{overflowY:'auto',flex:1,display:'flex',flexDirection:'column',gap:7}}>
-              {records.map((r,i)=>(
-                <div key={i} style={{border:'1.5px solid #e8edf3',borderRadius:9,padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center',gap:10}}>
+
+        {shown.length === 0 ? (
+          <div style={{textAlign:'center',padding:'40px 20px',color:'#94a3b8',fontSize:13}}>
+            {records.length === 0
+              ? 'Aucune fiche enregistrée pour le moment.'
+              : 'Aucune fiche ne correspond à cette recherche.'}
+          </div>
+        ) : (
+          <div style={{overflowY:'auto',flex:1,padding:'12px 16px',display:'flex',
+            flexDirection:'column',gap:8}}>
+            {shown.map(r => {
+              const p = progressOf(r);
+              const meta = INTERVENTION_TYPES.find(t => t.key === r.type) || {};
+              const isCurrent = r.ficheId === currentFicheId;
+              const nProd = (r.products || []).length;
+              return (
+                <div key={r.ficheId}
+                  style={{border:`1.5px solid ${isCurrent?'#0ea5e9':'#e8edf3'}`,
+                    borderRadius:11,padding:'11px 14px',display:'flex',
+                    justifyContent:'space-between',alignItems:'center',gap:12,
+                    background:isCurrent?'#f0f9ff':'#fff'}}>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontWeight:600,fontSize:13,color:'#1e293b'}}>{r.nom||r.client||'Client non renseigné'} {r.prenom||''}</div>
-                    <div style={{fontSize:11,color:'#64748b'}}>{INTERVENTION_TYPES.find(t=>t.key===r.type)?.label||r.type} — {r.date||'—'}</div>
-                    {r.adresseChantier&&<div style={{fontSize:11,color:'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.adresseChantier}</div>}
+                    <div style={{fontWeight:700,fontSize:13,color:'#1e293b',
+                      display:'flex',alignItems:'center',gap:7,flexWrap:'wrap'}}>
+                      {plcClientLabel(r)}
+                      {isCurrent && (
+                        <span style={{fontSize:10,fontWeight:700,background:'#0ea5e9',
+                          color:'#fff',borderRadius:20,padding:'1px 8px'}}>en cours</span>
+                      )}
+                      {r.refDossier && (
+                        <span style={{fontSize:10,background:'#f1f5f9',color:'#64748b',
+                          borderRadius:4,padding:'1px 6px'}}>{r.refDossier}</span>
+                      )}
+                    </div>
+                    <div style={{fontSize:11,color:'#64748b',marginTop:2}}>
+                      {(meta.icon || '') + ' ' + (meta.label || r.type || '—')}
+                      {p.total > 0 && ` · ${p.done}/${p.total} points (${p.pct}%)`}
+                      {nProd > 0 && ` · ${nProd} produit${nProd>1?'s':''}`}
+                    </div>
+                    {r.adresseChantier && (
+                      <div style={{fontSize:11,color:'#94a3b8',overflow:'hidden',
+                        textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                        📍 {r.adresseChantier}
+                      </div>
+                    )}
+                    <div style={{fontSize:10,color:'#cbd5e1',marginTop:2}}>
+                      Enregistrée {whenOf(r)}
+                    </div>
                   </div>
-                  <div style={{display:'flex',gap:7,flexShrink:0}}>
-                    <button onClick={()=>{onLoad(r);onClose();}} style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:7,padding:'5px 12px',cursor:'pointer',fontSize:12,fontWeight:600}}>Ouvrir</button>
-                    <button onClick={()=>del(i)} style={{background:'none',border:'1.5px solid #fca5a5',color:'#ef4444',borderRadius:7,padding:'5px 8px',cursor:'pointer',fontSize:12}}>🗑</button>
+
+                  <div style={{display:'flex',gap:7,flexShrink:0,alignItems:'center'}}>
+                    {confirmId === r.ficheId ? (
+                      <React.Fragment>
+                        <span style={{fontSize:11,color:'#ef4444'}}>Supprimer ?</span>
+                        <button onClick={() => del(r.ficheId)}
+                          style={{background:'#ef4444',color:'#fff',border:'none',
+                            borderRadius:7,padding:'5px 10px',cursor:'pointer',
+                            fontSize:12,fontWeight:700}}>Oui</button>
+                        <button onClick={() => setConfirmId(null)}
+                          style={{background:'none',border:'1.5px solid #e2e8f0',
+                            borderRadius:7,padding:'5px 10px',cursor:'pointer',
+                            fontSize:12,color:'#475569'}}>Non</button>
+                      </React.Fragment>
+                    ) : (
+                      <React.Fragment>
+                        <button onClick={() => { onLoad(r); onClose(); }}
+                          style={{background:'#0ea5e9',color:'#fff',border:'none',
+                            borderRadius:7,padding:'6px 14px',cursor:'pointer',
+                            fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>
+                          {nProd > 0 ? 'Reprendre le devis' : 'Reprendre'}
+                        </button>
+                        <button onClick={() => setConfirmId(r.ficheId)}
+                          style={{background:'none',border:'1.5px solid #fca5a5',
+                            color:'#ef4444',borderRadius:7,padding:'6px 9px',
+                            cursor:'pointer',fontSize:12}}>🗑</button>
+                      </React.Fragment>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
-        }
+              );
+            })}
+          </div>
+        )}
+
+        <div style={{padding:'10px 20px',borderTop:'1px solid #f0f4f8',fontSize:11,
+          color:'#94a3b8',flexShrink:0}}>
+          Les fiches sont enregistrées dans ce navigateur uniquement.
+        </div>
       </div>
     </div>
   );
@@ -286,315 +534,613 @@ function HistoryModal({ onClose, onLoad }) {
 
 /* ═══════════════════════════════════════════════════
    ProductPanel — 3 onglets : Recherche · Catalogue · IA
-═══════════════════════════════════════════════════ */
-function ProductPanel({ item, sectionLabel, onAdd, onClose }) {
-  const cfg = window.LOLIRINE_CHECKLIST_CONFIG||{};
-  const [tab,setTab]       = useState(item?'search':'catalog');
-  /* Recherche */
-  const [q,setQ]           = useState(item||'');
-  const [results,setRes]   = useState([]);
-  const [sel,setSel]        = useState({});
-  const [busy,setBusy]      = useState(false);
-  const [src,setSrc]        = useState(null);
-  const [sortBy,setSortBy]  = useState('name');
-  const [suppFilter,setSuppFilter] = useState(null);
-  const [suppliers,setSuppliers]   = useState([]);
-  /* Catalogue */
-  const [catPath,setCatPath]     = useState([]);
-  const [categories,setCategories] = useState([]);
-  const [catProds,setCatProds]   = useState([]);
-  const [catBusy,setCatBusy]     = useState(false);
-  const [catSel,setCatSel]       = useState({});
-  /* IA */
-  const [aiProds,setAiProds]     = useState([]);
-  const [aiSel,setAiSel]         = useState({});
-  const [aiBusy,setAiBusy]       = useState(false);
-  const [aiDone,setAiDone]       = useState(false);
 
-  /* Chargement initial */
-  useEffect(()=>{
-    if(item){ runSearch(item); }
+   REMPLACE intégralement l'ancien ProductPanel.
+   À coller entre la fin de HistoryModal et le début de
+   « ITEM SCHEMA DETECTION ».
+
+   Ce qui change par rapport à la version précédente
+   ─────────────────────────────────────────────────
+   · PAGINATION RÉELLE. L'ancienne version demandait 30 résultats
+     et affichait « 30 résultats » — sur un catalogue de 8 700
+     articles, c'était faux et trompeur. On lit maintenant `total`
+     renvoyé par le contrôleur, on affiche « 30 sur 143 » et un
+     bouton « Charger 30 de plus ».
+   · TRI PAR PERTINENCE par défaut (référence exacte d'abord),
+     au lieu de l'alphabétique qui remontait les 30 premiers
+     résultats dans l'ordre de l'alphabet.
+   · RECHERCHE AU FIL DE LA FRAPPE (350 ms), Entrée toujours actif.
+   · MARGE affichée si le serveur l'autorise (`show_cost`) :
+     coût, marge en € et en %, avec la SOURCE du coût. Un coût
+     issu de `standard_price` en dropshipping n'est presque jamais
+     à jour — d'où l'étiquette, à lire avant d'accorder une remise.
+   · ProductRow sorti de ProductPanel. Défini à l'intérieur, il
+     était recréé à chaque rendu : React démontait et remontait
+     toutes les lignes à chaque frappe (état d'image perdu,
+     scintillement). C'est un bug corrigé au passage.
+═══════════════════════════════════════════════════ */
+
+const PLC_PAGE_SIZE = 30;
+
+/* Couleur de la marge — repères commerciaux, à ajuster si besoin */
+function marginColor(pct) {
+  if (pct === null || pct === undefined) { return '#94a3b8'; }
+  if (pct < 0)  { return '#dc2626'; }
+  if (pct < 12) { return '#ef4444'; }
+  if (pct < 25) { return '#f59e0b'; }
+  return '#16a34a';
+}
+
+function eur(v) {
+  const n = typeof v === 'number' ? v : (parseFloat(v) || 0);
+  return n.toFixed(2) + ' €';
+}
+
+/* ── Ligne produit ── */
+function ProductRow({ p, i, selected, onToggle, showCost }) {
+  const price = typeof p.price === 'number' ? p.price : (parseFloat(p.price) || 0);
+  const sup   = (p.suppliers && p.suppliers[0]) || {};
+  const [imgErr, setImgErr] = useState(false);
+
+  const hasMargin = showCost && p.margin_pct !== null && p.margin_pct !== undefined;
+  const srcLabel  = p.cost_source === 'supplier' ? 'prix fourn.'
+                  : p.cost_source === 'standard' ? 'prix de revient'
+                  : 'coût inconnu';
+
+  return (
+    <div onClick={() => onToggle(i)}
+      style={{display:'flex',gap:10,padding:'9px 12px',borderRadius:10,
+        border:`1.5px solid ${selected?'#0ea5e9':'#e8edf3'}`,
+        background:selected?'rgba(14,165,233,.05)':'#fff',cursor:'pointer',
+        alignItems:'flex-start',marginBottom:4,transition:'all .15s'}}>
+
+      <div style={{width:18,height:18,border:`2px solid ${selected?'#0ea5e9':'#bbb'}`,
+        borderRadius:4,background:selected?'#0ea5e9':'transparent',flexShrink:0,
+        marginTop:2,display:'flex',alignItems:'center',justifyContent:'center',
+        color:'#fff',fontSize:11}}>{selected && '✓'}</div>
+
+      {p.image_url && !imgErr
+        ? <img src={p.image_url} alt="" onError={() => setImgErr(true)}
+            crossOrigin="use-credentials"
+            style={{width:52,height:52,objectFit:'contain',borderRadius:8,
+              border:'1px solid #e2e8f0',background:'#f8fafc',flexShrink:0}} />
+        : <div style={{width:52,height:52,borderRadius:8,border:'1px solid #e2e8f0',
+            background:'#f8fafc',flexShrink:0,display:'flex',alignItems:'center',
+            justifyContent:'center',fontSize:20,color:'#cbd5e1'}}>📦</div>}
+
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontWeight:600,fontSize:13,color:'#1e293b',lineHeight:1.3}}>
+          {p.name}
+          {p.variant && (
+            /* Deux coloris du même liner seraient indistinguables sans ça. */
+            <span style={{color:'#7c3aed',fontWeight:700}}> — {p.variant}</span>
+          )}
+        </div>
+        <div style={{fontSize:11,color:'#64748b',display:'flex',gap:8,flexWrap:'wrap',marginTop:3}}>
+          {p.ref && <span style={{background:'#f1f5f9',borderRadius:4,padding:'1px 6px'}}>Réf: {p.ref}</span>}
+          {sup.ref && sup.ref !== p.ref &&
+            <span style={{background:'#f5f3ff',color:'#7c3aed',borderRadius:4,padding:'1px 6px'}}>
+              Fourn: {sup.ref}
+            </span>}
+          {p.category && <span style={{color:'#7c3aed'}}>📂 {p.category}</span>}
+          {sup.name && <span style={{color:'#0ea5e9'}}>🏭 {sup.name}</span>}
+          {p.unit && <span>{p.unit}</span>}
+          {p.published === false &&
+            <span style={{background:'#fef2f2',color:'#a32d2d',borderRadius:4,padding:'1px 6px'}}>
+              non publié
+            </span>}
+        </div>
+        {p.description &&
+          <div style={{fontSize:11,color:'#94a3b8',marginTop:2,fontStyle:'italic',
+            overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.description}</div>}
+        {p.note && <div style={{fontSize:11,color:'#94a3b8',marginTop:2,fontStyle:'italic'}}>{p.note}</div>}
+      </div>
+
+      <div style={{flexShrink:0,textAlign:'right',minWidth:96}}>
+        {price > 0 && (
+          <div>
+            <div style={{fontWeight:700,fontSize:14,color:'#16a34a'}}>{eur(price)}</div>
+            <div style={{fontSize:10,color:'#94a3b8'}}>HT</div>
+          </div>
+        )}
+        {showCost && (
+          hasMargin ? (
+            <div style={{marginTop:4,paddingTop:4,borderTop:'1px solid #f1f5f9'}}>
+              <div style={{fontSize:11,color:'#64748b'}}>Coût {eur(p.cost)}</div>
+              <div style={{fontSize:12,fontWeight:700,color:marginColor(p.margin_pct)}}>
+                {(p.margin >= 0 ? '+' : '') + eur(p.margin)} · {p.margin_pct}%
+              </div>
+              {/* Source du coût — un standard_price non réapprovisionné
+                  en dropshipping donne une marge fausse. */}
+              <div style={{fontSize:9,color:'#94a3b8'}}>{srcLabel}</div>
+            </div>
+          ) : (
+            <div style={{marginTop:4,paddingTop:4,borderTop:'1px solid #f1f5f9',
+              fontSize:10,color:'#cbd5e1'}}>coût inconnu</div>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProductPanel({ item, sectionLabel, onAdd, onClose }) {
+  const cfg = window.LOLIRINE_CHECKLIST_CONFIG || {};
+  const [tab, setTab] = useState(item ? 'search' : 'catalog');
+
+  /* Recherche */
+  const [q, setQ]             = useState(item || '');
+  const [results, setRes]     = useState([]);
+  const [total, setTotal]     = useState(0);
+  const [offset, setOffset]   = useState(0);
+  const [sel, setSel]         = useState({});
+  const [busy, setBusy]       = useState(false);
+  const [more, setMore]       = useState(false);
+  const [src, setSrc]         = useState(null);
+  const [truncRank, setTruncRank] = useState(false);
+  const [sortBy, setSortBy]   = useState('relevance');
+  const [suppFilter, setSuppFilter] = useState(null);
+  const [suppliers, setSuppliers]   = useState([]);
+  const [showCost, setShowCost]     = useState(false);
+  const searchTimer = useRef(null);
+
+  /* Catalogue */
+  const [catPath, setCatPath]       = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [catProds, setCatProds]     = useState([]);
+  const [catTotal, setCatTotal]     = useState(0);
+  const [catOffset, setCatOffset]   = useState(0);
+  const [catBusy, setCatBusy]       = useState(false);
+  const [catSel, setCatSel]         = useState({});
+  const [curCat, setCurCat]         = useState(null);
+
+  /* IA */
+  const [aiProds, setAiProds] = useState([]);
+  const [aiSel, setAiSel]     = useState({});
+  const [aiBusy, setAiBusy]   = useState(false);
+  const [aiDone, setAiDone]   = useState(false);
+
+  useEffect(() => {
+    if (item) { runSearch(item, 0); }
     loadCategories(null);
     loadSuppliers();
-  },[]);
+  }, []);
 
-  async function post(url,params){
-    const r=await fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method:'call',id:1,params})});
+  async function post(url, params) {
+    const r = await fetch(url, {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({jsonrpc:'2.0', method:'call', id:1, params}),
+    });
     return r.json();
   }
 
-  async function loadSuppliers(){
-    try{
-      const d=await post('/pool-checklist/suppliers',{});
-      setSuppliers(d?.result?.suppliers||[]);
-    }catch{}
+  async function loadSuppliers() {
+    try {
+      const d = await post('/pool-checklist/suppliers', {limit:50});
+      setSuppliers((d && d.result && d.result.suppliers) || []);
+    } catch (e) { /* liste facultative */ }
   }
 
-  async function loadCategories(parentId){
+  async function loadCategories(parentId) {
     setCatBusy(true);
-    try{
-      const d=await post('/pool-checklist/categories',{parent_id:parentId});
-      setCategories(d?.result?.categories||[]);
-      if(parentId===null)setCatProds([]);
-    }catch{}
+    try {
+      const d = await post('/pool-checklist/categories', {parent_id: parentId});
+      setCategories((d && d.result && d.result.categories) || []);
+      if (parentId === null) { setCatProds([]); setCatTotal(0); setCurCat(null); }
+    } catch (e) { setCategories([]); }
     setCatBusy(false);
   }
 
-  async function loadCategoryProducts(catId){
-    setCatBusy(true);setCatProds([]);
-    try{
-      const d=await post('/pool-checklist/products',{category_id:catId,limit:50,sort:sortBy,supplier_id:suppFilter});
-      setCatProds(d?.result?.products||[]);
-    }catch{}
-    setCatBusy(false);
+  /* ── Produits d'une catégorie, paginés ── */
+  async function loadCategoryProducts(catId, off) {
+    const append = off > 0;
+    if (append) { setMore(true); } else { setCatBusy(true); setCatProds([]); setCatSel({}); }
+    setCurCat(catId);
+    try {
+      const d = await post('/pool-checklist/products', {
+        category_id: catId, limit: PLC_PAGE_SIZE, offset: off,
+        sort: sortBy, supplier_id: suppFilter,
+      });
+      const r = (d && d.result) || {};
+      const prods = r.products || [];
+      setCatProds(ps => append ? ps.concat(prods) : prods);
+      setCatTotal(r.total || prods.length);
+      setCatOffset(off + prods.length);
+      if (r.show_cost !== undefined) { setShowCost(!!r.show_cost); }
+    } catch (e) { if (!append) { setCatProds([]); setCatTotal(0); } }
+    setCatBusy(false); setMore(false);
   }
 
-  async function runSearch(query){
-    if(!query?.trim())return;
-    setBusy(true);setRes([]);setSrc(null);setSel({});
-    try{
-      const d=await post('/pool-checklist/products',{query,limit:30,sort:sortBy,supplier_id:suppFilter});
-      const prods=d?.result?.products||[];
-      if(prods.length){setRes(prods);setSrc('odoo');setBusy(false);return;}
-    }catch{}
-    setSrc('empty');setBusy(false);
+  /* ── Recherche texte, paginée ── */
+  async function runSearch(query, off) {
+    const text = (query || '').trim();
+    if (!text) { setRes([]); setTotal(0); setSrc(null); return; }
+    const append = off > 0;
+    if (append) { setMore(true); }
+    else { setBusy(true); setRes([]); setSel({}); setSrc(null); setTruncRank(false); }
+    try {
+      const d = await post('/pool-checklist/products', {
+        query: text, limit: PLC_PAGE_SIZE, offset: off,
+        sort: sortBy, supplier_id: suppFilter,
+      });
+      const r = (d && d.result) || {};
+      const prods = r.products || [];
+      setRes(ps => append ? ps.concat(prods) : prods);
+      setTotal(r.total || 0);
+      setOffset(off + prods.length);
+      setTruncRank(!!r.truncated_ranking);
+      if (r.show_cost !== undefined) { setShowCost(!!r.show_cost); }
+      setSrc((r.total || 0) > 0 ? 'odoo' : 'empty');
+    } catch (e) {
+      if (!append) { setSrc('empty'); }
+    }
+    setBusy(false); setMore(false);
   }
 
-  async function runAI(){
-    if(aiDone)return;
-    setAiBusy(true);setAiProds([]);
-    try{
-      const d=await post('/pool-checklist/ai-suggest',{item_text:item||q,section_label:sectionLabel||''});
-      setAiProds(d?.result?.products||[]);setAiDone(true);
-    }catch{}
+  /* Frappe : recherche différée, sans attendre Entrée */
+  function onTypeQuery(v) {
+    setQ(v);
+    clearTimeout(searchTimer.current);
+    if (v.trim().length < 2) { setRes([]); setTotal(0); setSrc(null); return; }
+    searchTimer.current = setTimeout(() => runSearch(v, 0), 350);
+  }
+
+  async function runAI() {
+    if (aiDone) { return; }
+    setAiBusy(true); setAiProds([]);
+    try {
+      const d = await post('/pool-checklist/ai-suggest',
+        {item_text: item || q, section_label: sectionLabel || ''});
+      setAiProds((d && d.result && d.result.products) || []);
+      setAiDone(true);
+    } catch (e) { setAiDone(true); }
     setAiBusy(false);
   }
+  useEffect(() => { if (tab === 'ai' && !aiDone) { runAI(); } }, [tab]);
 
-  useEffect(()=>{ if(tab==='ai'&&!aiDone) runAI(); },[tab]);
+  /* Relancer sur changement de tri / fournisseur */
+  useEffect(() => {
+    if (tab === 'search' && q.trim().length >= 2) { runSearch(q, 0); }
+    if (tab === 'catalog' && curCat) { loadCategoryProducts(curCat, 0); }
+  }, [suppFilter, sortBy]);
 
-  function drillCat(cat){
-    setCatPath(p=>[...p,cat]);
-    if(cat.has_children){ loadCategories(cat.id);setCatProds([]); }
-    else{ loadCategoryProducts(cat.id);setCategories([]); }
+  function drillCat(cat) {
+    setCatPath(p => p.concat([cat]));
+    if (cat.has_children) { loadCategories(cat.id); setCatProds([]); setCatTotal(0); setCurCat(null); }
+    else { loadCategoryProducts(cat.id, 0); setCategories([]); }
   }
-  function upCat(){
-    const newPath=catPath.slice(0,-1);
-    setCatPath(newPath);
-    const parent=newPath.length>0?newPath[newPath.length-1]:null;
-    if(parent){
-      if(parent.has_children){loadCategories(parent.id);setCatProds([]);}
-      else{loadCategoryProducts(parent.id);}
-    }else{loadCategories(null);setCatProds([]);}
-  }
-
-  /* Sélection unifiée selon l'onglet actif */
-  const curSel   = tab==='catalog'?catSel:tab==='ai'?aiSel:sel;
-  const curRes   = tab==='catalog'?catProds:tab==='ai'?aiProds:results;
-  const setCurSel= tab==='catalog'?setCatSel:tab==='ai'?setAiSel:setSel;
-  function toggle(i){setCurSel(s=>({...s,[i]:!s[i]}));}
-  function addSel(){
-    const chosen=curRes.filter((_,i)=>curSel[i]);
-    if(chosen.length)onAdd(chosen);
-  }
-  const nSel=Object.values(curSel).filter(Boolean).length;
-
-  /* Filtre fournisseur appliqué à la recherche */
-  useEffect(()=>{ if(q.trim()&&tab==='search') runSearch(q); },[suppFilter,sortBy]);
-
-  /* Render produit */
-  function ProductRow({p,i,selMap}){
-    const price=typeof p.price==='number'?p.price:(parseFloat(p.price)||0);
-    const sup=p.suppliers?.[0]||{};
-    const isSel=!!selMap[i];
-    const [imgErr,setImgErr]=useState(false);
-    return(
-      <div onClick={()=>toggle(i)} style={{display:'flex',gap:10,padding:'9px 12px',borderRadius:10,border:`1.5px solid ${isSel?'#0ea5e9':'#e8edf3'}`,background:isSel?'rgba(14,165,233,.05)':'#fff',cursor:'pointer',alignItems:'flex-start',marginBottom:4,transition:'all .15s'}}>
-        {/* Checkbox */}
-        <div style={{width:18,height:18,border:`2px solid ${isSel?'#0ea5e9':'#bbb'}`,borderRadius:4,background:isSel?'#0ea5e9':'transparent',flexShrink:0,marginTop:2,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:11}}>{isSel&&'✓'}</div>
-        {/* Image produit — chemin avec credentials same-origin */}
-        {p.image_url&&!imgErr
-          ? <img src={p.image_url} alt="" onError={()=>setImgErr(true)}
-              crossOrigin="use-credentials"
-              style={{width:52,height:52,objectFit:'contain',borderRadius:8,border:'1px solid #e2e8f0',background:'#f8fafc',flexShrink:0}} />
-          : <div style={{width:52,height:52,borderRadius:8,border:'1px solid #e2e8f0',background:'#f8fafc',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,color:'#cbd5e1'}}>📦</div>
-        }
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontWeight:600,fontSize:13,color:'#1e293b',lineHeight:1.3}}>{p.name}</div>
-          <div style={{fontSize:11,color:'#64748b',display:'flex',gap:8,flexWrap:'wrap',marginTop:3}}>
-            {p.ref&&<span style={{background:'#f1f5f9',borderRadius:4,padding:'1px 6px'}}>Réf: {p.ref}</span>}
-            {p.category&&<span style={{color:'#7c3aed'}}>📂 {p.category}</span>}
-            {sup.name&&<span style={{color:'#0ea5e9'}}>🏭 {sup.name}</span>}
-            {p.unit&&<span>{p.unit}</span>}
-          </div>
-          {p.description&&<div style={{fontSize:11,color:'#94a3b8',marginTop:2,fontStyle:'italic',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.description}</div>}
-          {p.note&&<div style={{fontSize:11,color:'#94a3b8',marginTop:2,fontStyle:'italic'}}>{p.note}</div>}
-        </div>
-        {price>0&&<div style={{flexShrink:0,textAlign:'right'}}><div style={{fontWeight:700,fontSize:14,color:'#16a34a'}}>{price.toFixed(2)} €</div><div style={{fontSize:10,color:'#94a3b8'}}>HT</div></div>}
-      </div>
-    );
+  function upCat() {
+    const np = catPath.slice(0, -1);
+    setCatPath(np);
+    const parent = np.length > 0 ? np[np.length - 1] : null;
+    if (parent) {
+      if (parent.has_children) { loadCategories(parent.id); setCatProds([]); setCatTotal(0); setCurCat(null); }
+      else { loadCategoryProducts(parent.id, 0); }
+    } else { loadCategories(null); }
   }
 
-  const TABS=[
-    {k:'search', icon:'🔍', label:'Recherche'},
-    {k:'catalog',icon:'📂', label:'Catalogue'},
-    {k:'ai',     icon:'✨', label:'Suggestions IA'},
+  /* Sélection unifiée selon l'onglet */
+  const curSel    = tab === 'catalog' ? catSel : tab === 'ai' ? aiSel : sel;
+  const curRes    = tab === 'catalog' ? catProds : tab === 'ai' ? aiProds : results;
+  const setCurSel = tab === 'catalog' ? setCatSel : tab === 'ai' ? setAiSel : setSel;
+  function toggle(i) { setCurSel(s => Object.assign({}, s, {[i]: !s[i]})); }
+  function addSel() {
+    const chosen = curRes.filter((_, i) => curSel[i]);
+    if (chosen.length) { onAdd(chosen); }
+  }
+  const nSel = Object.values(curSel).filter(Boolean).length;
+
+  /* Marge cumulée de la sélection — utile avant d'ajouter au devis */
+  let selMargin = null;
+  if (showCost && nSel > 0) {
+    const chosen = curRes.filter((_, i) => curSel[i]);
+    const withCost = chosen.filter(p => p.cost > 0);
+    if (withCost.length) {
+      const rev  = withCost.reduce((a, p) => a + (p.price || 0), 0);
+      const cost = withCost.reduce((a, p) => a + (p.cost || 0), 0);
+      selMargin = {
+        n: withCost.length, partial: withCost.length !== chosen.length,
+        margin: rev - cost, pct: rev ? Math.round((rev - cost) / rev * 1000) / 10 : 0,
+      };
+    }
+  }
+
+  const TABS = [
+    {k:'search',  icon:'🔍', label:'Recherche'},
+    {k:'catalog', icon:'📂', label:'Catalogue'},
+    {k:'ai',      icon:'✨', label:'Suggestions IA'},
   ];
 
-  return(
-    <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.55)',zIndex:9990,display:'flex',alignItems:'center',justifyContent:'center',padding:8}}>
-      <div style={{background:'#f8fafc',borderRadius:16,width:'min(780px,100%)',maxHeight:'94vh',display:'flex',flexDirection:'column',boxShadow:'0 28px 90px rgba(0,0,0,.25)',overflow:'hidden'}}>
+  const hasMoreSearch  = offset < total;
+  const hasMoreCatalog = catOffset < catTotal;
+
+  const MORE_BTN = {width:'100%',background:'#fff',border:'1.5px dashed #0ea5e9',
+    borderRadius:9,padding:'9px 0',cursor:'pointer',fontSize:12,fontWeight:700,
+    color:'#0369a1',marginTop:6};
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.55)',zIndex:9990,
+      display:'flex',alignItems:'center',justifyContent:'center',padding:8}}>
+      <div style={{background:'#f8fafc',borderRadius:16,width:'min(820px,100%)',
+        maxHeight:'94vh',display:'flex',flexDirection:'column',
+        boxShadow:'0 28px 90px rgba(0,0,0,.25)',overflow:'hidden'}}>
 
         {/* Header */}
-        <div style={{background:'#fff',padding:'14px 18px 10px',borderBottom:'1px solid #e2e8f0',display:'flex',gap:10,alignItems:'flex-start',flexShrink:0}}>
+        <div style={{background:'#fff',padding:'14px 18px 10px',borderBottom:'1px solid #e2e8f0',
+          display:'flex',gap:10,alignItems:'flex-start',flexShrink:0}}>
           <div style={{flex:1}}>
             <div style={{fontWeight:800,fontSize:15,color:'#1e293b'}}>🛒 Catalogue Pool Store</div>
-            {item&&<div style={{fontSize:11,color:'#64748b',marginTop:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>Contexte : {item}</div>}
+            {item && <div style={{fontSize:11,color:'#64748b',marginTop:2,overflow:'hidden',
+              textOverflow:'ellipsis',whiteSpace:'nowrap'}}>Contexte : {item}</div>}
           </div>
-          <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',borderRadius:7,padding:'4px 12px',cursor:'pointer',fontSize:13,color:'#6b7a8d',flexShrink:0}}>✕</button>
+          {showCost && (
+            <span style={{background:'#f0fdf4',border:'1.5px solid #bbf7d0',borderRadius:20,
+              padding:'3px 10px',fontSize:11,fontWeight:700,color:'#16a34a',flexShrink:0}}>
+              Marges visibles
+            </span>
+          )}
+          <button onClick={onClose} style={{background:'none',border:'1.5px solid #dde4ed',
+            borderRadius:7,padding:'4px 12px',cursor:'pointer',fontSize:13,color:'#6b7a8d',
+            flexShrink:0}}>✕</button>
         </div>
 
-        {/* Onglets */}
-        <div style={{background:'#fff',borderBottom:'2px solid #e2e8f0',display:'flex',flexShrink:0}}>
-          {TABS.map(t=>(
-            <button key={t.k} onClick={()=>setTab(t.k)}
-              style={{padding:'9px 18px',border:'none',borderBottom:`3px solid ${tab===t.k?'#0ea5e9':'transparent'}`,background:'transparent',cursor:'pointer',fontWeight:tab===t.k?700:500,fontSize:13,color:tab===t.k?'#0ea5e9':'#64748b',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:5}}>
+        {/* Onglets + filtres */}
+        <div style={{background:'#fff',borderBottom:'2px solid #e2e8f0',display:'flex',
+          flexShrink:0,flexWrap:'wrap'}}>
+          {TABS.map(t => (
+            <button key={t.k} onClick={() => setTab(t.k)}
+              style={{padding:'9px 18px',border:'none',
+                borderBottom:`3px solid ${tab===t.k?'#0ea5e9':'transparent'}`,
+                background:'transparent',cursor:'pointer',fontWeight:tab===t.k?700:500,
+                fontSize:13,color:tab===t.k?'#0ea5e9':'#64748b',whiteSpace:'nowrap',
+                display:'flex',alignItems:'center',gap:5}}>
               {t.icon} {t.label}
             </button>
           ))}
-          {/* Filtre fournisseur (droite) */}
           <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:6,padding:'0 14px'}}>
-            <select value={suppFilter||''} onChange={e=>setSuppFilter(e.target.value||null)}
-              style={{border:'1px solid #e2e8f0',borderRadius:7,padding:'4px 8px',fontSize:11,color:'#475569',background:'#fff',cursor:'pointer',outline:'none'}}>
+            <select value={suppFilter || ''} onChange={e => setSuppFilter(e.target.value || null)}
+              style={{border:'1px solid #e2e8f0',borderRadius:7,padding:'4px 8px',fontSize:11,
+                color:'#475569',background:'#fff',cursor:'pointer',outline:'none',maxWidth:160}}>
               <option value="">Tous fournisseurs</option>
-              {suppliers.slice(0,8).map(s=><option key={s.id} value={s.id}>{s.name} ({s.product_count})</option>)}
+              {suppliers.map(s => (
+                <option key={s.id} value={s.id}>{s.name} ({s.product_count})</option>
+              ))}
             </select>
-            <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
-              style={{border:'1px solid #e2e8f0',borderRadius:7,padding:'4px 8px',fontSize:11,color:'#475569',background:'#fff',cursor:'pointer',outline:'none'}}>
+            <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+              style={{border:'1px solid #e2e8f0',borderRadius:7,padding:'4px 8px',fontSize:11,
+                color:'#475569',background:'#fff',cursor:'pointer',outline:'none'}}>
+              <option value="relevance">Pertinence</option>
               <option value="name">Nom A→Z</option>
               <option value="price_asc">Prix croissant</option>
               <option value="price_desc">Prix décroissant</option>
+              {showCost && <option value="margin_desc">Marge décroissante</option>}
             </select>
           </div>
         </div>
 
-        {/* Corps scroll */}
+        {/* Corps */}
         <div style={{flex:1,overflowY:'auto',padding:'12px 14px',minHeight:0}}>
 
-          {/* ── Onglet Recherche ── */}
-          {tab==='search'&&(
+          {/* ── Recherche ── */}
+          {tab === 'search' && (
             <div>
               <div style={{display:'flex',gap:8,marginBottom:12}}>
-                <input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==='Enter'&&runSearch(q)}
-                  placeholder="Référence, nom produit, marque, catégorie…"
+                <input value={q} onChange={e => onTypeQuery(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && runSearch(q, 0)}
+                  placeholder="Référence SCP, nom produit, marque, catégorie…"
                   autoFocus
-                  style={{flex:1,border:'1.5px solid #dde4ed',borderRadius:9,padding:'9px 14px',fontFamily:'inherit',fontSize:14,outline:'none',background:'#fff'}} />
-                <button onClick={()=>runSearch(q)} style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:9,padding:'9px 18px',fontWeight:700,cursor:'pointer',fontSize:13,whiteSpace:'nowrap'}}>
-                  {busy?'…':'Chercher'}
+                  style={{flex:1,border:'1.5px solid #dde4ed',borderRadius:9,padding:'9px 14px',
+                    fontFamily:'inherit',fontSize:14,outline:'none',background:'#fff'}} />
+                <button onClick={() => runSearch(q, 0)}
+                  style={{background:'#0ea5e9',color:'#fff',border:'none',borderRadius:9,
+                    padding:'9px 18px',fontWeight:700,cursor:'pointer',fontSize:13,
+                    whiteSpace:'nowrap'}}>
+                  {busy ? '…' : 'Chercher'}
                 </button>
               </div>
-              {src&&src!=='empty'&&(
-                <div style={{marginBottom:8,display:'flex',alignItems:'center',gap:8}}>
-                  <span style={{fontSize:11,fontWeight:700,padding:'3px 9px',borderRadius:20,background:'#dcfce7',color:'#166534'}}>✅ {results.length} résultat{results.length>1?'s':''} — Catalogue Lolirine Pool Store</span>
+
+              {src === 'odoo' && (
+                <div style={{marginBottom:8,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                  <span style={{fontSize:11,fontWeight:700,padding:'3px 9px',borderRadius:20,
+                    background:'#dcfce7',color:'#166534'}}>
+                    {results.length} affiché{results.length>1?'s':''} sur {total} résultat{total>1?'s':''}
+                  </span>
+                  {truncRank && (
+                    /* Au-delà du seuil serveur, le classement par pertinence
+                       est abandonné : mieux vaut le dire que laisser croire
+                       que les premiers résultats sont les meilleurs. */
+                    <span style={{fontSize:11,padding:'3px 9px',borderRadius:20,
+                      background:'#fffbeb',color:'#92400e',border:'1px solid #fde68a'}}>
+                      Trop de résultats pour un classement fiable — précisez la recherche
+                    </span>
+                  )}
                 </div>
               )}
-              {busy&&<div style={{padding:40,textAlign:'center',color:'#6b7a8d'}}><div style={{fontSize:28,marginBottom:10}}>🔄</div>Recherche en cours…</div>}
-              {!busy&&src==='empty'&&(
+
+              {busy && (
+                <div style={{padding:40,textAlign:'center',color:'#6b7a8d'}}>
+                  <div style={{fontSize:28,marginBottom:10}}>🔄</div>Recherche en cours…
+                </div>
+              )}
+
+              {!busy && src === 'empty' && (
                 <div style={{padding:32,textAlign:'center',color:'#94a3b8'}}>
                   <div style={{fontSize:32,marginBottom:8}}>🔍</div>
                   <div style={{fontSize:14,marginBottom:8}}>Aucun résultat dans le catalogue</div>
-                  <button onClick={()=>setTab('ai')} style={{background:'#fffbeb',border:'1.5px solid #fde68a',borderRadius:9,padding:'8px 18px',cursor:'pointer',fontSize:13,color:'#92400e',fontWeight:600}}>
-                    ✨ Voir les suggestions IA
-                  </button>
+                  <button onClick={() => setTab('ai')}
+                    style={{background:'#fffbeb',border:'1.5px solid #fde68a',borderRadius:9,
+                      padding:'8px 18px',cursor:'pointer',fontSize:13,color:'#92400e',
+                      fontWeight:600}}>✨ Voir les suggestions IA</button>
                 </div>
               )}
-              {!busy&&!src&&<div style={{padding:32,textAlign:'center',color:'#94a3b8',fontSize:13}}>Tapez votre recherche et appuyez Entrée</div>}
-              {results.map((p,i)=><ProductRow key={i} p={p} i={i} selMap={sel} />)}
+
+              {!busy && !src && (
+                <div style={{padding:32,textAlign:'center',color:'#94a3b8',fontSize:13}}>
+                  Tapez au moins deux caractères — la recherche se lance seule.
+                </div>
+              )}
+
+              {results.map((p, i) => (
+                <ProductRow key={p.id ? p.id + '-' + i : i} p={p} i={i}
+                  selected={!!sel[i]} onToggle={toggle} showCost={showCost} />
+              ))}
+
+              {hasMoreSearch && (
+                <button onClick={() => runSearch(q, offset)} disabled={more} style={MORE_BTN}>
+                  {more ? 'Chargement…'
+                        : `Charger ${Math.min(PLC_PAGE_SIZE, total - offset)} de plus (${total - offset} restants)`}
+                </button>
+              )}
             </div>
           )}
 
-          {/* ── Onglet Catalogue ── */}
-          {tab==='catalog'&&(
+          {/* ── Catalogue ── */}
+          {tab === 'catalog' && (
             <div>
-              {/* Breadcrumb */}
               <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:10,flexWrap:'wrap'}}>
-                <span onClick={()=>{setCatPath([]);loadCategories(null);setCatProds([]);}} style={{fontSize:12,color:'#0ea5e9',cursor:'pointer',fontWeight:600}}>📂 Catalogue</span>
-                {catPath.map((cat,i)=>(
+                <span onClick={() => { setCatPath([]); loadCategories(null); }}
+                  style={{fontSize:12,color:'#0ea5e9',cursor:'pointer',fontWeight:600}}>📂 Catalogue</span>
+                {catPath.map((cat, i) => (
                   <React.Fragment key={cat.id}>
                     <span style={{color:'#94a3b8',fontSize:12}}>›</span>
-                    <span onClick={()=>{const np=catPath.slice(0,i+1);setCatPath(np);if(cat.has_children){loadCategories(cat.id);setCatProds([]);}else loadCategoryProducts(cat.id);}} style={{fontSize:12,color:i===catPath.length-1?'#1e293b':'#0ea5e9',cursor:'pointer',fontWeight:i===catPath.length-1?600:400}}>{cat.name}</span>
+                    <span onClick={() => {
+                        const np = catPath.slice(0, i + 1);
+                        setCatPath(np);
+                        if (cat.has_children) { loadCategories(cat.id); setCatProds([]); setCatTotal(0); setCurCat(null); }
+                        else { loadCategoryProducts(cat.id, 0); }
+                      }}
+                      style={{fontSize:12,color:i===catPath.length-1?'#1e293b':'#0ea5e9',
+                        cursor:'pointer',fontWeight:i===catPath.length-1?600:400}}>{cat.name}</span>
                   </React.Fragment>
                 ))}
-                {catPath.length>0&&<button onClick={upCat} style={{marginLeft:'auto',background:'none',border:'1px solid #e2e8f0',borderRadius:6,padding:'3px 10px',cursor:'pointer',fontSize:11,color:'#64748b'}}>← Retour</button>}
+                {catPath.length > 0 && (
+                  <button onClick={upCat} style={{marginLeft:'auto',background:'none',
+                    border:'1px solid #e2e8f0',borderRadius:6,padding:'3px 10px',
+                    cursor:'pointer',fontSize:11,color:'#64748b'}}>← Retour</button>
+                )}
               </div>
 
-              {catBusy&&<div style={{padding:40,textAlign:'center',color:'#6b7a8d'}}><div style={{fontSize:28,marginBottom:10}}>🔄</div>Chargement…</div>}
+              {catBusy && (
+                <div style={{padding:40,textAlign:'center',color:'#6b7a8d'}}>
+                  <div style={{fontSize:28,marginBottom:10}}>🔄</div>Chargement…
+                </div>
+              )}
 
-              {/* Grille catégories */}
-              {!catBusy&&categories.length>0&&(
-                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(170px,1fr))',gap:9,marginBottom:12}}>
-                  {categories.map(cat=>(
-                    <div key={cat.id} onClick={()=>drillCat(cat)}
-                      style={{background:'#fff',borderRadius:11,border:'1.5px solid #e2e8f0',padding:'13px 14px',cursor:'pointer',transition:'all .15s'}}
-                      onMouseEnter={e=>{e.currentTarget.style.borderColor='#0ea5e9';e.currentTarget.style.transform='translateY(-1px)';}}
-                      onMouseLeave={e=>{e.currentTarget.style.borderColor='#e2e8f0';e.currentTarget.style.transform='none';}}>
-                      <div style={{fontWeight:600,fontSize:13,color:'#1e293b',marginBottom:4,lineHeight:1.3}}>{cat.name}</div>
-                      <div style={{fontSize:11,color:'#94a3b8',display:'flex',justifyContent:'space-between'}}>
+              {!catBusy && categories.length > 0 && (
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(170px,1fr))',
+                  gap:9,marginBottom:12}}>
+                  {categories.map(cat => (
+                    <div key={cat.id} onClick={() => drillCat(cat)}
+                      style={{background:'#fff',borderRadius:11,border:'1.5px solid #e2e8f0',
+                        padding:'13px 14px',cursor:'pointer',transition:'all .15s'}}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; }}>
+                      <div style={{fontWeight:600,fontSize:13,color:'#1e293b',marginBottom:4,
+                        lineHeight:1.3}}>{cat.name}</div>
+                      <div style={{fontSize:11,color:'#94a3b8',display:'flex',
+                        justifyContent:'space-between'}}>
                         <span>{cat.product_count} produit{cat.product_count>1?'s':''}</span>
-                        {cat.has_children&&<span style={{color:'#0ea5e9'}}>→</span>}
+                        {cat.has_children && <span style={{color:'#0ea5e9'}}>→</span>}
                       </div>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Produits de la catégorie sélectionnée */}
-              {!catBusy&&catProds.length>0&&(
+              {!catBusy && catProds.length > 0 && (
                 <div>
-                  <div style={{fontSize:12,color:'#64748b',marginBottom:8,fontWeight:600}}>{catProds.length} produit{catProds.length>1?'s':''}</div>
-                  {catProds.map((p,i)=><ProductRow key={i} p={p} i={i} selMap={catSel} />)}
+                  <div style={{fontSize:12,color:'#64748b',marginBottom:8,fontWeight:600}}>
+                    {catProds.length} affiché{catProds.length>1?'s':''} sur {catTotal}
+                  </div>
+                  {catProds.map((p, i) => (
+                    <ProductRow key={p.id ? p.id + '-' + i : i} p={p} i={i}
+                      selected={!!catSel[i]} onToggle={toggle} showCost={showCost} />
+                  ))}
+                  {hasMoreCatalog && (
+                    <button onClick={() => loadCategoryProducts(curCat, catOffset)}
+                      disabled={more} style={MORE_BTN}>
+                      {more ? 'Chargement…'
+                            : `Charger ${Math.min(PLC_PAGE_SIZE, catTotal - catOffset)} de plus (${catTotal - catOffset} restants)`}
+                    </button>
+                  )}
                 </div>
               )}
 
-              {!catBusy&&categories.length===0&&catProds.length===0&&(
-                <div style={{padding:32,textAlign:'center',color:'#94a3b8',fontSize:13}}>Aucun contenu dans cette catégorie</div>
+              {!catBusy && categories.length === 0 && catProds.length === 0 && (
+                <div style={{padding:32,textAlign:'center',color:'#94a3b8',fontSize:13}}>
+                  Aucun contenu dans cette catégorie
+                </div>
               )}
             </div>
           )}
 
-          {/* ── Onglet IA ── */}
-          {tab==='ai'&&(
+          {/* ── IA ── */}
+          {tab === 'ai' && (
             <div>
-              <div style={{background:'#fffbeb',border:'1.5px solid #fde68a',borderRadius:10,padding:'10px 14px',marginBottom:12,fontSize:12,color:'#92400e'}}>
-                ✨ Suggestions générées par Claude AI en fonction du contexte de la check-list. Ces produits ne sont pas liés au catalogue Odoo — vérifiez la disponibilité.
+              <div style={{background:'#fffbeb',border:'1.5px solid #fde68a',borderRadius:10,
+                padding:'10px 14px',marginBottom:12,fontSize:12,color:'#92400e'}}>
+                ✨ Suggestions générées par Claude en fonction du contexte de la check-list.
+                Ces produits ne sont pas liés au catalogue Odoo — ni prix, ni marge, ni
+                disponibilité : à vérifier avant de les porter au devis.
               </div>
-              {aiBusy&&<div style={{padding:40,textAlign:'center',color:'#6b7a8d'}}><div style={{fontSize:28,marginBottom:10}}>✨</div>Génération des suggestions IA…</div>}
-              {!aiBusy&&aiProds.length===0&&aiDone&&<div style={{padding:28,textAlign:'center',color:'#94a3b8',fontSize:13}}>Aucune suggestion IA disponible.</div>}
-              {!aiBusy&&!aiDone&&<div style={{padding:28,textAlign:'center',color:'#94a3b8',fontSize:13}}>Chargement des suggestions…</div>}
-              {aiProds.map((p,i)=><ProductRow key={i} p={p} i={i} selMap={aiSel} />)}
-              {aiDone&&aiProds.length>0&&(
+              {aiBusy && (
+                <div style={{padding:40,textAlign:'center',color:'#6b7a8d'}}>
+                  <div style={{fontSize:28,marginBottom:10}}>✨</div>Génération des suggestions…
+                </div>
+              )}
+              {!aiBusy && aiDone && aiProds.length === 0 && (
+                <div style={{padding:28,textAlign:'center',color:'#94a3b8',fontSize:13}}>
+                  Aucune suggestion disponible.
+                </div>
+              )}
+              {aiProds.map((p, i) => (
+                <ProductRow key={i} p={p} i={i}
+                  selected={!!aiSel[i]} onToggle={toggle} showCost={false} />
+              ))}
+              {aiDone && aiProds.length > 0 && (
                 <div style={{marginTop:10}}>
-                  <button onClick={()=>{setAiDone(false);setAiProds([]);runAI();}} style={{background:'none',border:'1px solid #e2e8f0',borderRadius:8,padding:'6px 14px',cursor:'pointer',fontSize:12,color:'#64748b'}}>↺ Régénérer les suggestions</button>
+                  <button onClick={() => { setAiDone(false); setAiProds([]); runAI(); }}
+                    style={{background:'none',border:'1px solid #e2e8f0',borderRadius:8,
+                      padding:'6px 14px',cursor:'pointer',fontSize:12,color:'#64748b'}}>
+                    ↺ Régénérer
+                  </button>
                 </div>
               )}
             </div>
           )}
-
-        </div>{/* fin scroll */}
+        </div>
 
         {/* Footer */}
-        <div style={{background:'#fff',borderTop:'1.5px solid #e2e8f0',padding:'11px 18px',display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
-          <span style={{fontSize:12,color:'#64748b',flex:1}}>{nSel>0?`${nSel} produit${nSel>1?'s':''} sélectionné${nSel>1?'s':''}`:''}</span>
-          <button onClick={onClose} style={{background:'none',border:'1.5px solid #e2e8f0',borderRadius:9,padding:'8px 18px',cursor:'pointer',fontSize:13,color:'#475569',fontWeight:600}}>Annuler</button>
+        <div style={{background:'#fff',borderTop:'1.5px solid #e2e8f0',padding:'11px 18px',
+          display:'flex',alignItems:'center',gap:10,flexShrink:0,flexWrap:'wrap'}}>
+          <span style={{fontSize:12,color:'#64748b',flex:1,minWidth:150}}>
+            {nSel > 0 ? `${nSel} produit${nSel>1?'s':''} sélectionné${nSel>1?'s':''}` : ''}
+            {selMargin && (
+              <span style={{marginLeft:8,fontWeight:700,color:marginColor(selMargin.pct)}}>
+                · marge {eur(selMargin.margin)} ({selMargin.pct}%)
+                {selMargin.partial && (
+                  <span style={{fontWeight:400,color:'#94a3b8'}}>
+                    {' '}sur {selMargin.n} article{selMargin.n>1?'s':''} au coût connu
+                  </span>
+                )}
+              </span>
+            )}
+          </span>
+          <button onClick={onClose} style={{background:'none',border:'1.5px solid #e2e8f0',
+            borderRadius:9,padding:'8px 18px',cursor:'pointer',fontSize:13,color:'#475569',
+            fontWeight:600}}>Annuler</button>
           <button onClick={addSel} disabled={!nSel}
-            style={{background:nSel?'#0ea5e9':'#cbd5e1',color:'#fff',border:'none',borderRadius:9,padding:'8px 22px',fontWeight:700,cursor:nSel?'pointer':'default',fontSize:13,whiteSpace:'nowrap'}}>
-            Ajouter {nSel?`(${nSel})`:'la sélection'}
+            style={{background:nSel?'#0ea5e9':'#cbd5e1',color:'#fff',border:'none',
+              borderRadius:9,padding:'8px 22px',fontWeight:700,
+              cursor:nSel?'pointer':'default',fontSize:13,whiteSpace:'nowrap'}}>
+            Ajouter {nSel ? `(${nSel})` : 'la sélection'}
           </button>
         </div>
       </div>
     </div>
   );
 }
-
 
 /* ═══════════════════════════════════════════════════
    ITEM SCHEMA DETECTION — détection automatique des champs
@@ -2367,35 +2913,13 @@ function PoolChecklist() {
   const [showBlank,setShowBlank]       = useState(false);
   const [showSched,setShowSched]       = useState(false);
   /* ID unique de la fiche — généré une fois, persisté en localStorage */
-  const [ficheId] = useState(()=>{
-    const stored = localStorage.getItem('pool_fiche_current_id');
-    if(stored) return stored;
-    const id = 'fiche_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
-    localStorage.setItem('pool_fiche_current_id', id);
-    return id;
-  });
+  const [ficheId, setFicheId] = useState(plcCurrentId);
   const [signClient, setSignClient] = useState('');
   const [signTech, setSignTech] = useState('');
   const [saved, setSaved]       = useState(false);
   const [filter4, setFilter4]   = useState('all');
   const [search4, setSearch4]   = useState('');
-  const [lastSaved, setLastSaved] = useState(null);
 
-  /* Auto-save toutes les 30s si données présentes */
-  useEffect(()=>{
-    if(!type&&!prenom&&!nom)return;
-    const t=setInterval(()=>{
-      try{
-        const s=JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
-        const record={type,clientType,prenom,nom,email,telephone,codePostal,adresseChantier,denomination,tvaNum,refDossier,technicien,date,basinShape,basinL,basinW,basinD,basinNotes,itemState,products,obs,statut,signClient,signTech,savedAt:new Date().toISOString(),autoSave:true};
-        const lastIdx=s.findIndex(r=>r.autoSave&&r.type===type&&r.prenom===prenom&&r.nom===nom);
-        if(lastIdx>=0)s[lastIdx]=record;else s.push(record);
-        localStorage.setItem('pool_checklist_history',JSON.stringify(s.slice(-50)));
-        setLastSaved(new Date());
-      }catch{}
-    },30000);
-    return()=>clearInterval(t);
-  },[type,prenom,nom,itemState,products]);
 
   /* Charger la fiche correspondante si URL contient ?fiche_id */
   useEffect(()=>{
@@ -2414,36 +2938,6 @@ function PoolChecklist() {
     } catch(e) { console.warn('Erreur chargement fiche:', e); }
   }, []);
 
-  /* Écouter l'événement "sauvegarder avant devis" */
-  useEffect(()=>{
-    function handleSaveBeforeQuote(e) {
-      try {
-        const hist = JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
-        const record = {
-          ficheId, type, clientType, prenom, nom, email, telephone,
-          rue, numRue, codePostal, ville, pays,
-          adresseChantier, chantierRue, chantierNum, chantierCP, chantierVille, chantierPays,
-          denomination, tvaNum, refDossier, technicien, date,
-          basinShape, basinL, basinW, basinD, basinNotes,
-          itemState, itemData, products, obs, statut, signClient, signTech,
-          savedAt: new Date().toISOString(), preQuoteSave: true,
-        };
-        /* Remplacer l'entrée existante avec ce ficheId ou en ajouter une */
-        const idx = hist.findIndex(r => r.ficheId === ficheId);
-        if(idx >= 0) hist[idx] = record;
-        else hist.push(record);
-        localStorage.setItem('pool_checklist_history', JSON.stringify(hist.slice(-50)));
-        console.log('Fiche sauvegardée avant création devis:', ficheId);
-      } catch(e) { console.warn('Erreur sauvegarde avant devis:', e); }
-    }
-    window.addEventListener('pool_checklist_save_before_quote', handleSaveBeforeQuote);
-    return () => window.removeEventListener('pool_checklist_save_before_quote', handleSaveBeforeQuote);
-  }, [ficheId, type, clientType, prenom, nom, email, telephone,
-      rue, numRue, codePostal, ville, pays,
-      adresseChantier, chantierRue, chantierNum, chantierCP, chantierVille, chantierPays,
-      denomination, tvaNum, refDossier, technicien, date,
-      basinShape, basinL, basinW, basinD, basinNotes,
-      itemState, itemData, products, obs, statut, signClient, signTech]);
 
   const sections   = type ? (SECTIONS_DATA[type]||[]) : [];
   const totalItems = sections.reduce((a,s)=>a+s.items.length,0);
@@ -2466,6 +2960,27 @@ function PoolChecklist() {
     adresseChantier, chantierRue, chantierNum, chantierCP, chantierVille, chantierPays,
     denomination, tvaNum, clientType, refDossier, odooId };
 
+  /* Tout ce qui doit survivre à un rechargement. Les photos en sont
+     volontairement absentes : en dataURL, quelques prises de vue
+     saturent le quota localStorage et feraient échouer l'écriture de
+     la fiche entière. */
+  const ficheRecord = {
+    ficheId, type, clientType, prenom, nom, email, telephone,
+    rue, numRue, codePostal, ville, pays,
+    adresseChantier, chantierRue, chantierNum, chantierCP,
+    chantierVille, chantierPays,
+    denomination, tvaNum, refDossier, technicien, date,
+    basinShape, basinL, basinW, basinD, basinNotes,
+    itemState, itemData, products, obs, statut, signClient, signTech,
+    step,
+  };
+
+  /* Actif dès qu'il y a de quoi retrouver la fiche */
+  const lastSaved = useAutoSave(
+    ficheId, ficheRecord,
+    !!(type || prenom || nom || denomination || refDossier)
+  );
+
   function handleAddProducts(newProds) {
     setProducts(ps=>{const ex=new Set(ps.map(p=>p.ref||p.name));const toAdd=newProds.filter(p=>!ex.has(p.ref||p.name));return[...ps,...toAdd.map(p=>({...p,qty:1}))];});
     setPanel(null);
@@ -2475,14 +2990,19 @@ function PoolChecklist() {
   function setItemSt(si,ii,val){const k=`${si}_${ii}`;setItemState(st=>({...st,[k]:val===null?undefined:val}));}
 
   function saveToHistory(){
-    try{
-      const s=JSON.parse(localStorage.getItem('pool_checklist_history')||'[]');
-      s.push({ficheId,type,clientType,prenom,nom,email,telephone,codePostal,adresseChantier,denomination,tvaNum,refDossier,technicien,date,rue,numRue,ville,pays,chantierRue,chantierNum,chantierCP,chantierVille,chantierPays,basinShape,basinL,basinW,basinD,basinNotes,itemState,itemData,products,obs,statut,signClient,signTech,savedAt:new Date().toISOString()});
-      localStorage.setItem('pool_checklist_history',JSON.stringify(s.slice(-50)));
-      setSaved(true);setTimeout(()=>setSaved(false),2500);
-    }catch(e){alert('Erreur: '+e.message);}
+    const rec = Object.assign({}, ficheRecord,
+      {savedAt: new Date().toISOString()});
+    if (plcUpsert(rec)) {
+      setSaved(true);
+      setTimeout(()=>setSaved(false), 2500);
+    } else {
+      alert("Enregistrement impossible : espace de stockage saturé.");
+    }
   }
   function loadRecord(r){
+    /* Sans ça, la fiche reprise serait réenregistrée sous un autre id
+       à la frappe suivante : deux exemplaires du même chantier. */
+    if (r.ficheId) { setFicheId(r.ficheId); plcSetCurrentId(r.ficheId); }
     setType(r.type||'entretien');
     setStep(r.type ? 4 : 1); /* Toujours aller à l'étape 4 si type connu */
     setClientType(r.clientType||'particulier');setPrenom(r.prenom||'');setNom(r.nom||'');setEmail(r.email||'');
@@ -2493,7 +3013,9 @@ function PoolChecklist() {
     setItemState(r.itemState||{});setItemData(r.itemData||{});setProducts(r.products||[]);setObs(r.obs||'');
     setStatut(r.statut||'en_cours');setSignClient(r.signClient||'');setSignTech(r.signTech||'');
   }
-  function reset(){if(!confirm('Réinitialiser toute la fiche ?'))return;setStep(1);setType('');setPrenom('');setNom('');setEmail('');setTelephone('');setCodePostal('');setRue('');setNumRue('');setCodePostal('');setVille('');setPays('BE');setAdresseChantier('');setChantierRue('');setChantierNum('');setChantierCP('');setChantierVille('');setChantierPays('BE');setDenomination('');setTvaNum('');setRefDossier('');setTechnicien('');setDate(new Date().toISOString().split('T')[0]);setBasinShape('');setBasinL('');setBasinW('');setBasinD('');setBasinNotes('');setItemState({});setProducts([]);setObs('');setStatut('en_cours');setSignClient('');setSignTech('');setSaved(false);}
+  function reset(){if(!confirm('Réinitialiser toute la fiche ?'))return;
+    const nid = plcNewId(); setFicheId(nid); plcSetCurrentId(nid);
+    setStep(1);setType('');setPrenom('');setNom('');setEmail('');setTelephone('');setCodePostal('');setRue('');setNumRue('');setCodePostal('');setVille('');setPays('BE');setAdresseChantier('');setChantierRue('');setChantierNum('');setChantierCP('');setChantierVille('');setChantierPays('BE');setDenomination('');setTvaNum('');setRefDossier('');setTechnicien('');setDate(new Date().toISOString().split('T')[0]);setBasinShape('');setBasinL('');setBasinW('');setBasinD('');setBasinNotes('');setItemState({});setProducts([]);setObs('');setStatut('en_cours');setSignClient('');setSignTech('');setSaved(false);}
 
   const canNext = [
     true,
@@ -2969,7 +3491,7 @@ function PoolChecklist() {
       {showSched&&<ScheduleModal clientInfo={clientInfo} type={type} ficheId={ficheId} obs={obs} onClose={()=>setShowSched(false)} />}
       {panel&&<ProductPanel item={panel.item} sectionLabel={panel.sectionLabel} onAdd={handleAddProducts} onClose={()=>setPanel(null)} />}
       {showQuote&&<QuoteModal products={products} clientInfo={clientInfo} ficheId={ficheId} onClose={()=>setShowQuote(false)} onCreated={()=>{}} />}
-      {showHistory&&<HistoryModal onClose={()=>setShowHistory(false)} onLoad={loadRecord} />}
+      {showHistory&&<HistoryModal onClose={()=>setShowHistory(false)} onLoad={loadRecord} currentFicheId={ficheId} />}
     </div>
   );
 }
