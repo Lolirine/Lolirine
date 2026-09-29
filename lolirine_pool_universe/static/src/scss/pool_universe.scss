@@ -3,6 +3,7 @@
    Aligné sur le système glass de lolirine_pool_motion
    (panneaux blancs 62 %, flou 16 px, bleu --pool-primary-dark).
    Un seul élément marquant : le défilé continu.
+   ⚠ Fichier compilé par libsass : pas de :has() dans ce fichier.
 ══════════════════════════════════════════════ */
 
 $pu-deep:   #0d2d45;
@@ -227,4 +228,80 @@ html[data-website-id="6"] {
         color: #fff;
     }
 
-    /* En-tête de la grille boutique : titre « Tous les produits » + onglets
+    /* En-tête de la grille boutique : titre « Tous les produits » + onglets de catégories */
+    #o_wsale_products_header {
+        margin-bottom: 1.25rem;
+        padding: 1.25rem 1.5rem 1rem !important;
+        background: rgba(255, 255, 255, .62);
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+                backdrop-filter: blur(16px) saturate(140%);
+        border: 1px solid rgba(255, 255, 255, .55);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(13, 45, 69, .12);
+
+        .o_wsale_shop_title {
+            margin-bottom: .25rem;
+            color: $pu-deep;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        /* Zone vide éditable de l'en-tête : pas d'espace en trop hors édition */
+        .oe_structure.oe_empty:empty { display: none; }
+    }
+
+    /* Mode édition : la zone vide reste visible pour y déposer des blocs */
+    body.editor_enable #o_wsale_products_header .oe_structure.oe_empty { display: block; }
+
+    /* Navigateurs sans flou : panneaux presque opaques, toujours lisibles */
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+        .s_pool_universe,
+        #o_wsale_products_header { background: rgba(255, 255, 255, .94); }
+        .s_pu_zones .s_pool_universe:nth-of-type(even) { background: rgba(236, 246, 252, .96); }
+        .s_pu_zonelink { background: rgba(255, 255, 255, .92); }
+    }
+}
+
+/* ── Mobile ── */
+@media (max-width: 767.98px) {
+    .s_pu_card { width: 10.5rem; }
+    .s_pu_group { gap: .75rem; padding-right: .75rem; }
+
+    html[data-website-id="6"] {
+        .s_pool_universe,
+        .s_pu_zones .s_pool_universe {
+            margin: 0 .5rem 1rem;
+            padding: 1.75rem 0 2rem;
+            border-radius: 16px;
+        }
+        #o_wsale_products_header {
+            padding: 1rem 1rem .75rem !important;
+            border-radius: 16px;
+        }
+    }
+
+    /* Une seule ligne d'onglets, à faire glisser au doigt */
+    .s_pu_zonenav {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -.75rem;
+        padding: .25rem .75rem 1rem;
+
+        &::-webkit-scrollbar { display: none; }
+    }
+}
+
+/* ── Mouvement réduit : plus d'animation, défilement manuel ── */
+@media (prefers-reduced-motion: reduce) {
+    .s_pu_track { animation: none; }
+    .s_pu_viewport {
+        overflow-x: auto;
+        -webkit-mask-image: none;
+                mask-image: none;
+        scroll-snap-type: x mandatory;
+    }
+    .s_pu_group[aria-hidden="true"] { display: none; }
+    .s_pu_item { scroll-snap-align: start; }
+    .s_pu_group { padding-left: 1rem; }
+}
