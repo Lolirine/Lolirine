@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- ══ Carte produit d'un défilé ══
+         Variables : item, pu_dup (copie masquée pour la boucle continue) -->
+    <template id="pool_universe_card" name="Lolirine — Carte de défilé">
+        <li class="s_pu_item">
+            <a class="s_pu_card"
+               t-att-href="item['url']"
+               t-att-tabindex="'-1' if pu_dup else None">
+                <span class="s_pu_img">
+                    <img t-att-src="item['image']" t-att-alt="item['name']"
+                         loading="lazy" width="512" height="512"/>
+                </span>
+                <span class="s_pu_body">
+                    <span t-if="item.get('tag')" class="s_pu_tag" t-out="item['tag']"/>
+                    <span t-elif="item['brand']" class="s_pu_brand" t-out="item['brand']"/>
+                    <span class="s_pu_name" t-out="item['name']"/>
+                    <span class="s_pu_price">
+                        <t t-if="item['from_price']">Dès </t>
+                        <t t-out="item['price']"
+                           t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                    </span>
+                </span>
+            </a>
+        </li>
+    </template>
+
     <!-- ══ Bloc réutilisable : un défilé ══
          Variables : pu_data (dict de zone), pu_reverse (sens inversé) -->
     <template id="pool_universe_marquee" name="Lolirine — Défilé univers (bloc)">
@@ -25,25 +50,7 @@
                     <t t-foreach="[False, True]" t-as="pu_dup">
                         <ul class="s_pu_group" t-att-aria-hidden="'true' if pu_dup else None">
                             <t t-foreach="pu_data['items']" t-as="item">
-                                <li class="s_pu_item">
-                                    <a class="s_pu_card"
-                                       t-att-href="item['url']"
-                                       t-att-tabindex="'-1' if pu_dup else None">
-                                        <span class="s_pu_img">
-                                            <img t-att-src="item['image']" t-att-alt="item['name']"
-                                                 loading="lazy" width="512" height="512"/>
-                                        </span>
-                                        <span class="s_pu_body">
-                                            <span t-if="item['brand']" class="s_pu_brand" t-out="item['brand']"/>
-                                            <span class="s_pu_name" t-out="item['name']"/>
-                                            <span class="s_pu_price">
-                                                <t t-if="item['from_price']">Dès </t>
-                                                <t t-out="item['price']"
-                                                   t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
-                                            </span>
-                                        </span>
-                                    </a>
-                                </li>
+                                <t t-call="lolirine_pool_universe.pool_universe_card"/>
                             </t>
                         </ul>
                     </t>
