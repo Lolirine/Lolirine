@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="product_universe_marquee"
+              inherit_id="website_sale.product"
+              name="Lolirine — Défilé univers produit">
+        <xpath expr="//section[@id='product_detail']" position="after">
+            <t t-set="pu_data" t-value="product._lolirine_universe_data(website)"/>
+            <section t-if="pu_data"
+                     class="s_pool_universe o_not_editable"
+                     t-att-aria-label="pu_data['title']"
+                     t-attf-style="--pu-duration: #{pu_data['duration']}s;">
+                <div class="container s_pu_head">
+                    <div class="s_pu_intro">
+                        <h2 class="s_pu_title" t-out="pu_data['title']"/>
+                        <p t-if="pu_data['subtitle']" class="s_pu_subtitle" t-out="pu_data['subtitle']"/>
+                    </div>
+                    <nav class="s_pu_chips" aria-label="Gammes liées">
+                        <t t-foreach="pu_data['chips']" t-as="chip">
+                            <a class="s_pu_chip" t-att-href="chip['url']" t-out="chip['name']"/>
+                        </t>
+                    </nav>
+                </div>
+
+                <div class="s_pu_viewport">
+                    <div class="s_pu_track">
+                        <t t-foreach="[False, True]" t-as="pu_dup">
+                            <ul class="s_pu_group" t-att-aria-hidden="'true' if pu_dup else None">
+                                <t t-foreach="pu_data['items']" t-as="item">
+                                    <li class="s_pu_item">
+                                        <a class="s_pu_card"
+                                           t-att-href="item['url']"
+                                           t-att-tabindex="'-1' if pu_dup else None">
+                                            <span class="s_pu_img">
+                                                <img t-att-src="item['image']" t-att-alt="item['name']"
+                                                     loading="lazy" width="512" height="512"/>
+                                            </span>
+                                            <span class="s_pu_body">
+                                                <span t-if="item['brand']" class="s_pu_brand" t-out="item['brand']"/>
+                                                <span class="s_pu_name" t-out="item['name']"/>
+                                                <span class="s_pu_price">
+                                                    <t t-if="item['from_price']">Dès </t>
+                                                    <t t-out="item['price']"
+                                                       t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                                                </span>
+                                            </span>
+                                        </a>
+                                    </li>
+                                </t>
+                            </ul>
+                        </t>
+                    </div>
+                </div>
+            </section>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,176 @@
+/* ══════════════════════════════════════════════
+   Défilé « univers » — fiche produit Pool Store
+   Un seul élément marquant : le défilé continu.
+   Le reste reste calme : titre en casse normale,
+   cartes blanches sobres, filet d'eau en fond.
+══════════════════════════════════════════════ */
+
+$pu-deep:   #0d2d45;
+$pu-blue:   #0580c8;
+$pu-water:  #e6f3fa;
+$pu-line:   #cfe4f1;
+$pu-ink:    #1a2e40;
+$pu-muted:  #5b7489;
+
+.s_pool_universe {
+    position: relative;
+    padding: 2.75rem 0 3rem;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, $pu-water 38%, $pu-water 100%);
+    border-top: 1px solid $pu-line;
+    overflow: hidden;
+}
+
+/* ── En-tête : titre à gauche, gammes cliquables à droite ── */
+.s_pu_head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-bottom: 1.5rem;
+}
+.s_pu_intro { max-width: 36rem; }
+.s_pu_title {
+    margin: 0;
+    color: $pu-deep;
+    font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+}
+.s_pu_subtitle {
+    margin: .4rem 0 0;
+    color: $pu-muted;
+    font-size: .95rem;
+}
+.s_pu_chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+}
+.s_pu_chip {
+    padding: .3rem .8rem;
+    border: 1px solid $pu-line;
+    border-radius: 999px;
+    background: #fff;
+    color: $pu-ink;
+    font-size: .82rem;
+    text-decoration: none;
+    transition: border-color .15s ease, color .15s ease;
+
+    &:hover, &:focus-visible {
+        border-color: $pu-blue;
+        color: $pu-blue;
+        text-decoration: none;
+    }
+}
+
+/* ── Défilé continu ── */
+.s_pu_viewport {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+}
+.s_pu_track {
+    display: flex;
+    width: max-content;
+    animation: s_pu_scroll var(--pu-duration, 80s) linear infinite;
+}
+/* Pause dès que le visiteur survole ou navigue au clavier dans le défilé */
+.s_pu_viewport:hover .s_pu_track,
+.s_pu_viewport:focus-within .s_pu_track {
+    animation-play-state: paused;
+}
+/* Deux groupes identiques ; l'espacement est DANS chaque groupe
+   pour que -50 % tombe pile sur le début du second */
+.s_pu_group {
+    display: flex;
+    gap: 1rem;
+    margin: 0;
+    padding: .25rem 1rem .5rem 0;
+    list-style: none;
+}
+@keyframes s_pu_scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+/* ── Carte produit ── */
+.s_pu_item { flex: 0 0 auto; }
+.s_pu_card {
+    display: flex;
+    flex-direction: column;
+    width: 13rem;
+    height: 100%;
+    background: #fff;
+    border: 1px solid $pu-line;
+    border-radius: 6px;
+    color: $pu-ink;
+    text-decoration: none;
+    transition: border-color .15s ease;
+
+    &:hover { border-color: $pu-blue; text-decoration: none; color: $pu-ink; }
+    &:focus-visible { outline: 3px solid $pu-blue; outline-offset: 2px; }
+}
+.s_pu_img {
+    display: block;
+    aspect-ratio: 1 / 1;
+    padding: .9rem;
+    border-bottom: 1px solid $pu-line;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+.s_pu_body {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    flex: 1;
+    padding: .7rem .8rem .8rem;
+}
+.s_pu_brand {
+    color: $pu-muted;
+    font-size: .75rem;
+}
+.s_pu_name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: .88rem;
+    font-weight: 600;
+    line-height: 1.3;
+    min-height: 2.6em;
+}
+.s_pu_price {
+    margin-top: auto;
+    padding-top: .3rem;
+    color: $pu-blue;
+    font-size: .95rem;
+    font-weight: 700;
+}
+
+/* ── Mobile ── */
+@media (max-width: 767.98px) {
+    .s_pool_universe { padding: 2rem 0 2.25rem; }
+    .s_pu_card { width: 10.5rem; }
+    .s_pu_group { gap: .75rem; padding-right: .75rem; }
+}
+
+/* ── Mouvement réduit : plus d'animation, défilement manuel ── */
+@media (prefers-reduced-motion: reduce) {
+    .s_pu_track { animation: none; }
+    .s_pu_viewport {
+        overflow-x: auto;
+        -webkit-mask-image: none;
+                mask-image: none;
+        scroll-snap-type: x mandatory;
+    }
+    .s_pu_group[aria-hidden="true"] { display: none; }
+    .s_pu_item { scroll-snap-align: start; }
+    .s_pu_group { padding-left: 1rem; }
+}
