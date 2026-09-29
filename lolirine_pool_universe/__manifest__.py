@@ -1,8 +1,8 @@
 {
-    'name': "Lolirine — Univers produits (défilé fiche produit)",
-    'version': '19.0.1.0.0',
+    'name': "Lolirine — Univers produits (défilés fiche produit et boutique)",
+    'version': '19.0.1.1.0',
     'category': 'Website/eCommerce',
-    'summary': "Défilé continu de produits complémentaires selon l'univers de la fiche produit",
+    'summary': "Défilés continus de produits par univers : fiche produit et page boutique",
     'author': 'Lolirine SRL',
     'depends': ['website_sale'],
     'data': [
