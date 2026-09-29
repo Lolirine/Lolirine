@@ -1,9 +1,8 @@
 /* ══════════════════════════════════════════════
-   Défilés « univers » — fiche produit + boutique
+   Défilés « univers » — fiche produit, boutique, accueil
    Aligné sur le système glass de lolirine_pool_motion
    (panneaux blancs 62 %, flou 16 px, bleu --pool-primary-dark).
-   Un seul élément marquant : le défilé continu.
-   ⚠ Fichier compilé par libsass : pas de :has() dans ce fichier.
+   ⚠ Fichier compilé par libsass : pas de :has() ni de min()/max() à unités mixtes.
 ══════════════════════════════════════════════ */
 
 $pu-deep:   #0d2d45;
@@ -14,14 +13,16 @@ $pu-ink:    #1a2e40;
 $pu-muted:  #4f6a80;
 
 /* ── Structure (commune, sans décor) ── */
-.s_pool_universe {
+.s_pool_universe,
+.s_pu_showcase,
+.s_pu_tiles_wrap {
     position: relative;
     padding: 2.75rem 0 3rem;
     overflow: hidden;
     scroll-margin-top: 6rem;
 }
 
-/* ── En-tête : titre à gauche, gammes cliquables à droite ── */
+/* ── En-tête : titre à gauche, liens à droite ── */
 .s_pu_head {
     display: flex;
     flex-wrap: wrap;
@@ -66,6 +67,13 @@ $pu-muted:  #4f6a80;
         text-decoration: none;
     }
 }
+.s_pu_chip_shop,
+.s_pu_chip_shop:hover,
+.s_pu_chip_shop:focus-visible {
+    border-color: $pu-deep;
+    background: $pu-deep;
+    color: #fff;
+}
 
 /* ── Défilé continu ── */
 .s_pu_viewport {
@@ -73,6 +81,7 @@ $pu-muted:  #4f6a80;
     -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
             mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
 }
+.s_pu_row + .s_pu_row { margin-top: .75rem; }
 .s_pu_track {
     display: flex;
     width: max-content;
@@ -139,6 +148,12 @@ $pu-muted:  #4f6a80;
     color: $pu-muted;
     font-size: .75rem;
 }
+/* Sur la vitrine d'accueil : l'univers du produit, pour situer le client */
+.s_pu_tag {
+    color: $pu-blue;
+    font-size: .75rem;
+    font-weight: 600;
+}
 .s_pu_name {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -190,13 +205,66 @@ $pu-muted:  #4f6a80;
     color: #fff;
 }
 
+/* ── Accueil : tuiles « Explorez par univers » ── */
+.s_pu_home_bottom { padding: .5rem 0 1.5rem; }
+.s_pu_tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.s_pu_tile {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    height: 100%;
+    padding: 1rem;
+    border: 1px solid $pu-line;
+    border-radius: 16px;
+    background: #fff;
+    color: $pu-ink;
+    text-decoration: none;
+    transition: border-color .15s ease;
+
+    &:hover { border-color: $pu-blue; color: $pu-ink; text-decoration: none; }
+    &:focus-visible { outline: 3px solid $pu-blue; outline-offset: 2px; }
+}
+.s_pu_tile_thumbs {
+    display: flex;
+    gap: .4rem;
+    margin-bottom: .45rem;
+
+    img {
+        width: calc((100% - .8rem) / 3);
+        aspect-ratio: 1 / 1;
+        padding: .3rem;
+        object-fit: contain;
+        background: #fff;
+        border: 1px solid $pu-line;
+        border-radius: 10px;
+    }
+}
+.s_pu_tile_name {
+    color: $pu-deep;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+.s_pu_tile_count {
+    color: $pu-muted;
+    font-size: .85rem;
+}
+
 /* ══════════════════════════════════════════════
    GLASS — Pool Store uniquement
 ══════════════════════════════════════════════ */
 html[data-website-id="6"] {
 
-    /* Panneau de verre : fiche produit et zones boutique */
-    .s_pool_universe {
+    /* Panneau de verre : fiche produit, zones boutique, blocs d'accueil */
+    .s_pool_universe,
+    .s_pu_showcase,
+    .s_pu_tiles_wrap {
         margin: 1.5rem 1rem;
         padding: 2.25rem 0 2.5rem;
         background: rgba(255, 255, 255, .62);
@@ -206,11 +274,23 @@ html[data-website-id="6"] {
         border-radius: 20px;
         box-shadow: 0 8px 32px rgba(13, 45, 69, .12);
     }
+    .s_pu_showcase { margin-top: 1rem; }
 
     /* Boutique : panneaux rapprochés, une zone sur deux teintée d'eau */
     .s_pu_zones {
         .s_pool_universe { margin: 0 1rem 1.25rem; }
         .s_pool_universe:nth-of-type(even) { background: rgba(230, 243, 250, .6); }
+    }
+
+    /* Tuiles d'accueil en verre plus clair */
+    .s_pu_tile {
+        background: rgba(255, 255, 255, .72);
+        -webkit-backdrop-filter: blur(12px);
+                backdrop-filter: blur(12px);
+        border-color: rgba(255, 255, 255, .7);
+        box-shadow: 0 2px 12px rgba(13, 45, 69, .08);
+
+        &:hover { border-color: $pu-blue; }
     }
 
     /* Onglets en pastilles de verre */
@@ -255,9 +335,12 @@ html[data-website-id="6"] {
     /* Navigateurs sans flou : panneaux presque opaques, toujours lisibles */
     @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
         .s_pool_universe,
+        .s_pu_showcase,
+        .s_pu_tiles_wrap,
         #o_wsale_products_header { background: rgba(255, 255, 255, .94); }
         .s_pu_zones .s_pool_universe:nth-of-type(even) { background: rgba(236, 246, 252, .96); }
-        .s_pu_zonelink { background: rgba(255, 255, 255, .92); }
+        .s_pu_zonelink,
+        .s_pu_tile { background: rgba(255, 255, 255, .92); }
     }
 }
 
@@ -265,14 +348,20 @@ html[data-website-id="6"] {
 @media (max-width: 767.98px) {
     .s_pu_card { width: 10.5rem; }
     .s_pu_group { gap: .75rem; padding-right: .75rem; }
+    .s_pu_tiles { grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+    .s_pu_tile { padding: .75rem; }
+    .s_pu_tile_name { font-size: .95rem; }
 
     html[data-website-id="6"] {
         .s_pool_universe,
+        .s_pu_showcase,
+        .s_pu_tiles_wrap,
         .s_pu_zones .s_pool_universe {
             margin: 0 .5rem 1rem;
             padding: 1.75rem 0 2rem;
             border-radius: 16px;
         }
+        .s_pu_showcase { margin-top: .75rem; }
         #o_wsale_products_header {
             padding: 1rem 1rem .75rem !important;
             border-radius: 16px;
