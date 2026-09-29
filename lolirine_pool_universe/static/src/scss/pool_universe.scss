@@ -1,8 +1,8 @@
 /* ══════════════════════════════════════════════
-   Défilé « univers » — fiche produit Pool Store
+   Défilés « univers » — fiche produit + boutique
    Un seul élément marquant : le défilé continu.
-   Le reste reste calme : titre en casse normale,
-   cartes blanches sobres, filet d'eau en fond.
+   Sur la boutique, les zones alternent de sens
+   et de fond, comme des lignes d'eau.
 ══════════════════════════════════════════════ */
 
 $pu-deep:   #0d2d45;
@@ -15,10 +15,10 @@ $pu-muted:  #5b7489;
 .s_pool_universe {
     position: relative;
     padding: 2.75rem 0 3rem;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, $pu-water 38%, $pu-water 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, $pu-water 38%, $pu-water 100%);
     border-top: 1px solid $pu-line;
     overflow: hidden;
+    scroll-margin-top: 6rem;
 }
 
 /* ── En-tête : titre à gauche, gammes cliquables à droite ── */
@@ -77,7 +77,7 @@ $pu-muted:  #5b7489;
     width: max-content;
     animation: s_pu_scroll var(--pu-duration, 80s) linear infinite;
 }
-/* Pause dès que le visiteur survole ou navigue au clavier dans le défilé */
+.s_pu_reverse .s_pu_track { animation-direction: reverse; }
 .s_pu_viewport:hover .s_pu_track,
 .s_pu_viewport:focus-within .s_pu_track {
     animation-play-state: paused;
@@ -152,6 +152,45 @@ $pu-muted:  #5b7489;
     color: $pu-blue;
     font-size: .95rem;
     font-weight: 700;
+}
+
+/* ══ Page boutique : enchaînement des zones ══ */
+.s_pu_zones {
+    padding-top: 1.5rem;
+
+    .s_pool_universe { padding: 2.25rem 0 2.5rem; }
+    /* Une zone sur deux sur fond blanc : on lit chaque univers comme une ligne d'eau */
+    .s_pool_universe:nth-of-type(odd) { background: #fff; }
+    .s_pool_universe:last-child { border-bottom: 1px solid $pu-line; }
+}
+.s_pu_zonenav {
+    display: flex;
+    gap: .5rem;
+    padding-bottom: 1.25rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+.s_pu_zonelink {
+    flex: 0 0 auto;
+    padding: .45rem 1rem;
+    border-radius: 999px;
+    background: $pu-water;
+    color: $pu-deep;
+    font-size: .88rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color .15s ease, color .15s ease;
+
+    &:hover, &:focus-visible {
+        background: $pu-blue;
+        color: #fff;
+        text-decoration: none;
+    }
+}
+.s_pu_zonelink_all {
+    background: $pu-deep;
+    color: #fff;
 }
 
 /* ── Mobile ── */
