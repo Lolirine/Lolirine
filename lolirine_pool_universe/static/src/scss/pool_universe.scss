@@ -1,8 +1,8 @@
 /* ══════════════════════════════════════════════
    Défilés « univers » — fiche produit + boutique
+   Aligné sur le système glass de lolirine_pool_motion
+   (panneaux blancs 62 %, flou 16 px, bleu --pool-primary-dark).
    Un seul élément marquant : le défilé continu.
-   Sur la boutique, les zones alternent de sens
-   et de fond, comme des lignes d'eau.
 ══════════════════════════════════════════════ */
 
 $pu-deep:   #0d2d45;
@@ -10,13 +10,12 @@ $pu-blue:   #0580c8;
 $pu-water:  #e6f3fa;
 $pu-line:   #cfe4f1;
 $pu-ink:    #1a2e40;
-$pu-muted:  #5b7489;
+$pu-muted:  #4f6a80;
 
+/* ── Structure (commune, sans décor) ── */
 .s_pool_universe {
     position: relative;
     padding: 2.75rem 0 3rem;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, $pu-water 38%, $pu-water 100%);
-    border-top: 1px solid $pu-line;
     overflow: hidden;
     scroll-margin-top: 6rem;
 }
@@ -51,16 +50,17 @@ $pu-muted:  #5b7489;
 }
 .s_pu_chip {
     padding: .3rem .8rem;
-    border: 1px solid $pu-line;
+    border: 1px solid rgba(255, 255, 255, .7);
     border-radius: 999px;
-    background: #fff;
+    background: rgba(255, 255, 255, .7);
     color: $pu-ink;
     font-size: .82rem;
     text-decoration: none;
-    transition: border-color .15s ease, color .15s ease;
+    transition: border-color .15s ease, color .15s ease, background-color .15s ease;
 
     &:hover, &:focus-visible {
         border-color: $pu-blue;
+        background: #fff;
         color: $pu-blue;
         text-decoration: none;
     }
@@ -96,7 +96,7 @@ $pu-muted:  #5b7489;
     to   { transform: translateX(-50%); }
 }
 
-/* ── Carte produit ── */
+/* ── Carte produit : reste opaque, les photos sont sur fond blanc ── */
 .s_pu_item { flex: 0 0 auto; }
 .s_pu_card {
     display: flex;
@@ -104,10 +104,12 @@ $pu-muted:  #5b7489;
     width: 13rem;
     height: 100%;
     background: #fff;
-    border: 1px solid $pu-line;
-    border-radius: 6px;
+    border: 1px solid rgba(207, 228, 241, .9);
+    border-radius: 12px;
+    overflow: hidden;
     color: $pu-ink;
     text-decoration: none;
+    box-shadow: 0 2px 10px rgba(13, 45, 69, .06);
     transition: border-color .15s ease;
 
     &:hover { border-color: $pu-blue; text-decoration: none; color: $pu-ink; }
@@ -149,55 +151,115 @@ $pu-muted:  #5b7489;
 .s_pu_price {
     margin-top: auto;
     padding-top: .3rem;
-    color: $pu-blue;
+    color: var(--pool-primary-dark, #0284c7);
     font-size: .95rem;
     font-weight: 700;
 }
 
-/* ══ Page boutique : enchaînement des zones ══ */
-.s_pu_zones {
-    padding-top: 1.5rem;
-
-    .s_pool_universe { padding: 2.25rem 0 2.5rem; }
-    /* Une zone sur deux sur fond blanc : on lit chaque univers comme une ligne d'eau */
-    .s_pool_universe:nth-of-type(odd) { background: #fff; }
-    .s_pool_universe:last-child { border-bottom: 1px solid $pu-line; }
-}
+/* ── Onglets d'univers (page boutique) ── */
+.s_pu_zones { padding-top: 1.5rem; }
 .s_pu_zonenav {
     display: flex;
+    flex-wrap: wrap;
     gap: .5rem;
     padding-bottom: 1.25rem;
-    overflow-x: auto;
-    scrollbar-width: thin;
 }
 .s_pu_zonelink {
     flex: 0 0 auto;
     padding: .45rem 1rem;
     border-radius: 999px;
-    background: $pu-water;
     color: $pu-deep;
     font-size: .88rem;
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
-    transition: background-color .15s ease, color .15s ease;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
 
     &:hover, &:focus-visible {
         background: $pu-blue;
+        border-color: $pu-blue;
         color: #fff;
         text-decoration: none;
     }
 }
-.s_pu_zonelink_all {
+.s_pu_zonelink_all,
+.s_pu_zonelink_all:hover {
     background: $pu-deep;
+    border-color: $pu-deep;
     color: #fff;
+}
+
+/* ══════════════════════════════════════════════
+   GLASS — Pool Store uniquement
+══════════════════════════════════════════════ */
+html[data-website-id="6"] {
+
+    /* Panneau de verre : fiche produit et zones boutique */
+    .s_pool_universe {
+        margin: 1.5rem 1rem;
+        padding: 2.25rem 0 2.5rem;
+        background: rgba(255, 255, 255, .62);
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+                backdrop-filter: blur(16px) saturate(140%);
+        border: 1px solid rgba(255, 255, 255, .55);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(13, 45, 69, .12);
+    }
+
+    /* Boutique : panneaux rapprochés, une zone sur deux teintée d'eau */
+    .s_pu_zones {
+        .s_pool_universe { margin: 0 1rem 1.25rem; }
+        .s_pool_universe:nth-of-type(even) { background: rgba(230, 243, 250, .6); }
+    }
+
+    /* Onglets en pastilles de verre */
+    .s_pu_zonelink {
+        background: rgba(255, 255, 255, .6);
+        -webkit-backdrop-filter: blur(12px);
+                backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, .65);
+        box-shadow: 0 2px 10px rgba(13, 45, 69, .08);
+    }
+    .s_pu_zonelink_all,
+    .s_pu_zonelink_all:hover {
+        background: $pu-deep;
+        border-color: $pu-deep;
+        color: #fff;
+    }
+
+    /* Navigateurs sans flou : panneau presque opaque, toujours lisible */
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+        .s_pool_universe { background: rgba(255, 255, 255, .94); }
+        .s_pu_zones .s_pool_universe:nth-of-type(even) { background: rgba(236, 246, 252, .96); }
+        .s_pu_zonelink { background: rgba(255, 255, 255, .92); }
+    }
 }
 
 /* ── Mobile ── */
 @media (max-width: 767.98px) {
-    .s_pool_universe { padding: 2rem 0 2.25rem; }
     .s_pu_card { width: 10.5rem; }
     .s_pu_group { gap: .75rem; padding-right: .75rem; }
+
+    html[data-website-id="6"] {
+        .s_pool_universe,
+        .s_pu_zones .s_pool_universe {
+            margin: 0 .5rem 1rem;
+            padding: 1.75rem 0 2rem;
+            border-radius: 16px;
+        }
+    }
+
+    /* Une seule ligne d'onglets, à faire glisser au doigt */
+    .s_pu_zonenav {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -.75rem;
+        padding: .25rem .75rem 1rem;
+
+        &::-webkit-scrollbar { display: none; }
+    }
 }
 
 /* ── Mouvement réduit : plus d'animation, défilement manuel ── */
