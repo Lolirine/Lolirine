@@ -13,6 +13,7 @@
                     <group>
                         <group string="Page d'accueil">
                             <field name="pu_home_enabled"/>
+                            <field name="pu_home_auto" invisible="not pu_home_enabled"/>
                             <field name="pu_showcase_count" invisible="not pu_home_enabled"/>
                             <field name="pu_home_tiles" invisible="not pu_home_enabled"/>
                             <field name="pu_home_lowprice" invisible="not pu_home_enabled"/>
