@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ══ Blocs déplaçables (constructeur de site → Blocs → Personnalisé) ══
+    <!-- ══ Blocs déplaçables (constructeur de site → Blocs → Vitrines produits) ══
          Le contenu est chargé sur le site publié ; en mode édition, seul le repère s'affiche,
          pour que rien de généré ne soit enregistré dans la page. -->
 
@@ -41,22 +41,31 @@
     <template id="pu_home_snippets_register"
               inherit_id="website.snippets"
               name="Lolirine — Blocs univers (constructeur)">
+
+        <!-- Groupe visible dans le panneau Blocs (Odoo 19 n'affiche que les groupes déclarés) -->
+        <xpath expr="//snippets[@id='snippet_groups']" position="inside">
+            <t snippet-group="lolirine_vitrines"
+               t-snippet="website.s_snippet_group"
+               string="Vitrines produits"
+               t-thumbnail="/lolirine_pool_universe/static/src/img/snippets/pu_showcase.svg"/>
+        </xpath>
+
         <xpath expr="//snippets[@id='snippet_structure']" position="inside">
             <t t-snippet="lolirine_pool_universe.s_pu_home_showcase"
                string="Vitrine produits"
-               group="custom"
+               group="lolirine_vitrines"
                t-thumbnail="/lolirine_pool_universe/static/src/img/snippets/pu_showcase.svg">
                 <keywords>vitrine produits univers défilé accueil</keywords>
             </t>
             <t t-snippet="lolirine_pool_universe.s_pu_home_tiles"
                string="Tuiles univers"
-               group="custom"
+               group="lolirine_vitrines"
                t-thumbnail="/lolirine_pool_universe/static/src/img/snippets/pu_tiles.svg">
                 <keywords>tuiles univers catégories explorer accueil</keywords>
             </t>
             <t t-snippet="lolirine_pool_universe.s_pu_home_lowprice"
                string="Défilé Petits prix"
-               group="custom"
+               group="lolirine_vitrines"
                t-thumbnail="/lolirine_pool_universe/static/src/img/snippets/pu_lowprice.svg">
                 <keywords>petits prix promo accessoires défilé</keywords>
             </t>
