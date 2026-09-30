@@ -8,6 +8,11 @@ class Website(models.Model):
     _inherit = 'website'
 
     pu_home_enabled = fields.Boolean(string="Vitrines sur la page d'accueil", default=True)
+    pu_home_auto = fields.Boolean(
+        string="Placement automatique", default=True,
+        help="Coché : vitrine en haut, tuiles et petits prix en bas de l'accueil. "
+             "Décoché : seuls les blocs déposés avec le constructeur de site s'affichent, "
+             "à l'endroit où tu les as placés.")
     pu_showcase_count = fields.Integer(string="Produits dans la vitrine du haut", default=36)
     pu_home_tiles = fields.Boolean(string="Tuiles « Explorez par univers »", default=True)
     pu_home_lowprice = fields.Boolean(string="Défilé « Petits prix »", default=True)
