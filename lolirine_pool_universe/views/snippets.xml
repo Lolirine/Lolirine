@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══ Blocs déplaçables (constructeur de site → Blocs → Personnalisé) ══
+         Le contenu est chargé sur le site publié ; en mode édition, seul le repère s'affiche,
+         pour que rien de généré ne soit enregistré dans la page. -->
+
+    <template id="s_pu_home_showcase" name="Vitrine produits">
+        <section class="s_pu_home_slot" data-snippet="s_pu_home_showcase"
+                 data-name="Vitrine produits" data-pu-block="showcase">
+            <div class="s_pu_slot_placeholder o_not_editable">
+                <strong>Vitrine « Tout pour votre piscine »</strong>
+                <span>Deux rangées de produits de tous les univers. Contenu chargé automatiquement sur le site publié.</span>
+            </div>
+            <div class="s_pu_slot_content o_not_editable"/>
+        </section>
+    </template>
+
+    <template id="s_pu_home_tiles" name="Tuiles univers">
+        <section class="s_pu_home_slot" data-snippet="s_pu_home_tiles"
+                 data-name="Tuiles univers" data-pu-block="tiles">
+            <div class="s_pu_slot_placeholder o_not_editable">
+                <strong>Tuiles « Explorez par univers »</strong>
+                <span>Une tuile par univers avec son nombre de produits. Contenu chargé automatiquement sur le site publié.</span>
+            </div>
+            <div class="s_pu_slot_content o_not_editable"/>
+        </section>
+    </template>
+
+    <template id="s_pu_home_lowprice" name="Défilé Petits prix">
+        <section class="s_pu_home_slot" data-snippet="s_pu_home_lowprice"
+                 data-name="Défilé Petits prix" data-pu-block="lowprice">
+            <div class="s_pu_slot_placeholder o_not_editable">
+                <strong>Défilé « Petits prix »</strong>
+                <span>Accessoires et consommables sous le seuil choisi. Contenu chargé automatiquement sur le site publié.</span>
+            </div>
+            <div class="s_pu_slot_content o_not_editable"/>
+        </section>
+    </template>
+
+    <template id="pu_home_snippets_register"
+              inherit_id="website.snippets"
+              name="Lolirine — Blocs univers (constructeur)">
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <t t-snippet="lolirine_pool_universe.s_pu_home_showcase"
+               string="Vitrine produits"
+               group="custom"
+               t-thumbnail="/lolirine_pool_universe/static/src/img/snippets/pu_showcase.svg">
+                <keywords>vitrine produits univers défilé accueil</keywords>
+            </t>
+            <t t-snippet="lolirine_pool_universe.s_pu_home_tiles"
+               string="Tuiles univers"
+               group="custom"
+               t-thumbnail="/lolirine_pool_universe/static/src/img/snippets/pu_tiles.svg">
+                <keywords>tuiles univers catégories explorer accueil</keywords>
+            </t>
+            <t t-snippet="lolirine_pool_universe.s_pu_home_lowprice"
+               string="Défilé Petits prix"
+               group="custom"
+               t-thumbnail="/lolirine_pool_universe/static/src/img/snippets/pu_lowprice.svg">
+                <keywords>petits prix promo accessoires défilé</keywords>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_lolirine_pool_universe_system,lolirine.pool.universe system,model_lolirine_pool_universe,base.group_system,1,1,1,1
+access_lolirine_pool_universe_designer,lolirine.pool.universe designer,model_lolirine_pool_universe,website.group_website_designer,1,1,1,1
