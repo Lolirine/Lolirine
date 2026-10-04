@@ -4,18 +4,20 @@
     <record id="view_missing_invoice_lines_list" model="ir.ui.view">
         <field name="name">lolirine.missing.invoice.lines.list</field>
         <field name="model">account.bank.statement.line</field>
+        <field name="priority">99</field>
         <field name="arch" type="xml">
             <list create="false" delete="false" default_order="date desc"
                   decoration-bf="x_invoice_priority">
+                <field name="x_invoice_priority" column_invisible="True"/>
                 <field name="date"/>
                 <field name="journal_id"/>
                 <field name="payment_ref"/>
-                <field name="partner_id"/>
+                <field name="partner_id" optional="hide"/>
                 <field name="x_expected_partner_id" string="Fournisseur identifié"
                        optional="show"/>
                 <field name="amount" sum="Total"/>
-                <field name="x_invoice_priority" widget="boolean_toggle"
-                       string="À réclamer" readonly="1" optional="show"/>
+                <field name="x_to_claim" widget="boolean_toggle"
+                       string="À réclamer" optional="show"/>
                 <field name="x_invoice_status" widget="badge"
                        decoration-danger="x_invoice_status == 'missing'"
                        decoration-warning="x_invoice_status == 'invoiced'"
@@ -25,29 +27,107 @@
                 <field name="x_matched_move_ids" widget="many2many_tags"
                        string="Factures liées" optional="show"/>
                 <field name="x_invoice_candidate_ids" widget="many2many_tags"
-                       string="Candidates" optional="hide"/>
+                       string="Candidates" optional="show"/>
+                <button name="action_x_open_transaction" type="object"
+                        string="Transaction" icon="fa-university"/>
                 <button name="action_open_candidates" type="object"
-                        string="Voir factures" icon="fa-search"
+                        string="Factures" icon="fa-search"
                         invisible="x_invoice_status not in ['found', 'invoiced', 'reconciled']"/>
                 <button name="action_x_link_single_candidate" type="object"
                         string="Rapprocher" icon="fa-link"
                         invisible="x_invoice_status != 'found'"/>
+                <button name="action_x_create_bill" type="object"
+                        string="Créer la facture" icon="fa-plus"
+                        invisible="x_invoice_status != 'missing'"/>
             </list>
+        </field>
+    </record>
+
+    <record id="view_missing_invoice_lines_form" model="ir.ui.view">
+        <field name="name">lolirine.missing.invoice.lines.form</field>
+        <field name="model">account.bank.statement.line</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <form create="false" delete="false">
+                <header>
+                    <button name="action_x_open_transaction" type="object"
+                            string="Ouvrir la transaction" class="btn-primary"/>
+                    <button name="action_open_candidates" type="object"
+                            string="Voir les factures"
+                            invisible="x_invoice_status not in ['found', 'invoiced', 'reconciled']"/>
+                    <button name="action_x_link_single_candidate" type="object"
+                            string="Rapprocher"
+                            invisible="x_invoice_status != 'found'"/>
+                    <button name="action_x_create_bill" type="object"
+                            string="Créer la facture"
+                            invisible="x_invoice_status != 'missing'"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h3><field name="payment_ref" readonly="1"/></h3>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date" readonly="1"/>
+                            <field name="journal_id" readonly="1"/>
+                            <field name="amount" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="is_reconciled" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="x_invoice_status" widget="badge"
+                                   decoration-danger="x_invoice_status == 'missing'"
+                                   decoration-warning="x_invoice_status == 'invoiced'"
+                                   decoration-success="x_invoice_status == 'found'"
+                                   decoration-info="x_invoice_status == 'reconciled'"
+                                   decoration-muted="x_invoice_status in ['no_invoice', 'na']"/>
+                            <field name="x_expected_partner_id"/>
+                            <field name="x_invoice_priority"/>
+                            <field name="x_to_claim" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <separator string="Factures liées"/>
+                    <field name="x_matched_move_ids" readonly="1" nolabel="1">
+                        <list>
+                            <field name="name"/>
+                            <field name="partner_id"/>
+                            <field name="invoice_date"/>
+                            <field name="ref"/>
+                            <field name="amount_total_signed" string="Total"/>
+                            <field name="payment_state" widget="badge"/>
+                        </list>
+                    </field>
+                    <separator string="Factures candidates"/>
+                    <field name="x_invoice_candidate_ids" readonly="1" nolabel="1">
+                        <list>
+                            <field name="name"/>
+                            <field name="partner_id"/>
+                            <field name="invoice_date"/>
+                            <field name="ref"/>
+                            <field name="amount_residual_signed" string="Reste dû"/>
+                            <field name="payment_state" widget="badge"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
         </field>
     </record>
 
     <record id="view_missing_invoice_lines_search" model="ir.ui.view">
         <field name="name">lolirine.missing.invoice.lines.search</field>
         <field name="model">account.bank.statement.line</field>
+        <field name="priority">99</field>
         <field name="arch" type="xml">
             <search>
                 <field name="payment_ref"/>
                 <field name="partner_id"/>
                 <field name="amount"/>
-
                 <field name="x_expected_partner_id"/>
-                <filter name="filter_priority" string="À réclamer (fournisseur connu)"
+                <filter name="filter_to_claim" string="À réclamer (coché)"
+                        domain="[('x_to_claim', '=', True)]"/>
+                <filter name="filter_priority" string="Fournisseur à facture attendue"
                         domain="[('x_invoice_priority', '=', True)]"/>
+                <separator/>
                 <filter name="filter_missing" string="Factures manquantes"
                         domain="[('x_invoice_status', '=', 'missing')]"/>
                 <filter name="filter_found" string="Facture candidate trouvée"
@@ -84,8 +164,11 @@
     <record id="action_missing_invoice_lines" model="ir.actions.act_window">
         <field name="name">Factures manquantes</field>
         <field name="res_model">account.bank.statement.line</field>
-        <field name="view_mode">list</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" ref="view_missing_invoice_lines_list"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_missing_invoice_lines_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_missing_invoice_lines_form')})]"/>
         <field name="search_view_id" ref="view_missing_invoice_lines_search"/>
         <field name="domain">[('state', '=', 'posted')]</field>
         <field name="context">{'search_default_filter_missing': 1, 'search_default_filter_out': 1}</field>
