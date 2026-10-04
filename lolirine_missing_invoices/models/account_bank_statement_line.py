@@ -25,12 +25,18 @@ DEFAULT_FEE_TOLERANCE = 1.00
 # Fenetre pour reconnaitre une facture deja soldee du meme fournisseur.
 INVOICED_WINDOW_DAYS = 40
 
+# Le nom du marchand est cherche uniquement AVANT ces mots du libelle CBC :
+# la suite (« Carte de debit Business CBC », « Mastercard »...) est generique.
+LABEL_CUT = re.compile(r'\b(PAIEMENT|DOMICILIATION|VIREMENT|RETRAIT)\b')
+
 # Mots ignores pour reconnaitre un fournisseur par son nom dans le libelle.
 NAME_STOPWORDS = {
     'SOCIETE', 'SPRL', 'SCRL', 'SRL', 'SA', 'NV', 'BV', 'BVBA', 'GMBH', 'LTD',
     'LIMITED', 'INC', 'LLC', 'SARL', 'SAS', 'THE', 'GROUP', 'BELGIUM', 'BELGIQUE',
     'SERVICES', 'SERVICE', 'COMPANY', 'MARKET', 'FOURNISSEURS', 'DIVERS',
-    'PAIEMENT', 'DEBIT', 'CARTE', 'VIREMENT', 'DOMICILIATION',
+    'PAIEMENT', 'DEBIT', 'CARTE', 'VIREMENT', 'DOMICILIATION', 'BUSINESS',
+    'MASTERCARD', 'BANCONTACT', 'INSTANTANE', 'HEURES', 'MERCHANTS', 'BANK',
+    'BANQUE', 'EUROPE', 'INTERNATIONAL', 'HOLDING', 'MANAGEMENT', 'SOLUTIONS',
 }
 
 
@@ -41,6 +47,12 @@ def _digits(text):
 
 def _words(text):
     return [w for w in re.split(r'[^A-Z0-9]+', (text or '').upper()) if w]
+
+
+def _merchant_part(label):
+    """Partie « marchand » d'un libelle CBC (avant Paiement / Domiciliation...)."""
+    upper = (label or '').upper()
+    return LABEL_CUT.split(upper, maxsplit=1)[0]
 
 
 class AccountBankStatementLine(models.Model):
@@ -82,7 +94,8 @@ class AccountBankStatementLine(models.Model):
         string='Fournisseur identifie',
         compute='_compute_x_invoice_status',
         help="Fournisseur reconnu : motif de libelle bancaire configure, sinon nom "
-             "d'un fournisseur present dans le libelle, sinon partenaire de la ligne.",
+             "d'un fournisseur present dans la partie marchand du libelle, sinon "
+             "partenaire de la ligne.",
     )
     x_invoice_priority = fields.Boolean(
         string='Facture attendue (suggestion)',
@@ -150,7 +163,7 @@ class AccountBankStatementLine(models.Model):
                 if motif in upper:
                     return partner
             hits = self.env['res.partner']
-            for w in set(_words(upper)):
+            for w in set(_words(_merchant_part(upper))):
                 if w in names:
                     hits |= names[w]
             if hits:
