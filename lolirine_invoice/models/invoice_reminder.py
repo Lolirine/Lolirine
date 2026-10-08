@@ -2,8 +2,10 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from datetime import timedelta
+from collections import defaultdict
 import logging
 import base64
+import re
 
 _logger = logging.getLogger(__name__)
 
@@ -310,11 +312,18 @@ class InvoiceReminder(models.Model):
         attachment_ids = self._generate_invoice_pdf()
         
         # 4. Créer et envoyer l'email via le serveur Odoo
+        # Plusieurs adresses possibles (« a@x.be; b@y.be ») : separateur virgule
+        email_to = ','.join(
+            e.strip() for e in self.partner_id.email.replace(';', ',').split(',') if e.strip()
+        )
         mail_vals = {
             'subject': subject,
             'body_html': body_html,
             'email_from': 'Srl Lolirine <gardemeublelolirine@gmail.com>',
-            'email_to': self.partner_id.email,
+            # L'expediteur reel est notifications@... (relais Odoo.sh) :
+            # les reponses des clients doivent revenir sur la boite Gmail.
+            'reply_to': 'gardemeublelolirine@gmail.com',
+            'email_to': email_to,
             'model': 'lolirine.invoice.reminder',
             'res_id': self.id,
         }
@@ -623,76 +632,200 @@ class InvoiceReminder(models.Model):
         self.write({'state': 'draft'})
 
     # ==================== AUTO-RELANCE CRON ====================
+    # Regles (v2.4, apres l'incident d'aout 2026) :
+    #  1. Progression stricte R1 -> R2 -> R3 -> MED, un niveau a la fois :
+    #     jamais de saut de niveau, meme apres une longue interruption du cron.
+    #  2. Au plus UNE relance par client et par passage, et un ecart minimal
+    #     (min_days_between) entre deux relances au meme client.
+    #  3. Les factures de frais de relance ne sont jamais relancees elles-memes
+    #     (pas de frais sur frais) : leur montant figure dans le total des
+    #     relances de la facture d'origine.
+    #  4. Client suspendu (plan de paiement, regularisation, litige) ou facture
+    #     marquee « Aucun suivi » : pas de relance.
+    #  5. Garde-fou : un versement de ce client non encore rapproche bloque la
+    #     relance (cas Guilibouem) ; il est signale dans le recapitulatif mensuel.
+    #  6. Apres la mise en demeure, plus rien d'automatique.
+
+    LEVELS = ['reminder_1', 'reminder_2', 'reminder_3', 'formal_notice']
+    NAME_STOPWORDS = {'MONSIEUR', 'MADAME', 'MADEMOISELLE', 'SPRL', 'SRL', 'SCRL', 'SA',
+                      'NV', 'BV', 'BVBA', 'ASBL', 'SOCIETE', 'ESPACE'}
+
     @api.model
-    def _cron_auto_reminder(self):
-        """Cron pour generer et envoyer automatiquement les relances"""
-        config = self.env['lolirine.invoice.reminder.config'].search(
-            [('auto_reminder', '=', True)], limit=1
-        )
-        
-        if not config:
-            _logger.info("Auto-relance desactivee - pas de configuration active")
-            return {'created': 0, 'sent': 0}
-        
-        _logger.info("=== Debut du traitement auto-relance ===")
-        
-        today = fields.Date.today()
-        
-        overdue_invoices = self.env['account.move'].search([
+    def _get_config(self):
+        return self.env['lolirine.invoice.reminder.config'].search([], limit=1)
+
+    @api.model
+    def _x_fee_invoice_ids(self):
+        """Factures de frais de rappel / mise en demeure (a ne jamais relancer)."""
+        ids = set(self.sudo().search([('fee_invoice_id', '!=', False)]).mapped('fee_invoice_id').ids)
+        lines = self.env['account.move.line'].sudo().search([
+            ('move_id.move_type', '=', 'out_invoice'),
+            ('display_type', '=', 'product'),
+            '|', '|', '|',
+            ('product_id', '=', 8859),
+            ('name', 'ilike', 'Frais de rappel'),
+            ('name', 'ilike', 'Frais de mise en demeure'),
+            ('move_id.ref', 'ilike', 'Frais de relance'),
+        ])
+        ids |= set(lines.mapped('move_id').ids)
+        return ids
+
+    @api.model
+    def _x_partner_suspended(self, partner, today):
+        partner = partner.commercial_partner_id
+        until = partner.x_reminder_suspended_until
+        return bool(until and until >= today)
+
+    @api.model
+    def _x_unreconciled_payments(self, invoice):
+        """Versements entrants non rapproches qui pourraient correspondre a la facture :
+        meme partenaire, communication structuree, ou nom du client dans le libelle."""
+        commercial = invoice.commercial_partner_id
+        digits = re.sub(r'\D', '', invoice.payment_reference or '')
+        words = [w for w in re.split(r'[^A-Z0-9]+', (commercial.name or '').upper())
+                 if len(w) >= 4 and w not in self.NAME_STOPWORDS]
+        lines = self.env['account.bank.statement.line'].sudo().search([
+            ('amount', '>', 0),
+            ('is_reconciled', '=', False),
+            ('date', '>=', invoice.invoice_date or invoice.invoice_date_due),
+            ('company_id', '=', invoice.company_id.id),
+        ])
+        hits = self.env['account.bank.statement.line']
+        for line in lines:
+            ref = (line.payment_ref or '').upper()
+            if line.partner_id and line.partner_id.commercial_partner_id == commercial:
+                hits |= line
+            elif digits and len(digits) >= 10 and digits in re.sub(r'\D', '', ref):
+                hits |= line
+            elif words and any(w in ref for w in words):
+                hits |= line
+        return hits
+
+    @api.model
+    def _x_next_level(self, invoice):
+        """Niveau suivant pour la facture (False si la mise en demeure est deja faite)."""
+        done = invoice.reminder_ids.filtered(lambda r: r.state in ('draft', 'sent', 'paid'))
+        reached = [self.LEVELS.index(r.reminder_type) for r in done if r.reminder_type in self.LEVELS]
+        if any(r.reminder_type == 'lawyer' for r in done):
+            return False
+        nxt = (max(reached) + 1) if reached else 0
+        return self.LEVELS[nxt] if nxt < len(self.LEVELS) else False
+
+    @api.model
+    def _x_level_threshold(self, level, config):
+        return {
+            'reminder_1': config.reminder_1_days,
+            'reminder_2': config.reminder_2_days,
+            'reminder_3': config.reminder_3_days,
+            'formal_notice': config.formal_notice_days,
+        }[level]
+
+    @api.model
+    def _x_plan_reminders(self, today=None):
+        """Calcule ce que le cron ferait aujourd'hui, sans rien ecrire.
+
+        Retourne (a_envoyer, ecartes) :
+        - a_envoyer : liste de (facture, niveau)
+        - ecartes   : liste de (facture, motif)
+        """
+        config = self._get_config()
+        today = today or fields.Date.today()
+        gap = max(config.min_days_between or 7, 1) if config else 7
+        fee_ids = self._x_fee_invoice_ids()
+
+        invoices = self.env['account.move'].search([
             ('move_type', '=', 'out_invoice'),
             ('state', '=', 'posted'),
             ('payment_state', 'in', ['not_paid', 'partial']),
             ('invoice_date_due', '<', today),
-            ('partner_id.email', '!=', False),
-        ])
-        
-        _logger.info(f"Factures impayees trouvees: {len(overdue_invoices)}")
-        
-        reminders_created = 0
-        reminders_sent = 0
-        
-        for invoice in overdue_invoices:
-            days_overdue = (today - invoice.invoice_date_due).days
-            
-            reminder_type = self._get_reminder_type_for_days(days_overdue, config)
-            
-            if not reminder_type:
+        ], order='invoice_date_due, id')
+
+        by_partner = defaultdict(lambda: self.env['account.move'])
+        for inv in invoices:
+            by_partner[inv.commercial_partner_id] |= inv
+
+        to_send, skipped = [], []
+        for partner, invs in by_partner.items():
+            if self._x_partner_suspended(partner, today):
+                for inv in invs:
+                    skipped.append((inv, f"client suspendu jusqu'au {partner.x_reminder_suspended_until} "
+                                         f"({partner.x_reminder_suspend_reason or 'sans motif'})"))
                 continue
-            
-            existing = self.search([
-                ('invoice_id', '=', invoice.id),
-                ('reminder_type', '=', reminder_type),
-                ('state', '!=', 'cancelled'),
-            ], limit=1)
-            
-            if existing:
-                continue
-            
+            last = self.search([
+                ('invoice_id.commercial_partner_id', '=', partner.id),
+                ('state', 'in', ('sent', 'paid')),
+            ], order='date desc', limit=1)
+            partner_gap_ok = not last or (today - last.date).days >= gap
+            chosen = False
+            for inv in invs:
+                if inv.id in fee_ids:
+                    skipped.append((inv, "facture de frais (jamais relancee)"))
+                    continue
+                if inv.no_followup:
+                    skipped.append((inv, "facture marquee « Aucun suivi »"))
+                    continue
+                if inv.amount_residual < 5.0:
+                    skipped.append((inv, f"solde negligeable ({inv.amount_residual:.2f})"))
+                    continue
+                level = self._x_next_level(inv)
+                if not level:
+                    skipped.append((inv, "mise en demeure deja envoyee : suivi manuel"))
+                    continue
+                days = (today - inv.invoice_date_due).days
+                if days < self._x_level_threshold(level, config):
+                    continue
+                if not (inv.partner_id.email or partner.email):
+                    skipped.append((inv, "pas d'adresse e-mail"))
+                    continue
+                payments = self._x_unreconciled_payments(inv)
+                if payments:
+                    skipped.append((inv, "VERSEMENT NON RAPPROCHE a verifier : " + ', '.join(
+                        f"{p.date} {p.amount:.2f} {(p.payment_ref or '')[:35]}" for p in payments[:3])))
+                    continue
+                if chosen or not partner_gap_ok:
+                    skipped.append((inv, f"{level} reporte (une relance par client, ecart {gap} j)"))
+                    continue
+                to_send.append((inv, level))
+                chosen = True
+        return to_send, skipped
+
+    @api.model
+    def _cron_auto_reminder(self, dry_run=False):
+        """Cron pour generer et envoyer automatiquement les relances"""
+        config = self._get_config()
+        if not config or not config.auto_reminder:
+            _logger.info("Auto-relance desactivee - pas de configuration active")
+            return {'created': 0, 'sent': 0, 'plan': [], 'skipped': []}
+
+        today = fields.Date.today()
+        to_send, skipped = self._x_plan_reminders(today)
+        _logger.info("=== Auto-relance : %s a envoyer, %s ecartees ===", len(to_send), len(skipped))
+        if dry_run:
+            return {'created': 0, 'sent': 0, 'plan': to_send, 'skipped': skipped}
+
+        created = sent = 0
+        for invoice, level in to_send:
             try:
-                reminder = self.create({
-                    'invoice_id': invoice.id,
-                    'reminder_type': reminder_type,
-                    'date': today,
-                    'notes': f'Relance automatique - {days_overdue} jours de retard',
-                })
-                reminders_created += 1
-                _logger.info(f"Relance creee: {reminder.name} pour {invoice.partner_id.name}")
-                
-                try:
+                with self.env.cr.savepoint():
+                    days = (today - invoice.invoice_date_due).days
+                    reminder = self.create({
+                        'invoice_id': invoice.id,
+                        'reminder_type': level,
+                        'date': today,
+                        'notes': f'Relance automatique - {days} jours de retard',
+                    })
+                    created += 1
                     reminder.action_send_reminder()
-                    reminders_sent += 1
-                    _logger.info(f"Relance envoyee: {reminder.name}")
-                except Exception as e:
-                    _logger.warning(f"Erreur envoi relance {reminder.name}: {e}")
-                    
+                    sent += 1
+                    _logger.info("Relance envoyee : %s", reminder.name)
             except Exception as e:
-                _logger.error(f"Erreur creation relance pour {invoice.name}: {e}")
-        
-        _logger.info(f"=== Fin auto-relance: {reminders_created} creees, {reminders_sent} envoyees ===")
-        return {'created': reminders_created, 'sent': reminders_sent}
+                _logger.error("Erreur relance %s : %s", invoice.name, e)
+        _logger.info("=== Fin auto-relance : %s creees, %s envoyees ===", created, sent)
+        return {'created': created, 'sent': sent, 'plan': to_send, 'skipped': skipped}
 
     @api.model
     def _get_reminder_type_for_days(self, days_overdue, config):
+        # Conserve pour compatibilite (plus utilise par le cron).
         if days_overdue >= config.formal_notice_days:
             return 'formal_notice'
         elif days_overdue >= config.reminder_3_days:
@@ -711,6 +844,80 @@ class InvoiceReminder(models.Model):
         for reminder in open_reminders:
             if reminder.invoice_id.payment_state in ('paid', 'reversed'):
                 reminder.write({'state': 'paid'})
+
+    # ==================== RECAPITULATIF MENSUEL ====================
+    @api.model
+    def _cron_monthly_summary(self):
+        """E-mail de controle a Lolirine (jamais au client)."""
+        config = self._get_config()
+        to = (config.summary_email if config else False) or 'gardemeublelolirine@gmail.com'
+        today = fields.Date.today()
+        since = today - timedelta(days=31)
+        fee_ids = self._x_fee_invoice_ids()
+        td = 'style="padding:4px 8px;border:1px solid #ddd"'
+        th = 'style="padding:4px 8px;border:1px solid #ddd;background:#f2f2f2;text-align:left"'
+
+        def table(headers, rows):
+            if not rows:
+                return '<p><em>Rien a signaler.</em></p>'
+            h = ''.join(f'<th {th}>{x}</th>' for x in headers)
+            b = ''.join('<tr>' + ''.join(f'<td {td}>{c}</td>' for c in r) + '</tr>' for r in rows)
+            return f'<table style="border-collapse:collapse;font-size:12px">{"<tr>" + h + "</tr>"}{b}</table>'
+
+        overdue = self.env['account.move'].search([
+            ('move_type', '=', 'out_invoice'), ('state', '=', 'posted'),
+            ('payment_state', 'in', ['not_paid', 'partial']),
+            ('invoice_date_due', '<', today),
+        ], order='invoice_date_due')
+        rent = overdue.filtered(lambda m: m.id not in fee_ids)
+        fees = overdue - rent
+
+        rows_rent = []
+        for m in rent:
+            last = m.reminder_ids.filtered(lambda r: r.state in ('sent', 'paid')).sorted('date')[-1:]
+            rows_rent.append([m.commercial_partner_id.name, m.name, m.invoice_date_due,
+                              (today - m.invoice_date_due).days, f"{m.amount_residual:.2f}",
+                              f"{dict(self._fields['reminder_type'].selection).get(last.reminder_type, '-')} "
+                              f"{last.date or ''}" if last else 'aucune'])
+        rows_fees = [[m.commercial_partner_id.name, m.name, m.invoice_date_due, f"{m.amount_residual:.2f}"]
+                     for m in fees]
+
+        sent = self.search([('date', '>=', since), ('state', 'in', ('sent', 'paid'))], order='date')
+        rows_sent = [[r.date, r.partner_id.name, r.invoice_id.name, r._get_type_label(),
+                      r.fee_invoice_id.name or '-'] for r in sent]
+
+        susp = self.env['res.partner'].search([('x_reminder_suspended_until', '!=', False)])
+        rows_susp = [[p.name, p.x_reminder_suspended_until, p.x_reminder_suspend_reason or '-',
+                      'echue' if p.x_reminder_suspended_until < today else 'active'] for p in susp]
+
+        to_send, skipped = self._x_plan_reminders(today)
+        rows_check = [[inv.commercial_partner_id.name, inv.name, reason]
+                      for inv, reason in skipped if reason.startswith('VERSEMENT')]
+        rows_plan = [[inv.commercial_partner_id.name, inv.name,
+                      dict(self._fields['reminder_type'].selection).get(lvl)] for inv, lvl in to_send]
+
+        auto = 'ACTIVE' if (config and config.auto_reminder) else 'DESACTIVEE'
+        body = f"""
+<div style="font-family:Arial,sans-serif;font-size:13px;color:#333">
+<p>Recapitulatif des relances au {today.strftime('%d/%m/%Y')} — auto-relance <b>{auto}</b>.</p>
+<h3>1. A verifier : versements recus non rapproches</h3>{table(['Client', 'Facture', 'Detail'], rows_check)}
+<h3>2. Factures de loyer en retard ({len(rent)}, {sum(rent.mapped('amount_residual')):.2f} EUR)</h3>
+{table(['Client', 'Facture', 'Echeance', 'Jours', 'Reste du', 'Derniere relance'], rows_rent)}
+<h3>3. Factures de frais ouvertes ({len(fees)}, {sum(fees.mapped('amount_residual')):.2f} EUR)</h3>
+{table(['Client', 'Facture', 'Echeance', 'Reste du'], rows_fees)}
+<h3>4. Relances envoyees ces 31 derniers jours ({len(sent)})</h3>
+{table(['Date', 'Client', 'Facture', 'Niveau', 'Frais'], rows_sent)}
+<h3>5. Prochaines relances prevues</h3>{table(['Client', 'Facture', 'Niveau'], rows_plan)}
+<h3>6. Clients suspendus</h3>{table(['Client', "Jusqu'au", 'Motif', 'Etat'], rows_susp)}
+</div>"""
+        mail = self.env['mail.mail'].sudo().create({
+            'subject': f"Recapitulatif relances - {today.strftime('%m/%Y')}",
+            'body_html': body,
+            'email_to': to,
+            'auto_delete': False,
+        })
+        mail.send()
+        return True
 
 
 class InvoiceReminderConfig(models.Model):
@@ -759,6 +966,19 @@ class InvoiceReminderConfig(models.Model):
         help='Frais supplementaires pour la mise en demeure (en plus des frais de rappel)'
     )
     
+    min_days_between = fields.Integer(
+        string='Ecart minimal entre deux relances (jours)',
+        default=7,
+        help="Un meme client ne recoit jamais deux relances a moins de X jours "
+             "d'intervalle, toutes factures confondues."
+    )
+
+    summary_email = fields.Char(
+        string='E-mail du recapitulatif mensuel',
+        default='gardemeublelolirine@gmail.com',
+        help="Adresse qui recoit le recapitulatif mensuel des relances (jamais un client)."
+    )
+
     auto_reminder = fields.Boolean(
         string='Relances automatiques',
         default=False,
@@ -782,4 +1002,30 @@ class InvoiceReminderConfig(models.Model):
                 'type': 'success' if result.get('created', 0) > 0 else 'warning',
                 'sticky': True,
             }
+        }
+
+    def action_preview_auto_reminder(self):
+        """Affiche ce que le cron ferait aujourd'hui, sans rien envoyer."""
+        to_send, skipped = self.env['lolirine.invoice.reminder']._x_plan_reminders()
+        labels = dict(self.env['lolirine.invoice.reminder']._fields['reminder_type'].selection)
+        lines = [f"{inv.commercial_partner_id.name} - {inv.name} : {labels.get(lvl)}" for inv, lvl in to_send]
+        lines += [f"[ecartee] {inv.commercial_partner_id.name} - {inv.name} : {why}" for inv, why in skipped]
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': f"Simulation : {len(to_send)} relance(s) prevue(s)",
+                'message': '\n'.join(lines[:40]) or 'Aucune relance prevue aujourd\'hui.',
+                'type': 'info',
+                'sticky': True,
+            }
+        }
+
+    def action_send_summary_now(self):
+        self.env['lolirine.invoice.reminder']._cron_monthly_summary()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {'title': 'Recapitulatif envoye', 'message': self.summary_email or '',
+                       'type': 'success', 'sticky': False},
         }
