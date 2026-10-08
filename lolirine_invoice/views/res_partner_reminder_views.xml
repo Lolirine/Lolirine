@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Suspension des relances automatiques, sur la fiche client -->
+    <record id="view_partner_form_reminder_suspend" model="ir.ui.view">
+        <field name="name">res.partner.form.lolirine.reminder.suspend</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Relances Lolirine" name="lolirine_reminders">
+                    <group>
+                        <group>
+                            <field name="x_reminder_suspended_until"/>
+                            <field name="x_reminder_suspend_reason"
+                                   placeholder="Plan de paiement, régularisation, litige..."/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
