@@ -1,44 +1,67 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <data noupdate="1">
-        
-        <!-- Cron auto-relance quotidien à 8h00 -->
-        <record id="ir_cron_auto_reminder" model="ir.cron">
-            <field name="name">Lolirine - Auto-relance factures impayées</field>
-            <field name="model_id" ref="model_lolirine_invoice_reminder"/>
-            <field name="state">code</field>
-            <field name="code">model._cron_auto_reminder()</field>
-            <field name="interval_number">1</field>
-            <field name="interval_type">days</field>
-            <field name="active">True</field>
-            <field name="priority">10</field>
-        </record>
-        
-        <!-- Cron vérification factures payées à 9h00 -->
-        <record id="ir_cron_check_paid" model="ir.cron">
-            <field name="name">Lolirine - Vérifier factures payées</field>
-            <field name="model_id" ref="model_lolirine_invoice_reminder"/>
-            <field name="state">code</field>
-            <field name="code">model._cron_check_paid()</field>
-            <field name="interval_number">1</field>
-            <field name="interval_type">days</field>
-            <field name="active">True</field>
-            <field name="priority">15</field>
-        </record>
-        
-        <!-- Recapitulatif mensuel des relances (envoye a Lolirine, jamais aux clients),
-             le 1er du mois vers 8h (heure de Bruxelles) -->
-        <record id="ir_cron_reminder_monthly_summary" model="ir.cron">
-            <field name="name">Lolirine - Récapitulatif mensuel des relances</field>
-            <field name="model_id" ref="model_lolirine_invoice_reminder"/>
-            <field name="state">code</field>
-            <field name="code">model._cron_monthly_summary()</field>
-            <field name="interval_number">1</field>
-            <field name="interval_type">months</field>
-            <field name="nextcall" eval="(DateTime.now().replace(day=1) + relativedelta(months=1)).strftime('%Y-%m-%d 06:00:00')"/>
-            <field name="active">True</field>
-            <field name="priority">20</field>
-        </record>
-        
-    </data>
-</odoo>
+from odoo import models, fields
+
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    lolirine_manual_payment = fields.Boolean(
+        string="Paiement manuel",
+        default=False,
+        help="Si coché : les factures de ce fournisseur ne sont pas en domiciliation "
+             "automatique et doivent être payées manuellement (virement à effectuer). "
+             "Une alerte orange apparaît dans la liste des factures fournisseurs "
+             "tant que la facture n'est pas payée.",
+    )
+
+    x_reminder_suspended_until = fields.Date(
+        string="Relances suspendues jusqu'au",
+        help="Tant que cette date n'est pas depassee, aucune relance automatique "
+             "n'est envoyee a ce client (plan de paiement, regularisation, litige). "
+             "Les factures restent visibles dans le recapitulatif mensuel.",
+    )
+    x_reminder_suspend_reason = fields.Char(
+        string="Motif de la suspension",
+    )
+
+    def _get_followup_attachments(self, options):
+        """
+        Override pour envoyer uniquement les factures jointes,
+        sans le rapport de relance Odoo standard.
+        """
+        self.ensure_one()
+        res_attachment_ids = []
+        followup_line = options.get('followup_line')
+
+        # NE PAS ajouter le rapport de relance Odoo
+        # options['report_attachment_id'] = self._get_followup_report(options)
+        # res_attachment_ids.append(options['report_attachment_id'])
+
+        # Ajouter les attachments du template email
+        if template_id := options.get('template_id', followup_line.mail_template_id):
+            template_attachments = template_id._generate_template_attachments(
+                self.ids, {'attachment_ids', 'report_template_ids'}
+            )[self.id]
+            res_attachment_ids += template_attachments['attachment_ids']
+            attachments_to_create = []
+            for dynamic_report in template_attachments['attachments']:
+                attachments_to_create.append({
+                    'name': dynamic_report[0],
+                    'datas': dynamic_report[1],
+                    'res_model': self._name,
+                    'res_id': self.id,
+                })
+            res_attachment_ids += self.env['ir.attachment'].create(attachments_to_create).ids
+
+        # Vérifier si on doit joindre les factures
+        if not options.get('join_invoices', followup_line.join_invoices):
+            return res_attachment_ids
+
+        if options.get('manual_followup'):
+            # Pour les relances manuelles, utiliser les attachments sélectionnés
+            res_attachment_ids += options.get('attachment_ids', [])
+            return res_attachment_ids
+
+        # Ajouter les PDFs des factures en retard
+        res_attachment_ids += self._get_invoices_to_print(options).message_main_attachment_id.ids
+
+        return res_attachment_ids
