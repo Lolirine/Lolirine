@@ -109,9 +109,14 @@
         <field name="arch" type="xml">
             <form string="Configuration relances">
                 <header>
+                    <button name="action_preview_auto_reminder" type="object"
+                            string="Simuler (sans envoi)" class="btn-primary"/>
                     <button name="action_test_auto_reminder" type="object" 
-                            string="🔄 Tester auto-relance" class="btn-primary"
-                            invisible="not auto_reminder"/>
+                            string="🔄 Lancer l'auto-relance maintenant"
+                            invisible="not auto_reminder"
+                            confirm="Les relances prévues vont être envoyées aux clients. Continuer ?"/>
+                    <button name="action_send_summary_now" type="object"
+                            string="Envoyer le récapitulatif maintenant"/>
                 </header>
                 <sheet>
                     <group>
@@ -127,11 +132,18 @@
                             <field name="fee_formal_notice" string="Frais mise en demeure (en plus)"/>
                             <field name="auto_reminder"/>
                         </group>
+                        <group string="Garde-fous et contrôle">
+                            <field name="min_days_between"/>
+                            <field name="summary_email"/>
+                        </group>
                     </group>
                     <div class="alert alert-info" invisible="not auto_reminder">
                         <strong>Auto-relance activée :</strong> Le système enverra automatiquement 
                         les relances chaque jour selon les délais configurés ci-dessus.<br/>
-                        <strong>Frais appliqués :</strong> R1 = 0€ | R2 = 20€ | R3 = 20€ | Mise en demeure = 20€ + 50€ = 70€
+                        <strong>Frais appliqués :</strong> R1 = 0€ | R2 = 0€ | R3 = 20€ | Mise en demeure = 50€ (total 70€)<br/>
+                        <strong>Garde-fous :</strong> un niveau à la fois, une relance par client et par passage,
+                        jamais de relance sur une facture de frais, clients suspendus ignorés,
+                        relance bloquée si un versement du client n'est pas encore rapproché.
                     </div>
                     <div class="alert alert-warning" invisible="auto_reminder">
                         <strong>Auto-relance désactivée :</strong> Activez le toggle ci-dessus 
