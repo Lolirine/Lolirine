@@ -1,6 +1,6 @@
 {
     "name": "Lolirine Gestion Factures",
-    "version": "19.0.2.3.0",
+    "version": "19.0.2.4.0",
     "category": "Accounting/Invoicing",
     "summary": "Gestion avancee des factures avec relances, tags, dashboard et export comptable",
     "description": """
@@ -28,6 +28,10 @@
         - Templates email personnalises pour chaque niveau
         - Calcul automatique des penalites de retard (taux legal belge)
         - Suivi des jours de retard
+        - Garde-fous (v2.4) : un niveau a la fois, une relance par client et par
+          passage, pas de relance sur les factures de frais, suspension par client,
+          blocage si un versement du client n'est pas rapproche
+        - Recapitulatif mensuel des relances envoye a Lolirine
         - Alertes echeances
         
         Statistiques et dashboard:
@@ -84,6 +88,7 @@
         "views/box_transfer_wizard_views.xml",
         "views/storage_box_views.xml",
         "views/payment_marker_views.xml",
+        "views/res_partner_reminder_views.xml",
         # Menus (en dernier)
         "views/menu_views.xml",
     ],
