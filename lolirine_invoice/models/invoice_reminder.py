@@ -677,13 +677,31 @@ class InvoiceReminder(models.Model):
         return bool(until and until >= today)
 
     @api.model
+    def _x_name_tokens(self, partner):
+        """Mots qui identifient le client dans un libelle bancaire.
+
+        Pour une personne encodee « Monsieur ADAM Cedric », seul le NOM DE FAMILLE
+        (ecrit en majuscules) est retenu : un prenom seul (« Cedric ») designerait
+        aussi d'autres clients (cas Cedric Gerard, 19/09/2026).
+        Sans mot en majuscules (societe), tous les mots distinctifs sont retenus.
+        """
+        raw = [w for w in re.split(r'[^A-Za-z0-9\u00C0-\u017F]+', partner.name or '') if w]
+        caps = [w.upper() for w in raw
+                if w.isupper() and len(w) >= 3 and w.upper() not in self.NAME_STOPWORDS]
+        if caps:
+            return caps
+        return [w.upper() for w in raw
+                if len(w) >= 4 and w.upper() not in self.NAME_STOPWORDS]
+
+    @api.model
     def _x_unreconciled_payments(self, invoice):
         """Versements entrants non rapproches qui pourraient correspondre a la facture :
-        meme partenaire, communication structuree, ou nom du client dans le libelle."""
+        meme partenaire, communication structuree, ou nom de famille du client
+        (mot entier) dans le libelle."""
         commercial = invoice.commercial_partner_id
         digits = re.sub(r'\D', '', invoice.payment_reference or '')
-        words = [w for w in re.split(r'[^A-Z0-9]+', (commercial.name or '').upper())
-                 if len(w) >= 4 and w not in self.NAME_STOPWORDS]
+        words = self._x_name_tokens(commercial)
+        patterns = [re.compile(r'(?<![A-Z0-9])' + re.escape(w) + r'(?![A-Z0-9])') for w in words]
         lines = self.env['account.bank.statement.line'].sudo().search([
             ('amount', '>', 0),
             ('is_reconciled', '=', False),
@@ -693,11 +711,14 @@ class InvoiceReminder(models.Model):
         hits = self.env['account.bank.statement.line']
         for line in lines:
             ref = (line.payment_ref or '').upper()
-            if line.partner_id and line.partner_id.commercial_partner_id == commercial:
+            if line.partner_id:
+                # Partenaire deja identifie sur la ligne : on s'y fie, pas au libelle
+                if line.partner_id.commercial_partner_id == commercial:
+                    hits |= line
+                continue
+            if digits and len(digits) >= 10 and digits in re.sub(r'\D', '', ref):
                 hits |= line
-            elif digits and len(digits) >= 10 and digits in re.sub(r'\D', '', ref):
-                hits |= line
-            elif words and any(w in ref for w in words):
+            elif patterns and any(p.search(ref) for p in patterns):
                 hits |= line
         return hits
 
