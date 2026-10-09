@@ -1,6 +1,6 @@
 {
     "name": "Lolirine Gestion Factures",
-    "version": "19.0.2.4.0",
+    "version": "19.0.2.5.0",
     "category": "Accounting/Invoicing",
     "summary": "Gestion avancee des factures avec relances, tags, dashboard et export comptable",
     "description": """
@@ -33,6 +33,9 @@
           blocage si un versement du client n'est pas rapproche
         - Recapitulatif mensuel des relances envoye a Lolirine
         - Alertes echeances
+        
+        Abonnements (v2.5):
+        - Colonne Box dans la liste des abonnements et sur la fiche contrat
         
         Statistiques et dashboard:
         - Tableau de bord CA mensuel
@@ -89,6 +92,7 @@
         "views/storage_box_views.xml",
         "views/payment_marker_views.xml",
         "views/res_partner_reminder_views.xml",
+        "views/sale_subscription_box_views.xml",
         # Menus (en dernier)
         "views/menu_views.xml",
     ],
