@@ -1,0 +1,1039 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+    ============================================================
+    CONTENU GUIDES PISCINE — LOT 2 (12 pages)
+    Module  : lolirine_pool_website
+    Fichier : views/guides/guide_pages_content_2.xml
+
+    Injecte le contenu dans les 12 vues squelettes restantes
+    (creees par guide_pages.xml) via inherit_id + xpath,
+    sur le meme modele que guide_pages_content.xml.
+
+    Pages : bulle, ph, electrolyseur, coque, barriere, kit,
+            redemarrage, hors_sol, pool_terre, robot,
+            declaration, bache_barres
+
+    IMPORTANT : lister APRES guide_pages.xml dans __manifest__.py
+    ============================================================
+    -->
+
+    <!-- inject content → guide_bulle -->
+    <record id="view_guide_bulle_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_bulle.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_bulle"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_bulle_body']" position="replace">
+                <div id="oe_guide_bulle_body">
+                    <p class="guide-intro-text">
+                        La bâche à bulles, aussi appelée couverture solaire ou bâche d'été, est l'accessoire le plus
+                        rentable pour garder une eau chaude et propre pendant la saison. Voici comment bien la choisir
+                        et l'utiliser.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#role-bulles">À quoi sert une bâche à bulles ?</a></li>
+                            <li><a href="#epaisseur-bulles">Quelle épaisseur ?</a></li>
+                            <li><a href="#couleur-bulles">Quelle couleur ?</a></li>
+                            <li><a href="#dimensions-bulles">Bien prendre les mesures</a></li>
+                            <li><a href="#utilisation-bulles">Utilisation et entretien</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 id="role-bulles" class="guide-section-title">À quoi sert une bâche à bulles ?</h2>
+                    <p>
+                        Posée directement sur l'eau, la bâche à bulles agit comme une serre : les bulles d'air
+                        emprisonnent la chaleur du soleil et limitent les pertes de la nuit. Elle apporte quatre
+                        bénéfices :
+                    </p>
+                    <ul>
+                        <li><strong>Gain de température</strong> : elle aide à gagner quelques degrés et à prolonger la saison de baignade.</li>
+                        <li><strong>Moins d'évaporation</strong> : l'eau s'évapore beaucoup moins, ce qui limite les appoints d'eau.</li>
+                        <li><strong>Moins de produits</strong> : le chlore est moins dégradé par les UV, la consommation de traitement baisse.</li>
+                        <li><strong>Eau plus propre</strong> : feuilles, insectes et poussières restent sur la bâche.</li>
+                    </ul>
+                    <p class="guide-warning">
+                        Une bâche à bulles n'est pas une couverture de sécurité : elle ne supporte pas le poids d'un
+                        enfant ou d'un animal et ne remplace jamais une barrière, un volet ou une bâche à barres.
+                    </p>
+
+                    <h2 id="epaisseur-bulles" class="guide-section-title">Quelle épaisseur choisir ?</h2>
+                    <p>
+                        L'épaisseur est exprimée en microns (µm). Elle conditionne la durée de vie de la bâche,
+                        exposée en permanence aux UV et au chlore.
+                    </p>
+                    <div class="table-responsive">
+                        <table class="table table-bordered guide-table">
+                            <tbody>
+                                <tr><th>Épaisseur</th><th>Usage</th><th>Durée de vie indicative</th></tr>
+                                <tr><td>300 µm</td><td>Petits bassins, usage occasionnel</td><td>2 à 3 saisons</td></tr>
+                                <tr><td>400 µm</td><td>Le meilleur compromis pour la plupart des piscines</td><td>3 à 5 saisons</td></tr>
+                                <tr><td>500 µm</td><td>Grands bassins, usage intensif, traitement au sel</td><td>4 à 6 saisons</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="guide-tip">
+                        Pour une piscine traitée au sel ou très exposée au soleil, privilégiez au minimum 400 µm :
+                        la bâche résistera mieux au vieillissement.
+                    </p>
+
+                    <h2 id="couleur-bulles" class="guide-section-title">Quelle couleur choisir ?</h2>
+                    <ul>
+                        <li><strong>Bleue translucide</strong> : laisse passer la lumière, c'est la plus efficace pour réchauffer l'eau.</li>
+                        <li><strong>Bicolore (dessus clair, dessous noir ou opaque)</strong> : chauffe un peu moins mais bloque la lumière, ce qui freine le développement des algues.</li>
+                        <li><strong>Opaque ou « sol + guard »</strong> : compromis entre montée en température et protection anti-algues.</li>
+                    </ul>
+
+                    <h2 id="dimensions-bulles" class="guide-section-title">Bien prendre les mesures</h2>
+                    <p>
+                        La bâche se pose à plat sur l'eau et se recoupe facilement aux ciseaux. Mesurez la surface du
+                        bassin <strong>intérieur margelles</strong> et commandez une bâche légèrement plus grande
+                        (environ 10 à 20 cm de plus par côté) pour pouvoir l'ajuster.
+                    </p>
+                    <p class="guide-tip">
+                        Recoupez la bâche quelques jours après l'avoir posée sur l'eau : elle se rétracte légèrement
+                        au premier contact avec le soleil.
+                    </p>
+
+                    <h2 id="utilisation-bulles" class="guide-section-title">Utilisation et entretien</h2>
+                    <ul>
+                        <li>Posez toujours la bâche <strong>bulles côté eau</strong>.</li>
+                        <li>Utilisez un <strong>enrouleur</strong> : il facilite la manipulation et évite de plier la bâche.</li>
+                        <li>Ne la laissez pas enroulée au soleil hors de l'eau : la chaleur accumulée l'abîme rapidement.</li>
+                        <li>Retirez-la lors d'un traitement choc pour laisser le chlore se dissiper.</li>
+                        <li>En fin de saison, rincez-la, laissez-la sécher et rangez-la à l'abri, roulée et protégée.</li>
+                    </ul>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_ph -->
+    <record id="view_guide_ph_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_ph.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_ph"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_ph_body']" position="replace">
+                <div id="oe_guide_ph_body">
+                    <p class="guide-intro-text">
+                        Une eau limpide et confortable dépend avant tout de son équilibre. Le pH est le premier
+                        paramètre à surveiller : s'il dérive, le désinfectant perd son efficacité et les équipements
+                        s'abîment. Voici comment mesurer et corriger l'eau de votre piscine, dans le bon ordre.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#pourquoi-ph">Pourquoi le pH est essentiel</a></li>
+                            <li><a href="#valeurs-ideales">Les valeurs idéales</a></li>
+                            <li><a href="#ordre-reglage">L'ordre de réglage</a></li>
+                            <li><a href="#corriger-ph">Corriger le pH</a></li>
+                            <li><a href="#frequence-analyse">Fréquence des analyses</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 id="pourquoi-ph" class="guide-section-title">Pourquoi le pH est essentiel</h2>
+                    <p>
+                        Le pH mesure l'acidité de l'eau sur une échelle de 0 à 14. Il influence directement :
+                    </p>
+                    <ul>
+                        <li><strong>L'efficacité du chlore</strong> : au-delà de 7,6, une grande partie du chlore devient inactive.</li>
+                        <li><strong>Le confort des baigneurs</strong> : un pH déséquilibré irrite les yeux et la peau.</li>
+                        <li><strong>La durée de vie du matériel</strong> : un pH trop bas est corrosif, un pH trop haut favorise le calcaire et l'eau trouble.</li>
+                    </ul>
+
+                    <h2 id="valeurs-ideales" class="guide-section-title">Les valeurs idéales</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered guide-table">
+                            <tbody>
+                                <tr><th>Paramètre</th><th>Valeur idéale</th><th>Rôle</th></tr>
+                                <tr><td>pH</td><td>7,2 à 7,4</td><td>Efficacité du désinfectant et confort</td></tr>
+                                <tr><td>TAC (alcalinité)</td><td>80 à 120 mg/L</td><td>Stabilise le pH, évite les variations brutales</td></tr>
+                                <tr><td>TH (dureté calcique)</td><td>10 à 25 °f</td><td>Évite le calcaire (trop haut) et la corrosion (trop bas)</td></tr>
+                                <tr><td>Chlore libre</td><td>1 à 2 mg/L</td><td>Désinfection</td></tr>
+                                <tr><td>Stabilisant (acide cyanurique)</td><td>moins de 50 mg/L</td><td>Protège le chlore des UV ; en excès, il le bloque</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h2 id="ordre-reglage" class="guide-section-title">L'ordre de réglage</h2>
+                    <p>Corrigez toujours les paramètres dans cet ordre, sinon les réglages s'annulent entre eux :</p>
+                    <ol>
+                        <li><strong>Le TAC</strong> en premier : c'est lui qui « tient » le pH. Un TAC trop bas rend le pH instable.</li>
+                        <li><strong>Le pH</strong> ensuite, une fois le TAC dans la bonne plage.</li>
+                        <li><strong>Le désinfectant</strong> (chlore, brome, oxygène actif) en dernier.</li>
+                    </ol>
+                    <p class="guide-tip">
+                        Après chaque correction, laissez tourner la filtration plusieurs heures avant de refaire une
+                        mesure : le produit doit être bien réparti dans tout le bassin.
+                    </p>
+
+                    <h2 id="corriger-ph" class="guide-section-title">Corriger le pH</h2>
+                    <h3 class="guide-subsection-title">pH trop élevé (au-dessus de 7,4)</h3>
+                    <p>
+                        C'est le cas le plus fréquent, notamment avec un électrolyseur au sel ou une eau calcaire.
+                        Utilisez un <strong>pH moins</strong>, en poudre ou liquide, dosé selon le volume du bassin et
+                        l'écart à corriger.
+                    </p>
+                    <h3 class="guide-subsection-title">pH trop bas (en dessous de 7,2)</h3>
+                    <p>
+                        Utilisez un <strong>pH plus</strong>. Vérifiez aussi le TAC : un pH qui chute régulièrement
+                        signale souvent une alcalinité insuffisante.
+                    </p>
+                    <p class="guide-warning">
+                        Ne mélangez jamais deux produits chimiques entre eux et versez toujours le produit dans l'eau,
+                        jamais l'eau sur le produit. Respectez les doses et les consignes de sécurité du fabricant.
+                    </p>
+                    <p class="guide-tip">
+                        Une régulation automatique du pH (pompe doseuse) maintient la valeur idéale sans intervention
+                        et évite les variations, surtout en été.
+                    </p>
+
+                    <h2 id="frequence-analyse" class="guide-section-title">Fréquence des analyses</h2>
+                    <ul>
+                        <li><strong>pH et désinfectant</strong> : une à deux fois par semaine en saison, plus souvent par forte chaleur ou après un orage.</li>
+                        <li><strong>TAC et TH</strong> : en début de saison puis une fois par mois.</li>
+                        <li><strong>Stabilisant</strong> : quelques fois par saison si vous utilisez du chlore stabilisé.</li>
+                    </ul>
+                    <p>
+                        Pour aller plus loin, consultez nos
+                        <a href="/guides/entretien-eau-piscine">conseils sur l'entretien de l'eau de piscine</a>.
+                    </p>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_electrolyseur -->
+    <record id="view_guide_electrolyseur_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_electrolyseur.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_electrolyseur"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_electrolyseur_body']" position="replace">
+                <div id="oe_guide_electrolyseur_body">
+                    <p class="guide-intro-text">
+                        L'électrolyseur au sel produit lui-même le chlore dont votre piscine a besoin, à partir d'une
+                        eau légèrement salée. Moins de manipulations, une eau plus douce : encore faut-il choisir un
+                        appareil adapté à votre bassin.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#principe-electrolyse">Le principe</a></li>
+                            <li><a href="#avantages-electrolyse">Avantages et limites</a></li>
+                            <li><a href="#dimensionner-electrolyseur">Bien le dimensionner</a></li>
+                            <li><a href="#criteres-electrolyseur">Les critères de choix</a></li>
+                            <li><a href="#installation-electrolyseur">Installation et entretien</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 id="principe-electrolyse" class="guide-section-title">Le principe</h2>
+                    <p>
+                        On dissout du sel dans l'eau de la piscine, généralement autour de <strong>4 g/L</strong>
+                        (environ dix fois moins salée que l'eau de mer). En traversant la cellule de l'électrolyseur,
+                        l'eau salée est transformée en chlore actif, qui désinfecte le bassin puis se recombine en sel.
+                        Le cycle se répète en continu : le sel n'est consommé qu'en petite quantité.
+                    </p>
+
+                    <h2 id="avantages-electrolyse" class="guide-section-title">Avantages et limites</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered guide-table">
+                            <tbody>
+                                <tr><th>Avantages</th><th>Points d'attention</th></tr>
+                                <tr><td>Plus de manipulation ni de stockage de chlore</td><td>Investissement de départ plus élevé</td></tr>
+                                <tr><td>Eau plus douce pour la peau et les yeux</td><td>Le pH a tendance à monter : une régulation pH est fortement conseillée</td></tr>
+                                <tr><td>Production de chlore régulière, sans pics</td><td>Production réduite quand l'eau est froide</td></tr>
+                                <tr><td>Coût d'entretien annuel réduit</td><td>Cellule à remplacer après plusieurs saisons</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h2 id="dimensionner-electrolyseur" class="guide-section-title">Bien le dimensionner</h2>
+                    <p>
+                        La capacité d'un électrolyseur s'exprime en <strong>grammes de chlore par heure (g/h)</strong>
+                        ou par le volume maximal de bassin qu'il peut traiter. Choisissez toujours un modèle
+                        <strong>supérieur à votre volume réel</strong> : l'appareil travaillera moins, durera plus
+                        longtemps et fera face aux pics de chaleur et de fréquentation.
+                    </p>
+                    <p class="guide-tip">
+                        Pour calculer votre volume : longueur × largeur × profondeur moyenne (en mètres) = volume en m³.
+                        Ajoutez une marge d'environ 20 à 30 % si la piscine est très ensoleillée ou très fréquentée.
+                    </p>
+
+                    <h2 id="criteres-electrolyseur" class="guide-section-title">Les critères de choix</h2>
+                    <ul>
+                        <li><strong>Inversion de polarité</strong> : la cellule s'autonettoie et s'entartre beaucoup moins.</li>
+                        <li><strong>Durée de vie de la cellule</strong>, exprimée en heures de fonctionnement : comparez-la entre modèles.</li>
+                        <li><strong>Régulation intégrée</strong> du pH et/ou du chlore (sonde Redox) pour une eau stable sans intervention.</li>
+                        <li><strong>Mode volet / couverture</strong> : réduit la production quand la piscine est couverte.</li>
+                        <li><strong>Sonde de température</strong> : protège la cellule quand l'eau est trop froide.</li>
+                        <li><strong>Électrolyse « basse salinité »</strong> : certains modèles fonctionnent avec moins de sel, pour une eau encore plus douce.</li>
+                    </ul>
+
+                    <h2 id="installation-electrolyseur" class="guide-section-title">Installation et entretien</h2>
+                    <ul>
+                        <li>La cellule se monte sur le refoulement, <strong>après le filtre et après un éventuel réchauffeur</strong>.</li>
+                        <li>L'électrolyseur ne produit que lorsque la filtration tourne : adaptez le temps de filtration.</li>
+                        <li>Contrôlez régulièrement le taux de sel, le pH et l'état de la cellule.</li>
+                        <li>À l'hivernage, retirez ou mettez la cellule hors gel selon les consignes du fabricant.</li>
+                    </ul>
+                    <p class="guide-warning">
+                        Une eau salée accélère la corrosion des pièces métalliques. Vérifiez la compatibilité de vos
+                        équipements (échelle, pompe à chaleur, projecteurs) et pensez à installer un
+                        <a href="/guides/pool-terre-piscine">Pool Terre</a> pour limiter les courants parasites.
+                    </p>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_coque -->
+    <record id="view_guide_coque_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_coque.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_coque"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_coque_body']" position="replace">
+                <div id="oe_guide_coque_body">
+                    <p class="guide-intro-text">
+                        La piscine coque polyester est livrée d'une seule pièce, prête à poser. Rapide à installer et
+                        facile à entretenir, elle séduit de plus en plus. Voici ce qu'il faut savoir avant de vous
+                        lancer.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#avantages-coque">Les avantages</a></li>
+                            <li><a href="#limites-coque">Les limites</a></li>
+                            <li><a href="#qualite-coque">Reconnaître une coque de qualité</a></li>
+                            <li><a href="#terrain-coque">Le terrain et l'accès</a></li>
+                            <li><a href="#pose-coque">Les étapes de pose</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 id="avantages-coque" class="guide-section-title">Les avantages</h2>
+                    <ul>
+                        <li><strong>Installation rapide</strong> : la pose se fait en quelques jours une fois le terrassement réalisé.</li>
+                        <li><strong>Surface lisse</strong> : le gelcoat est agréable au toucher et limite l'accroche des algues.</li>
+                        <li><strong>Étanchéité garantie</strong> : une seule pièce, sans joint ni liner à remplacer.</li>
+                        <li><strong>Escaliers et banquettes intégrés</strong> dans le moule.</li>
+                        <li><strong>Entretien facilité</strong> et consommation de produits réduite.</li>
+                    </ul>
+
+                    <h2 id="limites-coque" class="guide-section-title">Les limites</h2>
+                    <ul>
+                        <li><strong>Formes et dimensions imposées</strong> par les moules du fabricant.</li>
+                        <li><strong>Transport</strong> : la coque voyage en convoi exceptionnel, ce qui limite la largeur et impose un accès adapté.</li>
+                        <li><strong>Grutage</strong> souvent nécessaire pour la mise en place.</li>
+                        <li><strong>Sensibilité à la nappe phréatique</strong> : une coque vide peut se soulever si l'eau du sol remonte.</li>
+                    </ul>
+                    <p class="guide-warning">
+                        Ne vidangez jamais complètement une piscine coque sans l'avis d'un professionnel : la pression
+                        du sol ou de la nappe phréatique peut la déformer ou la soulever.
+                    </p>
+
+                    <h2 id="qualite-coque" class="guide-section-title">Reconnaître une coque de qualité</h2>
+                    <ul>
+                        <li><strong>Gelcoat de qualité</strong> (type vinylester ou isophtalique), plus résistant à l'osmose et aux UV.</li>
+                        <li><strong>Épaisseur et renforts</strong> de la structure stratifiée, notamment en fond et en partie haute.</li>
+                        <li><strong>Garantie structure</strong> longue, à lire attentivement (osmose, décoloration, structure).</li>
+                        <li><strong>Réputation du fabricant</strong> et réseau de poseurs.</li>
+                    </ul>
+
+                    <h2 id="terrain-coque" class="guide-section-title">Le terrain et l'accès</h2>
+                    <p>Avant de choisir votre modèle, vérifiez :</p>
+                    <ul>
+                        <li>l'<strong>accès au jardin</strong> pour le camion et la grue (largeur, hauteur, câbles aériens) ;</li>
+                        <li>la <strong>nature du sol</strong> et la présence éventuelle d'une nappe phréatique ;</li>
+                        <li>les <strong>règles d'urbanisme</strong> de votre commune (voir notre guide sur la <a href="/guides/declaration-prealable-travaux-piscine">déclaration de travaux</a>).</li>
+                    </ul>
+
+                    <h2 id="pose-coque" class="guide-section-title">Les étapes de pose</h2>
+                    <ol>
+                        <li>Terrassement légèrement plus grand que la coque.</li>
+                        <li>Réalisation d'un radier : lit de gravier stabilisé ou dalle béton selon le sol.</li>
+                        <li>Mise en place de la coque par grutage et contrôle des niveaux.</li>
+                        <li>Raccordement hydraulique et pose des pièces à sceller.</li>
+                        <li>Remblaiement progressif <strong>en même temps que le remplissage en eau</strong>, pour équilibrer les pressions.</li>
+                        <li>Réalisation de la ceinture béton et pose des margelles.</li>
+                    </ol>
+                    <p class="guide-tip">
+                        Prévoyez un puits de décompression lors du terrassement : il permet de contrôler et de pomper
+                        la nappe phréatique si nécessaire, notamment lors d'une vidange.
+                    </p>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_barriere -->
+    <record id="view_guide_barriere_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_barriere.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_barriere"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_barriere_body']" position="replace">
+                <div id="oe_guide_barriere_body">
+                    <p class="guide-intro-text">
+                        La barrière à filet souple est une solution de sécurité discrète et amovible pour empêcher
+                        l'accès au bassin des jeunes enfants. Bien posée, elle s'installe et se démonte facilement.
+                        Voici les étapes et les règles à respecter.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#norme-barriere">Ce que dit la norme</a></li>
+                            <li><a href="#preparer-barriere">Préparer l'installation</a></li>
+                            <li><a href="#pose-dalle">Pose sur dalle ou terrasse</a></li>
+                            <li><a href="#pose-terre">Pose en pleine terre</a></li>
+                            <li><a href="#tension-portillon">Tension du filet et portillon</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 id="norme-barriere" class="guide-section-title">Ce que dit la norme</h2>
+                    <p>
+                        Les barrières de protection pour piscines privées sont encadrées par la norme
+                        <strong>NF P90-306</strong>. Une barrière conforme doit notamment :
+                    </p>
+                    <ul>
+                        <li>mesurer au moins <strong>1,10 m de haut</strong> entre deux points d'appui ;</li>
+                        <li>ne pas permettre à un jeune enfant de l'escalader ni de passer dessous ;</li>
+                        <li>être équipée d'un <strong>portillon à fermeture et verrouillage automatiques</strong> ;</li>
+                        <li>ne pas présenter d'éléments blessants.</li>
+                    </ul>
+                    <p class="guide-warning">
+                        Une barrière ne remplace jamais la surveillance active d'un adulte. Elle doit toujours être
+                        refermée après chaque baignade.
+                    </p>
+
+                    <h2 id="preparer-barriere" class="guide-section-title">Préparer l'installation</h2>
+                    <ul>
+                        <li>Délimitez le périmètre en laissant un passage confortable autour du bassin.</li>
+                        <li>Repérez l'emplacement des poteaux d'angle, puis des poteaux intermédiaires à intervalles réguliers selon la notice du fabricant.</li>
+                        <li>Choisissez l'emplacement du portillon : côté maison, loin de tout objet permettant d'escalader.</li>
+                        <li>Éloignez la barrière de tout mobilier, muret ou arbuste qui pourrait servir de marchepied.</li>
+                    </ul>
+
+                    <h2 id="pose-dalle" class="guide-section-title">Pose sur dalle ou terrasse</h2>
+                    <ol>
+                        <li>Tracez l'axe de la barrière au cordeau.</li>
+                        <li>Percez la dalle aux emplacements des poteaux, au diamètre indiqué par le fabricant.</li>
+                        <li>Insérez les fourreaux ou fixez les platines avec des chevilles adaptées au support.</li>
+                        <li>Contrôlez l'alignement et la verticalité de chaque fourreau avant la prise du scellement.</li>
+                    </ol>
+
+                    <h2 id="pose-terre" class="guide-section-title">Pose en pleine terre</h2>
+                    <ol>
+                        <li>Creusez un trou par poteau et coulez un plot béton.</li>
+                        <li>Noyez le fourreau dans le béton frais, affleurant au niveau du sol.</li>
+                        <li>Vérifiez l'aplomb et laissez sécher complètement avant de poser la barrière.</li>
+                    </ol>
+
+                    <h2 id="tension-portillon" class="guide-section-title">Tension du filet et portillon</h2>
+                    <ul>
+                        <li>Commencez par un poteau d'angle et déroulez la barrière section par section.</li>
+                        <li>Inclinez légèrement chaque poteau vers l'extérieur avant de l'insérer : le filet se tend en le redressant.</li>
+                        <li>Le filet doit être bien tendu, sans poche ni jour en bas de barrière.</li>
+                        <li>Installez le portillon et testez la fermeture et le verrouillage automatiques à plusieurs reprises.</li>
+                    </ul>
+                    <p class="guide-tip">
+                        Pour démonter la barrière, il suffit de retirer les poteaux de leurs fourreaux et de rouler le
+                        filet. Refermez les fourreaux avec leurs bouchons pour éviter qu'ils ne se remplissent de
+                        terre.
+                    </p>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_kit -->
+    <record id="view_guide_kit_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_kit.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_kit"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_kit_body']" position="replace">
+                <div id="oe_guide_kit_body">
+                    <p class="guide-intro-text">
+                        Une piscine en kit permet de profiter d'un bassin à budget maîtrisé, en réalisant soi-même une
+                        grande partie du montage. La réussite tient surtout à la préparation du terrain. Voici les
+                        étapes clés.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#types-kit">Les différents kits</a></li>
+                            <li><a href="#emplacement-kit">Choisir l'emplacement</a></li>
+                            <li><a href="#terrain-kit">Préparer le terrain</a></li>
+                            <li><a href="#montage-kit">Monter la structure</a></li>
+                            <li><a href="#liner-kit">Liner, filtration et mise en eau</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 id="types-kit" class="guide-section-title">Les différents kits</h2>
+                    <ul>
+                        <li><strong>Kit bois</strong> : esthétique, hors sol ou semi-enterré.</li>
+                        <li><strong>Kit acier ou résine</strong> : économique et rapide à monter.</li>
+                        <li><strong>Kit à panneaux ou blocs à bancher</strong> : pour une piscine enterrée durable.</li>
+                    </ul>
+                    <p>
+                        Pour comparer ces solutions, consultez aussi notre guide
+                        <a href="/guides/choisir-piscine-hors-sol">Quelle piscine hors sol choisir ?</a>
+                    </p>
+
+                    <h2 id="emplacement-kit" class="guide-section-title">Choisir l'emplacement</h2>
+                    <ul>
+                        <li>Un endroit <strong>ensoleillé</strong> et abrité du vent.</li>
+                        <li>À l'écart des arbres pour limiter les feuilles et les racines.</li>
+                        <li>Un sol stable, sans canalisation ni câble enterré.</li>
+                        <li>Proche d'une arrivée d'eau et d'une alimentation électrique pour la filtration.</li>
+                        <li>Conforme aux règles d'urbanisme de votre commune.</li>
+                    </ul>
+
+                    <h2 id="terrain-kit" class="guide-section-title">Préparer le terrain</h2>
+                    <p>
+                        C'est l'étape la plus importante : un sol mal préparé provoque des plis dans le liner et peut
+                        déformer la structure.
+                    </p>
+                    <ol>
+                        <li>Délimitez la zone en ajoutant une marge autour du bassin.</li>
+                        <li>Décaissez la terre végétale jusqu'à un sol ferme.</li>
+                        <li>Réalisez une <strong>dalle béton</strong> parfaitement plane (recommandée) ou un lit de sable stabilisé bien compacté, selon les prescriptions du fabricant.</li>
+                        <li>Vérifiez la planéité au niveau et à la règle dans toutes les directions.</li>
+                    </ol>
+                    <p class="guide-warning">
+                        Ne montez jamais une piscine sur un terrain en pente ou mal compacté : le poids de l'eau
+                        (plusieurs dizaines de tonnes) accentuera le moindre défaut.
+                    </p>
+
+                    <h2 id="montage-kit" class="guide-section-title">Monter la structure</h2>
+                    <ol>
+                        <li>Repérez toutes les pièces et suivez scrupuleusement l'ordre de la notice.</li>
+                        <li>Assemblez les parois ou les madriers en contrôlant régulièrement l'équerrage.</li>
+                        <li>Posez les renforts et les jambes de force prévus.</li>
+                        <li>Préparez les ouvertures du skimmer et des buses de refoulement.</li>
+                    </ol>
+
+                    <h2 id="liner-kit" class="guide-section-title">Liner, filtration et mise en eau</h2>
+                    <ol>
+                        <li>Posez un <strong>tapis de sol</strong> (feutre ou mousse) pour protéger le liner.</li>
+                        <li>Installez le liner par temps doux : il est plus souple et se met mieux en place.</li>
+                        <li>Commencez à remplir de quelques centimètres et chassez les plis de fond à la main.</li>
+                        <li>Montez les pièces à sceller (skimmer, buses) au fur et à mesure du remplissage.</li>
+                        <li>Raccordez la filtration, terminez le remplissage et lancez le premier traitement.</li>
+                    </ol>
+                    <p class="guide-tip">
+                        Faites découper les ouvertures du liner seulement quand l'eau arrive à quelques centimètres
+                        sous la pièce à sceller : le liner sera bien tendu et la découpe précise.
+                    </p>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_redemarrage -->
+    <record id="view_guide_redemarrage_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_redemarrage.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_redemarrage"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_redemarrage_body']" position="replace">
+                <div id="oe_guide_redemarrage_body">
+                    <p class="guide-intro-text">
+                        Au retour des beaux jours, une remise en route soignée vous fera gagner du temps et des
+                        produits pour toute la saison. Le bon moment : quand l'eau dépasse durablement 12 à 15 °C.
+                        Voici les étapes dans l'ordre.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#couverture-redemarrage">Retirer et nettoyer la couverture</a></li>
+                            <li><a href="#niveau-redemarrage">Nettoyer et remettre à niveau</a></li>
+                            <li><a href="#filtration-redemarrage">Remettre la filtration en route</a></li>
+                            <li><a href="#traitement-redemarrage">Équilibrer et traiter l'eau</a></li>
+                            <li><a href="#equipements-redemarrage">Contrôler les équipements</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 id="couverture-redemarrage" class="guide-section-title">1. Retirer et nettoyer la couverture</h2>
+                    <p>
+                        Évacuez l'eau et les feuilles accumulées sur la bâche avant de la retirer, pour éviter de les
+                        faire tomber dans le bassin. Nettoyez-la, laissez-la sécher complètement et rangez-la à l'abri
+                        jusqu'à l'automne.
+                    </p>
+
+                    <h2 id="niveau-redemarrage" class="guide-section-title">2. Nettoyer et remettre à niveau</h2>
+                    <ul>
+                        <li>Retirez les flotteurs d'hivernage et les bouchons ou « gizzmo » des skimmers.</li>
+                        <li>Ramassez les débris à l'épuisette et nettoyez la ligne d'eau.</li>
+                        <li>Brossez parois et fond, puis passez l'aspirateur ou le robot.</li>
+                        <li>Remettez l'eau à niveau, au milieu de la bouche des skimmers.</li>
+                    </ul>
+
+                    <h2 id="filtration-redemarrage" class="guide-section-title">3. Remettre la filtration en route</h2>
+                    <ol>
+                        <li>Remontez les bouchons de vidange de la pompe et du filtre retirés à l'hivernage.</li>
+                        <li>Nettoyez le préfiltre de la pompe.</li>
+                        <li>Amorcez la pompe et vérifiez l'absence de fuite.</li>
+                        <li>Réalisez un <a href="/guides/contre-lavage-filtre-piscine">contre-lavage</a> du filtre.</li>
+                        <li>Faites tourner la filtration <strong>en continu pendant 24 à 48 heures</strong>.</li>
+                    </ol>
+
+                    <h2 id="traitement-redemarrage" class="guide-section-title">4. Équilibrer et traiter l'eau</h2>
+                    <ol>
+                        <li>Analysez l'eau : TAC, pH, puis désinfectant.</li>
+                        <li>Corrigez le TAC, puis le pH (7,2 à 7,4) — voir notre guide <a href="/guides/equilibrer-eau-ph-piscine">équilibrer l'eau et le pH</a>.</li>
+                        <li>Réalisez un <strong>traitement choc</strong> pour éliminer les bactéries et les algues.</li>
+                        <li>Ajoutez un anti-algues préventif si nécessaire.</li>
+                        <li>Reprenez le traitement d'entretien une fois l'eau claire.</li>
+                    </ol>
+                    <p class="guide-tip">
+                        Règle pratique pour la durée de filtration en saison : température de l'eau divisée par deux,
+                        en heures par jour (eau à 24 °C → environ 12 h de filtration).
+                    </p>
+
+                    <h2 id="equipements-redemarrage" class="guide-section-title">5. Contrôler les équipements</h2>
+                    <ul>
+                        <li>Remettez en place la cellule de l'électrolyseur et les sondes, puis étalonnez-les.</li>
+                        <li>Testez la pompe à chaleur, les projecteurs et l'horloge de filtration.</li>
+                        <li>Vérifiez l'état des joints, du liner et des pièces à sceller.</li>
+                    </ul>
+                    <p class="guide-warning">
+                        Une eau verte ou trouble après plusieurs jours de filtration et de traitement choc peut
+                        indiquer un problème de filtre ou d'équilibre. Contactez-nous avant de multiplier les produits.
+                    </p>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_hors_sol -->
+    <record id="view_guide_hors_sol_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_hors_sol.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_hors_sol"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_hors_sol_body']" position="replace">
+                <div id="oe_guide_hors_sol_body">
+                    <p class="guide-intro-text">
+                        Autoportante, tubulaire, acier, bois ou composite : il existe une piscine hors sol pour chaque
+                        budget et chaque jardin. Voici un comparatif complet pour trouver celle qui vous correspond.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#comparatif-hors-sol">Le comparatif</a></li>
+                            <li><a href="#types-hors-sol">Chaque type en détail</a></li>
+                            <li><a href="#criteres-hors-sol">Les bons critères</a></li>
+                            <li><a href="#equipement-hors-sol">L'équipement indispensable</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 id="comparatif-hors-sol" class="guide-section-title">Le comparatif</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered guide-table">
+                            <tbody>
+                                <tr><th>Type</th><th>Budget</th><th>Durée de vie</th><th>Montage</th><th>Semi-enterrable</th></tr>
+                                <tr><td>Autoportante</td><td>€</td><td>1 à 3 saisons</td><td>Très facile</td><td>❌</td></tr>
+                                <tr><td>Tubulaire</td><td>€</td><td>2 à 5 saisons</td><td>Facile</td><td>❌</td></tr>
+                                <tr><td>Acier</td><td>€€</td><td>10 ans et plus</td><td>Moyen</td><td>Selon modèle</td></tr>
+                                <tr><td>Bois</td><td>€€ à €€€</td><td>10 à 20 ans</td><td>Moyen à long</td><td>✔️</td></tr>
+                                <tr><td>Composite / résine</td><td>€€€</td><td>15 ans et plus</td><td>Moyen</td><td>✔️</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h2 id="types-hors-sol" class="guide-section-title">Chaque type en détail</h2>
+                    <h3 class="guide-subsection-title">Autoportante et tubulaire</h3>
+                    <p>
+                        Idéales pour se rafraîchir à petit prix. Elles se montent en quelques heures et se démontent
+                        l'hiver, mais leur durée de vie et leur esthétique restent limitées.
+                    </p>
+                    <h3 class="guide-subsection-title">Acier</h3>
+                    <p>
+                        Robuste et durable pour un budget raisonnable. Les parois en acier galvanisé et laqué
+                        supportent bien les saisons ; certains modèles renforcés acceptent une pose semi-enterrée.
+                    </p>
+                    <h3 class="guide-subsection-title">Bois</h3>
+                    <p>
+                        La plus esthétique, elle s'intègre naturellement au jardin. Choisissez un bois traité
+                        autoclave classe 4 et vérifiez l'épaisseur des madriers.
+                    </p>
+                    <h3 class="guide-subsection-title">Composite et résine</h3>
+                    <p>
+                        Haut de gamme, sans entretien du bois et très résistante. Elle imite souvent le bois ou la
+                        pierre et se prête bien à une installation semi-enterrée.
+                    </p>
+
+                    <h2 id="criteres-hors-sol" class="guide-section-title">Les bons critères</h2>
+                    <ul>
+                        <li><strong>L'usage</strong> : quelques baignades l'été ou une vraie piscine familiale.</li>
+                        <li><strong>La place disponible</strong>, en gardant un passage autour du bassin.</li>
+                        <li><strong>La hauteur d'eau</strong> : 1,20 m convient à la plupart des familles.</li>
+                        <li><strong>La qualité du liner</strong> : son épaisseur conditionne sa longévité.</li>
+                        <li><strong>La sécurité</strong> : échelle relevable ou amovible et couverture adaptée.</li>
+                    </ul>
+                    <p class="guide-warning">
+                        Même hors sol, une piscine représente un risque de noyade. Retirez l'échelle après chaque
+                        baignade et ne laissez jamais un enfant sans surveillance.
+                    </p>
+
+                    <h2 id="equipement-hors-sol" class="guide-section-title">L'équipement indispensable</h2>
+                    <ul>
+                        <li>Un groupe de filtration dimensionné pour le volume du bassin.</li>
+                        <li>Un tapis de sol pour protéger le liner.</li>
+                        <li>Une <a href="/guides/choisir-bache-bulles">bâche à bulles</a> pour l'été et une couverture d'hiver.</li>
+                        <li>Un kit d'entretien : épuisette, brosse, aspirateur et trousse d'analyse.</li>
+                    </ul>
+                    <p class="guide-tip">
+                        Pour le montage pas à pas, consultez notre
+                        <a href="/guides/montage-piscine-kit">guide de montage d'une piscine en kit</a>.
+                    </p>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_pool_terre -->
+    <record id="view_guide_pool_terre_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_pool_terre.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_pool_terre"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_pool_terre_body']" position="replace">
+                <div id="oe_guide_pool_terre_body">
+                    <p class="guide-intro-text">
+                        Petit accessoire méconnu, le Pool Terre protège pourtant les équipements de votre piscine
+                        contre la corrosion. Il est particulièrement recommandé avec un traitement au sel.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#definition-pool-terre">Qu'est-ce qu'un Pool Terre ?</a></li>
+                            <li><a href="#utilite-pool-terre">À quoi sert-il ?</a></li>
+                            <li><a href="#quand-pool-terre">Dans quels cas l'installer ?</a></li>
+                            <li><a href="#installation-pool-terre">Installation</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 id="definition-pool-terre" class="guide-section-title">Qu'est-ce qu'un Pool Terre ?</h2>
+                    <p>
+                        Le Pool Terre est une électrode, généralement en titane ou en graphite, montée sur la
+                        tuyauterie de filtration et reliée à la <strong>terre de l'installation électrique</strong>.
+                        Elle est en contact permanent avec l'eau de la piscine.
+                    </p>
+
+                    <h2 id="utilite-pool-terre" class="guide-section-title">À quoi sert-il ?</h2>
+                    <p>
+                        L'eau d'une piscine peut se charger en électricité statique ou en courants parasites,
+                        provenant des équipements électriques, d'un défaut d'isolement ou de l'électrolyse elle-même.
+                        Le Pool Terre évacue ces charges vers la terre. Résultat :
+                    </p>
+                    <ul>
+                        <li>moins de <strong>corrosion</strong> sur les pièces métalliques : échelle, projecteurs, échangeur de la pompe à chaleur ;</li>
+                        <li>une meilleure protection de la <strong>cellule d'électrolyse</strong> ;</li>
+                        <li>moins de picotements ressentis par les baigneurs en cas de courant parasite.</li>
+                    </ul>
+
+                    <h2 id="quand-pool-terre" class="guide-section-title">Dans quels cas l'installer ?</h2>
+                    <ul>
+                        <li>Piscine équipée d'un <a href="/guides/choisir-electrolyseur-piscine">électrolyseur au sel</a>.</li>
+                        <li>Présence d'une pompe à chaleur ou d'un échangeur métallique.</li>
+                        <li>Traces de corrosion inexpliquées sur les inox (échelle, buses, vis).</li>
+                        <li>Sensation de picotements dans l'eau.</li>
+                    </ul>
+
+                    <h2 id="installation-pool-terre" class="guide-section-title">Installation</h2>
+                    <ol>
+                        <li>Montez le Pool Terre sur la canalisation de refoulement, à l'aide d'un collier de prise en charge.</li>
+                        <li>Raccordez son câble à la terre du coffret électrique de la piscine.</li>
+                        <li>Vérifiez l'étanchéité au redémarrage de la filtration.</li>
+                    </ol>
+                    <p class="guide-warning">
+                        Le raccordement électrique doit être réalisé par une personne qualifiée, sur une installation
+                        conforme et protégée par un différentiel 30 mA. En cas de picotements dans l'eau, sortez du
+                        bassin et faites contrôler l'installation sans attendre : le Pool Terre ne remplace pas une
+                        mise en conformité.
+                    </p>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_robot -->
+    <record id="view_guide_robot_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_robot.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_robot"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_robot_body']" position="replace">
+                <div id="oe_guide_robot_body">
+                    <p class="guide-intro-text">
+                        Le robot de piscine nettoie le fond, les parois et parfois la ligne d'eau à votre place.
+                        Hydraulique, électrique ou sans fil : voici comment choisir le modèle adapté à votre bassin.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#types-robot">Les types de robots</a></li>
+                            <li><a href="#comparatif-robot">Le comparatif</a></li>
+                            <li><a href="#criteres-robot">Les critères de choix</a></li>
+                            <li><a href="#entretien-robot">Entretien du robot</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 id="types-robot" class="guide-section-title">Les types de robots</h2>
+                    <h3 class="guide-subsection-title">Robot hydraulique</h3>
+                    <p>
+                        Il se branche sur le skimmer ou la prise balai et utilise l'aspiration de la filtration.
+                        Économique et simple, il nettoie surtout le fond et sollicite davantage le filtre.
+                    </p>
+                    <h3 class="guide-subsection-title">Robot électrique</h3>
+                    <p>
+                        Autonome, il possède son propre moteur et son propre filtre. Il se déplace intelligemment,
+                        nettoie fond, parois et ligne d'eau selon les modèles et soulage la filtration.
+                    </p>
+                    <h3 class="guide-subsection-title">Robot sans fil</h3>
+                    <p>
+                        Fonctionnant sur batterie, il supprime le câble flottant. Idéal pour les petits et moyens
+                        bassins, avec une autonomie à vérifier selon la taille de votre piscine.
+                    </p>
+
+                    <h2 id="comparatif-robot" class="guide-section-title">Le comparatif</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered guide-table">
+                            <tbody>
+                                <tr><th>Critère</th><th>Hydraulique</th><th>Électrique</th><th>Sans fil</th></tr>
+                                <tr><td>Budget</td><td>€</td><td>€€ à €€€</td><td>€€ à €€€</td></tr>
+                                <tr><td>Fond</td><td>✔️</td><td>✔️</td><td>✔️</td></tr>
+                                <tr><td>Parois et ligne d'eau</td><td>❌</td><td>✔️ selon modèle</td><td>✔️ selon modèle</td></tr>
+                                <tr><td>Filtre intégré</td><td>❌</td><td>✔️</td><td>✔️</td></tr>
+                                <tr><td>Indépendant de la filtration</td><td>❌</td><td>✔️</td><td>✔️</td></tr>
+                                <tr><td>Sans câble</td><td>✔️</td><td>❌</td><td>✔️</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h2 id="criteres-robot" class="guide-section-title">Les critères de choix</h2>
+                    <ul>
+                        <li><strong>Taille et forme du bassin</strong> : vérifiez la longueur maximale et la longueur de câble.</li>
+                        <li><strong>Zones nettoyées</strong> : fond seul ou fond, parois et ligne d'eau.</li>
+                        <li><strong>Type de revêtement</strong> : liner, coque, carrelage ou béton (brosses adaptées).</li>
+                        <li><strong>Finesse de filtration</strong> : des filtres fins retiennent pollens et poussières.</li>
+                        <li><strong>Programmes et durée de cycle</strong>, voire pilotage par application.</li>
+                        <li><strong>Câble avec swivel</strong> : il évite que le câble ne s'emmêle.</li>
+                        <li><strong>Poids et chariot</strong> : un robot léger ou à vidage par le haut est plus pratique.</li>
+                    </ul>
+                    <p class="guide-tip">
+                        Un robot électrique qui nettoie aussi la ligne d'eau vous évite la corvée la plus pénible :
+                        le dépôt gras qui se forme au niveau de l'eau.
+                    </p>
+
+                    <h2 id="entretien-robot" class="guide-section-title">Entretien du robot</h2>
+                    <ul>
+                        <li>Videz et rincez le filtre après chaque cycle.</li>
+                        <li>Ne laissez pas le robot dans l'eau en permanence, surtout lors d'un traitement choc.</li>
+                        <li>Vérifiez régulièrement l'usure des brosses et des chenilles.</li>
+                        <li>Rangez-le à l'ombre, sur son chariot, et hivernez-le hors gel.</li>
+                    </ul>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_declaration -->
+    <record id="view_guide_declaration_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_declaration.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_declaration"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_declaration_body']" position="replace">
+                <div id="oe_guide_declaration_body">
+                    <p class="guide-intro-text">
+                        Avant de construire une piscine, il faut vérifier les formalités d'urbanisme. Selon la taille du
+                        bassin, son implantation et votre région, une simple vérification suffit ou un permis est
+                        nécessaire. Voici les grands principes pour la Belgique et la France.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#belgique-wallonie">Belgique : Wallonie</a></li>
+                            <li><a href="#belgique-bruxelles">Belgique : Bruxelles</a></li>
+                            <li><a href="#belgique-flandre">Belgique : Flandre</a></li>
+                            <li><a href="#france-declaration">France</a></li>
+                            <li><a href="#dossier-declaration">Préparer son dossier</a></li>
+                        </ul>
+                    </div>
+
+                    <p class="guide-warning">
+                        Ce guide donne des repères généraux et ne constitue pas un avis juridique. Les règles évoluent
+                        et un règlement communal peut être plus strict : renseignez-vous toujours auprès du service
+                        urbanisme de votre commune avant de commencer les travaux.
+                    </p>
+
+                    <h2 id="belgique-wallonie" class="guide-section-title">Belgique : Wallonie</h2>
+                    <p>
+                        Une piscine privée peut être dispensée de permis d'urbanisme si <strong>toutes</strong> les
+                        conditions suivantes sont réunies :
+                    </p>
+                    <ul>
+                        <li>une seule piscine sur la propriété, à usage privé ;</li>
+                        <li>une surface de <strong>75 m² maximum</strong> ;</li>
+                        <li>non visible depuis la rue ;</li>
+                        <li>à au moins <strong>3 m des limites</strong> de la parcelle ;</li>
+                        <li>sans modification sensible du relief du terrain ;</li>
+                        <li>si elle est couverte, uniquement par un abri léger coulissant ou pliable, de hauteur limitée.</li>
+                    </ul>
+                    <p>
+                        Si une condition n'est pas remplie, un permis est en principe nécessaire, généralement sous
+                        une forme simplifiée délivrée par la commune.
+                    </p>
+
+                    <h2 id="belgique-bruxelles" class="guide-section-title">Belgique : Bruxelles</h2>
+                    <p>Les conditions de dispense sont plus restrictives :</p>
+                    <ul>
+                        <li>piscine enterrée et non couverte, dans la zone de cour et jardin ;</li>
+                        <li><strong>20 m² maximum</strong> ;</li>
+                        <li>à au moins <strong>2 m</strong> des propriétés voisines ;</li>
+                        <li>non visible depuis la voie publique.</li>
+                    </ul>
+
+                    <h2 id="belgique-flandre" class="guide-section-title">Belgique : Flandre</h2>
+                    <p>
+                        Une piscine non couverte installée dans le jardin latéral ou arrière peut être dispensée de
+                        permis sous conditions : surface totale limitée (en comptant la terrasse et les abords),
+                        distance minimale par rapport à la limite de la parcelle et proximité de l'habitation, hors
+                        zones protégées ou inondables. Vérifiez les conditions précises auprès de votre commune.
+                    </p>
+
+                    <h2 id="france-declaration" class="guide-section-title">France</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered guide-table">
+                            <tbody>
+                                <tr><th>Surface du bassin</th><th>Formalité</th></tr>
+                                <tr><td>Moins de 10 m²</td><td>Aucune formalité (hors secteur protégé)</td></tr>
+                                <tr><td>De 10 à 100 m², non couverte ou abri bas</td><td>Déclaration préalable de travaux</td></tr>
+                                <tr><td>Plus de 100 m², ou abri haut</td><td>Permis de construire</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p>
+                        En France, une piscine enterrée privée doit en outre être équipée d'un dispositif de sécurité
+                        normalisé : barrière, couverture, abri ou alarme.
+                    </p>
+
+                    <h2 id="dossier-declaration" class="guide-section-title">Préparer son dossier</h2>
+                    <p>Qu'il s'agisse d'une vérification ou d'une demande de permis, prévoyez :</p>
+                    <ul>
+                        <li>un plan de situation de la parcelle ;</li>
+                        <li>un plan d'implantation coté, avec les distances aux limites ;</li>
+                        <li>les dimensions et la profondeur du bassin ;</li>
+                        <li>des photos du terrain et de son environnement ;</li>
+                        <li>les caractéristiques des équipements : local technique, abri éventuel, dispositif de sécurité.</li>
+                    </ul>
+                    <p class="guide-tip">
+                        Nous pouvons vous transmettre les fiches techniques des équipements que vous achetez chez nous
+                        pour compléter votre dossier. Contactez-nous via le formulaire ci-dessous.
+                    </p>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- inject content → guide_bache_barres -->
+    <record id="view_guide_bache_barres_content" model="ir.ui.view">
+        <field name="name">lolirine_pool_website.guide_bache_barres.content</field>
+        <field name="inherit_id" ref="lolirine_pool_website.view_guide_bache_barres"/>
+        <field name="website_id">6</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='oe_guide_bache_barres_body']" position="replace">
+                <div id="oe_guide_bache_barres_body">
+                    <p class="guide-intro-text">
+                        La bâche à barres est l'une des couvertures de sécurité les plus polyvalentes : elle protège
+                        les enfants, garde l'eau propre et s'utilise toute l'année. Voici comment bien la choisir.
+                    </p>
+
+                    <div class="guide-summary">
+                        <p class="guide-summary-title">Sommaire</p>
+                        <ul class="guide-summary-list">
+                            <li><a href="#principe-barres">Le principe</a></li>
+                            <li><a href="#norme-barres">Sécurité et norme</a></li>
+                            <li><a href="#criteres-barres">Les critères de choix</a></li>
+                            <li><a href="#mesures-barres">Prendre les mesures</a></li>
+                            <li><a href="#utilisation-barres">Utilisation et entretien</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 id="principe-barres" class="guide-section-title">Le principe</h2>
+                    <p>
+                        Une toile en PVC renforcé est tendue sur des <strong>barres en aluminium</strong> qui reposent
+                        sur les margelles, de part et d'autre du bassin. La bâche est maintenue par des sangles et des
+                        cliquets fixés au sol. Elle s'enroule et se déroule à l'aide d'une manivelle, parfois d'un
+                        moteur.
+                    </p>
+
+                    <h2 id="norme-barres" class="guide-section-title">Sécurité et norme</h2>
+                    <p>
+                        Choisissez une bâche conforme à la norme <strong>NF P90-308</strong> : elle doit résister au
+                        poids d'un adulte et empêcher le passage d'un jeune enfant lorsqu'elle est correctement fixée.
+                    </p>
+                    <p class="guide-warning">
+                        La protection n'est assurée que si la bâche est entièrement déroulée et que toutes les sangles
+                        sont verrouillées. Une bâche partiellement ouverte n'offre aucune sécurité.
+                    </p>
+
+                    <h2 id="criteres-barres" class="guide-section-title">Les critères de choix</h2>
+                    <ul>
+                        <li><strong>Grammage de la toile</strong> : plus il est élevé, plus la bâche est résistante et durable.</li>
+                        <li><strong>Toile opaque</strong> : bloque la lumière et limite les algues ; prévoir une évacuation de l'eau de pluie (grille ou pompe).</li>
+                        <li><strong>Couleur</strong> : bleue, verte, beige, grise… à assortir à vos margelles.</li>
+                        <li><strong>Enroulement</strong> : manivelle, enrouleur mobile ou motorisation pour les grands bassins.</li>
+                        <li><strong>Fixations</strong> : adaptées à votre plage (dalle, bois, gazon).</li>
+                        <li><strong>Garantie</strong> de la toile et des barres.</li>
+                    </ul>
+                    <p class="guide-tip">
+                        Les bâches à barres sont fabriquées sur mesure : utilisez notre bon de commande couvertures
+                        pour nous transmettre les dimensions de votre bassin.
+                    </p>
+
+                    <h2 id="mesures-barres" class="guide-section-title">Prendre les mesures</h2>
+                    <ol>
+                        <li>Mesurez la longueur et la largeur intérieures du bassin.</li>
+                        <li>Relevez la largeur des margelles et la nature de la plage tout autour.</li>
+                        <li>Notez les éléments en saillie : escalier, échelle, plongeoir, angles arrondis.</li>
+                        <li>La bâche doit déborder sur la plage pour que les barres reposent bien en appui de chaque côté.</li>
+                    </ol>
+                    <p class="guide-warning">
+                        Un escalier ou une plage irrégulière nécessite une découpe spécifique : signalez-le
+                        systématiquement lors de la commande.
+                    </p>
+
+                    <h2 id="utilisation-barres" class="guide-section-title">Utilisation et entretien</h2>
+                    <ul>
+                        <li>Évacuez l'eau de pluie accumulée sur la bâche pour éviter les surcharges.</li>
+                        <li>Retirez régulièrement les feuilles et débris.</li>
+                        <li>Nettoyez la toile avec un produit doux, jamais avec un solvant.</li>
+                        <li>Ne marchez pas dessus volontairement : elle est conçue pour la sécurité, pas comme surface de passage.</li>
+                        <li>Contrôlez régulièrement les sangles et les ancrages.</li>
+                    </ul>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
