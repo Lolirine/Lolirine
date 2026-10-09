@@ -39,6 +39,7 @@
         'views/guides/guide_article_layout.xml',
         'views/guides/guide_pages.xml',
         'views/guides/guide_pages_content.xml',
+        'views/guides/guide_pages_content_2.xml',
         'views/snippets/promo_cards_snippet.xml',
         'views/snippets/hero_slider_snippet.xml',
     ],
