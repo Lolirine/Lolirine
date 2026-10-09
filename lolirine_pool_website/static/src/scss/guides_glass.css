@@ -1,5 +1,5 @@
 /* ============================================================
-   GUIDES PISCINE — COUCHE GLASS
+   GUIDES PISCINE — COUCHE GLASS (v2 renforcee)
    Module  : lolirine_pool_website
    Fichier : static/src/scss/guides_glass.css
    Charge APRES pool_guides.css et guide_article.css
@@ -7,28 +7,50 @@
    ============================================================ */
 
 html[data-website-id="6"] {
-    --lg-glass-bg: rgba(255, 255, 255, 0.62);
-    --lg-glass-bg-strong: rgba(255, 255, 255, 0.80);
-    --lg-glass-border: rgba(255, 255, 255, 0.70);
+    /* Verre : moyenne ~0.62 / blur 16, aligne sur le reste du site */
+    --lg-glass-top: rgba(255, 255, 255, 0.74);
+    --lg-glass-bottom: rgba(255, 255, 255, 0.52);
+    --lg-glass-bg: linear-gradient(160deg, var(--lg-glass-top) 0%, var(--lg-glass-bottom) 100%);
+    --lg-glass-bg-hover: linear-gradient(160deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.70) 100%);
     --lg-glass-blur: 16px;
-    --lg-glass-shadow: 0 8px 32px rgba(2, 132, 199, 0.10), 0 1px 2px rgba(15, 45, 70, 0.06);
-    --lg-glass-shadow-hover: 0 14px 40px rgba(2, 132, 199, 0.18), 0 2px 6px rgba(15, 45, 70, 0.08);
+    --lg-glass-filter: blur(var(--lg-glass-blur)) saturate(160%);
+    --lg-glass-border: rgba(255, 255, 255, 0.80);
+    --lg-glass-edge: rgba(2, 132, 199, 0.14);
+    --lg-glass-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        inset 0 -1px 0 rgba(2, 132, 199, 0.06),
+        0 0 0 1px var(--lg-glass-edge),
+        0 10px 30px rgba(2, 132, 199, 0.14),
+        0 2px 6px rgba(15, 45, 70, 0.06);
+    --lg-glass-shadow-hover:
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        inset 0 -1px 0 rgba(2, 132, 199, 0.08),
+        0 0 0 1px rgba(2, 132, 199, 0.30),
+        0 18px 44px rgba(2, 132, 199, 0.22),
+        0 3px 8px rgba(15, 45, 70, 0.08);
     --lg-blue: #0284c7;
     --lg-ink: #1b3347;
     --lg-ink-soft: #3d5a70;
-    --lg-line: rgba(2, 132, 199, 0.12);
+    --lg-line: rgba(2, 132, 199, 0.14);
+    --lg-halos:
+        radial-gradient(40rem 26rem at 6% 8%, rgba(56, 189, 248, 0.38), transparent 70%),
+        radial-gradient(36rem 24rem at 94% 30%, rgba(2, 132, 199, 0.26), transparent 70%),
+        radial-gradient(34rem 22rem at 30% 62%, rgba(125, 211, 252, 0.34), transparent 70%),
+        radial-gradient(38rem 24rem at 80% 96%, rgba(14, 165, 233, 0.24), transparent 70%);
 }
 
 /* ──────────────────────────────────────────────────────────
-   1. FONDS — halos d'eau derriere le verre
+   1. FONDS — halos d'eau plus soutenus derriere le verre
    ────────────────────────────────────────────────────────── */
-html[data-website-id="6"] .s_pool_guides,
+html[data-website-id="6"] .s_pool_guides {
+    background-color: #e6f3fc;
+    background-image: var(--lg-halos);
+}
+
 html[data-website-id="6"] .guide-article-page {
-    background-color: #eef7fd;
-    background-image:
-        radial-gradient(38rem 24rem at 8% 12%, rgba(56, 189, 248, 0.22), transparent 70%),
-        radial-gradient(34rem 22rem at 92% 38%, rgba(2, 132, 199, 0.15), transparent 70%),
-        radial-gradient(30rem 20rem at 40% 100%, rgba(125, 211, 252, 0.20), transparent 70%);
+    background-color: #e6f3fc;
+    background-image: var(--lg-halos);
+    background-attachment: fixed;
 }
 
 html[data-website-id="6"] .guide-article-page .guide-body-section {
@@ -40,20 +62,19 @@ html[data-website-id="6"] .guide-article-page .guide-body-section {
    ────────────────────────────────────────────────────────── */
 html[data-website-id="6"] .s_pool_guide_card {
     background: var(--lg-glass-bg);
-    -webkit-backdrop-filter: blur(var(--lg-glass-blur)) saturate(140%);
-    backdrop-filter: blur(var(--lg-glass-blur)) saturate(140%);
+    -webkit-backdrop-filter: var(--lg-glass-filter);
+    backdrop-filter: var(--lg-glass-filter);
     border: 1px solid var(--lg-glass-border);
     border-radius: 16px;
     box-shadow: var(--lg-glass-shadow);
     overflow: hidden;
-    transition: transform 0.25s ease, box-shadow 0.25s ease,
-                background-color 0.25s ease, border-color 0.25s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 html[data-website-id="6"] .s_pool_guide_card:hover,
 html[data-website-id="6"] .s_pool_guide_card:focus-visible {
-    background: var(--lg-glass-bg-strong);
-    border-color: rgba(2, 132, 199, 0.35);
+    background: var(--lg-glass-bg-hover);
+    border-color: rgba(255, 255, 255, 0.95);
     box-shadow: var(--lg-glass-shadow-hover);
     transform: translateY(-3px);
     outline: none;
@@ -72,11 +93,12 @@ html[data-website-id="6"] .s_pool_guide_card:focus-visible .s_pool_guide_label {
    3. FIL D'ARIANE
    ────────────────────────────────────────────────────────── */
 html[data-website-id="6"] .guide-breadcrumb-bar {
-    background: rgba(255, 255, 255, 0.55);
-    -webkit-backdrop-filter: blur(var(--lg-glass-blur)) saturate(140%);
-    backdrop-filter: blur(var(--lg-glass-blur)) saturate(140%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.70) 0%, rgba(255, 255, 255, 0.50) 100%);
+    -webkit-backdrop-filter: var(--lg-glass-filter);
+    backdrop-filter: var(--lg-glass-filter);
     border-bottom: 1px solid var(--lg-glass-border);
-    box-shadow: 0 1px 0 var(--lg-line);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 0 var(--lg-line),
+                0 6px 18px rgba(2, 132, 199, 0.08);
 }
 
 html[data-website-id="6"] .guide-breadcrumb a {
@@ -111,10 +133,10 @@ html[data-website-id="6"] .guide-body-section > .container > .row > .col-lg-8::b
     right: calc(var(--bs-gutter-x) * 0.5);
     z-index: -1;
     background: var(--lg-glass-bg);
-    -webkit-backdrop-filter: blur(var(--lg-glass-blur)) saturate(140%);
-    backdrop-filter: blur(var(--lg-glass-blur)) saturate(140%);
+    -webkit-backdrop-filter: var(--lg-glass-filter);
+    backdrop-filter: var(--lg-glass-filter);
     border: 1px solid var(--lg-glass-border);
-    border-radius: 20px;
+    border-radius: 22px;
     box-shadow: var(--lg-glass-shadow);
 }
 
@@ -141,25 +163,34 @@ html[data-website-id="6"] .guide-meta {
     color: var(--lg-ink-soft);
 }
 
+html[data-website-id="6"] .guide-title-divider {
+    border-color: var(--lg-line);
+    opacity: 1;
+}
+
 html[data-website-id="6"] .guide-body-section [id] {
     scroll-margin-top: 1.5rem;
 }
 
 html[data-website-id="6"] .guide-section-title {
-    background: rgba(2, 132, 199, 0.07);
+    background: linear-gradient(90deg, rgba(2, 132, 199, 0.12) 0%, rgba(2, 132, 199, 0.04) 100%);
     border-radius: 0 12px 12px 0;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 /* ──────────────────────────────────────────────────────────
    6. SOMMAIRE
    ────────────────────────────────────────────────────────── */
 html[data-website-id="6"] .guide-summary {
-    background: rgba(224, 242, 254, 0.55);
-    -webkit-backdrop-filter: blur(var(--lg-glass-blur)) saturate(140%);
-    backdrop-filter: blur(var(--lg-glass-blur)) saturate(140%);
-    border: 1px solid rgba(2, 132, 199, 0.30);
-    border-radius: 14px;
-    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.08);
+    background: linear-gradient(160deg, rgba(224, 242, 254, 0.80) 0%, rgba(186, 230, 253, 0.45) 100%);
+    -webkit-backdrop-filter: var(--lg-glass-filter);
+    backdrop-filter: var(--lg-glass-filter);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 16px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 0 0 1px rgba(2, 132, 199, 0.22),
+        0 8px 24px rgba(2, 132, 199, 0.14);
 }
 
 /* ──────────────────────────────────────────────────────────
@@ -169,14 +200,26 @@ html[data-website-id="6"] .guide-body-section table {
     background: rgba(255, 255, 255, 0.72);
     border-collapse: separate;
     border-spacing: 0;
-    border: 1px solid var(--lg-line);
-    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 14px;
     overflow: hidden;
+    box-shadow: 0 0 0 1px var(--lg-line), 0 6px 18px rgba(2, 132, 199, 0.10);
 }
 
 html[data-website-id="6"] .guide-body-section table td,
 html[data-website-id="6"] .guide-body-section table th {
     border-color: var(--lg-line);
+    background: transparent;
+}
+
+html[data-website-id="6"] .guide-body-section table tr:first-child > td,
+html[data-website-id="6"] .guide-body-section table thead th {
+    background: rgba(2, 132, 199, 0.08);
+    font-weight: 700;
+}
+
+html[data-website-id="6"] .guide-body-section table tbody tr:nth-child(even) > td {
+    background: rgba(2, 132, 199, 0.035);
 }
 
 /* ──────────────────────────────────────────────────────────
@@ -184,15 +227,15 @@ html[data-website-id="6"] .guide-body-section table th {
    ────────────────────────────────────────────────────────── */
 html[data-website-id="6"] .guide-sidebar {
     background: var(--lg-glass-bg);
-    -webkit-backdrop-filter: blur(var(--lg-glass-blur)) saturate(140%);
-    backdrop-filter: blur(var(--lg-glass-blur)) saturate(140%);
+    -webkit-backdrop-filter: var(--lg-glass-filter);
+    backdrop-filter: var(--lg-glass-filter);
     border: 1px solid var(--lg-glass-border);
-    border-radius: 18px;
+    border-radius: 20px;
     box-shadow: var(--lg-glass-shadow);
 }
 
 html[data-website-id="6"] .guide-sidebar .guide-sidebar-title {
-    background: rgba(2, 132, 199, 0.08);
+    background: linear-gradient(90deg, rgba(2, 132, 199, 0.14) 0%, rgba(2, 132, 199, 0.05) 100%);
     border-bottom: 1px solid var(--lg-line);
     color: var(--lg-ink);
 }
@@ -202,7 +245,7 @@ html[data-website-id="6"] .guide-sidebar-card {
 }
 
 html[data-website-id="6"] .guide-sidebar-card:hover {
-    background: rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.70);
 }
 
 html[data-website-id="6"] .guide-sidebar-card span {
@@ -210,7 +253,8 @@ html[data-website-id="6"] .guide-sidebar-card span {
 }
 
 html[data-website-id="6"] .guide-sidebar-thumb {
-    border-radius: 8px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
 }
 
 /* ──────────────────────────────────────────────────────────
@@ -228,6 +272,10 @@ html[data-website-id="6"] .guide-sidebar-thumb {
    10. MOBILE
    ────────────────────────────────────────────────────────── */
 @media (max-width: 991.98px) {
+    html[data-website-id="6"] .guide-article-page {
+        background-attachment: scroll;
+    }
+
     html[data-website-id="6"] .guide-body-section > .container > .row > .col-lg-8 {
         padding-top: 1.5rem;
         padding-bottom: 1.5rem;
