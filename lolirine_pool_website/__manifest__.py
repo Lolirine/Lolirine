@@ -51,6 +51,7 @@
             'lolirine_pool_website/static/src/js/pool_guides.js',
             'lolirine_pool_website/static/src/scss/promo_cards.css',
             'lolirine_pool_website/static/src/scss/hero_slider.css',
+            'lolirine_pool_website/static/src/scss/guides_glass.css',
         ],
     },
     'installable': True,
