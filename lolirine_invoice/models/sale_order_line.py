@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import logging
-from odoo import models
+from odoo import api, fields, models
 
 _logger = logging.getLogger(__name__)
 
@@ -38,3 +38,59 @@ class SaleOrderLine(models.Model):
             if cleaned != vals['name']:
                 vals['name'] = cleaned
         return vals
+
+
+class SaleOrder(models.Model):
+    _inherit = 'sale.order'
+
+    x_box_ids = fields.Many2many(
+        'storage.box',
+        string="Box",
+        compute='_compute_x_box_ids',
+        help="Box du garde-meuble lies aux produits des lignes du contrat.",
+    )
+    x_box_names = fields.Char(
+        string="Box",
+        compute='_compute_x_box_names',
+        store=True,
+        index=True,
+        help="Numeros des box du contrat (ex. 2G37). Champ enregistre : "
+             "permet de chercher, trier et grouper les contrats par box.",
+    )
+
+    def _x_find_boxes(self):
+        """Retourne {commande: box} en retrouvant les box via le modele de
+        produit des lignes du contrat, comme _sync_storage_boxes
+        (storage.box.product_tmpl_id). Une seule recherche pour tout le lot."""
+        Box = self.env['storage.box'].sudo()
+        tmpl_by_order = {}
+        all_tmpl = set()
+        for order in self:
+            tmpls = set(order.order_line.filtered(
+                lambda l: l.product_id and not l.display_type
+            ).mapped('product_id.product_tmpl_id').ids)
+            tmpl_by_order[order.id] = tmpls
+            all_tmpl |= tmpls
+        boxes = Box.search([('product_tmpl_id', 'in', list(all_tmpl))]) if all_tmpl else Box
+        box_by_tmpl = {}
+        for box in boxes:
+            box_by_tmpl[box.product_tmpl_id.id] = box_by_tmpl.get(box.product_tmpl_id.id, Box) | box
+        result = {}
+        for order in self:
+            found = Box
+            for tmpl_id in tmpl_by_order[order.id]:
+                found |= box_by_tmpl.get(tmpl_id, Box)
+            result[order.id] = found
+        return result
+
+    @api.depends('order_line.product_id', 'order_line.display_type')
+    def _compute_x_box_ids(self):
+        found = self._x_find_boxes()
+        for order in self:
+            order.x_box_ids = found[order.id]
+
+    @api.depends('order_line.product_id', 'order_line.display_type')
+    def _compute_x_box_names(self):
+        found = self._x_find_boxes()
+        for order in self:
+            order.x_box_names = ', '.join(sorted(found[order.id].mapped('name'))) or False
