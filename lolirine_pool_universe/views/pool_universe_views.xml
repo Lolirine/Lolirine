@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_lolirine_pool_universe_list" model="ir.ui.view">
+        <field name="name">lolirine.pool.universe.list</field>
+        <field name="model">lolirine.pool.universe</field>
+        <field name="arch" type="xml">
+            <list string="Univers produits">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="title"/>
+                <field name="trigger_categ_ids" widget="many2many_tags"/>
+                <field name="related_categ_ids" widget="many2many_tags"/>
+                <field name="limit"/>
+                <field name="show_on_shop" widget="boolean_toggle"/>
+                <field name="shop_limit"/>
+                <field name="website_id"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_lolirine_pool_universe_form" model="ir.ui.view">
+        <field name="name">lolirine.pool.universe.form</field>
+        <field name="model">lolirine.pool.universe</field>
+        <field name="arch" type="xml">
+            <form string="Univers produits">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Local technique"/></h1>
+                    </div>
+                    <group>
+                        <group string="Affichage">
+                            <field name="title"/>
+                            <field name="subtitle"/>
+                            <field name="website_id"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Défilé">
+                            <field name="limit"/>
+                            <field name="show_on_shop"/>
+                            <field name="shop_limit" invisible="not show_on_shop"/>
+                            <field name="min_products"/>
+                            <field name="seconds_per_item"/>
+                            <field name="only_with_image"/>
+                            <field name="exclude_same_category"/>
+                        </group>
+                    </group>
+                    <group string="Catégories">
+                        <field name="trigger_categ_ids" widget="many2many_tags"/>
+                        <field name="related_categ_ids" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_lolirine_pool_universe" model="ir.actions.act_window">
+        <field name="name">Univers produits</field>
+        <field name="res_model">lolirine.pool.universe</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'active_test': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créez un univers</p>
+            <p>Un univers relie des catégories à des gammes à montrer en défilé, sur les fiches produit et sur la page boutique.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_lolirine_pool_universe"
+              name="Univers produits (défilés)"
+              parent="website.menu_website_global_configuration"
+              action="action_lolirine_pool_universe"
+              sequence="60"/>
+</odoo>

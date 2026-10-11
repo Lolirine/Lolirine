@@ -1,0 +1,182 @@
+/* ══════════════════════════════════════════════
+   Encarts saisonniers — Hivernage / Remise en route
+   Panneau glass du site + ambiance par saison.
+   Seuls éléments animés : le badge qui clignote doucement
+   et le reflet lumineux qui traverse le titre.
+   ⚠ Compilé par libsass : pas de :has() ni de min()/max() à unités mixtes.
+══════════════════════════════════════════════ */
+
+$pc-deep:  #0d2d45;
+$pc-muted: #4f6a80;
+
+/* ── Ambiances ── */
+.s_pc_theme_winter {
+    --pc-accent: #0580c8;
+    --pc-accent-ink: #ffffff;
+    --pc-title: #0b3a5c;
+    --pc-shine: #8fd3ff;
+    --pc-badge-bg: #0d2d45;
+    --pc-badge-ink: #ffffff;
+    --pc-tint: linear-gradient(135deg, rgba(233, 245, 252, .82) 0%, rgba(201, 228, 244, .7) 100%);
+}
+.s_pc_theme_spring {
+    --pc-accent: #00a6a6;
+    --pc-accent-ink: #ffffff;
+    --pc-title: #00585a;
+    --pc-shine: #ffd84d;
+    --pc-badge-bg: #f5b700;
+    --pc-badge-ink: #1a2e40;
+    --pc-tint: linear-gradient(135deg, rgba(230, 251, 248, .82) 0%, rgba(255, 244, 204, .72) 100%);
+}
+
+/* ── Structure ── */
+.s_pc_campaign {
+    position: relative;
+    padding: 2.5rem 0 2.75rem;
+    overflow: hidden;
+    background: var(--pc-tint);
+}
+.s_pc_head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.25rem 2rem;
+    margin-bottom: 1.5rem;
+}
+.s_pc_intro { max-width: 44rem; }
+
+/* Badge : clignotement doux, pas un flash */
+.s_pc_badge {
+    display: inline-block;
+    margin-bottom: .6rem;
+    padding: .3rem .85rem;
+    border-radius: 999px;
+    background: var(--pc-badge-bg);
+    color: var(--pc-badge-ink);
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    animation: s_pc_blink 1.4s ease-in-out infinite;
+}
+@keyframes s_pc_blink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: .45; transform: scale(.97); }
+}
+
+/* Titre : un reflet lumineux qui le traverse en boucle */
+.s_pc_title {
+    margin: 0;
+    font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: var(--pc-title);
+    background: linear-gradient(100deg, var(--pc-title) 0%, var(--pc-title) 40%,
+                var(--pc-shine) 50%, var(--pc-title) 60%, var(--pc-title) 100%);
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: s_pc_shine 3.2s linear infinite;
+}
+@keyframes s_pc_shine {
+    from { background-position: 100% 0; }
+    to   { background-position: -150% 0; }
+}
+.s_pc_subtitle {
+    margin: .5rem 0 0;
+    color: $pc-muted;
+    font-size: 1rem;
+}
+
+/* Bouton vers la sélection complète */
+.s_pc_cta {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .1rem;
+    padding: .75rem 1.25rem;
+    border-radius: 14px;
+    background: var(--pc-accent);
+    color: var(--pc-accent-ink);
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 6px 18px rgba(13, 45, 69, .18);
+    transition: transform .15s ease;
+
+    &:hover, &:focus-visible {
+        transform: translateY(-2px);
+        color: var(--pc-accent-ink);
+        text-decoration: none;
+    }
+    &:focus-visible { outline: 3px solid $pc-deep; outline-offset: 3px; }
+}
+.s_pc_cta_count {
+    font-size: .8rem;
+    font-weight: 500;
+    opacity: .9;
+}
+.s_pc_cta_ghost {
+    background: rgba(255, 255, 255, .75);
+    color: $pc-deep;
+
+    &:hover, &:focus-visible { color: $pc-deep; }
+}
+
+/* ── Page /saison/<code> ── */
+.s_pc_hero { margin-bottom: 1.5rem; }
+.s_pc_grid_wrap { padding-bottom: 3rem; }
+.s_pc_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    .s_pu_card { width: auto; }
+}
+.s_pc_empty,
+.s_pc_more {
+    margin: 1.5rem 0 0;
+    color: $pc-muted;
+}
+
+/* ── Glass — Pool Store uniquement ── */
+html[data-website-id="6"] {
+    .s_pc_campaign {
+        margin: 1.5rem 1rem;
+        border: 1px solid rgba(255, 255, 255, .6);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(13, 45, 69, .12);
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+                backdrop-filter: blur(16px) saturate(140%);
+    }
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+        .s_pc_theme_winter { --pc-tint: linear-gradient(135deg, #eef7fc 0%, #dcedf8 100%); }
+        .s_pc_theme_spring { --pc-tint: linear-gradient(135deg, #effbf9 0%, #fff7da 100%); }
+    }
+}
+
+/* ── Mobile ── */
+@media (max-width: 767.98px) {
+    .s_pc_campaign { padding: 1.75rem 0 2rem; }
+    .s_pc_cta { width: 100%; }
+    .s_pc_grid { grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+
+    html[data-website-id="6"] .s_pc_campaign {
+        margin: .75rem .5rem 1rem;
+        border-radius: 16px;
+    }
+}
+
+/* ── Mouvement réduit : badge et titre immobiles ── */
+@media (prefers-reduced-motion: reduce) {
+    .s_pc_badge { animation: none; }
+    .s_pc_title {
+        animation: none;
+        background: none;
+        -webkit-text-fill-color: currentColor;
+    }
+}

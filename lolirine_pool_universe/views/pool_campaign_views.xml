@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_lolirine_pool_campaign_list" model="ir.ui.view">
+        <field name="name">lolirine.pool.campaign.list</field>
+        <field name="model">lolirine.pool.campaign</field>
+        <field name="arch" type="xml">
+            <list string="Encarts saisonniers">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="title"/>
+                <field name="mode"/>
+                <field name="start_day" string="Du (jour)"/>
+                <field name="start_month" string="Du (mois)"/>
+                <field name="end_day" string="Au (jour)"/>
+                <field name="end_month" string="Au (mois)"/>
+                <field name="is_live"/>
+                <field name="product_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_lolirine_pool_campaign_form" model="ir.ui.view">
+        <field name="name">lolirine.pool.campaign.form</field>
+        <field name="model">lolirine.pool.campaign</field>
+        <field name="arch" type="xml">
+            <form string="Encart saisonnier">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_page" type="object" class="oe_stat_button" icon="fa-external-link">
+                            <field name="product_count" widget="statinfo" string="Produits"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Hivernage"/></h1>
+                    </div>
+                    <group>
+                        <group string="Texte affiché">
+                            <field name="badge"/>
+                            <field name="title"/>
+                            <field name="subtitle"/>
+                            <field name="cta_label"/>
+                            <field name="theme"/>
+                        </group>
+                        <group string="Période">
+                            <field name="mode"/>
+                            <field name="start_day" invisible="mode != 'auto'"/>
+                            <field name="start_month" invisible="mode != 'auto'"/>
+                            <field name="end_day" invisible="mode != 'auto'"/>
+                            <field name="end_month" invisible="mode != 'auto'"/>
+                            <field name="is_live"/>
+                            <field name="code"/>
+                            <field name="website_id"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Sélection des produits">
+                        <field name="categ_ids" widget="many2many_tags"/>
+                        <field name="keywords" placeholder="Un mot-clé par ligne"/>
+                        <field name="exclude_keywords" placeholder="Un mot-clé par ligne"/>
+                        <field name="limit"/>
+                        <field name="only_with_image"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_lolirine_pool_campaign" model="ir.actions.act_window">
+        <field name="name">Encarts saisonniers</field>
+        <field name="res_model">lolirine.pool.campaign</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+
+    <menuitem id="menu_lolirine_pool_campaign"
+              name="Encarts saisonniers"
+              parent="website.menu_website_global_configuration"
+              action="action_lolirine_pool_campaign"
+              sequence="62"/>
+</odoo>

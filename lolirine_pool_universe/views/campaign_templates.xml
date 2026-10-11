@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══ Encart saisonnier (inséré par le bloc du constructeur) ══
+         Variable : pc -->
+    <template id="campaign_block" name="Lolirine — Encart saisonnier (bloc)">
+        <section t-attf-class="s_pc_campaign s_pc_theme_#{pc['theme']} o_not_editable"
+                 t-att-aria-label="pc['title']"
+                 t-attf-style="--pu-duration: #{pc['duration']}s;">
+            <div class="container s_pc_head">
+                <div class="s_pc_intro">
+                    <span class="s_pc_badge" t-out="pc['badge']"/>
+                    <h2 class="s_pc_title" t-out="pc['title']"/>
+                    <p t-if="pc['subtitle']" class="s_pc_subtitle" t-out="pc['subtitle']"/>
+                </div>
+                <a class="s_pc_cta" t-att-href="pc['url']">
+                    <span t-out="pc['cta_label']"/>
+                    <span class="s_pc_cta_count"><t t-out="pc['count']"/> produits</span>
+                </a>
+            </div>
+            <div class="s_pu_viewport">
+                <div class="s_pu_track">
+                    <t t-foreach="[False, True]" t-as="pu_dup">
+                        <ul class="s_pu_group" t-att-aria-hidden="'true' if pu_dup else None">
+                            <t t-foreach="pc['items']" t-as="item">
+                                <t t-call="lolirine_pool_universe.pool_universe_card"/>
+                            </t>
+                        </ul>
+                    </t>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- ══ Page complète /saison/<code> ══ -->
+    <template id="campaign_page" name="Lolirine — Page saisonnière">
+        <t t-call="website.layout">
+            <t t-set="pageName" t-value="'saison_' + pc['code']"/>
+            <div id="wrap" class="s_pc_page">
+                <section t-attf-class="s_pc_campaign s_pc_hero s_pc_theme_#{pc['theme']}">
+                    <div class="container s_pc_head">
+                        <div class="s_pc_intro">
+                            <span class="s_pc_badge" t-out="pc['badge']"/>
+                            <h1 class="s_pc_title" t-out="pc['title']"/>
+                            <p t-if="pc['subtitle']" class="s_pc_subtitle" t-out="pc['subtitle']"/>
+                        </div>
+                        <a class="s_pc_cta s_pc_cta_ghost" href="/shop">
+                            <span>Toute la boutique</span>
+                            <span class="s_pc_cta_count"><t t-out="pc['count']"/> produits dans cette sélection</span>
+                        </a>
+                    </div>
+                </section>
+                <div class="container s_pc_grid_wrap">
+                    <p t-if="not pc['items']" class="s_pc_empty">
+                        Aucun produit pour le moment dans cette sélection.
+                    </p>
+                    <ul t-if="pc['items']" class="s_pc_grid">
+                        <t t-set="pu_dup" t-value="False"/>
+                        <t t-foreach="pc['items']" t-as="item">
+                            <t t-call="lolirine_pool_universe.pool_universe_card"/>
+                        </t>
+                    </ul>
+                    <p t-if="pc['truncated']" class="s_pc_more">
+                        Sélection limitée aux 240 premiers produits.
+                        <a href="/shop">Parcourir toute la boutique</a>
+                    </p>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>
