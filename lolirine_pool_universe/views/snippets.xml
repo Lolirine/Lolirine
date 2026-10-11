@@ -8,6 +8,8 @@
     <template id="s_pu_home_showcase" name="Vitrine produits">
         <section class="s_pu_home_slot" data-snippet="s_pu_home_showcase"
                  data-name="Vitrine produits" data-pu-block="showcase">
+            <t t-set="pu_pv" t-value="(pu_previews or {}).get('showcase')"/>
+            <div t-if="pu_pv" class="s_pu_dialog_preview o_not_editable" t-out="pu_pv"/>
             <div class="s_pu_slot_placeholder o_not_editable">
                 <strong>Vitrine « Tout pour votre piscine »</strong>
                 <span>Deux rangées de produits de tous les univers. Contenu chargé automatiquement sur le site publié.</span>
@@ -19,6 +21,8 @@
     <template id="s_pu_home_tiles" name="Tuiles univers">
         <section class="s_pu_home_slot" data-snippet="s_pu_home_tiles"
                  data-name="Tuiles univers" data-pu-block="tiles">
+            <t t-set="pu_pv" t-value="(pu_previews or {}).get('tiles')"/>
+            <div t-if="pu_pv" class="s_pu_dialog_preview o_not_editable" t-out="pu_pv"/>
             <div class="s_pu_slot_placeholder o_not_editable">
                 <strong>Tuiles « Explorez par univers »</strong>
                 <span>Une tuile par univers avec son nombre de produits. Contenu chargé automatiquement sur le site publié.</span>
@@ -30,6 +34,8 @@
     <template id="s_pu_home_lowprice" name="Défilé Petits prix">
         <section class="s_pu_home_slot" data-snippet="s_pu_home_lowprice"
                  data-name="Défilé Petits prix" data-pu-block="lowprice">
+            <t t-set="pu_pv" t-value="(pu_previews or {}).get('lowprice')"/>
+            <div t-if="pu_pv" class="s_pu_dialog_preview o_not_editable" t-out="pu_pv"/>
             <div class="s_pu_slot_placeholder o_not_editable">
                 <strong>Défilé « Petits prix »</strong>
                 <span>Accessoires et consommables sous le seuil choisi. Contenu chargé automatiquement sur le site publié.</span>
@@ -41,6 +47,8 @@
     <template id="s_pc_hivernage" name="Encart Hivernage">
         <section class="s_pu_home_slot" data-snippet="s_pc_hivernage"
                  data-name="Encart Hivernage" data-pu-block="saison_hivernage">
+            <t t-set="pu_pv" t-value="(pu_previews or {}).get('saison_hivernage')"/>
+            <div t-if="pu_pv" class="s_pu_dialog_preview o_not_editable" t-out="pu_pv"/>
             <div class="s_pu_slot_placeholder o_not_editable">
                 <strong>Encart saisonnier « Hivernage »</strong>
                 <span>Visible sur le site uniquement pendant sa période (Site Web → Configuration → Encarts saisonniers).</span>
@@ -52,12 +60,31 @@
     <template id="s_pc_remise_en_route" name="Encart Remise en route">
         <section class="s_pu_home_slot" data-snippet="s_pc_remise_en_route"
                  data-name="Encart Remise en route" data-pu-block="saison_remise_en_route">
+            <t t-set="pu_pv" t-value="(pu_previews or {}).get('saison_remise_en_route')"/>
+            <div t-if="pu_pv" class="s_pu_dialog_preview o_not_editable" t-out="pu_pv"/>
             <div class="s_pu_slot_placeholder o_not_editable">
                 <strong>Encart saisonnier « Remise en route »</strong>
                 <span>Visible sur le site uniquement pendant sa période (Site Web → Configuration → Encarts saisonniers).</span>
             </div>
             <div class="s_pu_slot_content o_not_editable"/>
         </section>
+    </template>
+
+    <!-- ══ Aperçu montré dans la fenêtre « Insérer un bloc » ══
+         Rendu à l'ouverture du constructeur (models/ir_ui_view.py) : bandeau d'état + vrai contenu réduit.
+         Masqué partout ailleurs ; retiré de la page par le JS sur le site publié. -->
+    <template id="snippet_preview" name="Lolirine — Aperçu de bloc (Insérer un bloc)">
+        <div t-attf-class="s_pu_pv_status s_pu_pv_#{pv_level}">
+            <span class="s_pu_pv_dot"/>
+            <span t-out="pv_text"/>
+        </div>
+        <t t-if="pc">
+            <t t-call="lolirine_pool_universe.campaign_block"/>
+        </t>
+        <t t-elif="pu_home">
+            <t t-call="lolirine_pool_universe.home_block_fragment"/>
+        </t>
+        <p t-if="pv_empty" class="s_pu_pv_empty" t-out="pv_empty"/>
     </template>
 
     <template id="pu_home_snippets_register"
