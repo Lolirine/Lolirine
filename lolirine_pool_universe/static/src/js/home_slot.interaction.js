@@ -35,6 +35,11 @@ export class PoolUniverseHomeSlot extends Interaction {
     }
 
     start() {
+        // Aperçu de la fenêtre « Insérer un bloc » : inutile dans la page, on le retire
+        // (il disparaît ainsi de la page à la prochaine sauvegarde).
+        for (const preview of this.el.querySelectorAll(".s_pu_dialog_preview")) {
+            preview.remove();
+        }
         this.target = this.el.querySelector(".s_pu_slot_content");
         if (!this.target) {
             return;
