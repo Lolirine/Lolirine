@@ -1,6 +1,6 @@
 {
     'name': "Lolirine — Univers produits (défilés fiche produit, boutique et accueil)",
-    'version': '19.0.1.5.0',
+    'version': '19.0.1.7.0',
     'category': 'Website/eCommerce',
     'summary': "Défilés par univers (fiche produit, boutique, accueil) et encarts saisonniers",
     'author': 'Lolirine SRL',
@@ -21,6 +21,7 @@
             'lolirine_pool_universe/static/src/scss/pool_universe.scss',
             'lolirine_pool_universe/static/src/scss/pool_campaign.scss',
             'lolirine_pool_universe/static/src/js/home_slot.interaction.js',
+            'lolirine_pool_universe/static/src/js/marquee.interaction.js',
         ],
     },
     'post_init_hook': 'post_init_hook',
