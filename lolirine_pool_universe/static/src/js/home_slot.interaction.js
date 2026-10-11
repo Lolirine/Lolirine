@@ -47,6 +47,8 @@ export class PoolUniverseHomeSlot extends Interaction {
         if (this.html) {
             this.target.innerHTML = this.html;
             this.el.classList.add("s_pu_slot_loaded");
+            // Défilés du bloc chargé : flèches, glisser, reprise automatique
+            this.services["public.interactions"].startInteractions(this.target);
         } else {
             this.el.classList.add("s_pu_slot_empty");
         }
@@ -54,6 +56,7 @@ export class PoolUniverseHomeSlot extends Interaction {
 
     destroy() {
         if (this.target) {
+            this.services["public.interactions"].stopInteractions(this.target);
             this.target.innerHTML = "";
         }
         this.el.classList.remove("s_pu_slot_loaded", "s_pu_slot_empty");
