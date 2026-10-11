@@ -276,6 +276,56 @@ body.editor_enable .s_pu_slot_placeholder {
 /* Sur le site publié : rien à montrer → le bloc disparaît sans laisser de vide */
 body:not(.editor_enable) .s_pu_home_slot.s_pu_slot_empty { display: none; }
 
+/* ── Aperçu dans la fenêtre « Insérer un bloc » ──
+   La fenêtre affiche les blocs réduits à 30 % : textes du bandeau agrandis en conséquence. */
+.s_pu_dialog_preview { display: none !important; }
+html.o_add_snippets_preview {
+    .s_pu_dialog_preview {
+        display: block !important;
+        padding: 1.5rem 0 1rem;
+        background: linear-gradient(135deg, #eef7fc 0%, #dcedf8 100%);
+    }
+    .s_pu_slot_placeholder,
+    .s_pu_slot_content { display: none !important; }
+    .s_pu_showcase,
+    .s_pu_tiles_wrap,
+    .s_pool_universe,
+    .s_pc_campaign { margin: 0 1.5rem 1rem; }
+}
+.s_pu_pv_status {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin: 0 1.5rem 1.5rem;
+    padding: 1.1rem 2rem;
+    border-radius: 999px;
+    background: #fff;
+    color: $pu-deep;
+    font-size: 2.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+    box-shadow: 0 6px 24px rgba(13, 45, 69, .12);
+}
+.s_pu_pv_dot {
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: #1f9d55;
+}
+.s_pu_pv_wait .s_pu_pv_dot { background: #e08a00; }
+.s_pu_pv_off .s_pu_pv_dot { background: #9aa9b6; }
+.s_pu_pv_off { color: $pu-muted; }
+.s_pu_pv_empty {
+    margin: 0 1.5rem 1rem;
+    padding: 2rem;
+    border: 4px dashed $pu-line;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .7);
+    color: $pu-muted;
+    font-size: 2.2rem;
+}
+
 /* ══════════════════════════════════════════════
    GLASS — Pool Store uniquement
 ══════════════════════════════════════════════ */
