@@ -55,13 +55,52 @@
                             <field name="active"/>
                         </group>
                     </group>
-                    <group string="Sélection des produits">
-                        <field name="categ_ids" widget="many2many_tags"/>
-                        <field name="keywords" placeholder="Un mot-clé par ligne"/>
-                        <field name="exclude_keywords" placeholder="Un mot-clé par ligne"/>
-                        <field name="limit"/>
-                        <field name="only_with_image"/>
-                    </group>
+                    <notebook>
+                        <page string="Sélection des produits" name="selection">
+                            <group>
+                                <group string="Inclure">
+                                    <field name="categ_ids" widget="many2many_tags"/>
+                                    <field name="keywords" placeholder="Un mot-clé par ligne"/>
+                                    <field name="limit"/>
+                                    <field name="only_with_image"/>
+                                </group>
+                                <group string="Exclure">
+                                    <field name="exclude_categ_ids" widget="many2many_tags"
+                                           placeholder="Ex. : Raccorderie PVC, Pièces à sceller &amp; Plomberie"/>
+                                    <field name="exclude_keywords" placeholder="Un mot-clé par ligne"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Produits trouvés" name="found">
+                            <p class="text-muted">
+                                Produits actuellement dans l'encart. « Exclure » retire un produit
+                                (enregistrez l'encart avant d'utiliser le bouton).
+                            </p>
+                            <field name="found_product_ids" readonly="1"
+                                   context="{'pu_campaign_id': id}">
+                                <list create="0" delete="0" limit="80">
+                                    <field name="default_code" optional="show"/>
+                                    <field name="name"/>
+                                    <field name="public_categ_ids" widget="many2many_tags" optional="show"/>
+                                    <field name="list_price" optional="show"/>
+                                    <button name="action_pu_campaign_exclude" type="object"
+                                            string="Exclure" icon="fa-ban" class="btn-link text-danger"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Produits exclus" name="excluded">
+                            <p class="text-muted">
+                                Supprimez une ligne pour remettre le produit dans l'encart.
+                            </p>
+                            <field name="exclude_product_ids">
+                                <list>
+                                    <field name="default_code" optional="show"/>
+                                    <field name="name"/>
+                                    <field name="public_categ_ids" widget="many2many_tags" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
