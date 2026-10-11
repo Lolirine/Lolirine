@@ -38,6 +38,28 @@
         </section>
     </template>
 
+    <template id="s_pc_hivernage" name="Encart Hivernage">
+        <section class="s_pu_home_slot" data-snippet="s_pc_hivernage"
+                 data-name="Encart Hivernage" data-pu-block="saison_hivernage">
+            <div class="s_pu_slot_placeholder o_not_editable">
+                <strong>Encart saisonnier « Hivernage »</strong>
+                <span>Visible sur le site uniquement pendant sa période (Site Web → Configuration → Encarts saisonniers).</span>
+            </div>
+            <div class="s_pu_slot_content o_not_editable"/>
+        </section>
+    </template>
+
+    <template id="s_pc_remise_en_route" name="Encart Remise en route">
+        <section class="s_pu_home_slot" data-snippet="s_pc_remise_en_route"
+                 data-name="Encart Remise en route" data-pu-block="saison_remise_en_route">
+            <div class="s_pu_slot_placeholder o_not_editable">
+                <strong>Encart saisonnier « Remise en route »</strong>
+                <span>Visible sur le site uniquement pendant sa période (Site Web → Configuration → Encarts saisonniers).</span>
+            </div>
+            <div class="s_pu_slot_content o_not_editable"/>
+        </section>
+    </template>
+
     <template id="pu_home_snippets_register"
               inherit_id="website.snippets"
               name="Lolirine — Blocs univers (constructeur)">
@@ -68,6 +90,18 @@
                group="lolirine_vitrines"
                t-thumbnail="/lolirine_pool_universe/static/src/img/snippets/pu_lowprice.svg">
                 <keywords>petits prix promo accessoires défilé</keywords>
+            </t>
+            <t t-snippet="lolirine_pool_universe.s_pc_hivernage"
+               string="Encart Hivernage"
+               group="lolirine_vitrines"
+               t-thumbnail="/lolirine_pool_universe/static/src/img/snippets/pc_hivernage.svg">
+                <keywords>hivernage hiver saison encart promotion couverture</keywords>
+            </t>
+            <t t-snippet="lolirine_pool_universe.s_pc_remise_en_route"
+               string="Encart Remise en route"
+               group="lolirine_vitrines"
+               t-thumbnail="/lolirine_pool_universe/static/src/img/snippets/pc_remise.svg">
+                <keywords>remise en route printemps saison encart démarrage</keywords>
             </t>
         </xpath>
     </template>
