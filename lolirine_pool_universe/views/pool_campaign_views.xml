@@ -72,10 +72,14 @@
                             </group>
                         </page>
                         <page string="Produits trouvés" name="found">
-                            <p class="text-muted">
-                                Produits actuellement dans l'encart. « Exclure » retire un produit
-                                (enregistrez l'encart avant d'utiliser le bouton).
-                            </p>
+                            <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+                                <button name="action_select_products" type="object" class="btn btn-primary"
+                                        icon="fa-check-square-o" string="Sélectionner plusieurs produits à exclure"/>
+                                <span class="text-muted">
+                                    Ouvre la liste complète avec cases à cocher, recherche et regroupement
+                                    par catégorie. « Exclure » sur une ligne retire un seul produit.
+                                </span>
+                            </div>
                             <field name="found_product_ids" readonly="1"
                                    context="{'pu_campaign_id': id}">
                                 <list create="0" delete="0" limit="80">
@@ -90,9 +94,10 @@
                         </page>
                         <page string="Produits exclus" name="excluded">
                             <p class="text-muted">
-                                Supprimez une ligne pour remettre le produit dans l'encart.
+                                « Ajouter une ligne » ouvre la liste des produits de l'encart avec cases à cocher
+                                (sélection multiple). Supprimez une ligne pour remettre le produit dans l'encart.
                             </p>
-                            <field name="exclude_product_ids">
+                            <field name="exclude_product_ids" domain="[('id', 'in', found_product_ids)]">
                                 <list>
                                     <field name="default_code" optional="show"/>
                                     <field name="name"/>
@@ -103,6 +108,49 @@
                     </notebook>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <!-- ══ Liste « Produits de l'encart » : sélection multiple ══ -->
+    <record id="view_pu_campaign_product_list" model="ir.ui.view">
+        <field name="name">product.template.list.pu.campaign</field>
+        <field name="model">product.template</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <list string="Produits de l'encart" create="0" delete="0" edit="0" duplicate="0"
+                  decoration-muted="pu_campaign_excluded" limit="200">
+                <header>
+                    <button name="action_pu_campaign_exclude" type="object"
+                            string="Exclure de l'encart" icon="fa-ban" class="btn-danger"/>
+                    <button name="action_pu_campaign_include" type="object"
+                            string="Remettre dans l'encart" icon="fa-undo"/>
+                </header>
+                <field name="pu_campaign_excluded" widget="boolean" string="Exclu" width="70px"/>
+                <field name="default_code" optional="show"/>
+                <field name="name"/>
+                <field name="public_categ_ids" widget="many2many_tags" optional="show"/>
+                <field name="categ_id" optional="hide"/>
+                <field name="list_price" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pu_campaign_product_search" model="ir.ui.view">
+        <field name="name">product.template.search.pu.campaign</field>
+        <field name="model">product.template</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <search string="Produits de l'encart">
+                <field name="name" string="Produit"
+                       filter_domain="['|', ('name', 'ilike', self), ('default_code', 'ilike', self)]"/>
+                <field name="public_categ_ids" string="Catégorie du site"/>
+                <group>
+                    <filter name="group_public_categ" string="Catégorie du site"
+                            context="{'group_by': 'public_categ_ids'}"/>
+                    <filter name="group_categ" string="Catégorie de produit"
+                            context="{'group_by': 'categ_id'}"/>
+                </group>
+            </search>
         </field>
     </record>
 
