@@ -88,6 +88,18 @@ class LolirinePoolCampaign(models.Model):
         string="Mots-clés", help="Un mot-clé par ligne, cherché dans le nom des produits publiés.")
     exclude_keywords = fields.Text(
         string="Mots-clés exclus", help="Un mot-clé par ligne : les produits dont le nom le contient sont retirés.")
+    exclude_categ_ids = fields.Many2many(
+        'product.public.category', 'lolirine_campaign_excl_categ_rel', 'campaign_id', 'categ_id',
+        string="Catégories exclues",
+        help="Les produits de ces catégories (sous-catégories comprises) sont retirés, "
+             "même s'ils ont été trouvés par un mot-clé. Ex. : Raccorderie PVC, Plomberie.")
+    exclude_product_ids = fields.Many2many(
+        'product.template', 'lolirine_campaign_excl_product_rel', 'campaign_id', 'product_tmpl_id',
+        string="Produits exclus",
+        help="Produits retirés un par un (bouton « Exclure » de l'onglet Produits trouvés).")
+    found_product_ids = fields.Many2many(
+        'product.template', string="Produits trouvés (liste)", compute='_compute_found_products',
+        help="Produits actuellement dans l'encart, après toutes les exclusions.")
 
     limit = fields.Integer(string="Produits dans le défilé", default=24)
     only_with_image = fields.Boolean(string="Défilé : seulement les produits avec image", default=True)
@@ -132,7 +144,7 @@ class LolirinePoolCampaign(models.Model):
             or self.env['website'].get_current_website()
 
     @api.depends('mode', 'active', 'start_month', 'start_day', 'end_month', 'end_day',
-                 'categ_ids', 'keywords', 'exclude_keywords')
+                 'categ_ids', 'keywords', 'exclude_keywords', 'exclude_categ_ids', 'exclude_product_ids')
     def _compute_live_info(self):
         for campaign in self:
             campaign.is_live = campaign._in_period()
@@ -166,7 +178,22 @@ class LolirinePoolCampaign(models.Model):
         for keyword in self._lines(self.exclude_keywords):
             if ids:
                 ids -= set(PT.search([('id', 'in', list(ids)), ('name', 'ilike', keyword)]).ids)
+        if ids and self.exclude_categ_ids:
+            ids -= set(PT.search([('id', 'in', list(ids)),
+                                  ('public_categ_ids', 'child_of', self.exclude_categ_ids.ids)]).ids)
+        ids -= set(self.exclude_product_ids.ids)
         return list(ids)
+
+    @api.depends('categ_ids', 'keywords', 'exclude_keywords', 'exclude_categ_ids', 'exclude_product_ids')
+    def _compute_found_products(self):
+        PT = self.env['product.template'].sudo()
+        for campaign in self:
+            try:
+                ids = campaign._product_ids(campaign._website()) if campaign.id else []
+            except Exception:
+                ids = []
+            campaign.found_product_ids = PT.browse(ids).sorted(
+                lambda p: ((p.public_categ_ids[:1].name or 'zz').lower(), (p.name or '').lower()))
 
     @api.model
     def _items(self, website, products):
