@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!-- Crée les encarts Hivernage et Remise en route s'ils n'existent pas encore.
-         Sans effet sur des encarts déjà réglés. -->
-    <function model="lolirine.pool.campaign" name="action_seed_defaults"/>
-</odoo>
