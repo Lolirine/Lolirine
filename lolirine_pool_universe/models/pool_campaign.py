@@ -281,6 +281,22 @@ class LolirinePoolCampaign(models.Model):
         return self._cached(('saison_page', self.id, website.id, self.env.lang), build)
 
     # ------------------------------------------------------------ actions
+    def action_select_products(self):
+        """Liste complète des produits de l'encart (+ exclus) : cases à cocher, filtres, regroupements."""
+        self.ensure_one()
+        ids = set(self._product_ids(self._website())) | set(self.exclude_product_ids.ids)
+        return {
+            'type': 'ir.actions.act_window',
+            'name': "Produits de l'encart « %s »" % self.name,
+            'res_model': 'product.template',
+            'view_mode': 'list',
+            'views': [(self.env.ref('lolirine_pool_universe.view_pu_campaign_product_list').id, 'list')],
+            'search_view_id': self.env.ref('lolirine_pool_universe.view_pu_campaign_product_search').id,
+            'domain': [('id', 'in', list(ids))],
+            'context': {'pu_campaign_id': self.id, 'create': False},
+            'target': 'current',
+        }
+
     def action_open_page(self):
         self.ensure_one()
         return {'type': 'ir.actions.act_url', 'url': '/saison/%s' % self.code, 'target': 'new'}
