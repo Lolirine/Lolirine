@@ -41,9 +41,29 @@ class BuyPanelController(http.Controller):
                     count += 1
             return d
 
+        # En stock : 2 à 4 jours ouvrés.
+        # Sur commande (dropshipping) : délai du fournisseur le plus rapide
+        # (+3 jours ouvrés de marge), sinon délai fournisseur Odoo, sinon 5 jours.
+        if qty > 0:
+            min_days, max_days = 2, 4
+        else:
+            supplier_delay = 0
+            if 'dropship_supplier_ids' in tmpl._fields:
+                delays = [s.delay for s in tmpl.dropship_supplier_ids
+                          if s.is_active and (s.delay or 0) > 0]
+                if delays:
+                    supplier_delay = min(delays)
+            if not supplier_delay:
+                delays = [s.delay for s in tmpl.seller_ids if (s.delay or 0) > 0]
+                if delays:
+                    supplier_delay = min(delays)
+            if not supplier_delay:
+                supplier_delay = 5
+            min_days, max_days = supplier_delay, supplier_delay + 3
+
         today = date.today()
-        delivery_min = add_business_days(today, 2)
-        delivery_max = add_business_days(today, 4)
+        delivery_min = add_business_days(today, min_days)
+        delivery_max = add_business_days(today, max_days)
 
         JOURS = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']
         MOIS  = ['jan.', 'fév.', 'mar.', 'avr.', 'mai', 'juin',
