@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="scope_partner" model="merkago.mcp.scope">
+        <field name="name">Contacts / Partners</field>
+        <field name="pack">contacts</field>
+        <field name="model_id" search="[('model', '=', 'res.partner')]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="scope_product_template" model="merkago.mcp.scope">
+        <field name="name">Products / Templates</field>
+        <field name="pack">inventory</field>
+        <field name="model_id" search="[('model', '=', 'product.template')]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="scope_product_product" model="merkago.mcp.scope">
+        <field name="name">Products / Variants</field>
+        <field name="pack">inventory</field>
+        <field name="model_id" search="[('model', '=', 'product.product')]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="sequence">21</field>
+    </record>
+
+    <record id="scope_product_category" model="merkago.mcp.scope">
+        <field name="name">Product Categories</field>
+        <field name="pack">inventory</field>
+        <field name="model_id" search="[('model', '=', 'product.category')]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="sequence">22</field>
+    </record>
+
+    <record id="scope_users" model="merkago.mcp.scope">
+        <field name="name">Users (read)</field>
+        <field name="active" eval="False"/>
+        <field name="pack">custom</field>
+        <field name="model_id" search="[('model', '=', 'res.users')]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="icp_mcp_enabled" model="ir.config_parameter">
+        <field name="key">merkago_mcp.enabled</field>
+        <field name="value">True</field>
+    </record>
+    <record id="icp_mcp_safe_mode" model="ir.config_parameter">
+        <field name="key">merkago_mcp.safe_mode</field>
+        <field name="value">True</field>
+    </record>
+    <record id="icp_mcp_audit" model="ir.config_parameter">
+        <field name="key">merkago_mcp.audit_enabled</field>
+        <field name="value">True</field>
+    </record>
+</odoo>

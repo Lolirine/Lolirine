@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_merkago_mcp" model="ir.module.category">
+        <field name="name">Merkago MCP</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Odoo 19 : les groupes sont rattachés à un "privilege" (et non plus directement à une catégorie) -->
+    <record id="res_groups_privilege_merkago_mcp" model="res.groups.privilege">
+        <field name="name">Claude MCP</field>
+        <field name="category_id" ref="module_category_merkago_mcp"/>
+    </record>
+
+    <!-- Seuls les utilisateurs de ce groupe peuvent autoriser une connexion Claude -->
+    <record id="group_mcp_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="privilege_id" ref="res_groups_privilege_merkago_mcp"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Gestion du module (scopes, tokens, journal).
+         Les administrateurs Odoo (Paramètres) ne peuvent jamais connecter Claude,
+         même s'ils sont dans ce groupe : utiliser un utilisateur dédié. -->
+    <record id="group_mcp_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="res_groups_privilege_merkago_mcp"/>
+        <field name="implied_ids" eval="[(4, ref('group_mcp_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+</odoo>
