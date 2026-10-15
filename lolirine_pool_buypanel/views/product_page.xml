@@ -11,8 +11,12 @@
 
         <xpath expr="//div[@id='o_wsale_cta_wrapper']" position="before">
             <t t-if="website.id == 6">
+                <!-- o_not_editable + contenteditable=false : bloc rempli en JavaScript,
+                     l'éditeur du site ne doit jamais l'enregistrer (sinon la date
+                     de livraison reste figée dans une copie de la vue). -->
                 <div id="lp_buypanel_delivery"
-                     class="lp-buypanel-delivery mb-3"
+                     class="lp-buypanel-delivery mb-3 o_not_editable"
+                     contenteditable="false"
                      style="display:none;">
                     <div class="lp-stock-line mb-1">
                         <span class="lp-stock-dot"></span>
@@ -112,7 +116,7 @@
                     </div>
                 </div>
 
-                <div id="lp_buypanel_info" class="lp-product-info mt-3" style="display:none;">
+                <div id="lp_buypanel_info" class="lp-product-info mt-3 o_not_editable" contenteditable="false" style="display:none;">
                     <div class="lp-info-label">Informations produit</div>
                     <table class="lp-info-table">
                         <tr class="lp-info-ref" style="display:none;">

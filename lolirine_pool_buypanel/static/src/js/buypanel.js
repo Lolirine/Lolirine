@@ -6,6 +6,11 @@
     if (!document.querySelector('.lp-buypanel-delivery, .lp-trust-grid')) {
         return;
     }
+    // En mode édition du site, ne rien remplir : sinon l'éditeur enregistre
+    // le contenu calculé (date de livraison, stock) et le fige dans la vue.
+    if (document.body.classList.contains('editor_enable')) {
+        return;
+    }
 
     function getProductId() {
         var inp = document.querySelector('input[name="product_id"]');
