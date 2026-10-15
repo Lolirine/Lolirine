@@ -40,5 +40,5 @@
               name="Generate Token"
               parent="menu_mcp_root"
               action="action_mcp_token_wizard"
-              sequence="5"/>
+              sequence="60"/>
 </odoo>
