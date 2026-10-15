@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    
+<!-- noupdate="1" : le site n'est créé qu'à l'installation. Les mises à jour du
+     module ne réécrivent plus le domaine ni les réglages modifiés dans Odoo. -->
+<odoo noupdate="1">
+
     <!-- Création du site web Lolirine Pool Store -->
     <record id="website_pool" model="website">
         <field name="name">Lolirine Pool Store</field>
-        <field name="domain">lolirine-pool.be</field>
+        <field name="domain">https://www.lolirinepoolstore.be</field>
         <field name="is_pool_website">True</field>
         <field name="social_facebook">https://facebook.com/lolirine</field>
         <field name="social_instagram">https://instagram.com/lolirine</field>

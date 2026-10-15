@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool Store - Website',
-    'version': '19.0.1.0.6',
+    'version': '19.0.1.0.7',
     'category': 'Website/Website',
     'summary': 'Site e-commerce Lolirine Pool Store - Matériel de piscine',
     'description': """
@@ -10,7 +10,7 @@
         Ce module crée et configure le site web Lolirine Pool Store :
         
         - Création du 2ème site web (multi-site)
-        - Domaine : lolirine-pool.be
+        - Domaine : www.lolirinepoolstore.be
         - Thème personnalisé bleu/piscine
         - Filtrage des produits par site web
         - E-commerce intégré
@@ -19,7 +19,7 @@
         Compatible avec lolirine_pool_import pour l'import des produits.
     """,
     'author': 'Lolirine SPRL',
-    'website': 'https://lolirine-pool.be',
+    'website': 'https://www.lolirinepoolstore.be',
     'license': 'LGPL-3',
     'depends': [
         'website',
