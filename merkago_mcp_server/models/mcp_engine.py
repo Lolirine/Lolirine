@@ -118,7 +118,7 @@ class MerkagoMcpEngine(models.AbstractModel):
             return []
         return ["|", ("company_id", "=", False), ("company_id", "in", companies.ids)]
 
-    def _merge_domain(self, token, scope, domain):
+    def _merge_domain(self, token, scope, domain, Model=None):
         domain = list(domain or [])
         extras = []
         if scope and scope.domain_force:
@@ -126,7 +126,11 @@ class MerkagoMcpEngine(models.AbstractModel):
                 extras.append(ast.literal_eval(scope.domain_force))
             except Exception as exc:
                 raise UserError(_("Invalid scope domain: %s") % exc)
-        company_dom = self._company_domain(token)
+        # [Lolirine] filtre société uniquement si le modèle a un champ company_id
+        # (sinon erreur "Invalid field company_id" sur ir.module.module, website…)
+        company_dom = []
+        if Model is None or "company_id" in Model._fields:
+            company_dom = self._company_domain(token)
         parts = [domain] if domain else []
         parts.extend(extras)
         if company_dom:
@@ -330,7 +334,7 @@ class MerkagoMcpEngine(models.AbstractModel):
         if not scope or not scope.perm_read:
             raise AccessError(_("Read not allowed on %s") % model_name)
         Model = env[model_name]
-        domain = self._merge_domain(token, scope, arguments.get("domain") or [])
+        domain = self._merge_domain(token, scope, arguments.get("domain") or [], Model)
         limit = min(int(arguments.get("limit") or self._default_limit()), self._max_limit())
         offset = int(arguments.get("offset") or 0)
         order = arguments.get("order") or "id desc"
@@ -347,7 +351,7 @@ class MerkagoMcpEngine(models.AbstractModel):
         ids = [int(i) for i in (arguments.get("ids") or [])][: self._max_limit()]
         fields_list = self._filter_fields(Model, arguments.get("fields"))
         # [Lolirine] le filtre du scope et des sociétés s'applique aussi à la lecture par id
-        domain = self._merge_domain(token, scope, [("id", "in", ids)])
+        domain = self._merge_domain(token, scope, [("id", "in", ids)], Model)
         return {"records": Model.search_read(domain, fields_list)}
 
     def _ensure_write_allowed(self, token, scope, need_create=False):
@@ -382,7 +386,7 @@ class MerkagoMcpEngine(models.AbstractModel):
         values = self._sanitize_values(arguments.get("values"))
         ids = [int(i) for i in (arguments.get("ids") or [])]
         # [Lolirine] seuls les enregistrements visibles via le scope sont modifiables
-        domain = self._merge_domain(token, scope, [("id", "in", ids)])
+        domain = self._merge_domain(token, scope, [("id", "in", ids)], env[model_name])
         recs = env[model_name].search(domain)
         recs.write(values)
         return {"updated": len(recs), "ids": recs.ids}
