@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Storage Notify',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.1.1',
     'category': 'Lolirine',
     'summary': 'Notifications temps réel – Bus.bus, Activités, Web Push (garde-meuble)',
     'author': 'Lolirine',

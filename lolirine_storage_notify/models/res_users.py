@@ -18,7 +18,8 @@ class ResUsers(models.Model):
             return users
 
         for user in users:
-            is_portal = portal_group in user.groups_id
+            # Odoo 19 : groups_id a été renommé (group_ids / all_group_ids)
+            is_portal = portal_group in user.all_group_ids
             # Éviter de notifier pour les utilisateurs créés manuellement en back-office
             # (on vérifie que ce n'est pas un admin qui crée depuis le backend)
             if is_portal and not self.env.context.get('no_notify'):

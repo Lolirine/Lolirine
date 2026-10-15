@@ -25,7 +25,7 @@ class CalendarEvent(models.Model):
                 # Vérifier si l'organisateur est un utilisateur portail
                 organizer = event.user_id
                 portal_grp = self.env.ref('base.group_portal', raise_if_not_found=False)
-                if not organizer or not portal_grp or portal_grp not in organizer.groups_id:
+                if not organizer or not portal_grp or portal_grp not in organizer.all_group_ids:
                     continue
 
             try:
