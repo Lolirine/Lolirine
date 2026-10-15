@@ -4,7 +4,7 @@
     <!-- Template du popup injecté dans toutes les pages -->
     <template id="lolirine_popup_template" inherit_id="website.layout" name="Lolirine Popup">
         <xpath expr="//div[@id='wrapwrap']" position="inside">
-            <t t-set="all_popups" t-value="request.env['lolirine.popup.config'].sudo().get_all_active_popups()"/>
+            <t t-set="all_popups" t-value="request.env['lolirine.popup.config'].sudo().get_all_active_popups(website.id)"/>
             <t t-foreach="all_popups" t-as="popup_config">
                 <!-- Popup Container -->
                 <div t-att-id="'lolirine_popup_overlay_%s' % popup_config.get('id')" 

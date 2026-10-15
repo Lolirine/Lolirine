@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine - Popup Personnalisé',
-    'version': '19.0.3.2.0',
+    'version': '19.0.3.3.0',
     'category': 'Website',
     'summary': 'Popup personnalisable avec gestion multi-pages et boxes disponibles',
     'description': """

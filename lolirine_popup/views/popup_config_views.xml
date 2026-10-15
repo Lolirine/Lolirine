@@ -37,6 +37,7 @@
                     <group>
                         <group string="Type de Popup">
                             <field name="popup_type" widget="radio"/>
+                            <field name="website_id" placeholder="Tous les sites" options="{'no_create': True}"/>
                             <field name="sequence" string="Priorité (1=haute)"/>
                         </group>
                         <group string="Message">
@@ -137,6 +138,7 @@
             <list string="Popups" default_order="sequence, id">
                 <field name="sequence" widget="handle"/>
                 <field name="title"/>
+                <field name="website_id" optional="show"/>
                 <field name="popup_type" optional="show"/>
                 <field name="display_mode"/>
                 <field name="page_count" string="Pages" optional="hide"/>

@@ -10,6 +10,11 @@ class LolirinePopupConfig(models.Model):
     _order = 'sequence, id'
 
     active = fields.Boolean(string='Actif', default=True)
+    website_id = fields.Many2one(
+        'website', string='Site web', ondelete='set null', index=True,
+        default=lambda self: self.env.ref('website.default_website', raise_if_not_found=False),
+        help="Site sur lequel le popup s'affiche (par défaut : le site du garde-meuble). "
+             "Vide = tous les sites.")
     sequence = fields.Integer(string='Priorité', default=10,
         help="Plus le nombre est petit, plus le popup est prioritaire")
     
@@ -131,9 +136,16 @@ class LolirinePopupConfig(models.Model):
         self.write({'view_count': 0, 'click_count': 0})
 
     @api.model
-    def get_all_active_popups(self):
-        """Retourne tous les popups actifs"""
-        popups = self.search([('active', '=', True)], order='sequence, id')
+    def _website_domain(self, website_id=None):
+        """Popups du site demandé (ou sans site = tous les sites)."""
+        if not website_id:
+            website = self.env['website'].get_current_website()
+            website_id = website.id if website else False
+        return [('active', '=', True), '|', ('website_id', '=', False), ('website_id', '=', website_id)]
+
+    def get_all_active_popups(self, website_id=None):
+        """Retourne les popups actifs du site web courant"""
+        popups = self.search(self._website_domain(website_id), order='sequence, id')
         result = []
         for popup in popups:
             result.append(self._popup_to_dict(popup))
@@ -184,9 +196,9 @@ class LolirinePopupConfig(models.Model):
         }
 
     @api.model
-    def get_active_popup(self):
-        """Retourne le popup actif le plus prioritaire (compatibilité)"""
-        popup = self.search([('active', '=', True)], order='sequence, id', limit=1)
+    def get_active_popup(self, website_id=None):
+        """Retourne le popup actif le plus prioritaire du site courant (compatibilité)"""
+        popup = self.search(self._website_domain(website_id), order='sequence, id', limit=1)
         if popup:
             return self._popup_to_dict(popup)
         return None
