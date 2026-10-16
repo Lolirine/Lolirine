@@ -247,7 +247,7 @@
                     <div class="container text-center text-white oe_structure" data-name="Contenu CTA">
                         <h2 class="display-6 fw-bold mb-3">Besoin de conseils ?</h2>
                         <p class="lead mb-4">Notre équipe d'experts est à votre disposition pour vous accompagner dans votre projet piscine.</p>
-                        <a href="/contactus" class="btn btn-lg btn-light px-5 py-3" style="border-radius: 50px;">
+                        <a href="/pool/contact" class="btn btn-lg btn-light px-5 py-3" style="border-radius: 50px;">
                             <i class="fa fa-phone me-2"/>
                             Contactez-nous
                         </a>
@@ -344,7 +344,7 @@
                     <div class="container text-center oe_structure" data-name="Contenu CTA About">
                         <h3 class="fw-bold mb-3">Une question ? Un projet ?</h3>
                         <p class="text-muted mb-4">N'hésitez pas à nous contacter, nous sommes là pour vous aider.</p>
-                        <a href="/contactus" class="btn btn-primary btn-lg px-5">
+                        <a href="/pool/contact" class="btn btn-primary btn-lg px-5">
                             <i class="fa fa-envelope me-2"/>
                             Nous contacter
                         </a>

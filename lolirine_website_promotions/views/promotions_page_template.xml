@@ -185,7 +185,7 @@
                             <a href="/shop" class="btn btn-light btn-lg rounded-pill px-5 fw-bold shadow">
                                 &#x1F6D2; Voir la boutique
                             </a>
-                            <a href="/contactus" class="btn btn-outline-light btn-lg rounded-pill px-5 fw-bold">
+                            <a href="/pool/contact" class="btn btn-outline-light btn-lg rounded-pill px-5 fw-bold">
                                 &#x1F4E7; Nous contacter
                             </a>
                         </div>

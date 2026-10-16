@@ -179,7 +179,7 @@
                         <p class="lead text-muted mb-4">
                             Notre équipe est à votre disposition pour vous aider à choisir les meilleurs produits
                         </p>
-                        <a href="/contactus" class="btn btn-lg rounded-pill px-5 fw-semibold"
+                        <a href="/pool/contact" class="btn btn-lg rounded-pill px-5 fw-semibold"
                             style="background-color: #0369a1; color: white;">
                             Contactez-nous
                         </a>

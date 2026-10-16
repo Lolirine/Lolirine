@@ -251,7 +251,7 @@
                                     <strong>Un conseil avant d'acheter ?</strong>
                                     <span><t t-esc="wl_texts.get('expert_phone', '+32 497 44 41 46')"/></span>
                                 </div>
-                                <a href="/contactus" class="lw-btn-contact">
+                                <a href="/pool/contact" class="lw-btn-contact">
                                     <t t-esc="wl_texts.get('contact_label', 'Contacter')"/>
                                 </a>
                             </div>

@@ -88,7 +88,7 @@
                          data-name="Contenu CTA">
                         <h3 class="fw-bold mb-3">Vous ne trouvez pas votre marque ?</h3>
                         <p class="mb-4">Contactez-nous, nous pouvons sourcer des produits sur commande.</p>
-                        <a href="/contactus" class="btn btn-lg btn-light px-5"
+                        <a href="/pool/contact" class="btn btn-lg btn-light px-5"
                            style="border-radius: 50px;">
                             <i class="fa fa-phone me-2"/>Contactez-nous
                         </a>

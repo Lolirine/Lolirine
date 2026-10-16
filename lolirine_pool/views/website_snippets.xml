@@ -79,7 +79,7 @@
             <div class="container text-center">
                 <h3>Besoin d'un conseil ?</h3>
                 <p class="lead mb-4">Notre équipe d'experts est à votre disposition</p>
-                <a href="/contactus" class="btn btn-light btn-lg me-2">Nous contacter</a>
+                <a href="/pool/contact" class="btn btn-light btn-lg me-2">Nous contacter</a>
                 <a href="tel:+32XXXXXXXX" class="btn btn-outline-light btn-lg">
                     <i class="fa fa-phone"/> Appelez-nous
                 </a>
