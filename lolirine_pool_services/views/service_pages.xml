@@ -58,7 +58,7 @@
                                 <a href="/services/entretien-reparation" class="text-decoration-none">
                                     <div class="pool-service-card pool-service-cyan">
                                         <div class="pool-service-icon">
-                                            <i class="fa fa-tools"/>
+                                            <i class="fa fa-wrench"/>
                                         </div>
                                         <div class="pool-service-content">
                                             <h3>Entretien &amp; Réparation</h3>
@@ -76,7 +76,7 @@
                                 <a href="/services/construction-renovation" class="text-decoration-none">
                                     <div class="pool-service-card pool-service-purple">
                                         <div class="pool-service-icon">
-                                            <i class="fa fa-hammer"/>
+                                            <i class="fa fa-gavel"/>
                                         </div>
                                         <div class="pool-service-content">
                                             <h3>Construction &amp; Rénovation</h3>
@@ -112,7 +112,7 @@
                                 <a href="/services/hivernage-estivage" class="text-decoration-none">
                                     <div class="pool-service-card pool-service-orange">
                                         <div class="pool-service-icon">
-                                            <i class="fa fa-snowflake"/>
+                                            <i class="fa fa-snowflake-o"/>
                                         </div>
                                         <div class="pool-service-content">
                                             <h3>Hivernage &amp; Estivage</h3>
@@ -180,7 +180,7 @@
                             </div>
                             <div class="col-lg-4 text-center d-none d-lg-block">
                                 <div class="pool-page-icon">
-                                    <i class="fa fa-tools"/>
+                                    <i class="fa fa-wrench"/>
                                 </div>
                             </div>
                         </div>
@@ -302,7 +302,7 @@
                             </div>
                             <div class="col-lg-4 text-center d-none d-lg-block">
                                 <div class="pool-page-icon">
-                                    <i class="fa fa-hammer"/>
+                                    <i class="fa fa-gavel"/>
                                 </div>
                             </div>
                         </div>
@@ -317,17 +317,17 @@
                                 <h2 class="pool-content-title mb-4">Notre expertise construction</h2>
                                 
                                 <div class="pool-content-card mb-4">
-                                    <h4><i class="fa fa-drafting-compass me-2" style="color: #7c3aed;"/>Étude de projet</h4>
+                                    <h4><i class="fa fa-pencil-square-o me-2" style="color: #7c3aed;"/>Étude de projet</h4>
                                     <p>Analyse de votre terrain, conseils personnalisés et plans sur mesure.</p>
                                 </div>
                                 
                                 <div class="pool-content-card mb-4">
-                                    <h4><i class="fa fa-hard-hat me-2" style="color: #7c3aed;"/>Construction neuve</h4>
+                                    <h4><i class="fa fa-building me-2" style="color: #7c3aed;"/>Construction neuve</h4>
                                     <p>Réalisation complète de votre piscine, du terrassement à la mise en eau.</p>
                                 </div>
                                 
                                 <div class="pool-content-card mb-4">
-                                    <h4><i class="fa fa-sync-alt me-2" style="color: #7c3aed;"/>Rénovation</h4>
+                                    <h4><i class="fa fa-refresh me-2" style="color: #7c3aed;"/>Rénovation</h4>
                                     <p>Modernisation de votre bassin : liner, margelles, local technique...</p>
                                 </div>
                             </div>
@@ -409,12 +409,12 @@
                                 <h2 class="pool-content-title mb-4">Notre service d'analyse</h2>
                                 
                                 <div class="pool-content-card mb-4">
-                                    <h4><i class="fa fa-vial me-2" style="color: #059669;"/>Analyse complète</h4>
+                                    <h4><i class="fa fa-flask me-2" style="color: #059669;"/>Analyse complète</h4>
                                     <p>Mesure du pH, chlore, TAC, TH, stabilisant et autres paramètres essentiels.</p>
                                 </div>
                                 
                                 <div class="pool-content-card mb-4">
-                                    <h4><i class="fa fa-clipboard-check me-2" style="color: #059669;"/>Rapport détaillé</h4>
+                                    <h4><i class="fa fa-check-square-o me-2" style="color: #059669;"/>Rapport détaillé</h4>
                                     <p>Résultats commentés avec recommandations de traitement personnalisées.</p>
                                 </div>
                                 
@@ -486,7 +486,7 @@
                             </div>
                             <div class="col-lg-4 text-center d-none d-lg-block">
                                 <div class="pool-page-icon">
-                                    <i class="fa fa-snowflake"/>
+                                    <i class="fa fa-snowflake-o"/>
                                 </div>
                             </div>
                         </div>
@@ -501,7 +501,7 @@
                                 <div class="row g-4">
                                     <div class="col-md-6">
                                         <div class="pool-content-card h-100">
-                                            <h4><i class="fa fa-snowflake me-2" style="color: #d97706;"/>Hivernage</h4>
+                                            <h4><i class="fa fa-snowflake-o me-2" style="color: #d97706;"/>Hivernage</h4>
                                             <ul class="mt-3">
                                                 <li>Nettoyage complet du bassin</li>
                                                 <li>Traitement choc de l'eau</li>
@@ -512,7 +512,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="pool-content-card h-100">
-                                            <h4><i class="fa fa-sun me-2" style="color: #d97706;"/>Estivage</h4>
+                                            <h4><i class="fa fa-sun-o me-2" style="color: #d97706;"/>Estivage</h4>
                                             <ul class="mt-3">
                                                 <li>Remise en route du système</li>
                                                 <li>Nettoyage de printemps</li>
