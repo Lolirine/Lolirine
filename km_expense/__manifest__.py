@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Indemnités Kilométriques',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Human Resources/Expenses',
     'summary': 'Gestion des trajets professionnels et calcul des indemnités kilométriques',
     'description': """
@@ -60,6 +60,7 @@ Ce module est idéal pour:
         'views/account_move_views.xml',
         # Menus principaux (avec actions)
         'views/km_expense_menus.xml',
+        'views/km_dashboard_views.xml',
         # Vues avec sous-menus (après les menus principaux)
         'views/km_destination_views.xml',
         'views/res_partner_views.xml',

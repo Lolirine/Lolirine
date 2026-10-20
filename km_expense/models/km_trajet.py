@@ -254,7 +254,17 @@ class KmTrajet(models.Model):
     )
     
     notes = fields.Text(string='Notes internes')
-    
+
+    reconstitue = fields.Boolean(
+        string='Reconstitué',
+        default=False,
+        copy=False,
+        index=True,
+        help="Trajet reconstitué a posteriori à partir d'un événement réel "
+             "(contrat client, facture fournisseur, visite au comptable). "
+             "À relire avant validation.",
+    )
+
     # Pièces jointes
     justificatif_ids = fields.Many2many(
         'ir.attachment',

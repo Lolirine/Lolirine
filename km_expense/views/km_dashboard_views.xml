@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Recherche : filtres et regroupements utilises par le tableau de bord -->
+    <record id="km_trajet_view_search" model="ir.ui.view">
+        <field name="name">km.trajet.search</field>
+        <field name="model">km.trajet</field>
+        <field name="arch" type="xml">
+            <search string="Trajets">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="lieu_arrivee"/>
+                <field name="motif"/>
+                <field name="categorie_id"/>
+                <filter name="annee_courante" string="Année en cours"
+                        domain="[('date', '&gt;=', context_today().strftime('%Y-01-01')), ('date', '&lt;=', context_today().strftime('%Y-12-31'))]"/>
+                <filter name="date" string="Date" date="date"/>
+                <separator/>
+                <filter name="brouillon" string="Brouillon" domain="[('state', '=', 'brouillon')]"/>
+                <filter name="a_valider" string="Soumis" domain="[('state', '=', 'soumis')]"/>
+                <filter name="valide" string="Validés" domain="[('state', 'in', ('valide', 'rembourse'))]"/>
+                <separator/>
+                <filter name="reconstitue" string="Reconstitués" domain="[('reconstitue', '=', True)]"/>
+                <filter name="non_comptabilise" string="Non comptabilisés" domain="[('comptabilise', '=', False)]"/>
+                <filter name="sans_distance" string="Distance manquante" domain="[('distance', '&lt;=', 0)]"/>
+                <group>
+                    <filter name="group_mois" string="Mois" context="{'group_by': 'date:month'}"/>
+                    <filter name="group_trimestre" string="Trimestre" context="{'group_by': 'date:quarter'}"/>
+                    <filter name="group_categorie" string="Catégorie" context="{'group_by': 'categorie_id'}"/>
+                    <filter name="group_partner" string="Client / Fournisseur" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Graphique du tableau de bord : km par mois, empiles par categorie -->
+    <record id="km_trajet_view_graph_dashboard" model="ir.ui.view">
+        <field name="name">km.trajet.graph.dashboard</field>
+        <field name="model">km.trajet</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <graph string="Tableau de bord kilométrique" type="bar" stacked="1">
+                <field name="date" type="row" interval="month"/>
+                <field name="categorie_id" type="col"/>
+                <field name="distance" type="measure"/>
+                <field name="montant_indemnite" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot du tableau de bord : trimestre x categorie -->
+    <record id="km_trajet_view_pivot_dashboard" model="ir.ui.view">
+        <field name="name">km.trajet.pivot.dashboard</field>
+        <field name="model">km.trajet</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <pivot string="Tableau de bord kilométrique" display_quantity="1">
+                <field name="date" type="row" interval="quarter"/>
+                <field name="date" type="row" interval="month"/>
+                <field name="categorie_id" type="col"/>
+                <field name="distance" type="measure"/>
+                <field name="montant_indemnite" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Colonne "Reconstitue" dans la liste -->
+    <record id="km_trajet_view_tree_reconstitue" model="ir.ui.view">
+        <field name="name">km.trajet.tree.reconstitue</field>
+        <field name="model">km.trajet</field>
+        <field name="inherit_id" ref="km_trajet_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="categorie_id" position="after">
+                <field name="partner_id" optional="show"/>
+                <field name="reconstitue" optional="show" widget="boolean_toggle" readonly="1"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Case "Reconstitue" sur la fiche -->
+    <record id="km_trajet_view_form_reconstitue" model="ir.ui.view">
+        <field name="name">km.trajet.form.reconstitue</field>
+        <field name="model">km.trajet</field>
+        <field name="inherit_id" ref="km_trajet_view_form"/>
+        <field name="arch" type="xml">
+            <field name="categorie_id" position="after">
+                <field name="reconstitue"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Action du tableau de bord -->
+    <record id="km_trajet_action_dashboard" model="ir.actions.act_window">
+        <field name="name">Tableau de bord kilométrique</field>
+        <field name="res_model">km.trajet</field>
+        <field name="view_mode">graph,pivot,list,form</field>
+        <field name="search_view_id" ref="km_trajet_view_search"/>
+        <field name="context">{'search_default_annee_courante': 1}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('km_trajet_view_graph_dashboard')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('km_trajet_view_pivot_dashboard')}),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('km_trajet_view_tree')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun trajet sur la période</p>
+            <p>Chaque trajet encodé ou modifié apparaît ici automatiquement.</p>
+        </field>
+    </record>
+
+    <menuitem id="km_expense_menu_dashboard"
+              name="Tableau de bord"
+              parent="km_expense_menu_root"
+              action="km_trajet_action_dashboard"
+              sequence="1"/>
+
+    <!-- L'application s'ouvre sur le tableau de bord -->
+    <record id="km_expense_menu_root" model="ir.ui.menu">
+        <field name="action" eval="'ir.actions.act_window,%d' % ref('km_trajet_action_dashboard')"/>
+    </record>
+
+    <!-- Les actions existantes utilisent aussi la vue de recherche -->
+    <record id="km_trajet_action" model="ir.actions.act_window">
+        <field name="search_view_id" ref="km_trajet_view_search"/>
+    </record>
+
+</odoo>
