@@ -625,6 +625,43 @@ class KmTrajet(models.Model):
                 raise UserError("Seuls les trajets soumis peuvent être validés.")
             trajet.state = 'valide'
 
+    def action_valider_lot(self):
+        """Valider d'un bloc les trajets selectionnes (menu Action de la liste).
+        Les brouillons sont soumis puis valides ; les trajets sans distance,
+        refuses ou deja valides/rembourses sont ignores et signales."""
+        valides, sans_distance, ignores = self.browse(), self.browse(), self.browse()
+        for trajet in self.sorted(lambda t: (t.date, t.id)):
+            if trajet.state in ('valide', 'rembourse', 'refuse'):
+                ignores |= trajet
+                continue
+            if trajet.distance_aller <= 0:
+                sans_distance |= trajet
+                continue
+            if trajet.state == 'brouillon':
+                trajet.action_soumettre()
+            trajet.action_valider()
+            valides |= trajet
+        if valides:
+            valides.action_recalculer_bareme()
+        message = "%d trajet(s) validé(s) - %.1f km - %.2f EUR." % (
+            len(valides), sum(valides.mapped('distance')), sum(valides.mapped('montant_indemnite')))
+        if sans_distance:
+            message += " %d sans distance non validé(s) : %s." % (
+                len(sans_distance), ", ".join(sans_distance.mapped('name')))
+        if ignores:
+            message += " %d déjà validé(s), remboursé(s) ou refusé(s) ignoré(s)." % len(ignores)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': "Validation des trajets",
+                'message': message,
+                'type': 'warning' if sans_distance else 'success',
+                'sticky': bool(sans_distance),
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
+            },
+        }
+
     def action_refuser(self):
         """Refuser le trajet"""
         for trajet in self:
