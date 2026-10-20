@@ -45,11 +45,15 @@
             var stockLabel = delivery.querySelector('.lp-stock-label');
             var stockSub   = delivery.querySelector('.lp-stock-sub');
             if (stockLabel) { stockLabel.textContent = info.stock_label || ''; }
-            if (stockSub)   { stockSub.textContent = info.stock_qty > 0 ? '— expédié sous 24h' : ''; }
+            if (stockSub)   { stockSub.textContent = info.stock_sub || ''; }
 
             var delivText = delivery.querySelector('.lp-delivery-text');
             if (delivText) {
-                delivText.innerHTML = 'Livraison estimée : <strong>' + (info.delivery || '') + '</strong>';
+                var html = 'Livraison <strong>' + (info.delivery || '') + '</strong>';
+                if (info.countdown) {
+                    html += '<span class="lp-countdown"> si vous commandez dans <strong>' + info.countdown + '</strong></span>';
+                }
+                delivText.innerHTML = html;
             }
             delivery.style.display = '';
         }
@@ -80,7 +84,7 @@
                 if (info.free_delivery) {
                     delivCell.innerHTML = 'Offerte <span class="lp-free-delivery-badge">GRATUITE</span>';
                 } else {
-                    delivCell.textContent = 'Offerte dès 499 € HT';
+                    delivCell.textContent = info.franco_txt || 'Offerte dès 499 € HT';
                 }
             }
             infoBlock.style.display = '';

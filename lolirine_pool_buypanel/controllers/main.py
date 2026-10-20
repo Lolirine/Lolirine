@@ -1,4 +1,3 @@
-from datetime import date, timedelta
 import re
 from odoo import http
 from odoo.http import request
@@ -17,62 +16,28 @@ class BuyPanelController(http.Controller):
 
         tmpl = product.product_tmpl_id
 
-        # ── Stock ──────────────────────────────────────────
-        qty = product.virtual_available
-        if qty > 50:
-            qty = 50
+        Liv = request.env['lolirine.livraison'].sudo()
 
-        if qty > 10:
-            stock_label = 'En stock'
-            stock_class = 'lp-stock-green'
-        elif qty > 0:
-            stock_label = f'Plus que {int(qty)} en stock'
-            stock_class = 'lp-stock-orange'
+        # ── Disponibilité ──────────────────────────────────
+        # Le stock du catalogue est fictif (50 unités posées en masse) : tant que le
+        # paramètre « stock_reel » n'est pas activé, tout est traité comme expédié par
+        # le fournisseur, avec son délai réel.
+        stock_reel = Liv._param('stock_reel', '') == 'True'
+        qty = product.virtual_available if stock_reel else 0
+        delai = Liv.delai_fournisseur(tmpl)
+        if stock_reel and qty > 0:
+            delai = Liv._param('delai_stock', 1)
+            stock_label = 'En stock' if qty > 10 else 'Plus que %d en stock' % int(qty)
+            stock_class = 'lp-stock-green' if qty > 10 else 'lp-stock-orange'
+            stock_sub = '— expédié depuis Boninne'
         else:
-            stock_label = 'Sur commande'
-            stock_class = 'lp-stock-gray'
+            stock_label = 'Disponible'
+            stock_class = 'lp-stock-green'
+            stock_sub = ''
 
         # ── Livraison estimée ──────────────────────────────
-        def add_business_days(d, n):
-            count = 0
-            while count < n:
-                d += timedelta(days=1)
-                if d.weekday() < 5:
-                    count += 1
-            return d
-
-        # En stock : 2 à 4 jours ouvrés.
-        # Sur commande (dropshipping) : délai du fournisseur le plus rapide
-        # (+3 jours ouvrés de marge), sinon délai fournisseur Odoo, sinon 5 jours.
-        if qty > 0:
-            min_days, max_days = 2, 4
-        else:
-            supplier_delay = 0
-            if 'dropship_supplier_ids' in tmpl._fields:
-                delays = [s.delay for s in tmpl.dropship_supplier_ids
-                          if s.is_active and (s.delay or 0) > 0]
-                if delays:
-                    supplier_delay = min(delays)
-            if not supplier_delay:
-                delays = [s.delay for s in tmpl.seller_ids if (s.delay or 0) > 0]
-                if delays:
-                    supplier_delay = min(delays)
-            if not supplier_delay:
-                supplier_delay = 5
-            min_days, max_days = supplier_delay, supplier_delay + 3
-
-        today = date.today()
-        delivery_min = add_business_days(today, min_days)
-        delivery_max = add_business_days(today, max_days)
-
-        JOURS = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']
-        MOIS  = ['jan.', 'fév.', 'mar.', 'avr.', 'mai', 'juin',
-                 'juil.', 'août', 'sep.', 'oct.', 'nov.', 'déc.']
-
-        def fmt_date(d):
-            return f"{JOURS[d.weekday()]} {d.day} {MOIS[d.month - 1]}"
-
-        delivery_str = f"{fmt_date(delivery_min)} — {fmt_date(delivery_max)}"
+        promesse = Liv.promesse(delai)
+        delivery_str = promesse['texte']
 
         # ── Marque : uniquement la vraie marque, jamais le distributeur ──
         BRAND_BLACKLIST = {
@@ -103,18 +68,20 @@ class BuyPanelController(http.Controller):
             if m:
                 warranty = f"{m.group(1)} an{'s' if int(m.group(1)) > 1 else ''}"
 
-        # ── Livraison offerte (Odoo 19 : list_price) ──────
-        try:
-            price = tmpl.list_price or 0.0
-        except Exception:
-            price = 0.0
-        free_delivery = price >= 499
+        # ── Livraison offerte ─────────────────────────────
+        seuil, base = Liv.seuil_franco(request.website)
+        price = product.lst_price or tmpl.list_price or 0.0
+        free_delivery = price >= seuil
+        seuil_txt = ('%.0f' % seuil if float(seuil).is_integer() else '%.2f' % seuil).replace('.', ',')
 
         return {
             'stock_label':  stock_label,
             'stock_class':  stock_class,
             'stock_qty':    int(qty),
+            'stock_sub':    stock_sub,
             'delivery':     delivery_str,
+            'countdown':    promesse['compte_a_rebours'],
+            'franco_txt':   'Offerte dès %s € %s' % (seuil_txt, 'HT' if base == 'ht' else 'TVAC'),
             'brand':        brand,
             'warranty':     warranty,
             'default_code': product.default_code or tmpl.default_code or '',

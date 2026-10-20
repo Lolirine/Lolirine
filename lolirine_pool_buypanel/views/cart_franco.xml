@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Barre « Plus que X € pour la livraison offerte » en tête du panier -->
+    <template id="lolirine_cart_franco" inherit_id="website_sale.cart" priority="30">
+        <xpath expr="//t[@t-call='website_sale.cart_lines']" position="before">
+            <t t-if="website.id == 6 and website_sale_order and website_sale_order.order_line">
+                <t t-set="lp_franco" t-value="website_sale_order._lp_franco_info()"/>
+                <div class="lp-franco mb-3 o_not_editable" contenteditable="false">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i t-attf-class="fa #{'fa-check-circle' if lp_franco['atteint'] else 'fa-truck'} lp-franco-icon"/>
+                        <div t-if="lp_franco['atteint']" class="fw-bold">
+                            Bravo, la livraison vous est offerte !
+                        </div>
+                        <div t-else="">
+                            Plus que <strong t-out="lp_franco['reste']" t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}"/>
+                            <t t-out="lp_franco['base']"/> pour bénéficier de la <strong>livraison offerte</strong>
+                        </div>
+                    </div>
+                    <div class="lp-franco-bar"><div class="lp-franco-fill" t-attf-style="width: #{lp_franco['pct']}%"/></div>
+                    <div t-if="lp_franco['suggestions']" class="mt-3">
+                        <div class="small text-muted mb-2">Pour atteindre la livraison offerte, nos clients ajoutent souvent :</div>
+                        <div class="row g-2">
+                            <div t-foreach="lp_franco['suggestions']" t-as="sg" class="col-12 col-md-4">
+                                <t t-set="s" t-value="sg['tmpl']"/>
+                                <a t-att-href="s.website_url" class="lp-franco-sugg d-flex align-items-center gap-2 text-decoration-none">
+                                    <img t-att-src="'/web/image/product.template/%s/image_128' % s.id" alt="" loading="lazy"/>
+                                    <span class="flex-fill">
+                                        <span class="d-block lp-franco-name" t-out="s.name"/>
+                                        <strong t-out="sg['prix']" t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}"/>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+</odoo>
