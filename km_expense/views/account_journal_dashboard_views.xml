@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Bloc "Indemnites km" sur la carte du journal d'achats principal -->
+    <record id="account_journal_dashboard_kanban_km" model="ir.ui.view">
+        <field name="name">account.journal.dashboard.kanban.km</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//t[@t-name='JournalBodySalePurchase']//div[@name='kanban_primary_right']" position="inside">
+                <t t-if="dashboard.km_show">
+                    <div class="row border-top pt-1 mt-1">
+                        <div class="col overflow-hidden text-start">
+                            <a type="object" name="action_open_km_dashboard" class="fw-bold"
+                               title="Indemnités kilométriques à reprendre en TVA et au bilan">
+                                <i class="fa fa-car me-1"/>Indemnités km <t t-out="dashboard.km_year"/>
+                            </a>
+                        </div>
+                        <div class="col-auto text-end">
+                            <span dir="ltr"><t t-out="dashboard.km_total_km"/> km · <t t-out="dashboard.km_total_amount"/></span>
+                        </div>
+                    </div>
+                    <div class="row" t-if="dashboard.km_to_validate">
+                        <div class="col overflow-hidden text-start">
+                            <a type="object" name="action_open_km_to_validate" class="text-warning">
+                                <t t-out="dashboard.km_to_validate"/> trajets à valider
+                            </a>
+                        </div>
+                        <div class="col-auto text-end">
+                            <span dir="ltr"><t t-out="dashboard.km_to_validate_amount"/></span>
+                        </div>
+                    </div>
+                    <div class="row" t-if="dashboard.km_not_posted">
+                        <div class="col overflow-hidden text-start">
+                            <a type="object" name="action_open_km_not_posted" class="text-danger">
+                                <t t-out="dashboard.km_not_posted"/> validés non comptabilisés
+                            </a>
+                        </div>
+                        <div class="col-auto text-end">
+                            <span dir="ltr"><t t-out="dashboard.km_not_posted_amount"/></span>
+                        </div>
+                    </div>
+                </t>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
