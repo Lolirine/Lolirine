@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Indemnités Kilométriques',
-    'version': '19.0.1.3.0',
+    'version': '19.0.1.4.0',
     'category': 'Human Resources/Expenses',
     'summary': 'Gestion des trajets professionnels et calcul des indemnités kilométriques',
     'description': """
@@ -44,6 +44,7 @@ Ce module est idéal pour:
         'fleet',
         'account',
         'calendar',
+        'sale',
     ],
     'data': [
         # Security
@@ -70,6 +71,7 @@ Ce module est idéal pour:
         # Data avec références aux modèles
         'data/km_lieux_destinations_data.xml',
         'data/km_cron_data.xml',
+        'data/km_auto_data.xml',
         # Wizard
         'wizard/km_expense_generate_wizard_views.xml',
         'wizard/km_trajet_from_invoice_wizard_views.xml',

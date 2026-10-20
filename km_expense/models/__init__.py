@@ -10,3 +10,4 @@ from . import res_config_settings
 from . import account_move
 from . import res_partner
 from . import account_journal
+from . import km_auto

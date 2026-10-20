@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+import logging
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountMove(models.Model):
@@ -41,7 +44,11 @@ class AccountMove(models.Model):
         res = super().action_post()
         
         for move in self:
-            move._create_auto_km_trajet()
+            try:
+                with self.env.cr.savepoint():
+                    move._create_auto_km_trajet()
+            except Exception:
+                _logger.exception("Creation du trajet km automatique pour %s", move.name)
         
         return res
 
@@ -67,6 +74,14 @@ class AccountMove(models.Model):
         if not force and not self.partner_id.km_trajet_auto:
             return False
         
+        # Pas de trajet sur les notes de credit
+        if not force and self.move_type in ('in_refund', 'out_refund'):
+            return False
+
+        # Pas de trajet sur les factures d'abonnement (loyers des box)
+        if self.move_type in ('out_invoice', 'out_refund') and self._km_is_subscription_invoice():
+            return False
+
         # Vérifier le type de facture
         if self.move_type in ('in_invoice', 'in_refund'):
             if not force and self.partner_id.km_trajet_type not in ('fournisseur', 'les_deux'):
@@ -113,19 +128,31 @@ class AccountMove(models.Model):
             if distance_record:
                 distance_aller = distance_record.distance_km
         
-        # Trouver l'employé lié à l'utilisateur courant
-        employee = self.env['hr.employee'].search([
-            ('user_id', '=', self.env.uid)
+        Trajet = self.env['km.trajet']
+        date_trajet = self.invoice_date or fields.Date.today()
+
+        # Un seul aller-retour par jour d'achat chez un meme partenaire
+        existant = Trajet.search([
+            ('partner_id', '=', self.partner_id.id),
+            ('date', '=', date_trajet),
+            ('state', '!=', 'refuse'),
         ], limit=1)
-        
-        if not employee:
-            # Si pas d'employé, créer le trajet sans employé (sera à compléter)
-            employee = False
+        if existant and not force:
+            if self.name and self.name not in (existant.motif or ''):
+                existant.motif = '%s, %s' % (existant.motif or '', self.name)
+            self.km_trajet_auto_created = True
+            return existant
+
+        # Employe et vehicule configures (km_expense.auto_employee_id, ...)
+        base_vals = Trajet._km_auto_base_vals()
+        if not base_vals.get('employee_id'):
+            _logger.warning("Trajet km auto pour %s : aucun employe configure", self.name)
+            return False
         
         # Préparer les valeurs du trajet
-        trajet_vals = {
-            'date': self.invoice_date or fields.Date.today(),
-            'employee_id': employee.id if employee else False,
+        trajet_vals = dict(base_vals)
+        trajet_vals.update({
+            'date': date_trajet,
             'partner_id': self.partner_id.id,
             'invoice_id': self.id,
             'origine_trajet': origine,
@@ -133,7 +160,9 @@ class AccountMove(models.Model):
             'motif': f"Facture {self.name} - {self.partner_id.name}",
             'aller_retour': self.partner_id.km_aller_retour,
             'state': 'brouillon',
-        }
+            'auto_source': trajet_type if not force else False,
+            'notes': "Créé automatiquement à la validation de la facture %s." % self.name if not force else False,
+        })
         
         # Mode prédéfini ou manuel
         if destination and lieu_depart and distance_aller > 0:
@@ -156,12 +185,20 @@ class AccountMove(models.Model):
             })
         
         # Créer le trajet
-        trajet = self.env['km.trajet'].create(trajet_vals)
+        trajet = Trajet.create(trajet_vals)
         
         # Marquer comme créé
         self.km_trajet_auto_created = True
         
         return trajet
+
+    def _km_is_subscription_invoice(self):
+        """Facture liee a un contrat d'abonnement (loyer de box)."""
+        self.ensure_one()
+        orders = self.invoice_line_ids.sale_line_ids.order_id
+        if orders and 'is_subscription' in orders._fields:
+            return any(orders.mapped('is_subscription'))
+        return False
 
     def _format_partner_address(self):
         """Formater l'adresse complète du partenaire"""

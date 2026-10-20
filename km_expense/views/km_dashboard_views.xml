@@ -21,6 +21,7 @@
                 <filter name="valide" string="Validés" domain="[('state', 'in', ('valide', 'rembourse'))]"/>
                 <separator/>
                 <filter name="reconstitue" string="Reconstitués" domain="[('reconstitue', '=', True)]"/>
+                <filter name="auto" string="Créés automatiquement" domain="[('auto_source', '!=', False)]"/>
                 <filter name="non_comptabilise" string="Non comptabilisés" domain="[('comptabilise', '=', False)]"/>
                 <filter name="sans_distance" string="Distance manquante" domain="[('distance', '&lt;=', 0)]"/>
                 <group>
@@ -29,6 +30,7 @@
                     <filter name="group_categorie" string="Catégorie" context="{'group_by': 'categorie_id'}"/>
                     <filter name="group_partner" string="Client / Fournisseur" context="{'group_by': 'partner_id'}"/>
                     <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
+                    <filter name="group_auto" string="Création automatique" context="{'group_by': 'auto_source'}"/>
                 </group>
             </search>
         </field>
@@ -74,6 +76,7 @@
             <field name="categorie_id" position="after">
                 <field name="partner_id" optional="show"/>
                 <field name="reconstitue" optional="show" widget="boolean_toggle" readonly="1"/>
+                <field name="auto_source" optional="show"/>
             </field>
         </field>
     </record>
@@ -86,6 +89,7 @@
         <field name="arch" type="xml">
             <field name="categorie_id" position="after">
                 <field name="reconstitue"/>
+                <field name="auto_source" invisible="not auto_source"/>
             </field>
         </field>
     </record>
