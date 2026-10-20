@@ -11,6 +11,12 @@ from odoo.http import request
 _logger = logging.getLogger(__name__)
 
 ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
+MODELE_DEFAUT = 'claude-sonnet-5-5'
+# Modèles retirés par Anthropic : remplacés automatiquement par leur successeur
+MODELES_RETIRES = {
+    'claude-sonnet-4-20250514': 'claude-sonnet-5-5',
+    'claude-haiku-4-5-20251001': 'claude-haiku-5-5',
+}
 
 DEFAULT_SYSTEM_PROMPT = (
     'Tu es un expert en piscines, spas, jacuzzis et saunas pour Lolirine Pool Store. '
@@ -162,7 +168,8 @@ class AiChatController(http.Controller):
         if not self._check_rate_limit(session_id):
             return {'error': 'Limite de messages atteinte pour cette session.'}
 
-        model_name = self._get_param('model', 'claude-sonnet-4-20250514')
+        model_name = self._get_param('model', MODELE_DEFAUT) or MODELE_DEFAUT
+        model_name = MODELES_RETIRES.get(model_name, model_name)
         max_tokens = int(self._get_param('max_tokens', '1024'))
         system_prompt = self._get_param('system_prompt', '') or DEFAULT_SYSTEM_PROMPT
 
@@ -208,8 +215,8 @@ class AiChatController(http.Controller):
             elapsed_ms = int((time.time() - start_time) * 1000)
             if resp.status_code != 200:
                 _logger.error('AI Chat API Error %s: %s', resp.status_code, data)
-                err_msg = data.get('error', {}).get('message', 'Erreur API')
-                return {'error': 'Erreur: ' + err_msg[:100]}
+                return {'error': "L'assistant est momentanément indisponible. "
+                                 "Réessayez dans un instant ou contactez-nous via la page contact."}
         except requests.exceptions.Timeout:
             return {'error': 'La requete a expire. Reessayez.'}
         except Exception as e:
