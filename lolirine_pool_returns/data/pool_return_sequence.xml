@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_pool_return" model="ir.sequence">
+        <field name="name">Retours clients</field>
+        <field name="code">pool.return</field>
+        <field name="prefix">RET/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="param_auto_accepter" model="ir.config_parameter">
+        <field name="key">lolirine_pool_returns.auto_accepter</field>
+        <field name="value">True</field>
+    </record>
+</odoo>

@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pool_return_salesman,pool.return.salesman,model_pool_return,sales_team.group_sale_salesman,1,1,1,0
+access_pool_return_manager,pool.return.manager,model_pool_return,sales_team.group_sale_manager,1,1,1,1
+access_pool_return_portal,pool.return.portal,model_pool_return,base.group_portal,1,0,0,0
+access_pool_return_line_salesman,pool.return.line.salesman,model_pool_return_line,sales_team.group_sale_salesman,1,1,1,1
+access_pool_return_line_portal,pool.return.line.portal,model_pool_return_line,base.group_portal,1,0,0,0

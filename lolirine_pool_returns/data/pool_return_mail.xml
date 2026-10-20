@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_template_retour_accepte" model="mail.template">
+        <field name="name">Retour : bon de retour envoyé au client</field>
+        <field name="model_id" ref="model_pool_return"/>
+        <field name="subject">Votre retour {{ object.name }} — commande {{ object.order_id.name }}</field>
+        <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="report_template_ids" eval="[(4, ref('lolirine_pool_returns.action_report_pool_return'))]"/>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="body_html" type="html">
+<div style="font-family:Arial,sans-serif;font-size:14px;color:#0b3a53;">
+    <p>Bonjour <t t-out="object.partner_id.name or ''"/>,</p>
+    <p>Votre demande de retour <strong t-out="object.name"/> pour la commande <strong t-out="object.order_id.name"/> est acceptée.</p>
+    <t t-if="object.sans_renvoi">
+        <p><strong>Inutile de nous renvoyer l'article</strong> : nous procédons au remboursement ou au remplacement sans renvoi.</p>
+    </t>
+    <t t-else="">
+        <p>Vous trouverez votre <strong>bon de retour</strong> en pièce jointe. Imprimez-le et glissez-le dans le colis, ou notez le numéro <strong t-out="object.name"/> sur le carton.</p>
+        <p>Adresse de renvoi :<br/><strong t-out="object.adresse_retour or ''" style="white-space:pre-line;"/></p>
+        <p t-if="object.frais_renvoi == 'client'">Les frais de renvoi sont à votre charge ; conservez la preuve de dépôt.</p>
+        <p t-else="">Les frais de renvoi sont pris en charge par nos soins ; nous vous recontactons si un enlèvement est nécessaire.</p>
+    </t>
+    <p>Montant estimé du remboursement : <strong t-out="format_amount(object.montant_rembourse, object.currency_id)"/></p>
+    <p>Vous pouvez suivre votre retour à tout moment depuis votre espace client.</p>
+    <p style="margin:24px 0;">
+        <a t-att-href="object.get_base_url() + object.get_portal_url()"
+           style="background:#0369a1;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;">Suivre mon retour</a>
+    </p>
+    <p>L'équipe Lolirine Pool Store</p>
+</div>
+        </field>
+    </record>
+</odoo>

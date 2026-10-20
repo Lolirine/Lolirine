@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Entrée « Vos retours » sur la page d'accueil de l'espace client -->
+    <template id="portal_my_home_pool_returns" name="Retours" inherit_id="portal.portal_my_home" priority="40">
+        <div id="portal_client_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/lolirine_pool_returns/static/description/retour.svg'"/>
+                <t t-set="title">Vos retours</t>
+                <t t-set="url" t-value="'/my/returns'"/>
+                <t t-set="text">Suivre vos retours et télécharger vos bons de retour</t>
+                <t t-set="placeholder_count" t-value="'pool_return_count'"/>
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_breadcrumbs_pool_returns" inherit_id="portal.portal_breadcrumbs" priority="40">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name in ('pool_returns', 'pool_return')" t-attf-class="breadcrumb-item #{'active' if page_name == 'pool_returns' else ''}">
+                <a t-if="page_name == 'pool_return'" href="/my/returns">Retours</a>
+                <t t-else="">Retours</t>
+            </li>
+            <li t-if="page_name == 'pool_return' and retour" class="breadcrumb-item active" t-out="retour.name"/>
+            <li t-if="page_name == 'pool_return_new' and order" class="breadcrumb-item">
+                <a t-att-href="order.get_portal_url()" t-out="order.name"/>
+            </li>
+            <li t-if="page_name == 'pool_return_new'" class="breadcrumb-item active">Retourner ou signaler un problème</li>
+        </xpath>
+    </template>
+
+    <!-- Bouton sur la page de la commande -->
+    <template id="sale_order_portal_pool_return_button" inherit_id="sale.sale_order_portal_template" priority="40">
+        <xpath expr="//div[@id='sale_order_sidebar_button']" position="inside">
+            <a t-if="sale_order.state == 'sale'" role="button" class="btn btn-outline-primary"
+               t-att-href="'/my/orders/%s/retour%s' % (sale_order.id, ('?access_token=%s' % sale_order.access_token) if sale_order.access_token else '')">
+                <i class="fa fa-undo me-1"/> Retourner ou signaler un problème
+            </a>
+            <a t-if="sale_order.sudo().pool_return_ids.filtered(lambda r: r.state != 'draft')" href="/my/returns"
+               class="btn btn-link btn-sm">Voir mes retours</a>
+        </xpath>
+    </template>
+
+    <!-- Liste des retours -->
+    <template id="portal_my_returns" name="Mes retours">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Vos retours</t>
+            </t>
+            <div t-if="not retours" class="alert alert-info" role="alert">
+                Vous n'avez aucun retour en cours. Pour retourner un article, ouvrez la commande concernée
+                dans <a href="/my/orders">vos commandes</a> et cliquez sur « Retourner ou signaler un problème ».
+            </div>
+            <t t-if="retours" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Retour</th>
+                        <th>Commande</th>
+                        <th class="d-none d-md-table-cell">Motif</th>
+                        <th class="text-end">Montant</th>
+                        <th class="text-end">État</th>
+                    </tr>
+                </thead>
+                <tr t-foreach="retours" t-as="r">
+                    <td><a t-att-href="r.get_portal_url()" t-out="r.name"/></td>
+                    <td t-out="r.order_id.name"/>
+                    <td class="d-none d-md-table-cell"><span t-field="r.motif"/></td>
+                    <td class="text-end"><span t-field="r.montant_rembourse" t-options="{'widget': 'monetary', 'display_currency': r.currency_id}"/></td>
+                    <td class="text-end"><t t-call="lolirine_pool_returns.portal_return_badge"/></td>
+                </tr>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_return_badge" name="Badge d'état du retour">
+        <t t-set="lpr_couleurs" t-value="{'submitted': 'text-bg-info', 'approved': 'text-bg-warning', 'received': 'text-bg-primary', 'refunded': 'text-bg-success', 'refused': 'text-bg-danger', 'cancel': 'text-bg-secondary'}"/>
+        <span t-att-class="'badge rounded-pill ' + lpr_couleurs.get(r.state, 'text-bg-light')">
+            <t t-if="r.state == 'submitted'">En cours d'examen</t>
+            <t t-elif="r.state == 'approved' and r.sans_renvoi">Accepté – rien à renvoyer</t>
+            <t t-elif="r.state == 'approved'">À renvoyer</t>
+            <t t-elif="r.state == 'received'">Reçu – remboursement en cours</t>
+            <t t-elif="r.state == 'refunded'">Remboursé</t>
+            <t t-elif="r.state == 'refused'">Refusé</t>
+            <t t-else="">Annulé</t>
+        </span>
+    </template>
+
+    <!-- Détail d'un retour -->
+    <template id="portal_my_return" name="Mon retour">
+        <t t-call="portal.portal_layout">
+            <t t-set="r" t-value="retour"/>
+            <div t-if="message == 'cree'" class="alert alert-success mt-3" role="alert">
+                <strong>Votre demande de retour est enregistrée.</strong>
+                <t t-if="r.state == 'approved'"> Votre bon de retour est prêt ci-dessous et vous a été envoyé par e-mail.</t>
+                <t t-else=""> Nous l'examinons et revenons vers vous rapidement, en général sous 1 jour ouvrable.</t>
+            </div>
+            <div class="card mt-3 lpr-card">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                        <div>
+                            <h3 class="mb-1">Retour <t t-out="r.name"/></h3>
+                            <div class="text-muted">Commande <a t-att-href="r.order_id.get_portal_url()" t-out="r.order_id.name"/>
+                                · <span t-field="r.motif"/></div>
+                        </div>
+                        <t t-call="lolirine_pool_returns.portal_return_badge"/>
+                    </div>
+
+                    <!-- Étapes -->
+                    <t t-set="etapes" t-value="[('submitted', 'Demande envoyée'), ('approved', 'Bon de retour'), ('received', 'Article reçu'), ('refunded', 'Remboursé')] if not r.sans_renvoi else [('submitted', 'Demande envoyée'), ('approved', 'Accepté'), ('refunded', 'Remboursé')]"/>
+                    <t t-set="ordre" t-value="{'submitted': 0, 'approved': 1, 'received': 2, 'refunded': 3 if not r.sans_renvoi else 2}"/>
+                    <t t-set="pos" t-value="ordre.get(r.state, -1)"/>
+                    <div t-if="r.state not in ('refused', 'cancel')" class="lpr-steps d-flex my-4">
+                        <t t-foreach="etapes" t-as="e">
+                            <div t-attf-class="lpr-step flex-fill text-center #{'done' if e_index &lt;= pos else ''}">
+                                <div class="lpr-dot"><i t-attf-class="fa #{'fa-check' if e_index &lt;= pos else 'fa-circle-o'}"/></div>
+                                <div class="small mt-1" t-out="e[1]"/>
+                            </div>
+                        </t>
+                    </div>
+                    <div t-if="r.state == 'refused'" class="alert alert-danger my-3">
+                        Ce retour n'a pas pu être accepté. Le détail vous a été communiqué ci-dessous, dans les messages.
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-7">
+                            <h5>Articles</h5>
+                            <table class="table table-sm">
+                                <tr t-foreach="r.line_ids" t-as="l">
+                                    <td style="width:56px">
+                                        <img t-att-src="'/web/image/product.product/%s/image_128' % l.product_id.id" class="rounded"
+                                             style="width:48px;height:48px;object-fit:contain;background:#fff" alt=""/>
+                                    </td>
+                                    <td t-out="l.product_id.display_name"/>
+                                    <td class="text-end text-nowrap">× <t t-out="'%g' % l.quantite"/></td>
+                                    <td class="text-end text-nowrap"><span t-field="l.montant" t-options="{'widget': 'monetary', 'display_currency': r.currency_id}"/></td>
+                                </tr>
+                                <tr t-if="r.frais_remise_stock">
+                                    <td colspan="3">Frais de remise en stock</td>
+                                    <td class="text-end text-nowrap">- <span t-field="r.frais_remise_stock" t-options="{'widget': 'monetary', 'display_currency': r.currency_id}"/></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"><strong>Remboursement estimé</strong></td>
+                                    <td class="text-end text-nowrap"><strong t-field="r.montant_rembourse" t-options="{'widget': 'monetary', 'display_currency': r.currency_id}"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-5">
+                            <t t-if="r.state == 'approved' and r.sans_renvoi">
+                                <div class="alert alert-success"><strong>Inutile de nous renvoyer l'article.</strong>
+                                    Le remboursement ou le remplacement suit sans renvoi.</div>
+                            </t>
+                            <t t-elif="r.state in ('approved', 'received', 'refunded')">
+                                <div class="lpr-adresse p-3 rounded mb-3">
+                                    <div class="small text-uppercase text-muted">Adresse de renvoi</div>
+                                    <div class="fw-bold" style="white-space:pre-line" t-out="r.adresse_retour"/>
+                                    <div class="small mt-2">Notez <strong t-out="r.name"/> sur le colis.</div>
+                                </div>
+                                <a class="btn btn-primary w-100 mb-2" t-att-href="'/my/returns/%s/bon%s' % (r.id, ('?access_token=%s' % token) if token else '')" target="_blank">
+                                    <i class="fa fa-print me-1"/> Imprimer le bon de retour
+                                </a>
+                                <div class="small text-muted">
+                                    <t t-if="r.frais_renvoi == 'client'">Frais de renvoi à votre charge : choisissez un envoi suivi et gardez la preuve de dépôt.</t>
+                                    <t t-else="">Frais de renvoi à notre charge : nous vous recontactons si un enlèvement est nécessaire.</t>
+                                </div>
+                            </t>
+                            <t t-elif="r.state == 'submitted'">
+                                <div class="alert alert-info">Nous examinons votre demande. Vous recevrez votre bon de retour par e-mail dès qu'elle est acceptée.</div>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h4>Messages</h4>
+                <t t-call="portal.message_thread">
+                    <t t-set="object" t-value="r"/>
+                    <t t-set="token" t-value="token"/>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- Formulaire de demande -->
+    <template id="portal_return_form" name="Demande de retour">
+        <t t-call="portal.portal_layout">
+            <form t-att-action="'/my/orders/%s/retour%s' % (order.id, ('?access_token=%s' % access_token) if access_token else '')"
+                  method="post" enctype="multipart/form-data" class="lpr-form mt-3">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+                    <div>
+                        <h3 class="mb-1">Retourner ou signaler un problème</h3>
+                        <div class="text-muted">Commande <strong t-out="order.name"/>, livrée le <t t-out="livraison.strftime('%d/%m/%Y')"/></div>
+                    </div>
+                    <a t-att-href="lien_cgv" target="_blank" class="small">Conditions de retour</a>
+                </div>
+
+                <div t-if="erreurs" class="alert alert-danger">
+                    <div t-foreach="erreurs" t-as="err" t-out="err"/>
+                </div>
+
+                <div t-if="not lignes" class="alert alert-warning">
+                    Aucun article de cette commande ne peut faire l'objet d'un retour pour le moment :
+                    soit la commande n'est pas encore livrée, soit tous les articles sont déjà dans un retour.
+                    Pour toute question, <a href="/pool/contact">contactez-nous</a>.
+                </div>
+
+                <t t-if="lignes">
+                    <!-- Étape 1 : articles -->
+                    <div class="card lpr-card mb-3">
+                        <div class="card-body">
+                            <h5 class="lpr-step-title"><span>1</span> Quels articles ?</h5>
+                            <div t-foreach="lignes" t-as="it" class="d-flex align-items-center gap-3 py-2 border-bottom">
+                                <t t-set="l" t-value="it['line']"/>
+                                <input type="checkbox" class="form-check-input mt-0" t-att-name="'sel_%s' % l.id" t-att-id="'sel_%s' % l.id"
+                                       t-att-checked="saisie.get('sel_%s' % l.id) or len(lignes) == 1"/>
+                                <img t-att-src="'/web/image/product.product/%s/image_128' % l.product_id.id" class="rounded"
+                                     style="width:56px;height:56px;object-fit:contain;background:#fff" alt=""/>
+                                <label class="flex-fill" t-att-for="'sel_%s' % l.id">
+                                    <div t-out="l.product_id.display_name"/>
+                                    <div t-if="it['exclu']" class="small text-warning">
+                                        <i class="fa fa-info-circle"/> <t t-out="it['motif_exclu']"/> : pas de rétractation possible,
+                                        mais un défaut ou un dommage reste pris en charge.
+                                    </div>
+                                </label>
+                                <select class="form-select form-select-sm" style="width:5rem" t-att-name="'qty_%s' % l.id">
+                                    <t t-foreach="range(1, int(it['reste']) + 1)" t-as="q">
+                                        <option t-att-value="q" t-att-selected="str(q) == saisie.get('qty_%s' % l.id)" t-out="q"/>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 2 : motif -->
+                    <div class="card lpr-card mb-3">
+                        <div class="card-body">
+                            <h5 class="lpr-step-title"><span>2</span> Quel est le motif ?</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="small text-muted text-uppercase mb-1">Vous changez d'avis</div>
+                                    <t t-foreach="[m for m in motifs if m[2] == 'retractation']" t-as="m">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="motif" t-att-id="'m_' + m[0]" t-att-value="m[0]"
+                                                   t-att-checked="saisie.get('motif') == m[0]"/>
+                                            <label class="form-check-label" t-att-for="'m_' + m[0]" t-out="m[1]"/>
+                                        </div>
+                                    </t>
+                                    <div class="small text-muted mt-2">
+                                        Possible jusqu'au <strong t-out="limite_retractation.strftime('%d/%m/%Y')"/>.
+                                        Frais de renvoi à votre charge<t t-if="est_pro">, frais de remise en stock appliqués (compte professionnel)</t>.
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mt-3 mt-md-0">
+                                    <div class="small text-muted text-uppercase mb-1">Il y a un problème</div>
+                                    <t t-foreach="[m for m in motifs if m[2] != 'retractation']" t-as="m">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="motif" t-att-id="'m_' + m[0]" t-att-value="m[0]"
+                                                   t-att-checked="saisie.get('motif') == m[0]"/>
+                                            <label class="form-check-label" t-att-for="'m_' + m[0]" t-out="m[1]"/>
+                                        </div>
+                                    </t>
+                                    <div class="small text-muted mt-2">Frais à notre charge. Colis abîmé : signalez-le dans les 3 jours ouvrables avec une photo.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 3 : détails -->
+                    <div class="card lpr-card mb-3">
+                        <div class="card-body">
+                            <h5 class="lpr-step-title"><span>3</span> Précisions et photos</h5>
+                            <textarea name="commentaire" class="form-control mb-3" rows="3" maxlength="2000"
+                                      placeholder="Décrivez le problème : ce qui ne fonctionne pas, ce qui manque, l'état du colis…"
+                                      t-out="saisie.get('commentaire', '')"/>
+                            <label class="form-label small text-muted">Photos (6 maximum, 8 Mo chacune) — obligatoires pour un colis abîmé</label>
+                            <input type="file" name="photos" class="form-control" accept="image/*" multiple="multiple"/>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-end mb-5">
+                        <a t-att-href="order.get_portal_url()" class="btn btn-light">Annuler</a>
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane me-1"/> Envoyer la demande</button>
+                    </div>
+                </t>
+
+                <div t-if="retours_existants" class="small text-muted mb-4">
+                    Retours déjà demandés pour cette commande :
+                    <t t-foreach="retours_existants" t-as="rr">
+                        <a t-att-href="rr.get_portal_url()" t-out="rr.name"/><t t-if="not rr_last">, </t>
+                    </t>
+                </div>
+            </form>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,28 @@
+/* Retours clients — espace client */
+.lpr-card {
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: .9rem;
+    box-shadow: 0 6px 24px rgba(31, 38, 135, 0.08);
+}
+.lpr-step-title { display: flex; align-items: center; gap: .6rem; font-weight: 700; color: #0b3a53; margin-bottom: 1rem; }
+.lpr-step-title > span {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.8rem; height: 1.8rem; border-radius: 50%;
+    background: linear-gradient(135deg, #00a8d8, #0369a1); color: #fff; font-size: .95rem;
+}
+.lpr-steps { position: relative; }
+.lpr-step { position: relative; color: #94a3b8; }
+.lpr-step + .lpr-step::before {
+    content: ""; position: absolute; top: 1rem; right: 50%; width: 100%; height: 3px;
+    background: #e2e8f0; z-index: 0;
+}
+.lpr-step.done + .lpr-step.done::before { background: #00a8d8; }
+.lpr-dot {
+    position: relative; z-index: 1; margin: 0 auto; width: 2rem; height: 2rem; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; background: #e2e8f0; color: #fff;
+}
+.lpr-step.done { color: #0b3a53; font-weight: 600; }
+.lpr-step.done .lpr-dot { background: linear-gradient(135deg, #00a8d8, #0369a1); }
+.lpr-adresse { border: 2px dashed #0369a1; background: rgba(0, 168, 216, 0.06); }
+.lpr-form .form-check { padding-top: .2rem; padding-bottom: .2rem; }
