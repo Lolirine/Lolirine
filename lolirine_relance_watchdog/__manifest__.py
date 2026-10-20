@@ -1,6 +1,6 @@
 {
     'name': "Lolirine - Surveillance des relances",
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Accounting/Accounting',
     'summary': "Detecte les factures echues passees a la trappe du cron de relance",
     'description': """
@@ -17,6 +17,16 @@ Signaux detectes
 * Client sorti du circuit automatique (followup_reminder_type = manual) et jamais repris
 * Facture echue alors que l'abonnement du client est encore actif
 * Facture de frais de relance impayee (risque de frais generant des frais)
+* Paiement bancaire rapproche sur le compte client mais non lettre
+
+Actualiser le rapprochement
+---------------------------
+Bouton sur la facture et action dans la liste (Actions > Actualiser le
+rapprochement) : recalcule le statut de paiement, puis lettre les paiements
+bancaires disponibles du client (communication structuree, puis montant
+identique, puis paiement unique). Signale les virements portant la reference
+de la facture mais rapproches sur un autre compte ou une autre facture.
+Filtre et colonne « Paiement a lettrer » dans la liste des factures.
 
 Ergonomie
 ---------

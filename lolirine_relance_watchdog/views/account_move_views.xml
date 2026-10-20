@@ -1,25 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Banniere d'alerte en haut de la fiche facture -->
+    <!-- Banniere d'alerte + bouton d'actualisation sur la fiche facture -->
     <record id="view_move_form_relance_alert" model="ir.ui.view">
         <field name="name">account.move.form.relance.alert</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_lolirine_refresh_reconciliation"
+                        type="object"
+                        string="Actualiser le rapprochement"
+                        icon="fa-refresh"
+                        groups="account.group_account_invoice"
+                        invisible="move_type != 'out_invoice' or state != 'posted' or payment_state in ('paid', 'in_payment', 'reversed')"/>
+            </xpath>
             <sheet position="before">
                 <field name="lolirine_relance_alert" invisible="1"/>
+                <field name="lolirine_payment_available" invisible="1"/>
+                <field name="company_currency_id" invisible="1"/>
                 <div class="alert alert-warning m-0" role="alert"
                      invisible="not lolirine_relance_alert">
                     <strong>Relance incoherente : </strong>
                     <field name="lolirine_relance_msg" readonly="1"
                            nolabel="1" class="oe_inline"/>
                 </div>
+                <div class="alert alert-info m-0" role="alert"
+                     invisible="not lolirine_payment_available">
+                    <strong>Paiement bancaire non lettre : </strong>
+                    le client dispose de
+                    <field name="lolirine_payment_available_amount" readonly="1"
+                           nolabel="1" class="oe_inline"/>
+                    deja rapproches en banque mais non imputes sur une facture.
+                    Cliquez sur « Actualiser le rapprochement ».
+                </div>
             </sheet>
         </field>
     </record>
 
-    <!-- Colonne motif dans la liste des factures -->
+    <!-- Colonnes dans la liste des factures -->
     <record id="view_invoice_tree_relance_alert" model="ir.ui.view">
         <field name="name">account.move.list.relance.alert</field>
         <field name="model">account.move</field>
@@ -27,11 +46,13 @@
         <field name="arch" type="xml">
             <field name="name" position="after">
                 <field name="lolirine_relance_msg" optional="show" readonly="1"/>
+                <field name="lolirine_payment_available" optional="show"
+                       readonly="1" string="Paiement a lettrer"/>
             </field>
         </field>
     </record>
 
-    <!-- Filtre de recherche -->
+    <!-- Filtres de recherche -->
     <record id="view_invoice_filter_relance_alert" model="ir.ui.view">
         <field name="name">account.move.search.relance.alert</field>
         <field name="model">account.move</field>
@@ -40,6 +61,8 @@
             <filter name="late" position="after">
                 <filter name="relance_alert" string="Relances oubliees"
                         domain="[('lolirine_relance_alert', '=', True)]"/>
+                <filter name="payment_available" string="Paiement a lettrer"
+                        domain="[('lolirine_payment_available', '=', True)]"/>
             </filter>
         </field>
     </record>
@@ -71,6 +94,16 @@
         <field name="binding_view_types">list</field>
         <field name="state">code</field>
         <field name="code">records.action_lolirine_check_relance()</field>
+    </record>
+
+    <!-- Action serveur : actualiser le rapprochement depuis la liste -->
+    <record id="action_server_refresh_reconciliation" model="ir.actions.server">
+        <field name="name">Actualiser le rapprochement</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_lolirine_refresh_reconciliation()</field>
     </record>
 
 </odoo>
