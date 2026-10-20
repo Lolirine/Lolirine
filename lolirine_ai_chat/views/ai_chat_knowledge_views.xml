@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_ai_chat_knowledge_list" model="ir.ui.view">
+        <field name="name">ai.chat.knowledge.list</field>
+        <field name="model">ai.chat.knowledge</field>
+        <field name="arch" type="xml">
+            <list string="Base de connaissances" decoration-muted="not manual" decoration-bf="kind == 'essentiel'">
+                <field name="sequence" widget="handle"/>
+                <field name="kind"/>
+                <field name="name"/>
+                <field name="url" widget="url"/>
+                <field name="keywords" optional="hide"/>
+                <field name="manual"/>
+                <field name="website_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ai_chat_knowledge_form" model="ir.ui.view">
+        <field name="name">ai.chat.knowledge.form</field>
+        <field name="model">ai.chat.knowledge</field>
+        <field name="arch" type="xml">
+            <form string="Fiche de connaissance">
+                <sheet>
+                    <div class="alert alert-info" role="alert" invisible="manual">
+                        Fiche créée automatiquement à partir du site : elle sera remplacée à la prochaine relecture.
+                        Pour une information à garder, créez plutôt une fiche « Question / réponse ».
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="kind"/>
+                            <field name="url" widget="url"/>
+                        </group>
+                        <group>
+                            <field name="keywords"/>
+                            <field name="website_id"/>
+                            <field name="manual"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <field name="content" placeholder="Réponse ou information que le chatbot doit connaître…"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ai_chat_knowledge_search" model="ir.ui.view">
+        <field name="name">ai.chat.knowledge.search</field>
+        <field name="model">ai.chat.knowledge</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="content"/>
+                <field name="keywords"/>
+                <filter name="manuelles" string="Saisies manuelles" domain="[('manual', '=', True)]"/>
+                <filter name="auto" string="Automatiques" domain="[('manual', '=', False)]"/>
+                <separator/>
+                <filter name="faq" string="Questions / réponses" domain="[('kind', '=', 'faq')]"/>
+                <filter name="pages" string="Pages" domain="[('kind', '=', 'page')]"/>
+                <group>
+                    <filter name="grp_kind" string="Type" context="{'group_by': 'kind'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ai_chat_knowledge" model="ir.actions.act_window">
+        <field name="name">Base de connaissances</field>
+        <field name="res_model">ai.chat.knowledge</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_grp_kind': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Le chatbot n'a encore rien lu du site</p>
+            <p>Lancez « Action → Relire le contenu du site » ou attendez la relecture automatique de la nuit.
+               Vous pouvez aussi ajouter vos propres questions / réponses.</p>
+        </field>
+    </record>
+
+    <record id="action_server_ai_chat_reconstruire" model="ir.actions.server">
+        <field name="name">Relire le contenu du site</field>
+        <field name="model_id" ref="model_ai_chat_knowledge"/>
+        <field name="binding_model_id" ref="model_ai_chat_knowledge"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = model.action_reconstruire()</field>
+    </record>
+
+    <menuitem id="menu_ai_chat_knowledge" name="Base de connaissances" parent="menu_ai_chat_root"
+              action="action_ai_chat_knowledge" sequence="20"/>
+    <menuitem id="menu_ai_chat_reconstruire" name="Relire le contenu du site" parent="menu_ai_chat_root"
+              action="action_server_ai_chat_reconstruire" sequence="30"/>
+</odoo>

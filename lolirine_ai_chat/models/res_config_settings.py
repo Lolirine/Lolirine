@@ -13,6 +13,8 @@ class ResConfigSettings(models.TransientModel):
         [
             ('claude-sonnet-4-20250514', 'Claude Sonnet 4'),
             ('claude-haiku-4-5-20251001', 'Claude Haiku 4.5'),
+            ('claude-sonnet-5-5', 'Claude Sonnet 5.5'),
+            ('claude-haiku-5-5', 'Claude Haiku 5.5'),
         ],
         string='Modele IA',
         config_parameter='lolirine_ai_chat.model',

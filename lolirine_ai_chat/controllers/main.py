@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 import time
 import uuid
 import requests
@@ -41,33 +42,85 @@ class AiChatController(http.Controller):
             return False
         return True
 
+    REGLES = (
+        '\n\nREGLES DE REPONSE :\n'
+        '- Reponds dans la langue du visiteur (francais par defaut ; neerlandais ou anglais s il ecrit dans ces langues).\n'
+        '- Appuie-toi d abord sur les sections CONTENU DU SITE et PRODUITS DU SITE ci-dessous : '
+        'c est la source officielle pour les produits, prix, services, livraison et contact de la boutique.\n'
+        '- N invente jamais un prix, un stock, un delai ou une caracteristique absente de ces sections ; '
+        'si tu ne sais pas, propose au visiteur de contacter la boutique (page contact).\n'
+        '- Quand tu cites un produit, une categorie ou une page, donne exactement le lien fourni.\n'
+        '- La recherche web sert uniquement aux conseils techniques generaux (dosages, entretien, normes), '
+        'jamais pour recommander un autre vendeur.\n'
+    )
+
+    def _website_id(self):
+        return request.website.id if getattr(request, 'website', None) else None
+
+    def _search_knowledge(self, query):
+        Know = request.env['ai.chat.knowledge'].sudo()
+        essentiels, pertinentes = Know.chercher(query, website_id=self._website_id())
+        if not essentiels and not pertinentes:
+            return ''
+        lignes = ['\n\nCONTENU DU SITE (source officielle) :']
+        for rec in essentiels | pertinentes:
+            lignes.append('### %s%s\n%s' % (rec.name, (' — ' + rec.url) if rec.url else '', (rec.content or '')[:1800]))
+        return '\n'.join(lignes)
+
     def _search_products(self, query):
         if self._get_param('product_search', 'True') != 'True':
             return '', []
-        words = [w.lower() for w in query.split() if len(w) > 3]
-        if not words:
+        from ..models.ai_chat_knowledge import mots_cles, normaliser
+        mots = list(dict.fromkeys(mots_cles(query)))[:6]
+        bruts = [w for w in re.findall(r'[\w\-/]{3,}', query) if normaliser(w) in mots or any(c.isdigit() for c in w)][:6]
+        termes = list(dict.fromkeys(mots + bruts))
+        if not termes:
             return '', []
         Product = request.env['product.template'].sudo()
-        domain = [('website_published', '=', True)]
-        sub_domains = [('name', 'ilike', w) for w in words[:3]]
-        if len(sub_domains) == 1:
-            domain.append(sub_domains[0])
-        else:
-            or_domain = ['|'] * (len(sub_domains) - 1) + sub_domains
-            domain.extend(or_domain)
-        products = Product.search(domain, limit=8)
-        if not products:
+        domain = [('is_published', '=', True), ('sale_ok', '=', True)]
+        site_id = self._website_id()
+        if site_id:
+            domain += ['|', ('website_id', '=', False), ('website_id', '=', site_id)]
+            param_site = self._get_param('website_id', '0') or '0'
+            if 'is_pool_product' in Product._fields and param_site.isdigit() and int(param_site) == site_id:
+                domain.append(('is_pool_product', '=', True))
+        champs = ['name', 'default_code', 'public_categ_ids.name']
+        if 'pool_brand_id' in Product._fields:
+            champs.append('pool_brand_id.name')
+        conditions = [(c, 'ilike', t) for t in termes for c in champs]
+        domain += ['|'] * (len(conditions) - 1) + conditions
+        candidats = Product.search(domain, limit=80)
+        if not candidats:
             return '', []
-        product_ids = products.ids
-        text_lines = ['\n\nPRODUITS DISPONIBLES SUR LE SITE:']
-        for p in products:
-            url = p.website_url or ''
-            cat = p.categ_id.name if p.categ_id else ''
-            text_lines.append(
-                '- %s | %.2f EUR | Categorie: %s | %s' % (p.name, p.list_price, cat, url)
-            )
-        text_lines.append('Recommande ces produits quand pertinent.')
-        return '\n'.join(text_lines), product_ids
+
+        def note(p):
+            nom = normaliser(p.name)
+            cats = normaliser(' '.join(p.public_categ_ids.mapped('name')))
+            marque = normaliser(p.pool_brand_id.name) if 'pool_brand_id' in Product._fields and p.pool_brand_id else ''
+            n = 0.0
+            for m in mots:
+                n += 3 if m in nom else 0
+                n += 1 if m in cats else 0
+                n += 2 if m in marque else 0
+            for b in bruts:
+                if p.default_code and normaliser(b) == normaliser(p.default_code):
+                    n += 6
+            n += 0.5 if p.image_128 else 0
+            n += 0.3 if p.list_price > 0 else 0
+            return n
+
+        products = candidats.sorted(note, reverse=True)[:8]
+        base = request.website.get_base_url() if site_id else ''
+        lignes = ['\n\nPRODUITS DU SITE correspondant a la question (prix catalogue) :']
+        for i, p in enumerate(products):
+            prix = ('%.2f EUR' % p.list_price) if p.list_price > 0 else 'sur devis'
+            cat = ', '.join(p.public_categ_ids.mapped('name')[:2])
+            lignes.append('- %s | %s | %s | %s%s' % (p.name, prix, cat, base, p.website_url or ''))
+            if i < 2 and 'accessory_product_ids' in Product._fields and p.accessory_product_ids:
+                acc = p.accessory_product_ids[:4]
+                lignes.append('    accessoires conseilles : %s' % '; '.join(
+                    '%s (%s%s)' % (a.name, base, a.product_tmpl_id.website_url or '') for a in acc))
+        return '\n'.join(lignes), products.ids
 
     @http.route('/ai_chat/config', type='jsonrpc', auth='public', website=True)
     def get_config(self):
@@ -113,6 +166,11 @@ class AiChatController(http.Controller):
         max_tokens = int(self._get_param('max_tokens', '1024'))
         system_prompt = self._get_param('system_prompt', '') or DEFAULT_SYSTEM_PROMPT
 
+        system_prompt += self.REGLES
+        try:
+            system_prompt += self._search_knowledge(message)
+        except Exception as e:
+            _logger.warning('AI Chat knowledge error: %s', str(e))
         product_ctx, product_ids = self._search_products(message)
         if product_ctx:
             system_prompt += product_ctx
