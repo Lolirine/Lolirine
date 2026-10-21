@@ -4,3 +4,5 @@ access_pool_return_manager,pool.return.manager,model_pool_return,sales_team.grou
 access_pool_return_portal,pool.return.portal,model_pool_return,base.group_portal,1,0,0,0
 access_pool_return_line_salesman,pool.return.line.salesman,model_pool_return_line,sales_team.group_sale_salesman,1,1,1,1
 access_pool_return_line_portal,pool.return.line.portal,model_pool_return_line,base.group_portal,1,0,0,0
+access_pool_return_regle_salesman,pool.return.regle.salesman,model_pool_return_regle,sales_team.group_sale_salesman,1,0,0,0
+access_pool_return_regle_manager,pool.return.regle.manager,model_pool_return_regle,sales_team.group_sale_manager,1,1,1,1

@@ -161,6 +161,62 @@
     <menuitem id="menu_pool_return" name="Retours clients" parent="sale.sale_order_menu"
               action="action_pool_return" sequence="40"/>
 
+    <record id="view_pool_return_regle_list" model="ir.ui.view">
+        <field name="name">pool.return.regle.list</field>
+        <field name="model">pool.return.regle</field>
+        <field name="arch" type="xml">
+            <list string="Conditions de retour par fournisseur">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="delai_reprise"/>
+                <field name="delai_reprise_max"/>
+                <field name="frais_apres_pct"/>
+                <field name="delai_dommage_heures"/>
+                <field name="email_rma_neuf" optional="show"/>
+                <field name="email_rma_sav" optional="show"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_pool_return_regle_form" model="ir.ui.view">
+        <field name="name">pool.return.regle.form</field>
+        <field name="model">pool.return.regle</field>
+        <field name="arch" type="xml">
+            <form string="Conditions de retour du fournisseur">
+                <sheet>
+                    <group>
+                        <group string="Fournisseur">
+                            <field name="name"/>
+                            <field name="partner_id"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Délais">
+                            <field name="delai_reprise"/>
+                            <field name="delai_reprise_max"/>
+                            <field name="frais_apres_pct"/>
+                            <field name="delai_dommage_heures"/>
+                        </group>
+                        <group string="Contacts RMA">
+                            <field name="email_rma_neuf"/>
+                            <field name="email_rma_sav"/>
+                        </group>
+                        <group string="Adresse de retour">
+                            <field name="adresse_retour" nolabel="1" colspan="2"/>
+                        </group>
+                    </group>
+                    <field name="note" placeholder="Rappels tirés des CGV du fournisseur…"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_pool_return_regle" model="ir.actions.act_window">
+        <field name="name">Conditions de retour fournisseurs</field>
+        <field name="res_model">pool.return.regle</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_pool_return_regle" name="Conditions de retour fournisseurs" parent="sale.menu_sale_config"
+              action="action_pool_return_regle" sequence="60"/>
+
     <record id="view_order_form_pool_return" model="ir.ui.view">
         <field name="name">sale.order.form.pool.return</field>
         <field name="model">sale.order</field>

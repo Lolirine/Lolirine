@@ -79,10 +79,20 @@ class PoolReturnPortal(CustomerPortal):
             'saisie': saisie or {}, 'page_name': 'pool_return_new', 'livraison': livraison,
             'limite_retractation': livraison + timedelta(days=delai), 'est_pro': pro,
             'lien_cgv': Ret._param('lien_cgv', '/terms'),
-            'delai_dommage_txt': ('dans les 48 heures' if Ret._param('delai_dommage', 2) <= 2
-                                  else 'dans les %s jours ouvrables' % Ret._param('delai_dommage', 2)),
+            'delai_dommage_txt': self._lpr_delai_dommage_txt(order),
             'retours_existants': order.sudo().pool_return_ids.filtered(lambda r: r.state != 'draft'),
         }
+
+    def _lpr_delai_dommage_txt(self, order):
+        """Délai le plus court parmi les fournisseurs des articles (Fluidra : 24 h, SCP : 48 h)."""
+        Regle = request.env['pool.return.regle'].sudo()
+        heures = []
+        for partner in order.sudo().order_line.mapped('product_id.seller_ids.partner_id'):
+            regle = Regle.pour(partner)
+            if regle and regle.delai_dommage_heures:
+                heures.append(regle.delai_dommage_heures)
+        h = min(heures) if heures else 24 * request.env['pool.return'].sudo()._param('delai_dommage', 2)
+        return 'dans les %d heures' % h if h <= 72 else 'dans les %d jours' % (h // 24)
 
     @http.route(['/my/orders/<int:order_id>/retour'], type='http', auth='public', website=True, methods=['GET'])
     def portal_return_form(self, order_id, access_token=None, **kw):

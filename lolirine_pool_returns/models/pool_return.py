@@ -119,6 +119,17 @@ class PoolReturn(models.Model):
                 nb -= 1
         return d
 
+    def _regle(self):
+        self.ensure_one()
+        return self.env['pool.return.regle'].sudo().pour(self.fournisseur_id)
+
+    def _delai_dommage_jours(self):
+        """Délai de signalement d'un dommage en jours ouvrables (règle du fournisseur, sinon réglage)."""
+        regle = self._regle()
+        if regle and regle.delai_dommage_heures:
+            return max(1, -(-regle.delai_dommage_heures // 24))
+        return self._param('delai_dommage', 2)
+
     @api.depends('line_ids.product_id')
     def _compute_fournisseur(self):
         for rec in self:
@@ -142,7 +153,8 @@ class PoolReturn(models.Model):
                 continue
             livraison = self._date_livraison_commande(rec.order_id)
             rec.date_livraison = livraison
-            delai_f = self._param('delai_fournisseur', 8)
+            regle = rec._regle()
+            delai_f = regle.delai_reprise if regle else self._param('delai_fournisseur', 8)
             rec.date_limite_fournisseur = livraison + timedelta(days=delai_f)
             # 2 jours de marge pour obtenir le RMA et faire partir le colis
             rec.retour_direct_fournisseur = bool(
@@ -165,11 +177,13 @@ class PoolReturn(models.Model):
                     notes.append(_("Client professionnel : retour commercial, frais de remise en stock de %s %%.",
                                    self._param('frais_pro', 15.0)))
             elif type_retour == 'dommage':
-                limite = self._jours_ouvrables(livraison, self._param('delai_dommage', 2))
+                delai_dom = rec._delai_dommage_jours()
+                limite = self._jours_ouvrables(livraison, delai_dom)
                 rec.date_limite = limite
                 if aujourdhui > limite:
-                    notes.append(_("Signalé après le délai de %s jours ouvrables : recours contre le transporteur "
-                                   "et SCP (48 h / 3 jours) compromis, à examiner.", self._param('delai_dommage', 2)))
+                    notes.append(_("Signalé après le délai de %(d)s jour(s) ouvrable(s) : recours contre le transporteur "
+                                   "et le fournisseur (%(f)s) compromis, à examiner.",
+                                   d=delai_dom, f=rec.fournisseur_id.name or '-'))
             else:
                 rec.date_limite = livraison + timedelta(days=730)
                 if aujourdhui > rec.date_limite:
@@ -287,11 +301,19 @@ class PoolReturn(models.Model):
 
     def _email_rma(self):
         self.ensure_one()
+        regle = self._regle()
+        if regle:
+            mail = regle.email_rma_sav if self.type_retour == 'defaut' else regle.email_rma_neuf
+            if mail:
+                return mail
         cle = 'email_rma_sav' if self.type_retour == 'defaut' else 'email_rma_neuf'
         defaut = 'technicalsupport.benelux@scppool.com' if self.type_retour == 'defaut' else 'info.benelux@scppool.com'
         return self._param(cle, defaut)
 
     def _adresse_fournisseur(self):
+        regle = self._regle() if len(self) == 1 else False
+        if regle and regle.adresse_retour:
+            return regle.adresse_retour
         txt = self._param('adresse_fournisseur', 'SCP Benelux ; Maalbeekweg 21 ; 1930 Zaventem ; Belgique')
         return '\n'.join(x.strip() for x in txt.split(';') if x.strip())
 
