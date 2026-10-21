@@ -589,9 +589,10 @@ class SaleOrder(models.Model):
     # =========================================================
 
     def _prepare_invoice(self):
-        """Override: forcer le journal Ventes Piscines (LOL) pour les commandes dropship"""
+        """Override: forcer le journal Ventes Piscines (LOL) pour les commandes piscine"""
         invoice_vals = super()._prepare_invoice()
-        if self.is_dropship_order:
+        # commandes dropship et commandes passées sur le site du Pool Store (site 6)
+        if self.is_dropship_order or (self.website_id and self.website_id.id == 6):
             journal = self.env['account.journal'].search([
                 ('code', '=', 'LOL'),
                 ('type', '=', 'sale'),

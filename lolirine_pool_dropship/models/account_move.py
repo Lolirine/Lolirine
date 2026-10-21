@@ -36,3 +36,14 @@ class AccountMove(models.Model):
             'url': '/report/pdf/lolirine_pool_dropship.report_pool_invoice_document/%s' % self.id,
             'target': 'new',
         }
+
+    @api.depends('journal_id')
+    def _compute_partner_bank_id(self):
+        """Factures et avoirs clients : le compte bancaire indiqué sur le journal de vente
+        (Ventes Piscines → compte du Pool Store) prime sur le premier compte de la société."""
+        super()._compute_partner_bank_id()
+        for move in self:
+            journal = move.journal_id
+            if move.is_sale_document(include_receipts=True) and journal.type == 'sale' \
+                    and journal.bank_account_id:
+                move.partner_bank_id = journal.bank_account_id

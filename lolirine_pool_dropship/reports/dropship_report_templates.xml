@@ -48,7 +48,7 @@
                     </div>
                     <div class="col-4 text-end">
                         BCE: <t t-esc="doc.company_id.vat or 'BE0650.891.279'"/><br/>
-                        IBAN: <t t-esc="doc.company_id.partner_id.bank_ids[:1].acc_number or ''"/>
+                        IBAN: <t t-esc="doc.company_id._lolirine_pool_bank().acc_number or ''"/>
                     </div>
                 </div>
             </div>
@@ -634,10 +634,11 @@
                         <div style="margin-top: 20px; padding: 18px; background: #e8f4fd; border-radius: 8px; border: 1px solid #b8daff;">
                             <strong style="color: #0078D4; font-size: 14px;">Informations de paiement :</strong><br/>
                             <table style="margin-top: 8px; font-size: 13px;">
-                                <t t-if="doc.partner_bank_id">
+                                <t t-set="pool_bank" t-value="doc.partner_bank_id or doc.company_id._lolirine_pool_bank()"/>
+                                <t t-if="pool_bank">
                                     <tr>
                                         <td style="padding: 3px 15px 3px 0;"><strong>IBAN :</strong></td>
-                                        <td><t t-esc="doc.partner_bank_id.acc_number"/></td>
+                                        <td><t t-esc="pool_bank.acc_number"/><t t-if="pool_bank.bank_id.bic"> — BIC <t t-esc="pool_bank.bank_id.bic"/></t></td>
                                     </tr>
                                 </t>
                                 <t t-if="doc.payment_reference">
@@ -670,7 +671,7 @@
                                 </div>
                                 <div class="col-4 text-end">
                                     BCE: <t t-esc="doc.company_id.vat or 'BE0650.891.279'"/><br/>
-                                    IBAN: <t t-esc="doc.company_id.partner_id.bank_ids[:1].acc_number or ''"/>
+                                    IBAN: <t t-esc="doc.company_id._lolirine_pool_bank().acc_number or ''"/>
                                 </div>
                             </div>
                         </div>
