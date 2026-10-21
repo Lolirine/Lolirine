@@ -18,6 +18,9 @@
                                 <field name="lpr_frais_pro" class="o_light_label" style="width:4rem"/> % de frais
                             </div>
                         </setting>
+                        <setting string="Garantie légale" help="Mois de garantie de conformité dus au consommateur à compter de la livraison (UE : 24).">
+                            <field name="lpr_garantie_mois"/>
+                        </setting>
                         <setting string="Colis abîmé" help="Délai de signalement, en jours ouvrables après la livraison.">
                             <field name="lpr_delai_dommage"/>
                         </setting>

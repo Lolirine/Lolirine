@@ -25,6 +25,11 @@ class PoolReturnRegle(models.Model):
         string='Signalement d\'un dommage (heures)', default=48,
         help="Délai imposé par le fournisseur pour signaler un dommage ou un vice apparent "
              "(SCP : 48 h au transporteur ; Fluidra : 24 h).")
+    garantie_mois = fields.Integer(
+        string='Garantie fabricant / fournisseur (mois)', default=24,
+        help="Durée pendant laquelle le fournisseur prend en charge un défaut (appareils : 2 ans en général). "
+             "Le consommateur a de toute façon 2 ans de garantie légale chez Lolirine : au-delà de cette durée, "
+             "le défaut reste à charge de Lolirine sans recours.")
     email_rma_neuf = fields.Char(string='E-mail retour de matériel neuf')
     email_rma_sav = fields.Char(string='E-mail SAV / garantie')
     adresse_retour = fields.Text(string='Adresse de retour',

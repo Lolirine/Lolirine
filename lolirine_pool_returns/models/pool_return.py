@@ -1,5 +1,7 @@
 from datetime import timedelta
 
+from dateutil.relativedelta import relativedelta
+
 from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -185,10 +187,25 @@ class PoolReturn(models.Model):
                                    "et le fournisseur (%(f)s) compromis, à examiner.",
                                    d=delai_dom, f=rec.fournisseur_id.name or '-'))
             else:
-                rec.date_limite = livraison + timedelta(days=730)
+                # Consommateur : garantie légale de conformité due par Lolirine (2 ans, défaut présumé exister
+                # à la livraison pendant toute la durée pour un bien neuf). Professionnel : garantie du fabricant.
+                mois_f = (regle.garantie_mois if regle else 0) or self._param('garantie_mois', 24)
+                mois = mois_f if pro else self._param('garantie_mois', 24)
+                rec.date_limite = livraison + relativedelta(months=mois)
                 if aujourdhui > rec.date_limite:
                     ok = False
-                    notes.append(_("Garantie légale de 2 ans dépassée."))
+                    notes.append(_("Garantie de %(m)s mois dépassée (livré le %(l)s).",
+                                   m=mois, l=livraison.strftime('%d/%m/%Y')))
+                elif not pro:
+                    fin_f = livraison + relativedelta(months=mois_f)
+                    if aujourdhui > fin_f:
+                        notes.append(_("Garantie légale due par Lolirine, mais garantie du fournisseur (%(f)s, "
+                                       "%(m)s mois) échue le %(d)s : pas de recours fournisseur, frais à charge "
+                                       "de Lolirine.", f=rec.fournisseur_id.name or '-', m=mois_f,
+                                       d=fin_f.strftime('%d/%m/%Y')))
+                if pro:
+                    notes.append(_("Client professionnel : garantie du fabricant (%s mois), pas de garantie légale "
+                                   "de consommation.", mois))
             if not rec.line_ids:
                 ok = False
                 notes.append(_("Aucun article sélectionné."))

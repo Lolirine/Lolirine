@@ -173,6 +173,7 @@
                 <field name="delai_reprise_max"/>
                 <field name="frais_apres_pct"/>
                 <field name="delai_dommage_heures"/>
+                <field name="garantie_mois"/>
                 <field name="email_rma_neuf" optional="show"/>
                 <field name="email_rma_sav" optional="show"/>
             </list>
@@ -195,6 +196,7 @@
                             <field name="delai_reprise_max"/>
                             <field name="frais_apres_pct"/>
                             <field name="delai_dommage_heures"/>
+                            <field name="garantie_mois"/>
                         </group>
                         <group string="Contacts RMA">
                             <field name="email_rma_neuf"/>

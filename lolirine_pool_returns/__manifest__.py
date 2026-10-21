@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool – Retours clients',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Lolirine',
     'summary': "Parcours de retour façon Amazon : demande depuis l'espace client, règles des CGV, bon de retour PDF avec QR code",
     'description': """
@@ -10,7 +10,8 @@ Retours clients du Pool Store
 * Choix des articles, des quantités, du motif (liste fixe) et ajout de photos.
 * Règles des CGV paramétrables : délai de rétractation, articles exclus (sur mesure,
   chimie ouverte), clients professionnels, frais de remise en stock, remboursement
-  sans retour sous un seuil, délai de signalement des colis abîmés.
+  sans retour sous un seuil, délai de signalement des colis abîmés, garantie
+  légale de 2 ans (consommateurs) et garantie fabricant par fournisseur.
 * Bon de retour PDF (numéro, QR code, adresse de renvoi, articles) envoyé par e-mail
   et téléchargeable depuis l'espace client.
 * Suivi au back-office : Demandé → Accepté → Reçu → Remboursé (avoir brouillon).

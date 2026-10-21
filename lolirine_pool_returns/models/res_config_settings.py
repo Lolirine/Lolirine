@@ -12,6 +12,10 @@ class ResConfigSettings(models.TransientModel):
         string='Délai de retour commercial pro (jours)', default=7, config_parameter=P + 'delai_pro')
     lpr_frais_pro = fields.Float(
         string='Frais de remise en stock pro (%)', default=15.0, config_parameter=P + 'frais_pro')
+    lpr_garantie_mois = fields.Integer(
+        string='Garantie légale (mois)', default=24, config_parameter=P + 'garantie_mois',
+        help="Garantie légale de conformité due par le vendeur au consommateur dans l'Union européenne : 2 ans "
+             "à compter de la livraison (biens neufs).")
     lpr_delai_dommage = fields.Integer(
         string='Signalement colis abîmé (jours ouvrables)', default=2, config_parameter=P + 'delai_dommage',
         help="SCP exige des réserves au transporteur sous 48 h et chez SCP sous 3 jours : 2 jours ouvrables "
