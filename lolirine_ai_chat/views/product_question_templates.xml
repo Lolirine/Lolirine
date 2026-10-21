@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="product_questions" name="Questions et réponses (fiche produit)" inherit_id="website_sale.product" priority="60">
+        <xpath expr="//div[@id='oe_structure_website_sale_product_2']" position="after">
+            <t t-set="lpq_site" t-value="request.env['ir.config_parameter'].sudo().get_param('lolirine_ai_chat.website_id', '0')"/>
+            <t t-if="lpq_site == '0' or str(website.id) == lpq_site">
+                <t t-set="lpq_questions" t-value="request.env['lolirine.product.question'].sudo().search([('product_tmpl_id', '=', product.id), ('state', '=', 'publiee')], order='votes_utiles desc, date_reponse desc')"/>
+                <t t-set="lpq_etat" t-value="request.params.get('lpq')"/>
+                <section id="lpq" class="lpq container my-5">
+                    <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-3">
+                        <h3 class="lpq-titre mb-0">
+                            Questions et réponses
+                            <span t-if="lpq_questions" class="lpq-compte" t-out="len(lpq_questions)"/>
+                        </h3>
+                        <input t-if="len(lpq_questions) &gt; 3" type="search" class="form-control lpq-filtre"
+                               placeholder="Rechercher dans les questions…" aria-label="Rechercher dans les questions"/>
+                    </div>
+
+                    <div t-if="lpq_etat == 'merci'" class="alert alert-success" role="status">
+                        <i class="fa fa-check-circle me-1"/> Merci ! Votre question est bien reçue. Notre équipe y répond
+                        en général sous 24 heures ouvrables ; si vous avez laissé votre e-mail, vous serez prévenu.
+                    </div>
+                    <div t-elif="lpq_etat == 'erreur'" class="alert alert-warning" role="alert">
+                        Votre question n'a pas pu être envoyée : écrivez au moins quelques mots, puis réessayez dans un instant.
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <p t-if="not lpq_questions" class="text-muted">
+                                Aucune question pour l'instant sur cet article. Soyez le premier à en poser une !
+                            </p>
+                            <div t-foreach="lpq_questions" t-as="q" class="lpq-item">
+                                <div class="lpq-q"><span class="lpq-lettre">Q</span><span t-out="q.question"/></div>
+                                <div class="lpq-r"><span class="lpq-lettre lpq-lettre-r">R</span>
+                                    <div>
+                                        <div class="lpq-r-texte" t-out="q.reponse"/>
+                                        <div class="lpq-meta">
+                                            Lolirine Pool Store<t t-if="q.date_reponse">, le <t t-out="q.date_reponse.strftime('%d/%m/%Y')"/></t>
+                                            <t t-if="q.auteur"> · question de <t t-out="q.auteur"/></t>
+                                            <button type="button" class="btn btn-link btn-sm lpq-utile" t-att-data-id="q.id">
+                                                <i class="fa fa-thumbs-o-up me-1"/>Utile<t t-if="q.votes_utiles"> (<span t-out="q.votes_utiles"/>)</t>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="lpq-vide text-muted d-none">Aucune question ne correspond à votre recherche.</p>
+                        </div>
+                        <div class="col-lg-5">
+                            <form class="lpq-form card" method="post" t-attf-action="/shop/question/#{product.id}">
+                                <div class="card-body">
+                                    <h5 class="card-title">Une question sur cet article ?</h5>
+                                    <p class="small text-muted">Notre équipe vous répond, et la réponse est publiée ici pour aider
+                                        les autres clients. Pour une question sur une commande, utilisez plutôt votre espace client.</p>
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <div class="lpq-piege" aria-hidden="true">
+                                        <label>Site web <input type="text" name="site_web" tabindex="-1" autocomplete="off"/></label>
+                                    </div>
+                                    <textarea name="question" class="form-control mb-2" rows="3" required="required" minlength="8"
+                                              maxlength="1000" placeholder="Ex. : Ce modèle convient-il à un bassin de 40 m³ ?"/>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-sm-5">
+                                            <input type="text" name="auteur" class="form-control" maxlength="40" placeholder="Prénom (affiché)"
+                                                   t-att-value="'' if request.env.user._is_public() else (request.env.user.partner_id.name or '').split(' ')[0]"/>
+                                        </div>
+                                        <div class="col-sm-7">
+                                            <input type="email" name="email" class="form-control" maxlength="120"
+                                                   placeholder="E-mail (facultatif)"
+                                                   t-att-value="'' if request.env.user._is_public() else request.env.user.partner_id.email"/>
+                                        </div>
+                                    </div>
+                                    <p class="small text-muted mb-2">Votre e-mail n'est jamais publié ; il sert uniquement à vous prévenir quand la réponse est publiée.</p>
+                                    <button type="submit" class="btn btn-primary w-100"><i class="fa fa-paper-plane me-1"/>Envoyer ma question</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </t>
+        </xpath>
+    </template>
+</odoo>

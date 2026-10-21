@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_lolirine_product_question_list" model="ir.ui.view">
+        <field name="name">lolirine.product.question.list</field>
+        <field name="model">lolirine.product.question</field>
+        <field name="arch" type="xml">
+            <list string="Questions produits" decoration-warning="a_verifier and state == 'brouillon'"
+                  decoration-muted="state == 'refusee'" decoration-info="state == 'nouvelle'">
+                <field name="create_date" string="Posée le" widget="date"/>
+                <field name="product_tmpl_id"/>
+                <field name="question"/>
+                <field name="reponse_ia" string="Proposition IA" optional="show"/>
+                <field name="a_verifier" optional="show"/>
+                <field name="auteur" optional="hide"/>
+                <field name="votes_utiles" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'publiee'"
+                       decoration-info="state == 'brouillon'" decoration-warning="state == 'nouvelle'"/>
+                <button name="action_publier" type="object" string="Publier" icon="fa-check"
+                        class="btn-link text-success" invisible="state not in ('nouvelle', 'brouillon') or not reponse_ia"/>
+                <button name="action_refuser" type="object" string="Refuser" icon="fa-times"
+                        class="btn-link text-danger" invisible="state in ('publiee', 'refusee')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_lolirine_product_question_form" model="ir.ui.view">
+        <field name="name">lolirine.product.question.form</field>
+        <field name="model">lolirine.product.question</field>
+        <field name="arch" type="xml">
+            <form string="Question produit">
+                <header>
+                    <button name="action_publier" type="object" string="Publier la réponse" class="btn-primary"
+                            invisible="state in ('publiee', 'refusee')"/>
+                    <button name="action_generer_brouillon" type="object" string="Proposition de l'IA"
+                            invisible="state in ('publiee', 'refusee')"/>
+                    <button name="action_refuser" type="object" string="Refuser"
+                            invisible="state in ('publiee', 'refusee')"/>
+                    <button name="action_remettre" type="object" string="Dépublier / rouvrir"
+                            invisible="state not in ('publiee', 'refusee')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="nouvelle,brouillon,publiee"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="product_tmpl_id"/>
+                        <h2><field name="product_tmpl_id"/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="auteur"/>
+                            <field name="email" widget="email"/>
+                            <field name="partner_id"/>
+                        </group>
+                        <group>
+                            <field name="create_date" string="Posée le"/>
+                            <field name="date_reponse"/>
+                            <field name="votes_utiles"/>
+                            <field name="website_id" groups="website.group_multi_website"/>
+                            <field name="knowledge_id"/>
+                        </group>
+                    </group>
+                    <label for="question"/>
+                    <field name="question"/>
+                    <div invisible="not reponse_ia" class="mt-3">
+                        <div class="alert alert-warning py-2" invisible="not a_verifier" role="alert">
+                            L'IA n'a pas trouvé l'information dans la fiche : vérifiez avant de publier.
+                        </div>
+                        <label for="reponse_ia"/>
+                        <field name="reponse_ia"/>
+                        <field name="a_verifier" invisible="1"/>
+                    </div>
+                    <div class="text-danger small" invisible="not erreur_ia">
+                        <field name="erreur_ia"/>
+                    </div>
+                    <label for="reponse" class="mt-3"/>
+                    <field name="reponse" placeholder="Laissez vide pour publier la proposition de l'IA telle quelle, ou corrigez-la ici."/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_lolirine_product_question_search" model="ir.ui.view">
+        <field name="name">lolirine.product.question.search</field>
+        <field name="model">lolirine.product.question</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="question"/>
+                <field name="product_tmpl_id"/>
+                <filter name="a_traiter" string="À traiter" domain="[('state', 'in', ('nouvelle', 'brouillon'))]"/>
+                <filter name="publiees" string="Publiées" domain="[('state', '=', 'publiee')]"/>
+                <filter name="verifier" string="À vérifier" domain="[('a_verifier', '=', True)]"/>
+                <group>
+                    <filter name="par_produit" string="Produit" context="{'group_by': 'product_tmpl_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_lolirine_product_question" model="ir.actions.act_window">
+        <field name="name">Questions produits</field>
+        <field name="res_model">lolirine.product.question</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_a_traiter': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune question pour le moment</p>
+            <p>Les questions posées sous les fiches produits arrivent ici avec une proposition de réponse de l'IA.
+               Un clic sur « Publier » la met en ligne et l'ajoute à la base de connaissances du chatbot.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_lolirine_product_question" name="Questions produits" parent="menu_ai_chat_root"
+              action="action_lolirine_product_question" sequence="5"/>
+    <menuitem id="menu_lolirine_product_question_sales" name="Questions produits"
+              parent="website_sale.menu_orders" action="action_lolirine_product_question" sequence="90"/>
+</odoo>

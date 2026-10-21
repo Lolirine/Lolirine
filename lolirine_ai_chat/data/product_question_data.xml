@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_cron_question_brouillons" model="ir.cron">
+        <field name="name">Questions produits : propositions de réponse IA</field>
+        <field name="model_id" ref="model_lolirine_product_question"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_brouillons()</field>
+        <field name="interval_number">10</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="mail_question_repondue" model="mail.template">
+        <field name="name">Question produit : réponse publiée</field>
+        <field name="model_id" ref="model_lolirine_product_question"/>
+        <field name="subject">Réponse à votre question sur {{ object.product_tmpl_id.name }}</field>
+        <field name="email_from">{{ (object.website_id.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.email }}</field>
+        <field name="lang">{{ object.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 14px; color: #1f2937;">
+    <p>Bonjour<t t-if="object.auteur"> <t t-out="object.auteur"/></t>,</p>
+    <p>Vous nous avez posé une question sur <strong t-out="object.product_tmpl_id.name"/> :</p>
+    <blockquote style="border-left: 3px solid #00a8d8; margin: 0 0 12px; padding: 4px 12px; color: #475569;" t-out="object.question"/>
+    <p>Notre réponse :</p>
+    <p style="white-space: pre-line;" t-out="object.reponse"/>
+    <p>
+        <a t-att-href="(object.website_id.get_base_url() or '') + (object.product_tmpl_id.website_url or '/shop')"
+           style="background: #0369a1; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none;">Voir l'article</a>
+    </p>
+    <p>À bientôt,<br/>L'équipe Lolirine Pool Store</p>
+</div>
+        </field>
+    </record>
+</odoo>
