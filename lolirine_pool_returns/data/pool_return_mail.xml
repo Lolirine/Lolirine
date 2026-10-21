@@ -32,4 +32,46 @@
 </div>
         </field>
     </record>
+
+    <record id="mail_template_demande_rma" model="mail.template">
+        <field name="name">Retour : demande d'autorisation (RMA) au fournisseur</field>
+        <field name="model_id" ref="model_pool_return"/>
+        <field name="subject">Demande de retour de matériel — {{ object.company_id.name }} — {{ object.name }}</field>
+        <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object._email_rma() }}</field>
+        <field name="auto_delete" eval="False"/>
+        <field name="body_html" type="html">
+<div style="font-family:Arial,sans-serif;font-size:14px;">
+    <p>Bonjour,</p>
+    <p>Nous vous adressons une demande de retour de matériel
+        <t t-if="object.type_retour == 'defaut'"><strong>SAV / demande de garantie</strong></t>
+        <t t-else=""><strong>neuf</strong> (retour client dans le délai de reprise)</t>
+        et vous remercions de nous transmettre l'autorisation de retour (RMA).</p>
+    <table style="border-collapse:collapse;margin:12px 0;">
+        <tr><td style="padding:2px 12px 2px 0;">Client (magasin)</td><td><strong t-out="object.company_id.name"/></td></tr>
+        <tr><td style="padding:2px 12px 2px 0;">Responsable</td><td t-out="user.name"/></tr>
+        <tr><td style="padding:2px 12px 2px 0;">Adresse</td><td t-out="object.company_id.partner_id.contact_address or ''"/></tr>
+        <tr><td style="padding:2px 12px 2px 0;">Notre référence</td><td t-out="object.name"/></tr>
+        <tr><td style="padding:2px 12px 2px 0;">Référence du consommateur</td><td><t t-out="object.order_id.name"/> — <t t-out="object.partner_id.name"/></td></tr>
+        <tr><td style="padding:2px 12px 2px 0;">Livré au consommateur le</td><td t-out="object.date_livraison and object.date_livraison.strftime('%d/%m/%Y') or ''"/></tr>
+        <tr><td style="padding:2px 12px 2px 0;">Motif</td><td t-out="dict(object._fields['motif'].selection).get(object.motif)"/></tr>
+    </table>
+    <table style="border-collapse:collapse;" border="1" cellpadding="6">
+        <tr style="background:#f1f5f9;"><th>Code article fournisseur</th><th>Désignation</th><th>Quantité</th></tr>
+        <t t-foreach="object.line_ids" t-as="l">
+            <t t-set="sellers" t-value="l.product_id.seller_ids.filtered(lambda s: s.partner_id.commercial_partner_id == object.fournisseur_id)[:1]"/>
+            <tr>
+                <td t-out="(sellers.product_code if sellers else '') or l.product_id.default_code or ''"/>
+                <td t-out="(sellers.product_name if sellers else '') or l.product_id.name"/>
+                <td t-out="'%g' % l.quantite"/>
+            </tr>
+        </t>
+    </table>
+    <p t-if="object.commentaire"><strong>Description de l'anomalie :</strong><br/><t t-out="object.commentaire"/></p>
+    <p>N° de BL / facture SCP : <strong>[à compléter]</strong> — N° de série : <strong>[si applicable]</strong></p>
+    <p>Le matériel sera renvoyé dans son emballage d'origine, avec votre autorisation collée sur le colis.</p>
+    <p>Bien cordialement,<br/><t t-out="user.name"/><br/><t t-out="object.company_id.name"/></p>
+</div>
+        </field>
+    </record>
 </odoo>

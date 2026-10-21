@@ -42,6 +42,10 @@
                             <div class="text-muted small text-uppercase">Adresse de renvoi</div>
                             <div style="font-size:16px;font-weight:bold;" t-field="o.adresse_retour"/>
                             <div class="mt-2">Référence à noter sur le colis : <strong t-field="o.name"/></div>
+                            <div t-if="o.rma_fournisseur" class="mt-2" style="font-size:15px;">
+                                Autorisation de retour du fournisseur : <strong t-field="o.rma_fournisseur"/><br/>
+                                <span class="small">Collez le document d'autorisation reçu par e-mail sur le colis, dans une pochette. Sans ce document, le colis est refusé.</span>
+                            </div>
                         </div>
                     </div>
                     <div class="col-6">
@@ -76,7 +80,7 @@
 
                 <h5 class="mt-3">Comment renvoyer votre colis</h5>
                 <ol t-if="not o.sans_renvoi">
-                    <li>Emballez l'article complet (accessoires, notice) dans un carton qui le protège, de préférence l'emballage d'origine.</li>
+                    <li>Emballez l'article complet (accessoires, notice) <strong>dans son emballage d'origine</strong> en bon état : un emballage manquant ou abîmé peut être facturé.</li>
                     <li>Glissez ce bon imprimé dans le colis, ou notez lisiblement le numéro <strong t-field="o.name"/> sur le carton.</li>
                     <li>Déposez le colis chez le transporteur de votre choix et conservez la preuve de dépôt.</li>
                     <li>Nous vous remboursons au plus tard 14 jours après réception de l'article ou de votre preuve d'envoi, avec le même moyen de paiement.</li>

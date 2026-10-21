@@ -30,6 +30,18 @@
                         <setting string="Adresse de renvoi" help="Séparez les lignes par « ; ». Vide = adresse de la société.">
                             <field name="lpr_adresse_retour" placeholder="Lolirine SRL ; rue … ; 5021 Boninne ; Belgique"/>
                         </setting>
+                        <setting string="Reprise par le fournisseur" help="Délai de reprise du matériel neuf (SCP : 8 jours, avec RMA) et adresse de retour du fournisseur (« ; » entre les lignes).">
+                            <div class="d-flex flex-column gap-1">
+                                <div><field name="lpr_delai_fournisseur" class="o_light_label" style="width:4rem"/> jours</div>
+                                <field name="lpr_adresse_fournisseur"/>
+                            </div>
+                        </setting>
+                        <setting string="E-mails de demande RMA" help="Matériel neuf, puis SAV / garantie.">
+                            <div class="d-flex flex-column gap-1">
+                                <field name="lpr_email_rma_neuf"/>
+                                <field name="lpr_email_rma_sav"/>
+                            </div>
+                        </setting>
                         <setting string="Lien des conditions de retour" help="Page affichée au client depuis le formulaire de retour.">
                             <field name="lpr_lien_cgv"/>
                         </setting>

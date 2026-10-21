@@ -40,6 +40,8 @@
                     <button name="action_voir_avoir" type="object" string="Voir l'avoir" invisible="not refund_id"/>
                     <button name="action_marquer_rembourse" type="object" string="Marquer remboursé"
                             invisible="state not in ('received', 'approved') or not refund_id"/>
+                    <button name="action_demander_rma" type="object" string="Demander le RMA"
+                            invisible="state not in ('submitted', 'approved') or not fournisseur_id"/>
                     <button name="action_imprimer_bon" type="object" string="Bon de retour" invisible="state in ('draft', 'cancel')"/>
                     <button name="action_annuler" type="object" string="Annuler" invisible="state in ('cancel', 'refunded')"/>
                     <button name="action_remettre_brouillon" type="object" string="Remettre en brouillon" invisible="state != 'cancel'"/>
@@ -74,9 +76,18 @@
                     </group>
                     <group>
                         <group string="Renvoi">
+                            <field name="fournisseur_id"/>
+                            <field name="retour_direct_fournisseur" invisible="type_retour != 'retractation'"/>
+                            <field name="date_limite_fournisseur" invisible="not retour_direct_fournisseur"/>
+                            <field name="rma_fournisseur" invisible="sans_renvoi"/>
+                            <field name="rma_attachment_ids" widget="many2many_binary" invisible="sans_renvoi"/>
                             <field name="sans_renvoi"/>
                             <field name="frais_renvoi" invisible="sans_renvoi"/>
                             <field name="adresse_retour" invisible="sans_renvoi" placeholder="Adresse où le client renvoie l'article"/>
+                            <div colspan="2" invisible="sans_renvoi or state not in ('draft', 'submitted')">
+                                <button name="action_adresse_fournisseur" type="object" string="Adresse du fournisseur" class="btn-link"/>
+                                <button name="action_adresse_boninne" type="object" string="Adresse de Boninne" class="btn-link"/>
+                            </div>
                             <field name="date_reception" invisible="sans_renvoi"/>
                         </group>
                         <group string="Montants">

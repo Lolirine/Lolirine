@@ -153,6 +153,10 @@
                                     <div class="small text-uppercase text-muted">Adresse de renvoi</div>
                                     <div class="fw-bold" style="white-space:pre-line" t-out="r.adresse_retour"/>
                                     <div class="small mt-2">Notez <strong t-out="r.name"/> sur le colis.</div>
+                                    <div t-if="r.rma_fournisseur" class="small mt-2">
+                                        Autorisation fournisseur <strong t-out="r.rma_fournisseur"/> : collez le document
+                                        reçu par e-mail sur le colis, dans une pochette.
+                                    </div>
                                 </div>
                                 <a class="btn btn-primary w-100 mb-2" t-att-href="'/my/returns/%s/bon%s' % (r.id, ('?access_token=%s' % token) if token else '')" target="_blank">
                                     <i class="fa fa-print me-1"/> Imprimer le bon de retour
@@ -258,7 +262,7 @@
                                             <label class="form-check-label" t-att-for="'m_' + m[0]" t-out="m[1]"/>
                                         </div>
                                     </t>
-                                    <div class="small text-muted mt-2">Frais à notre charge. Colis abîmé : signalez-le dans les 3 jours ouvrables avec une photo.</div>
+                                    <div class="small text-muted mt-2">Frais à notre charge. Colis abîmé : signalez-le <t t-out="delai_dommage_txt"/> avec une photo, et notez des réserves précises auprès du livreur.</div>
                                 </div>
                             </div>
                         </div>

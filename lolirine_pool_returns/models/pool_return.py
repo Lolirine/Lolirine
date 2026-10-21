@@ -72,6 +72,18 @@ class PoolReturn(models.Model):
     frais_remise_stock = fields.Monetary(string='Frais de remise en stock', compute='_compute_montants', store=True)
     montant_rembourse = fields.Monetary(string='Montant à rembourser', compute='_compute_montants', store=True)
     refund_id = fields.Many2one('account.move', string='Avoir', copy=False, readonly=True)
+    fournisseur_id = fields.Many2one('res.partner', string='Fournisseur', compute='_compute_fournisseur', store=True,
+                                     readonly=False, help="Fournisseur principal des articles retournés.")
+    retour_direct_fournisseur = fields.Boolean(
+        string='Renvoi direct au fournisseur possible', compute='_compute_eligibilite', store=True,
+        help="Demande assez tôt pour que l'article reparte chez le fournisseur dans son délai de reprise "
+             "(SCP : 8 jours après réception, avec autorisation RMA).")
+    date_limite_fournisseur = fields.Date(string='Reprise fournisseur jusqu\'au', compute='_compute_eligibilite', store=True)
+    rma_fournisseur = fields.Char(string='N° d\'autorisation fournisseur (RMA)', tracking=True, copy=False)
+    rma_attachment_ids = fields.Many2many('ir.attachment', 'pool_return_rma_attachment_rel', 'return_id', 'attachment_id',
+                                          string='Autorisation du fournisseur (document)',
+                                          help="Document RMA reçu du fournisseur : il est joint au mail du client, "
+                                               "qui doit le coller sur le colis.")
     date_demande = fields.Datetime(string='Demandé le', readonly=True, copy=False)
     date_reception = fields.Date(string='Reçu le', copy=False, tracking=True)
 
@@ -107,7 +119,13 @@ class PoolReturn(models.Model):
                 nb -= 1
         return d
 
-    @api.depends('order_id', 'partner_id', 'motif', 'line_ids.product_id', 'line_ids.quantite')
+    @api.depends('line_ids.product_id')
+    def _compute_fournisseur(self):
+        for rec in self:
+            fournisseurs = rec.line_ids.mapped('product_id.seller_ids').sorted('sequence').mapped('partner_id')
+            rec.fournisseur_id = fournisseurs[:1].commercial_partner_id if fournisseurs else False
+
+    @api.depends('order_id', 'partner_id', 'motif', 'line_ids.product_id', 'line_ids.quantite', 'fournisseur_id')
     def _compute_eligibilite(self):
         aujourdhui = fields.Date.context_today(self)
         for rec in self:
@@ -117,15 +135,22 @@ class PoolReturn(models.Model):
             pro = bool(commercial.is_company or commercial.vat)
             rec.est_professionnel = pro
             if not rec.order_id:
-                rec.date_livraison = rec.date_limite = False
+                rec.date_livraison = rec.date_limite = rec.date_limite_fournisseur = False
+                rec.retour_direct_fournisseur = False
                 rec.eligible = False
                 rec.eligibilite_note = False
                 continue
             livraison = self._date_livraison_commande(rec.order_id)
             rec.date_livraison = livraison
+            delai_f = self._param('delai_fournisseur', 8)
+            rec.date_limite_fournisseur = livraison + timedelta(days=delai_f)
+            # 2 jours de marge pour obtenir le RMA et faire partir le colis
+            rec.retour_direct_fournisseur = bool(
+                rec.fournisseur_id and MOTIF_TYPE.get(rec.motif) == 'retractation'
+                and aujourdhui <= livraison + timedelta(days=max(delai_f - 2, 0)))
             type_retour = MOTIF_TYPE.get(rec.motif)
             if type_retour == 'retractation':
-                delai = self._param('delai_pro', 30) if pro else self._param('delai_retractation', 14)
+                delai = self._param('delai_pro', 7) if pro else self._param('delai_retractation', 14)
                 limite = livraison + timedelta(days=delai)
                 rec.date_limite = limite
                 if aujourdhui > limite:
@@ -140,11 +165,11 @@ class PoolReturn(models.Model):
                     notes.append(_("Client professionnel : retour commercial, frais de remise en stock de %s %%.",
                                    self._param('frais_pro', 15.0)))
             elif type_retour == 'dommage':
-                limite = self._jours_ouvrables(livraison, self._param('delai_dommage', 3))
+                limite = self._jours_ouvrables(livraison, self._param('delai_dommage', 2))
                 rec.date_limite = limite
                 if aujourdhui > limite:
                     notes.append(_("Signalé après le délai de %s jours ouvrables : recours contre le transporteur "
-                                   "plus difficile, à examiner.", self._param('delai_dommage', 3)))
+                                   "et SCP (48 h / 3 jours) compromis, à examiner.", self._param('delai_dommage', 2)))
             else:
                 rec.date_limite = livraison + timedelta(days=730)
                 if aujourdhui > rec.date_limite:
@@ -205,13 +230,26 @@ class PoolReturn(models.Model):
             rec.message_post(body=_("Demande de retour envoyée par le client : %(m)s.",
                                     m=dict(MOTIF_SELECTION).get(rec.motif)))
             auto = self._param('auto_accepter', '') == 'True'
-            if auto and rec.type_retour == 'retractation' and rec.eligible and not rec.est_professionnel:
-                rec.action_accepter()
-            else:
+            if rec.retour_direct_fournisseur and rec.eligible:
+                # Encore dans le délai de reprise du fournisseur : demander d'abord son autorisation,
+                # le client renverra alors directement chez lui (bon + RMA).
                 rec.activity_schedule(
                     'mail.mail_activity_data_todo', user_id=rec._responsable().id,
-                    summary=_("Examiner le retour %s", rec.name),
-                    note=rec.eligibilite_note or '')
+                    date_deadline=rec.date_limite_fournisseur - timedelta(days=2),
+                    summary=_("Demander l'autorisation de retour (RMA) à %s", rec.fournisseur_id.name),
+                    note=_("Rétractation demandée dans le délai de reprise du fournisseur (jusqu'au %s). "
+                           "Bouton « Demander le RMA », puis saisir le n° reçu, joindre le document et accepter "
+                           "avec l'adresse du fournisseur. Sans réponse à temps : accepter avec l'adresse de Boninne.",
+                           rec.date_limite_fournisseur.strftime('%d/%m/%Y')))
+            elif auto and rec.type_retour == 'retractation' and rec.eligible and not rec.est_professionnel:
+                rec.action_accepter()
+            else:
+                resume = _("Examiner le retour %s", rec.name)
+                if rec.type_retour == 'defaut' and rec.fournisseur_id:
+                    resume = _("Retour %(r)s : ouvrir une demande SAV chez %(f)s", r=rec.name, f=rec.fournisseur_id.name)
+                rec.activity_schedule(
+                    'mail.mail_activity_data_todo', user_id=rec._responsable().id,
+                    summary=resume, note=rec.eligibilite_note or '')
         return True
 
     def _responsable(self):
@@ -234,8 +272,52 @@ class PoolReturn(models.Model):
             rec.state = 'approved'
             rec.activity_unlink(['mail.mail_activity_data_todo'])
             if template:
-                rec.with_context(lang=rec.partner_id.lang).message_post_with_source(
-                    template, message_type='comment', subtype_xmlid='mail.mt_comment')
+                # même chemin que le bouton « Envoyer » d'Odoo : bon de retour PDF du modèle
+                # + document d'autorisation du fournisseur (RMA) s'il y en a un
+                composer = self.env['mail.compose.message'].with_context(
+                    lang=rec.partner_id.lang, default_model='pool.return', default_res_ids=rec.ids,
+                    default_template_id=template.id, default_composition_mode='comment',
+                    default_message_type='comment', default_subtype_id=self.env.ref('mail.mt_comment').id,
+                ).create({})
+                if rec.rma_attachment_ids:
+                    ids = composer.attachment_ids.ids + rec.rma_attachment_ids.ids
+                    composer.attachment_ids = [(6, 0, ids)]
+                composer._action_send_mail()
+        return True
+
+    def _email_rma(self):
+        self.ensure_one()
+        cle = 'email_rma_sav' if self.type_retour == 'defaut' else 'email_rma_neuf'
+        defaut = 'technicalsupport.benelux@scppool.com' if self.type_retour == 'defaut' else 'info.benelux@scppool.com'
+        return self._param(cle, defaut)
+
+    def _adresse_fournisseur(self):
+        txt = self._param('adresse_fournisseur', 'SCP Benelux ; Maalbeekweg 21 ; 1930 Zaventem ; Belgique')
+        return '\n'.join(x.strip() for x in txt.split(';') if x.strip())
+
+    def action_demander_rma(self):
+        """Ouvre un e-mail pré-rempli vers le fournisseur (formulaire de demande de retour)."""
+        self.ensure_one()
+        template = self.env.ref('lolirine_pool_returns.mail_template_demande_rma')
+        return {
+            'type': 'ir.actions.act_window', 'res_model': 'mail.compose.message', 'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_model': 'pool.return', 'default_res_ids': self.ids,
+                'default_template_id': template.id, 'default_composition_mode': 'comment',
+                'default_email_layout_xmlid': 'mail.mail_notification_light',
+                'force_email': True,
+            },
+        }
+
+    def action_adresse_fournisseur(self):
+        for rec in self:
+            rec.adresse_retour = rec._adresse_fournisseur()
+        return True
+
+    def action_adresse_boninne(self):
+        for rec in self:
+            rec.adresse_retour = rec._adresse_par_defaut()
         return True
 
     def action_refuser(self):

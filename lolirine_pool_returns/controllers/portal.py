@@ -73,12 +73,14 @@ class PoolReturnPortal(CustomerPortal):
             lignes.append({'line': line, 'reste': reste, 'exclu': exclu, 'motif_exclu': motif_exclu})
         commercial = order.partner_id.commercial_partner_id
         pro = bool(commercial.is_company or commercial.vat)
-        delai = Ret._param('delai_pro', 30) if pro else Ret._param('delai_retractation', 14)
+        delai = Ret._param('delai_pro', 7) if pro else Ret._param('delai_retractation', 14)
         return {
             'order': order, 'lignes': lignes, 'motifs': MOTIFS, 'erreurs': erreurs or [],
             'saisie': saisie or {}, 'page_name': 'pool_return_new', 'livraison': livraison,
             'limite_retractation': livraison + timedelta(days=delai), 'est_pro': pro,
             'lien_cgv': Ret._param('lien_cgv', '/terms'),
+            'delai_dommage_txt': ('dans les 48 heures' if Ret._param('delai_dommage', 2) <= 2
+                                  else 'dans les %s jours ouvrables' % Ret._param('delai_dommage', 2)),
             'retours_existants': order.sudo().pool_return_ids.filtered(lambda r: r.state != 'draft'),
         }
 
