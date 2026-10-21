@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool – Retours clients',
-    'version': '19.0.1.3.0',
+    'version': '19.0.1.4.0',
     'category': 'Lolirine',
     'summary': "Parcours de retour façon Amazon : demande depuis l'espace client, règles des CGV, bon de retour PDF avec QR code",
     'description': """
@@ -29,6 +29,7 @@ Retours clients du Pool Store
         'views/product_views.xml',
         'views/res_config_settings_views.xml',
         'views/portal_templates.xml',
+        'views/portal_order_templates.xml',
     ],
     'assets': {
         'web.assets_frontend': [

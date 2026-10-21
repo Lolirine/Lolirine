@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Suivi de commande façon Amazon (Pool Store) : étapes, date estimée, colis, articles -->
+    <template id="sale_order_portal_suivi" name="Suivi de commande Pool Store"
+              inherit_id="sale.sale_order_portal_content" priority="40">
+        <xpath expr="//div[@id='informations']" position="before">
+            <t t-if="report_type == 'html' and sale_order._lpr_suivi_actif()">
+                <t t-set="suivi" t-value="sale_order._lpr_suivi()"/>
+                <t t-set="tok" t-value="('access_token=%s' % sale_order.access_token) if sale_order.access_token else ''"/>
+                <section id="lpr_suivi" class="card lpr-card lpr-suivi mb-4">
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                            <div>
+                                <div class="lpr-suivi-statut" t-out="suivi['statut']"/>
+                                <div t-if="suivi['estimee'] and not suivi['en_retard']" class="lpr-suivi-date">
+                                    <i class="fa fa-calendar-check-o me-1"/>
+                                    Livraison estimée
+                                    <t t-if="suivi['estimee'][0] == suivi['estimee'][1]">
+                                        le <strong t-out="suivi['estimee'][0].strftime('%d/%m/%Y')"/>
+                                    </t>
+                                    <t t-else="">
+                                        entre le <strong t-out="suivi['estimee'][0].strftime('%d/%m')"/>
+                                        et le <strong t-out="suivi['estimee'][1].strftime('%d/%m/%Y')"/>
+                                    </t>
+                                </div>
+                                <div t-elif="suivi['en_retard']" class="lpr-suivi-date text-warning">
+                                    <i class="fa fa-clock-o me-1"/>
+                                    Votre colis prend un peu plus de temps que prévu. Nous suivons la commande
+                                    avec notre fournisseur ; besoin d'aide ? <a href="#sale_order_communication">Écrivez-nous</a>.
+                                </div>
+                            </div>
+                            <div t-if="suivi['colis'] and any(c['url'] for c in suivi['colis'])">
+                                <t t-foreach="suivi['colis']" t-as="c">
+                                    <a t-if="c['url']" t-att-href="c['url']" target="_blank" rel="noopener"
+                                       class="btn btn-primary btn-sm mb-1">
+                                        <i class="fa fa-map-marker me-1"/> Suivre le colis
+                                    </a>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Étapes -->
+                        <div class="lpr-steps d-flex my-4">
+                            <t t-foreach="suivi['etapes']" t-as="e">
+                                <div t-attf-class="lpr-step flex-fill text-center #{'done' if e['fait'] else ''} #{'current' if e['actuelle'] else ''}">
+                                    <div class="lpr-dot"><i t-attf-class="fa #{e['icone']}"/></div>
+                                    <div class="small mt-1" t-out="e['nom']"/>
+                                    <div t-if="e['date']" class="lpr-step-date" t-out="e['date'].strftime('%d/%m')"/>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- Colis -->
+                        <div t-if="any(c['ref'] for c in suivi['colis'])" class="lpr-colis mb-3">
+                            <t t-foreach="suivi['colis']" t-as="c">
+                                <div t-if="c['ref']" class="small">
+                                    <i class="fa fa-cube me-1"/>
+                                    Colis <t t-out="c['transporteur'] or ''"/> — n° de suivi
+                                    <a t-if="c['url']" t-att-href="c['url']" target="_blank" rel="noopener" t-out="c['ref']"/>
+                                    <strong t-else="" t-out="c['ref']"/>
+                                    <span t-if="c['livre']" class="badge rounded-pill text-bg-success ms-1">Livré
+                                        <t t-if="c['date']">le <t t-out="c['date'].strftime('%d/%m')"/></t></span>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- Articles -->
+                        <div class="lpr-articles">
+                            <div t-foreach="suivi['lignes']" t-as="it" class="lpr-article d-flex gap-3 py-3">
+                                <t t-set="l" t-value="it['line']"/>
+                                <a t-att-href="l.product_id.website_url if l.product_id.website_published else None" class="flex-shrink-0">
+                                    <img t-att-src="'/web/image/product.product/%s/image_128' % l.product_id.id"
+                                         class="lpr-article-img" t-att-alt="l.product_id.name"/>
+                                </a>
+                                <div class="flex-fill min-w-0">
+                                    <a t-if="l.product_id.website_published" t-att-href="l.product_id.website_url"
+                                       class="lpr-article-nom" t-out="l.product_id.display_name"/>
+                                    <div t-else="" class="lpr-article-nom" t-out="l.product_id.display_name"/>
+                                    <div class="small text-muted">
+                                        Quantité : <t t-out="'%g' % l.product_uom_qty"/>
+                                        <t t-if="it['etat']"> · <span t-out="it['etat']"/></t>
+                                    </div>
+                                    <div t-if="it['garantie']" class="small lpr-garantie">
+                                        <i class="fa fa-shield me-1"/>Garantie jusqu'au
+                                        <t t-out="it['garantie'].strftime('%d/%m/%Y')"/>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        <form t-if="it['racheter']" method="post"
+                                              t-attf-action="/my/orders/#{sale_order.id}/racheter#{'?' + tok if tok else ''}">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                            <input type="hidden" name="line_id" t-att-value="l.id"/>
+                                            <button type="submit" class="btn btn-warning btn-sm lpr-btn-racheter">
+                                                <i class="fa fa-refresh me-1"/>Acheter à nouveau
+                                            </button>
+                                        </form>
+                                        <a t-if="it['probleme']" class="btn btn-outline-secondary btn-sm"
+                                           t-attf-href="/my/orders/#{sale_order.id}/retour?ligne=#{l.id}#{'&amp;' + tok if tok else ''}">
+                                            Problème avec cet article
+                                        </a>
+                                        <a t-if="l.product_id.website_published" class="btn btn-link btn-sm px-0"
+                                           t-att-href="l.product_id.website_url">Voir l'article</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </t>
+        </xpath>
+    </template>
+</odoo>

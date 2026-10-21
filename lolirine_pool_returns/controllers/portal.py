@@ -100,8 +100,13 @@ class PoolReturnPortal(CustomerPortal):
             order = self._lpr_commande(order_id, access_token)
         except (AccessError, MissingError):
             return request.redirect('/my')
+        saisie = {}
+        # « Problème avec cet article » depuis la page de la commande : article et motif présélectionnés
+        ligne = kw.get('ligne')
+        if ligne and ligne.isdigit():
+            saisie = {'sel_%s' % ligne: '1', 'motif': 'defectueux'}
         values = self._prepare_portal_layout_values()
-        values.update(self._lpr_valeurs_formulaire(order))
+        values.update(self._lpr_valeurs_formulaire(order, saisie=saisie))
         values['access_token'] = access_token
         return request.render('lolirine_pool_returns.portal_return_form', values)
 
@@ -170,3 +175,24 @@ class PoolReturnPortal(CustomerPortal):
                                 subtype_xmlid='mail.mt_comment')
         retour.action_soumettre()
         return request.redirect(retour.get_portal_url(query_string='&message=cree'))
+
+    # ---------------------------------------------------------------- acheter à nouveau
+    @http.route(['/my/orders/<int:order_id>/racheter'], type='http', auth='public', website=True,
+                methods=['POST'])
+    def portal_order_racheter(self, order_id, line_id=None, access_token=None, **kw):
+        """Ajoute un article d'une commande passée au panier, puis ouvre le panier."""
+        try:
+            order = self._document_check_access('sale.order', order_id, access_token)
+        except (AccessError, MissingError):
+            return request.redirect('/my')
+        try:
+            line = order.sudo().order_line.filtered(lambda l: l.id == int(line_id or 0))
+        except ValueError:
+            line = None
+        if not line or not line.with_user(request.env.user).sudo()._is_reorder_allowed():
+            return request.redirect(order.get_portal_url())
+        cart = request.cart or request.website._create_cart()
+        cart.with_context(skip_cart_verification=True)._cart_add(
+            product_id=line.product_id.id, quantity=1,
+            no_variant_attribute_value_ids=line.product_no_variant_attribute_value_ids.ids)
+        return request.redirect('/shop/cart')

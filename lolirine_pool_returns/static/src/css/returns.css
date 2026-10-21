@@ -26,3 +26,22 @@
 .lpr-step.done .lpr-dot { background: linear-gradient(135deg, #00a8d8, #0369a1); }
 .lpr-adresse { border: 2px dashed #0369a1; background: rgba(0, 168, 216, 0.06); }
 .lpr-form .form-check { padding-top: .2rem; padding-bottom: .2rem; }
+
+/* Suivi de commande (façon Amazon) */
+.lpr-suivi-statut { font-size: 1.35rem; font-weight: 700; color: #0b3a53; }
+.lpr-suivi-date { color: #047857; font-weight: 500; }
+.lpr-step-date { font-size: .75rem; color: #64748b; font-weight: 400; }
+.lpr-step.current .lpr-dot { box-shadow: 0 0 0 5px rgba(0, 168, 216, .2); }
+.lpr-articles .lpr-article + .lpr-article { border-top: 1px solid rgba(15, 23, 42, .08); }
+.lpr-article-img { width: 88px; height: 88px; object-fit: contain; background: #fff; border-radius: .6rem; }
+.lpr-article-nom { font-weight: 600; color: #0b3a53; display: block; }
+.lpr-garantie { color: #0369a1; }
+.lpr-btn-racheter { background: #ffd814; border-color: #fcd200; color: #0f1111; }
+.lpr-btn-racheter:hover { background: #f7ca00; border-color: #f2c200; color: #0f1111; }
+#lpr_suivi .lpr-step { flex: 1 1 0 !important; min-width: 0; padding: 0 2px; }
+@media (max-width: 575.98px) {
+    #lpr_suivi .lpr-step .small { font-size: .6rem !important; line-height: 1.15; letter-spacing: -.01em; }
+    #lpr_suivi .lpr-step { padding: 0; }
+    #lpr_suivi .card-body { padding-left: .6rem; padding-right: .6rem; }
+    .lpr-article-img { width: 64px; height: 64px; }
+}
