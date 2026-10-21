@@ -588,3 +588,19 @@
         justify-content: center;
     }
 }
+
+/* Bouton WhatsApp flottant — au-dessus de la bulle de l'assistant IA */
+.lp-whatsapp {
+    position: fixed; right: 24px; bottom: 96px; z-index: 1040;
+    display: inline-flex; align-items: center; gap: .45rem; height: 52px; padding: 0 16px 0 14px;
+    border-radius: 26px; background: #25d366; color: #fff !important; text-decoration: none !important;
+    font-weight: 600; font-size: .95rem; box-shadow: 0 6px 18px rgba(37, 211, 102, .35);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.lp-whatsapp .fa { font-size: 1.6rem; }
+.lp-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(37, 211, 102, .45); }
+@media (max-width: 767.98px) {
+    .lp-whatsapp { right: 16px; bottom: 88px; width: 52px; padding: 0; justify-content: center; }
+    .lp-whatsapp-label { display: none; }
+}
+@media print { .lp-whatsapp { display: none; } }

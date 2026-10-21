@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Pool Store - Contact',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Website/Website',
     'summary': 'Page Contactez-nous pour Pool Store avec formulaire CRM',
     'description': """
@@ -35,6 +35,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/contact_page.xml',
+        'views/whatsapp.xml',
     ],
     'assets': {
         'web.assets_frontend': [
