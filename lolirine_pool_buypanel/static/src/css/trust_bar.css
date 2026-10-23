@@ -73,3 +73,6 @@ html[data-website-id="6"] .lp-tile-delivery {
 }
 html[data-website-id="6"] .lp-tile-delivery .fa { font-size: .72rem; }
 html[data-website-id="6"] .lp-tile-delivery strong { font-weight: 700; }
+
+/* Pied de page : pas de mention « Généré par Odoo » sur le Pool Store */
+html[data-website-id="6"] footer .o_brand_promotion { display: none !important; }
