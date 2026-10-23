@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Page affichée après l'inscription à la newsletter (/website/newsletter/subscribe) -->
+    <template id="newsletter_merci" name="Pool Store : merci pour l'inscription">
+        <t t-call="website.layout">
+            <t t-set="additional_title">Newsletter</t>
+            <div id="wrap">
+                <section class="pt64 pb64 o_colored_level o_cc o_cc1">
+                    <div class="container text-center" style="max-width: 640px;">
+                        <t t-if="lp_erreur">
+                            <h1 class="h3">Adresse e-mail invalide</h1>
+                            <p class="lead">Nous n'avons pas pu enregistrer votre inscription. Vérifiez l'adresse et réessayez.</p>
+                        </t>
+                        <t t-elif="lp_deja">
+                            <h1 class="h3">Vous êtes déjà inscrit</h1>
+                            <p class="lead">Cette adresse reçoit déjà nos nouveautés et offres. Merci de votre fidélité !</p>
+                        </t>
+                        <t t-else="">
+                            <h1 class="h3">Merci pour votre inscription !</h1>
+                            <p class="lead" t-if="lp_code">Votre code de bienvenue (<strong>5 % sur votre commande</strong>) vient de vous être envoyé par e-mail. Pensez à vérifier vos indésirables.</p>
+                            <p class="lead" t-else="">Vous recevrez désormais nos nouveautés et offres exclusives.</p>
+                        </t>
+                        <a href="/shop" class="btn btn-primary mt-3">Découvrir la boutique</a>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+</odoo>
