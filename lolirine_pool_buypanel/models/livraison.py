@@ -2,10 +2,13 @@
 délai fournisseur (dropshipping) et seuil de livraison offerte."""
 from datetime import date, datetime, timedelta
 
+import logging
+
 import pytz
 
 from odoo import api, models
 
+_logger = logging.getLogger(__name__)
 P = 'lolirine_pool_buypanel.'
 JOURS = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']
 MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
@@ -106,8 +109,10 @@ class LolirineLivraison(models.AbstractModel):
     def vignette(self, tmpl):
         """Texte court pour les vignettes de la boutique : « 29 oct. – 2 nov. »."""
         try:
-            p = self.promesse(self.delai_fournisseur(tmpl))
+            # sudo : le visiteur anonyme n'a pas accès aux fiches fournisseurs
+            p = self.promesse(self.delai_fournisseur(tmpl.sudo()))
         except Exception:
+            _logger.warning("Délai de livraison de la vignette %s non calculé", tmpl.id, exc_info=True)
             return ''
         d1, d2 = p['min'], p['max']
         if d1 == d2:

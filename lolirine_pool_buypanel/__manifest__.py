@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool – Buy Panel',
-    'version': '19.0.1.5.1',
+    'version': '19.0.1.5.2',
     'category': 'Lolirine',
     'summary': 'Panneau produit enrichi (style Amazon+) pour le Pool Store',
     'author': 'Lolirine',
