@@ -80,7 +80,7 @@ class LolirineWishlistConfig(models.Model):
     )
     text_shipping_note = fields.Char(
         string='Note livraison (récapitulatif)',
-        default='Livraison offerte dès 499 € HT · Retours 30 jours',
+        default='Livraison offerte dès 499 € HT · Retours 14 jours',
     )
     text_expert_phone = fields.Char(
         string='Téléphone expert piscine',

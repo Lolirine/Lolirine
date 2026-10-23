@@ -35,7 +35,7 @@
                     'out_of_stock':  'Sur commande',
                     'add_to_cart':   'Ajouter au panier',
                     'add_all':       'Tout ajouter au panier',
-                    'shipping_note': 'Livraison offerte dès 499 € HT · Retours 30 jours',
+                    'shipping_note': 'Livraison offerte dès 499 € HT · Retours 14 jours',
                     'expert_phone':  '+32 497 44 41 46',
                     'contact_label': 'Contacter',
                 }"/>
@@ -242,7 +242,7 @@
                             </button>
 
                             <div class="lw-shipping-note">
-                                <t t-esc="wl_texts.get('shipping_note', 'Livraison offerte dès 499 € HT · Retours 30 jours')"/>
+                                <t t-esc="wl_texts.get('shipping_note', 'Livraison offerte dès 499 € HT · Retours 14 jours')"/>
                             </div>
 
                             <!-- Contact expert -->
