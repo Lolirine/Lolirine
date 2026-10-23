@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════
+         Bandeau de réassurance en tête de toutes les pages du Pool Store
+         (livraison offerte, retours, paiement, conseil, SAV belge).
+         Non éditable : contenu calculé (seuil de livraison offerte).
+         ═══════════════════════════════════════════════════════ -->
+    <template id="lolirine_trust_bar" inherit_id="website.layout" priority="40">
+        <xpath expr="//main/t[@t-out='0']" position="before">
+            <t t-if="website.id == 6">
+                <t t-set="lp_franco_txt" t-value="request.env['lolirine.livraison'].sudo().franco_texte(website)"/>
+                <div class="lp-trustbar o_not_editable" contenteditable="false" role="note"
+                     aria-label="Nos engagements">
+                    <div class="lp-trustbar-track">
+                        <a href="/conditions-generales-de-vente" class="lp-trustbar-item">
+                            <i class="fa fa-truck" aria-hidden="true"/>
+                            <span>Livraison offerte dès <strong t-out="lp_franco_txt"/></span>
+                        </a>
+                        <a href="/conditions-generales-de-vente" class="lp-trustbar-item">
+                            <i class="fa fa-undo" aria-hidden="true"/>
+                            <span>Retours <strong>14 jours</strong></span>
+                        </a>
+                        <span class="lp-trustbar-item">
+                            <i class="fa fa-lock" aria-hidden="true"/>
+                            <span>Paiement sécurisé <strong>Bancontact</strong></span>
+                        </span>
+                        <a href="https://wa.me/32497444146" target="_blank" rel="noopener" class="lp-trustbar-item">
+                            <i class="fa fa-whatsapp" aria-hidden="true"/>
+                            <span>Conseils sur <strong>WhatsApp</strong></span>
+                        </a>
+                        <a href="/services" class="lp-trustbar-item">
+                            <i class="fa fa-wrench" aria-hidden="true"/>
+                            <span>SAV <strong>en Belgique</strong></span>
+                        </a>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ═══════════════════════════════════════════════════════
+         Vignettes de la boutique : délai de livraison estimé
+         (même calcul que la fiche produit : délai fournisseur,
+         jours ouvrables belges, heure limite).
+         ═══════════════════════════════════════════════════════ -->
+    <template id="lolirine_tile_delivery" inherit_id="website_sale.products_item" priority="40">
+        <xpath expr="//div[hasclass('o_wsale_product_information_text')]" position="inside">
+            <t t-if="website.id == 6 and product and product._name == 'product.template'">
+                <t t-set="lp_vignette" t-value="request.env['lolirine.livraison'].sudo().vignette(product)"/>
+                <div t-if="lp_vignette" class="lp-tile-delivery o_not_editable" contenteditable="false">
+                    <i class="fa fa-truck" aria-hidden="true"/>
+                    <span>Livraison <strong t-out="lp_vignette"/></span>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

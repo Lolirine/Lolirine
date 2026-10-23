@@ -103,6 +103,27 @@ class LolirineLivraison(models.AbstractModel):
                 'expedition': depart}
 
     @api.model
+    def vignette(self, tmpl):
+        """Texte court pour les vignettes de la boutique : « 29 oct. – 2 nov. »."""
+        try:
+            p = self.promesse(self.delai_fournisseur(tmpl))
+        except Exception:
+            return ''
+        d1, d2 = p['min'], p['max']
+        if d1 == d2:
+            return '%s %s' % (d1.day, MOIS[d1.month - 1])
+        if d1.month == d2.month:
+            return '%s – %s %s' % (d1.day, d2.day, MOIS[d2.month - 1])
+        return '%s %s – %s %s' % (d1.day, MOIS[d1.month - 1], d2.day, MOIS[d2.month - 1])
+
+    @api.model
+    def franco_texte(self, website=None):
+        """« 499 € HT » : seuil de livraison offerte, pour les bandeaux."""
+        seuil, base = self.seuil_franco(website)
+        txt = ('%.0f' % seuil if float(seuil).is_integer() else '%.2f' % seuil).replace('.', ',')
+        return '%s € %s' % (txt, 'HT' if base == 'ht' else 'TVAC')
+
+    @api.model
     def seuil_franco(self, website=None):
         """(montant, base) : base 'ht' ou 'ttc'. Priorité à la règle « gratuit au-delà de »
         d'un mode de livraison publié du site, sinon le paramètre (HT)."""
