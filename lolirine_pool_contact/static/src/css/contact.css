@@ -628,3 +628,5 @@ body:has(.lp-whatsapp) .lai-teaser { bottom: 176px; }
     body:has(.lp-whatsapp) .lai-teaser { bottom: 146px; }
 }
 @media print { .lp-whatsapp { display: none; } }
+/* Masqué pendant l'édition du site (le bouton reste visible quand on est connecté) */
+body.editor_enable .lp-whatsapp { display: none !important; }

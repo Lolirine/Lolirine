@@ -5,7 +5,7 @@
         <xpath expr="//div[@id='wrapwrap']" position="inside">
             <t t-set="lp_wa" t-value="request.env['ir.config_parameter'].sudo().get_param('lolirine_pool_contact.whatsapp', '32497444146')"/>
             <t t-set="lp_wa_site" t-value="request.env['ir.config_parameter'].sudo().get_param('lolirine_pool_contact.whatsapp_website_id', '6')"/>
-            <t t-if="lp_wa and website and str(website.id) == lp_wa_site and not editable">
+            <t t-if="lp_wa and website and str(website.id) == lp_wa_site">
                 <t t-set="lp_wa_txt" t-value="('Bonjour, j\'ai une question sur : %s (%s)' % (product.name, request.httprequest.url)) if product and product._name == 'product.template' else 'Bonjour, j\'ai une question pour le Lolirine Pool Store.'"/>
                 <a class="lp-whatsapp" target="_blank" rel="noopener"
                    t-att-href="'https://wa.me/%s?text=%s' % (lp_wa, quote_plus(lp_wa_txt))"
