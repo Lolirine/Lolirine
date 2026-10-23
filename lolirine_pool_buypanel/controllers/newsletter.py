@@ -14,6 +14,7 @@ Une adresse déjà inscrite ne reçoit pas de second code.
 Paramètres (Configuration > Paramètres techniques) :
   lolirine_pool_buypanel.newsletter_list_id     liste de diffusion (défaut 1)
   lolirine_pool_buypanel.newsletter_program_id  programme de coupons (0 = pas de code)
+  lolirine_pool_buypanel.newsletter_template_id  modèle d'e-mail Pool Store (envoyé sans habillage)
 """
 import logging
 
@@ -65,13 +66,19 @@ class PoolNewsletter(http.Controller):
                 })
                 Card = request.env['loyalty.card'].sudo()
                 if not Card.search_count([('program_id', '=', program.id), ('partner_id', '=', partner.id)]):
-                    Card.create({'program_id': program.id, 'partner_id': partner.id, 'points': 1})
-                    code_envoye = True
-                    # L'e-mail du code est mis en file d'attente : on demande à Odoo
-                    # de traiter la file tout de suite plutôt qu'au prochain passage horaire.
-                    cron = request.env.ref('mail.ir_cron_mail_scheduler_action', raise_if_not_found=False)
-                    if cron:
-                        cron.sudo()._trigger()
+                    # Pas d'envoi automatique d'Odoo (il habille l'e-mail avec le logo de
+                    # la société, celui du garde-meuble) : on envoie nous-mêmes le modèle
+                    # du Pool Store, sans habillage, tout de suite.
+                    card = Card.with_context(loyalty_no_mail=True).create(
+                        {'program_id': program.id, 'partner_id': partner.id, 'points': 1})
+                    modele = request.env['mail.template'].sudo().browse(
+                        int(icp.get_param(P + 'newsletter_template_id', 0) or 0)).exists()
+                    if modele:
+                        modele.send_mail(card.id, force_send=True)
+                        code_envoye = True
+                    else:
+                        card.with_context(loyalty_no_mail=False)._send_creation_communication(force_send=True)
+                        code_envoye = True
             except Exception:
                 _logger.exception("Newsletter : code de bienvenue non créé pour %s", email)
 
