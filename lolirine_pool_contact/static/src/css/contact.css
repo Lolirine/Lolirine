@@ -589,18 +589,42 @@
     }
 }
 
-/* Bouton WhatsApp flottant — au-dessus de la bulle de l'assistant IA */
+/* ═══════════════════════════════════════════════════════
+   Bouton WhatsApp flottant — même forme que la bulle de
+   l'assistant IA (carré arrondi 64 px), empilé juste au-dessus
+   ═══════════════════════════════════════════════════════ */
 .lp-whatsapp {
-    position: fixed; right: 24px; bottom: 96px; z-index: 1040;
-    display: inline-flex; align-items: center; gap: .45rem; height: 52px; padding: 0 16px 0 14px;
-    border-radius: 26px; background: #25d366; color: #fff !important; text-decoration: none !important;
-    font-weight: 600; font-size: .95rem; box-shadow: 0 6px 18px rgba(37, 211, 102, .35);
-    transition: transform .15s ease, box-shadow .15s ease;
+    position: fixed; right: 24px; bottom: 100px; z-index: 99998;
+    width: 64px; height: 64px; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: #fff !important; text-decoration: none !important;
+    box-shadow: 0 4px 25px rgba(18, 140, 126, .4);
+    transition: transform .3s cubic-bezier(.4, 0, .2, 1), box-shadow .3s ease;
 }
-.lp-whatsapp .fa { font-size: 1.6rem; }
-.lp-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(37, 211, 102, .45); }
-@media (max-width: 767.98px) {
-    .lp-whatsapp { right: 16px; bottom: 88px; width: 52px; padding: 0; justify-content: center; }
+.lp-whatsapp .fa { font-size: 30px; line-height: 1; }
+.lp-whatsapp:hover {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 6px 30px rgba(18, 140, 126, .5);
+}
+/* Libellé « WhatsApp » qui glisse à gauche au survol */
+.lp-whatsapp-label {
+    position: absolute; right: 76px; top: 50%;
+    transform: translate(8px, -50%); opacity: 0; pointer-events: none;
+    white-space: nowrap; padding: 6px 12px; border-radius: 12px;
+    background: #fff; color: #128c7e; font-weight: 600; font-size: .9rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+    transition: opacity .2s ease, transform .2s ease;
+}
+.lp-whatsapp:hover .lp-whatsapp-label,
+.lp-whatsapp:focus-visible .lp-whatsapp-label { opacity: 1; transform: translate(0, -50%); }
+/* La bulle d'accroche de l'assistant IA passe au-dessus des deux boutons */
+body:has(.lp-whatsapp) .lai-teaser { bottom: 176px; }
+/* Téléphone : la bulle IA fait 56 px à 12 px du bord */
+@media (max-width: 480px) {
+    .lp-whatsapp { right: 8px; bottom: 78px; width: 56px; height: 56px; border-radius: 16px; }
+    .lp-whatsapp .fa { font-size: 26px; }
     .lp-whatsapp-label { display: none; }
+    body:has(.lp-whatsapp) .lai-teaser { bottom: 146px; }
 }
 @media print { .lp-whatsapp { display: none; } }
