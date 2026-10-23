@@ -67,6 +67,11 @@ class PoolNewsletter(http.Controller):
                 if not Card.search_count([('program_id', '=', program.id), ('partner_id', '=', partner.id)]):
                     Card.create({'program_id': program.id, 'partner_id': partner.id, 'points': 1})
                     code_envoye = True
+                    # L'e-mail du code est mis en file d'attente : on demande à Odoo
+                    # de traiter la file tout de suite plutôt qu'au prochain passage horaire.
+                    cron = request.env.ref('mail.ir_cron_mail_scheduler_action', raise_if_not_found=False)
+                    if cron:
+                        cron.sudo()._trigger()
             except Exception:
                 _logger.exception("Newsletter : code de bienvenue non créé pour %s", email)
 
