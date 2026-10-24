@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine AI Chat Assistant',
-    'version': '19.0.1.3.2',
+    'version': '19.0.1.3.1',
     'category': 'Website',
     'summary': 'Assistant IA pour Lolirine Pool Store avec recherche web et catalogue',
     'description': 'Chat IA integre au site web avec Claude AI, recherche produits, sources web et analytics.',

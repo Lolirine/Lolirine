@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Pool Store - Catégories & Univers',
-    'version': '19.0.1.7.1',
+    'version': '19.0.1.7.0',
     'category': 'Website/Website',
     'summary': 'Catégories produits et pages univers pour Pool Store',
     'description': """

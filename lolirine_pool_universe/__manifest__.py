@@ -1,6 +1,6 @@
 {
     'name': "Lolirine — Univers produits (défilés fiche produit, boutique et accueil)",
-    'version': '19.0.1.7.1',
+    'version': '19.0.1.7.0',
     'category': 'Website/eCommerce',
     'summary': "Défilés par univers (fiche produit, boutique, accueil) et encarts saisonniers",
     'author': 'Lolirine SRL',

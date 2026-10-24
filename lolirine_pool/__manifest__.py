@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Pool - Matériel Piscine',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.0.0',
     'category': 'Sales',
     'summary': 'Gestion du catalogue et ventes de matériel piscine',
     'description': """

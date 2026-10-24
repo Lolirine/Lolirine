@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool – Acheter à nouveau',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.0.0',
     'category': 'Lolirine',
     'summary': 'Page "Acheter à nouveau" pour le Pool Store',
     'author': 'Lolirine',
