@@ -19,6 +19,7 @@ Ce qui change pour ces documents :
   * PDF (devis, commande, facture, bon de livraison) : logo et pied de page
     Pool Store ; la raison sociale, l'adresse légale et la TVA restent celles de
     Srl Lolirine (mentions légales obligatoires).
+  * factures : journal « Ventes Piscines » (numérotation propre au Pool Store).
 Le garde-meuble n'est pas concerné.
 """
 import logging
@@ -170,6 +171,18 @@ class MailRenderMixin(models.AbstractModel):
 
 class SaleOrderMarque(models.Model):
     _inherit = 'sale.order'
+
+    def _prepare_invoice(self):
+        """Factures des commandes du site Pool Store dans le journal « Ventes Piscines »
+        (numérotation distincte de celle du garde-meuble), sauf journal choisi sur la commande.
+        Paramètre lolirine_pool_buypanel.journal_ventes_id (défaut 17)."""
+        valeurs = super()._prepare_invoice()
+        if not self.journal_id and self._lp_site_pool_store():
+            jid = int(self.env['ir.config_parameter'].sudo().get_param(P + 'journal_ventes_id', 17) or 0)
+            journal = self.env['account.journal'].sudo().browse(jid).exists()
+            if journal and journal.type == 'sale' and journal.company_id == self.company_id:
+                valeurs['journal_id'] = journal.id
+        return valeurs
 
     def _find_mail_template(self):
         return self._lp_modele_pool_store(super()._find_mail_template())
