@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Habillage « Lolirine Pool Store » des e-mails et PDF (voir models/marque.py).
+     Les variables lp_logo (e-mails) et lp_marque (PDF) n'existent que pour les
+     documents du site Pool Store : pour le garde-meuble, rien ne change. -->
+<odoo>
+
+    <!-- E-mails (devis, commande, facture...) : logo Pool Store en tête -->
+    <template id="lp_mail_layout_logo" inherit_id="mail.mail_notification_layout">
+        <xpath expr="//t[@t-call='mail.notification_preview']" position="after">
+            <div t-if="lp_logo" style="max-width: 900px; width: 100%; padding: 4px 0 14px 0;">
+                <a t-att-href="website_url or '#'" style="text-decoration: none;">
+                    <img t-att-src="lp_logo" alt="Lolirine Pool Store" style="height: 52px; max-width: 260px;"/>
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- E-mails « légers » : logo Pool Store à la place de celui de la société -->
+    <template id="lp_mail_light_logo" inherit_id="mail.mail_notification_light">
+        <xpath expr="//img[contains(@t-att-src, '/logo.png')]" position="attributes">
+            <attribute name="t-att-src">lp_logo or ('/logo.png?company=%s' % company.id)</attribute>
+        </xpath>
+    </template>
+
+    <!-- PDF : détection du document Pool Store -->
+    <template id="lp_external_layout_marque" inherit_id="web.external_layout">
+        <xpath expr="//t[@t-if='company.external_report_layout_id']" position="before">
+            <t t-set="lp_marque" t-value="o._lp_site_pool_store() if o else False"/>
+        </xpath>
+    </template>
+
+    <!-- PDF (mise en page standard) : logo, accroche et pied de page Pool Store -->
+    <!-- Priorité très haute : appliqué APRÈS la personnalisation Studio du rapport
+         (priorité 9999999), qui remplace l'image du logo. -->
+    <template id="lp_external_layout_standard_marque" inherit_id="web.external_layout_standard" priority="10000000">
+        <xpath expr="//img[hasclass('o_company_logo_small')]" position="attributes">
+            <attribute name="t-if">company.logo or (lp_marque and lp_marque.logo)</attribute>
+            <attribute name="t-att-src">image_data_uri(lp_marque.logo) if lp_marque and lp_marque.logo else image_data_uri(company.logo)</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('o_company_tagline')]" position="attributes">
+            <attribute name="t-if">company.report_header and not lp_marque</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('o_company_tagline')]" position="after">
+            <div t-if="lp_marque" class="o_company_tagline mw-50 fw-bold text-end">
+                Lolirine Pool Store<br/>
+                <span class="fw-normal">www.lolirinepoolstore.be</span>
+            </div>
+        </xpath>
+        <xpath expr="//div[hasclass('o_footer_content')]/div[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-if">not lp_marque</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('o_footer_content')]/div[@t-field='company.report_footer']" position="after">
+            <div t-if="lp_marque" class="flex-grow-1 text-start me-2">
+                <strong>Lolirine Pool Store</strong> — un service de Srl Lolirine ·
+                info@lolirinepoolstore.be · +32 497 44 41 46 · www.lolirinepoolstore.be<br/>
+                TVA : BE0650891279 · IBAN : BE07 7320 5208 0866
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

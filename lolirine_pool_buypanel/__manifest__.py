@@ -1,11 +1,11 @@
 {
     'name': 'Lolirine Pool – Buy Panel',
-    'version': '19.0.1.8.1',
+    'version': '19.0.1.9.0',
     'category': 'Lolirine',
     'summary': 'Panneau produit enrichi (style Amazon+) pour le Pool Store',
     'author': 'Lolirine',
     'license': 'OPL-1',
-    'depends': ['website', 'website_sale', 'stock', 'website_mass_mailing', 'loyalty'],
+    'depends': ['website', 'website_sale', 'stock', 'website_mass_mailing', 'loyalty', 'mail', 'account', 'sale_stock'],
     'data': [
         'views/product_page.xml',
         'views/product_accessories.xml',
@@ -14,6 +14,7 @@
         'views/shop_filters.xml',
         'views/newsletter_merci.xml',
         'views/calculateur.xml',
+        'views/marque.xml',
         'data/menu_chimie.xml',
         'data/menu_traitement_dosage.xml',
         'data/menu_chauffage.xml',
