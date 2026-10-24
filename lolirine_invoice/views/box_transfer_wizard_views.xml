@@ -231,11 +231,12 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <!-- Contrats de garde-meuble (abonnements) uniquement : pas sur les commandes piscine -->
             <xpath expr="//header" position="inside">
                 <button name="%(action_lolirine_box_transfer_wizard)d"
                         type="action"
                         string="Transferer un box"
-                        invisible="state not in ('sale', 'done')"/>
+                        invisible="not is_subscription or state not in ('sale', 'done')"/>
             </xpath>
         </field>
     </record>

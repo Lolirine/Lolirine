@@ -1,6 +1,6 @@
 {
     "name": "Lolirine Gestion Factures",
-    "version": "19.0.2.5.1",
+    "version": "19.0.2.5.2",
     "category": "Accounting/Invoicing",
     "summary": "Gestion avancee des factures avec relances, tags, dashboard et export comptable",
     "description": """

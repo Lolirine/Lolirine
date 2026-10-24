@@ -218,3 +218,17 @@ class AccountMoveMarque(models.Model):
         if len(self) == 1:
             return self._lp_modele_pool_store(modele)
         return modele
+
+
+class AccountMoveSendMarque(models.AbstractModel):
+    _inherit = 'account.move.send'
+
+    @api.model
+    def _get_default_pdf_report_id(self, move):
+        """Facture Pool Store : le modèle PDF du journal « Ventes Piscines » (Facture Piscine)
+        passe avant celui enregistré sur le client (souvent « Facture Lolirine » du garde-meuble)."""
+        if move._lp_site_pool_store():
+            rapport = move.journal_id.with_company(move.company_id).invoice_template_pdf_report_id
+            if rapport:
+                return rapport
+        return super()._get_default_pdf_report_id(move)
