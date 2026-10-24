@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo noupdate="1">
+    <!-- Les deux tâches ne font rien tant que le paramètre
+         lolirine_pool_traduction.actif n'est pas « True ». -->
+    <record id="cron_trad_soumettre" model="ir.cron">
+        <field name="name">Pool Store : traduction des fiches — envoyer un lot</field>
+        <field name="model_id" ref="model_lolirine_trad_lot"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_soumettre()</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+    <record id="cron_trad_recuperer" model="ir.cron">
+        <field name="name">Pool Store : traduction des fiches — récupérer les lots terminés</field>
+        <field name="model_id" ref="model_lolirine_trad_lot"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_recuperer()</field>
+        <field name="interval_number">10</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

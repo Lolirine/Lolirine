@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_lolirine_trad_lot_list" model="ir.ui.view">
+        <field name="name">lolirine.trad.lot.list</field>
+        <field name="model">lolirine.trad.lot</field>
+        <field name="arch" type="xml">
+            <list create="false">
+                <field name="create_date" string="Envoyé le"/>
+                <field name="name"/>
+                <field name="state" widget="badge" decoration-info="state == 'en_cours'"
+                       decoration-success="state == 'termine'" decoration-danger="state == 'erreur'"/>
+                <field name="nb_fiches" sum="Total"/>
+                <field name="nb_ok" sum="Total"/>
+                <field name="nb_erreurs" sum="Total"/>
+                <field name="tokens_entree" sum="Total"/>
+                <field name="tokens_sortie" sum="Total"/>
+                <field name="note" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_lolirine_trad_fiche_list" model="ir.ui.view">
+        <field name="name">lolirine.trad.fiche.list</field>
+        <field name="model">lolirine.trad.fiche</field>
+        <field name="arch" type="xml">
+            <list create="false">
+                <field name="write_date" string="Mis à jour"/>
+                <field name="product_tmpl_id"/>
+                <field name="state" widget="badge" decoration-info="state == 'envoye'"
+                       decoration-success="state == 'fait'" decoration-danger="state == 'erreur'"/>
+                <field name="meta_title_fr"/>
+                <field name="meta_title_nl" optional="hide"/>
+                <field name="meta_description_fr" optional="hide"/>
+                <field name="termes"/>
+                <field name="essais" optional="hide"/>
+                <field name="erreur" optional="hide"/>
+                <field name="lot_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_lolirine_trad_fiche_search" model="ir.ui.view">
+        <field name="name">lolirine.trad.fiche.search</field>
+        <field name="model">lolirine.trad.fiche</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_tmpl_id"/>
+                <filter name="erreurs" string="En erreur" domain="[('state', '=', 'erreur')]"/>
+                <filter name="faites" string="Traduites" domain="[('state', '=', 'fait')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_lolirine_trad_lot" model="ir.actions.act_window">
+        <field name="name">Traduction des fiches : lots</field>
+        <field name="res_model">lolirine.trad.lot</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="action_lolirine_trad_fiche" model="ir.actions.act_window">
+        <field name="name">Traduction des fiches : suivi</field>
+        <field name="res_model">lolirine.trad.fiche</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem id="menu_lolirine_trad_racine" name="Traduction des fiches"
+              parent="website.menu_website_global_configuration" sequence="90" groups="base.group_system"/>
+    <menuitem id="menu_lolirine_trad_lot" name="Lots envoyés" parent="menu_lolirine_trad_racine"
+              action="action_lolirine_trad_lot" sequence="10"/>
+    <menuitem id="menu_lolirine_trad_fiche" name="Suivi par fiche" parent="menu_lolirine_trad_racine"
+              action="action_lolirine_trad_fiche" sequence="20"/>
+</odoo>

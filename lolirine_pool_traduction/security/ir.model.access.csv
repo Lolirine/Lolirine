@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_lolirine_trad_lot_admin,lolirine.trad.lot.admin,model_lolirine_trad_lot,base.group_system,1,1,1,1
+access_lolirine_trad_fiche_admin,lolirine.trad.fiche.admin,model_lolirine_trad_fiche,base.group_system,1,1,1,1
+access_lolirine_trad_memoire_admin,lolirine.trad.memoire.admin,model_lolirine_trad_memoire,base.group_system,1,1,1,1
