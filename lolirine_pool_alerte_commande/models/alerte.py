@@ -7,16 +7,19 @@
     - un message d'OdooBot + une activité « Envoyer les bons fournisseurs » ;
     - un e-mail avec le détail par fournisseur et un PDF par bon de commande
       fournisseur (les articles d'un même fournisseur sont sur le même bon) ;
-    - un WhatsApp de résumé via CallMeBot, seulement entre l'heure de début
+    - un message de résumé sur le téléphone (Telegram et/ou WhatsApp via
+      CallMeBot), seulement entre l'heure de début
       et l'heure de fin (8 h – 20 h par défaut, heure de Bruxelles) ; en
       dehors, il attend le lendemain matin.
 
 Paramètres système (préfixe lolirine_pool_alerte_commande.) :
     email          destinataire(s) de l'e-mail (défaut : info@lolirinepoolstore.be)
     utilisateur    id de l'utilisateur prévenu par OdooBot (défaut : 2)
-    callmebot_tel  numéro WhatsApp au format +32…
-    callmebot_cle  clé fournie par CallMeBot
-    heure_debut / heure_fin   plage d'envoi WhatsApp (défaut 8 et 20)
+    telegram_token   jeton du bot Telegram (donné par @BotFather)
+    telegram_chat_id identifiant de votre conversation avec le bot
+    callmebot_tel    numéro WhatsApp au format +32… (si CallMeBot)
+    callmebot_cle    clé fournie par CallMeBot
+    heure_debut / heure_fin   plage d'envoi sur le téléphone (défaut 8 et 20)
 """
 import base64
 import logging
@@ -65,7 +68,7 @@ class LolirineAlerteCommande(models.Model):
                                        ('non_configure', 'Non configuré'), ('erreur', 'Erreur')],
                                       'WhatsApp', default='attente', index=True)
     date_envoi = fields.Datetime('Envoyé le')
-    whatsapp_date = fields.Datetime('WhatsApp envoyé le')
+    whatsapp_date = fields.Datetime('Message téléphone envoyé le')
     note = fields.Text()
 
     # ── paramètres ────────────────────────────────────────────────────────
@@ -193,17 +196,31 @@ class LolirineAlerteCommande(models.Model):
                     self._bons_fournisseurs()))
 
     def _envoyer_whatsapp(self):
+        """Message sur le téléphone : Telegram et/ou WhatsApp (CallMeBot), selon ce qui est configuré."""
         self.ensure_one()
+        texte = self._texte_whatsapp()
+        envoyes, erreurs = [], []
+        token, chat = self._param('telegram_token'), self._param('telegram_chat_id')
+        if token and chat:
+            rep = requests.post('https://api.telegram.org/bot%s/sendMessage' % token, timeout=30,
+                                json={'chat_id': chat, 'text': texte, 'disable_web_page_preview': True})
+            (envoyes if rep.status_code == 200 and rep.json().get('ok') else erreurs).append(
+                'Telegram' if rep.status_code == 200 else 'Telegram %s : %s' % (rep.status_code, rep.text[:300]))
         tel, cle = self._param('callmebot_tel'), self._param('callmebot_cle')
-        if not tel or not cle:
+        if tel and cle:
+            rep = requests.get('https://api.callmebot.com/whatsapp.php',
+                               params={'phone': tel, 'text': texte, 'apikey': cle}, timeout=30)
+            if rep.status_code == 200 and 'error' not in rep.text.lower()[:200]:
+                envoyes.append('WhatsApp')
+            else:
+                erreurs.append('WhatsApp %s : %s' % (rep.status_code, rep.text[:300]))
+        if not envoyes and not erreurs:
             self.whatsapp_state = 'non_configure'
-            return
-        rep = requests.get('https://api.callmebot.com/whatsapp.php',
-                           params={'phone': tel, 'text': self._texte_whatsapp(), 'apikey': cle}, timeout=30)
-        if rep.status_code == 200 and 'error' not in rep.text.lower()[:200]:
-            self.write({'whatsapp_state': 'envoye', 'whatsapp_date': fields.Datetime.now()})
+        elif envoyes:
+            self.write({'whatsapp_state': 'envoye', 'whatsapp_date': fields.Datetime.now(),
+                        'note': ('Envoyé par %s. %s' % (', '.join(envoyes), ' '.join(erreurs))).strip()})
         else:
-            self.write({'whatsapp_state': 'erreur', 'note': ('WhatsApp %s : %s' % (rep.status_code, rep.text))[:1000]})
+            self.write({'whatsapp_state': 'erreur', 'note': ' '.join(erreurs)[:1000]})
 
     @api.model
     def _cron_traiter(self):
