@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Espace client Pool Store : suggestions d'achat sous le devis / la commande / la facture.
+     Calcul : models/suggestions.py (site 6 uniquement, rien pour le garde-meuble). -->
+<odoo>
+
+    <!-- Bloc commun -->
+    <template id="lp_portal_suggestions_bloc" name="Pool Store : suggestions espace client">
+        <section t-if="lp_sugg and (lp_sugg['racheter'] or lp_sugg['completer'])"
+                 class="lp-portal-sugg d-print-none mt-4">
+
+            <div t-if="lp_sugg['racheter']" class="lp-portal-sugg-groupe">
+                <div class="d-flex align-items-baseline justify-content-between flex-wrap gap-2 mb-2">
+                    <h4 class="mb-0">🔁 À racheter</h4>
+                    <a href="/shop/acheter-a-nouveau" class="small">Tous vos achats précédents →</a>
+                </div>
+                <p class="small text-muted mb-3">Produits de cette commande, en un clic — pratique pour la chimie et les consommables.</p>
+                <div class="row g-3">
+                    <t t-foreach="lp_sugg['racheter']" t-as="p">
+                        <t t-call="lolirine_pool_buypanel.lp_portal_suggestion_carte"/>
+                    </t>
+                </div>
+            </div>
+
+            <div t-if="lp_sugg['completer']" class="lp-portal-sugg-groupe">
+                <h4 class="mb-2">✨ Pour compléter votre équipement</h4>
+                <p class="small text-muted mb-3">Accessoires et produits souvent associés à votre commande.</p>
+                <div class="row g-3">
+                    <t t-foreach="lp_sugg['completer']" t-as="p">
+                        <t t-call="lolirine_pool_buypanel.lp_portal_suggestion_carte"/>
+                    </t>
+                </div>
+            </div>
+
+            <div class="lp-portal-sugg-aide d-flex flex-wrap gap-2 align-items-center">
+                <span class="me-auto">Besoin d'un conseil pour le choix ou le dosage ?</span>
+                <a href="/calculateur-piscine" class="btn btn-sm btn-outline-primary">🧮 Calculateur piscine</a>
+                <a href="https://wa.me/32497444146" target="_blank" rel="noopener" class="btn btn-sm btn-success">WhatsApp</a>
+            </div>
+        </section>
+    </template>
+
+    <template id="lp_portal_suggestion_carte" name="Pool Store : carte suggestion">
+        <div class="col-6 col-md-4 col-xl-3">
+            <a t-att-href="p['url']" class="lp-portal-sugg-carte d-flex flex-column h-100 text-decoration-none">
+                <div class="lp-portal-sugg-img">
+                    <img t-att-src="p['img']" t-att-alt="p['name']" loading="lazy"/>
+                </div>
+                <span class="lp-portal-sugg-nom" t-out="p['name']"/>
+                <span class="lp-portal-sugg-prix mt-auto" t-out="p['price']"
+                      t-options='{"widget": "monetary", "display_currency": website.currency_id}'/>
+                <span class="lp-portal-sugg-voir">Voir le produit</span>
+            </a>
+        </div>
+    </template>
+
+    <!-- Devis / commande -->
+    <template id="lp_portal_suggestions_commande" inherit_id="sale.sale_order_portal_template">
+        <xpath expr="//div[@id='portal_sale_content']" position="after">
+            <t t-if="website and website.id == 6 and sale_order">
+                <t t-set="lp_sugg" t-value="sale_order._lp_suggestions_portail(website)"/>
+                <t t-call="lolirine_pool_buypanel.lp_portal_suggestions_bloc"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Facture -->
+    <template id="lp_portal_suggestions_facture" inherit_id="account.portal_invoice_page">
+        <xpath expr="//div[@id='invoice_communication']" position="before">
+            <t t-if="website and website.id == 6 and invoice">
+                <t t-set="lp_sugg" t-value="invoice._lp_suggestions_portail(website)"/>
+                <t t-call="lolirine_pool_buypanel.lp_portal_suggestions_bloc"/>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

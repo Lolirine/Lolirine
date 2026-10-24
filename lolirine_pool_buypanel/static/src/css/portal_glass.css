@@ -105,3 +105,57 @@ html[data-website-id="6"] .o_portal_sidebar #sidebar_content .btn-primary {
         backdrop-filter: none;
     }
 }
+
+/* ============================================================
+   Suggestions d'achat sous le devis / la commande / la facture
+   ============================================================ */
+html[data-website-id="6"] .lp-portal-sugg {
+    background: var(--lp-glass-bg);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    backdrop-filter: blur(18px) saturate(1.5);
+    border: 1px solid var(--lp-glass-border);
+    border-radius: 1rem;
+    box-shadow: var(--lp-glass-shadow);
+    padding: 1.25rem 1.5rem;
+}
+.lp-portal-sugg h4 { color: #0369a1; font-weight: 700; }
+.lp-portal-sugg-groupe + .lp-portal-sugg-groupe { margin-top: 1.75rem; }
+.lp-portal-sugg-carte {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(3, 105, 161, 0.12);
+    border-radius: 0.85rem;
+    padding: 0.75rem;
+    color: #1e293b;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.lp-portal-sugg-carte:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(3, 105, 161, 0.18);
+    color: #1e293b;
+}
+.lp-portal-sugg-img {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+.lp-portal-sugg-img img { max-height: 100%; max-width: 100%; object-fit: contain; }
+.lp-portal-sugg-nom {
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 0.4rem;
+}
+.lp-portal-sugg-prix { color: #0369a1; font-weight: 700; }
+.lp-portal-sugg-voir { font-size: 0.75rem; color: #64748b; margin-top: 0.15rem; }
+.lp-portal-sugg-aide {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(3, 105, 161, 0.15);
+    font-size: 0.9rem;
+}
