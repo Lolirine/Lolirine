@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Fiche variante : données « calculateur piscine » des pompes à chaleur -->
+    <record id="lp_product_variant_pac_form" model="ir.ui.view">
+        <field name="name">product.product.form.lp.pac</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Calculateur piscine" name="lp_calculateur">
+                    <group>
+                        <group>
+                            <field name="x_lp_puissance_kw"/>
+                            <field name="x_lp_triphase"/>
+                        </group>
+                        <group>
+                            <field name="x_lp_volume_min"/>
+                            <field name="x_lp_volume_max"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

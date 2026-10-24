@@ -6,6 +6,8 @@ la puissance de pompe à chaleur conseillée ; la page interroge
 
 La puissance (kW) et la plage de volume (m³) de chaque modèle sont lues dans
 le nom de ses déclinaisons, ex. « 13,5 kW (30-50 m³) » ou « 17 kW (<70 m³) ».
+Si la déclinaison porte les champs « Puissance de chauffe (kW) », « Volume
+conseillé » et « Triphasé » (models/pac.py), ils sont prioritaires sur le nom.
 Les déclinaisons sans ces informations ne sont pas proposées.
 """
 import re
@@ -54,21 +56,29 @@ class CalculateurPiscine(http.Controller):
         candidats = []
         for v in variantes:
             libelle = ' '.join(v.product_template_attribute_value_ids.mapped('name'))
-            m_kw = RE_KW.search(libelle)
-            if not m_kw:
-                continue
-            puissance = _nombre(m_kw.group(2) or m_kw.group(1))  # « 6-8 kW » → 8 kW
-            tri = '3~' in libelle
+            vs = v.sudo()
+            if vs.x_lp_puissance_kw:
+                # Données fabricant posées sur la déclinaison (prioritaires sur le nom)
+                puissance = vs.x_lp_puissance_kw
+                tri = vs.x_lp_triphase
+                vmin, vmax = vs.x_lp_volume_min or 0.0, vs.x_lp_volume_max or 0.0
+                libelle = '%s — %s kW' % (libelle, ('%g' % puissance).replace('.', ','))
+            else:
+                m_kw = RE_KW.search(libelle)
+                if not m_kw:
+                    continue
+                puissance = _nombre(m_kw.group(2) or m_kw.group(1))  # « 6-8 kW » → 8 kW
+                tri = '3~' in libelle
+                vmin = vmax = 0.0
+                m_m3 = RE_M3.search(libelle)
+                if m_m3:
+                    if m_m3.group(1):  # « <70 m³ »
+                        vmax = _nombre(m_m3.group(2))
+                    else:
+                        vmin = _nombre(m_m3.group(2))
+                        vmax = _nombre(m_m3.group(3) or m_m3.group(2))
             if bool(tri) != bool(triphase):
                 continue
-            vmin = vmax = 0.0
-            m_m3 = RE_M3.search(libelle)
-            if m_m3:
-                if m_m3.group(1):  # « <70 m³ »
-                    vmax = _nombre(m_m3.group(2))
-                else:
-                    vmin = _nombre(m_m3.group(2))
-                    vmax = _nombre(m_m3.group(3) or m_m3.group(2))
             # Puissance suffisante, sans surdimensionner de plus de 60 %
             if puissance < besoin or puissance > besoin * 1.6:
                 continue

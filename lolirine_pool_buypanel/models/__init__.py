@@ -4,3 +4,4 @@ from . import sale_order
 from . import website
 from . import marque
 from . import suggestions
+from . import pac
