@@ -23,3 +23,32 @@
     box-shadow: 0 6px 24px rgba(31, 38, 135, .08); position: sticky; top: 6rem;
 }
 .lpq-piege { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* ------------------------------------------------------------------
+   Site Pool Store : « Avis client » et « Questions et réponses » sur un
+   panneau vitré, comme le reste de la fiche (fond photo lisible).
+   ------------------------------------------------------------------ */
+html[data-website-id="6"] #lpq.lpq,
+html[data-website-id="6"] #o_product_page_reviews {
+    background: rgba(255, 255, 255, .80);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    backdrop-filter: blur(18px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, .65);
+    border-radius: 1rem;
+    box-shadow: 0 10px 36px rgba(3, 105, 161, .18);
+    padding: 1.5rem 1.75rem;
+}
+html[data-website-id="6"] #o_product_page_reviews { margin-top: 2rem; margin-bottom: 1.5rem; }
+html[data-website-id="6"] #o_product_page_reviews .o_product_page_reviews_title h3,
+html[data-website-id="6"] #o_product_page_reviews .o_product_page_reviews_title { color: #0b3a53; }
+/* la question/réponse se lit sur la glace : séparateurs un peu plus marqués */
+html[data-website-id="6"] #lpq .lpq-item { border-bottom-color: rgba(3, 105, 161, .14); }
+/* le formulaire reste une carte blanche, légèrement détachée du panneau */
+html[data-website-id="6"] #lpq .lpq-form {
+    background: rgba(255, 255, 255, .95);
+    box-shadow: 0 6px 22px rgba(3, 105, 161, .14);
+}
+@media (max-width: 767.98px) {
+    html[data-website-id="6"] #lpq.lpq,
+    html[data-website-id="6"] #o_product_page_reviews { padding: 1rem; border-radius: .8rem; }
+}
