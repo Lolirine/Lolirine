@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool Store - Page Promotions',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Website',
     'summary': 'Page Promotions modulable via le Website Builder avec grille dynamique',
     'description': """

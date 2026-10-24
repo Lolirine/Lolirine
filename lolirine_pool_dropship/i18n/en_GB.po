@@ -1,0 +1,387 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "<br/>Tél:"
+msgstr "<br/>Tel.:"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid ""
+"<span style=\"background: #0078D4; color: white; padding: 8px 18px; border-radius: 20px; font-weight: bold; font-size: 14px;\">\n"
+"                                    PISCINE &amp; WELLNESS\n"
+"                                </span>"
+msgstr "<span style=\"background: #0078D4; color: white; padding: 8px 18px; border-radius: 20px; font-weight: bold; font-size: 14px;\"> POOL &amp; WELLNESS </span>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid ""
+"<span style=\"background: #d4edda; color: #155724; padding: 8px 18px; border-radius: 20px; font-weight: bold; font-size: 14px;\">\n"
+"                                    CONFIRMÉE\n"
+"                                </span>"
+msgstr "<span style=\"background: #d4edda; color: #155724; padding: 8px 18px; border-radius: 20px; font-weight: bold; font-size: 14px;\"> CONFIRMED </span>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document
+msgid ""
+"<span style=\"background: #e3f2fd; color: #0078D4; padding: 8px 18px; border-radius: 20px; font-weight: bold; font-size: 14px;\">\n"
+"                                    DEVIS\n"
+"                                </span>"
+msgstr "<span style=\"background: #e3f2fd; color: #0078D4; padding: 8px 18px; border-radius: 20px; font-weight: bold; font-size: 14px;\"> QUOTE </span>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid ""
+"<span style=\"color: #0078D4; font-style: italic; font-size: 12px;\">\n"
+"                                        Votre spécialiste piscine &amp; wellness en Belgique\n"
+"                                    </span>"
+msgstr "<span style=\"color: #0078D4; font-style: italic; font-size: 12px;\"> Your pool &amp; wellness specialist in Belgium </span>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.pool_document_layout
+msgid ""
+"<span style=\"color: #0078D4; font-style: italic; font-size: 12px;\">\n"
+"                            Votre spécialiste piscine &amp; wellness en Belgique\n"
+"                        </span>"
+msgstr "<span style=\"color: #0078D4; font-style: italic; font-size: 12px;\"> Your pool &amp; wellness specialist in Belgium </span>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "<strong style=\"color: #0078D4; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">Client</strong><br/>"
+msgstr "<strong style=\"color: #0078D4; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">Customer</strong><br/>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "<strong style=\"color: #0078D4; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">Facturer à</strong><br/>"
+msgstr "<strong style=\"color: #0078D4; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">Bill to</strong><br/>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "<strong style=\"color: #0078D4; font-size: 14px;\">Informations de paiement :</strong><br/>"
+msgstr "<strong style=\"color: #0078D4; font-size: 14px;\">Payment details:</strong><br/>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document
+msgid "<strong style=\"color: #0078D4; font-size: 14px;\">Pour confirmer ce devis :</strong><br/>"
+msgstr "<strong style=\"color: #0078D4; font-size: 14px;\">To confirm this quote:</strong><br/>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "<strong style=\"color: #0078D4; font-size: 14px;\">Prochaines étapes :</strong>"
+msgstr "<strong style=\"color: #0078D4; font-size: 14px;\">Next steps:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "<strong style=\"color: #0078D4;\">ADRESSE DE LIVRAISON (CLIENT FINAL)</strong><br/>"
+msgstr "<strong style=\"color: #0078D4;\">DELIVERY ADDRESS (END CUSTOMER)</strong><br/>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "<strong style=\"font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #28a745;\">Livraison</strong><br/>"
+msgstr "<strong style=\"font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #28a745;\">Delivery</strong><br/>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document
+msgid "<strong style=\"font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">Adresse de livraison</strong><br/>"
+msgstr "<strong style=\"font-size: 11px; text-transform: uppercase; letter-spacing: 1px;\">Delivery address</strong><br/>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "<strong style=\"font-size: 18px; color: #0078D4;\">Total TTC</strong>"
+msgstr "<strong style=\"font-size: 18px; color: #0078D4;\">Total incl. VAT</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document
+msgid "<strong>Bon pour accord :</strong>"
+msgstr "<strong>Approved:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "<strong>Cde client:</strong>"
+msgstr "<strong>Customer order:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "<strong>Commande :</strong>"
+msgstr "<strong>Order:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "<strong>Communication :</strong>"
+msgstr "<strong>Payment reference:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "<strong>Communiquer le numéro de suivi</strong> dès expédition"
+msgstr "<strong>Send the tracking number</strong> as soon as shipped"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "<strong>Date commande :</strong>"
+msgstr "<strong>Order date:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document
+msgid "<strong>Date du devis :</strong>"
+msgstr "<strong>Quote date:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "<strong>Date facture :</strong>"
+msgstr "<strong>Invoice date:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "<strong>Date:</strong>"
+msgstr "<strong>Date:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "<strong>Emballage neutre obligatoire</strong>"
+msgstr "<strong>Neutral packaging required</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "<strong>Fournisseur:</strong><br/>"
+msgstr "<strong>Supplier:</strong><br/>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "<strong>IBAN :</strong>"
+msgstr "<strong>IBAN:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "<strong>INSTRUCTIONS :</strong>"
+msgstr "<strong>INSTRUCTIONS:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid ""
+"<strong>Lolirine SRL</strong><br/>\n"
+"                                    Rue Bois d'Esneux 110<br/>\n"
+"                                    5021 Boninne (Namur)"
+msgstr "<strong>Lolirine SRL</strong><br/> Rue Bois d'Esneux 110<br/> 5021 Boninne (Namur)"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid ""
+"<strong>Lolirine SRL</strong><br/>\n"
+"                                    Rue Bois d'Esneux 110<br/>\n"
+"                                    5021 Boninne (Namur) - Belgique<br/>\n"
+"                                    BCE:"
+msgstr "<strong>Lolirine SRL</strong><br/> Rue Bois d'Esneux 110<br/> 5021 Boninne (Namur) - Belgium<br/> CBE:"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.pool_document_layout
+msgid ""
+"<strong>Lolirine SRL</strong><br/>\n"
+"                        Rue Bois d'Esneux 110<br/>\n"
+"                        5021 Boninne (Namur)"
+msgstr "<strong>Lolirine SRL</strong><br/> Rue Bois d'Esneux 110<br/> 5021 Boninne (Namur)"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.pool_document_layout
+msgid ""
+"<strong>Lolirine SRL</strong><br/>\n"
+"                        Rue Bois d'Esneux 110<br/>\n"
+"                        5021 Boninne (Namur)<br/>\n"
+"                        Belgique<br/>\n"
+"                        BCE:"
+msgstr "<strong>Lolirine SRL</strong><br/> Rue Bois d'Esneux 110<br/> 5021 Boninne (Namur)<br/> Belgium<br/> CBE:"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "<strong>Ne pas inclure de facture</strong> dans le colis"
+msgstr "<strong>Do not include an invoice</strong> in the parcel"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "<strong>Notes :</strong><br/>"
+msgstr "<strong>Notes:</strong><br/>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "<strong>N° facture :</strong>"
+msgstr "<strong>Invoice no.:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "<strong>Réf.:</strong>"
+msgstr "<strong>Ref.:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "<strong>Référence :</strong>"
+msgstr "<strong>Reference:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "<strong>Sous-total HTVA</strong>"
+msgstr "<strong>Subtotal excl. VAT</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "<strong>Total HT</strong>"
+msgstr "<strong>Total excl. VAT</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "<strong>Total TTC</strong>"
+msgstr "<strong>Total incl. VAT</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document
+msgid "<strong>Valide jusqu'au :</strong>"
+msgstr "<strong>Valid until:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document
+msgid "<strong>Vendeur :</strong>"
+msgstr "<strong>Salesperson:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "<strong>Votre réf. :</strong>"
+msgstr "<strong>Your ref.:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "<strong>Échéance :</strong>"
+msgstr "<strong>Due date:</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.pool_document_layout model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "BCE:"
+msgstr "CBE:"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "Commande Dropshipping"
+msgstr "Dropshipping order"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "Confirmation de commande"
+msgstr "Order confirmation"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document
+msgid "Date et signature du client"
+msgstr "Customer date and signature"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "Description"
+msgstr "Description"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document
+msgid "Devis Piscine"
+msgstr "Pool Quote"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "Document"
+msgstr "Document"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "Expédier directement à l'adresse ci-dessous. <strong>Ne pas livrer à notre adresse.</strong>"
+msgstr "Ship directly to the address below. <strong>Do not deliver to our address.</strong>"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "Facture"
+msgstr "Invoice"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "Livraison à votre adresse"
+msgstr "Delivery to your address"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "Montant HTVA"
+msgstr "Amount excl. VAT"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "Note de crédit"
+msgstr "Credit note"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "Prix unit."
+msgstr "Unit price"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "Prix unit. HTVA"
+msgstr "Unit price excl. VAT"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "Préparation et expédition par notre partenaire logistique"
+msgstr "Preparation and shipping by our logistics partner"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "Qté"
+msgstr "Qty"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document
+msgid ""
+"Renvoyez-nous ce devis signé par email à <strong>info@lolirinepoolstore.be</strong>\n"
+"                                ou confirmez par téléphone au <strong>+32 (0)497 44 41 46</strong>.<br/>\n"
+"                                Nous lancerons immédiatement la commande auprès de notre partenaire logistique."
+msgstr "Send this quote back to us signed by e-mail to <strong>info@lolirinepoolstore.be</strong> or confirm by phone on <strong>+32 (0)497 44 41 46</strong>.<br/> We will immediately place the order with our logistics partner."
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "Référence"
+msgstr "Reference"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "TVA"
+msgstr "VAT"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_invoice_document
+msgid "TVA:"
+msgstr "VAT:"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "Total"
+msgstr "Total"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_devis_document
+msgid "Tél:"
+msgstr "Tel.:"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "Votre commande est confirmée et en cours de traitement"
+msgstr "Your order is confirmed and being processed"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_pool_order_document
+msgid "Vous recevrez un email avec le suivi dès l'expédition"
+msgstr "You will receive an e-mail with tracking as soon as it ships"
+
+#. module: lolirine_pool_dropship
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_dropship.report_dropship_purchase_order_document
+msgid "⚠ LIVRAISON DIRECTE CLIENT"
+msgstr "⚠ DIRECT DELIVERY TO CUSTOMER"

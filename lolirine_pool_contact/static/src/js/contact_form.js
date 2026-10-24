@@ -1,5 +1,9 @@
 /** @odoo-module **/
 
+// Langue de la page (/fr, /nl, /en) pour les messages du formulaire
+const LP_LANG = (document.documentElement.lang || "fr").slice(0, 2).toLowerCase();
+const lpT = (fr, nl, en) => (LP_LANG === "nl" ? nl : LP_LANG === "en" ? en : fr);
+
 /**
  * Pool Store - Contact Form JavaScript
  * Gestion du formulaire de contact (toggle Particulier/Professionnel)
@@ -57,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const requestType = document.querySelector('input[name="request_type"]:checked');
             if (!requestType) {
                 e.preventDefault();
-                alert('Veuillez sélectionner un type de demande.');
+                alert(lpT('Veuillez sélectionner un type de demande.', 'Kies een soort aanvraag.', 'Please select a type of request.'));
                 return false;
             }
             
@@ -67,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const companyName = document.querySelector('input[name="company_name"]');
                 if (companyName && !companyName.value.trim()) {
                     e.preventDefault();
-                    alert('Veuillez renseigner le nom de votre entreprise.');
+                    alert(lpT('Veuillez renseigner le nom de votre entreprise.', 'Vul de naam van uw bedrijf in.', 'Please enter your company name.'));
                     companyName.focus();
                     return false;
                 }

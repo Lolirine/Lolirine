@@ -1,5 +1,11 @@
 /** @odoo-module **/
 
+/** Texte selon la langue de la page (fr par défaut, nl, en). */
+export const LP_LANG = (document.documentElement.lang || "fr").slice(0, 2).toLowerCase();
+export function lpT(fr, nl, en) {
+    return LP_LANG === "nl" ? nl : LP_LANG === "en" ? en : fr;
+}
+
 /*
  * motion_helpers.js
  * Point d'accès unique au moteur Motion + tokens partagés.

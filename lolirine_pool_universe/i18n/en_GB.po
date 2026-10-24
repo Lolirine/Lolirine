@@ -1,0 +1,74 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_page
+msgid "<span>Toute la boutique</span>"
+msgstr "<span>The whole shop</span>"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_page
+msgid "Aucun produit pour le moment dans cette sélection."
+msgstr "No products in this selection at the moment."
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.home_tiles
+msgid "Choisissez un univers pour parcourir tous ses produits"
+msgstr "Choose a range to browse all its products"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.pool_universe_card
+msgid "Dès"
+msgstr "From"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.home_tiles
+msgid "Explorez par univers"
+msgstr "Explore by range"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.pool_universe_marquee
+msgid "Gammes liées"
+msgstr "Related ranges"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_page
+msgid "Parcourir toute la boutique"
+msgstr "Browse the whole shop"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_page
+msgid "Sélection limitée aux 240 premiers produits."
+msgstr "Selection limited to the first 240 products."
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.shop_universe_zones
+msgid "Tous les produits"
+msgstr "All products"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.home_showcase
+msgid "Toute la boutique"
+msgstr "The whole shop"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.home_showcase model_terms:ir.ui.view,arch_db:lolirine_pool_universe.shop_universe_zones
+msgid "Univers de la boutique"
+msgstr "Shop ranges"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_block model_terms:ir.ui.view,arch_db:lolirine_pool_universe.home_tiles
+msgid "produits"
+msgstr "products"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_page
+msgid "produits dans cette sélection"
+msgstr "products in this selection"

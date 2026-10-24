@@ -2,6 +2,8 @@ import re
 from odoo import http
 from odoo.http import request
 
+from ..models.livraison import langue, tr
+
 
 class BuyPanelController(http.Controller):
 
@@ -17,6 +19,7 @@ class BuyPanelController(http.Controller):
         tmpl = product.product_tmpl_id
 
         Liv = request.env['lolirine.livraison'].sudo()
+        lg = langue(request.env)
 
         # ── Disponibilité ──────────────────────────────────
         # Le stock du catalogue est fictif (50 unités posées en masse) : tant que le
@@ -27,11 +30,12 @@ class BuyPanelController(http.Controller):
         delai = Liv.delai_fournisseur(tmpl)
         if stock_reel and qty > 0:
             delai = Liv._param('delai_stock', 1)
-            stock_label = 'En stock' if qty > 10 else 'Plus que %d en stock' % int(qty)
+            stock_label = tr(lg, 'En stock', 'Op voorraad', 'In stock') if qty > 10 else tr(
+                lg, 'Plus que %d en stock', 'Nog %d op voorraad', 'Only %d left in stock') % int(qty)
             stock_class = 'lp-stock-green' if qty > 10 else 'lp-stock-orange'
-            stock_sub = '— expédié depuis Boninne'
+            stock_sub = tr(lg, '— expédié depuis Boninne', '— verzonden vanuit Boninne', '— shipped from Boninne')
         else:
-            stock_label = 'Disponible'
+            stock_label = tr(lg, 'Disponible', 'Beschikbaar', 'Available')
             stock_class = 'lp-stock-green'
             stock_sub = ''
 
@@ -66,13 +70,13 @@ class BuyPanelController(http.Controller):
             desc = (tmpl.description_sale or '') + (tmpl.description or '')
             m = re.search(r'(\d+)\s*an', desc, re.IGNORECASE)
             if m:
-                warranty = f"{m.group(1)} an{'s' if int(m.group(1)) > 1 else ''}"
+                n = int(m.group(1))
+                warranty = '%d %s' % (n, tr(lg, 'an' if n == 1 else 'ans', 'jaar', 'year' if n == 1 else 'years'))
 
         # ── Livraison offerte ─────────────────────────────
         seuil, base = Liv.seuil_franco(request.website)
         price = product.lst_price or tmpl.list_price or 0.0
         free_delivery = price >= seuil
-        seuil_txt = ('%.0f' % seuil if float(seuil).is_integer() else '%.2f' % seuil).replace('.', ',')
 
         return {
             'stock_label':  stock_label,
@@ -81,7 +85,10 @@ class BuyPanelController(http.Controller):
             'stock_sub':    stock_sub,
             'delivery':     delivery_str,
             'countdown':    promesse['compte_a_rebours'],
-            'franco_txt':   'Offerte dès %s € %s' % (seuil_txt, 'HT' if base == 'ht' else 'TVAC'),
+            'franco_txt':   tr(lg, 'Offerte dès %s', 'Gratis vanaf %s', 'Free from %s') % Liv.franco_texte(request.website),
+            'free_txt':     tr(lg, 'Offerte', 'Gratis', 'Free'),
+            'free_badge':   tr(lg, 'GRATUITE', 'GRATIS', 'FREE'),
+            'warranty_txt': tr(lg, 'Garantie', 'Garantie', 'Warranty'),
             'brand':        brand,
             'warranty':     warranty,
             'default_code': product.default_code or tmpl.default_code or '',

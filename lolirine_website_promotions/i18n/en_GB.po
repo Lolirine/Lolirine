@@ -1,0 +1,99 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.promotions_page
+msgid "Conseil expert"
+msgstr "Expert advice"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_card
+msgid "Description courte du produit"
+msgstr "Short product description"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_banner
+msgid "En profiter →"
+msgstr "Grab the deal →"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_categories
+msgid "Filtration"
+msgstr "Filtration"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_categories
+msgid "Jusqu'à -15%"
+msgstr "Up to -15%"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_categories
+msgid "Jusqu'à -20%"
+msgstr "Up to -20%"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_categories
+msgid "Jusqu'à -25%"
+msgstr "Up to -25%"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_categories
+msgid "Jusqu'à -30%"
+msgstr "Up to -30%"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.promotions_page
+msgid "Livraison rapide"
+msgstr "Fast delivery"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_card
+msgid "Nom du produit"
+msgstr "Product name"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_banner
+msgid "Offre spéciale de la semaine"
+msgstr "Special offer of the week"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_card
+msgid "Produit"
+msgstr "Product"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_banner
+msgid "Profitez de réductions exceptionnelles sur nos robots de piscine et nos systèmes de filtration."
+msgstr "Enjoy exceptional discounts on our pool robots and filtration systems."
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_categories
+msgid "Promotions par catégorie"
+msgstr "Promotions by category"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_categories
+msgid "Robots"
+msgstr "Robots"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_categories
+msgid "Spa"
+msgstr "Spa"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_categories
+msgid "Traitement"
+msgstr "Treatment"
+
+#. module: lolirine_website_promotions
+#: model_terms:ir.ui.view,arch_db:lolirine_website_promotions.promotions_page model_terms:ir.ui.view,arch_db:lolirine_website_promotions.s_promo_card
+msgid "Voir le produit"
+msgstr "View product"

@@ -2,7 +2,7 @@
 
 import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
-import { getMotion, prefersReducedMotion } from "./motion_helpers";
+import { getMotion, prefersReducedMotion, lpT } from "./motion_helpers";
 
 /*
  * Quickview produit (vague 2, option 2 : variantes).
@@ -56,7 +56,7 @@ export class MotionQuickview extends Interaction {
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "o_motion_qv_btn";
-            btn.setAttribute("aria-label", "Aperçu rapide");
+            btn.setAttribute("aria-label", lpT("Aperçu rapide", "Snel bekijken", "Quick view"));
             const i = document.createElement("i");
             i.className = "fa fa-search-plus";
             i.setAttribute("aria-hidden", "true");
@@ -198,7 +198,7 @@ export class MotionQuickview extends Interaction {
             this._render(data);
         } catch {
             this.content.innerHTML =
-                '<div class="o_motion_qv_loading">Aperçu indisponible.</div>';
+                '<div class="o_motion_qv_loading">' + lpT("Aperçu indisponible.", "Voorbeeld niet beschikbaar.", "Preview unavailable.") + '</div>';
         } finally {
             this.busy = false;
         }
@@ -295,19 +295,19 @@ export class MotionQuickview extends Interaction {
             this.addBtn.type = "button";
             this.addBtn.className = "btn btn-primary w-100";
             this.addBtn.dataset.add = "1";
-            this.addBtn.textContent = "Ajouter au panier";
+            this.addBtn.textContent = lpT("Ajouter au panier", "In winkelmandje", "Add to basket");
             actions.appendChild(this.addBtn);
 
             const a = document.createElement("a");
             a.className = "btn btn-link w-100 mt-1";
             a.href = data.url || "/shop";
-            a.textContent = "Voir le produit";
+            a.textContent = lpT("Voir le produit", "Product bekijken", "View product");
             actions.appendChild(a);
         } else {
             const a = document.createElement("a");
             a.className = "btn btn-primary w-100";
             a.href = data.url || "/shop";
-            a.textContent = "Voir le produit";
+            a.textContent = lpT("Voir le produit", "Product bekijken", "View product");
             actions.appendChild(a);
         }
         info.appendChild(actions);
@@ -375,8 +375,8 @@ export class MotionQuickview extends Interaction {
                 const possible = info.is_combination_possible !== false;
                 this.addBtn.disabled = !possible;
                 this.addBtn.textContent = possible
-                    ? "Ajouter au panier"
-                    : "Combinaison indisponible";
+                    ? lpT("Ajouter au panier", "In winkelmandje", "Add to basket")
+                    : lpT("Combinaison indisponible", "Combinatie niet beschikbaar", "Combination unavailable");
             }
         } catch {
             // Repli : on garde la variante par défaut, prix figé.
@@ -409,7 +409,7 @@ export class MotionQuickview extends Interaction {
             return;
         }
         if (!this.currentVariantId) {
-            btn.textContent = "Variante non résolue";
+            btn.textContent = lpT("Variante non résolue", "Variant niet gevonden", "Variant not found");
             return;
         }
         this.adding = true;
@@ -417,7 +417,7 @@ export class MotionQuickview extends Interaction {
         if (!btn.dataset.label) {
             btn.dataset.label = btn.textContent;
         }
-        btn.textContent = "Ajout…";
+        btn.textContent = lpT("Ajout…", "Toevoegen…", "Adding…");
         try {
             const result = await this._rpc("/lolirine_motion/cart/add", {
                 product_id: this.currentVariantId,
@@ -444,11 +444,11 @@ export class MotionQuickview extends Interaction {
             this.close();
         } catch (e) {
             btn.disabled = false;
-            btn.textContent = "Erreur : " + (e.message || "ajout impossible");
+            btn.textContent = lpT("Erreur : ", "Fout: ", "Error: ") + (e.message || lpT("ajout impossible", "toevoegen mislukt", "could not add"));
             // eslint-disable-next-line no-console
             console.error("[quickview] ajout panier:", e, "variant=", this.currentVariantId, "tmpl=", this.tmplId);
             setTimeout(() => {
-                btn.textContent = btn.dataset.label || "Ajouter au panier";
+                btn.textContent = btn.dataset.label || lpT("Ajouter au panier", "In winkelmandje", "Add to basket");
             }, 3000);
         } finally {
             this.adding = false;

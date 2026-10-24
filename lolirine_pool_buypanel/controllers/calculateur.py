@@ -15,6 +15,8 @@ import re
 from odoo import http
 from odoo.http import request
 
+from ..models.livraison import langue, tr
+
 SITE_POOL_STORE = 6
 CATEGORIE_PAC = 127  # Équipements & Pièces / Chauffage & PAC / Pompes à chaleur
 
@@ -91,7 +93,7 @@ class CalculateurPiscine(http.Controller):
                 'variante': libelle,
                 'kw': puissance,
                 'plage': ('%d–%d m³' % (vmin, vmax)) if vmin and vmax and vmin != vmax else (
-                    ('jusqu\'à %d m³' % vmax) if vmax else ''),
+                    (tr(langue(request.env), 'jusqu\'à %d m³', 'tot %d m³', 'up to %d m³') % vmax) if vmax else ''),
                 'prix': info.get('price', 0.0),
                 'url': v.website_url,
                 'image': '/web/image/product.product/%s/image_256' % v.id,

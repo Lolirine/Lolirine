@@ -1,0 +1,424 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid "14 jours — conditions générales"
+msgstr "14 dagen — algemene voorwaarden"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_trust_bar
+msgid ""
+"<i class=\"fa fa-undo\" aria-hidden=\"true\"/>\n"
+"                            <span>Retours <strong>14 jours</strong></span>"
+msgstr "<i class=\"fa fa-undo\" aria-hidden=\"true\"/> <span>Retour <strong>14 dagen</strong></span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_trust_bar
+msgid ""
+"<i class=\"fa fa-whatsapp\" aria-hidden=\"true\"/>\n"
+"                            <span>Conseils sur <strong>WhatsApp</strong></span>"
+msgstr "<i class=\"fa fa-whatsapp\" aria-hidden=\"true\"/> <span>Advies via <strong>WhatsApp</strong></span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_trust_bar
+msgid ""
+"<i class=\"fa fa-wrench\" aria-hidden=\"true\"/>\n"
+"                            <span>SAV <strong>en Belgique</strong></span>"
+msgstr "<i class=\"fa fa-wrench\" aria-hidden=\"true\"/> <span>Klantendienst <strong>in België</strong></span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid ""
+"<select id=\"lp_couv\" class=\"form-select\">\n"
+"                                        <option value=\"1\">Oui (bâche à bulles, volet, couverture isotherme)</option>\n"
+"                                        <option value=\"1.3\">Non, bassin découvert</option>\n"
+"                                    </select>"
+msgstr "<select id=\"lp_couv\" class=\"form-select\"> <option value=\"1\">Ja (bubbelzeil, rolluik, isolerende afdekking)</option> <option value=\"1.3\">Nee, onafgedekt zwembad</option> </select>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid ""
+"<select id=\"lp_expo\" class=\"form-select\">\n"
+"                                        <option value=\"1\">Abritée du vent</option>\n"
+"                                        <option value=\"1.1\">Exposée au vent</option>\n"
+"                                    </select>"
+msgstr "<select id=\"lp_expo\" class=\"form-select\"> <option value=\"1\">Beschut tegen de wind</option> <option value=\"1.1\">Blootgesteld aan de wind</option> </select>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid ""
+"<select id=\"lp_forme\" class=\"form-select\">\n"
+"                                        <option value=\"rect\">Rectangulaire ou carrée</option>\n"
+"                                        <option value=\"rond\">Ronde</option>\n"
+"                                        <option value=\"ovale\">Ovale</option>\n"
+"                                        <option value=\"libre\">Forme libre / haricot</option>\n"
+"                                    </select>"
+msgstr "<select id=\"lp_forme\" class=\"form-select\"> <option value=\"rect\">Rechthoekig of vierkant</option> <option value=\"rond\">Rond</option> <option value=\"ovale\">Ovaal</option> <option value=\"libre\">Vrije vorm / boonvorm</option> </select>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid ""
+"<select id=\"lp_saison\" class=\"form-select\">\n"
+"                                        <option value=\"1\">Saison d'été (juin à août)</option>\n"
+"                                        <option value=\"1.25\">Saison prolongée (mai à septembre)</option>\n"
+"                                        <option value=\"1.5\">Saison longue (avril à octobre)</option>\n"
+"                                    </select>"
+msgstr "<select id=\"lp_saison\" class=\"form-select\"> <option value=\"1\">Zomerseizoen (juni tot augustus)</option> <option value=\"1.25\">Verlengd seizoen (mei tot september)</option> <option value=\"1.5\">Lang seizoen (april tot oktober)</option> </select>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid ""
+"<select id=\"lp_tri\" class=\"form-select\">\n"
+"                                        <option value=\"0\">Monophasée 230 V (la plupart des maisons)</option>\n"
+"                                        <option value=\"1\">Triphasée 400 V</option>\n"
+"                                    </select>"
+msgstr "<select id=\"lp_tri\" class=\"form-select\"> <option value=\"0\">Eenfasig 230 V (de meeste woningen)</option> <option value=\"1\">Driefasig 400 V</option> </select>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "<span class=\"lp-calc-step\">1</span> Volume du bassin"
+msgstr "<span class=\"lp-calc-step\">1</span> Volume van het zwembad"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "<span class=\"lp-calc-step\">2</span> Pompe à chaleur"
+msgstr "<span class=\"lp-calc-step\">2</span> Warmtepomp"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "<span class=\"lp-calc-step\">3</span> Modèles adaptés à votre bassin"
+msgstr "<span class=\"lp-calc-step\">3</span> Modellen geschikt voor uw zwembad"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lp_portal_suggestion_carte
+msgid "<span class=\"lp-portal-sugg-voir\">Voir le produit</span>"
+msgstr "<span class=\"lp-portal-sugg-voir\">Product bekijken</span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_trust_bar
+msgid ""
+"<span class=\"lp-trustbar-item\">\n"
+"                            <i class=\"fa fa-lock\" aria-hidden=\"true\"/>\n"
+"                            <span>Paiement sécurisé <strong>Bancontact</strong></span>\n"
+"                        </span>"
+msgstr "<span class=\"lp-trustbar-item\"> <i class=\"fa fa-lock\" aria-hidden=\"true\"/> <span>Veilig betalen <strong>Bancontact</strong></span> </span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lp_portal_suggestions_bloc
+msgid "<span class=\"me-auto\">Besoin d'un conseil pour le choix ou le dosage ?</span>"
+msgstr "<span class=\"me-auto\">Advies nodig over de keuze of de dosering?</span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_delivery
+msgid "<span>Retrait entrepôt Boninne sur RDV</span>"
+msgstr "<span>Afhalen in het magazijn in Boninne op afspraak</span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid ""
+"<strong class=\"lp-warranty-label\">Garantie fabricant</strong>\n"
+"                            <span>SAV Lolirine</span>"
+msgstr "<strong class=\"lp-warranty-label\">Fabrieksgarantie</strong> <span>Klantendienst Lolirine</span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid ""
+"<strong>Expert piscine</strong>\n"
+"                            <span>+32 497 44 41 46</span>"
+msgstr "<strong>Zwembadexpert</strong> <span>+32 497 44 41 46</span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lp_external_layout_standard_marque
+msgid ""
+"<strong>Lolirine Pool Store</strong> — un service de Srl Lolirine ·\n"
+"                info@lolirinepoolstore.be · +32 497 44 41 46 · www.lolirinepoolstore.be<br/>\n"
+"                TVA : BE0650891279 · IBAN : BE07 7320 5208 0866"
+msgstr "<strong>Lolirine Pool Store</strong> — een dienst van Srl Lolirine · info@lolirinepoolstore.be · +32 497 44 41 46 · www.lolirinepoolstore.be<br/> Btw: BE0650891279 · IBAN: BE07 7320 5208 0866"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid ""
+"<strong>Paiement sécurisé</strong>\n"
+"                            <span>SSL 256-bit</span>"
+msgstr "<strong>Veilig betalen</strong> <span>SSL 256-bit</span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid ""
+"<strong>Retour sous 14 jours</strong>\n"
+"                            <span>Bon de retour en ligne</span>"
+msgstr "<strong>Retour binnen 14 dagen</strong> <span>Online retourformulier</span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid ""
+"<strong>Une question sur ce produit ?</strong>\n"
+"                        <span>Nos experts répondent en moins de 2h</span>"
+msgstr "<strong>Een vraag over dit product?</strong> <span>Onze experts antwoorden binnen 2 uur</span>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lp_portal_suggestions_bloc
+msgid "Accessoires et produits souvent associés à votre commande."
+msgstr "Toebehoren en producten die vaak samen met uw bestelling worden gekocht."
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.product_accessories
+msgid "Accessoires recommandés"
+msgstr "Aanbevolen toebehoren"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.newsletter_merci
+msgid "Adresse e-mail invalide"
+msgstr "Ongeldig e-mailadres"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Alimentation électrique"
+msgstr "Elektrische voeding"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Aucun modèle du catalogue ne correspond exactement :"
+msgstr "Geen enkel model uit de catalogus komt precies overeen:"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_cart_franco
+msgid "Bravo, la livraison vous est offerte !"
+msgstr "Proficiat, de levering is gratis!"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Calculateur de volume et de pompe à chaleur"
+msgstr "Calculator voor volume en warmtepomp"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Calculateur piscine"
+msgstr "Zwembadcalculator"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Calculez le volume de votre piscine et la puissance de pompe à chaleur nécessaire, puis découvrez les modèles adaptés."
+msgstr "Bereken het volume van uw zwembad en het vermogen van de warmtepomp die u nodig hebt, en ontdek de geschikte modellen."
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_extra_specs_zone
+msgid "Caractéristiques techniques"
+msgstr "Technische kenmerken"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.newsletter_merci
+msgid "Cette adresse reçoit déjà nos nouveautés et offres. Merci de votre fidélité !"
+msgstr "Dit adres ontvangt al onze nieuwigheden en aanbiedingen. Bedankt voor uw trouw!"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid "Contacter"
+msgstr "Contact"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Couverture la nuit"
+msgstr "Afdekking 's nachts"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Diamètre (m)"
+msgstr "Diameter (m)"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.newsletter_merci
+msgid "Découvrir la boutique"
+msgstr "Ontdek de webshop"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Exposition"
+msgstr "Ligging"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Forme"
+msgstr "Vorm"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid "Garantie"
+msgstr "Garantie"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid "Informations produit"
+msgstr "Productinformatie"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Largeur (m)"
+msgstr "Breedte (m)"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Le volume de votre bassin en un instant, puis la pompe à chaleur qu'il vous faut."
+msgstr "Het volume van uw zwembad in een oogwenk, en daarna de warmtepomp die u nodig hebt."
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_tile_delivery
+msgid "Livraison"
+msgstr "Levering"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_trust_bar
+msgid "Livraison offerte dès"
+msgstr "Gratis levering vanaf"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Longueur (m)"
+msgstr "Lengte (m)"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid "Marque"
+msgstr "Merk"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.newsletter_merci
+msgid "Merci pour votre inscription !"
+msgstr "Bedankt voor uw inschrijving!"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.newsletter_merci
+msgid "Newsletter"
+msgstr "Nieuwsbrief"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_trust_bar
+msgid "Nos engagements"
+msgstr "Onze beloften"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.newsletter_merci
+msgid "Nous n'avons pas pu enregistrer votre inscription. Vérifiez l'adresse et réessayez."
+msgstr "We konden uw inschrijving niet registreren. Controleer het adres en probeer opnieuw."
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid "Offerte dès 499 € HT"
+msgstr "Gratis vanaf € 499 excl. btw"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_cart_franco
+msgid "Plus que"
+msgstr "Nog"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_cart_franco
+msgid "Pour atteindre la livraison offerte, nos clients ajoutent souvent :"
+msgstr "Om gratis levering te krijgen, voegen onze klanten vaak toe:"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lp_portal_suggestions_bloc
+msgid "Produits de cette commande, en un clic — pratique pour la chimie et les consommables."
+msgstr "Producten uit deze bestelling, in één klik — handig voor chemie en verbruiksartikelen."
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Profondeur max. (m)"
+msgstr "Max. diepte (m)"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Profondeur min. (m)"
+msgstr "Min. diepte (m)"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid ""
+"Puissance conseillée : <strong><span id=\"lp_kw\">0</span> kW</strong>\n"
+"                                        <small class=\"d-block text-muted\">Estimation pour le climat belge et une eau à 26–28 °C. Pour un bassin intérieur, un spa ou une piscine publique, demandez-nous conseil.</small>"
+msgstr "Aanbevolen vermogen: <strong><span id=\"lp_kw\">0</span> kW</strong> <small class=\"d-block text-muted\">Schatting voor het Belgische klimaat en water van 26–28 °C. Voor een binnenzwembad, een spa of een openbaar zwembad vraagt u best ons advies.</small>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "Période de baignade"
+msgstr "Zwemperiode"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid "Retours"
+msgstr "Retourneren"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_buypanel_trust
+msgid "Référence"
+msgstr "Referentie"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lp_filter_radio_multi
+msgid "Search {{a.name}} ({{len(sorted_values)}})"
+msgstr "Zoeken {{a.name}} ({{len(sorted_values)}})"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lp_portal_suggestions_bloc
+msgid "Tous vos achats précédents →"
+msgstr "Al uw eerdere aankopen →"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid ""
+"Volume estimé : <strong><span id=\"lp_volume\">0</span> m³</strong>\n"
+"                                        <small class=\"d-block text-muted\">soit environ <span id=\"lp_litres\">0</span> litres</small>"
+msgstr "Geschat volume: <strong><span id=\"lp_volume\">0</span> m³</strong> <small class=\"d-block text-muted\">of ongeveer <span id=\"lp_litres\">0</span> liter</small>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.newsletter_merci
+msgid "Votre code de bienvenue (<strong>5 % sur votre commande</strong>) vient de vous être envoyé par e-mail. Pensez à vérifier vos indésirables."
+msgstr "Uw welkomstcode (<strong>5 % op uw bestelling</strong>) is u zonet per e-mail toegestuurd. Kijk ook in uw ongewenste berichten."
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.newsletter_merci
+msgid "Vous recevrez désormais nos nouveautés et offres exclusives."
+msgstr "U ontvangt voortaan onze nieuwigheden en exclusieve aanbiedingen."
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.newsletter_merci
+msgid "Vous êtes déjà inscrit"
+msgstr "U bent al ingeschreven"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "demander un conseil"
+msgstr "advies vragen"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_cart_franco
+msgid "pour bénéficier de la <strong>livraison offerte</strong>"
+msgstr "en u krijgt <strong>gratis levering</strong>"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.calculateur_piscine
+msgid "voir toutes les pompes à chaleur"
+msgstr "alle warmtepompen bekijken"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lp_portal_suggestions_bloc
+msgid "✨ Pour compléter votre équipement"
+msgstr "✨ Om uw uitrusting aan te vullen"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lp_portal_suggestions_bloc
+msgid "🔁 À racheter"
+msgstr "🔁 Opnieuw kopen"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lp_portal_suggestions_bloc
+msgid "🧮 Calculateur piscine"
+msgstr "🧮 Zwembadcalculator"

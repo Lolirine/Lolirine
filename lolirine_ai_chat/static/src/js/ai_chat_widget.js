@@ -7,21 +7,47 @@
     var STORAGE_KEY_TEASER = "lai_teaser_last_shown";
     var STORAGE_KEY_TEASER_IDX = "lai_teaser_index";
 
-    var TEASER_MESSAGES = [
-        "\ud83d\udc4b Bonjour\u00a0! Besoin d\u2019aide pour votre piscine\u00a0? Je suis l\u00e0 pour vous aider\u00a0!",
-        "\ud83d\udc20 Traitement de l\u2019eau, filtration, robots nettoyeurs\u2026 Posez-moi vos questions\u00a0!",
-        "\u2600\ufe0f Pr\u00e9parez votre saison piscine\u00a0! Je peux vous conseiller sur l\u2019entretien et les accessoires.",
-        "\ud83d\udca7 Une question sur le pH, le chlore ou l\u2019hivernage\u00a0? Je suis votre assistant piscine\u00a0!",
-        "\u2753 Besoin d\u2019un conseil\u00a0? Cliquez pour discuter avec notre assistant piscine\u00a0!",
-    ];
+    // Langue de la page (/fr, /nl, /en) : textes du widget dans la langue du visiteur
+    var LP_LANG = (document.documentElement.lang || "fr").slice(0, 2).toLowerCase();
+    var lpT = function(fr, nl, en) { return LP_LANG === "nl" ? nl : (LP_LANG === "en" ? en : fr); };
+
+    var TEASER_MESSAGES = {
+        fr: [
+            "\ud83d\udc4b Bonjour\u00a0! Besoin d\u2019aide pour votre piscine\u00a0? Je suis l\u00e0 pour vous aider\u00a0!",
+            "\ud83d\udc20 Traitement de l\u2019eau, filtration, robots nettoyeurs\u2026 Posez-moi vos questions\u00a0!",
+            "\u2600\ufe0f Pr\u00e9parez votre saison piscine\u00a0! Je peux vous conseiller sur l\u2019entretien et les accessoires.",
+            "\ud83d\udca7 Une question sur le pH, le chlore ou l\u2019hivernage\u00a0? Je suis votre assistant piscine\u00a0!",
+            "\u2753 Besoin d\u2019un conseil\u00a0? Cliquez pour discuter avec notre assistant piscine\u00a0!",
+        ],
+        nl: [
+            "\ud83d\udc4b Hallo! Hulp nodig met uw zwembad? Ik help u graag!",
+            "\ud83d\udc20 Waterbehandeling, filtratie, zwembadrobots\u2026 Stel mij uw vragen!",
+            "\u2600\ufe0f Maak uw zwembadseizoen klaar! Ik geef u graag advies over onderhoud en toebehoren.",
+            "\ud83d\udca7 Een vraag over de pH, chloor of overwintering? Ik ben uw zwembadassistent!",
+            "\u2753 Advies nodig? Klik om te chatten met onze zwembadassistent!",
+        ],
+        en: [
+            "\ud83d\udc4b Hello! Need help with your pool? I\u2019m here to help!",
+            "\ud83d\udc20 Water treatment, filtration, pool robots\u2026 Ask me anything!",
+            "\u2600\ufe0f Get your pool ready for the season! I can advise you on maintenance and accessories.",
+            "\ud83d\udca7 A question about pH, chlorine or winterising? I\u2019m your pool assistant!",
+            "\u2753 Need advice? Click to chat with our pool assistant!",
+        ],
+    }[LP_LANG === "nl" || LP_LANG === "en" ? LP_LANG : "fr"];
 
     var QUICK_ACTIONS = [
-        { label: "\ud83e\udd16 Robots nettoyeurs", prompt: "Quels robots nettoyeurs recommandez-vous?" },
-        { label: "\ud83d\udca7 Traitement eau", prompt: "Comment traiter l eau de ma piscine?" },
-        { label: "\ud83d\udd25 Chauffage", prompt: "Quelles solutions de chauffage piscine?" },
-        { label: "\ud83d\udec1 Spas", prompt: "Quels spas et jacuzzis avez-vous?" },
-        { label: "\u2744\ufe0f Hivernage", prompt: "Comment hiverner ma piscine?" },
-        { label: "\ud83c\udfca Hors-sol", prompt: "Quelles piscines hors-sol disponibles?" },
+        { label: lpT("\ud83e\udd16 Robots nettoyeurs", "\ud83e\udd16 Zwembadrobots", "\ud83e\udd16 Pool robots"),
+          prompt: lpT("Quels robots nettoyeurs recommandez-vous?", "Welke zwembadrobots raadt u aan?", "Which pool robots do you recommend?") },
+        { label: lpT("\ud83d\udca7 Traitement eau", "\ud83d\udca7 Waterbehandeling", "\ud83d\udca7 Water treatment"),
+          prompt: lpT("Comment traiter l eau de ma piscine?", "Hoe behandel ik het water van mijn zwembad?", "How should I treat my pool water?") },
+        { label: lpT("\ud83d\udd25 Chauffage", "\ud83d\udd25 Verwarming", "\ud83d\udd25 Heating"),
+          prompt: lpT("Quelles solutions de chauffage piscine?", "Welke oplossingen zijn er om mijn zwembad te verwarmen?", "What pool heating options are there?") },
+        { label: lpT("\ud83d\udec1 Spas", "\ud83d\udec1 Spa's", "\ud83d\udec1 Spas"),
+          prompt: lpT("Quels spas et jacuzzis avez-vous?", "Welke spa's en jacuzzi's hebt u?", "Which spas and hot tubs do you have?") },
+        { label: lpT("\u2744\ufe0f Hivernage", "\u2744\ufe0f Overwintering", "\u2744\ufe0f Winterising"),
+          prompt: lpT("Comment hiverner ma piscine?", "Hoe overwinter ik mijn zwembad?", "How do I winterise my pool?") },
+        { label: lpT("\ud83c\udfca Hors-sol", "\ud83c\udfca Bovengronds", "\ud83c\udfca Above-ground"),
+          prompt: lpT("Quelles piscines hors-sol disponibles?", "Welke bovengrondse zwembaden zijn beschikbaar?", "Which above-ground pools are available?") },
     ];
 
     function jsonRpc(url, params) {
@@ -105,16 +131,16 @@
             '<div class="lai-header-info">' +
             '<div class="lai-header-avatar">\ud83c\udfca</div>' +
             '<div><div class="lai-header-title">Lolirine Pool Store</div>' +
-            '<div class="lai-header-status"><span class="lai-status-dot"></span>Assistant IA</div>' +
+            '<div class="lai-header-status"><span class="lai-status-dot"></span>' + lpT("Assistant IA", "AI-assistent", "AI assistant") + '</div>' +
             '</div></div>' +
             '<div class="lai-header-actions">' +
-            '<button class="lai-header-btn lai-btn-clear" title="Nouveau">\u21bb</button>' +
+            '<button class="lai-header-btn lai-btn-clear" title="' + lpT("Nouveau", "Nieuw gesprek", "New chat") + '">\u21bb</button>' +
             '<button class="lai-header-btn lai-btn-close">\u2715</button>' +
             '</div></div>' +
             '<div class="lai-messages"></div>' +
             '<div class="lai-input-area">' +
             '<div class="lai-input-wrapper">' +
-            '<textarea class="lai-input" rows="1" placeholder="Posez votre question..."></textarea>' +
+            '<textarea class="lai-input" rows="1" placeholder="' + lpT("Posez votre question...", "Stel uw vraag...", "Ask your question...") + '"></textarea>' +
             '<button class="lai-send-btn" disabled>\u27a4</button>' +
             '</div>' +
             '<div class="lai-msg-count"></div>' +
@@ -182,7 +208,8 @@
     };
 
     Chat.prototype._welcome = function() {
-        var wm = this.cfg.welcome_message || "Bonjour! Comment puis-je vous aider?";
+        var wm = LP_LANG === "nl" ? "Hallo! Hoe kan ik u helpen?" : (LP_LANG === "en" ? "Hello! How can I help you?" :
+            (this.cfg.welcome_message || "Bonjour! Comment puis-je vous aider?"));
         var h = '<div class="lai-welcome-msg">' + this._md(wm) + "</div>";
         h += '<div class="lai-quick-actions">';
         for (var i = 0; i < QUICK_ACTIONS.length; i++) {
@@ -224,7 +251,7 @@
         if (this.rated) return;
         var self = this;
         var r = document.createElement("div"); r.className = "lai-rating";
-        r.innerHTML = '<span class="lai-rating-label">Votre avis?</span><div class="lai-rating-stars"></div>';
+        r.innerHTML = '<span class="lai-rating-label">' + lpT("Votre avis?", "Uw mening?", "Your feedback?") + '</span><div class="lai-rating-stars"></div>';
         var stars = r.querySelector(".lai-rating-stars");
         for (var i = 1; i <= 5; i++) {
             (function(v) {
@@ -233,7 +260,7 @@
                 s.addEventListener("click", function() {
                     self.rated = true;
                     jsonRpc("/ai_chat/rate", {session_id: self.sid, rating: v}).catch(function(){});
-                    r.innerHTML = '<span class="lai-rating-thanks">\u2705 Merci!</span>';
+                    r.innerHTML = '<span class="lai-rating-thanks">\u2705 ' + lpT("Merci!", "Bedankt!", "Thank you!") + '</span>';
                 });
                 s.addEventListener("mouseenter", function() {
                     stars.querySelectorAll(".lai-rating-star").forEach(function(x) {
@@ -266,7 +293,7 @@
         if (!text || this.loading) return;
         var max = this.cfg.max_messages || 50;
         if (this.count >= max) {
-            this._bubble("assistant", "Limite atteinte. Cliquez \u21bb pour recommencer.", true);
+            this._bubble("assistant", lpT("Limite atteinte. Cliquez \u21bb pour recommencer.", "Limiet bereikt. Klik op \u21bb om opnieuw te beginnen.", "Limit reached. Click \u21bb to start again."), true);
             return;
         }
         if (this.msgs.length === 0) this.area.innerHTML = "";

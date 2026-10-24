@@ -10,6 +10,12 @@ from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
+
+def _msg_langue(fr, nl, en):
+    """Message d'erreur dans la langue du visiteur (site en /fr, /nl, /en)."""
+    lg = (request.env.lang or 'fr_BE')[:2] if request else 'fr'
+    return {'nl': nl, 'en': en}.get(lg, fr)
+
 ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
 MODELE_DEFAUT = 'claude-sonnet-5-5'
 # Modèles retirés par Anthropic : remplacés automatiquement par leur successeur
@@ -215,10 +221,17 @@ class AiChatController(http.Controller):
             elapsed_ms = int((time.time() - start_time) * 1000)
             if resp.status_code != 200:
                 _logger.error('AI Chat API Error %s: %s', resp.status_code, data)
-                return {'error': "L'assistant est momentanément indisponible. "
-                                 "Réessayez dans un instant ou contactez-nous via la page contact."}
+                return {'error': _msg_langue(
+                    "L'assistant est momentanément indisponible. "
+                    "Réessayez dans un instant ou contactez-nous via la page contact.",
+                    "De assistent is tijdelijk niet beschikbaar. "
+                    "Probeer het zo meteen opnieuw of neem contact met ons op via de contactpagina.",
+                    "The assistant is temporarily unavailable. "
+                    "Please try again shortly or contact us via the contact page.")}
         except requests.exceptions.Timeout:
-            return {'error': 'La requete a expire. Reessayez.'}
+            return {'error': _msg_langue("La requête a expiré. Réessayez.",
+                                         "De aanvraag duurde te lang. Probeer opnieuw.",
+                                         "The request timed out. Please try again.")}
         except Exception as e:
             _logger.error('AI Chat Exception: %s', str(e))
             return {'error': 'Erreur de connexion. Verifiez votre reseau.'}

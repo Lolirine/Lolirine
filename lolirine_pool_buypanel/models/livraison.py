@@ -12,6 +12,28 @@ _logger = logging.getLogger(__name__)
 P = 'lolirine_pool_buypanel.'
 JOURS = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.']
 MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
+# Versions néerlandaise et anglaise (site en /nl et /en)
+JOURS_LG = {
+    'fr': JOURS,
+    'nl': ['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo'],
+    'en': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+}
+MOIS_LG = {
+    'fr': MOIS,
+    'nl': ['jan.', 'feb.', 'mrt.', 'apr.', 'mei', 'jun.', 'jul.', 'aug.', 'sep.', 'okt.', 'nov.', 'dec.'],
+    'en': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+}
+
+
+def langue(env):
+    """'fr', 'nl' ou 'en' selon la langue du visiteur (contexte de la requête)."""
+    lg = (env.lang or env.context.get('lang') or 'fr_BE')[:2]
+    return lg if lg in ('nl', 'en') else 'fr'
+
+
+def tr(lg, fr, nl, en):
+    """Petit sélecteur de texte par langue, pour les phrases construites en Python."""
+    return {'nl': nl, 'en': en}.get(lg, fr)
 
 
 def _paques(annee):
@@ -50,8 +72,8 @@ def ajouter_ouvrables(d, n):
     return d
 
 
-def fmt_jour(d):
-    return '%s %s %s' % (JOURS[d.weekday()], d.day, MOIS[d.month - 1])
+def fmt_jour(d, lg='fr'):
+    return '%s %s %s' % (JOURS_LG[lg][d.weekday()], d.day, MOIS_LG[lg][d.month - 1])
 
 
 class LolirineLivraison(models.AbstractModel):
@@ -92,12 +114,15 @@ class LolirineLivraison(models.AbstractModel):
         if avant_limite:
             limite = maintenant.replace(hour=heure_limite, minute=0, second=0, microsecond=0)
             minutes = int((limite - maintenant).total_seconds() // 60)
+        lg = langue(self.env)
         if d_min == d_max:
-            texte = fmt_jour(d_min)
+            texte = fmt_jour(d_min, lg)
         elif d_min.month == d_max.month:
-            texte = 'entre le %s %s et le %s' % (JOURS[d_min.weekday()], d_min.day, fmt_jour(d_max))
+            texte = tr(lg, 'entre le %s %s et le %s', 'tussen %s %s en %s', 'between %s %s and %s') % (
+                JOURS_LG[lg][d_min.weekday()], d_min.day, fmt_jour(d_max, lg))
         else:
-            texte = 'entre le %s et le %s' % (fmt_jour(d_min), fmt_jour(d_max))
+            texte = tr(lg, 'entre le %s et le %s', 'tussen %s en %s', 'between %s and %s') % (
+                fmt_jour(d_min, lg), fmt_jour(d_max, lg))
         compte = ''
         if minutes > 0:
             h, m = divmod(minutes, 60)
@@ -115,18 +140,26 @@ class LolirineLivraison(models.AbstractModel):
             _logger.warning("Délai de livraison de la vignette %s non calculé", tmpl.id, exc_info=True)
             return ''
         d1, d2 = p['min'], p['max']
+        mois = MOIS_LG[langue(self.env)]
         if d1 == d2:
-            return '%s %s' % (d1.day, MOIS[d1.month - 1])
+            return '%s %s' % (d1.day, mois[d1.month - 1])
         if d1.month == d2.month:
-            return '%s – %s %s' % (d1.day, d2.day, MOIS[d2.month - 1])
-        return '%s %s – %s %s' % (d1.day, MOIS[d1.month - 1], d2.day, MOIS[d2.month - 1])
+            return '%s – %s %s' % (d1.day, d2.day, mois[d2.month - 1])
+        return '%s %s – %s %s' % (d1.day, mois[d1.month - 1], d2.day, mois[d2.month - 1])
 
     @api.model
     def franco_texte(self, website=None):
         """« 499 € HT » : seuil de livraison offerte, pour les bandeaux."""
         seuil, base = self.seuil_franco(website)
-        txt = ('%.0f' % seuil if float(seuil).is_integer() else '%.2f' % seuil).replace('.', ',')
-        return '%s € %s' % (txt, 'HT' if base == 'ht' else 'TVAC')
+        lg = langue(self.env)
+        txt = '%.0f' % seuil if float(seuil).is_integer() else '%.2f' % seuil
+        if lg != 'en':
+            txt = txt.replace('.', ',')
+        if base == 'ht':
+            mention = tr(lg, 'HT', 'excl. btw', 'excl. VAT')
+        else:
+            mention = tr(lg, 'TVAC', 'incl. btw', 'incl. VAT')
+        return tr(lg, '%s € %s', '€ %s %s', '€%s %s') % (txt, mention)
 
     @api.model
     def seuil_franco(self, website=None):

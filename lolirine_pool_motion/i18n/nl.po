@@ -1,0 +1,56 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_motion
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_motion.mini_cart_drawer
+msgid "<span class=\"o_motion_drawer_title\">Mon panier</span>"
+msgstr "<span class=\"o_motion_drawer_title\">Mijn winkelmandje</span>"
+
+#. module: lolirine_pool_motion
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_motion.mini_cart_drawer
+msgid ""
+"<span>Total</span>\n"
+"                            <span class=\"o_motion_drawer_total_val\">—</span>"
+msgstr "<span>Totaal</span> <span class=\"o_motion_drawer_total_val\">—</span>"
+
+#. module: lolirine_pool_motion
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_motion.quickview
+msgid "Aperçu produit"
+msgstr "Productvoorbeeld"
+
+#. module: lolirine_pool_motion
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_motion.mini_cart_drawer model_terms:ir.ui.view,arch_db:lolirine_pool_motion.quickview
+msgid "Chargement…"
+msgstr "Laden…"
+
+#. module: lolirine_pool_motion
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_motion.mini_cart_drawer
+msgid "Commander"
+msgstr "Bestellen"
+
+#. module: lolirine_pool_motion
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_motion.quickview
+msgid "Fermer l'aperçu"
+msgstr "Voorbeeld sluiten"
+
+#. module: lolirine_pool_motion
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_motion.mini_cart_drawer
+msgid "Fermer le panier"
+msgstr "Winkelmandje sluiten"
+
+#. module: lolirine_pool_motion
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_motion.mini_cart_drawer
+msgid "Mon panier"
+msgstr "Mijn winkelmandje"
+
+#. module: lolirine_pool_motion
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_motion.mini_cart_drawer
+msgid "Voir le panier"
+msgstr "Winkelmandje bekijken"

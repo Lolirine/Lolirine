@@ -1,0 +1,19 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_popup
+#: model_terms:ir.ui.view,arch_db:lolirine_popup.lolirine_popup_template
+msgid "Fermer"
+msgstr "Close"
+
+#. module: lolirine_popup
+#: model_terms:ir.ui.view,arch_db:lolirine_popup.lolirine_popup_template
+msgid "Nous contacter"
+msgstr "Contact us"

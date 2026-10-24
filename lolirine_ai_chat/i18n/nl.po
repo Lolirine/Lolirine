@@ -1,0 +1,108 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid ""
+"<i class=\"fa fa-check-circle me-1\"/> Merci ! Votre question est bien reçue. Notre équipe y répond\n"
+"                        en général sous 24 heures ouvrables ; si vous avez laissé votre e-mail, vous serez prévenu."
+msgstr "<i class=\"fa fa-check-circle me-1\"/> Bedankt! Uw vraag is goed ontvangen. Ons team antwoordt meestal binnen 24 werkuren; als u uw e-mailadres hebt achtergelaten, krijgt u een bericht."
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "<i class=\"fa fa-paper-plane me-1\"/>Envoyer ma question"
+msgstr "<i class=\"fa fa-paper-plane me-1\"/>Mijn vraag versturen"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "<i class=\"fa fa-thumbs-o-up me-1\"/>Utile"
+msgstr "<i class=\"fa fa-thumbs-o-up me-1\"/>Nuttig"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "<span class=\"lpq-lettre lpq-lettre-r\">R</span>"
+msgstr "<span class=\"lpq-lettre lpq-lettre-r\">A</span>"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "<span class=\"lpq-lettre\">Q</span>"
+msgstr "<span class=\"lpq-lettre\">V</span>"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "Aucune question ne correspond à votre recherche."
+msgstr "Geen enkele vraag komt overeen met uw zoekopdracht."
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "Aucune question pour l'instant sur cet article. Soyez le premier à en poser une !"
+msgstr "Nog geen vragen over dit artikel. Stel als eerste een vraag!"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "E-mail (facultatif)"
+msgstr "E-mail (optioneel)"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "Ex. : Ce modèle convient-il à un bassin de 40 m³ ?"
+msgstr "Bijv.: Is dit model geschikt voor een zwembad van 40 m³?"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid ""
+"Notre équipe vous répond, et la réponse est publiée ici pour aider\n"
+"                                        les autres clients. Pour une question sur une commande, utilisez plutôt votre espace client."
+msgstr "Ons team antwoordt u en het antwoord wordt hier gepubliceerd om andere klanten te helpen. Voor een vraag over een bestelling gebruikt u beter uw klantenzone."
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "Prénom (affiché)"
+msgstr "Voornaam (zichtbaar)"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "Questions et réponses"
+msgstr "Vragen en antwoorden"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "Rechercher dans les questions"
+msgstr "Zoeken in de vragen"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "Rechercher dans les questions…"
+msgstr "Zoeken in de vragen…"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "Site web"
+msgstr "Website"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "Une question sur cet article ?"
+msgstr "Een vraag over dit artikel?"
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "Votre e-mail n'est jamais publié ; il sert uniquement à vous prévenir quand la réponse est publiée."
+msgstr "Uw e-mailadres wordt nooit gepubliceerd; het dient enkel om u te verwittigen wanneer het antwoord online staat."
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "Votre question n'a pas pu être envoyée : écrivez au moins quelques mots, puis réessayez dans un instant."
+msgstr "Uw vraag kon niet worden verzonden: schrijf minstens enkele woorden en probeer het zo meteen opnieuw."
+
+#. module: lolirine_ai_chat
+#: model_terms:ir.ui.view,arch_db:lolirine_ai_chat.product_questions
+msgid "· question de"
+msgstr "· vraag van"

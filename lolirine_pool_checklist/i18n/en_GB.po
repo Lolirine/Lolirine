@@ -1,0 +1,14 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_checklist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_checklist.page_checklist
+msgid "Chargement de la fiche de visite…"
+msgstr "Loading the visit sheet…"

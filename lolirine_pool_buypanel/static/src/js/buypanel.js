@@ -77,12 +77,16 @@
                 if (warRow) { warRow.style.display = ''; }
                 if (warVal) { warVal.textContent = info.warranty; }
                 var wLabel = document.querySelector('.lp-warranty-label');
-                if (wLabel) { wLabel.textContent = 'Garantie ' + info.warranty; }
+                if (wLabel) { wLabel.textContent = (info.warranty_txt || 'Garantie') + ' ' + info.warranty; }
             }
             var delivCell = infoBlock.querySelector('.lp-val-delivery');
             if (delivCell) {
                 if (info.free_delivery) {
-                    delivCell.innerHTML = 'Offerte <span class="lp-free-delivery-badge">GRATUITE</span>';
+                    delivCell.textContent = (info.free_txt || 'Offerte') + ' ';
+                    var badge = document.createElement('span');
+                    badge.className = 'lp-free-delivery-badge';
+                    badge.textContent = info.free_badge || 'GRATUITE';
+                    delivCell.appendChild(badge);
                 } else {
                     delivCell.textContent = info.franco_txt || 'Offerte dès 499 € HT';
                 }

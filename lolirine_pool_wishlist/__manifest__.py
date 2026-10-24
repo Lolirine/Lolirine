@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool – Wishlist',
-    'version': '19.0.1.0.1',
+    'version': '19.0.1.0.2',
     'category': 'Lolirine',
     'summary': 'Liste de souhaits enrichie pour le Pool Store',
     'author': 'Lolirine',

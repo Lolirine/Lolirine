@@ -2,7 +2,7 @@
 
 import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
-import { getMotion, prefersReducedMotion } from "./motion_helpers";
+import { getMotion, prefersReducedMotion, lpT, LP_LANG } from "./motion_helpers";
 
 /*
  * Mini-cart drawer (vagues 2 / 2.1).
@@ -91,7 +91,7 @@ export class MotionMiniCart extends Interaction {
 
     _money(amount, currency) {
         try {
-            return new Intl.NumberFormat("fr-BE", {
+            return new Intl.NumberFormat(LP_LANG === "nl" ? "nl-BE" : LP_LANG === "en" ? "en-GB" : "fr-BE", {
                 style: "currency",
                 currency: currency || "EUR",
             }).format(amount || 0);
@@ -192,7 +192,7 @@ export class MotionMiniCart extends Interaction {
                 this.body.innerHTML = "";
                 const err = document.createElement("div");
                 err.className = "o_motion_drawer_empty";
-                err.textContent = "Panier indisponible : " + data.error;
+                err.textContent = lpT("Panier indisponible : ", "Winkelmandje niet beschikbaar: ", "Basket unavailable: ") + data.error;
                 this.body.appendChild(err);
                 return;
             }
@@ -201,7 +201,7 @@ export class MotionMiniCart extends Interaction {
             this.body.innerHTML = "";
             const err = document.createElement("div");
             err.className = "o_motion_drawer_empty";
-            err.textContent = "Impossible de charger le panier.";
+            err.textContent = lpT("Impossible de charger le panier.", "Het winkelmandje kon niet worden geladen.", "Unable to load the basket.");
             this.body.appendChild(err);
         } finally {
             this.busy = false;
@@ -228,7 +228,7 @@ export class MotionMiniCart extends Interaction {
         if (!data.lines || !data.lines.length) {
             const empty = document.createElement("div");
             empty.className = "o_motion_drawer_empty";
-            empty.textContent = "Votre panier est vide.";
+            empty.textContent = lpT("Votre panier est vide.", "Uw winkelmandje is leeg.", "Your basket is empty.");
             this.body.appendChild(empty);
             this.totalEl.textContent = this._money(0, cur);
             return;
@@ -263,7 +263,7 @@ export class MotionMiniCart extends Interaction {
 
             const meta = document.createElement("div");
             meta.className = "o_motion_drawer_meta";
-            meta.textContent = `${this._money(unit, cur)} / unité`;
+            meta.textContent = `${this._money(unit, cur)} / ${lpT("unité", "stuk", "unit")}`;
 
             info.appendChild(name);
             info.appendChild(meta);
@@ -272,11 +272,11 @@ export class MotionMiniCart extends Interaction {
 
             const controls = document.createElement("div");
             controls.className = "o_motion_drawer_controls";
-            const dec = this._qbtn("dec", "fa-minus", "Diminuer la quantité");
+            const dec = this._qbtn("dec", "fa-minus", lpT("Diminuer la quantité", "Aantal verlagen", "Decrease quantity"));
             const val = document.createElement("span");
             val.className = "o_motion_drawer_qval";
             val.textContent = Number.isInteger(q) ? q : q.toFixed(2);
-            const inc = this._qbtn("inc", "fa-plus", "Augmenter la quantité");
+            const inc = this._qbtn("inc", "fa-plus", lpT("Augmenter la quantité", "Aantal verhogen", "Increase quantity"));
             controls.appendChild(dec);
             controls.appendChild(val);
             controls.appendChild(inc);

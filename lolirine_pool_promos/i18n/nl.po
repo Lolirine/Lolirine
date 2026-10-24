@@ -1,0 +1,77 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid ""
+"<span style=\"border-bottom: 3px solid #0369a1; padding-bottom: 6px;\">\n"
+"                                            Produits concernés\n"
+"                                        </span>"
+msgstr "<span style=\"border-bottom: 3px solid #0369a1; padding-bottom: 6px;\"> Betrokken producten </span>"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Aucune promotion en cours"
+msgstr "Momenteel geen promoties"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Besoin de conseils ?"
+msgstr "Advies nodig?"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Contactez-nous"
+msgstr "Contacteer ons"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Explorer le catalogue"
+msgstr "Catalogus bekijken"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Nos Promotions"
+msgstr "Onze promoties"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Notre équipe est à votre disposition pour vous aider à choisir les meilleurs produits"
+msgstr "Ons team helpt u graag de beste producten te kiezen"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Profitez de nos offres spéciales sur une sélection de produits piscine et spa"
+msgstr "Profiteer van onze speciale aanbiedingen op een selectie zwembad- en spaproducten"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Revenez bientôt pour découvrir nos prochaines offres !"
+msgstr "Kom binnenkort terug om onze volgende aanbiedingen te ontdekken!"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Valable du"
+msgstr "Geldig van"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Voir le produit"
+msgstr "Product bekijken"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Voir tout le catalogue →"
+msgstr "Bekijk de volledige catalogus →"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Économie :"
+msgstr "Besparing:"

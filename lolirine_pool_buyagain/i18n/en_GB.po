@@ -1,0 +1,145 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid ""
+"<span class=\"ba-dot ba-dot-gray\"/>\n"
+"                                            <span class=\"ba-stock-txt ba-stock-gray\">Sur commande</span>"
+msgstr "<span class=\"ba-dot ba-dot-gray\"/> <span class=\"ba-stock-txt ba-stock-gray\">Made to order</span>"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid ""
+"<span class=\"ba-dot ba-dot-green\"/>\n"
+"                                            <span class=\"ba-stock-txt ba-stock-green\">En stock</span>"
+msgstr "<span class=\"ba-dot ba-dot-green\"/> <span class=\"ba-stock-txt ba-stock-green\">In stock</span>"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid ""
+"<span class=\"ba-dot ba-dot-orange\"/>\n"
+"                                            <span class=\"ba-stock-txt ba-stock-orange\">Stock limité</span>"
+msgstr "<span class=\"ba-dot ba-dot-orange\"/> <span class=\"ba-stock-txt ba-stock-orange\">Limited stock</span>"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "<span class=\"ba-qty-label\">Quantité :</span>"
+msgstr "<span class=\"ba-qty-label\">Quantity:</span>"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "<span class=\"ba-sort-label\">Trier par</span>"
+msgstr "<span class=\"ba-sort-label\">Sort by</span>"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "<span class=\"ba-tab-name\">Tout</span>"
+msgstr "<span class=\"ba-tab-name\">All</span>"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Acheter à nouveau"
+msgstr "Buy again"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Ajouter au panier"
+msgstr "Add to basket"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Aucun produit trouvé"
+msgstr "No products found"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Commandé le"
+msgstr "Ordered on"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Découvrir la boutique"
+msgstr "Discover the shop"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Essayez de modifier vos filtres."
+msgstr "Try changing your filters."
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Nom A–Z"
+msgstr "Name A–Z"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Prix ↑"
+msgstr "Price ↑"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Prix ↓"
+msgstr "Price ↓"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Rechercher"
+msgstr "Search"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Rechercher dans vos commandes..."
+msgstr "Search your orders..."
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Recommandé"
+msgstr "Recommended"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Voir tous mes produits"
+msgstr "See all my products"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "Vous n'avez pas encore passé de commande sur la boutique."
+msgstr "You have not placed an order in the shop yet."
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "commandé"
+msgstr "ordered"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "produit"
+msgstr "product"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "précédemment"
+msgstr "previously"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "résultat"
+msgstr "result"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "· Qté :"
+msgstr "· Qty:"
+
+#. module: lolirine_pool_buyagain
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buyagain.page_buy_again
+msgid "€ TTC"
+msgstr "€ incl. VAT"

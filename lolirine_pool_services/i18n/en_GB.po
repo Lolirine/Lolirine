@@ -1,0 +1,677 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<i class=\"fa fa-address-card text-muted\"/>\n"
+"                                                Informations de contact"
+msgstr "<i class=\"fa fa-address-card text-muted\"/> Contact details"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis_success
+msgid "<i class=\"fa fa-arrow-left me-2\"/>Retour aux services"
+msgstr "<i class=\"fa fa-arrow-left me-2\"/>Back to services"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "<i class=\"fa fa-check\"/>Conseils personnalisés"
+msgstr "<i class=\"fa fa-check\"/>Personalised advice"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "<i class=\"fa fa-check\"/>Devis gratuit"
+msgstr "<i class=\"fa fa-check\"/>Free quote"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<i class=\"fa fa-check\"/>Devis gratuit et sans engagement"
+msgstr "<i class=\"fa fa-check\"/>Free, no-obligation quote"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<i class=\"fa fa-check\"/>Intervention rapide"
+msgstr "<i class=\"fa fa-check\"/>Fast response"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "<i class=\"fa fa-check\"/>Produits de qualité"
+msgstr "<i class=\"fa fa-check\"/>Quality products"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<i class=\"fa fa-check\"/>Réponse sous 24h"
+msgstr "<i class=\"fa fa-check\"/>Reply within 24 h"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "<i class=\"fa fa-check\"/>Service après-vente"
+msgstr "<i class=\"fa fa-check\"/>After-sales service"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<i class=\"fa fa-check\"/>Techniciens qualifiés"
+msgstr "<i class=\"fa fa-check\"/>Qualified technicians"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "<i class=\"fa fa-check\"/>Équipe d'experts"
+msgstr "<i class=\"fa fa-check\"/>Team of experts"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<i class=\"fa fa-check-circle\"/>\n"
+"                                        <span>Nos avantages</span>"
+msgstr "<i class=\"fa fa-check-circle\"/> <span>Why choose us</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid ""
+"<i class=\"fa fa-clock me-2\"/>\n"
+"                                            <span class=\"text-muted\">Réponse sous 24h</span>"
+msgstr "<i class=\"fa fa-clock me-2\"/> <span class=\"text-muted\">Reply within 24 h</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<i class=\"fa fa-clock\"/>\n"
+"                                        <span>Horaires</span>"
+msgstr "<i class=\"fa fa-clock\"/> <span>Opening hours</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_success
+msgid ""
+"<i class=\"fa fa-clock\"/>\n"
+"                                <span>Délai de réponse habituel : <strong>moins de 24h</strong></span>"
+msgstr "<i class=\"fa fa-clock\"/> <span>Usual response time: <strong>less than 24 h</strong></span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<i class=\"fa fa-envelope\"/>\n"
+"                                            <span>Votre message</span>"
+msgstr "<i class=\"fa fa-envelope\"/> <span>Your message</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis_success
+msgid "<i class=\"fa fa-home me-2\"/>Accueil"
+msgstr "<i class=\"fa fa-home me-2\"/>Home"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_success
+msgid "<i class=\"fa fa-home me-2\"/>Retour à l'accueil"
+msgstr "<i class=\"fa fa-home me-2\"/>Back to home"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<i class=\"fa fa-id-card text-muted\"/>\n"
+"                                                Vous êtes"
+msgstr "<i class=\"fa fa-id-card text-muted\"/> You are"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<i class=\"fa fa-lock me-1\"/>Vos données sont traitées de manière confidentielle."
+msgstr "<i class=\"fa fa-lock me-1\"/>Your data is treated confidentially."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<i class=\"fa fa-paper-plane me-2\"/>Envoyer ma demande"
+msgstr "<i class=\"fa fa-paper-plane me-2\"/>Send my request"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<i class=\"fa fa-question-circle\"/>\n"
+"                                            <span>Type de demande</span>"
+msgstr "<i class=\"fa fa-question-circle\"/> <span>Type of request</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_error model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis_error
+msgid "<i class=\"fa fa-redo me-2\"/>Réessayer"
+msgstr "<i class=\"fa fa-redo me-2\"/>Try again"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<i class=\"fa fa-shield-alt me-1\"/>\n"
+"                                            Vos données sont protégées et ne seront jamais partagées."
+msgstr "<i class=\"fa fa-shield-alt me-1\"/> Your data is protected and will never be shared."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<i class=\"fa fa-shield-alt me-2\"/>Nos engagements"
+msgstr "<i class=\"fa fa-shield-alt me-2\"/>Our commitments"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_success
+msgid "<i class=\"fa fa-shopping-bag me-2\"/>Découvrir nos produits"
+msgstr "<i class=\"fa fa-shopping-bag me-2\"/>Discover our products"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<i class=\"fa fa-swimming-pool\"/>\n"
+"                                            <span>Votre piscine</span>\n"
+"                                            <small class=\"ms-2 fw-normal\">(optionnel)</small>"
+msgstr "<i class=\"fa fa-swimming-pool\"/> <span>Your pool</span> <small class=\"ms-2 fw-normal\">(optional)</small>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<i class=\"fa fa-user\"/>\n"
+"                                            <span>Vos informations</span>"
+msgstr "<i class=\"fa fa-user\"/> <span>Your details</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<option value=\"\">-- Sélectionnez --</option>"
+msgstr "<option value=\"\">-- Select --</option>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<option value=\"autre\">Autre demande</option>"
+msgstr "<option value=\"autre\">Other request</option>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<select name=\"pool_treatment\" class=\"form-select\">\n"
+"                                                        <option value=\"\">-- Sélectionner --</option>\n"
+"                                                        <option value=\"chlore\">Chlore</option>\n"
+"                                                        <option value=\"sel\">Électrolyse au sel</option>\n"
+"                                                        <option value=\"brome\">Brome</option>\n"
+"                                                        <option value=\"oxygene\">Oxygène actif</option>\n"
+"                                                        <option value=\"uv\">UV</option>\n"
+"                                                        <option value=\"inconnu\">Je ne sais pas</option>\n"
+"                                                    </select>"
+msgstr "<select name=\"pool_treatment\" class=\"form-select\"> <option value=\"\">-- Select --</option> <option value=\"chlore\">Chlorine</option> <option value=\"sel\">Salt electrolysis</option> <option value=\"brome\">Bromine</option> <option value=\"oxygene\">Active oxygen</option> <option value=\"uv\">UV</option> <option value=\"inconnu\">I don't know</option> </select>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid ""
+"<select name=\"pool_type\" class=\"form-select\">\n"
+"                                                        <option value=\"\">-- Non renseigné --</option>\n"
+"                                                        <option value=\"enterree\">Piscine enterrée</option>\n"
+"                                                        <option value=\"hors_sol\">Piscine hors-sol</option>\n"
+"                                                        <option value=\"semi_enterree\">Piscine semi-enterrée</option>\n"
+"                                                        <option value=\"interieure\">Piscine intérieure</option>\n"
+"                                                        <option value=\"naturelle\">Piscine naturelle / baignade</option>\n"
+"                                                        <option value=\"autre\">Autre</option>\n"
+"                                                    </select>"
+msgstr "<select name=\"pool_type\" class=\"form-select\"> <option value=\"\">-- Not specified --</option> <option value=\"enterree\">In-ground pool</option> <option value=\"hors_sol\">Above-ground pool</option> <option value=\"semi_enterree\">Semi-in-ground pool</option> <option value=\"interieure\">Indoor pool</option> <option value=\"naturelle\">Natural pool / swimming pond</option> <option value=\"autre\">Other</option> </select>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<select name=\"pool_type\" class=\"form-select\">\n"
+"                                                        <option value=\"\">-- Sélectionner --</option>\n"
+"                                                        <option value=\"enterree\">Enterrée</option>\n"
+"                                                        <option value=\"hors_sol\">Hors-sol</option>\n"
+"                                                        <option value=\"semi_enterree\">Semi-enterrée</option>\n"
+"                                                        <option value=\"interieure\">Intérieure</option>\n"
+"                                                        <option value=\"spa\">Spa / Jacuzzi</option>\n"
+"                                                        <option value=\"autre\">Autre</option>\n"
+"                                                    </select>"
+msgstr "<select name=\"pool_type\" class=\"form-select\"> <option value=\"\">-- Select --</option> <option value=\"enterree\">In-ground</option> <option value=\"hors_sol\">Above-ground</option> <option value=\"semi_enterree\">Semi-in-ground</option> <option value=\"interieure\">Indoor</option> <option value=\"spa\">Spa / Hot tub</option> <option value=\"autre\">Other</option> </select>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid ""
+"<select name=\"treatment\" class=\"form-select\">\n"
+"                                                        <option value=\"\">-- Non renseigné --</option>\n"
+"                                                        <option value=\"chlore\">Chlore</option>\n"
+"                                                        <option value=\"sel\">Électrolyse au sel</option>\n"
+"                                                        <option value=\"brome\">Brome</option>\n"
+"                                                        <option value=\"oxygene\">Oxygène actif</option>\n"
+"                                                        <option value=\"uv\">UV</option>\n"
+"                                                        <option value=\"autre\">Autre</option>\n"
+"                                                        <option value=\"inconnu\">Je ne sais pas</option>\n"
+"                                                    </select>"
+msgstr "<select name=\"treatment\" class=\"form-select\"> <option value=\"\">-- Not specified --</option> <option value=\"chlore\">Chlorine</option> <option value=\"sel\">Salt electrolysis</option> <option value=\"brome\">Bromine</option> <option value=\"oxygene\">Active oxygen</option> <option value=\"uv\">UV</option> <option value=\"autre\">Other</option> <option value=\"inconnu\">I don't know</option> </select>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid ""
+"<select name=\"urgency\" class=\"form-select\">\n"
+"                                                        <option value=\"low\">Pas urgent</option>\n"
+"                                                        <option value=\"medium\" selected=\"\">Dans le mois</option>\n"
+"                                                        <option value=\"high\">Urgent (cette semaine)</option>\n"
+"                                                        <option value=\"critical\">Très urgent (immédiat)</option>\n"
+"                                                    </select>"
+msgstr "<select name=\"urgency\" class=\"form-select\"> <option value=\"low\">Not urgent</option> <option value=\"medium\" selected=\"\">Within the month</option> <option value=\"high\">Urgent (this week)</option> <option value=\"critical\">Very urgent (immediate)</option> </select>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<span class=\"pool-form-step\">1</span> Vos coordonnées"
+msgstr "<span class=\"pool-form-step\">1</span> Your details"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<span class=\"pool-form-step\">2</span> Votre demande"
+msgstr "<span class=\"pool-form-step\">2</span> Your request"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<span class=\"pool-form-step\">3</span> Votre piscine <small class=\"text-muted\">(optionnel)</small>"
+msgstr "<span class=\"pool-form-step\">3</span> Your pool <small class=\"text-muted\">(optional)</small>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "<span class=\"pool-form-step\">4</span> Décrivez votre besoin"
+msgstr "<span class=\"pool-form-step\">4</span> Describe what you need"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "<span><i class=\"fa fa-building me-2\"/>Professionnel</span>"
+msgstr "<span><i class=\"fa fa-building me-2\"/>Business</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "<span><i class=\"fa fa-envelope me-1\"/>Email</span>"
+msgstr "<span><i class=\"fa fa-envelope me-1\"/>E-mail</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "<span><i class=\"fa fa-phone me-1\"/>Téléphone</span>"
+msgstr "<span><i class=\"fa fa-phone me-1\"/>Phone</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "<span><i class=\"fa fa-user me-2\"/>Particulier</span>"
+msgstr "<span><i class=\"fa fa-user me-2\"/>Private customer</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<span>Dimanche</span>\n"
+"                                            <span class=\"pool-badge-closed\">Fermé</span>"
+msgstr "<span>Sunday</span> <span class=\"pool-badge-closed\">Closed</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<span>Lundi - Vendredi</span>\n"
+"                                            <strong>9h - 18h</strong>"
+msgstr "<span>Monday - Friday</span> <strong>9 am - 6 pm</strong>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<span>Samedi</span>\n"
+"                                            <strong>10h - 16h</strong>"
+msgstr "<span>Saturday</span> <strong>10 am - 4 pm</strong>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "<strong>Besoin d'un devis service ?</strong>"
+msgstr "<strong>Need a quote for a service?</strong>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis_error
+msgid ""
+"<strong>Contactez-nous directement :</strong><br/>\n"
+"                                        <i class=\"fa fa-phone me-2\"/>"
+msgstr "<strong>Contact us directly:</strong><br/> <i class=\"fa fa-phone me-2\"/>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<strong>Demande de devis</strong>\n"
+"                                                            <small>Estimation pour un projet</small>"
+msgstr "<strong>Quote request</strong> <small>Estimate for a project</small>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<strong>Demande de service</strong>\n"
+"                                                            <small>Entretien, construction, réparation...</small>"
+msgstr "<strong>Service request</strong> <small>Maintenance, construction, repair...</small>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<strong>Question générale</strong>\n"
+"                                                            <small>Autre demande d'information</small>"
+msgstr "<strong>General question</strong> <small>Other request for information</small>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid ""
+"<strong>Question sur un produit</strong>\n"
+"                                                            <small>Disponibilité, caractéristiques, conseils...</small>"
+msgstr "<strong>Question about a product</strong> <small>Availability, specifications, advice...</small>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis_success
+msgid ""
+"<strong>Une question urgente ?</strong><br/>\n"
+"                                        Appelez-nous au"
+msgstr "<strong>An urgent question?</strong><br/> Call us on"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_maintenance_technique model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_nettoyage_bassin model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_reparations model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_traitement_eau
+msgid "Accueil"
+msgstr "Home"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Adresse de la piscine"
+msgstr "Pool address"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_nos_services model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Analyse de l'eau"
+msgstr "Water analysis"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Besoin d'aide ?"
+msgstr "Need help?"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Code postal"
+msgstr "Postcode"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_nos_services model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Construction &amp; Rénovation"
+msgstr "Construction &amp; Renovation"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Contactez-nous"
+msgstr "Contact us"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Contrat Annuel"
+msgstr "Annual contract"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Contrat Saison"
+msgstr "Season contract"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Demande de devis"
+msgstr "Quote request"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_maintenance_technique model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_nettoyage_bassin model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_traitement_eau
+msgid "Demander un devis"
+msgstr "Request a quote"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Demander un devis <i class=\"fa fa-arrow-right ms-1\"/>"
+msgstr "Request a quote <i class=\"fa fa-arrow-right ms-1\"/>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Dimensions (L x l x P)"
+msgstr "Dimensions (L x W x D)"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Dimensions approximatives"
+msgstr "Approximate dimensions"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Décrivez votre demande en détail..."
+msgstr "Describe your request in detail..."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Décrivez votre projet et recevez une estimation personnalisée sous 24h."
+msgstr "Describe your project and receive a personalised estimate within 24 h."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Décrivez votre projet, problème rencontré, questions..."
+msgstr "Describe your project, the problem, your questions..."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Email *"
+msgstr "E-mail *"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Email <span class=\"text-danger\">*</span>"
+msgstr "E-mail <span class=\"text-danger\">*</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_nos_services model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Entretien &amp; Réparation"
+msgstr "Maintenance &amp; Repair"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Entretien, construction, rénovation"
+msgstr "Maintenance, construction, renovation"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_error
+msgid "Erreur lors de l'envoi"
+msgstr "Sending failed"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Ex: 8m x 4m, environ 50m³..."
+msgstr "E.g.: 8 m x 4 m, about 50 m³..."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Ex: Question sur robot Dolphin"
+msgstr "E.g.: Question about a Dolphin robot"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Formules"
+msgstr "Plans"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Hivernage"
+msgstr "Winterising"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_nos_services
+msgid "Hivernage &amp; Estivage"
+msgstr "Winterising &amp; Reopening"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Jean Dupont"
+msgstr "John Smith"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Ma Société SPRL"
+msgstr "My Company Ltd"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_success model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis_success
+msgid "Merci"
+msgstr "Thank you"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_success
+msgid "Message envoyé !"
+msgstr "Message sent!"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Nom complet *"
+msgstr "Full name *"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Nom complet <span class=\"text-danger\">*</span>"
+msgstr "Full name <span class=\"text-danger\">*</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Nom de l'entreprise <span class=\"text-danger\">*</span>"
+msgstr "Company name <span class=\"text-danger\">*</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Notre équipe est disponible pour répondre à vos questions."
+msgstr "Our team is available to answer your questions."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis_success
+msgid "Notre équipe va étudier votre demande et vous recontactera dans les plus brefs délais (généralement sous 24h ouvrées)."
+msgstr "Our team will review your request and get back to you as soon as possible (usually within 24 working hours)."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_success
+msgid "Nous avons bien reçu votre demande"
+msgstr "We have received your request"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "N° TVA"
+msgstr "VAT no."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_error model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis_error
+msgid "Oups !"
+msgstr "Oops!"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Préférence de contact"
+msgstr "Contact preference"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Remise en service (estivage)"
+msgstr "Reopening (spring start-up)"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Rue, numéro, code postal, ville"
+msgstr "Street, number, postcode, town"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Service souhaité *"
+msgstr "Service required *"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_maintenance_technique model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_nettoyage_bassin model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_reparations model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_traitement_eau
+msgid "Services"
+msgstr "Services"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Sujet <span class=\"text-danger\">*</span>"
+msgstr "Subject <span class=\"text-danger\">*</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Traitement actuel"
+msgstr "Current treatment"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_traitement_eau
+msgid "Traitement de l'eau"
+msgstr "Water treatment"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Type de piscine"
+msgstr "Pool type"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Téléphone *"
+msgstr "Phone *"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Téléphone <span class=\"text-danger\">*</span>"
+msgstr "Phone <span class=\"text-danger\">*</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_error
+msgid "Une erreur s'est produite"
+msgstr "An error occurred"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis_error
+msgid "Une erreur s'est produite lors de l'envoi."
+msgstr "An error occurred while sending."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Une question ? Un projet ? Notre équipe est à votre écoute"
+msgstr "A question? A project? Our team is here for you"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Urgence"
+msgstr "Urgency"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis_error
+msgid "Veuillez réessayer ou nous contacter directement."
+msgstr "Please try again or contact us directly."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Visite Ponctuelle"
+msgstr "One-off visit"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis_success
+msgid "Votre demande de devis a bien été envoyée."
+msgstr "Your quote request has been sent."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "Votre message *"
+msgstr "Your message *"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "Votre message <span class=\"text-danger\">*</span>"
+msgstr "Your message <span class=\"text-danger\">*</span>"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_success
+msgid ""
+"Votre message a bien été envoyé à notre équipe.<br/>\n"
+"                                Nous vous répondrons dans les plus brefs délais."
+msgstr "Your message has been sent to our team.<br/> We will reply as soon as possible."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact_error
+msgid ""
+"Votre message n'a pas pu être envoyé.<br/>\n"
+"                                Veuillez réessayer ou nous contacter directement."
+msgstr "Your message could not be sent.<br/> Please try again or contact us directly."
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_devis
+msgid "jean.dupont@email.be"
+msgstr "john.smith@email.com"
+
+#. module: lolirine_pool_services
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_services.page_pool_contact
+msgid "jean.dupont@email.com"
+msgstr "john.smith@email.com"

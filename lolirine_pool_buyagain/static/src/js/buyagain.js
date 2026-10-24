@@ -1,6 +1,10 @@
 /** @odoo-module **/
 
 (function () {
+
+    // Langue de la page (/fr, /nl, /en) pour les textes posés par le script
+    var LP_LANG = (document.documentElement.lang || 'fr').slice(0, 2).toLowerCase();
+    var lpT = function (fr, nl, en) { return LP_LANG === 'nl' ? nl : (LP_LANG === 'en' ? en : fr); };
     'use strict';
 
     if (!document.querySelector('.ba-grid')) { return; }
@@ -28,7 +32,7 @@
     document.querySelectorAll('.ba-btn-cart').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
             var original = btn.textContent;
-            btn.textContent = '✓ Ajouté !';
+            btn.textContent = lpT('✓ Ajouté !', '✓ Toegevoegd!', '✓ Added!');
             btn.style.background = '#22c55e';
             setTimeout(function () {
                 btn.textContent = original;

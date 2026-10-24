@@ -1,0 +1,74 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_page
+msgid "<span>Toute la boutique</span>"
+msgstr "<span>De hele webshop</span>"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_page
+msgid "Aucun produit pour le moment dans cette sélection."
+msgstr "Momenteel geen producten in deze selectie."
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.home_tiles
+msgid "Choisissez un univers pour parcourir tous ses produits"
+msgstr "Kies een wereld om al zijn producten te bekijken"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.pool_universe_card
+msgid "Dès"
+msgstr "Vanaf"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.home_tiles
+msgid "Explorez par univers"
+msgstr "Verken per wereld"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.pool_universe_marquee
+msgid "Gammes liées"
+msgstr "Verwante gamma's"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_page
+msgid "Parcourir toute la boutique"
+msgstr "Door de hele webshop bladeren"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_page
+msgid "Sélection limitée aux 240 premiers produits."
+msgstr "Selectie beperkt tot de eerste 240 producten."
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.shop_universe_zones
+msgid "Tous les produits"
+msgstr "Alle producten"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.home_showcase
+msgid "Toute la boutique"
+msgstr "De hele webshop"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.home_showcase model_terms:ir.ui.view,arch_db:lolirine_pool_universe.shop_universe_zones
+msgid "Univers de la boutique"
+msgstr "Werelden van de webshop"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_block model_terms:ir.ui.view,arch_db:lolirine_pool_universe.home_tiles
+msgid "produits"
+msgstr "producten"
+
+#. module: lolirine_pool_universe
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_universe.campaign_page
+msgid "produits dans cette sélection"
+msgstr "producten in deze selectie"

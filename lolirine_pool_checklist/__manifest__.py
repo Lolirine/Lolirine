@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Pool Checklist',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Website',
     'summary': 'Fiche de visite chantier piscine — Lolirine Pool Store',
     'description': """

@@ -1,0 +1,77 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid ""
+"<span style=\"border-bottom: 3px solid #0369a1; padding-bottom: 6px;\">\n"
+"                                            Produits concernés\n"
+"                                        </span>"
+msgstr "<span style=\"border-bottom: 3px solid #0369a1; padding-bottom: 6px;\"> Products included </span>"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Aucune promotion en cours"
+msgstr "No current promotions"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Besoin de conseils ?"
+msgstr "Need advice?"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Contactez-nous"
+msgstr "Contact us"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Explorer le catalogue"
+msgstr "Browse the catalogue"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Nos Promotions"
+msgstr "Our promotions"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Notre équipe est à votre disposition pour vous aider à choisir les meilleurs produits"
+msgstr "Our team is here to help you choose the best products"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Profitez de nos offres spéciales sur une sélection de produits piscine et spa"
+msgstr "Take advantage of our special offers on a selection of pool and spa products"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Revenez bientôt pour découvrir nos prochaines offres !"
+msgstr "Come back soon to discover our next offers!"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Valable du"
+msgstr "Valid from"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Voir le produit"
+msgstr "View product"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Voir tout le catalogue →"
+msgstr "See the full catalogue →"
+
+#. module: lolirine_pool_promos
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_promos.promotions_page_template
+msgid "Économie :"
+msgstr "You save:"

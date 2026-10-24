@@ -1,0 +1,130 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid ""
+"<select class=\"lw-sort-select\" onchange=\"window.lolirineWishlist.sort(this.value)\">\n"
+"                            <option value=\"date\">Trier : Date d'ajout</option>\n"
+"                            <option value=\"price_asc\">Prix croissant</option>\n"
+"                            <option value=\"price_desc\">Prix décroissant</option>\n"
+"                            <option value=\"name\">Nom A–Z</option>\n"
+"                        </select>"
+msgstr "<select class=\"lw-sort-select\" onchange=\"window.lolirineWishlist.sort(this.value)\"> <option value=\"date\">Sort: Date added</option> <option value=\"price_asc\">Price: low to high</option> <option value=\"price_desc\">Price: high to low</option> <option value=\"name\">Name A–Z</option> </select>"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid ""
+"<span class=\"lw-delivery\">\n"
+"                                                    — Expédié sous 24h\n"
+"                                                </span>"
+msgstr "<span class=\"lw-delivery\"> — Ships within 24 h </span>"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "<span>Livraison offerte dès 499 € HT</span>"
+msgstr "<span>Free delivery from €499 excl. VAT</span>"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid ""
+"<span>Livraison offerte</span>\n"
+"                                <span>GRATUITE</span>"
+msgstr "<span>Free delivery</span> <span>FREE</span>"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "<span>Nombre d'articles</span>"
+msgstr "<span>Number of items</span>"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "<span>Sous-total HT</span>"
+msgstr "<span>Subtotal excl. VAT</span>"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "<span>Total HT</span>"
+msgstr "<span>Total excl. VAT</span>"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "<strong>Un conseil avant d'acheter ?</strong>"
+msgstr "<strong>Need advice before you buy?</strong>"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "Ajouté le"
+msgstr "Added on"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "Continuer mes achats"
+msgstr "Continue shopping"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "Découvrir nos produits"
+msgstr "Discover our products"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "Rechercher dans la liste..."
+msgstr "Search the list..."
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "Récapitulatif de la liste"
+msgstr "List summary"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "Réf."
+msgstr "Ref."
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "Votre liste de souhaits est vide."
+msgstr "Your wishlist is empty."
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "produit"
+msgstr "product"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "soit"
+msgstr "i.e."
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "unité"
+msgstr "unit"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "— Plus que"
+msgstr "— Only"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "€ TTC"
+msgstr "€ incl. VAT"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "€ restants"
+msgstr "€ to go"
+
+#. module: lolirine_pool_wishlist
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_wishlist.lolirine_wishlist_page
+msgid "✕ Retirer"
+msgstr "✕ Remove"

@@ -1,0 +1,423 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid ""
+": collez le document\n"
+"                                        reçu par e-mail sur le colis, dans une pochette."
+msgstr ": stick the document you received by e-mail on the parcel, in a pouch."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid ""
+"<br/>\n"
+"                                <span class=\"small\">Collez le document d'autorisation reçu par e-mail sur le colis, dans une pochette. Sans ce document, le colis est refusé.</span>"
+msgstr "<br/> <span class=\"small\">Stick the authorisation document you received by e-mail on the parcel, in a pouch. Without this document, the parcel will be refused.</span>"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid ""
+"<i class=\"fa fa-calendar-check-o me-1\"/>\n"
+"                                    Livraison estimée"
+msgstr "<i class=\"fa fa-calendar-check-o me-1\"/> Estimated delivery"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid ""
+"<i class=\"fa fa-clock-o me-1\"/>\n"
+"                                    Votre colis prend un peu plus de temps que prévu. Nous suivons la commande\n"
+"                                    avec notre fournisseur ; besoin d'aide ?"
+msgstr "<i class=\"fa fa-clock-o me-1\"/> Your parcel is taking a little longer than expected. We are following up the order with our supplier; need help?"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid ""
+"<i class=\"fa fa-cube me-1\"/>\n"
+"                                    Colis"
+msgstr "<i class=\"fa fa-cube me-1\"/> Parcel"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid "<i class=\"fa fa-map-marker me-1\"/> Suivre le colis"
+msgstr "<i class=\"fa fa-map-marker me-1\"/> Track parcel"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "<i class=\"fa fa-print me-1\"/> Imprimer le bon de retour"
+msgstr "<i class=\"fa fa-print me-1\"/> Print the return form"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid "<i class=\"fa fa-refresh me-1\"/>Acheter à nouveau"
+msgstr "<i class=\"fa fa-refresh me-1\"/>Buy again"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid "<i class=\"fa fa-shield me-1\"/>Garantie jusqu'au"
+msgstr "<i class=\"fa fa-shield me-1\"/>Warranty until"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_pool_return_button
+msgid "<i class=\"fa fa-undo me-1\"/> Retourner ou signaler un problème"
+msgstr "<i class=\"fa fa-undo me-1\"/> Return or report a problem"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid ""
+"<strong>Inutile de nous renvoyer l'article.</strong>\n"
+"                                    Le remboursement ou le remplacement suit sans renvoi."
+msgstr "<strong>No need to send the item back.</strong> The refund or replacement follows without a return."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid ""
+"<strong>Inutile de nous renvoyer l'article.</strong>\n"
+"                    Vous pouvez le conserver ou le recycler : le remboursement ou le remplacement suit sans renvoi."
+msgstr "<strong>No need to send the item back.</strong> You may keep or recycle it: the refund or replacement follows without a return."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "<strong>Montant estimé à rembourser</strong>"
+msgstr "<strong>Estimated refund amount</strong>"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "<strong>Remboursement estimé</strong>"
+msgstr "<strong>Estimated refund</strong>"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "<strong>Votre demande de retour est enregistrée.</strong>"
+msgstr "<strong>Your return request has been registered.</strong>"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_return_badge
+msgid "Accepté – rien à renvoyer"
+msgstr "Accepted – nothing to send back"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Adresse de renvoi"
+msgstr "Return address"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_return_badge
+msgid "Annulé"
+msgstr "Cancelled"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Article"
+msgstr "Item"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "Articles"
+msgstr "Items"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Autorisation de retour du fournisseur :"
+msgstr "Supplier return authorisation:"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "Autorisation fournisseur"
+msgstr "Supplier authorisation"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Bon de retour"
+msgstr "Return form"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "Ce retour n'a pas pu être accepté. Le détail vous a été communiqué ci-dessous, dans les messages."
+msgstr "This return could not be accepted. The details are given below, in the messages."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Client :"
+msgstr "Customer:"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_returns model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Commande"
+msgstr "Order"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Comment renvoyer votre colis"
+msgstr "How to return your parcel"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Déposez le colis chez le transporteur de votre choix et conservez la preuve de dépôt."
+msgstr "Drop the parcel off with the carrier of your choice and keep proof of postage."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Emballez l'article complet (accessoires, notice) <strong>dans son emballage d'origine</strong> en bon état : un emballage manquant ou abîmé peut être facturé."
+msgstr "Pack the complete item (accessories, instructions) <strong>in its original packaging</strong> in good condition: missing or damaged packaging may be charged."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_return_badge
+msgid "En cours d'examen"
+msgstr "Under review"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Frais de remise en stock"
+msgstr "Restocking fee"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Frais de renvoi"
+msgstr "Return shipping costs"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "Frais de renvoi à notre charge : nous vous recontactons si un enlèvement est nécessaire."
+msgstr "Return shipping at our expense: we will contact you if a collection is needed."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "Frais de renvoi à votre charge : choisissez un envoi suivi et gardez la preuve de dépôt."
+msgstr "Return shipping at your expense: choose a tracked service and keep proof of postage."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Glissez ce bon imprimé dans le colis, ou notez lisiblement le numéro"
+msgstr "Put this printed form in the parcel, or clearly write the number"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid "Livré"
+msgstr "Delivered"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "Messages"
+msgstr "Messages"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_returns
+msgid "Montant"
+msgstr "Amount"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Montant TVAC"
+msgstr "Amount incl. VAT"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_returns
+msgid "Motif"
+msgstr "Reason"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Motif :"
+msgstr "Reason:"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "Notez"
+msgstr "Write"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "Nous examinons votre demande. Vous recevrez votre bon de retour par e-mail dès qu'elle est acceptée."
+msgstr "We are reviewing your request. You will receive your return form by e-mail once it is accepted."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "Nous l'examinons et revenons vers vous rapidement, en général sous 1 jour ouvrable."
+msgstr "We are reviewing it and will get back to you quickly, usually within 1 working day."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Nous vous remboursons au plus tard 14 jours après réception de l'article ou de votre preuve d'envoi, avec le même moyen de paiement."
+msgstr "We will refund you no later than 14 days after receiving the item or your proof of shipping, using the same payment method."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Pris en charge par Lolirine. Nous vous contactons si un enlèvement doit être organisé."
+msgstr "Paid by Lolirine. We will contact you if a collection needs to be arranged."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid "Problème avec cet article"
+msgstr "Problem with this item"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Quantité"
+msgstr "Quantity"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid "Quantité :"
+msgstr "Quantity:"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_return_badge
+msgid "Refusé"
+msgstr "Refused"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_return_badge
+msgid "Remboursé"
+msgstr "Refunded"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_returns
+msgid "Retour"
+msgstr "Return"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_breadcrumbs_pool_returns
+msgid "Retourner ou signaler un problème"
+msgstr "Return or report a problem"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_breadcrumbs_pool_returns model_terms:ir.ui.view,arch_db:lolirine_pool_returns.product_template_form_pool_return
+msgid "Retours"
+msgstr "Returns"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_return_badge
+msgid "Reçu – remboursement en cours"
+msgstr "Received – refund in progress"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "Référence à noter sur le colis :"
+msgstr "Reference to write on the parcel:"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_home_pool_returns
+msgid "Suivre vos retours et télécharger vos bons de retour"
+msgstr "Track your returns and download your return forms"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid ""
+"Un article installé, mis en eau ou incomplet peut faire l'objet d'une retenue pour dépréciation.\n"
+"                    Les articles fabriqués sur mesure et les produits chimiques descellés ne sont pas repris au titre de la rétractation."
+msgstr "An item that has been installed, filled with water or is incomplete may be subject to a deduction for loss of value. Made-to-measure items and unsealed chemical products cannot be returned under the right of withdrawal."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid "Voir l'article"
+msgstr "View item"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_pool_return_button
+msgid "Voir mes retours"
+msgstr "View my returns"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_home_pool_returns model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_returns
+msgid "Vos retours"
+msgstr "Your returns"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "Votre bon de retour est prêt ci-dessous et vous a été envoyé par e-mail."
+msgstr "Your return form is ready below and has been sent to you by e-mail."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_returns
+msgid ""
+"Vous n'avez aucun retour en cours. Pour retourner un article, ouvrez la commande concernée\n"
+"                dans"
+msgstr "You have no returns in progress. To return an item, open the order concerned in"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid "entre le"
+msgstr "between"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_returns
+msgid "et cliquez sur « Retourner ou signaler un problème »."
+msgstr "and click « Return or report a problem »."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "sur le carton."
+msgstr "on the box."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_return
+msgid "sur le colis."
+msgstr "on the parcel."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_returns
+msgid "vos commandes"
+msgstr "your orders"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_return_badge
+msgid "À renvoyer"
+msgstr "To be returned"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "À renvoyer au plus tard 14 jours après votre demande."
+msgstr "To be returned no later than 14 days after your request."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.report_pool_return_document
+msgid "À votre charge. Nous vous conseillons un envoi suivi et de conserver la preuve de dépôt."
+msgstr "At your expense. We recommend a tracked service and keeping proof of postage."
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid "Écrivez-nous"
+msgstr "Write to us"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.portal_my_returns
+msgid "État"
+msgstr "Status"
+
+#. module: lolirine_pool_returns
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_returns.sale_order_portal_suivi
+msgid "— n° de suivi"
+msgstr "— tracking no."
+
+#. odoo-python
+#: code:addons/lolirine_pool_returns/controllers/portal.py:0
+msgid "Commande non confirmée."
+msgstr "Order not confirmed."
+
+#. odoo-python
+#: code:addons/lolirine_pool_returns/controllers/portal.py:0
+msgid "Choisissez le motif du retour."
+msgstr "Choose the reason for the return."
+
+#. odoo-python
+#: code:addons/lolirine_pool_returns/controllers/portal.py:0
+msgid "Cochez au moins un article et indiquez la quantité."
+msgstr "Tick at least one item and enter the quantity."
+
+#. odoo-python
+#: code:addons/lolirine_pool_returns/controllers/portal.py:0
+msgid "Décrivez le problème en quelques mots : cela nous permet de vous répondre plus vite."
+msgstr "Describe the problem in a few words: it helps us reply to you faster."
+
+#. odoo-python
+#: code:addons/lolirine_pool_returns/controllers/portal.py:0
+msgid "Ajoutez au moins une photo du colis ou de l'article endommagé."
+msgstr "Add at least one photo of the damaged parcel or item."

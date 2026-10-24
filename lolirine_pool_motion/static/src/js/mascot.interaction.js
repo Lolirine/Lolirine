@@ -2,7 +2,7 @@
 
 import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
-import { getMotion, prefersReducedMotion } from "./motion_helpers";
+import { getMotion, prefersReducedMotion, lpT } from "./motion_helpers";
 
 const STORAGE_KEY = "lolirine_mascot_off";
 
@@ -80,7 +80,7 @@ export class MotionMascot extends Interaction {
         wrap.setAttribute("aria-hidden", "true");
         wrap.innerHTML = `
             <button type="button" class="o_motion_mascot_close"
-                    title="Masquer la mascotte" aria-label="Masquer la mascotte">&times;</button>
+                    title="${lpT("Masquer la mascotte", "Mascotte verbergen", "Hide mascot")}" aria-label="${lpT("Masquer la mascotte", "Mascotte verbergen", "Hide mascot")}">&times;</button>
             <svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
               <path class="o_motion_mascot_body"
                     d="M50 4 C74 38 92 58 92 74 A42 42 0 0 1 8 74 C8 58 26 38 50 4 Z"/>

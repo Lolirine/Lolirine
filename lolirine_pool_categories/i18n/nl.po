@@ -1,0 +1,121 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "<i class=\"fa fa-headset me-2\"/>Besoin de conseils ?"
+msgstr "<i class=\"fa fa-headset me-2\"/>Advies nodig?"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "<i class=\"fa fa-shopping-bag me-2\"/>Tous les produits"
+msgstr "<i class=\"fa fa-shopping-bag me-2\"/>Alle producten"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "<span class=\"pshop-badge\">Boutique en ligne</span>"
+msgstr "<span class=\"pshop-badge\">Webshop</span>"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "<span class=\"pshop-universe-link\">Découvrir <i class=\"fa fa-arrow-right ms-1\"/></span>"
+msgstr "<span class=\"pshop-universe-link\">Ontdekken <i class=\"fa fa-arrow-right ms-1\"/></span>"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_equipements_pieces model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_nettoyage_robots model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_traitement_eau model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_wellness
+msgid "Accueil"
+msgstr "Home"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Besoin d'un conseil personnalisé ?"
+msgstr "Persoonlijk advies nodig?"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "CB, Bancontact, PayPal"
+msgstr "Kaart, Bancontact, PayPal"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Conseils experts"
+msgstr "Deskundig advies"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Découvrez notre sélection de produits de qualité professionnelle pour l'entretien et l'équipement de votre espace aquatique."
+msgstr "Ontdek onze selectie producten van professionele kwaliteit voor het onderhoud en de uitrusting van uw zwembad."
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_wellness
+msgid "Espace Wellness"
+msgstr "Wellnessruimte"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Explorez nos univers"
+msgstr "Ontdek onze werelden"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Expédition sous 24-48h"
+msgstr "Verzending binnen 24-48 u"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Livraison rapide"
+msgstr "Snelle levering"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Notre équipe d'experts est là pour vous accompagner dans vos choix."
+msgstr "Ons team van experts helpt u graag bij uw keuze."
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Paiement sécurisé"
+msgstr "Veilig betalen"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_equipements_pieces
+msgid "Pompes à chaleur et réchauffeurs"
+msgstr "Warmtepompen en verwarmers"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Produits sélectionnés"
+msgstr "Geselecteerde producten"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Qualité pro"
+msgstr "Pro-kwaliteit"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid ""
+"Tout pour votre<br/>\n"
+"                                    <span class=\"pshop-highlight\">piscine &amp; spa</span>"
+msgstr "Alles voor uw<br/> <span class=\"pshop-highlight\">zwembad &amp; spa</span>"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_traitement_eau
+msgid "Traitement de l'eau"
+msgstr "Waterbehandeling"
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Trouvez tout ce dont vous avez besoin, classé par catégorie."
+msgstr "Vind alles wat u nodig hebt, per categorie gerangschikt."
+
+#. module: lolirine_pool_categories
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_categories.page_boutique_dynamic
+msgid "Une équipe à votre écoute"
+msgstr "Een team dat naar u luistert"

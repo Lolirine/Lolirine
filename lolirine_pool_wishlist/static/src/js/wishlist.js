@@ -1,6 +1,10 @@
 /** @odoo-module **/
 
 (function () {
+
+    // Langue de la page (/fr, /nl, /en) pour les textes posés par le script
+    var LP_LANG = (document.documentElement.lang || 'fr').slice(0, 2).toLowerCase();
+    var lpT = function (fr, nl, en) { return LP_LANG === 'nl' ? nl : (LP_LANG === 'en' ? en : fr); };
     'use strict';
 
     if (!document.querySelector('.lw-page')) { return; }
@@ -92,12 +96,12 @@
             var url = window.location.href;
             if (navigator.share) {
                 navigator.share({
-                    title: 'Ma liste de souhaits Lolirine Pool',
+                    title: lpT('Ma liste de souhaits Lolirine Pool', 'Mijn verlanglijst Lolirine Pool', 'My Lolirine Pool wishlist'),
                     url: url,
                 });
             } else if (navigator.clipboard) {
                 navigator.clipboard.writeText(url).then(function () {
-                    alert('Lien copié dans le presse-papier !');
+                    alert(lpT('Lien copié dans le presse-papier !', 'Link gekopieerd naar het klembord!', 'Link copied to clipboard!'));
                 });
             } else {
                 prompt('Copiez ce lien :', url);

@@ -1,0 +1,895 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"10 coloris · Sur mesure<br/>\n"
+"                                    Light Blue · Azure · Sapphire · Caribbean Green…"
+msgstr "10 colours · Made to measure<br/> Light Blue · Azure · Sapphire · Caribbean Green…"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "11 modèles · 52 variantes de puissance disponibles"
+msgstr "11 models · 52 output options available"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.shop_brand_page
+msgid "<i class=\"fa fa-arrow-left me-2\"/>Toutes les marques"
+msgstr "<i class=\"fa fa-arrow-left me-2\"/>All brands"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid ""
+"<select id=\"spg_pays\" name=\"pays\" class=\"guide-form-control form-select\" required=\"required\">\n"
+"                                            <option value=\"BE\" selected=\"selected\">🇧🇪 Belgique</option>\n"
+"                                            <option value=\"FR\">🇫🇷 France</option>\n"
+"                                            <option value=\"LU\">🇱🇺 Luxembourg</option>\n"
+"                                            <option value=\"NL\">🇳🇱 Pays-Bas</option>\n"
+"                                            <option value=\"DE\">🇩🇪 Allemagne</option>\n"
+"                                            <option value=\"CH\">🇨🇭 Suisse</option>\n"
+"                                        </select>"
+msgstr "<select id=\"spg_pays\" name=\"pays\" class=\"guide-form-control form-select\" required=\"required\"> <option value=\"BE\" selected=\"selected\">🇧🇪 Belgium</option> <option value=\"FR\">🇫🇷 France</option> <option value=\"LU\">🇱🇺 Luxembourg</option> <option value=\"NL\">🇳🇱 Netherlands</option> <option value=\"DE\">🇩🇪 Germany</option> <option value=\"CH\">🇨🇭 Switzerland</option> </select>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "<span class=\"s_hero_badge_prix\">DÉCOUVREZ</span>"
+msgstr "<span class=\"s_hero_badge_prix\">DISCOVER</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "<span class=\"s_hero_badge_prix\">PRIX</span>"
+msgstr "<span class=\"s_hero_badge_prix\">PRICES</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"<span class=\"s_hero_badge_top\">ESPACE</span>\n"
+"                                <span class=\"s_hero_badge_main\">WELLNESS</span>"
+msgstr "<span class=\"s_hero_badge_top\">WELLNESS</span> <span class=\"s_hero_badge_main\">SPACE</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"<span class=\"s_hero_badge_top\">GRAND</span>\n"
+"                                <span class=\"s_hero_badge_main\">DÉSTOCKAGE</span>\n"
+"                                <span class=\"s_hero_badge_pct\">-30%</span>"
+msgstr "<span class=\"s_hero_badge_top\">BIG</span> <span class=\"s_hero_badge_main\">CLEARANCE</span> <span class=\"s_hero_badge_pct\">-30%</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"<span class=\"s_hero_badge_top\">JUSQU'À</span>\n"
+"                                <span class=\"s_hero_badge_pct\">-15%</span>"
+msgstr "<span class=\"s_hero_badge_top\">UP TO</span> <span class=\"s_hero_badge_pct\">-15%</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"<span class=\"s_hero_badge_top\">LES</span>\n"
+"                                <span class=\"s_hero_badge_main\">MEILLEURS</span>"
+msgstr "<span class=\"s_hero_badge_top\">THE</span> <span class=\"s_hero_badge_main\">BEST</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"<span class=\"s_hero_badge_top\">OFFRE</span>\n"
+"                                <span class=\"s_hero_badge_main\">FLASH</span>\n"
+"                                <span class=\"s_hero_badge_pct\">-22%</span>\n"
+"                                <span class=\"s_hero_badge_arrow\">▼</span>"
+msgstr "<span class=\"s_hero_badge_top\">FLASH</span> <span class=\"s_hero_badge_main\">SALE</span> <span class=\"s_hero_badge_pct\">-22%</span> <span class=\"s_hero_badge_arrow\">▼</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"<span class=\"s_hero_badge_top\">PLUS DE</span>\n"
+"                                <span class=\"s_hero_badge_pct\">1800</span>\n"
+"                                <span class=\"s_hero_badge_top\">RÉFÉRENCES</span>"
+msgstr "<span class=\"s_hero_badge_top\">OVER</span> <span class=\"s_hero_badge_pct\">1800</span> <span class=\"s_hero_badge_top\">PRODUCTS</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"<span class=\"s_hero_badge_top\">SUR MESURE</span>\n"
+"                                <span class=\"s_hero_badge_sub\">JUSQU'À 14 X 8 m</span>"
+msgstr "<span class=\"s_hero_badge_top\">MADE TO MEASURE</span> <span class=\"s_hero_badge_sub\">UP TO 14 X 8 m</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"<span class=\"s_hero_sticker_line1\">NOUVEAUTÉS</span>\n"
+"                                <span class=\"s_hero_sticker_line2\">2025</span>"
+msgstr "<span class=\"s_hero_sticker_line1\">NEW</span> <span class=\"s_hero_sticker_line2\">2025</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"<span class=\"s_hero_tag s_hero_tag_green\">R290 ÉCO</span>\n"
+"                                    <span class=\"s_hero_tag s_hero_tag_blue\">CONNECTÉE</span>"
+msgstr "<span class=\"s_hero_tag s_hero_tag_green\">R290 ECO</span> <span class=\"s_hero_tag s_hero_tag_blue\">CONNECTED</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Bien choisir sa bâche d'hivernage</span>"
+msgstr "<span class=\"s_pool_guide_label\">Choosing the right winter cover</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Bien choisir sa coque polyester</span>"
+msgstr "<span class=\"s_pool_guide_label\">Choosing the right fibreglass shell</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Bien choisir son robot de piscine</span>"
+msgstr "<span class=\"s_pool_guide_label\">Choosing the right pool robot</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Bien choisir son volet piscine</span>"
+msgstr "<span class=\"s_pool_guide_label\">Choosing the right slatted pool cover</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Bien choisir son électrolyseur</span>"
+msgstr "<span class=\"s_pool_guide_label\">Choosing the right salt chlorinator</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Bien hiverner sa piscine</span>"
+msgstr "<span class=\"s_pool_guide_label\">Winterising your pool properly</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Choisir sa bâche à bulles</span>"
+msgstr "<span class=\"s_pool_guide_label\">Choosing your bubble cover</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Choisir un chauffage solaire piscine</span>"
+msgstr "<span class=\"s_pool_guide_label\">Choosing solar pool heating</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Comment choisir bâche à barres</span>"
+msgstr "<span class=\"s_pool_guide_label\">How to choose a bar cover</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Comment faire le contre lavage d'un filtre</span>"
+msgstr "<span class=\"s_pool_guide_label\">How to backwash a filter</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Comment nettoyer une bâche d'hiver</span>"
+msgstr "<span class=\"s_pool_guide_label\">How to clean a winter cover</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Comment redémarrer sa piscine après l'hiver</span>"
+msgstr "<span class=\"s_pool_guide_label\">How to reopen your pool after winter</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Comment équilibrer l'eau et le pH d'une piscine</span>"
+msgstr "<span class=\"s_pool_guide_label\">How to balance pool water and pH</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Conseils sur l'entretien de l'eau de piscine</span>"
+msgstr "<span class=\"s_pool_guide_label\">Tips on pool water care</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Guide d'installation d'une barrière à filet souple</span>"
+msgstr "<span class=\"s_pool_guide_label\">Installation guide for a soft mesh safety fence</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Guide de montage d'une piscine en kit</span>"
+msgstr "<span class=\"s_pool_guide_label\">Assembly guide for a pool kit</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">La piscine en béton</span>"
+msgstr "<span class=\"s_pool_guide_label\">The concrete pool</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Loi sécurité piscine</span>"
+msgstr "<span class=\"s_pool_guide_label\">Pool safety law</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Quelle piscine hors sol choisir ?</span>"
+msgstr "<span class=\"s_pool_guide_label\">Which above-ground pool to choose?</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Service de déclaration préalable de travaux</span>"
+msgstr "<span class=\"s_pool_guide_label\">Prior works declaration service</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">Traitement par l'ozone, désinfection de l'eau</span>"
+msgstr "<span class=\"s_pool_guide_label\">Ozone treatment, water disinfection</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "<span class=\"s_pool_guide_label\">À quoi sert un \"Pool Terre\"</span>"
+msgstr "<span class=\"s_pool_guide_label\">What is a \"Pool Terre\" for?</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid ""
+"<span class=\"s_promo_badge_line1\">BONS PLANS</span>\n"
+"                                        <span class=\"s_promo_badge_line2\">TRAITEMENT PISCINE</span>"
+msgstr "<span class=\"s_promo_badge_line1\">GREAT DEALS</span> <span class=\"s_promo_badge_line2\">POOL TREATMENT</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid ""
+"<span class=\"s_promo_badge_line1\">BÂCHES À BARRES</span>\n"
+"                                        <span class=\"s_promo_badge_line2\">PRÊTES À L'EMPLOI</span>"
+msgstr "<span class=\"s_promo_badge_line1\">BAR COVERS</span> <span class=\"s_promo_badge_line2\">READY TO USE</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid ""
+"<span class=\"s_promo_badge_line1\">GRAND DÉSTOCKAGE</span>\n"
+"                                        <span class=\"s_promo_badge_line2\">AUX PRIX LES PLUS BAS</span>"
+msgstr "<span class=\"s_promo_badge_line1\">BIG CLEARANCE</span> <span class=\"s_promo_badge_line2\">AT THE LOWEST PRICES</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid ""
+"<span class=\"s_promo_badge_line1\">MEILLEURS PRIX</span>\n"
+"                                        <span class=\"s_promo_badge_value\">AIPER</span>"
+msgstr "<span class=\"s_promo_badge_line1\">BEST PRICES</span> <span class=\"s_promo_badge_value\">AIPER</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid ""
+"<span class=\"s_promo_badge_line1\">OFFRE DU MOMENT !!</span>\n"
+"                                        <span class=\"s_promo_badge_line2\">JUSQU'À</span>\n"
+"                                        <span class=\"s_promo_badge_value\">-20%</span>"
+msgstr "<span class=\"s_promo_badge_line1\">CURRENT OFFER!!</span> <span class=\"s_promo_badge_line2\">UP TO</span> <span class=\"s_promo_badge_value\">-20%</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid ""
+"<span class=\"s_promo_card_title\">Bon plan sur le traitement de l'eau !</span>\n"
+"                                    <span class=\"s_promo_card_arrow\">›</span>"
+msgstr "<span class=\"s_promo_card_title\">Great deal on water treatment!</span> <span class=\"s_promo_card_arrow\">›</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid ""
+"<span class=\"s_promo_card_title\">Bâches livrées prêtes à utilisation</span>\n"
+"                                    <span class=\"s_promo_card_arrow\">›</span>"
+msgstr "<span class=\"s_promo_card_title\">Covers delivered ready to use</span> <span class=\"s_promo_card_arrow\">›</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid ""
+"<span class=\"s_promo_card_title\">Chauffez votre piscine au meilleur prix</span>\n"
+"                                    <span class=\"s_promo_card_arrow\">›</span>"
+msgstr "<span class=\"s_promo_card_title\">Heat your pool at the best price</span> <span class=\"s_promo_card_arrow\">›</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid ""
+"<span class=\"s_promo_card_title\">Découvrez notre gamme de robots sans fil</span>\n"
+"                                    <span class=\"s_promo_card_arrow\">›</span>"
+msgstr "<span class=\"s_promo_card_title\">Discover our range of cordless robots</span> <span class=\"s_promo_card_arrow\">›</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid ""
+"<span class=\"s_promo_card_title\">Protégez votre piscine cet été !</span>\n"
+"                                    <span class=\"s_promo_card_arrow\">›</span>"
+msgstr "<span class=\"s_promo_card_title\">Protect your pool this summer!</span> <span class=\"s_promo_card_arrow\">›</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid ""
+"<span style=\"color:#fff;font-weight:700;font-size:.8rem;text-transform:uppercase;margin-right:1rem;\">\n"
+"                        Recevez les nouveautés et offres exclusives — inscrivez-vous à notre newsletter\n"
+"                    </span>"
+msgstr "<span style=\"color:#fff;font-weight:700;font-size:.8rem;text-transform:uppercase;margin-right:1rem;\"> Get our news and exclusive offers — sign up for our newsletter </span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "AUX MEILLEURS PRIX"
+msgstr "AT THE BEST PRICES"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_bache_barres model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_barriere model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_beton model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_bulle model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_contrelavage model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_coque model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_couverture model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_declaration model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_electrolyseur model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_entretien_eau model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_hivernage model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_hors_sol model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_kit model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_nettoyer_bache model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_ozone model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_ph model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_pool_terre model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_redemarrage model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_robot model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_securite model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_solaire model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_volet
+msgid "Accueil"
+msgstr "Home"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Adresse"
+msgstr "Address"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Adresse email <span style=\"color:#f88;\">*</span>"
+msgstr "E-mail address <span style=\"color:#f88;\">*</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Analyse, équilibre et désinfection de l'eau"
+msgstr "Water testing, balancing and disinfection"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Barrière filet"
+msgstr "Mesh fence"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"BÂCHES À BARRES<br/>\n"
+"                                    <span class=\"s_hero_highlight s_hero_highlight_yellow\">PRÉDÉCOUPÉES</span>"
+msgstr "BAR COVERS<br/> <span class=\"s_hero_highlight s_hero_highlight_yellow\">PRE-CUT</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"BÂCHES À BULLES<br/>\n"
+"                                    <span class=\"s_hero_highlight s_hero_highlight_dark\">PRÉDÉCOUPÉES</span>"
+msgstr "BUBBLE COVERS<br/> <span class=\"s_hero_highlight s_hero_highlight_dark\">PRE-CUT</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_volet_content
+msgid "Bâche à barres"
+msgstr "Bar cover"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Bâche à bulles"
+msgstr "Bubble cover"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid "Bâches"
+msgstr "Covers"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Bâches à barres piscine"
+msgstr "Pool bar covers"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Bâches à bulles prédécoupées"
+msgstr "Pre-cut bubble covers"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "CHOISIR MON LINER"
+msgstr "CHOOSE MY LINER"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Chauffage piscine"
+msgstr "Pool heating"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Chauffage solaire"
+msgstr "Solar heating"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Code postal"
+msgstr "Postcode"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"Compatible Fluidra Pool App · Réfrigérant naturel<br/>\n"
+"                                    Pilotage depuis votre smartphone"
+msgstr "Compatible with Fluidra Pool App · Natural refrigerant<br/> Control from your smartphone"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Contre lavage"
+msgstr "Backwashing"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Couverture d'hivernage"
+msgstr "Winter cover"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "DEMANDE DE DEVIS"
+msgstr "QUOTE REQUEST"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "DÉCOUVRIR LA GAMME"
+msgstr "DISCOVER THE RANGE"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "DÉCOUVRIR NOS PAC"
+msgstr "DISCOVER OUR HEAT PUMPS"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Déclaration travaux"
+msgstr "Planning declaration"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Décrivez votre projet ou votre demande…"
+msgstr "Describe your project or request…"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid "Déstockage"
+msgstr "Clearance"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "ENVOYER MA DEMANDE"
+msgstr "SEND MY REQUEST"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Entretien eau"
+msgstr "Water care"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"FILTRATION<br/>\n"
+"                                    <span class=\"s_hero_highlight s_hero_highlight_blue\">PISCINE</span>"
+msgstr "POOL<br/> <span class=\"s_hero_highlight s_hero_highlight_blue\">FILTRATION</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Filtration piscine pompe filtre"
+msgstr "Pool filtration pump filter"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Filtres à sable · Cartouche · Diatomées"
+msgstr "Sand filters · Cartridge · Diatomaceous earth"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Flacons recyclés à 50%"
+msgstr "Bottles 50% recycled"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Floculants et clarifiants spa"
+msgstr "Spa flocculants and clarifiers"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Gamme Zodiac · AIPER · Dolphin"
+msgstr "Zodiac · AIPER · Dolphin range"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Hiverner piscine"
+msgstr "Winterising the pool"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "J'EN PROFITE"
+msgstr "GET THE DEAL"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "J'accepte de recevoir les offres promotionnelles"
+msgstr "I agree to receive promotional offers"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Jacuzzi spa bien-être"
+msgstr "Hot tub spa wellness"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Jacuzzi vue montagne"
+msgstr "Hot tub with mountain view"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Kit de démarrage 6 en 1"
+msgstr "6-in-1 starter kit"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Kit traitement piscine"
+msgstr "Pool treatment kit"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"LINERS &amp;<br/>\n"
+"                                    <span class=\"s_hero_highlight s_hero_highlight_blue\">REVÊTEMENTS</span>"
+msgstr "LINERS &amp;<br/> <span class=\"s_hero_highlight s_hero_highlight_blue\">COVERINGS</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Le produit complet (robot, pompe, équipement…) dont sont issues les pièces détachées est également disponible sur devis."
+msgstr "The complete product (robot, pump, equipment…) that the spare parts come from is also available on quotation."
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Les demandes de devis sont traitées à partir de 50€ de commande minimum, merci de votre compréhension."
+msgstr "Quote requests are handled from a minimum order of €50, thank you for your understanding."
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Liners et revêtements piscine"
+msgstr "Pool liners and coverings"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Livrées prêtes à l'utilisation · Norme NF P90-308"
+msgstr "Delivered ready to use · NF P90-308 standard"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Local technique filtration tuyauterie"
+msgstr "Plant room filtration pipework"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Loi sécurité"
+msgstr "Safety law"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "MON DEVIS GRATUIT"
+msgstr "MY FREE QUOTE"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Message <span style=\"color:#f88;\">*</span>"
+msgstr "Message <span style=\"color:#f88;\">*</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"Mono et multi-vitesse · Haute efficacité énergétique<br/>\n"
+"                                    Plus de 60 modèles disponibles"
+msgstr "Single and variable speed · High energy efficiency<br/> Over 60 models available"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Nettoyage autonome · Fond, parois et ligne d'eau"
+msgstr "Autonomous cleaning · Floor, walls and waterline"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Nettoyer bâche"
+msgstr "Cleaning a cover"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Nom <span style=\"color:#f88;\">*</span>"
+msgstr "Surname <span style=\"color:#f88;\">*</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Nos Guides Dédiés"
+msgstr "Our guides"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Offre de pré-commande"
+msgstr "Pre-order offer"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "PAC Fluidra R290"
+msgstr "Fluidra R290 heat pump"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"POMPES DE<br/>\n"
+"                                    <span class=\"s_hero_highlight s_hero_highlight_blue\">FILTRATION</span>"
+msgstr "FILTRATION<br/> <span class=\"s_hero_highlight s_hero_highlight_blue\">PUMPS</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"POMPES À CHALEUR<br/>\n"
+"                                    <span class=\"s_hero_highlight s_hero_highlight_blue\">INVERTER R290</span>"
+msgstr "HEAT PUMPS<br/> <span class=\"s_hero_highlight s_hero_highlight_blue\">INVERTER R290</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"POMPES À CHALEUR<br/>\n"
+"                                    <span class=\"s_hero_highlight s_hero_highlight_blue\">INVERTER</span>"
+msgstr "HEAT PUMPS<br/> <span class=\"s_hero_highlight s_hero_highlight_blue\">INVERTER</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Palette couleurs liner"
+msgstr "Liner colour palette"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Pays <span style=\"color:#f88;\">*</span>"
+msgstr "Country <span style=\"color:#f88;\">*</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Piscine béton"
+msgstr "Concrete pool"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Piscine coque"
+msgstr "Fibreglass pool"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Piscine en kit"
+msgstr "Pool kit"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Piscine hors sol"
+msgstr "Above-ground pool"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Plus de 120 références · Zodiac · AquaForte · Astralpool"
+msgstr "Over 120 products · Zodiac · AquaForte · Astralpool"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Pompe Astralpool"
+msgstr "Astralpool pump"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Pompe à chaleur"
+msgstr "Heat pump"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Pompe à chaleur connectée Fluidra"
+msgstr "Fluidra connected heat pump"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Pompes de filtration piscine"
+msgstr "Pool filter pumps"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid "Pompes à chaleur"
+msgstr "Heat pumps"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Pompes à chaleur piscine"
+msgstr "Pool heat pumps"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Pour piscines traitées au chlore ou au brome"
+msgstr "For pools treated with chlorine or bromine"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Prénom <span style=\"color:#f88;\">*</span>"
+msgstr "First name <span style=\"color:#f88;\">*</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Préparez votre saison !"
+msgstr "Get ready for the season!"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Prêt à l'emploi"
+msgstr "Ready to use"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "ROBOTS<br/>AUTOMATIQUES"
+msgstr "AUTOMATIC<br/>ROBOTS"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Redémarrer piscine"
+msgstr "Reopening the pool"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Robot Zodiac"
+msgstr "Zodiac robot"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Robot piscine"
+msgstr "Pool robot"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid "Robots piscine"
+msgstr "Pool robots"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Robots piscine automatiques"
+msgstr "Automatic pool robots"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Solution d'entretien complète<br/>pour votre piscine"
+msgstr "Complete maintenance solution<br/>for your pool"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"Spas encastrables, de nage et swim spa dual<br/>\n"
+"                                    Livraison et installation disponibles"
+msgstr "Built-in spas, swim spas and dual swim spa<br/> Delivery and installation available"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Spas · Jacuzzis · Swim Spa"
+msgstr "Spas · Hot tubs · Swim Spa"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"TRAITEMENT<br/>\n"
+"                                    <span class=\"s_hero_highlight s_hero_highlight_yellow\">DE L'EAU SPA</span>"
+msgstr "SPA<br/> <span class=\"s_hero_highlight s_hero_highlight_yellow\">WATER TREATMENT</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"TUYAUTERIE PVC<br/>\n"
+"                                    <span class=\"s_hero_highlight s_hero_highlight_blue\">&amp; ACCESSOIRES</span>"
+msgstr "PVC PIPEWORK<br/> <span class=\"s_hero_highlight s_hero_highlight_blue\">&amp; ACCESSORIES</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_promo_cards
+msgid "Traitement eau"
+msgstr "Water treatment"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Traitement eau spa"
+msgstr "Spa water treatment"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Traitement ozone"
+msgstr "Ozone treatment"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Tubes PVC"
+msgstr "PVC pipes"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Tuyauterie · Raccords · Vannes"
+msgstr "Pipework · Fittings · Valves"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Téléphone <span style=\"color:#f88;\">*</span>"
+msgstr "Phone <span style=\"color:#f88;\">*</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "VALIDER"
+msgstr "SUBMIT"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "VOIR LA SÉLECTION"
+msgstr "SEE THE SELECTION"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "VOIR LE CATALOGUE"
+msgstr "SEE THE CATALOGUE"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "VOIR LES POMPES"
+msgstr "SEE THE PUMPS"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "VOIR LES PRODUITS"
+msgstr "SEE THE PRODUCTS"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "VOIR LES SPAS"
+msgstr "SEE THE SPAS"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "VOIR PLUS DE GUIDES"
+msgstr "SEE MORE GUIDES"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"VOLET DE PISCINE<br/>\n"
+"                                    <span class=\"s_hero_slide_title_sub\">HORS-SOL &amp; AUTOMATIQUE</span>"
+msgstr "POOL COVER<br/> <span class=\"s_hero_slide_title_sub\">ABOVE-GROUND &amp; AUTOMATIC</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"VOTRE ESPACE<br/>\n"
+"                                    <span class=\"s_hero_highlight s_hero_highlight_blue\">BIEN-ÊTRE</span>"
+msgstr "YOUR<br/> <span class=\"s_hero_highlight s_hero_highlight_blue\">WELLNESS SPACE</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Ville <span style=\"color:#f88;\">*</span>"
+msgstr "Town <span style=\"color:#f88;\">*</span>"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "Volet de piscine hors-sol automatique"
+msgstr "Automatic above-ground pool cover"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides model_terms:ir.ui.view,arch_db:lolirine_pool_website.view_guide_volet_content
+msgid "Volet piscine"
+msgstr "Pool slatted cover"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Votre adresse email"
+msgstr "Your e-mail address"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid "pH+, pH−, Chlore, Brome, Oxygène actif"
+msgstr "pH+, pH−, Chlorine, Bromine, Active oxygen"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.shop_brand_page
+msgid "produit(s) disponible(s)"
+msgstr "product(s) available"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Électrolyseur"
+msgstr "Salt chlorinator"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.guide_article_sidebar model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_pool_guides
+msgid "Équilibre pH"
+msgstr "pH balance"
+
+#. module: lolirine_pool_website
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_website.s_hero_slider
+msgid ""
+"Ø 16 mm à 160 mm · PN10/PN16<br/>\n"
+"                                    Colles, joints, brides et raccords"
+msgstr "Ø 16 mm to 160 mm · PN10/PN16<br/> Adhesives, seals, flanges and fittings"

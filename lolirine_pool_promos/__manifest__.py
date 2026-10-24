@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool Promotions',
-    'version': '19.0.2.0.0',
+    'version': '19.0.2.0.1',
     'category': 'Website',
     'summary': 'Gestion des promotions hebdomadaires pour Lolirine Pool Store',
     'author': 'Lolirine SRL',

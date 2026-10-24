@@ -13,6 +13,9 @@
 import { Interaction } from "@web/public/interaction";
 import { registry } from "@web/core/registry";
 
+const LP_LANG = (document.documentElement.lang || "fr").slice(0, 2).toLowerCase();
+const lpT = (fr, nl, en) => (LP_LANG === "nl" ? nl : LP_LANG === "en" ? en : fr);
+
 const RESUME_DELAY = 2500;
 const DRAG_THRESHOLD = 6;
 
@@ -45,8 +48,8 @@ export class PoolUniverseMarquee extends Interaction {
         scroller.appendChild(track);
         this.scroller = scroller;
 
-        const prev = this.makeButton("prev", "Produits précédents", "fa-chevron-left");
-        const next = this.makeButton("next", "Produits suivants", "fa-chevron-right");
+        const prev = this.makeButton("prev", lpT("Produits précédents", "Vorige producten", "Previous products"), "fa-chevron-left");
+        const next = this.makeButton("next", lpT("Produits suivants", "Volgende producten", "Next products"), "fa-chevron-right");
         this.el.append(prev, next);
         this.el.classList.add("s_pu_js");
 
