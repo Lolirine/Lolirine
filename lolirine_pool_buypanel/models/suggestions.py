@@ -27,13 +27,23 @@ class LpSuggestionsMixin(models.AbstractModel):
         return templates.filtered(lambda t: t.sale_ok and t.is_published and t.type != 'service'
                                   and (not t.website_id or t.website_id == site))
 
-    def _lp_carte(self, tmpl, site):
-        prix = tmpl.list_price
+    def _lp_carte(self, tmpl, site, variante=None):
+        """Carte produit ; avec `variante`, le prix, la photo et le lien sont ceux de la
+        variante achetée (ex. le kit A-100 et pas l'épuisette par défaut du modèle)."""
+        prix = (variante or tmpl).lst_price if variante else tmpl.list_price
         try:
-            info = tmpl.with_context(website_id=site.id)._get_combination_info(add_qty=1)
+            info = tmpl.with_context(website_id=site.id)._get_combination_info(
+                product_id=variante.id if variante else False, add_qty=1)
             prix = info.get('price', prix)
         except Exception:  # prix catalogue en secours
             pass
+        if variante:
+            return {
+                'name': variante.display_name.split('] ', 1)[-1],
+                'url': variante.website_url or tmpl.website_url,
+                'img': '/web/image/product.product/%s/image_256' % variante.id,
+                'price': prix,
+            }
         return {
             'name': tmpl.name,
             'url': tmpl.website_url,
@@ -41,10 +51,13 @@ class LpSuggestionsMixin(models.AbstractModel):
             'price': prix,
         }
 
-    def _lp_suggestions(self, lignes_templates, site, racheter=False):
-        """lignes_templates : product.template déjà commandés (dans l'ordre)."""
+    def _lp_suggestions(self, variantes, site, racheter=False):
+        """variantes : product.product déjà commandés (dans l'ordre)."""
         Tmpl = self.env['product.template'].sudo()
-        deja = self._lp_produits_vendables(lignes_templates.sudo(), site)
+        variantes = variantes.sudo()
+        lignes_templates = variantes.product_tmpl_id
+        vendables = self._lp_produits_vendables(lignes_templates, site)
+        deja = variantes.filtered(lambda v: v.product_tmpl_id in vendables and v.active)
 
         complements = Tmpl
         for t in lignes_templates.sudo():
@@ -64,9 +77,11 @@ class LpSuggestionsMixin(models.AbstractModel):
                 ], order='website_sequence, id', limit=MAX_COMPLETER * 3)
                 complements |= self._lp_produits_vendables(autres, site)[:MAX_COMPLETER - len(complements)]
 
+        vus = set()  # deux fiches au même nom → une seule carte
         return {
-            'racheter': [self._lp_carte(t, site) for t in deja[:MAX_RACHETER]] if racheter else [],
-            'completer': [self._lp_carte(t, site) for t in complements],
+            'racheter': [self._lp_carte(v.product_tmpl_id, site, v) for v in deja[:MAX_RACHETER]] if racheter else [],
+            'completer': [c for c in (self._lp_carte(t, site) for t in complements)
+                          if not (c['name'] in vus or vus.add(c['name']))],
         }
 
 
@@ -81,8 +96,7 @@ class SaleOrderSuggestions(models.Model):
             return vide
         try:
             lignes = self.order_line.filtered(lambda l: l.product_id and not l.display_type)
-            return self._lp_suggestions(lignes.product_id.product_tmpl_id, website,
-                                        racheter=self.state == 'sale')
+            return self._lp_suggestions(lignes.product_id, website, racheter=self.state == 'sale')
         except Exception:
             _logger.exception("Pool Store : suggestions impossibles pour %s", self.name)
             return vide
@@ -99,7 +113,7 @@ class AccountMoveSuggestions(models.Model):
             return vide
         try:
             lignes = self.invoice_line_ids.filtered(lambda l: l.product_id and l.display_type == 'product')
-            return self._lp_suggestions(lignes.product_id.product_tmpl_id, website, racheter=True)
+            return self._lp_suggestions(lignes.product_id, website, racheter=True)
         except Exception:
             _logger.exception("Pool Store : suggestions impossibles pour %s", self.name)
             return vide
