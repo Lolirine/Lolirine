@@ -397,26 +397,31 @@ msgstr "Status"
 msgid "— n° de suivi"
 msgstr "— tracking no."
 
+#. module: lolirine_pool_returns
 #. odoo-python
 #: code:addons/lolirine_pool_returns/controllers/portal.py:0
 msgid "Commande non confirmée."
 msgstr "Order not confirmed."
 
+#. module: lolirine_pool_returns
 #. odoo-python
 #: code:addons/lolirine_pool_returns/controllers/portal.py:0
 msgid "Choisissez le motif du retour."
 msgstr "Choose the reason for the return."
 
+#. module: lolirine_pool_returns
 #. odoo-python
 #: code:addons/lolirine_pool_returns/controllers/portal.py:0
 msgid "Cochez au moins un article et indiquez la quantité."
 msgstr "Tick at least one item and enter the quantity."
 
+#. module: lolirine_pool_returns
 #. odoo-python
 #: code:addons/lolirine_pool_returns/controllers/portal.py:0
 msgid "Décrivez le problème en quelques mots : cela nous permet de vous répondre plus vite."
 msgstr "Describe the problem in a few words: it helps us reply to you faster."
 
+#. module: lolirine_pool_returns
 #. odoo-python
 #: code:addons/lolirine_pool_returns/controllers/portal.py:0
 msgid "Ajoutez au moins une photo du colis ou de l'article endommagé."
