@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_lolirine_alerte_commande_list" model="ir.ui.view">
+        <field name="name">lolirine.alerte.commande.list</field>
+        <field name="model">lolirine.alerte.commande</field>
+        <field name="arch" type="xml">
+            <list create="false">
+                <field name="create_date" string="Payée le"/>
+                <field name="order_id"/>
+                <field name="state" widget="badge" decoration-success="state == 'envoye'"
+                       decoration-warning="state == 'a_envoyer'" decoration-danger="state == 'erreur'"/>
+                <field name="date_envoi" optional="hide"/>
+                <field name="whatsapp_state" widget="badge" decoration-success="whatsapp_state == 'envoye'"
+                       decoration-warning="whatsapp_state == 'attente'"
+                       decoration-danger="whatsapp_state == 'erreur'"/>
+                <field name="whatsapp_date" optional="hide"/>
+                <field name="note" optional="hide"/>
+                <button name="action_renvoyer" type="object" string="Renvoyer" icon="fa-repeat"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_lolirine_alerte_commande" model="ir.actions.act_window">
+        <field name="name">Avertissements des commandes payées</field>
+        <field name="res_model">lolirine.alerte.commande</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem id="menu_lolirine_alerte_commande" name="Avertissements commandes payées"
+              parent="sale.menu_sale_config" action="action_lolirine_alerte_commande"
+              sequence="95" groups="sales_team.group_sale_manager"/>
+</odoo>
