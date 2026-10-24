@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool – Buy Panel',
-    'version': '19.0.1.9.1',
+    'version': '19.0.1.9.2',
     'category': 'Lolirine',
     'summary': 'Panneau produit enrichi (style Amazon+) pour le Pool Store',
     'author': 'Lolirine',
@@ -27,6 +27,7 @@
             'lolirine_pool_buypanel/static/src/css/lolirine_glass.css',
             'lolirine_pool_buypanel/static/src/css/trust_bar.css',
             'lolirine_pool_buypanel/static/src/css/calculateur.css',
+            'lolirine_pool_buypanel/static/src/css/portal_glass.css',
         ],
     },
     'installable': True,

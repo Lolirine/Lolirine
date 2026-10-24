@@ -21,7 +21,7 @@
                         </span>
                     </div>
                     <div class="col-4 text-end" style="font-size: 11px; color: #666; padding-top: 5px;">
-                        <strong>Lolirine SPRL</strong><br/>
+                        <strong>Lolirine SRL</strong><br/>
                         Rue Bois d'Esneux 110<br/>
                         5021 Boninne (Namur)<br/>
                         Belgique<br/>
@@ -37,7 +37,7 @@
             <div style="border-top: 2px solid #0078D4; margin-top: 30px; padding-top: 10px; font-size: 10px; color: #888;">
                 <div class="row">
                     <div class="col-4">
-                        <strong>Lolirine SPRL</strong><br/>
+                        <strong>Lolirine SRL</strong><br/>
                         Rue Bois d'Esneux 110<br/>
                         5021 Boninne (Namur)
                     </div>
@@ -489,7 +489,7 @@
                                     </span>
                                 </div>
                                 <div class="col-4 text-end" style="font-size: 11px; color: #666; padding-top: 5px;">
-                                    <strong>Lolirine SPRL</strong><br/>
+                                    <strong>Lolirine SRL</strong><br/>
                                     Rue Bois d'Esneux 110<br/>
                                     5021 Boninne (Namur) - Belgique<br/>
                                     BCE: <t t-esc="doc.company_id.vat or 'BE0650.891.279'"/>
@@ -660,7 +660,7 @@
                         <div style="border-top: 2px solid #0078D4; margin-top: 30px; padding-top: 10px; font-size: 10px; color: #888;">
                             <div class="row">
                                 <div class="col-4">
-                                    <strong>Lolirine SPRL</strong><br/>
+                                    <strong>Lolirine SRL</strong><br/>
                                     Rue Bois d'Esneux 110<br/>
                                     5021 Boninne (Namur)
                                 </div>

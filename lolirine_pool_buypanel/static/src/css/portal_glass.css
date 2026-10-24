@@ -1,0 +1,107 @@
+/* ============================================================
+   LOLIRINE POOL STORE — Espace client (portail) en « glace »
+   lolirine_pool_buypanel/static/src/css/portal_glass.css
+   Aperçu en ligne d'un devis / d'une commande (/my/orders/…),
+   d'une facture (/my/invoices/…), listes et accueil « Mon compte ».
+   Site Pool Store uniquement (data-website-id="6") : le fond photo
+   reste visible mais le texte est lisible sur un panneau vitré.
+   ============================================================ */
+
+html[data-website-id="6"] {
+    --lp-glass-bg: rgba(255, 255, 255, 0.80);
+    --lp-glass-border: rgba(255, 255, 255, 0.65);
+    --lp-glass-shadow: 0 10px 36px rgba(3, 105, 161, 0.18);
+}
+
+/* Panneaux principaux : barre latérale (montant, boutons) + contenu du document */
+html[data-website-id="6"] .o_portal_sidebar #sidebar_content,
+html[data-website-id="6"] .o_portal_sidebar #quote_content,
+html[data-website-id="6"] .o_portal_sidebar #invoice_content,
+html[data-website-id="6"] .o_portal_sidebar .o_portal_content,
+html[data-website-id="6"] .o_portal_my_home,
+html[data-website-id="6"] .o_portal_wrap .table-responsive,
+html[data-website-id="6"] .table-responsive:has(> .o_portal_my_doc_table),
+html[data-website-id="6"] .o_portal_my_details,
+html[data-website-id="6"] .o_portal_security_body {
+    background: var(--lp-glass-bg);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    backdrop-filter: blur(18px) saturate(1.5);
+    border: 1px solid var(--lp-glass-border);
+    border-radius: 1rem;
+    box-shadow: var(--lp-glass-shadow);
+    padding: 1.25rem 1.5rem;
+}
+
+/* Barre latérale : un peu plus claire, collée en haut au défilement */
+html[data-website-id="6"] .o_portal_sidebar #sidebar_content {
+    background: rgba(255, 255, 255, 0.86);
+    align-self: flex-start;
+    margin-right: 1.25rem;
+}
+/* Le trait vertical d'Odoo entre les deux panneaux devient inutile */
+html[data-website-id="6"] .o_portal_sidebar .o_portal_sale_sidebar > div > .vr,
+html[data-website-id="6"] .o_portal_sidebar > .row > div > .vr {
+    display: none !important;
+}
+
+/* Fil d'Ariane (Commandes clients / Commande …) : pastille vitrée */
+html[data-website-id="6"] .o_portal.container .breadcrumb {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--lp-glass-border);
+    border-radius: 999px;
+    padding: 0.35rem 1rem;
+    box-shadow: 0 4px 16px rgba(3, 105, 161, 0.12);
+}
+
+/* Tableau des produits et totaux : lignes lisibles sur la glace */
+html[data-website-id="6"] .o_portal_sidebar #quote_content table,
+html[data-website-id="6"] .o_portal_my_doc_table {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(3, 105, 161, 0.05);
+    background: transparent;
+}
+html[data-website-id="6"] .o_portal_sidebar #quote_content thead th,
+html[data-website-id="6"] .o_portal_my_doc_table thead th {
+    color: #0369a1;
+    border-bottom: 2px solid rgba(3, 105, 161, 0.35);
+}
+
+/* Facture : l'aperçu est dans un cadre (iframe) blanc → coins arrondis */
+html[data-website-id="6"] #invoice_content #invoice_html {
+    border-radius: 0.75rem;
+    background: #fff;
+}
+
+/* Bouton principal (Voir les détails / Payer / Signer) aux couleurs du Pool Store */
+html[data-website-id="6"] .o_portal_sidebar #sidebar_content .btn-primary {
+    background: #0369a1;
+    border-color: #0369a1;
+}
+
+/* Téléphone : panneaux pleine largeur, marges réduites */
+@media (max-width: 991.98px) {
+    html[data-website-id="6"] .o_portal_sidebar #sidebar_content {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    html[data-website-id="6"] .o_portal_sidebar #sidebar_content,
+    html[data-website-id="6"] .o_portal_sidebar #quote_content,
+    html[data-website-id="6"] .o_portal_sidebar #invoice_content {
+        padding: 1rem;
+    }
+}
+
+/* Impression : pas d'effet de glace */
+@media print {
+    html[data-website-id="6"] .o_portal_sidebar #quote_content,
+    html[data-website-id="6"] .o_portal_sidebar #invoice_content {
+        background: #fff;
+        box-shadow: none;
+        border: 0;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}
