@@ -156,7 +156,12 @@ class SaleOrder(models.Model):
 
     def _analyze_dropship_suppliers(self):
         """Analyse et sélectionne les meilleurs fournisseurs pour chaque ligne"""
-        self.ensure_one()
+        # La tâche planifiée appelle cette méthode sur toutes les commandes en
+        # attente d'un coup : on les traite une par une (sinon « Expected singleton »).
+        if len(self) != 1:
+            for order in self:
+                order._analyze_dropship_suppliers()
+            return True
         config = self.env['dropship.config'].get_config()
         
         destination_country_id = self.partner_shipping_id.country_id.id if self.partner_shipping_id else None
