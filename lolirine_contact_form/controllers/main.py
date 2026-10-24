@@ -6,18 +6,33 @@ import json
 import logging
 
 _logger = logging.getLogger(__name__)
+SITE_POOL_STORE = 6  # le formulaire garde-meuble ne s'affiche pas sur le site piscine
 
 
 class LolirineContactForm(http.Controller):
 
+    @staticmethod
+    def _site_pool_store():
+        """Le site Pool Store (website 6) a son propre formulaire : /pool/contact."""
+        return request.website and request.website.id == SITE_POOL_STORE
+
+    @staticmethod
+    def _vers_contact_pool():
+        # garde la langue du visiteur (/nl/pool/contact, /en/pool/contact)
+        return request.redirect(request.env['ir.http']._url_for('/pool/contact'), code=301)
+
     @http.route(['/contactus', '/contact'], type='http', auth='public', website=True)
     def redirect_old_contact(self, **kwargs):
         """Rediriger les anciennes URLs vers le nouveau formulaire"""
+        if self._site_pool_store():
+            return self._vers_contact_pool()
         return request.redirect('/contact-garde-meubles', code=301)
 
     @http.route('/contact-garde-meubles', type='http', auth='public', website=True)
     def contact_form_page(self, **kwargs):
         """Page du formulaire de contact optimisé"""
+        if self._site_pool_store():
+            return self._vers_contact_pool()
         countries = request.env['res.country'].sudo().search([])
         belgium = request.env.ref('base.be', raise_if_not_found=False)
         
