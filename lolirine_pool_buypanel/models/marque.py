@@ -6,9 +6,9 @@ e-mail et le site du garde-meuble.
 
 Règle : un document est « Pool Store » quand il vient du site web Pool Store
 (commande du site, facture ou livraison de cette commande, transaction de
-paiement, carte de fidélité de son programme). Pour un devis créé à la main
-dans Odoo, il suffit de choisir « Lolirine Pool Store » dans le champ
-« Site web » du devis.
+paiement, carte de fidélité de son programme), OU d'un devis / d'une commande
+piscine fait dans Odoo (case « Devis piscine » de lolirine_pool_sale, ou
+commande dropship de lolirine_pool_dropship), avec sa facture et sa livraison.
 
 Ce qui change pour ces documents :
   * e-mails : logo Pool Store en tête, pied de page Pool Store (nom, téléphone,
@@ -101,7 +101,25 @@ class Base(models.AbstractModel):
                     site = rec.line_ids.sale_line_ids.order_id.website_id[:1]
                 if not site and self._name == 'stock.picking' and 'sale_id' in rec._fields:
                     site = rec.sale_id.website_id
-            return site if site and site.id == SITE_POOL_STORE else Site
+            if site and site.id == SITE_POOL_STORE:
+                return site
+            # Devis / commandes piscine faits dans Odoo (sans site web) :
+            # case « Devis piscine » (lolirine_pool_sale) ou commande dropship (lolirine_pool_dropship)
+            commandes = self.env['sale.order'].sudo()
+            if self._name == 'sale.order':
+                commandes = rec
+            elif self._name == 'account.move':
+                commandes = rec.line_ids.sale_line_ids.order_id
+            elif self._name == 'stock.picking' and 'sale_id' in rec._fields:
+                commandes = rec.sale_id
+            elif self._name == 'payment.transaction' and 'sale_order_ids' in rec._fields:
+                commandes = rec.sale_order_ids
+            if commandes and any(
+                    ('is_pool_quote' in c._fields and c.is_pool_quote)
+                    or ('is_dropship_order' in c._fields and c.is_dropship_order)
+                    for c in commandes):
+                return Site.browse(SITE_POOL_STORE).exists()
+            return Site
         except Exception:  # l'habillage ne doit jamais bloquer un envoi ou un PDF
             _logger.exception("Pool Store : détection du site impossible pour %s", self)
             return Site
