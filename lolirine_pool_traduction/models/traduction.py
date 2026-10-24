@@ -405,9 +405,13 @@ class LolirineTradLot(models.Model):
                     if not v or v == src:
                         maj[lang][src] = dispo[src][i]
             maj = {k: v for k, v in maj.items() if v}
-            if maj:
-                fr.update_field_translations(champ, maj)
-                n_termes += len(maj.get('nl_NL', {}))
+            if not maj:
+                continue
+            if not callable(fr._fields[champ].translate):
+                # champ traduit « en bloc » : le texte complet est l'unique terme
+                maj = {lang: next(iter(termes_lang.values())) for lang, termes_lang in maj.items()}
+            fr.update_field_translations(champ, maj)
+            n_termes += 1 if not callable(fr._fields[champ].translate) else len(maj.get('nl_NL', {}))
 
         # 2. nom et description courte (jamais par-dessus une traduction existante)
         for champ, cle in (('name', 'nom'), ('description_sale', 'description_courte')):
