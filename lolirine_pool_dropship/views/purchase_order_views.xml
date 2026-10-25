@@ -13,11 +13,6 @@
             
             <!-- Bouton vers la commande client -->
             <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_view_sale_order" type="object"
-                        class="oe_stat_button" icon="fa-shopping-basket"
-                        invisible="not dropship_sale_id">
-                    <span class="o_stat_text">Commande Client</span>
-                </button>
                 <button name="action_pool_factures_client" type="object"
                         class="oe_stat_button" icon="fa-file-text-o"
                         invisible="not dropship_sale_id">
@@ -67,6 +62,12 @@
                 </div>
             </xpath>
             
+            <!-- Colonne « Remise » visible par défaut (prix catalogue − remise = net) -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='discount']" position="attributes">
+                <attribute name="optional">show</attribute>
+                <attribute name="string">Remise %</attribute>
+            </xpath>
+
             <!-- Badge dropship -->
             <xpath expr="//field[@name='state']" position="before">
                 <field name="is_dropship_order" invisible="1"/>
