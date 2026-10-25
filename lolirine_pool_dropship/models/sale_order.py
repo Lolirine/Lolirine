@@ -263,6 +263,7 @@ class SaleOrder(models.Model):
                 po.dest_address_id = self.partner_shipping_id
             
             # Créer les lignes
+            sans_prix = []
             for sale_line in lines:
                 supplier_info = sale_line.dropship_supplier_info_id
                 
@@ -286,9 +287,15 @@ class SaleOrder(models.Model):
                 }
                 if compte:
                     po_line_vals['analytic_distribution'] = {str(compte.id): 100}
+                if not prix_catalogue:
+                    sans_prix.append(sale_line.product_id.display_name)
                 
                 self.env['purchase.order.line'].create(po_line_vals)
             
+            if sans_prix:
+                po.message_post(body="⚠ Prix d'achat inconnu (0 €) pour : %s — à compléter avant l'envoi au fournisseur."
+                                % ", ".join(sans_prix))
+                self.message_post(body="⚠ Bon %s : prix d'achat inconnu pour %s." % (po.name, ", ".join(sans_prix)))
             created_pos |= po
             
             _logger.info(f"Dropship PO {po.name} created for SO {self.name} (supplier: {supplier.name})")
