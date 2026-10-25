@@ -712,8 +712,8 @@
                         <!-- TITRE -->
                         <div class="row mb-3">
                             <div class="col-8">
-                                <h1 style="color: #0078D4; font-size: 26px; margin: 0;">Bon de commande fournisseur</h1>
-                                <h2 style="color: #0078D4; font-size: 22px; margin: 5px 0 0 0; font-weight: bold;">
+                                <h1 style="color: #0078D4; font-size: 22px; margin: 0;">Bon de commande fournisseur</h1>
+                                <h2 style="color: #0078D4; font-size: 18px; margin: 2px 0 0 0; font-weight: bold;">
                                     <t t-esc="doc.name"/>
                                 </h2>
                             </div>
@@ -727,7 +727,7 @@
                         <!-- FOURNISSEUR + RÉFÉRENCES -->
                         <div class="row mb-3">
                             <div class="col-6">
-                                <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 4px solid #0078D4;">
+                                <div style="background: #f8f9fa; padding: 8px 12px; border-radius: 6px; border-left: 4px solid #0078D4;">
                                     <strong style="color: #0078D4; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Fournisseur</strong><br/>
                                     <strong><t t-esc="doc.partner_id.name"/></strong><br/>
                                     <t t-if="doc.partner_id.street"><t t-esc="doc.partner_id.street"/><br/></t>
@@ -738,16 +738,16 @@
                             <div class="col-6">
                                 <table class="table table-sm" style="font-size: 13px;">
                                     <tr>
-                                        <td style="border: none; padding: 4px 8px;"><strong>Notre référence :</strong></td>
-                                        <td style="border: none; padding: 4px 8px; color: #0078D4; font-weight: bold;"><t t-esc="doc.name"/></td>
+                                        <td style="border: none; padding: 2px 8px;"><strong>Notre référence :</strong></td>
+                                        <td style="border: none; padding: 2px 8px; color: #0078D4; font-weight: bold;"><t t-esc="doc.name"/></td>
                                     </tr>
                                     <tr>
-                                        <td style="border: none; padding: 4px 8px;"><strong>Date :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;"><t t-esc="doc.date_order.strftime('%d/%m/%Y') if doc.date_order else ''"/></td>
+                                        <td style="border: none; padding: 2px 8px;"><strong>Date :</strong></td>
+                                        <td style="border: none; padding: 2px 8px;"><t t-esc="doc.date_order.strftime('%d/%m/%Y') if doc.date_order else ''"/></td>
                                     </tr>
                                     <tr t-if="doc.dropship_sale_id">
-                                        <td style="border: none; padding: 4px 8px;"><strong>Commande client :</strong></td>
-                                        <td style="border: none; padding: 4px 8px;"><t t-esc="doc.dropship_sale_id.name"/></td>
+                                        <td style="border: none; padding: 2px 8px;"><strong>Commande client :</strong></td>
+                                        <td style="border: none; padding: 2px 8px;"><t t-esc="doc.dropship_sale_id.name"/></td>
                                     </tr>
                                 </table>
                             </div>
@@ -804,7 +804,7 @@
                             </tbody>
                         </table>
 
-                        <!-- TOTAUX (le bloc englobant « insécable » faisait sauter wkhtmltopdf en page 2) -->
+                        <!-- TOTAUX v3 (le bloc englobant « insécable » faisait sauter wkhtmltopdf en page 2) -->
                         <div class="row">
                             <div class="col-7"/>
                             <div class="col-5">
@@ -827,12 +827,10 @@
 
                         <!-- INSTRUCTIONS -->
                         <div style="page-break-inside: avoid; margin-top: 10px; padding: 10px 14px; background: #e8f4fd; border-radius: 8px; border: 1px solid #b8daff; font-size: 12px;">
-                            <strong style="color: #0078D4; font-size: 14px;">Instructions d'expédition :</strong>
-                            <ul style="margin: 6px 0 0 0; line-height: 1.5;">
-                                <li><strong>Emballage neutre obligatoire</strong> : aucune mention du fournisseur</li>
-                                <li><strong>Ne pas inclure de facture ni de bon de livraison</strong> dans le colis</li>
-                                <li><strong>Communiquer le numéro de suivi</strong> dès l'expédition à info@lolirinepoolstore.be</li>
-                            </ul>
+                            <strong style="color: #0078D4;">Instructions d'expédition :</strong>
+                            <strong>emballage neutre</strong> (aucune mention du fournisseur) ·
+                            <strong>ni facture ni bon de livraison</strong> dans le colis ·
+                            <strong>numéro de suivi</strong> dès l'expédition à info@lolirinepoolstore.be
                         </div>
 
                     </t>
