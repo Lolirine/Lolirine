@@ -11,3 +11,4 @@ from . import res_partner
 from . import res_company
 from . import ir_actions_report
 from . import pool_suivi
+from . import pool_automatismes
