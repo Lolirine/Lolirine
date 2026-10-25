@@ -266,17 +266,21 @@ class SaleOrder(models.Model):
                 
                 # Prix catalogue du fournisseur + remise négociée : le sous-total de la
                 # ligne est le net à payer (= facture fournisseur).
+                # fiche à variantes : référence et prix de la variante commandée
+                ref_fournisseur, prix_catalogue, remise = supplier_info._pool_ligne_bc(sale_line.product_id)
                 po_line_vals = {
                     'order_id': po.id,
                     'product_id': sale_line.product_id.id,
-                    'name': supplier_info.supplier_product_name or sale_line.product_id.name,
+                    'name': (sale_line.product_id.with_context(display_default_code=False).display_name
+                             if len(sale_line.product_id.product_tmpl_id.product_variant_ids) > 1
+                             else supplier_info.supplier_product_name or sale_line.product_id.name),
                     'product_qty': sale_line.product_uom_qty,
                     'product_uom_id': sale_line.product_uom_id.id,
-                    'price_unit': supplier_info.price,
-                    'discount': supplier_info.discount_percent or 0.0,
+                    'price_unit': prix_catalogue,
+                    'discount': remise,
                     'date_planned': fields.Datetime.now() + timedelta(days=supplier_info.delay or 0),
                     'sale_line_id': sale_line.id,
-                    'supplier_product_ref': supplier_info.supplier_product_ref,
+                    'supplier_product_ref': ref_fournisseur,
                 }
                 if compte:
                     po_line_vals['analytic_distribution'] = {str(compte.id): 100}

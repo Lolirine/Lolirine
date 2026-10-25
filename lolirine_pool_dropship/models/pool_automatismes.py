@@ -48,6 +48,25 @@ def _odoobot(env, corps, utilisateur_id=2):
 class SupplierDropshipInfo(models.Model):
     _inherit = 'supplier.dropship.info'
 
+    def _pool_ligne_bc(self, product):
+        """(réf. fournisseur, prix catalogue, remise %) de la variante commandée.
+        La fiche fournisseur est unique par modèle : pour une fiche à variantes,
+        la référence est le code de la variante (sans « POOL- ») et le prix
+        catalogue est reconstitué depuis le coût de la variante."""
+        self.ensure_one()
+        ref = (self.supplier_product_ref or '').strip()
+        prix, remise = self.price, self.discount_percent or 0.0
+        if product and len(self.product_tmpl_id.product_variant_ids) > 1:
+            code = (product.default_code or '').strip()
+            if code.upper().startswith('POOL-'):
+                code = code[5:]
+            if code:
+                ref = code
+            if product.standard_price:
+                prix = round(product.standard_price / (1 - remise / 100.0), 2) if remise < 100 \
+                    else product.standard_price
+        return ref, prix, remise
+
     @api.model
     def _pool_prix_sibo(self, refs, budget=300):
         """{REF: prix catalogue} depuis le GraphQL public de Sibo (Fluidra Benelux)."""
