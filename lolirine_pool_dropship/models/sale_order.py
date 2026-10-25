@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import plaintext2html
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -243,12 +244,18 @@ class SaleOrder(models.Model):
                 'partner_id': supplier_id,
                 'dropship_sale_id': self.id,
                 'is_dropship_order': True,
-                'dest_address_id': self.partner_shipping_id.id,
                 'origin': self.name,
-                'note': self._prepare_dropship_notes(supplier, config),
+                'note': plaintext2html(self._prepare_dropship_notes(supplier, config) or ''),
             }
-            
+            # Odoo 19 n'accepte l'adresse du client final que sur un bon de type « Dropship »
+            type_dropship = self._dropship_picking_type()
+            if type_dropship:
+                po_vals['picking_type_id'] = type_dropship.id
+            po_vals['dest_address_id'] = self.partner_shipping_id.id
+
             po = self.env['purchase.order'].create(po_vals)
+            if po.dest_address_id != self.partner_shipping_id:
+                po.dest_address_id = self.partner_shipping_id
             
             # Créer les lignes
             for sale_line in lines:
@@ -285,6 +292,11 @@ class SaleOrder(models.Model):
             )
         
         return created_pos
+
+    def _dropship_picking_type(self):
+        """Type d'opération « Dropship » de la société de la commande."""
+        return self.env['stock.picking.type'].sudo().search(
+            [('code', '=', 'dropship'), ('company_id', '=', self.company_id.id)], limit=1)
 
     def _prepare_dropship_notes(self, supplier, config):
         """Prépare les notes/instructions pour le BC fournisseur"""

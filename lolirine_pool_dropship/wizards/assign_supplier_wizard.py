@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from odoo.tools import plaintext2html
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -225,11 +226,16 @@ class CreateDropshipPOWizard(models.TransientModel):
                 'partner_id': supplier_id,
                 'dropship_sale_id': sale.id,
                 'is_dropship_order': True,
-                'dest_address_id': sale.partner_shipping_id.id,
                 'origin': sale.name,
-                'note': sale._prepare_dropship_notes(supplier, config),
+                'note': plaintext2html(sale._prepare_dropship_notes(supplier, config) or ''),
             }
+            type_dropship = sale._dropship_picking_type()
+            if type_dropship:
+                po_vals['picking_type_id'] = type_dropship.id
+            po_vals['dest_address_id'] = sale.partner_shipping_id.id
             po = self.env['purchase.order'].create(po_vals)
+            if po.dest_address_id != sale.partner_shipping_id:
+                po.dest_address_id = sale.partner_shipping_id
 
             # Créer les lignes du BC
             for wiz_line in lines:
