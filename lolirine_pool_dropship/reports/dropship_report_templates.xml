@@ -710,7 +710,7 @@
                     <t t-call="lolirine_pool_dropship.pool_document_layout">
 
                         <!-- TITRE -->
-                        <div class="row mb-4">
+                        <div class="row mb-3">
                             <div class="col-8">
                                 <h1 style="color: #0078D4; font-size: 26px; margin: 0;">Bon de commande fournisseur</h1>
                                 <h2 style="color: #0078D4; font-size: 22px; margin: 5px 0 0 0; font-weight: bold;">
@@ -725,7 +725,7 @@
                         </div>
 
                         <!-- FOURNISSEUR + RÉFÉRENCES -->
-                        <div class="row mb-4">
+                        <div class="row mb-3">
                             <div class="col-6">
                                 <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 4px solid #0078D4;">
                                     <strong style="color: #0078D4; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Fournisseur</strong><br/>
@@ -753,15 +753,11 @@
                             </div>
                         </div>
 
-                        <!-- LIVRAISON DIRECTE -->
-                        <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 6px; padding: 12px 15px; margin-bottom: 15px;">
-                            <strong style="font-size: 15px;">⚠ LIVRAISON DIRECTE AU CLIENT</strong><br/>
-                            Expédier directement à l'adresse ci-dessous. <strong>Ne pas livrer à notre adresse.</strong>
-                        </div>
+                        <!-- LIVRAISON DIRECTE + ADRESSE (côte à côte : le bon tient sur une page) -->
                         <t t-set="adresse" t-value="doc.dest_address_id or doc.dropship_sale_id.partner_shipping_id"/>
-                        <div t-if="adresse" class="row mb-4">
-                            <div class="col-7">
-                                <div style="background: #e8f5e9; padding: 12px 15px; border-radius: 6px; border-left: 4px solid #28a745;">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div t-if="adresse" style="background: #e8f5e9; padding: 10px 14px; border-radius: 6px; border-left: 4px solid #28a745;">
                                     <strong style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #28a745;">Adresse de livraison (client final)</strong><br/>
                                     <strong><t t-esc="adresse.name"/></strong><br/>
                                     <t t-if="adresse.street"><t t-esc="adresse.street"/><br/></t>
@@ -769,6 +765,13 @@
                                     <t t-esc="adresse.zip"/> <t t-esc="adresse.city"/><br/>
                                     <t t-esc="adresse.country_id.name or ''"/>
                                     <t t-if="adresse.phone"><br/>Tél. : <t t-esc="adresse.phone"/></t>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 6px; padding: 10px 14px;">
+                                    <strong style="font-size: 14px;">⚠ LIVRAISON DIRECTE AU CLIENT</strong><br/>
+                                    Expédier directement à l'adresse ci-contre.<br/>
+                                    <strong>Ne pas livrer à notre adresse.</strong>
                                 </div>
                             </div>
                         </div>
@@ -801,7 +804,8 @@
                             </tbody>
                         </table>
 
-                        <!-- TOTAUX -->
+                        <!-- TOTAUX + INSTRUCTIONS : jamais coupés entre deux pages -->
+                        <div style="page-break-inside: avoid;">
                         <div class="row">
                             <div class="col-7"/>
                             <div class="col-5">
@@ -823,13 +827,14 @@
                         </div>
 
                         <!-- INSTRUCTIONS -->
-                        <div style="margin-top: 20px; padding: 15px 18px; background: #e8f4fd; border-radius: 8px; border: 1px solid #b8daff;">
+                        <div style="margin-top: 10px; padding: 10px 14px; background: #e8f4fd; border-radius: 8px; border: 1px solid #b8daff; font-size: 12px;">
                             <strong style="color: #0078D4; font-size: 14px;">Instructions d'expédition :</strong>
-                            <ul style="margin: 8px 0 0 0; line-height: 1.7;">
+                            <ul style="margin: 6px 0 0 0; line-height: 1.5;">
                                 <li><strong>Emballage neutre obligatoire</strong> : aucune mention du fournisseur</li>
                                 <li><strong>Ne pas inclure de facture ni de bon de livraison</strong> dans le colis</li>
                                 <li><strong>Communiquer le numéro de suivi</strong> dès l'expédition à info@lolirinepoolstore.be</li>
                             </ul>
+                        </div>
                         </div>
 
                     </t>
