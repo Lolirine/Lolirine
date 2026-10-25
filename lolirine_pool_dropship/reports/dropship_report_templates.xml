@@ -804,12 +804,11 @@
                             </tbody>
                         </table>
 
-                        <!-- TOTAUX + INSTRUCTIONS : jamais coupés entre deux pages -->
-                        <div style="page-break-inside: avoid;">
+                        <!-- TOTAUX (le bloc englobant « insécable » faisait sauter wkhtmltopdf en page 2) -->
                         <div class="row">
                             <div class="col-7"/>
                             <div class="col-5">
-                                <table class="table table-sm" style="font-size: 13px;">
+                                <table class="table table-sm" style="font-size: 13px; page-break-inside: avoid;">
                                     <tr>
                                         <td style="border: none; padding: 4px 8px;"><strong>Total net HT</strong></td>
                                         <td class="text-end" style="border: none; padding: 4px 8px;"><t t-esc="'%.2f' % doc.amount_untaxed"/> €</td>
@@ -827,14 +826,13 @@
                         </div>
 
                         <!-- INSTRUCTIONS -->
-                        <div style="margin-top: 10px; padding: 10px 14px; background: #e8f4fd; border-radius: 8px; border: 1px solid #b8daff; font-size: 12px;">
+                        <div style="page-break-inside: avoid; margin-top: 10px; padding: 10px 14px; background: #e8f4fd; border-radius: 8px; border: 1px solid #b8daff; font-size: 12px;">
                             <strong style="color: #0078D4; font-size: 14px;">Instructions d'expédition :</strong>
                             <ul style="margin: 6px 0 0 0; line-height: 1.5;">
                                 <li><strong>Emballage neutre obligatoire</strong> : aucune mention du fournisseur</li>
                                 <li><strong>Ne pas inclure de facture ni de bon de livraison</strong> dans le colis</li>
                                 <li><strong>Communiquer le numéro de suivi</strong> dès l'expédition à info@lolirinepoolstore.be</li>
                             </ul>
-                        </div>
                         </div>
 
                     </t>
