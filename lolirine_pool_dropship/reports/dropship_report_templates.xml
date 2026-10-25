@@ -9,7 +9,7 @@
     <template id="pool_document_layout">
         <div class="pool-document" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #333;">
             <!-- EN-TÊTE -->
-            <div style="border-bottom: 3px solid #0078D4; padding-bottom: 15px; margin-bottom: 25px;">
+            <div style="border-bottom: 3px solid #0078D4; padding-bottom: 8px; margin-bottom: 14px;">
                 <div class="row">
                     <div class="col-4">
                         <img src="/lolirine_pool_dropship/static/img/pool_store_logo.png"
@@ -34,7 +34,8 @@
             <t t-out="0"/>
 
             <!-- PIED DE PAGE -->
-            <div style="border-top: 2px solid #0078D4; margin-top: 30px; padding-top: 10px; font-size: 10px; color: #888;">
+            <!-- pied v4 : insécable -->
+            <div style="border-top: 2px solid #0078D4; margin-top: 14px; padding-top: 8px; font-size: 10px; color: #888; page-break-inside: avoid;">
                 <div class="row">
                     <div class="col-4">
                         <strong>Lolirine SRL</strong><br/>
@@ -710,7 +711,7 @@
                     <t t-call="lolirine_pool_dropship.pool_document_layout">
 
                         <!-- TITRE -->
-                        <div class="row mb-3">
+                        <div class="row mb-2">
                             <div class="col-8">
                                 <h1 style="color: #0078D4; font-size: 22px; margin: 0;">Bon de commande fournisseur</h1>
                                 <h2 style="color: #0078D4; font-size: 18px; margin: 2px 0 0 0; font-weight: bold;">
@@ -725,7 +726,7 @@
                         </div>
 
                         <!-- FOURNISSEUR + RÉFÉRENCES -->
-                        <div class="row mb-3">
+                        <div class="row mb-2">
                             <div class="col-6">
                                 <div style="background: #f8f9fa; padding: 8px 12px; border-radius: 6px; border-left: 4px solid #0078D4;">
                                     <strong style="color: #0078D4; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Fournisseur</strong><br/>
@@ -755,7 +756,7 @@
 
                         <!-- LIVRAISON DIRECTE + ADRESSE (côte à côte : le bon tient sur une page) -->
                         <t t-set="adresse" t-value="doc.dest_address_id or doc.dropship_sale_id.partner_shipping_id"/>
-                        <div class="row mb-3">
+                        <div class="row mb-2">
                             <div class="col-6">
                                 <div t-if="adresse" style="background: #e8f5e9; padding: 10px 14px; border-radius: 6px; border-left: 4px solid #28a745;">
                                     <strong style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #28a745;">Adresse de livraison (client final)</strong><br/>
@@ -804,7 +805,7 @@
                             </tbody>
                         </table>
 
-                        <!-- TOTAUX v3 (le bloc englobant « insécable » faisait sauter wkhtmltopdf en page 2) -->
+                        <!-- TOTAUX v4 (le bloc englobant « insécable » faisait sauter wkhtmltopdf en page 2) -->
                         <div class="row">
                             <div class="col-7"/>
                             <div class="col-5">
