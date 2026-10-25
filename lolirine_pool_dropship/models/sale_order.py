@@ -245,7 +245,7 @@ class SaleOrder(models.Model):
                 'is_dropship_order': True,
                 'dest_address_id': self.partner_shipping_id.id,
                 'origin': self.name,
-                'notes': self._prepare_dropship_notes(supplier, config),
+                'note': self._prepare_dropship_notes(supplier, config),
             }
             
             po = self.env['purchase.order'].create(po_vals)
@@ -262,7 +262,7 @@ class SaleOrder(models.Model):
                     'product_id': sale_line.product_id.id,
                     'name': supplier_info.supplier_product_name or sale_line.product_id.name,
                     'product_qty': sale_line.product_uom_qty,
-                    'product_uom': sale_line.product_uom.id,
+                    'product_uom_id': sale_line.product_uom_id.id,
                     'price_unit': purchase_price,
                     'date_planned': fields.Datetime.now(),
                     'sale_line_id': sale_line.id,

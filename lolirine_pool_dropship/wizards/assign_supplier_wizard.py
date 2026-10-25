@@ -227,7 +227,7 @@ class CreateDropshipPOWizard(models.TransientModel):
                 'is_dropship_order': True,
                 'dest_address_id': sale.partner_shipping_id.id,
                 'origin': sale.name,
-                'notes': sale._prepare_dropship_notes(supplier, config),
+                'note': sale._prepare_dropship_notes(supplier, config),
             }
             po = self.env['purchase.order'].create(po_vals)
 
@@ -251,7 +251,7 @@ class CreateDropshipPOWizard(models.TransientModel):
                     'product_id': wiz_line.product_id.id,
                     'name': (supplier_ref + ' - ' if supplier_ref else '') + wiz_line.product_name,
                     'product_qty': wiz_line.quantity,
-                    'product_uom': wiz_line.sale_line_id.product_uom.id,
+                    'product_uom_id': wiz_line.sale_line_id.product_uom_id.id,
                     'price_unit': purchase_price,
                     'date_planned': fields.Datetime.now(),
                     'sale_line_id': wiz_line.sale_line_id.id,
