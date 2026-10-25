@@ -157,16 +157,24 @@ class LolirineAlerteCommande(models.Model):
         # pièces jointes : un PDF par bon fournisseur
         pieces = []
         Rapport = self.env['ir.actions.report'].sudo()
+        # le rapport est cherché par son nom technique : passé tel quel, Odoo le prend
+        # pour l'identifiant de la vue QWeb et refuse de l'imprimer
+        rapport = Rapport.search([('report_name', '=', RAPPORT_BC)], limit=1) \
+            or self.env.ref('purchase.action_report_purchase_order', raise_if_not_found=False)
+        echecs = []
         for po in self._bons_fournisseurs():
             try:
-                pdf, _t = Rapport._render_qweb_pdf(RAPPORT_BC, po.ids)
+                pdf, _t = Rapport._render_qweb_pdf(rapport, po.ids)
                 pieces.append(self.env['ir.attachment'].sudo().create({
                     'name': 'Bon fournisseur %s - %s.pdf' % (po.name, po.partner_id.name),
                     'datas': base64.b64encode(pdf), 'mimetype': 'application/pdf',
                     'res_model': 'purchase.order', 'res_id': po.id,
                 }).id)
-            except Exception:  # noqa: BLE001
+            except Exception as e:  # noqa: BLE001
                 _logger.exception("Avertissement %s : PDF du bon %s non généré", o.name, po.name)
+                echecs.append('PDF %s non généré : %s' % (po.name, str(e)[:200]))
+        if echecs:
+            self.note = '\n'.join(echecs)
         destinataires = self._param('email', 'info@lolirinepoolstore.be')
         expediteur = self._param('expediteur', 'Lolirine Pool Store <info@lolirinepoolstore.be>')
         mail = self.env['mail.mail'].sudo().create({
