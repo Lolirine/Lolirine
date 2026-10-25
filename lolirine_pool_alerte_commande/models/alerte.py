@@ -74,7 +74,8 @@ class LolirineAlerteCommande(models.Model):
     # ── paramètres ────────────────────────────────────────────────────────
     @api.model
     def _param(self, cle, defaut=''):
-        return self.env['ir.config_parameter'].sudo().get_param(P + cle) or defaut
+        # .strip() : un espace collé avec un jeton ou un numéro le rend invalide
+        return (self.env['ir.config_parameter'].sudo().get_param(P + cle) or '').strip() or defaut
 
     @api.model
     def _dans_les_heures(self):
