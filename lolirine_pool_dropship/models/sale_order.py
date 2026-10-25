@@ -235,6 +235,8 @@ class SaleOrder(models.Model):
         
         created_pos = self.env['purchase.order']
         config = self.env['dropship.config'].get_config()
+        # Compte analytique de la commande : ventes et achats s'y retrouvent (marge)
+        compte = self._pool_compte_analytique() if lines_by_supplier else False
         
         for supplier_id, lines in lines_by_supplier.items():
             supplier = self.env['res.partner'].browse(supplier_id)
@@ -261,20 +263,22 @@ class SaleOrder(models.Model):
             for sale_line in lines:
                 supplier_info = sale_line.dropship_supplier_info_id
                 
-                # Utiliser le prix négocié pour le bon de commande fournisseur
-                purchase_price = supplier_info.negotiated_price if supplier_info.negotiated_price else supplier_info.price
-                
+                # Prix catalogue du fournisseur + remise négociée : le sous-total de la
+                # ligne est le net à payer (= facture fournisseur).
                 po_line_vals = {
                     'order_id': po.id,
                     'product_id': sale_line.product_id.id,
                     'name': supplier_info.supplier_product_name or sale_line.product_id.name,
                     'product_qty': sale_line.product_uom_qty,
                     'product_uom_id': sale_line.product_uom_id.id,
-                    'price_unit': purchase_price,
+                    'price_unit': supplier_info.price,
+                    'discount': supplier_info.discount_percent or 0.0,
                     'date_planned': fields.Datetime.now(),
                     'sale_line_id': sale_line.id,
                     'supplier_product_ref': supplier_info.supplier_product_ref,
                 }
+                if compte:
+                    po_line_vals['analytic_distribution'] = {str(compte.id): 100}
                 
                 self.env['purchase.order.line'].create(po_line_vals)
             
@@ -292,6 +296,39 @@ class SaleOrder(models.Model):
             )
         
         return created_pos
+
+    PLAN_ANALYTIQUE_POOL = 'Commandes Pool Store'
+
+    def _pool_compte_analytique(self):
+        """Compte analytique propre à la commande (plan « Commandes Pool Store »),
+        posé sur toutes ses lignes de vente : facture client, bons et factures
+        fournisseurs s'y rattachent, son solde est la marge de la commande."""
+        self.ensure_one()
+        try:
+            Plan = self.env['account.analytic.plan'].sudo()
+            Compte = self.env['account.analytic.account'].sudo()
+            plan = Plan.search([('name', '=', self.PLAN_ANALYTIQUE_POOL)], limit=1)
+            if not plan:
+                plan = Plan.create({'name': self.PLAN_ANALYTIQUE_POOL, 'default_applicability': 'optional'})
+            compte = Compte.search([('plan_id', '=', plan.id), ('code', '=', self.name),
+                                    ('company_id', 'in', [False, self.company_id.id])], limit=1)
+            if not compte:
+                compte = Compte.create({
+                    'name': '%s — %s' % (self.name, self.partner_id.name or ''),
+                    'code': self.name, 'plan_id': plan.id,
+                    'partner_id': self.partner_id.commercial_partner_id.id,
+                    'company_id': self.company_id.id,
+                })
+            cle = str(compte.id)
+            for ligne in self.order_line.filtered(lambda l: not l.display_type):
+                distribution = dict(ligne.analytic_distribution or {})
+                if cle not in distribution:
+                    distribution[cle] = 100
+                    ligne.analytic_distribution = distribution
+            return compte
+        except Exception as e:  # la marge ne doit jamais bloquer la création des bons
+            _logger.warning("Compte analytique de %s non créé : %s", self.name, e)
+            return False
 
     def _dropship_picking_type(self):
         """Type d'opération « Dropship » de la société de la commande."""

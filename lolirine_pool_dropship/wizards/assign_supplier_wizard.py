@@ -217,6 +217,7 @@ class CreateDropshipPOWizard(models.TransientModel):
         created_pos = self.env['purchase.order']
         sale = self.sale_order_id
         config = self.env['dropship.config'].get_config()
+        compte = sale._pool_compte_analytique() if lines_by_supplier else False
 
         for supplier_id, lines in lines_by_supplier.items():
             supplier = self.env['res.partner'].browse(supplier_id)
@@ -239,7 +240,7 @@ class CreateDropshipPOWizard(models.TransientModel):
 
             # Créer les lignes du BC
             for wiz_line in lines:
-                # Calculer le prix d'achat négocié
+                # Prix catalogue + remise sur le bon ; le net sert au coût de la ligne de vente
                 purchase_price = wiz_line.catalog_price * (1 - wiz_line.discount_percent / 100)
 
                 # Chercher la ref fournisseur
@@ -258,11 +259,14 @@ class CreateDropshipPOWizard(models.TransientModel):
                     'name': (supplier_ref + ' - ' if supplier_ref else '') + wiz_line.product_name,
                     'product_qty': wiz_line.quantity,
                     'product_uom_id': wiz_line.sale_line_id.product_uom_id.id,
-                    'price_unit': purchase_price,
+                    'price_unit': wiz_line.catalog_price,
+                    'discount': wiz_line.discount_percent or 0.0,
                     'date_planned': fields.Datetime.now(),
                     'sale_line_id': wiz_line.sale_line_id.id,
                     'supplier_product_ref': supplier_ref,
                 }
+                if compte:
+                    po_line_vals['analytic_distribution'] = {str(compte.id): 100}
                 self.env['purchase.order.line'].create(po_line_vals)
 
                 # Mettre à jour la ligne de vente

@@ -780,8 +780,10 @@
                                     <th style="padding: 10px 12px; border: none; width: 120px;">Réf. fournisseur</th>
                                     <th style="padding: 10px 12px; border: none;">Description</th>
                                     <th class="text-center" style="padding: 10px; border: none; width: 60px;">Qté</th>
-                                    <th class="text-end" style="padding: 10px; border: none; width: 100px;">Prix unit. HT</th>
-                                    <th class="text-end" style="padding: 10px; border: none; width: 100px;">Total HT</th>
+                                    <th class="text-end" style="padding: 10px; border: none; width: 95px;">Prix catalogue HT</th>
+                                    <th class="text-end" style="padding: 10px; border: none; width: 65px;">Remise</th>
+                                    <th class="text-end" style="padding: 10px; border: none; width: 90px;">Prix net HT</th>
+                                    <th class="text-end" style="padding: 10px; border: none; width: 95px;">Total net HT</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -791,6 +793,8 @@
                                         <td style="padding: 8px 12px;"><t t-esc="line.name"/></td>
                                         <td class="text-center" style="padding: 8px;"><t t-esc="'%g' % line.product_qty"/></td>
                                         <td class="text-end" style="padding: 8px;"><t t-esc="'%.2f' % line.price_unit"/> €</td>
+                                        <td class="text-end" style="padding: 8px;"><t t-if="line.discount"><t t-esc="'%g' % line.discount"/> %</t><t t-else="">-</t></td>
+                                        <td class="text-end" style="padding: 8px;"><t t-esc="'%.2f' % (line.price_unit * (1 - (line.discount or 0.0) / 100.0))"/> €</td>
                                         <td class="text-end" style="padding: 8px;"><t t-esc="'%.2f' % line.price_subtotal"/> €</td>
                                     </tr>
                                 </t>
@@ -803,7 +807,7 @@
                             <div class="col-5">
                                 <table class="table table-sm" style="font-size: 13px;">
                                     <tr>
-                                        <td style="border: none; padding: 4px 8px;"><strong>Total HT</strong></td>
+                                        <td style="border: none; padding: 4px 8px;"><strong>Total net HT</strong></td>
                                         <td class="text-end" style="border: none; padding: 4px 8px;"><t t-esc="'%.2f' % doc.amount_untaxed"/> €</td>
                                     </tr>
                                     <tr>
