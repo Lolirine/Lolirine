@@ -228,7 +228,7 @@
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
                 <filter string="🏊 Devis piscine"    name="pool_quotes"
-                        domain="[('is_pool_quote','=',True)]"/>
+                        domain="['|', ('is_pool_quote','=',True), ('is_dropship_order','=',True)]"/>
                 <filter string="📦 BC à préparer"    name="pool_bc_draft"
                         domain="[('is_pool_quote','=',True),('pool_bc_statut','=','draft'),('state','in',['sale','done'])]"/>
                 <filter string="✅ Visite terminée"  name="pool_visit_done"
@@ -255,7 +255,8 @@
         <field name="name">Devis Piscine</field>
         <field name="res_model">sale.order</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('is_pool_quote','=',True)]</field>
+        <!-- devis et commandes piscine : PSC (visites) ET POOL- (site Pool Store) -->
+        <field name="domain">['|', ('is_pool_quote','=',True), ('is_dropship_order','=',True)]</field>
         <field name="context">{'default_is_pool_quote': True, 'search_default_pool_quotes': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">Créer un devis piscine</p>

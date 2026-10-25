@@ -58,11 +58,13 @@ class SaleOrder(models.Model):
     dropship_quote_sent = fields.Boolean(string='Devis envoyé', copy=False, default=False)
     dropship_confirmation_sent = fields.Boolean(string='Confirmation envoyée', copy=False, default=False)
 
-    @api.depends('order_line.product_id.is_dropship_product')
+    @api.depends('order_line.product_id.is_dropship_product', 'website_id')
     def _compute_is_dropship(self):
+        # commande du site Pool Store (6) ou contenant un produit piscine / dropship
         for order in self:
-            order.is_dropship_order = any(
-                line.product_id.product_tmpl_id.is_dropship_product 
+            order.is_dropship_order = (order.website_id.id == 6) or any(
+                line.product_id.product_tmpl_id.is_dropship_product
+                or getattr(line.product_id.product_tmpl_id, 'is_pool_product', False)
                 for line in order.order_line if line.product_id
             )
 

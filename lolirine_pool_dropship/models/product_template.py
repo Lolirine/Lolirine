@@ -9,6 +9,20 @@ class ProductTemplate(models.Model):
     # === DROPSHIPPING ===
     is_dropship_product = fields.Boolean(string='Produit dropshipping', default=False,
                                           help="Ce produit est géré en dropshipping")
+
+    # Tout produit piscine est vendu en dropshipping (sinon ses commandes ne sont
+    # ni numérotées POOL-, ni analysées, ni envoyées au fournisseur)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('is_pool_product') and 'is_dropship_product' not in vals:
+                vals['is_dropship_product'] = True
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if vals.get('is_pool_product') and 'is_dropship_product' not in vals:
+            vals = dict(vals, is_dropship_product=True)
+        return super().write(vals)
     dropship_supplier_ids = fields.One2many('supplier.dropship.info', 'product_tmpl_id',
                                              string='Fournisseurs dropshipping')
     dropship_supplier_count = fields.Integer(compute='_compute_dropship_supplier_count',
