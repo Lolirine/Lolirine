@@ -48,7 +48,9 @@ class DropshipTrackingWizard(models.TransientModel):
         if self.supplier_order_ref:
             vals['supplier_order_ref'] = self.supplier_order_ref
         
-        self.purchase_id.write(vals)
+        # avec « Notifier le client », un n° de suivi fait passer le bon « Expédié »
+        # et envoie l'e-mail au client (voir purchase.order.write)
+        self.purchase_id.with_context(pool_sans_auto=not self.notify_customer).write(vals)
         
         # Mettre à jour les lignes de la commande client
         if self.purchase_id.dropship_sale_id:

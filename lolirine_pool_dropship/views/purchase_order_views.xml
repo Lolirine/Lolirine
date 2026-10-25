@@ -18,6 +18,53 @@
                         invisible="not dropship_sale_id">
                     <span class="o_stat_text">Commande Client</span>
                 </button>
+                <button name="action_pool_factures_client" type="object"
+                        class="oe_stat_button" icon="fa-file-text-o"
+                        invisible="not dropship_sale_id">
+                    <field name="pool_client_invoice_count" widget="statinfo" string="Facture client"/>
+                </button>
+                <button name="action_pool_autres_bons" type="object"
+                        class="oe_stat_button" icon="fa-files-o"
+                        invisible="not pool_autres_bc_count">
+                    <field name="pool_autres_bc_count" widget="statinfo" string="Autres bons"/>
+                </button>
+                <button name="action_pool_marge_analytique" type="object"
+                        class="oe_stat_button" icon="fa-line-chart"
+                        invisible="not dropship_sale_id">
+                    <span class="o_stat_text">Marge</span>
+                </button>
+                <button name="action_pool_ouvrir_suivi" type="object"
+                        class="oe_stat_button" icon="fa-map-marker"
+                        invisible="not pool_tracking_url">
+                    <span class="o_stat_text">Suivre le colis</span>
+                </button>
+            </xpath>
+
+            <!-- Bandeaux : paiement client, retard, marge -->
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <field name="dropship_sale_id" invisible="1"/>
+                <field name="pool_client_paye" invisible="1"/>
+                <field name="pool_en_retard" invisible="1"/>
+                <field name="pool_tracking_url" invisible="1"/>
+                <div class="alert alert-danger py-2 mb-2" role="alert"
+                     invisible="not is_dropship_order or not dropship_sale_id or pool_client_paye">
+                    <i class="fa fa-exclamation-triangle" title="Client non payé"/>
+                    <strong> Client non payé</strong> — <field name="pool_paiement_txt" readonly="1" class="d-inline"/>.
+                    Ne pas envoyer le bon avant le paiement.
+                </div>
+                <div class="alert alert-warning py-2 mb-2" role="alert" invisible="not pool_en_retard">
+                    <i class="fa fa-clock-o" title="Retard"/>
+                    <strong> En retard</strong> — <field name="pool_retard_txt" readonly="1" class="d-inline"/>
+                </div>
+                <div class="alert alert-light border py-2 mb-3" role="status" invisible="not dropship_sale_id">
+                    <span class="me-3">Vente HT <strong><field name="pool_vente_ht" readonly="1" class="d-inline"/></strong></span>
+                    <span class="me-3">Achats HT <strong><field name="pool_achats_ht" readonly="1" class="d-inline"/></strong></span>
+                    <span class="me-3" invisible="not pool_port_estime">Port fournisseur estimé <strong><field name="pool_port_estime" readonly="1" class="d-inline"/></strong></span>
+                    <span class="me-3">Marge prévue <strong><field name="pool_marge" readonly="1" class="d-inline"/></strong>
+                        (<field name="pool_marge_pct" readonly="1" digits="[16,1]" class="d-inline"/> %)</span>
+                    <span invisible="not pool_marge_reelle_ok">Marge réelle <strong><field name="pool_marge_reelle" readonly="1" class="d-inline"/></strong></span>
+                    <field name="pool_marge_reelle_ok" invisible="1"/>
+                </div>
             </xpath>
             
             <!-- Badge dropship -->
@@ -35,6 +82,10 @@
                         string="📧 Envoyer au fournisseur" class="btn-warning"
                         invisible="not is_dropship_order or email_sent or state == 'draft'"
                         confirm="Voulez-vous envoyer cette commande au fournisseur par email ?"/>
+                <button name="action_pool_envoyer_quand_meme" type="object"
+                        string="Envoyer quand même" class="btn-outline-danger"
+                        invisible="not is_dropship_order or email_sent or not dropship_sale_id or pool_client_paye"
+                        confirm="Le client n'a pas payé. Envoyer quand même le bon au fournisseur ?"/>
                 <button name="action_mark_shipped" type="object"
                         string="Marquer expédié" class="btn-primary"
                         invisible="not is_dropship_order or dropship_status not in ('sent', 'confirmed')"/>
@@ -52,55 +103,43 @@
             <!-- Onglet Dropshipping -->
             <xpath expr="//notebook" position="inside">
                 <page string="Dropshipping" name="dropshipping" invisible="not is_dropship_order">
-                    
                     <group>
-                        <group string="Statut &amp; Suivi">
+                        <group string="Statut &amp; suivi du colis">
                             <field name="dropship_status" widget="badge"
                                    decoration-info="dropship_status == 'draft'"
                                    decoration-warning="dropship_status in ('sent', 'confirmed')"
                                    decoration-success="dropship_status in ('shipped', 'delivered')"
                                    decoration-danger="dropship_status == 'issue'"/>
-                            <field name="dropship_sale_id"/>
-                            <field name="supplier_order_ref"/>
-                            <field name="last_sent_date"/>
-                        </group>
-                        <group string="Communication fournisseur">
-                            <field name="send_email_on_confirm" 
-                                   widget="boolean_toggle"
-                                   invisible="state != 'draft'"/>
-                            <field name="email_sent" widget="boolean_toggle" readonly="1"/>
-                        </group>
-                    </group>
-                    
-                    <group>
-                        <group string="Livraison">
-                            <field name="dest_address_id"/>
                             <field name="dropship_carrier"/>
-                            <field name="dropship_tracking_number"/>
+                            <field name="dropship_tracking_number"
+                                   help="Dès qu'un numéro est saisi, le bon passe « Expédié » et le client reçoit un e-mail avec le lien de suivi."/>
+                            <field name="pool_tracking_url" widget="url" invisible="not pool_tracking_url"/>
                             <field name="dropship_expected_delivery"/>
-                        </group>
-                    </group>
-                    
-                    <group>
-                        <group string="Dates">
                             <field name="dropship_shipped_date"/>
                             <field name="dropship_delivered_date"/>
                         </group>
-                        <group string="Coûts additionnels">
-                            <field name="shipping_cost"/>
-                            <field name="handling_cost"/>
-                            <field name="total_dropship_cost"/>
+                        <group string="Fournisseur">
+                            <field name="supplier_order_ref" string="N° de commande chez le fournisseur"/>
+                            <field name="last_sent_date"/>
+                            <field name="email_sent" widget="boolean_toggle" readonly="1"/>
+                            <field name="send_email_on_confirm" widget="boolean_toggle"
+                                   invisible="state != 'draft'"/>
                         </group>
                     </group>
-                    
-                    <!-- Adresse de livraison complète -->
-                    <separator string="Adresse de livraison client final"/>
-                    <div class="o_address_format" invisible="not dest_address_id">
-                        <field name="dest_address_id" nolabel="1" 
-                               context="{'show_address_only': True}" 
-                               options="{'always_reload': True}"/>
-                    </div>
-                    
+                    <group>
+                        <group string="Facture fournisseur">
+                            <field name="pool_facture_etat" widget="badge"
+                                   decoration-muted="pool_facture_etat == 'attente'"
+                                   decoration-success="pool_facture_etat == 'conforme'"
+                                   decoration-danger="pool_facture_etat == 'ecart'"/>
+                            <field name="pool_facture_ecart" invisible="pool_facture_etat != 'ecart'"/>
+                        </group>
+                        <group string="Coûts &amp; marge de la commande">
+                            <field name="pool_paiement_txt" string="Paiement client" invisible="not dropship_sale_id"/>
+                            <field name="pool_port_detail" string="Port fournisseur estimé" invisible="not pool_port_detail"/>
+                            <field name="pool_marge_reelle" invisible="not pool_marge_reelle_ok"/>
+                        </group>
+                    </group>
                 </page>
             </xpath>
             
@@ -113,6 +152,9 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_tree"/>
         <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="decoration-danger">pool_en_retard</attribute>
+            </xpath>
             <xpath expr="//field[@name='state']" position="before">
                 <field name="is_dropship_order" column_invisible="1"/>
                 <field name="dropship_status" optional="show"
@@ -121,6 +163,10 @@
                        decoration-success="dropship_status in ('shipped', 'delivered')"
                        decoration-danger="dropship_status == 'issue'"/>
                 <field name="dropship_tracking_number" optional="hide"/>
+                <field name="pool_en_retard" column_invisible="1"/>
+                <field name="pool_facture_etat" optional="show" widget="badge"
+                       decoration-success="pool_facture_etat == 'conforme'"
+                       decoration-danger="pool_facture_etat == 'ecart'"/>
             </xpath>
         </field>
     </record>

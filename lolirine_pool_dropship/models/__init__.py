@@ -10,3 +10,4 @@ from . import dropship_decision_log
 from . import res_partner
 from . import res_company
 from . import ir_actions_report
+from . import pool_suivi

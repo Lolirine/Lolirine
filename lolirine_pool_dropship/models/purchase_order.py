@@ -35,8 +35,9 @@ class PurchaseOrder(models.Model):
     dropship_delivered_date = fields.Datetime(string='Date livraison effective')
     
     # Communication
-    supplier_order_ref = fields.Char(string='Réf. commande fournisseur',
-                                     help="Numéro de commande chez le fournisseur")
+    # même information que la « Référence fournisseur » standard d'Odoo (plus de doublon)
+    supplier_order_ref = fields.Char(string='Réf. commande fournisseur', related='partner_ref',
+                                     readonly=False, help="Numéro de commande chez le fournisseur")
     last_sent_date = fields.Datetime(string='Dernier envoi')
     send_email_on_confirm = fields.Boolean(string='Envoyer email au fournisseur',
                                            default=False,

@@ -4,6 +4,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import plaintext2html
 import logging
+from datetime import timedelta
 
 _logger = logging.getLogger(__name__)
 
@@ -273,7 +274,7 @@ class SaleOrder(models.Model):
                     'product_uom_id': sale_line.product_uom_id.id,
                     'price_unit': supplier_info.price,
                     'discount': supplier_info.discount_percent or 0.0,
-                    'date_planned': fields.Datetime.now(),
+                    'date_planned': fields.Datetime.now() + timedelta(days=supplier_info.delay or 0),
                     'sale_line_id': sale_line.id,
                     'supplier_product_ref': supplier_info.supplier_product_ref,
                 }

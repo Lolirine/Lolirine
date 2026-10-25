@@ -18,6 +18,34 @@
                         invisible="not is_dropship_order or dropship_purchase_count == 0">
                     <field name="dropship_purchase_count" widget="statinfo" string="BC Fournisseur"/>
                 </button>
+                <button name="action_pool_factures_fournisseurs" type="object"
+                        class="oe_stat_button" icon="fa-file-text"
+                        invisible="not is_dropship_order or not pool_bill_count">
+                    <field name="pool_bill_count" widget="statinfo" string="Factures fourn."/>
+                </button>
+                <button name="action_pool_marge_analytique" type="object"
+                        class="oe_stat_button" icon="fa-line-chart"
+                        invisible="not is_dropship_order or dropship_purchase_count == 0">
+                    <span class="o_stat_text">Marge</span>
+                </button>
+            </xpath>
+
+            <!-- Bandeau marge et paiement (commandes Pool Store) -->
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <field name="pool_client_paye" invisible="1"/>
+                <field name="pool_marge_reelle_ok" invisible="1"/>
+                <div class="alert alert-light border py-2 mb-3" role="status"
+                     invisible="not is_dropship_order or state != 'sale'">
+                    <span class="me-3">
+                        <span invisible="not pool_client_paye" class="text-success"><i class="fa fa-check-circle" title="Payé"/> Payé</span>
+                        <span invisible="pool_client_paye" class="text-danger"><i class="fa fa-exclamation-circle" title="Non payé"/> <field name="pool_paiement_txt" readonly="1" class="d-inline"/></span>
+                    </span>
+                    <span class="me-3">Achats HT <strong><field name="pool_achats_ht" readonly="1" class="d-inline"/></strong></span>
+                    <span class="me-3" invisible="not pool_port_estime">Port fournisseur estimé <strong><field name="pool_port_estime" readonly="1" class="d-inline"/></strong></span>
+                    <span class="me-3">Marge prévue <strong><field name="pool_marge" readonly="1" class="d-inline"/></strong>
+                        (<field name="pool_marge_pct" readonly="1" digits="[16,1]" class="d-inline"/> %)</span>
+                    <span invisible="not pool_marge_reelle_ok">Marge réelle <strong><field name="pool_marge_reelle" readonly="1" class="d-inline"/></strong></span>
+                </div>
             </xpath>
             
             <!-- Ajouter le badge dropship dans le header -->
@@ -101,6 +129,7 @@
                     <group>
                         <group string="Statut">
                             <field name="dropship_ref" readonly="1"/>
+                            <field name="pool_tracking_url" widget="url" string="Suivi du colis" invisible="not pool_tracking_url"/>
                             <field name="dropship_status" widget="badge"
                                    decoration-info="dropship_status in ('pending', 'analyzed')"
                                    decoration-warning="dropship_status in ('supplier_selected', 'po_created')"

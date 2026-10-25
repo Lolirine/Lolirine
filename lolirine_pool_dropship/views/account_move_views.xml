@@ -11,6 +11,12 @@
                     <i class="fa fa-truck"/> Piscine
                 </span>
             </xpath>
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <div class="alert alert-warning py-2 mb-2" role="alert" invisible="not pool_ecart_bc">
+                    <strong><i class="fa fa-exclamation-triangle" title="Écart"/> Écarts avec le bon de commande fournisseur :</strong>
+                    <field name="pool_ecart_bc" readonly="1" nolabel="1"/>
+                </div>
+            </xpath>
             <xpath expr="//header" position="inside">
                 <button name="action_preview_pool_invoice_pdf" type="object"
                         string="📄 Aperçu facture Piscine" class="btn-secondary"
