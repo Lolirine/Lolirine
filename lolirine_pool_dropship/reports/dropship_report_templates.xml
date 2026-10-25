@@ -810,9 +810,9 @@
                                     <li><strong>Ne pas inclure de facture</strong> dans le colis</li>
                                     <li><strong>Communiquer le numéro de suivi</strong> dès expédition</li>
                                 </ul>
-                                <t t-if="doc.notes">
+                                <t t-if="doc.note">
                                     <hr/>
-                                    <t t-out="doc.notes"/>
+                                    <t t-out="doc.note"/>
                                 </t>
                             </div>
                         </div>
