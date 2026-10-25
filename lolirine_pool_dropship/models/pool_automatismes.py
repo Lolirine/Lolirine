@@ -73,15 +73,16 @@ class SupplierDropshipInfo(models.Model):
     @api.model
     def _cron_pool_sync_prix_fluidra(self, appliquer=True, utilisateur_id=2):
         """Relit les prix catalogue Fluidra ; renvoie le résumé (texte) pour contrôle."""
-        fluidra = self.env['res.partner'].sudo().search([('name', '=', 'Fluidra Benelux')], limit=1)
+        fluidra = self.env['res.partner'].sudo().with_context(active_test=False) \
+            .search([('name', '=', 'Fluidra Benelux')], limit=1)
         if not fluidra:
-            return "Fournisseur « Fluidra Benelux » introuvable"
+            return "Fournisseur « Fluidra Benelux » introuvable", [], [], []
         infos = self.sudo().search([('supplier_id', '=', fluidra.id), ('is_active', '=', True)])
         refs = sorted({(i.supplier_product_ref or '').strip().upper() for i in infos
                        if (i.supplier_product_ref or '').strip()})
         catalogue = self._pool_prix_sibo(refs)
         if not catalogue:
-            return "Aucun prix obtenu de Sibo (site injoignable ?) — rien n'a changé"
+            return "Aucun prix obtenu de Sibo (site injoignable ?) — rien n'a changé", [], [], []
         hausses, baisses = [], []
         for i in infos:
             c = catalogue.get((i.supplier_product_ref or '').strip().upper())
