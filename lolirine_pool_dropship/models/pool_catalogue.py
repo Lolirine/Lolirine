@@ -273,7 +273,9 @@ class PoolCatalogueMixin(models.AbstractModel):
                         lambda v: _norm(v.default_code) == cle) or variantes[:1]
             exact = bool(trouves)
             if not trouves:
-                trouves = Prod.search([('name', 'ilike', terme), ('sale_ok', '=', True)], limit=30)
+                mots = [m for m in re.split(r'\s+', terme) if len(m) >= 2][:6]
+                domaine = [('sale_ok', '=', True)] + [('name', 'ilike', m) for m in mots]
+                trouves = Prod.search(domaine, limit=30)
                 trouves = trouves.sorted(lambda p: not p.product_tmpl_id.is_published)
             resultats.append({
                 'terme': terme,

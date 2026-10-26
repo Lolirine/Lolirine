@@ -38,7 +38,7 @@
                                             <span t-if="!r.produits.length" class="badge text-bg-danger">Pas dans Odoo</span>
                                             <span t-elif="!r.exact" class="badge text-bg-warning">Suggestions</span>
                                             <a t-if="r.auCat" href="#" class="badge text-bg-info text-decoration-none ms-1"
-                                               t-on-click.prevent="() => this.montrerCat(r.auCat, r.terme)">
+                                               t-on-click.prevent="() => this.montrerCat(r.auCat, r.cle)">
                                                 <t t-esc="libelleCat(r.auCat.cat)"/> p. <t t-esc="r.auCat.aff"/>
                                                 <t t-if="r.auCat.prix !== null"> · <t t-esc="fmt(r.auCat.prix)"/></t>
                                             </a>

@@ -216,15 +216,25 @@ export class PoolCatalogue extends Component {
         });
         this.state.recherchant = true;
         try {
-            const res = await this.orm.call(MODELE, "pool_catalogue_chercher", [demandes.map((d) => d.terme)]);
+            // une référence fabricant connue du catalogue SCP est cherchée sous son code SCP
+            const termes = demandes.map((d) => {
+                const t = this.chercherIndex("scp", d.terme);
+                return t && t[3] ? t[3] : d.terme;
+            });
+            const res = await this.orm.call(MODELE, "pool_catalogue_chercher", [termes]);
+            res.forEach((r, k) => {
+                if (termes[k] !== demandes[k].terme) {
+                    r.terme = demandes[k].terme + " → " + termes[k];
+                }
+            });
             this.state.resultats = res.map((r, k) => {
-                const auCat = this.trouverAuCatalogue(r.terme) ||
+                const auCat = this.trouverAuCatalogue(termes[k]) ||
                     r.produits.map((p) => this.trouverAuCatalogue(p.ref || p.code)).find(Boolean) || null;
-                return Object.assign(r, { qte: demandes[k] ? demandes[k].qte : "1", auCat });
+                return Object.assign(r, { qte: demandes[k] ? demandes[k].qte : "1", auCat, cle: termes[k] });
             });
             const premier = this.state.resultats.find((r) => r.auCat);
             if (premier) {
-                this.montrerCat(premier.auCat, premier.produits[0] ? premier.produits[0].ref || premier.terme : premier.terme);
+                this.montrerCat(premier.auCat, premier.produits[0] ? premier.produits[0].ref || premier.cle : premier.cle);
             }
         } finally {
             this.state.recherchant = false;
