@@ -302,6 +302,18 @@ class SaleOrder(models.Model):
 
     pool_catalogue_visible = fields.Boolean(compute='_compute_pool_catalogue_visible')
 
+    @api.depends('partner_id', 'company_id')
+    def _compute_pricelist_id(self):
+        """Devis piscine : pas de liste de prix. La liste « Default » sert au
+        garde-meuble et sa règle globale « Tous les produits » met tout à 0 € ;
+        un devis piscine prend donc le prix de vente de la fiche, comme les
+        commandes du site Pool Store."""
+        super()._compute_pricelist_id()
+        for so in self:
+            if so.state in ('draft', 'sent') and (
+                    getattr(so, 'is_pool_quote', False) or (so.website_id and so.website_id.id == 6)):
+                so.pricelist_id = False
+
     @api.depends('is_dropship_order', 'website_id')
     def _compute_pool_catalogue_visible(self):
         for so in self:
