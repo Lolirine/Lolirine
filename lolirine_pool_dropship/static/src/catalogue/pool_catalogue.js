@@ -38,6 +38,8 @@ export class PoolCatalogue extends Component {
         this.canvas = useRef("canvas");
         this.calque = useRef("calque");
         this.zone = useRef("zone");
+        this.feuilleFlip = useRef("feuilleFlip");
+        this.calqueSvg = useRef("calqueSvg");
         const p = (this.props.action && this.props.action.params) || {};
         this.resModel = p.res_model;
         this.resId = p.res_id;
@@ -56,6 +58,7 @@ export class PoolCatalogue extends Component {
             indexation: null,
             message: "",
             pageSaisie: "",
+            largeurFlip: 800,
         });
         this.dernierRendu = "";
         this.tache = null;
@@ -142,9 +145,17 @@ export class PoolCatalogue extends Component {
             return res;
         });
     }
+    get baseFlipbook() {
+        return (this.state.data.catalogues.fluidra.url || "").replace(/\/?$/, "/");
+    }
     get urlFlipbook() {
-        const base = (this.state.data.catalogues.fluidra.url || "").replace(/\/?$/, "/");
-        return base + this.state.page + "/";
+        return this.baseFlipbook + this.state.page + "/";
+    }
+    get urlFond() {
+        const px = this.state.largeurFlip * (window.devicePixelRatio || 1);
+        const taille = px <= 650 ? 1 : px <= 960 ? 2 : px <= 1350 ? 3 : px <= 2050 ? 4 : 5;
+        const n = String(this.state.page).padStart(4, "0");
+        return this.baseFlipbook + "files/assets/common/page-html5-substrates/page" + n + "_" + taille + ".jpg";
     }
     get urlExterne() {
         if (this.state.cat === "scp") {
@@ -178,12 +189,12 @@ export class PoolCatalogue extends Component {
                 return;
             }
         } else {
-            this.state.nbPages = (this.state.index.fluidra || {}).pages || 0;
+            this.state.nbPages = (this.state.index.fluidra || {}).pages || 586;
         }
         const premiere = auto && this.lignes.find((l) => l.fournisseur === cat && l.cat_page);
         if (premiere) {
             this.selectLigne(premiere);
-        } else if (auto || !this.state.page) {
+        } else {
             this.allerPage(cat === "fluidra" ? 5 : 1);
         }
     }
@@ -297,7 +308,13 @@ export class PoolCatalogue extends Component {
         return sortie;
     }
     async rendreSiBesoin() {
-        if (this.state.chargement || this.state.cat !== "scp" || !this.canvas.el || !this.zone.el) {
+        if (this.state.chargement || !this.zone.el) {
+            return;
+        }
+        if (this.state.cat === "fluidra") {
+            return this.rendreFluidra();
+        }
+        if (!this.canvas.el) {
             return;
         }
         const cle = [this.state.page, this.state.zoom, this.state.surligne, this.zone.el.clientWidth].join("|");
@@ -359,6 +376,83 @@ export class PoolCatalogue extends Component {
         } else {
             this.state.message =
                 "Page " + this.state.page + " ouverte, mais la référence n'y est pas lisible : vérifiez à l'œil.";
+        }
+    }
+
+    async rendreFluidra() {
+        if (!this.feuilleFlip.el || !this.calqueSvg.el) {
+            return;
+        }
+        const largeur = Math.round(Math.max(this.zone.el.clientWidth - 32, 300) * this.state.zoom);
+        if (largeur !== this.state.largeurFlip) {
+            this.state.largeurFlip = largeur; // nouveau rendu après mise à jour
+            return;
+        }
+        const cle = ["f", this.state.page, this.state.surligne, largeur].join("|");
+        if (cle === this.dernierRendu) {
+            return;
+        }
+        this.dernierRendu = cle;
+        const page = this.state.page;
+        const calque = this.calqueSvg.el;
+        calque.replaceChildren();
+        let svg = "";
+        try {
+            svg = await this.orm.call(MODELE, "pool_catalogue_fluidra_page", [page]);
+        } catch {
+            svg = "";
+        }
+        if (page !== this.state.page || !svg) {
+            return;
+        }
+        const doc = new DOMParser().parseFromString(svg, "image/svg+xml");
+        const racine = doc.documentElement;
+        if (!racine || racine.nodeName.toLowerCase().includes("parsererror")) {
+            return;
+        }
+        const noeud = document.importNode(racine, true);
+        noeud.removeAttribute("width");
+        noeud.removeAttribute("height");
+        noeud.style.width = "100%";
+        noeud.style.height = "auto";
+        calque.replaceChildren(noeud);
+        const cible = norm(this.state.surligne);
+        if (cible.length < 3) {
+            return;
+        }
+        const NS = "http://www.w3.org/2000/svg";
+        let premier = null;
+        for (const t of noeud.getElementsByTagNameNS(NS, "text")) {
+            if (!norm(t.textContent).includes(cible)) {
+                continue;
+            }
+            let b;
+            try {
+                b = t.getBBox();
+            } catch {
+                continue;
+            }
+            const r = document.createElementNS(NS, "rect");
+            r.setAttribute("x", b.x - 2);
+            r.setAttribute("y", b.y - 2);
+            r.setAttribute("width", b.width + 4);
+            r.setAttribute("height", b.height + 4);
+            r.setAttribute("fill", "rgba(255, 200, 0, 0.45)");
+            r.setAttribute("stroke", "rgba(220, 120, 0, 0.9)");
+            const tr = t.getAttribute("transform");
+            if (tr) {
+                r.setAttribute("transform", tr);
+            }
+            t.parentNode.insertBefore(r, t);
+            premier = premier || r;
+        }
+        if (premier) {
+            const zr = this.zone.el.getBoundingClientRect();
+            const rr = premier.getBoundingClientRect();
+            this.zone.el.scrollTo({ top: Math.max(this.zone.el.scrollTop + rr.top - zr.top - 120, 0), behavior: "smooth" });
+        } else {
+            this.state.message =
+                "Page " + this.pageAffichee("fluidra", page) + " ouverte, mais la référence n'y est pas lisible : vérifiez à l'œil.";
         }
     }
 

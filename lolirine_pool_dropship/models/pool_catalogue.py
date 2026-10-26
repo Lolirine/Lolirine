@@ -38,6 +38,7 @@ CATALOGUES = {
 }
 RE_CODE_FLUIDRA = re.compile(r'(?<![A-Za-z0-9])([A-Z0-9][A-Z0-9\-/\.]{3,24})(?![A-Za-z0-9])')
 RE_PRIX_FLUIDRA = re.compile(r'€\s?(\d{1,3}(?:\.\d{3})*,\d{2})')
+_CACHE_SVG = {}
 NAVIGATEUR = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
               '(KHTML, like Gecko) Chrome/126.0 Safari/537.36')
 
@@ -119,14 +120,20 @@ class PoolCatalogueMixin(models.AbstractModel):
         try:
             r = requests.get(base + 'files/assets/mobile/search/searchtext.js', headers=entetes, timeout=60)
             r.raise_for_status()
-            pages = json.loads(r.text)['pages']['page']
+            pages = json.loads(r.content.decode('utf-8-sig'))['pages']['page']
             toc = []
             try:
                 w = requests.get(base + 'files/assets/workspace.js', headers=entetes, timeout=30)
                 toc = [{'title': c.get('title'), 'page': c.get('page'), 'level': 0}
-                       for c in (json.loads(w.text).get('toc') or {}).get('children') or []]
+                       for c in (json.loads(w.content.decode('utf-8-sig')).get('toc') or {}).get('children') or []]
             except Exception:
                 _logger.warning("Catalogue Fluidra : table des matières illisible", exc_info=True)
+            nb_pages = max(int(x.get('@ID') or 0) for x in pages)
+            try:
+                pg = requests.get(base + 'files/assets/pager.js', headers=entetes, timeout=30)
+                nb_pages = len(json.loads(pg.content.decode('utf-8-sig')).get('pages') or {}) or nb_pages
+            except Exception:
+                _logger.warning("Catalogue Fluidra : nombre de pages illisible", exc_info=True)
         except Exception as e:
             _logger.warning("Catalogue Fluidra : texte de recherche illisible", exc_info=True)
             raise UserError("Le catalogue Fluidra n'a pas pu être lu depuis le serveur (%s). "
@@ -146,8 +153,34 @@ class PoolCatalogueMixin(models.AbstractModel):
                 if prix is None and not (re.search(r'[A-Z]', code) or re.fullmatch(r'\d{5,}[A-Z]{0,3}', code)):
                     continue
                 codes[cle] = [num, '', prix]
-        self.pool_catalogue_index_save('fluidra', {'codes': codes, 'toc': toc, 'pages': len(pages)})
+        self.pool_catalogue_index_save('fluidra', {'codes': codes, 'toc': toc, 'pages': nb_pages})
         return self.pool_catalogue_index('fluidra')
+
+    @api.model
+    def pool_catalogue_fluidra_page(self, page):
+        """Calque texte (SVG) d'une page du flipbook Fluidra, nettoyé, pour l'afficher
+        par-dessus l'image de la page et y surligner une référence."""
+        page = int(page)
+        url = self._pool_catalogue_url('fluidra').rstrip('/') + '/'
+        cle = (url, page)
+        if cle in _CACHE_SVG:
+            return _CACHE_SVG[cle]
+        svg = ''
+        try:
+            r = requests.get(url + 'files/assets/common/page-vectorlayers/%04d.svg' % page,
+                             headers={'User-Agent': NAVIGATEUR, 'Referer': url}, timeout=30)
+            if r.ok and 'svg' in (r.headers.get('content-type') or ''):
+                svg = r.content.decode('utf-8-sig', errors='replace')
+                svg = re.sub(r'<\?xml[^>]*>', '', svg)
+                svg = re.sub(r'<(svg:)?script[\s\S]*?</(svg:)?script>', '', svg, flags=re.I)
+                svg = re.sub(r'\son\w+\s*=\s*("[^"]*"|\'[^\']*\')', '', svg, flags=re.I)
+                svg = re.sub(r'(href\s*=\s*["\'])\s*javascript:[^"\']*', r'\1#', svg, flags=re.I)
+        except Exception:
+            _logger.warning("Catalogue Fluidra : page %s illisible", page, exc_info=True)
+        if len(_CACHE_SVG) > 300:
+            _CACHE_SVG.clear()
+        _CACHE_SVG[cle] = svg
+        return svg
 
     # ------------------------------------------------------------ données de la visionneuse
     @api.model

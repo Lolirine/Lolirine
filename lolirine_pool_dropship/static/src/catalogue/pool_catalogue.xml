@@ -78,20 +78,17 @@
 
                 <main class="o_pc_principal">
                     <div class="o_pc_barre">
-                        <t t-if="state.cat === 'scp'">
+                        <t t-if="true">
                             <button class="btn btn-sm btn-light" t-on-click="pagePrecedente" title="Page précédente"><i class="fa fa-chevron-left"/></button>
                             <span class="mx-2">Page
                                 <input class="o_pc_page_saisie" t-att-value="state.pageSaisie" t-on-change="saisirPage"/>
-                                / <t t-esc="state.nbPages || '…'"/></span>
+                                / <t t-esc="state.nbPages ? pageAffichee(state.cat, state.nbPages) : '…'"/></span>
                             <button class="btn btn-sm btn-light" t-on-click="pageSuivante" title="Page suivante"><i class="fa fa-chevron-right"/></button>
                             <span class="ms-3">
                                 <button class="btn btn-sm btn-light" t-on-click="() => this.zoomer(-0.2)" title="Réduire"><i class="fa fa-search-minus"/></button>
                                 <span class="mx-1"><t t-esc="Math.round(state.zoom * 100)"/> %</span>
                                 <button class="btn btn-sm btn-light" t-on-click="() => this.zoomer(0.2)" title="Agrandir"><i class="fa fa-search-plus"/></button>
                             </span>
-                        </t>
-                        <t t-else="">
-                            <span class="text-muted">Catalogue en ligne Fluidra — utilisez aussi ses flèches et sa loupe.</span>
                         </t>
                         <a class="btn btn-sm btn-light ms-auto" t-att-href="urlExterne" target="_blank" rel="noopener">
                             <i class="fa fa-external-link"/> Ouvrir dans un onglet
@@ -106,7 +103,10 @@
                             </div>
                         </t>
                         <t t-else="">
-                            <iframe class="o_pc_cadre" t-att-src="urlFlipbook" title="Catalogue Fluidra"/>
+                            <div class="o_pc_feuille" t-ref="feuilleFlip" t-attf-style="width: {{state.largeurFlip}}px;">
+                                <img class="o_pc_fond" t-att-src="urlFond" alt="Page du catalogue Fluidra"/>
+                                <div class="o_pc_svg" t-ref="calqueSvg"/>
+                            </div>
                         </t>
                     </div>
                 </main>

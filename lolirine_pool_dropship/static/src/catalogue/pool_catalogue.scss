@@ -128,6 +128,18 @@
             pointer-events: none;
         }
     }
+    .o_pc_fond {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+    .o_pc_svg {
+        position: absolute;
+        inset: 0;
+        svg {
+            display: block;
+        }
+    }
     .o_pc_cadre {
         width: 100%;
         height: 100%;
