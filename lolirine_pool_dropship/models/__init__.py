@@ -13,3 +13,4 @@ from . import ir_actions_report
 from . import pool_suivi
 from . import pool_automatismes
 from . import pool_catalogue
+from . import pool_commercial
