@@ -28,6 +28,11 @@
                         invisible="not is_dropship_order or dropship_purchase_count == 0">
                     <span class="o_stat_text">Marge</span>
                 </button>
+                <button name="action_pool_catalogues" type="object"
+                        class="oe_stat_button" icon="fa-book"
+                        invisible="not is_dropship_order">
+                    <span class="o_stat_text">Catalogues</span>
+                </button>
             </xpath>
 
             <!-- Bandeau marge et paiement (commandes Pool Store) -->

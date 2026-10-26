@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lolirine_pool_dropship.PoolCatalogue">
+        <div class="o_pool_catalogue">
+            <t t-if="state.chargement">
+                <div class="p-4 text-muted"><i class="fa fa-spinner fa-spin"/> Chargement des catalogues…</div>
+            </t>
+            <t t-else="">
+                <aside class="o_pc_cote">
+                    <div class="o_pc_document" t-esc="state.data.document"/>
+
+                    <div class="btn-group w-100 mb-3" role="group">
+                        <t t-foreach="catalogues" t-as="k" t-key="k">
+                            <button type="button" class="btn btn-sm"
+                                    t-att-class="state.cat === k ? 'btn-primary' : 'btn-outline-primary'"
+                                    t-on-click="() => this.ouvrirCatalogue(k)"
+                                    t-esc="state.data.catalogues[k].label"/>
+                        </t>
+                    </div>
+
+                    <div class="o_pc_titre">Lignes à vérifier</div>
+                    <div class="o_pc_lignes">
+                        <t t-foreach="lignes" t-as="l" t-key="l.id">
+                            <div class="o_pc_ligne" t-att-class="{'o_pc_active': state.ligne === l.id}"
+                                 t-on-click="() => this.selectLigne(l)">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <span class="o_pc_ref" t-esc="l.ref || '— sans référence —'"/>
+                                    <span t-attf-class="badge {{l.badgeClasse}}" t-esc="l.badge"/>
+                                </div>
+                                <div class="o_pc_nom" t-esc="l.nom"/>
+                                <div class="o_pc_chiffres">
+                                    <span>Qté <t t-esc="l.qte"/></span>
+                                    <span>Ligne <t t-esc="fmt(l.prix_catalogue)"/><t t-if="l.remise"> −<t t-esc="l.remise"/> %</t></span>
+                                    <span t-if="l.cat_prix !== null">Catalogue <strong t-esc="fmt(l.cat_prix)"/><t t-if="l.cat_lettre"> (<t t-esc="l.cat_lettre"/>)</t></span>
+                                    <span t-if="l.cat_page">p. <t t-esc="l.cat_page_aff"/></span>
+                                    <span t-if="l.prix_vente">Vente <t t-esc="fmt(l.prix_vente)"/></span>
+                                </div>
+                                <div class="o_pc_fourn" t-if="l.fournisseur_nom" t-esc="l.fournisseur_nom"/>
+                            </div>
+                        </t>
+                        <div t-if="!lignes.length" class="text-muted small">Aucune ligne article.</div>
+                    </div>
+
+                    <div class="o_pc_titre">Recherche</div>
+                    <form class="input-group input-group-sm mb-3" t-on-submit.prevent="chercher">
+                        <input class="form-control" placeholder="Référence fournisseur…" t-model="state.recherche"/>
+                        <button class="btn btn-secondary" type="submit" title="Chercher"><i class="fa fa-search"/></button>
+                    </form>
+
+                    <div class="o_pc_titre">Rubriques — <t t-esc="conf.label"/></div>
+                    <div class="o_pc_toc">
+                        <t t-foreach="toc" t-as="r" t-key="r_index">
+                            <a href="#" t-attf-class="o_pc_toc_n{{r.level || 0}}"
+                               t-att-class="{'fw-bold': r.page &lt;= state.page and (!toc[r_index + 1] or toc[r_index + 1].page &gt; state.page)}"
+                               t-on-click.prevent="() => this.allerPage(r.page)">
+                                <span t-esc="r.title"/>
+                                <span class="o_pc_toc_page" t-esc="pageAffichee(state.cat, r.page)"/>
+                            </a>
+                        </t>
+                        <div t-if="!toc.length" class="text-muted small">Sommaire disponible après l'indexation.</div>
+                    </div>
+
+                    <div class="o_pc_index">
+                        <t t-if="state.indexation">
+                            <i class="fa fa-spinner fa-spin"/> Indexation…
+                            <t t-if="state.indexation.total"> page <t t-esc="state.indexation.fait"/> / <t t-esc="state.indexation.total"/></t>
+                        </t>
+                        <t t-else="">
+                            <div t-if="indexInfo" t-esc="indexInfo"/>
+                            <div t-else="" class="text-warning">Catalogue pas encore indexé : les pages des références ne sont pas connues.</div>
+                            <button class="btn btn-link btn-sm p-0" t-on-click="indexer">
+                                <i class="fa fa-refresh"/> <t t-esc="indexInfo ? 'Réindexer' : 'Indexer ce catalogue'"/>
+                            </button>
+                        </t>
+                    </div>
+                </aside>
+
+                <main class="o_pc_principal">
+                    <div class="o_pc_barre">
+                        <t t-if="state.cat === 'scp'">
+                            <button class="btn btn-sm btn-light" t-on-click="pagePrecedente" title="Page précédente"><i class="fa fa-chevron-left"/></button>
+                            <span class="mx-2">Page
+                                <input class="o_pc_page_saisie" t-att-value="state.pageSaisie" t-on-change="saisirPage"/>
+                                / <t t-esc="state.nbPages || '…'"/></span>
+                            <button class="btn btn-sm btn-light" t-on-click="pageSuivante" title="Page suivante"><i class="fa fa-chevron-right"/></button>
+                            <span class="ms-3">
+                                <button class="btn btn-sm btn-light" t-on-click="() => this.zoomer(-0.2)" title="Réduire"><i class="fa fa-search-minus"/></button>
+                                <span class="mx-1"><t t-esc="Math.round(state.zoom * 100)"/> %</span>
+                                <button class="btn btn-sm btn-light" t-on-click="() => this.zoomer(0.2)" title="Agrandir"><i class="fa fa-search-plus"/></button>
+                            </span>
+                        </t>
+                        <t t-else="">
+                            <span class="text-muted">Catalogue en ligne Fluidra — utilisez aussi ses flèches et sa loupe.</span>
+                        </t>
+                        <a class="btn btn-sm btn-light ms-auto" t-att-href="urlExterne" target="_blank" rel="noopener">
+                            <i class="fa fa-external-link"/> Ouvrir dans un onglet
+                        </a>
+                    </div>
+                    <div t-if="state.message" class="alert alert-warning py-1 px-2 m-2 mb-0 small" t-esc="state.message"/>
+                    <div class="o_pc_zone" t-ref="zone">
+                        <t t-if="state.cat === 'scp'">
+                            <div class="o_pc_feuille">
+                                <canvas t-ref="canvas"/>
+                                <canvas t-ref="calque" class="o_pc_calque"/>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <iframe class="o_pc_cadre" t-att-src="urlFlipbook" title="Catalogue Fluidra"/>
+                        </t>
+                    </div>
+                </main>
+            </t>
+        </div>
+    </t>
+
+</templates>

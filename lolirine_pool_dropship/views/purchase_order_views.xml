@@ -33,6 +33,10 @@
                         invisible="not pool_tracking_url">
                     <span class="o_stat_text">Suivre le colis</span>
                 </button>
+                <button name="action_pool_catalogues" type="object"
+                        class="oe_stat_button" icon="fa-book">
+                    <span class="o_stat_text">Catalogues</span>
+                </button>
             </xpath>
 
             <!-- Bandeaux : paiement client, retard, marge -->

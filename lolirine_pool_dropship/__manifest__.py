@@ -78,6 +78,9 @@ Fonctionnalités principales :
     'assets': {
         'web.assets_backend': [
             'lolirine_pool_dropship/static/src/css/dropship_dashboard.css',
+            'lolirine_pool_dropship/static/src/catalogue/pool_catalogue.scss',
+            'lolirine_pool_dropship/static/src/catalogue/pool_catalogue.js',
+            'lolirine_pool_dropship/static/src/catalogue/pool_catalogue.xml',
         ],
     },
 }
