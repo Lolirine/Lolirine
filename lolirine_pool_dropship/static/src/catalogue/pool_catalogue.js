@@ -594,7 +594,7 @@ export class PoolCatalogue extends Component {
             positions.forEach((m, k) => {
                 const fin = k + 1 < positions.length ? positions[k + 1].index : m.index + 220;
                 const bloc = texte.slice(m.index + m[0].length, Math.min(fin, m.index + 220));
-                const prixM = bloc.match(/\s(A|B|C|D|E|F|P|NET)\s(\d{1,3}(?: \d{3})+,\d{2}|\d+,\d{2})/);
+                const prixM = bloc.match(/\s(A|B|C|D|E|F|P|NET)\s(\d{1,3}(?: \d{3})+,\d{2}|\d+[,.]\d{2})/);
                 const lettre = prixM ? prixM[1] : "";
                 const prix = prixM ? parseFloat(prixM[2].replace(/ /g, "").replace(",", ".")) : null;
                 const cle = norm(m[0]);
