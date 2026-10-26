@@ -329,13 +329,19 @@ export class PoolCatalogue extends Component {
         const echelle = (largeur / page.getViewport({ scale: 1 }).width) * this.state.zoom;
         const vue = page.getViewport({ scale: echelle });
         const ratio = window.devicePixelRatio || 1;
-        for (const c of [this.canvas.el, this.calque.el]) {
+        const toile = this.canvas.el;
+        const calque = this.calque.el;
+        if (this.state.cat !== "scp" || !toile || !calque) {
+            this.dernierRendu = ""; // on a changé de catalogue pendant le chargement
+            return;
+        }
+        for (const c of [toile, calque]) {
             c.width = Math.floor(vue.width * ratio);
             c.height = Math.floor(vue.height * ratio);
             c.style.width = Math.floor(vue.width) + "px";
             c.style.height = Math.floor(vue.height) + "px";
         }
-        const ctx = this.canvas.el.getContext("2d");
+        const ctx = toile.getContext("2d");
         ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
         if (this.tache) {
             this.tache.cancel();
@@ -346,7 +352,10 @@ export class PoolCatalogue extends Component {
         } catch {
             return; // rendu annulé par un rendu plus récent
         }
-        const cctx = this.calque.el.getContext("2d");
+        if (!calque.isConnected) {
+            return;
+        }
+        const cctx = calque.getContext("2d");
         cctx.setTransform(ratio, 0, 0, ratio, 0, 0);
         cctx.clearRect(0, 0, vue.width, vue.height);
         const cible = norm(this.state.surligne);
@@ -354,6 +363,9 @@ export class PoolCatalogue extends Component {
             return;
         }
         const contenu = await page.getTextContent();
+        if (!calque.isConnected || !this.zone.el) {
+            return;
+        }
         let premierY = null;
         cctx.fillStyle = "rgba(255, 200, 0, 0.45)";
         cctx.strokeStyle = "rgba(220, 120, 0, 0.9)";
@@ -402,7 +414,7 @@ export class PoolCatalogue extends Component {
         } catch {
             svg = "";
         }
-        if (page !== this.state.page || !svg) {
+        if (page !== this.state.page || !svg || !calque.isConnected || this.state.cat !== "fluidra") {
             return;
         }
         const doc = new DOMParser().parseFromString(svg, "image/svg+xml");
