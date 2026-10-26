@@ -8,7 +8,10 @@
             </t>
             <t t-else="">
                 <aside class="o_pc_cote">
-                    <div class="o_pc_document" t-esc="state.data.document"/>
+                    <div class="o_pc_document">
+                        <a href="#" class="me-2" t-on-click.prevent="retour" title="Retour au document"><i class="fa fa-arrow-left"/></a>
+                        <a href="#" t-on-click.prevent="retour" t-esc="state.data.document"/>
+                    </div>
 
                     <div class="btn-group w-100 mb-3" role="group">
                         <t t-foreach="catalogues" t-as="k" t-key="k">
@@ -18,6 +21,55 @@
                                     t-esc="state.data.catalogues[k].label"/>
                         </t>
                     </div>
+
+                    <t t-if="state.data.modifiable">
+                        <div class="o_pc_titre">Composer le devis</div>
+                        <textarea class="form-control form-control-sm mb-1" rows="3" t-model="state.compo"
+                                  placeholder="Une référence ou un nom par ligne, quantité à la fin :&#10;WA000102 2&#10;WEL-250-0130&#10;skimmer A800"/>
+                        <button class="btn btn-sm btn-primary mb-2" t-on-click="composer" t-att-disabled="state.recherchant">
+                            <i t-attf-class="fa {{state.recherchant ? 'fa-spinner fa-spin' : 'fa-search'}}"/> Rechercher
+                        </button>
+                        <div class="o_pc_resultats mb-3">
+                            <t t-foreach="state.resultats" t-as="r" t-key="r_index">
+                                <div class="o_pc_res">
+                                    <div class="d-flex justify-content-between align-items-center gap-2">
+                                        <span class="o_pc_ref" t-esc="r.terme"/>
+                                        <span>
+                                            <span t-if="!r.produits.length" class="badge text-bg-danger">Pas dans Odoo</span>
+                                            <span t-elif="!r.exact" class="badge text-bg-warning">Suggestions</span>
+                                            <a t-if="r.auCat" href="#" class="badge text-bg-info text-decoration-none ms-1"
+                                               t-on-click.prevent="() => this.montrerCat(r.auCat, r.terme)">
+                                                <t t-esc="libelleCat(r.auCat.cat)"/> p. <t t-esc="r.auCat.aff"/>
+                                                <t t-if="r.auCat.prix !== null"> · <t t-esc="fmt(r.auCat.prix)"/></t>
+                                            </a>
+                                        </span>
+                                    </div>
+                                    <t t-foreach="r.produits" t-as="p" t-key="p.id">
+                                        <div class="o_pc_prod" t-on-click="() => this.montrerProduit(p)">
+                                            <div class="o_pc_nom">
+                                                <t t-esc="p.nom"/>
+                                                <span t-if="!p.publie" class="badge text-bg-secondary ms-1">non publié</span>
+                                            </div>
+                                            <div class="o_pc_chiffres">
+                                                <span>Vente <strong t-esc="fmt(p.prix_vente)"/></span>
+                                                <span t-if="p.ref">Réf. <t t-esc="p.ref"/></span>
+                                                <t t-set="ic" t-value="infoProduit(p)"/>
+                                                <span t-if="ic"><t t-esc="libelleCat(ic.cat)"/> p. <t t-esc="ic.aff"/><t t-if="ic.prix !== null"> · <t t-esc="fmt(ic.prix)"/></t></span>
+                                            </div>
+                                            <div class="d-flex gap-1 mt-1">
+                                                <input type="number" min="1" step="1" class="form-control form-control-sm o_pc_qte"
+                                                       t-att-value="r.qte" t-on-click.stop="rien"
+                                                       t-on-change="(ev) => this.majQte(r, ev)"/>
+                                                <button class="btn btn-sm btn-success" t-on-click.stop="() => this.ajouter(p, r.qte)">
+                                                    <i class="fa fa-plus"/> Ajouter au devis
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
 
                     <div class="o_pc_titre">Lignes à vérifier</div>
                     <div class="o_pc_lignes">

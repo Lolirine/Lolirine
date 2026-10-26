@@ -17,7 +17,7 @@ import re
 
 import requests
 
-from odoo import api, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -225,14 +225,87 @@ class PoolCatalogueMixin(models.AbstractModel):
         return {
             'document': doc.display_name,
             'res_model': res_model,
+            'res_id': doc.id,
+            'modifiable': res_model == 'sale.order' and doc.state in ('draft', 'sent'),
             'lignes': lignes,
             'catalogues': {k: {'label': v['label'], 'type': v['type'], 'url': self._pool_catalogue_url(k)}
                            for k, v in CATALOGUES.items()},
         }
 
 
+    # ------------------------------------------------------------ composition d'un devis
+    @api.model
+    def _pool_catalogue_produit(self, produit):
+        info = self.env['supplier.dropship.info'].sudo().search(
+            [('product_tmpl_id', '=', produit.product_tmpl_id.id), ('is_active', '=', True)], limit=1)
+        ref = info._pool_ligne_bc(produit)[0] if info else ''
+        return {
+            'id': produit.id,
+            'nom': produit.display_name,
+            'code': produit.default_code or '',
+            'ref': ref,
+            'fournisseur': self._pool_catalogue_cle_fournisseur(info.supplier_id) if info else False,
+            'prix_vente': produit.lst_price,
+            'cout': produit.standard_price,
+            'publie': bool(produit.product_tmpl_id.is_published),
+        }
+
+    @api.model
+    def pool_catalogue_chercher(self, termes):
+        """Pour chaque référence ou mot saisi : les articles Odoo correspondants
+        (code POOL-…, référence fournisseur, puis nom)."""
+        Prod = self.env['product.product']
+        Info = self.env['supplier.dropship.info'].sudo()
+        resultats = []
+        for terme in (termes or [])[:60]:
+            terme = (terme or '').strip()
+            if not terme:
+                continue
+            cle = _norm(terme)
+            trouves = Prod.browse()
+            if len(cle) >= 3:
+                candidats = Prod.search(['|', ('default_code', 'ilike', terme), ('default_code', 'ilike', cle)], limit=40)
+                trouves |= candidats.filtered(lambda p: _norm(p.default_code) == cle)
+                infos = Info.search([('supplier_product_ref', 'ilike', terme)], limit=20)
+                for i in infos.filtered(lambda x: _norm(x.supplier_product_ref) == cle):
+                    variantes = i.product_tmpl_id.product_variant_ids
+                    trouves |= variantes if len(variantes) == 1 else variantes.filtered(
+                        lambda v: _norm(v.default_code) == cle) or variantes[:1]
+            exact = bool(trouves)
+            if not trouves:
+                trouves = Prod.search([('name', 'ilike', terme), ('sale_ok', '=', True)], limit=30)
+                trouves = trouves.sorted(lambda p: not p.product_tmpl_id.is_published)
+            resultats.append({
+                'terme': terme,
+                'exact': exact,
+                'produits': [self._pool_catalogue_produit(p) for p in trouves[:8]],
+            })
+        return resultats
+
+    @api.model
+    def pool_catalogue_ajouter(self, order_id, product_id, quantite=1.0):
+        """Ajoute l'article au devis (brouillon ou envoyé) et renvoie les lignes à jour."""
+        so = self.env['sale.order'].browse(int(order_id)).exists()
+        if not so or so.state not in ('draft', 'sent'):
+            raise UserError("Le devis n'est plus modifiable.")
+        produit = self.env['product.product'].browse(int(product_id)).exists()
+        if not produit:
+            raise UserError("Article introuvable.")
+        self.env['sale.order.line'].create({
+            'order_id': so.id, 'product_id': produit.id, 'product_uom_qty': float(quantite or 1.0)})
+        return self.pool_catalogue_donnees('sale.order', so.id)
+
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
+
+    pool_catalogue_visible = fields.Boolean(compute='_compute_pool_catalogue_visible')
+
+    @api.depends('is_dropship_order', 'website_id')
+    def _compute_pool_catalogue_visible(self):
+        for so in self:
+            so.pool_catalogue_visible = bool(
+                so.is_dropship_order or getattr(so, 'is_pool_quote', False)
+                or (so.website_id and so.website_id.id == 6))
 
     def action_pool_catalogues(self):
         self.ensure_one()

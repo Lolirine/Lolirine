@@ -35,6 +35,7 @@ export class PoolCatalogue extends Component {
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
+        this.actionService = useService("action");
         this.canvas = useRef("canvas");
         this.calque = useRef("calque");
         this.zone = useRef("zone");
@@ -59,6 +60,9 @@ export class PoolCatalogue extends Component {
             message: "",
             pageSaisie: "",
             largeurFlip: 800,
+            compo: "",
+            resultats: [],
+            recherchant: false,
         });
         this.dernierRendu = "";
         this.tache = null;
@@ -169,6 +173,97 @@ export class PoolCatalogue extends Component {
             return "";
         }
         return Object.keys(idx.codes).length + " références indexées le " + (idx.date || "?");
+    }
+
+    // ------------------------------------------------------------------ retour et composition
+    retour() {
+        const fil = (this.env.config && this.env.config.breadcrumbs) || [];
+        if (fil.length > 1 && fil[fil.length - 2].onSelected) {
+            fil[fil.length - 2].onSelected();
+            return;
+        }
+        this.actionService.doAction({
+            type: "ir.actions.act_window",
+            res_model: this.resModel,
+            res_id: this.resId,
+            views: [[false, "form"]],
+            target: "current",
+        });
+    }
+    trouverAuCatalogue(ref) {
+        for (const cat of this.catalogues) {
+            const t = this.chercherIndex(cat, ref);
+            if (t) {
+                return { cat, page: t[0], lettre: t[1], prix: t[2], aff: this.pageAffichee(cat, t[0]) };
+            }
+        }
+        return null;
+    }
+    libelleCat(cat) {
+        return cat === "scp" ? "SCP" : "Fluidra";
+    }
+    async composer() {
+        const lignes = (this.state.compo || "")
+            .split(/[\n;]+/)
+            .map((l) => l.trim())
+            .filter(Boolean);
+        if (!lignes.length) {
+            return;
+        }
+        const demandes = lignes.map((l) => {
+            const m = l.match(/^(.*?)(?:\s+[xX×]?\s*(\d+(?:[.,]\d+)?))?$/);
+            return { terme: (m && m[1] ? m[1] : l).trim(), qte: m && m[2] ? m[2].replace(",", ".") : "1" };
+        });
+        this.state.recherchant = true;
+        try {
+            const res = await this.orm.call(MODELE, "pool_catalogue_chercher", [demandes.map((d) => d.terme)]);
+            this.state.resultats = res.map((r, k) => {
+                const auCat = this.trouverAuCatalogue(r.terme) ||
+                    r.produits.map((p) => this.trouverAuCatalogue(p.ref || p.code)).find(Boolean) || null;
+                return Object.assign(r, { qte: demandes[k] ? demandes[k].qte : "1", auCat });
+            });
+            const premier = this.state.resultats.find((r) => r.auCat);
+            if (premier) {
+                this.montrerCat(premier.auCat, premier.produits[0] ? premier.produits[0].ref || premier.terme : premier.terme);
+            }
+        } finally {
+            this.state.recherchant = false;
+        }
+    }
+    montrerCat(info, ref) {
+        if (!info) {
+            return;
+        }
+        if (info.cat !== this.state.cat) {
+            this.ouvrirCatalogue(info.cat).then(() => this.allerPage(info.page, ref));
+        } else {
+            this.allerPage(info.page, ref);
+        }
+        this.state.message = "";
+    }
+    montrerProduit(p) {
+        const ref = p.ref || p.code;
+        const info = this.trouverAuCatalogue(ref);
+        if (info) {
+            this.montrerCat(info, ref);
+        } else {
+            this.state.message = "« " + p.nom + " » : référence " + (ref || "inconnue") + " absente des catalogues indexés.";
+        }
+    }
+    rien() {}
+    majQte(r, ev) {
+        r.qte = ev.target.value;
+    }
+    infoProduit(p) {
+        return this.trouverAuCatalogue(p.ref || p.code);
+    }
+    async ajouter(p, qte) {
+        try {
+            this.state.data = await this.orm.call(MODELE, "pool_catalogue_ajouter", [this.resId, p.id, parseFloat(qte) || 1]);
+            this.notification.add("« " + p.nom + " » ajouté au devis.", { type: "success" });
+        } catch (e) {
+            this.notification.add((e.data && e.data.message) || e.message || String(e), { type: "danger" });
+        }
     }
 
     // ------------------------------------------------------------------ navigation

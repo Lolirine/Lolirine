@@ -60,6 +60,39 @@
             color: var(--bs-secondary-color, #6c757d);
         }
     }
+    .o_pc_res {
+        border: 1px dashed var(--bs-border-color, #dee2e6);
+        border-radius: 6px;
+        padding: 6px 8px;
+        margin-bottom: 6px;
+        .o_pc_ref {
+            font-family: var(--bs-font-monospace, monospace);
+            font-weight: 600;
+        }
+    }
+    .o_pc_prod {
+        border-top: 1px solid var(--bs-border-color, #dee2e6);
+        margin-top: 6px;
+        padding-top: 6px;
+        cursor: pointer;
+        &:hover .o_pc_nom {
+            color: var(--bs-primary, #714b67);
+        }
+        .o_pc_nom {
+            font-size: 0.82rem;
+            line-height: 1.25;
+        }
+        .o_pc_chiffres {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px 10px;
+            font-size: 0.78rem;
+            color: var(--bs-secondary-color, #6c757d);
+        }
+        .o_pc_qte {
+            width: 64px;
+        }
+    }
     .o_pc_toc {
         max-height: 40vh;
         overflow-y: auto;

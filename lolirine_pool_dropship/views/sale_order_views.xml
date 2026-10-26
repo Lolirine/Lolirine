@@ -28,9 +28,10 @@
                         invisible="not is_dropship_order or dropship_purchase_count == 0">
                     <span class="o_stat_text">Marge</span>
                 </button>
+                <field name="pool_catalogue_visible" invisible="1"/>
                 <button name="action_pool_catalogues" type="object"
                         class="oe_stat_button" icon="fa-book"
-                        invisible="not is_dropship_order">
+                        invisible="not pool_catalogue_visible">
                     <span class="o_stat_text">Catalogues</span>
                 </button>
             </xpath>
@@ -62,7 +63,7 @@
                 <field name="dropship_confirmation_sent" invisible="1"/>
                 <span class="badge rounded-pill text-bg-info me-2" 
                       invisible="not is_dropship_order">
-                    <i class="fa fa-truck"/> <field name="dropship_ref" readonly="1" nolabel="1" invisible="not dropship_ref"/>
+                    <i class="fa fa-truck" title="Dropshipping"/> <field name="dropship_ref" readonly="1" nolabel="1" invisible="not dropship_ref"/>
                     <span invisible="dropship_ref">Dropship</span>
                 </span>
             </xpath>
