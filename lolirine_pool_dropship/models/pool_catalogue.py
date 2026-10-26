@@ -332,6 +332,39 @@ class SaleOrder(models.Model):
         }
 
 
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    def _pool_prix_catalogue(self):
+        """Prix catalogue fournisseur HT de l'article (fiche fournisseur active,
+        remise > 0 : le prix enregistré est bien le prix catalogue et non un
+        prix net). Pour un article à variantes, seule la fiche dont la
+        référence est celle de la variante compte. 0 si inconnu."""
+        self.ensure_one()
+        produit = self.product_id
+        if not produit:
+            return 0.0
+        infos = self.env['supplier.dropship.info'].sudo().search([
+            ('product_tmpl_id', '=', produit.product_tmpl_id.id), ('is_active', '=', True),
+            ('price', '>', 0), ('discount_percent', '>', 0)])
+        if len(produit.product_tmpl_id.product_variant_ids) > 1:
+            code = _norm(produit.default_code)
+            infos = infos.filtered(lambda i: _norm(i.supplier_product_ref or '') == code)
+        return max(infos.mapped('price') or [0.0])
+
+    def _get_display_price(self):
+        """Devis piscine faits au bureau (pas les commandes du site) : prix de
+        départ = prix catalogue fournisseur, ou le prix de la fiche s'il est
+        plus élevé (marge complémentaire ajoutée). Le prix reste modifiable
+        à la main sur le devis."""
+        prix = super()._get_display_price()
+        so = self.order_id
+        if (so and getattr(so, 'is_pool_quote', False) and not so.website_id
+                and so.state in ('draft', 'sent') and not self.display_type):
+            prix = max(prix, self._pool_prix_catalogue())
+        return prix
+
+
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
