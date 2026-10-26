@@ -43,6 +43,9 @@ NAVIGATEUR = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.3
               '(KHTML, like Gecko) Chrome/126.0 Safari/537.36')
 
 
+_CACHE_PRIX = {}
+
+
 def _norm(code):
     code = (code or '').strip().upper()
     if code.startswith('POOL-'):
@@ -91,6 +94,21 @@ class PoolCatalogueMixin(models.AbstractModel):
         if data.get('url') != self._pool_catalogue_url(key):
             return {}          # index d'un autre millésime
         return data
+
+    @api.model
+    def _pool_catalogue_prix(self, key):
+        """{CODE normalisé: prix catalogue} de l'index, gardé en mémoire tant
+        que l'index enregistré ne change pas."""
+        piece = self._pool_catalogue_piece(key)
+        if not piece:
+            return {}
+        cle = (self.env.cr.dbname, key, piece.id, piece.checksum)
+        if cle not in _CACHE_PRIX:
+            codes = (self.pool_catalogue_index(key) or {}).get('codes') or {}
+            _CACHE_PRIX.clear() if len(_CACHE_PRIX) > 8 else None
+            _CACHE_PRIX[cle] = {k: float(e[2]) for k, e in codes.items()
+                                if isinstance(e, (list, tuple)) and len(e) > 2 and e[2]}
+        return _CACHE_PRIX[cle]
 
     @api.model
     def pool_catalogue_index_save(self, key, data):
@@ -347,10 +365,23 @@ class SaleOrderLine(models.Model):
         infos = self.env['supplier.dropship.info'].sudo().search([
             ('product_tmpl_id', '=', produit.product_tmpl_id.id), ('is_active', '=', True),
             ('price', '>', 0), ('discount_percent', '>', 0)])
-        if len(produit.product_tmpl_id.product_variant_ids) > 1:
-            code = _norm(produit.default_code)
-            infos = infos.filtered(lambda i: _norm(i.supplier_product_ref or '') == code)
-        return max(infos.mapped('price') or [0.0])
+        if len(produit.product_tmpl_id.product_variant_ids) <= 1:
+            return max(infos.mapped('price') or [0.0])
+        code = _norm(produit.default_code)
+        exactes = infos.filtered(lambda i: _norm(i.supplier_product_ref or '') == code)
+        if exactes:
+            return max(exactes.mapped('price'))
+        # variante : prix de l'index du catalogue du fournisseur, avec le même
+        # rapport fiche / index que la variante de référence (hausse de 4 %…)
+        mixin = self.env['pool.catalogue.mixin']
+        meilleur = 0.0
+        for info in infos:
+            cle = mixin._pool_catalogue_cle_fournisseur(info.supplier_id)
+            prix = mixin._pool_catalogue_prix(cle) if cle else {}
+            base = prix.get(_norm(info.supplier_product_ref or ''))
+            if code in prix and base:
+                meilleur = max(meilleur, round(prix[code] * info.price / base, 2))
+        return meilleur
 
     def _get_display_price(self):
         """Devis piscine faits au bureau (pas les commandes du site) : prix de
