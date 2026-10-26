@@ -48,23 +48,37 @@ def _odoobot(env, corps, utilisateur_id=2):
 class SupplierDropshipInfo(models.Model):
     _inherit = 'supplier.dropship.info'
 
-    def _pool_ligne_bc(self, product):
+    def _pool_ligne_bc(self, product, avec_alerte=False):
         """(réf. fournisseur, prix catalogue, remise %) de la variante commandée.
         La fiche fournisseur est unique par modèle : pour une fiche à variantes,
         la référence est le code de la variante (sans « POOL- ») et le prix
-        catalogue est reconstitué depuis le coût de la variante."""
+        catalogue est reconstitué depuis le coût de la variante.
+        Variante sans code ni coût propres : la référence de la fiche (celle de la
+        variante de base) n'est pas reprise, et le prix est ESTIMÉ au prorata du
+        prix de vente ; avec avec_alerte=True, renvoie aussi le texte d'alerte."""
         self.ensure_one()
         ref = (self.supplier_product_ref or '').strip()
         prix, remise = self.price, self.discount_percent or 0.0
-        if product and len(self.product_tmpl_id.product_variant_ids) > 1:
+        alerte = False
+        variantes = self.product_tmpl_id.product_variant_ids
+        if product and len(variantes) > 1:
+            base = variantes.filtered(lambda v: not v.price_extra)[:1]
             code = (product.default_code or '').strip()
             if code.upper().startswith('POOL-'):
                 code = code[5:]
             if code:
                 ref = code
+            elif product != base:
+                ref = ''
+                alerte = "réf. fournisseur de la variante inconnue"
             if product.standard_price:
                 prix = round(product.standard_price / (1 - remise / 100.0), 2) if remise < 100 \
                     else product.standard_price
+            elif product != base and base and base.lst_price and prix:
+                prix = round(prix * product.lst_price / base.lst_price, 2)
+                alerte = (alerte + ", " if alerte else "") + "prix d'achat de la variante estimé"
+        if avec_alerte:
+            return ref, prix, remise, alerte
         return ref, prix, remise
 
     @api.model

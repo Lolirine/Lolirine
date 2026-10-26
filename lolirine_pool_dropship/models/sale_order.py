@@ -263,14 +263,17 @@ class SaleOrder(models.Model):
                 po.dest_address_id = self.partner_shipping_id
             
             # Créer les lignes
-            sans_prix = []
+            sans_prix, a_verifier = [], []
             for sale_line in lines:
                 supplier_info = sale_line.dropship_supplier_info_id
                 
                 # Prix catalogue du fournisseur + remise négociée : le sous-total de la
                 # ligne est le net à payer (= facture fournisseur).
                 # fiche à variantes : référence et prix de la variante commandée
-                ref_fournisseur, prix_catalogue, remise = supplier_info._pool_ligne_bc(sale_line.product_id)
+                ref_fournisseur, prix_catalogue, remise, alerte = supplier_info._pool_ligne_bc(
+                    sale_line.product_id, avec_alerte=True)
+                if alerte:
+                    a_verifier.append("%s : %s" % (sale_line.product_id.display_name, alerte))
                 po_line_vals = {
                     'order_id': po.id,
                     'product_id': sale_line.product_id.id,
@@ -292,6 +295,8 @@ class SaleOrder(models.Model):
                 
                 self.env['purchase.order.line'].create(po_line_vals)
             
+            if a_verifier:
+                po.message_post(body="⚠ À vérifier avant l'envoi au fournisseur : %s" % " ; ".join(a_verifier))
             if sans_prix:
                 po.message_post(body="⚠ Prix d'achat inconnu (0 €) pour : %s — à compléter avant l'envoi au fournisseur."
                                 % ", ".join(sans_prix))
