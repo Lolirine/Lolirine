@@ -97,8 +97,8 @@ class PoolCatalogueMixin(models.AbstractModel):
 
     @api.model
     def _pool_catalogue_prix(self, key):
-        """{CODE normalisé: prix catalogue} de l'index, gardé en mémoire tant
-        que l'index enregistré ne change pas."""
+        """{CODE normalisé: (page, prix catalogue)} de l'index, gardé en
+        mémoire tant que l'index enregistré ne change pas."""
         piece = self._pool_catalogue_piece(key)
         if not piece:
             return {}
@@ -106,7 +106,7 @@ class PoolCatalogueMixin(models.AbstractModel):
         if cle not in _CACHE_PRIX:
             codes = (self.pool_catalogue_index(key) or {}).get('codes') or {}
             _CACHE_PRIX.clear() if len(_CACHE_PRIX) > 8 else None
-            _CACHE_PRIX[cle] = {k: float(e[2]) for k, e in codes.items()
+            _CACHE_PRIX[cle] = {k: (int(e[0] or 0), float(e[2])) for k, e in codes.items()
                                 if isinstance(e, (list, tuple)) and len(e) > 2 and e[2]}
         return _CACHE_PRIX[cle]
 
@@ -372,15 +372,19 @@ class SaleOrderLine(models.Model):
         if exactes:
             return max(exactes.mapped('price'))
         # variante : prix de l'index du catalogue du fournisseur, avec le même
-        # rapport fiche / index que la variante de référence (hausse de 4 %…)
+        # rapport fiche / index que la variante de référence (hausse de 4 %…).
+        # Le code de la variante doit se trouver à quelques pages de la
+        # référence : un code court (« 1500 ») peut désigner un autre article
+        # ailleurs dans le catalogue.
         mixin = self.env['pool.catalogue.mixin']
         meilleur = 0.0
         for info in infos:
             cle = mixin._pool_catalogue_cle_fournisseur(info.supplier_id)
             prix = mixin._pool_catalogue_prix(cle) if cle else {}
             base = prix.get(_norm(info.supplier_product_ref or ''))
-            if code in prix and base:
-                meilleur = max(meilleur, round(prix[code] * info.price / base, 2))
+            ligne = prix.get(code)
+            if base and ligne and base[1] and abs(ligne[0] - base[0]) <= 6:
+                meilleur = max(meilleur, round(ligne[1] * info.price / base[1], 2))
         return meilleur
 
     def _get_display_price(self):
