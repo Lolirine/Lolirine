@@ -1347,3 +1347,58 @@ html[data-website-id="6"] .o_pool_suggested_wrap {
     padding: 1.5rem 1.75rem;
     margin: 1.5rem auto 2.5rem;
 }
+
+/* ===================== Glass : textes posés directement sur le fond ===================== */
+/*
+ * Textes qui s'affichaient sans panneau sur l'image de fond (illisibles sur
+ * le chapeau rayé) :
+ *  - texte d'aide sous la grille des catégories (section.lp-cat-aide) ;
+ *  - fil d'Ariane de la fiche produit ;
+ *  - étapes du tunnel de commande (Commande › Adresse › Paiement) ;
+ *  - mention sous le bouton du formulaire de contact.
+ * Même verre que le récapitulatif de commande.
+ */
+html[data-website-id="6"] section.lp-cat-aide > .container,
+html[data-website-id="6"] #product_detail .o_wsale_content_contained:has(> div > .o_wsale_breadcrumb),
+html[data-website-id="6"] .o_website_sale_checkout_container .o_wizard,
+html[data-website-id="6"] .pool-contact-form .pool-form-note {
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+}
+
+html[data-website-id="6"] section.lp-cat-aide > .container {
+    padding: 1.5rem 1.75rem;
+}
+
+html[data-website-id="6"] #product_detail .o_wsale_content_contained:has(> div > .o_wsale_breadcrumb) {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+    margin-bottom: 0.75rem;
+}
+
+html[data-website-id="6"] .o_website_sale_checkout_container .o_wizard {
+    display: inline-flex !important;
+    align-self: flex-start;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+}
+
+html[data-website-id="6"] .pool-contact-form .pool-form-note {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    color: #334155;
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    html[data-website-id="6"] section.lp-cat-aide > .container,
+    html[data-website-id="6"] #product_detail .o_wsale_content_contained:has(> div > .o_wsale_breadcrumb),
+    html[data-website-id="6"] .o_website_sale_checkout_container .o_wizard,
+    html[data-website-id="6"] .pool-contact-form .pool-form-note {
+        background: rgba(255, 255, 255, 0.92);
+    }
+}

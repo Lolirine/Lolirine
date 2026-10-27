@@ -35,6 +35,7 @@
         'web.assets_frontend': [
             'lolirine_pool_variant_images/static/src/scss/variant_swatches.scss',
             'lolirine_pool_variant_images/static/src/js/color_filter_fix.js',
+            'lolirine_pool_variant_images/static/src/js/category_links_reset.js',
         ],
     },
     'installable': True,
