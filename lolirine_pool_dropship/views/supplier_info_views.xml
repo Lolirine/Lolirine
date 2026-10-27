@@ -52,6 +52,7 @@
                                 <group string="Réduction négociée">
                                     <field name="discount_percent" widget="percentage"/>
                                     <field name="negotiated_price" class="oe_inline text-success fw-bold"/>
+                                    <field name="pool_conditions_html" readonly="1" invisible="not pool_conditions_html"/>
                                 </group>
                             </group>
                             <group>

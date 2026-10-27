@@ -29,7 +29,11 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Dropshipping" name="dropshipping" 
                       invisible="supplier_rank == 0">
-                    
+
+                    <group string="Documents — conditions commerciales" invisible="not pool_conditions_html">
+                        <field name="pool_conditions_html" readonly="1" nolabel="1" colspan="2"/>
+                    </group>
+
                     <group>
                         <group string="Capacités">
                             <field name="is_dropship_supplier"/>

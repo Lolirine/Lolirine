@@ -53,7 +53,7 @@
                     <span invisible="not pool_marge_reelle_ok">Marge réelle <strong><field name="pool_marge_reelle" readonly="1" class="d-inline"/></strong></span>
                 </div>
                 <div class="alert alert-light border py-2 mb-3" role="status" invisible="not pool_commerciaux_html">
-                    <i class="fa fa-user-circle-o me-1" title="Commercial"/><span class="me-2">Commercial :</span>
+                    <i class="fa fa-user-circle-o me-1" title="Commercial et conditions fournisseur"/>
                     <field name="pool_commerciaux_html" readonly="1" nolabel="1" class="d-inline-block align-top"/>
                     <button name="action_pool_ecrire_commercial" type="object" class="btn btn-link p-0 ms-2"
                             icon="fa-pencil-square-o" string="Écrire depuis Odoo"/>
