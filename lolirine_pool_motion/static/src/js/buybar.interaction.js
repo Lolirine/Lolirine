@@ -16,6 +16,7 @@ export class MotionBuyBar extends Interaction {
     setup() {
         this.bar = null;
         this.realBtn = null;
+        this.surDevis = false;
         this.priceSrc = null;
         this.observer = null;
         this.priceObserver = null;
@@ -45,6 +46,13 @@ export class MotionBuyBar extends Interaction {
         if (document.querySelector(".o_motion_buybar")) {
             return;
         }
+        // Article « sur devis » (prix nul) : Odoo masque le bouton panier et affiche
+        // « Contactez-nous » vers la demande de devis -> la barre suit ce bouton-là.
+        const devisBtn = document.querySelector("#product_detail a.btn_cta");
+        this.surDevis = !!(devisBtn && devisBtn.offsetParent !== null && this.realBtn.offsetParent === null);
+        if (this.surDevis) {
+            this.realBtn = devisBtn;
+        }
 
         const nameEl = document.querySelector("#product_detail h1, h1[itemprop='name']");
         const imgEl = document.querySelector(
@@ -62,7 +70,7 @@ export class MotionBuyBar extends Interaction {
                     <span class="o_motion_buybar_price"></span>
                 </div>
                 <button type="button" class="btn btn-primary o_motion_buybar_btn">
-                    <i class="fa fa-shopping-cart me-1" aria-hidden="true"></i>Ajouter au panier
+                    <i class="fa ${this.surDevis ? "fa-file-text-o" : "fa-shopping-cart"} me-1" aria-hidden="true"></i>${this.surDevis ? "Demander un devis" : "Ajouter au panier"}
                 </button>
             </div>`;
         document.body.appendChild(bar);
@@ -106,8 +114,14 @@ export class MotionBuyBar extends Interaction {
         if (!this.bar) {
             return;
         }
-        const src = this.priceSrc || this._findPriceSource();
         const el = this.bar.querySelector(".o_motion_buybar_price");
+        if (this.surDevis) {
+            if (el) {
+                el.textContent = "Sur devis";
+            }
+            return;
+        }
+        const src = this.priceSrc || this._findPriceSource();
         if (src && el) {
             el.textContent = (src.textContent || "").trim() + " €";
         }

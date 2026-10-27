@@ -47,11 +47,21 @@
     <template id="lolirine_tile_delivery" inherit_id="website_sale.products_item" priority="40">
         <xpath expr="//div[hasclass('o_wsale_product_information_text')]" position="inside">
             <t t-if="website.id == 6 and product and product._name == 'product.template'">
-                <t t-set="lp_vignette" t-value="request.env['lolirine.livraison'].sudo().vignette(product)"/>
-                <div t-if="lp_vignette" class="lp-tile-delivery o_not_editable" contenteditable="false">
-                    <i class="fa fa-truck" aria-hidden="true"/>
-                    <span>Livraison <strong t-out="lp_vignette"/></span>
+                <!-- Article sans prix (sur mesure, tarif fournisseur non public) : « Sur devis »
+                     à la place du délai de livraison ; Odoo masque déjà prix et panier
+                     (option « empêcher la vente des produits à prix nul »). -->
+                <t t-set="lp_sur_devis" t-value="website.prevent_zero_price_sale and not product.list_price"/>
+                <div t-if="lp_sur_devis" class="lp-tile-delivery lp-tile-devis o_not_editable" contenteditable="false">
+                    <i class="fa fa-file-text-o" aria-hidden="true"/>
+                    <span><strong>Sur devis</strong></span>
                 </div>
+                <t t-else="">
+                    <t t-set="lp_vignette" t-value="request.env['lolirine.livraison'].sudo().vignette(product)"/>
+                    <div t-if="lp_vignette" class="lp-tile-delivery o_not_editable" contenteditable="false">
+                        <i class="fa fa-truck" aria-hidden="true"/>
+                        <span>Livraison <strong t-out="lp_vignette"/></span>
+                    </div>
+                </t>
             </t>
         </xpath>
     </template>
