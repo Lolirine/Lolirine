@@ -1402,3 +1402,16 @@ html[data-website-id="6"] .pool-contact-form .pool-form-note {
         background: rgba(255, 255, 255, 0.92);
     }
 }
+
+// Page 404 du Pool Store : panneau verre derriere le texte pour qu'il reste
+// lisible sur la photo de fond. Cible le bloc standard d'Odoo par son image 404.
+html[data-website-id="6"] #wrap section.s_text_image:has(img[src*="404.svg"]) .col-lg-8 {
+    background-color: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.15),
+        inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    padding: 2rem 1.75rem;
+}
