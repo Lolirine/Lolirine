@@ -39,10 +39,10 @@
                         <div class="row align-items-center justify-content-center text-center text-white">
                             <div class="col-lg-8">
                                 <h3 class="fw-bold mb-0">
-                                    &#x1F525; Offre limit&#233;e &#x2014; Jusqu'&#224; -30% sur une s&#233;lection d'articles !
+                                    Nos offres du moment sur une s&#233;lection d'articles
                                 </h3>
                                 <p class="mb-0 mt-2 opacity-75">
-                                    Profitez-en avant la fin de la saison. Stock limit&#233;.
+                                    Les promotions en cours s'affichent ci-dessous, avec le prix barr&#233; et la remise appliqu&#233;e.
                                 </p>
                             </div>
                         </div>
@@ -138,15 +138,15 @@
                             <div class="col-lg-3 col-md-6 mb-4">
                                 <div class="p-4">
                                     <div style="font-size: 3rem;">&#x1F69A;</div>
-                                    <h5 class="fw-bold mt-3">Livraison rapide</h5>
-                                    <p class="text-muted small">Exp&#233;dition sous 24-48h pour les articles en stock</p>
+                                    <h5 class="fw-bold mt-3">Livraison en Belgique</h5>
+                                    <p class="text-muted small">Livr&#233; en 3 &#224; 5 jours ouvrables, offerte d&#232;s 499 &#x20AC; HT, ou retrait gratuit &#224; Boninne</p>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-md-6 mb-4">
                                 <div class="p-4">
                                     <div style="font-size: 3rem;">&#x1F4B0;</div>
-                                    <h5 class="fw-bold mt-3">Prix imbattables</h5>
-                                    <p class="text-muted small">Les meilleurs tarifs sur l'&#233;quipement piscine</p>
+                                    <h5 class="fw-bold mt-3">Prix transparents</h5>
+                                    <p class="text-muted small">Prix TVA comprise, avec le montant HTVA indiqu&#233; sur chaque fiche</p>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-md-6 mb-4">
@@ -179,7 +179,7 @@
                             Pr&#234;t &#224; &#233;quiper votre piscine ?
                         </h2>
                         <p class="lead text-white opacity-75 mb-4">
-                            Parcourez notre catalogue complet et profitez de nos promotions exclusives
+                            Parcourez notre catalogue complet de mat&#233;riel piscine et spa
                         </p>
                         <div class="d-flex justify-content-center gap-3 flex-wrap">
                             <a href="/shop" class="btn btn-light btn-lg rounded-pill px-5 fw-bold shadow">
