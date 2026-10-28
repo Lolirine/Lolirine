@@ -1,26 +1,39 @@
 # -*- coding: utf-8 -*-
+import logging
+import re
+
 from odoo import http
 from odoo.http import request
 from odoo.addons.website_sale.controllers.main import WebsiteSale, handle_product_params_error
 
+_logger = logging.getLogger(__name__)
+PREFIXE_LANGUE = re.compile(r'^/[a-z]{2}(?:_[A-Za-z]{2})?(?=/shop/)')
 
-def handle_product_redirect(exc, product, category=None, **kwargs):
-    """Fiche produit archivee ou inaccessible : avant la 404 standard, on applique
-    la redirection 301/302 (website.rewrite) prevue pour elle, par exemple apres
-    une fusion de fiches. Recherche par adresse exacte, puis par identifiant de la
-    fiche (toutes ses anciennes adresses finissent par -<id>, quel que soit le nom)."""
+
+def _redirection_fiche(product):
+    """Cherche la redirection 301/302 prevue pour une fiche archivee : par adresse
+    exacte, puis par identifiant de fiche (anciennes adresses en -<id>)."""
+    website = request.env['website'].sudo().get_current_website()
     Rewrite = request.env['website.rewrite'].sudo()
-    base = [('redirect_type', 'in', ['301', '302']), ('website_id', 'in', [False, request.website.id])]
+    base = [('redirect_type', 'in', ['301', '302']), ('website_id', 'in', [False, website.id])]
     path = request.httprequest.path
-    lang = request.lang.url_code if request.lang else ''
-    chemins = {path}
-    if lang and path.startswith('/%s/' % lang):
-        chemins.add(path[len(lang) + 1:])
-    rw = Rewrite.search(base + [('url_from', 'in', list(chemins))], limit=1)
-    if not rw and product:
+    chemins = list({path, PREFIXE_LANGUE.sub('', path)})
+    rw = Rewrite.search(base + [('url_from', 'in', chemins)], limit=1)
+    if not rw and product and product.id:
         rw = Rewrite.search(base + [('url_from', '=like', '/shop/%%-%d' % product.id)], limit=1)
-    if rw:
-        return request.redirect(request.env['ir.http']._url_for(rw.url_to), code=int(rw.redirect_type))
+    return rw
+
+
+def handle_product_redirect(exc, product=None, category=None, **kwargs):
+    """Appele par Odoo avant le controleur quand la fiche est inaccessible
+    (archivee, fusionnee). Applique la redirection prevue, sinon comportement
+    standard. Ne doit jamais lever d'erreur : en cas de probleme, 404 standard."""
+    try:
+        rw = _redirection_fiche(product)
+        if rw:
+            return request.redirect(rw.url_to, code=int(rw.redirect_type), local=True)
+    except Exception:
+        _logger.exception("Redirection de fiche archivee impossible pour %s", request.httprequest.path)
     return handle_product_params_error(exc, product, category=category, **kwargs)
 
 
