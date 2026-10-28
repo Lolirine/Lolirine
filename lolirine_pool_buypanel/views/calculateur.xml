@@ -4,7 +4,8 @@
     <template id="calculateur_piscine" name="Pool Store : calculateur piscine">
         <t t-call="website.layout">
             <t t-set="additional_title">Calculateur de volume et de pompe à chaleur</t>
-            <t t-set="meta_description">Calculez le volume de votre piscine et la puissance de pompe à chaleur nécessaire, puis découvrez les modèles adaptés.</t>
+            <t t-set="title">Calculateur volume piscine et pompe à chaleur</t>
+            <t t-set="website_meta_description">Calculez le volume de votre piscine et la puissance de pompe à chaleur adaptée au climat belge, selon la couverture, la saison et l'exposition.</t>
             <div id="wrap" class="lp-calc">
                 <section class="pt48 pb16 o_colored_level o_cc o_cc1">
                     <div class="container">

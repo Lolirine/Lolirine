@@ -4,6 +4,8 @@
     <!-- PAGE NOS MARQUES -->
     <template id="brands_page" name="Pool Store - Nos Marques">
         <t t-call="website.layout">
+            <t t-set="title">Nos marques de matériel piscine | Lolirine Pool Store</t>
+            <t t-set="website_meta_description">Fluidra, AstralPool, AquaForte et plus de 140 marques de matériel de piscine et spa, avec tous leurs produits disponibles sur Lolirine Pool Store.</t>
             <div id="wrap">
 
                 <!-- HERO - ÉDITABLE -->

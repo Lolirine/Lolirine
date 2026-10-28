@@ -7,6 +7,8 @@
     
     <template id="page_pool_devis" name="Pool Store - Demande de devis">
         <t t-call="website.layout">
+            <t t-set="title">Demande de devis piscine gratuit | Lolirine</t>
+            <t t-set="website_meta_description">Entretien, construction, réparation ou analyse de l'eau : décrivez votre projet et recevez un devis gratuit et sans engagement sous 24 h.</t>
             <div id="wrap">
                 
                 <!-- HERO -->

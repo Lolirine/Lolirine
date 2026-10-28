@@ -7,6 +7,8 @@
     
     <template id="page_pool_contact" name="Pool Store - Contactez-nous">
         <t t-call="website.layout">
+            <t t-set="title">Contact | Lolirine Pool Store</t>
+            <t t-set="website_meta_description">Une question sur un produit, un service ou une commande ? Écrivez-nous ou contactez-nous par téléphone et WhatsApp. Réponse sous 24 h.</t>
             <div id="wrap" class="pool-contact-wrap">
                 
                 <!-- HERO -->
