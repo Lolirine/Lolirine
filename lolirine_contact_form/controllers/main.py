@@ -9,6 +9,15 @@ _logger = logging.getLogger(__name__)
 SITE_POOL_STORE = 6  # le formulaire garde-meuble ne s'affiche pas sur le site piscine
 
 
+def sitemap_garde_meuble(env, rule, qs):
+    """Sitemap : le formulaire garde-meuble n'est liste que hors du site Pool Store."""
+    if env['website'].get_current_website().id == SITE_POOL_STORE:
+        return
+    loc = '/contact-garde-meubles'
+    if not qs or qs.lower() in loc:
+        yield {'loc': loc}
+
+
 class LolirineContactForm(http.Controller):
 
     @staticmethod
@@ -28,7 +37,7 @@ class LolirineContactForm(http.Controller):
             return self._vers_contact_pool()
         return request.redirect('/contact-garde-meubles', code=301)
 
-    @http.route('/contact-garde-meubles', type='http', auth='public', website=True)
+    @http.route('/contact-garde-meubles', type='http', auth='public', website=True, sitemap=sitemap_garde_meuble)
     def contact_form_page(self, **kwargs):
         """Page du formulaire de contact optimisé"""
         if self._site_pool_store():
@@ -119,7 +128,7 @@ class LolirineContactForm(http.Controller):
                 'error': str(e)
             })
 
-    @http.route('/contact-garde-meubles/merci', type='http', auth='public', website=True)
+    @http.route('/contact-garde-meubles/merci', type='http', auth='public', website=True, sitemap=False)
     def contact_form_thanks(self, **kwargs):
         """Page de remerciement après soumission"""
         return request.render('lolirine_contact_form.contact_form_thanks')

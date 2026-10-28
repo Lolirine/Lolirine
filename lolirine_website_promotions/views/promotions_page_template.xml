@@ -201,8 +201,8 @@
         <field name="name">Promotions</field>
         <field name="url">/promotions</field>
         <field name="view_id" ref="promotions_page"/>
-        <field name="website_indexed" eval="True"/>
-        <field name="is_published" eval="True"/>
+        <field name="website_indexed" eval="False"/>
+        <field name="is_published" eval="False"/>
     </record>
 
 </odoo>

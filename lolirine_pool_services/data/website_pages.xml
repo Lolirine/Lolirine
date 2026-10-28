@@ -7,8 +7,8 @@
             <field name="name">Nos Services</field>
             <field name="url">/services</field>
             <field name="view_id" ref="lolirine_pool_services.page_nos_services"/>
-            <field name="website_indexed">True</field>
-            <field name="is_published">True</field>
+            <field name="website_indexed">False</field>
+            <field name="is_published">False</field>
         </record>
 
         <!-- Page: Entretien -->
@@ -16,8 +16,8 @@
             <field name="name">Entretien &amp; Réparation</field>
             <field name="url">/services/entretien-reparation</field>
             <field name="view_id" ref="lolirine_pool_services.page_entretien_reparation"/>
-            <field name="website_indexed">True</field>
-            <field name="is_published">True</field>
+            <field name="website_indexed">False</field>
+            <field name="is_published">False</field>
         </record>
 
         <!-- Page: Construction -->
@@ -25,8 +25,8 @@
             <field name="name">Construction &amp; Rénovation</field>
             <field name="url">/services/construction-renovation</field>
             <field name="view_id" ref="lolirine_pool_services.page_construction_renovation"/>
-            <field name="website_indexed">True</field>
-            <field name="is_published">True</field>
+            <field name="website_indexed">False</field>
+            <field name="is_published">False</field>
         </record>
 
         <!-- Page: Analyse -->
@@ -34,8 +34,8 @@
             <field name="name">Analyse de l'eau</field>
             <field name="url">/services/analyse-eau</field>
             <field name="view_id" ref="lolirine_pool_services.page_analyse_eau"/>
-            <field name="website_indexed">True</field>
-            <field name="is_published">True</field>
+            <field name="website_indexed">False</field>
+            <field name="is_published">False</field>
         </record>
 
         <!-- Page: Hivernage -->
@@ -43,8 +43,8 @@
             <field name="name">Hivernage &amp; Estivage</field>
             <field name="url">/services/hivernage-estivage</field>
             <field name="view_id" ref="lolirine_pool_services.page_hivernage_estivage"/>
-            <field name="website_indexed">True</field>
-            <field name="is_published">True</field>
+            <field name="website_indexed">False</field>
+            <field name="is_published">False</field>
         </record>
 
         <!-- Sous-page : Traitement de l'eau -->
@@ -52,8 +52,8 @@
             <field name="name">Traitement de l'eau</field>
             <field name="url">/services/entretien/traitement-eau</field>
             <field name="view_id" ref="lolirine_pool_services.page_traitement_eau"/>
-            <field name="website_indexed">True</field>
-            <field name="is_published">True</field>
+            <field name="website_indexed">False</field>
+            <field name="is_published">False</field>
         </record>
 
         <!-- Sous-page : Nettoyage du bassin -->
@@ -61,8 +61,8 @@
             <field name="name">Nettoyage du bassin</field>
             <field name="url">/services/entretien/nettoyage-bassin</field>
             <field name="view_id" ref="lolirine_pool_services.page_nettoyage_bassin"/>
-            <field name="website_indexed">True</field>
-            <field name="is_published">True</field>
+            <field name="website_indexed">False</field>
+            <field name="is_published">False</field>
         </record>
 
         <!-- Sous-page : Maintenance technique -->
@@ -70,8 +70,8 @@
             <field name="name">Maintenance technique</field>
             <field name="url">/services/entretien/maintenance-technique</field>
             <field name="view_id" ref="lolirine_pool_services.page_maintenance_technique"/>
-            <field name="website_indexed">True</field>
-            <field name="is_published">True</field>
+            <field name="website_indexed">False</field>
+            <field name="is_published">False</field>
         </record>
 
         <!-- Sous-page : Réparations -->
@@ -79,8 +79,8 @@
             <field name="name">Réparations piscine</field>
             <field name="url">/services/entretien/reparations</field>
             <field name="view_id" ref="lolirine_pool_services.page_reparations"/>
-            <field name="website_indexed">True</field>
-            <field name="is_published">True</field>
+            <field name="website_indexed">False</field>
+            <field name="is_published">False</field>
         </record>
 
     </data>

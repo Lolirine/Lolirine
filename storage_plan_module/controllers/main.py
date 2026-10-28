@@ -5,10 +5,21 @@ import json
 import io
 import base64
 
+SITE_POOL_STORE = 6
+
+
+def sitemap_storage_plan(env, rule, qs):
+    """Sitemap : le plan des boxes n'est liste que hors du site Pool Store."""
+    if env['website'].get_current_website().id == SITE_POOL_STORE:
+        return
+    loc = '/storage/plan'
+    if not qs or qs.lower() in loc:
+        yield {'loc': loc}
+
 
 class StoragePlanController(http.Controller):
     
-    @http.route('/storage/plan', type='http', auth='public', website=True)
+    @http.route('/storage/plan', type='http', auth='public', website=True, sitemap=sitemap_storage_plan)
     def storage_plan(self, **kwargs):
         """Page principale du plan interactif"""
         # Récupérer tous les boxes actifs
