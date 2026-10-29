@@ -49,10 +49,15 @@ class ProductProduct(models.Model):
         """Frais de la livraison standard du site pour une commande de `prix`
         (montant TVAC des articles, comme les règles du mode de livraison).
         Retourne (frais, pays) ou None si aucun mode ne s'applique."""
+        # Livraison à domicile : le mode par tranches du site ; à défaut, un mode
+        # à prix fixe non nul. Le « Retrait à Boninne » (fixe, 0 €) n'est pas
+        # une livraison et ne doit pas être annoncé comme livraison gratuite.
         Carrier = self.env["delivery.carrier"].sudo()
-        carrier = Carrier.search([("website_id", "=", website.id), ("is_published", "=", True),
-                                  ("delivery_type", "in", ["base_on_rule", "fixed"])],
-                                 order="sequence, id", limit=1)
+        domaine = [("website_id", "=", website.id), ("is_published", "=", True)]
+        carrier = (Carrier.search(domaine + [("delivery_type", "=", "base_on_rule")],
+                                  order="sequence, id", limit=1)
+                   or Carrier.search(domaine + [("delivery_type", "=", "fixed"), ("fixed_price", ">", 0)],
+                                     order="sequence, id", limit=1))
         if not carrier:
             return None
         if carrier.delivery_type == "fixed":
@@ -66,6 +71,8 @@ class ProductProduct(models.Model):
                     break
             if frais_ht is None:
                 return None
+        if carrier.free_over and prix >= carrier.amount:
+            frais_ht = 0.0
         frais = frais_ht
         taxes = carrier.product_id.taxes_id._filter_taxes_by_company(website.company_id)
         if frais and taxes and website.show_line_subtotals_tax_selection == "tax_included":
