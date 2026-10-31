@@ -18,12 +18,12 @@
         <h1 style="color: white; margin: 0; font-size: 22px;">Lolirine Pool Store</h1>
     </div>
     <div style="padding: 25px; border: 1px solid #e0e0e0; border-top: none;">
-        <p>Bonjour <strong>{{ object.partner_id.name }}</strong>,</p>
+        <p>Bonjour <strong><t t-out="object.partner_id.name"/></strong>,</p>
         <p>Suite a votre demande, nous avons le plaisir de vous transmettre notre devis pour votre projet piscine.</p>
         <div style="background: #f0f7ff; border-left: 4px solid #0078D4; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0;">
-            <p style="margin: 0;"><strong>Reference devis :</strong> {{ object.dropship_ref or object.name }}</p>
-            <p style="margin: 5px 0 0 0;"><strong>Montant total :</strong> {{ '%.2f' % object.amount_total }} EUR TTC</p>
-            <p style="margin: 5px 0 0 0;"><strong>Validite :</strong> {{ object.validity_date or 'Non definie' }}</p>
+            <p style="margin: 0;"><strong>Reference devis :</strong> <t t-out="object.dropship_ref or object.name"/></p>
+            <p style="margin: 5px 0 0 0;"><strong>Montant total :</strong> <t t-out="&#39;%.2f&#39; % object.amount_total"/> EUR TTC</p>
+            <p style="margin: 5px 0 0 0;"><strong>Validite :</strong> <t t-out="object.validity_date or &#39;Non definie&#39;"/></p>
         </div>
         <p>Vous trouverez ci-joint le detail complet de notre offre au format PDF.</p>
         <div style="background: #e8f5e9; padding: 15px; border-radius: 4px; margin: 20px 0;">
@@ -57,11 +57,11 @@
         <h1 style="color: white; margin: 0; font-size: 22px;">Lolirine Pool Store</h1>
     </div>
     <div style="padding: 25px; border: 1px solid #e0e0e0; border-top: none;">
-        <p>Bonjour <strong>{{ object.partner_id.name }}</strong>,</p>
+        <p>Bonjour <strong><t t-out="object.partner_id.name"/></strong>,</p>
         <p>Nous avons bien recu votre commande et nous vous en remercions !</p>
         <div style="background: #f0f7ff; border-left: 4px solid #0078D4; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0;">
-            <p style="margin: 0;"><strong>Reference commande :</strong> {{ object.dropship_ref or object.name }}</p>
-            <p style="margin: 5px 0 0 0;"><strong>Montant :</strong> {{ '%.2f' % object.amount_total }} EUR TTC</p>
+            <p style="margin: 0;"><strong>Reference commande :</strong> <t t-out="object.dropship_ref or object.name"/></p>
+            <p style="margin: 5px 0 0 0;"><strong>Montant :</strong> <t t-out="&#39;%.2f&#39; % object.amount_total"/> EUR TTC</p>
         </div>
         <h3 style="color: #0078D4;">Prochaines etapes</h3>
         <ol style="line-height: 1.8;">
@@ -72,10 +72,10 @@
         </ol>
         <div style="background: #fff3cd; padding: 12px; border-radius: 4px; margin: 15px 0;">
             <strong>Adresse de livraison :</strong><br/>
-            {{ object.partner_shipping_id.name }}<br/>
-            {{ object.partner_shipping_id.street or '' }}<br/>
-            {{ object.partner_shipping_id.zip or '' }} {{ object.partner_shipping_id.city or '' }}<br/>
-            {{ object.partner_shipping_id.country_id.name or '' }}
+            <t t-out="object.partner_shipping_id.name"/><br/>
+            <t t-out="object.partner_shipping_id.street or &#39;&#39;"/><br/>
+            <t t-out="object.partner_shipping_id.zip or &#39;&#39;"/> <t t-out="object.partner_shipping_id.city or &#39;&#39;"/><br/>
+            <t t-out="object.partner_shipping_id.country_id.name or &#39;&#39;"/>
         </div>
         <p>Pour toute question : <strong>+32 (0)497 44 41 46</strong></p>
         <p style="margin-top: 25px;">Cordialement,<br/>
@@ -102,8 +102,8 @@
         <h1 style="color: white; margin: 0; font-size: 22px;">Lolirine Pool Store</h1>
     </div>
     <div style="padding: 25px; border: 1px solid #e0e0e0; border-top: none;">
-        <p>Bonjour <strong>{{ object.partner_id.name }}</strong>,</p>
-        <p>Votre commande <strong>{{ object.dropship_ref or object.name }}</strong> a ete transmise a notre partenaire logistique pour preparation.</p>
+        <p>Bonjour <strong><t t-out="object.partner_id.name"/></strong>,</p>
+        <p>Votre commande <strong><t t-out="object.dropship_ref or object.name"/></strong> a ete transmise a notre partenaire logistique pour preparation.</p>
         <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0;">
             <p style="margin: 0;"><strong>Statut :</strong> En preparation</p>
             <p style="margin: 5px 0 0 0;">Vous recevrez un email avec le numero de suivi des que votre commande sera expediee.</p>
@@ -131,14 +131,14 @@
     </div>
     <div style="padding: 25px; border: 1px solid #e0e0e0; border-top: none;">
         <p>Bonjour,</p>
-        <p>Veuillez trouver ci-dessous notre commande <strong>{{ object.name }}</strong>.</p>
+        <p>Veuillez trouver ci-dessous notre commande <strong><t t-out="object.name"/></strong>.</p>
         <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0;">
             <p style="margin: 0;"><strong>LIVRAISON DIRECTE AU CLIENT FINAL :</strong></p>
             <p style="margin: 5px 0 0 0;">
-                <strong>{{ object.dest_address_id.name }}</strong><br/>
-                {{ object.dest_address_id.street or '' }}<br/>
-                {{ object.dest_address_id.zip or '' }} {{ object.dest_address_id.city or '' }}<br/>
-                {{ object.dest_address_id.country_id.name or '' }}
+                <strong><t t-out="object.dest_address_id.name"/></strong><br/>
+                <t t-out="object.dest_address_id.street or &#39;&#39;"/><br/>
+                <t t-out="object.dest_address_id.zip or &#39;&#39;"/> <t t-out="object.dest_address_id.city or &#39;&#39;"/><br/>
+                <t t-out="object.dest_address_id.country_id.name or &#39;&#39;"/>
             </p>
         </div>
         <div style="background: #f8d7da; padding: 12px; border-radius: 4px; margin: 15px 0;">
@@ -146,7 +146,7 @@
             NE PAS INCLURE DE FACTURE DANS LE COLIS
         </div>
         <p>Merci de confirmer la reception et le delai de livraison estime.</p>
-        <p>Cordialement,<br/>{{ object.company_id.name }}</p>
+        <p>Cordialement,<br/><t t-out="object.company_id.name"/></p>
     </div>
 </div>
 ]]></field>
@@ -168,13 +168,13 @@
         <h1 style="color: white; margin: 0; font-size: 22px;">Commande expediee !</h1>
     </div>
     <div style="padding: 25px; border: 1px solid #e0e0e0; border-top: none;">
-        <p>Bonjour <strong>{{ object.partner_id.name }}</strong>,</p>
-        <p>Bonne nouvelle ! Votre commande <strong>{{ object.dropship_ref or object.name }}</strong> vient d'etre expediee.</p>
+        <p>Bonjour <strong><t t-out="object.partner_id.name"/></strong>,</p>
+        <p>Bonne nouvelle ! Votre commande <strong><t t-out="object.dropship_ref or object.name"/></strong> vient d'etre expediee.</p>
         <div style="background: #fff3cd; padding: 12px; border-radius: 4px; margin: 15px 0;">
             <strong>Livraison prevue a :</strong><br/>
-            {{ object.partner_shipping_id.name }}<br/>
-            {{ object.partner_shipping_id.street or '' }}<br/>
-            {{ object.partner_shipping_id.zip or '' }} {{ object.partner_shipping_id.city or '' }}
+            <t t-out="object.partner_shipping_id.name"/><br/>
+            <t t-out="object.partner_shipping_id.street or &#39;&#39;"/><br/>
+            <t t-out="object.partner_shipping_id.zip or &#39;&#39;"/> <t t-out="object.partner_shipping_id.city or &#39;&#39;"/>
         </div>
         <p>Cordialement,<br/><strong>L'equipe Lolirine Pool Store</strong><br/>
         <a href="https://www.lolirinepoolstore.be">www.lolirinepoolstore.be</a></p>
@@ -199,8 +199,8 @@
         <h1 style="color: white; margin: 0; font-size: 22px;">Commande livree !</h1>
     </div>
     <div style="padding: 25px; border: 1px solid #e0e0e0; border-top: none;">
-        <p>Bonjour <strong>{{ object.partner_id.name }}</strong>,</p>
-        <p>Votre commande <strong>{{ object.dropship_ref or object.name }}</strong> a ete livree avec succes.</p>
+        <p>Bonjour <strong><t t-out="object.partner_id.name"/></strong>,</p>
+        <p>Votre commande <strong><t t-out="object.dropship_ref or object.name"/></strong> a ete livree avec succes.</p>
         <p>Si vous avez la moindre question, n'hesitez pas a nous contacter.</p>
         <p>Merci pour votre confiance !<br/>
         <strong>L'equipe Lolirine Pool Store</strong><br/>
@@ -227,8 +227,8 @@
         <h1 style="color: white; margin: 0; font-size: 22px;">Information importante</h1>
     </div>
     <div style="padding: 25px; border: 1px solid #e0e0e0; border-top: none;">
-        <p>Bonjour <strong>{{ object.partner_id.name }}</strong>,</p>
-        <p>Nous vous contactons au sujet de votre commande <strong>{{ object.dropship_ref or object.name }}</strong>.</p>
+        <p>Bonjour <strong><t t-out="object.partner_id.name"/></strong>,</p>
+        <p>Nous vous contactons au sujet de votre commande <strong><t t-out="object.dropship_ref or object.name"/></strong>.</p>
         <p>Un point necessite notre attention. Notre equipe traite la situation dans les meilleurs delais.</p>
         <p>Pour toute question urgente : <strong>+32 (0)497 44 41 46</strong></p>
         <p>Cordialement,<br/><strong>L'equipe Lolirine Pool Store</strong></p>
