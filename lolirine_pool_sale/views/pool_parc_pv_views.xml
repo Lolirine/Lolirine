@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ Parc installé ═══════════════ -->
+    <record id="view_pool_equipement_list" model="ir.ui.view">
+        <field name="name">lolirine.pool.equipement.list</field>
+        <field name="model">lolirine.pool.equipement</field>
+        <field name="arch" type="xml">
+            <list string="Parc installé" decoration-muted="not sous_garantie">
+                <field name="partner_id"/>
+                <field name="name"/>
+                <field name="categorie"/>
+                <field name="marque" optional="show"/>
+                <field name="modele" optional="show"/>
+                <field name="numero_serie"/>
+                <field name="date_pose"/>
+                <field name="date_fin_garantie"/>
+                <field name="sous_garantie" widget="boolean"/>
+                <field name="adresse_chantier" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pool_equipement_form" model="ir.ui.view">
+        <field name="name">lolirine.pool.equipement.form</field>
+        <field name="model">lolirine.pool.equipement</field>
+        <field name="arch" type="xml">
+            <form string="Équipement installé">
+                <sheet>
+                    <widget name="web_ribbon" title="Sous garantie" bg_color="text-bg-success" invisible="not sous_garantie"/>
+                    <widget name="web_ribbon" title="Archivé" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="ex. Pompe à chaleur Poolstyle INVER-E50"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="adresse_chantier"/>
+                            <field name="categorie"/>
+                            <field name="product_id"/>
+                            <field name="marque"/>
+                            <field name="modele"/>
+                            <field name="numero_serie"/>
+                        </group>
+                        <group>
+                            <field name="date_pose"/>
+                            <field name="garantie_mois"/>
+                            <field name="date_fin_garantie"/>
+                            <field name="sous_garantie" invisible="1"/>
+                            <field name="order_id"/>
+                            <field name="pv_id"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Notes (SAV, entretien…)">
+                        <field name="notes" nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pool_equipement_search" model="ir.ui.view">
+        <field name="name">lolirine.pool.equipement.search</field>
+        <field name="model">lolirine.pool.equipement</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="name"/>
+                <field name="numero_serie"/>
+                <field name="marque"/>
+                <filter name="garantie" string="Sous garantie" domain="[('sous_garantie', '=', True)]"/>
+                <filter name="hors_garantie" string="Hors garantie" domain="[('sous_garantie', '=', False)]"/>
+                <separator/>
+                <filter name="archived" string="Archivés" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_partner" string="Client" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_categorie" string="Catégorie" context="{'group_by': 'categorie'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_pool_equipement" model="ir.actions.act_window">
+        <field name="name">Parc installé</field>
+        <field name="res_model">lolirine.pool.equipement</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun équipement enregistré</p>
+            <p>Les équipements posés s'enregistrent à la signature du procès-verbal de réception d'un chantier.
+               Vous pouvez aussi les encoder à la main (clients existants).</p>
+        </field>
+    </record>
+
+    <!-- Fiche client : parc installé et entretien saisonnier -->
+    <record id="view_partner_form_pool_parc" model="ir.ui.view">
+        <field name="name">res.partner.form.pool.parc</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_pool_parc" type="object" class="oe_stat_button" icon="fa-cogs"
+                        invisible="pool_equipement_count == 0">
+                    <field name="pool_equipement_count" widget="statinfo" string="Parc piscine"/>
+                </button>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="🏊 Piscine" name="pool_piscine">
+                    <group>
+                        <group string="Entretien saisonnier">
+                            <field name="pool_entretien_auto"/>
+                            <field name="pool_formule_hivernage_id" invisible="not pool_entretien_auto"/>
+                            <field name="pool_formule_remise_id" invisible="not pool_entretien_auto"/>
+                        </group>
+                        <group string="Piscine">
+                            <field name="pool_adresse_piscine"/>
+                        </group>
+                    </group>
+                    <field name="pool_equipement_ids" context="{'default_partner_id': id}">
+                        <list>
+                            <field name="name"/>
+                            <field name="categorie"/>
+                            <field name="numero_serie"/>
+                            <field name="date_pose"/>
+                            <field name="date_fin_garantie"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ═══════════════ Procès-verbal de réception ═══════════════ -->
+    <record id="view_pool_pv_form" model="ir.ui.view">
+        <field name="name">lolirine.pool.pv.form</field>
+        <field name="model">lolirine.pool.pv</field>
+        <field name="arch" type="xml">
+            <form string="Procès-verbal de réception">
+                <header>
+                    <button name="action_signer" type="object" string="✍️ Valider la signature" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_imprimer" type="object" string="Imprimer"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="order_id" readonly="1"/>
+                            <field name="partner_id"/>
+                            <field name="adresse_chantier" readonly="state == 'signe'"/>
+                        </group>
+                        <group>
+                            <field name="date" readonly="state == 'signe'"/>
+                            <field name="technicien" readonly="state == 'signe'"/>
+                            <field name="avancement_100" readonly="state == 'signe'"/>
+                        </group>
+                    </group>
+                    <group string="Travaux réalisés">
+                        <field name="travaux" nolabel="1" colspan="2" readonly="state == 'signe'"/>
+                    </group>
+                    <separator string="Équipements posés (cochés : enregistrés au parc du client)"/>
+                    <field name="ligne_ids" readonly="state == 'signe'">
+                        <list editable="bottom">
+                            <field name="name"/>
+                            <field name="quantite"/>
+                            <field name="categorie"/>
+                            <field name="numero_serie"/>
+                            <field name="garantie_mois"/>
+                            <field name="a_enregistrer"/>
+                            <field name="product_id" column_invisible="True"/>
+                        </list>
+                    </field>
+                    <group>
+                        <field name="avec_reserves" readonly="state == 'signe'"/>
+                    </group>
+                    <group string="Réserves" invisible="not avec_reserves">
+                        <field name="reserves" nolabel="1" colspan="2" readonly="state == 'signe'"
+                               placeholder="Points à reprendre et délai convenu…"/>
+                    </group>
+                    <group string="Signature du client">
+                        <field name="signe_par" readonly="state == 'signe'"/>
+                        <field name="signature" widget="signature" readonly="state == 'signe'"
+                               options="{'full_name': 'signe_par'}"/>
+                        <field name="signe_le" invisible="not signe_le"/>
+                        <field name="attachment_id" invisible="not attachment_id"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pool_pv_list" model="ir.ui.view">
+        <field name="name">lolirine.pool.pv.list</field>
+        <field name="model">lolirine.pool.pv</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'signe'" decoration-warning="avec_reserves">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date"/>
+                <field name="avec_reserves"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_pool_pv" model="ir.actions.act_window">
+        <field name="name">Procès-verbaux de réception</field>
+        <field name="res_model">lolirine.pool.pv</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'create': False}</field>
+        <field name="help" type="html">
+            <p>Le procès-verbal se crée depuis un chantier confirmé (bouton « 📝 Procès-verbal »).</p>
+        </field>
+    </record>
+
+</odoo>

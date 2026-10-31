@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════ Devis / chantier : avenants, PV, relances ═══════════════ -->
+    <record id="view_pool_sale_order_form_chantier" model="ir.ui.view">
+        <field name="name">lolirine.pool.sale.order.form.chantier</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">35</field>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_confirm']" position="before">
+                <button name="action_pool_creer_avenant" type="object" string="➕ Avenant"
+                        invisible="not is_pool_quote or state != 'sale'" class="btn-secondary"
+                        help="Travaux supplémentaires : petit devis lié au chantier, signé et payé en ligne"/>
+                <button name="action_pool_pv" type="object" string="📝 Procès-verbal"
+                        invisible="not is_pool_quote or state != 'sale' or pool_pv_signe" class="btn-secondary"
+                        help="Procès-verbal de réception à faire signer au client en fin de chantier"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_pool_voir_avenants" type="object" class="oe_stat_button" icon="fa-plus-square"
+                        invisible="pool_avenant_count == 0">
+                    <field name="pool_avenant_count" widget="statinfo" string="Avenants"/>
+                </button>
+            </xpath>
+            <xpath expr="//sheet/div[hasclass('oe_title')]" position="after">
+                <div class="text-muted mb-2" invisible="not pool_avenant_parent_id">
+                    Avenant du chantier <field name="pool_avenant_parent_id" class="oe_inline" readonly="1"/>
+                </div>
+                <field name="pool_pv_signe" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='pool_autoliquidation']" position="after">
+                <field name="pool_sans_relance" invisible="not is_pool_quote"/>
+                <field name="pool_envoye_le" invisible="not is_pool_quote or not pool_envoye_le" readonly="1"/>
+                <field name="pool_relance_nb" invisible="not is_pool_quote or not pool_relance_nb" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ═══════════════ Tableau de bord des chantiers ═══════════════ -->
+    <record id="view_pool_tableau_list" model="ir.ui.view">
+        <field name="name">lolirine.pool.tableau.list</field>
+        <field name="model">sale.order</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <list string="Tableau de bord des chantiers" create="false"
+                  decoration-info="state in ('draft', 'sent')" decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="pool_intervention_type" optional="show"/>
+                <field name="date_order" optional="hide"/>
+                <field name="state" widget="badge"/>
+                <field name="amount_untaxed" sum="Total HT"/>
+                <field name="margin" sum="Marge" optional="show"/>
+                <field name="pool_mo_ht" string="Main-d'œuvre HT"/>
+                <field name="pool_heures" string="Heures" widget="float_time"/>
+                <field name="pool_resultat_mo" string="Résultat MO"/>
+                <field name="pool_reste_a_facturer" string="Reste à facturer"/>
+                <field name="pool_avenants_total" optional="show"/>
+                <field name="pool_pv_signe" string="PV" widget="boolean"/>
+                <field name="invoice_status" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pool_tableau_pivot" model="ir.ui.view">
+        <field name="name">lolirine.pool.tableau.pivot</field>
+        <field name="model">sale.order</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <pivot string="Chantiers piscine">
+                <field name="date_order" interval="month" type="row"/>
+                <field name="state" type="col"/>
+                <field name="amount_untaxed" type="measure"/>
+                <field name="margin" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_pool_tableau_graph" model="ir.ui.view">
+        <field name="name">lolirine.pool.tableau.graph</field>
+        <field name="model">sale.order</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <graph string="Devis par état" type="pie">
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_pool_tableau_search" model="ir.ui.view">
+        <field name="name">lolirine.pool.tableau.search</field>
+        <field name="model">sale.order</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <filter name="en_attente" string="Devis en attente de signature" domain="[('state', 'in', ['draft', 'sent'])]"/>
+                <filter name="en_cours" string="Chantiers en cours" domain="[('state', '=', 'sale'), ('pool_pv_signe', '=', False)]"/>
+                <filter name="a_facturer" string="À facturer" domain="[('invoice_status', '=', 'to invoice')]"/>
+                <filter name="termines" string="Réceptionnés (PV signé)" domain="[('pool_pv_signe', '=', True)]"/>
+                <separator/>
+                <filter name="entretien" string="Entretiens" domain="[('pool_intervention_type', 'in', ['hivernage', 'remise_en_route', 'entretien'])]"/>
+                <filter name="travaux" string="Travaux" domain="[('pool_intervention_type', 'not in', ['hivernage', 'remise_en_route', 'entretien'])]"/>
+                <separator/>
+                <filter name="annee" string="Cette année" date="date_order" default_period="year"/>
+                <group>
+                    <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
+                    <filter name="group_type" string="Intervention" context="{'group_by': 'pool_intervention_type'}"/>
+                    <filter name="group_mois" string="Mois" context="{'group_by': 'date_order:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_pool_tableau" model="ir.actions.act_window">
+        <field name="name">Tableau de bord des chantiers</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,pivot,graph,form</field>
+        <field name="domain">[('is_pool_quote', '=', True)]</field>
+        <field name="search_view_id" ref="view_pool_tableau_search"/>
+        <field name="context">{'search_default_en_cours': 1, 'create': False}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_pool_tableau_list')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_pool_tableau_pivot')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_pool_tableau_graph')})]"/>
+    </record>
+
+    <!-- ═══════════════ Devis d'hivernage / de remise en route ═══════════════ -->
+    <record id="view_pool_entretien_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.pool.entretien.wizard.form</field>
+        <field name="model">lolirine.pool.entretien.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Devis d'entretien">
+                <group>
+                    <group>
+                        <field name="type_intervention" widget="radio" options="{'horizontal': true}"/>
+                        <field name="partner_id" options="{'no_quick_create': False}"/>
+                        <field name="adresse"/>
+                        <field name="date_souhaitee"/>
+                    </group>
+                    <group>
+                        <field name="prestation_id" options="{'no_create': True}"/>
+                        <field name="prix"/>
+                        <field name="avec_options"/>
+                        <field name="memoriser"/>
+                    </group>
+                </group>
+                <group string="Demande du client">
+                    <field name="demande" nolabel="1" colspan="2" placeholder="ex. couverture à bulles à remplacer, fuite au skimmer…"/>
+                </group>
+                <separator string="Parc installé du client" invisible="not equipement_ids"/>
+                <field name="equipement_ids" invisible="not equipement_ids" readonly="1">
+                    <list>
+                        <field name="name"/>
+                        <field name="numero_serie"/>
+                        <field name="date_fin_garantie"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_creer" type="object" string="Créer le devis" class="btn-primary"/>
+                    <button string="Annuler" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pool_devis_hivernage" model="ir.actions.act_window">
+        <field name="name">Nouveau devis d'hivernage</field>
+        <field name="res_model">lolirine.pool.entretien.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_type_intervention': 'hivernage'}</field>
+    </record>
+
+    <record id="action_pool_devis_remise" model="ir.actions.act_window">
+        <field name="name">Nouveau devis de remise en route</field>
+        <field name="res_model">lolirine.pool.entretien.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_type_intervention': 'remise_en_route'}</field>
+    </record>
+
+    <record id="view_pool_campagne_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.pool.campagne.wizard.form</field>
+        <field name="model">lolirine.pool.campagne.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Campagne saisonnière">
+                <p class="text-muted">
+                    Un devis par client, avec sa formule (ou la formule par défaut). Les devis restent en brouillon :
+                    vérifiez-les puis envoyez-les. La campagne se lance aussi seule le 1er septembre (hivernage)
+                    et le 1er mars (remise en route) pour les clients « Entretien saisonnier ».
+                </p>
+                <group>
+                    <field name="type_intervention" widget="radio" options="{'horizontal': true}"/>
+                </group>
+                <field name="partner_ids" widget="many2many_tags"/>
+                <footer>
+                    <button name="action_lancer" type="object" string="Créer les devis" class="btn-primary"/>
+                    <button string="Annuler" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pool_campagne" model="ir.actions.act_window">
+        <field name="name">Campagne saisonnière</field>
+        <field name="res_model">lolirine.pool.campagne.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ═══════════════ Menu Ventes > 🏊 Piscine ═══════════════ -->
+    <menuitem id="menu_pool_root" name="🏊 Piscine" parent="sale.sale_menu_root" sequence="3"/>
+    <menuitem id="menu_pool_devis_piscine" name="Devis et chantiers" parent="menu_pool_root"
+              action="action_pool_sale_orders" sequence="1"/>
+    <menuitem id="menu_pool_devis_hivernage" name="❄️ Nouveau devis d'hivernage" parent="menu_pool_root"
+              action="action_pool_devis_hivernage" sequence="10"/>
+    <menuitem id="menu_pool_devis_remise" name="🌱 Nouveau devis de remise en route" parent="menu_pool_root"
+              action="action_pool_devis_remise" sequence="11"/>
+    <menuitem id="menu_pool_campagne" name="📣 Campagne saisonnière" parent="menu_pool_root"
+              action="action_pool_campagne" sequence="12"/>
+    <menuitem id="menu_pool_tableau" name="📊 Tableau de bord des chantiers" parent="menu_pool_root"
+              action="action_pool_tableau" sequence="20"/>
+    <menuitem id="menu_pool_pv" name="📝 Procès-verbaux de réception" parent="menu_pool_root"
+              action="action_pool_pv" sequence="21"/>
+    <menuitem id="menu_pool_parc" name="🧰 Parc installé" parent="menu_pool_root"
+              action="action_pool_equipement" sequence="22"/>
+    <menuitem id="menu_pool_ouvrages" name="🛠️ Tableau de main-d'œuvre et ouvrages" parent="menu_pool_root"
+              action="action_pool_prestation" sequence="30"/>
+
+</odoo>

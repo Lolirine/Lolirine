@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_pool_pv_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="article o_report_layout_standard" t-att-data-oe-model="doc._name" t-att-data-oe-id="doc.id">
+                    <t t-call="lolirine_pool_dropship.pool_document_layout">
+                        <h1 style="color: #0078D4; font-size: 26px; margin: 0;">Procès-verbal de réception</h1>
+                        <h2 style="color: #0078D4; font-size: 18px; margin: 4px 0 18px 0;">
+                            Chantier <t t-out="doc.order_id.name"/>
+                        </h2>
+
+                        <table class="table table-sm" style="font-size: 13px;">
+                            <tr>
+                                <td style="width: 30%;"><strong>Client</strong></td>
+                                <td><t t-out="doc.partner_id.name"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Adresse du chantier</strong></td>
+                                <td><t t-out="doc.adresse_chantier or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date de réception</strong></td>
+                                <td><t t-out="doc.date.strftime('%d/%m/%Y')"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Technicien</strong></td>
+                                <td><t t-out="doc.technicien or ''"/></td>
+                            </tr>
+                        </table>
+
+                        <t t-if="doc.travaux">
+                            <h3 style="font-size: 15px; color: #0078D4;">Travaux réalisés</h3>
+                            <div style="font-size: 12px; white-space: pre-line;" t-out="doc.travaux"/>
+                        </t>
+
+                        <h3 style="font-size: 15px; color: #0078D4; margin-top: 16px;">Équipements posés</h3>
+                        <table class="table table-sm" style="font-size: 12px;">
+                            <thead>
+                                <tr style="background: #0078D4; color: white;">
+                                    <th>Équipement</th>
+                                    <th class="text-center">Qté</th>
+                                    <th>N° de série</th>
+                                    <th class="text-center">Garantie</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.ligne_ids" t-as="l">
+                                    <td><t t-out="l.name"/></td>
+                                    <td class="text-center"><t t-out="'%g' % l.quantite"/></td>
+                                    <td><t t-out="l.numero_serie or '—'"/></td>
+                                    <td class="text-center"><t t-out="l.garantie_mois"/> mois</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="margin-top: 14px; padding: 10px 12px; border: 2px solid #0078D4; border-radius: 6px; font-size: 13px;">
+                            <t t-if="doc.avec_reserves">
+                                <strong>Réception prononcée AVEC réserves :</strong>
+                                <div style="white-space: pre-line; margin-top: 4px;" t-out="doc.reserves or ''"/>
+                            </t>
+                            <t t-else="">
+                                <strong>Réception prononcée SANS réserve.</strong>
+                            </t>
+                            <p style="margin: 8px 0 0 0;">
+                                Le client déclare avoir reçu les explications de fonctionnement et d'entretien des
+                                équipements. La date de réception est le point de départ des garanties.
+                            </p>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <p><strong>Pour Lolirine Pool Store</strong></p>
+                                <p><t t-out="doc.technicien or ''"/></p>
+                            </div>
+                            <div class="col-6">
+                                <p><strong>Le client</strong></p>
+                                <t t-if="doc.signature">
+                                    <img t-att-src="image_data_uri(doc.signature)" style="max-height: 80px; max-width: 240px;"/>
+                                    <p style="font-size: 11px; margin: 0;">
+                                        <t t-out="doc.signe_par or ''"/>
+                                        <t t-if="doc.signe_le"> — signé le <t t-out="doc.signe_le.strftime('%d/%m/%Y')"/></t>
+                                    </p>
+                                </t>
+                                <p t-else="" style="margin-top: 40px; border-top: 1px solid #999; padding-top: 5px;">
+                                    Date et signature
+                                </p>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_pool_pv" model="ir.actions.report">
+        <field name="name">Procès-verbal de réception</field>
+        <field name="model">lolirine.pool.pv</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">lolirine_pool_sale.report_pool_pv_document</field>
+        <field name="report_file">lolirine_pool_sale.report_pool_pv_document</field>
+        <field name="print_report_name">'PV_%s' % (object.order_id.name or '').replace('/', '_')</field>
+        <field name="binding_model_id" ref="model_lolirine_pool_pv"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

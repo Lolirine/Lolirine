@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data noupdate="1">
+        <!-- Projet unique des interventions d'entretien (hivernage, remise en route, passages) -->
+        <record id="project_entretiens_piscine" model="project.project">
+            <field name="name">Entretiens piscine</field>
+            <field name="allow_timesheets">True</field>
+            <field name="allow_billable">True</field>
+            <field name="type_ids" eval="[(6, 0, [ref('stage_chantier_a_planifier'), ref('stage_chantier_planifie'), ref('stage_chantier_en_cours'), ref('stage_chantier_termine')])]"/>
+            <field name="description">Hivernages, remises en route et passages d'entretien : une tâche par intervention confirmée.</field>
+        </record>
+
+        <!-- Relance d'un devis piscine non signé -->
+        <record id="mail_template_pool_relance" model="mail.template">
+            <field name="name">Devis piscine : relance (devis non signé)</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">Votre devis {{ object.name }} — Lolirine Pool Store</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.partner_id.id }}</field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px;">
+    <p>Bonjour <t t-out="object.partner_id.name or ''"/>,</p>
+    <t t-if="object.pool_relance_nb == 0">
+        <p>Nous vous avons transmis récemment notre devis <strong t-out="object.name"/>
+        (<t t-out="format_amount(object.amount_total, object.currency_id)"/> TVAC).
+        Avez-vous pu en prendre connaissance ? Nous restons à votre disposition pour toute question
+        ou adaptation.</p>
+    </t>
+    <t t-else="">
+        <p>Notre devis <strong t-out="object.name"/>
+        (<t t-out="format_amount(object.amount_total, object.currency_id)"/> TVAC) arrive à échéance
+        <t t-if="object.validity_date">le <t t-out="format_date(object.validity_date)"/></t>.
+        Pour réserver votre date d'intervention aux conditions proposées, il suffit de le signer en ligne.</p>
+    </t>
+    <p style="margin: 20px 0;">
+        <a t-att-href="object.get_base_url() + object.get_portal_url()"
+           style="background: #0078D4; color: #fff; padding: 10px 18px; border-radius: 4px; text-decoration: none;">
+            Consulter et signer le devis
+        </a>
+    </p>
+    <p>Une question ? Appelez-nous au +32 (0)497 44 41 46 ou répondez simplement à cet e-mail.</p>
+    <p>Cordialement,<br/>L'équipe Lolirine Pool Store<br/>
+        <a href="https://www.lolirinepoolstore.be">www.lolirinepoolstore.be</a></p>
+</div>
+            </field>
+        </record>
+    </data>
+
+    <!-- Tâches planifiées -->
+    <record id="cron_pool_relances" model="ir.cron">
+        <field name="name">Devis piscine : relances des devis non signés</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_pool_relances()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="cron_pool_campagne_saisonniere" model="ir.cron">
+        <field name="name">Devis piscine : campagne d'hivernage (1er septembre) et de remise en route (1er mars)</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_pool_campagne_saisonniere()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+
+</odoo>
