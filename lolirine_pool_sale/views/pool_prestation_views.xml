@@ -10,9 +10,10 @@
                 <field name="sequence" widget="handle"/>
                 <field name="categorie"/>
                 <field name="name"/>
+                <field name="mode_prix"/>
                 <field name="heures" sum="Heures"/>
-                <field name="taux_horaire"/>
-                <field name="coef_difficulte"/>
+                <field name="taux_horaire" optional="hide"/>
+                <field name="coef_difficulte" optional="hide"/>
                 <field name="prix_forfait"/>
                 <field name="active" column_invisible="True"/>
             </list>
@@ -36,10 +37,12 @@
                             <field name="product_id"/>
                             <field name="active" invisible="1"/>
                         </group>
-                        <group string="Calcul du forfait">
+                        <group string="Prix">
+                            <field name="mode_prix" widget="radio"/>
+                            <field name="forfait_fixe" invisible="mode_prix != 'forfait'" required="mode_prix == 'forfait'"/>
                             <field name="heures"/>
-                            <field name="taux_horaire"/>
-                            <field name="coef_difficulte"/>
+                            <field name="taux_horaire" invisible="mode_prix == 'forfait'"/>
+                            <field name="coef_difficulte" invisible="mode_prix == 'forfait'"/>
                             <field name="prix_forfait"/>
                         </group>
                     </group>
@@ -101,11 +104,13 @@
                         <field name="prestation_id" options="{'no_create': True}"/>
                         <field name="titre"/>
                     </group>
-                    <group string="Calcul">
+                    <group string="Prix">
+                        <field name="mode_prix" widget="radio"/>
+                        <field name="forfait_fixe" invisible="mode_prix != 'forfait'"/>
                         <field name="heures"/>
-                        <field name="taux_horaire"/>
-                        <field name="coef_difficulte"/>
-                        <field name="motif_coef" invisible="coef_difficulte == 1"/>
+                        <field name="taux_horaire" invisible="mode_prix == 'forfait'"/>
+                        <field name="coef_difficulte" invisible="mode_prix == 'forfait'"/>
+                        <field name="motif_coef" invisible="mode_prix == 'forfait' or coef_difficulte == 1"/>
                         <field name="prix"/>
                     </group>
                 </group>

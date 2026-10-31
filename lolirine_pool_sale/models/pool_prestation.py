@@ -35,18 +35,29 @@ class PoolPrestation(models.Model):
     detail_interne = fields.Text(
         "Détail interne (étapes et heures)",
         help="Non imprimé. Sert à calculer le temps et reste visible sur la ligne du devis, en interne.")
+    mode_prix = fields.Selection([('heures', 'Au temps passé (heures × taux)'), ('forfait', 'Prix au forfait')],
+                                 string="Mode de prix", required=True, default='heures')
+    forfait_fixe = fields.Float("Prix au forfait HT (€)", digits=(10, 2),
+                                help="Utilisé quand le mode de prix est « Prix au forfait ».")
     heures = fields.Float("Heures estimées", digits=(10, 2))
     taux_horaire = fields.Float("Taux horaire HT (€)", digits=(10, 2), default=55.0)
     coef_difficulte = fields.Float("Coefficient de difficulté", digits=(10, 2), default=1.0)
-    prix_forfait = fields.Float("Forfait HT (€)", digits=(10, 2), compute='_compute_prix_forfait', store=True)
+    prix_forfait = fields.Float("Prix HT (€)", digits=(10, 2), compute='_compute_prix_forfait', store=True)
     product_id = fields.Many2one(
         'product.product', string="Article de main-d'œuvre",
         default=lambda self: self.env['product.product'].search([('default_code', '=', 'MO-FORFAIT')], limit=1))
 
-    @api.depends('heures', 'taux_horaire', 'coef_difficulte')
+    @api.depends('mode_prix', 'forfait_fixe', 'heures', 'taux_horaire', 'coef_difficulte')
     def _compute_prix_forfait(self):
         for p in self:
-            p.prix_forfait = arrondi_5(p.heures * p.taux_horaire * (p.coef_difficulte or 1.0))
+            p.prix_forfait = calcul_prix(p.mode_prix, p.forfait_fixe, p.heures, p.taux_horaire, p.coef_difficulte)
+
+
+def calcul_prix(mode, forfait, heures, taux, coef):
+    """Prix HT de la prestation : forfait saisi, ou heures × taux × coefficient arrondi à 5 €."""
+    if mode == 'forfait':
+        return forfait or 0.0
+    return arrondi_5((heures or 0.0) * (taux or 0.0) * (coef or 1.0))
 
 
 def arrondi_5(montant):

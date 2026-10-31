@@ -2,7 +2,7 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-from ..models.pool_prestation import arrondi_5
+from ..models.pool_prestation import calcul_prix
 
 SECTION_MO = "Main-d'œuvre et déplacements"
 
@@ -16,6 +16,9 @@ class PoolPrestationWizard(models.TransientModel):
     titre = fields.Char("Titre sur le devis", required=True)
     description_client = fields.Text("Travaux décrits au client")
     detail_interne = fields.Text("Détail interne (étapes et heures)")
+    mode_prix = fields.Selection([('heures', 'Au temps passé (heures × taux)'), ('forfait', 'Prix au forfait')],
+                                 string="Mode de prix", required=True, default='heures')
+    forfait_fixe = fields.Float("Prix au forfait HT (€)", digits=(10, 2))
     heures = fields.Float("Heures", digits=(10, 2))
     taux_horaire = fields.Float("Taux horaire HT (€)", digits=(10, 2))
     coef_difficulte = fields.Float("Coefficient de difficulté", digits=(10, 2), default=1.0)
@@ -29,14 +32,16 @@ class PoolPrestationWizard(models.TransientModel):
             self.titre = p.name
             self.description_client = p.description_client
             self.detail_interne = p.detail_interne
+            self.mode_prix = p.mode_prix
+            self.forfait_fixe = p.forfait_fixe
             self.heures = p.heures
             self.taux_horaire = p.taux_horaire
             self.coef_difficulte = p.coef_difficulte or 1.0
 
-    @api.depends('heures', 'taux_horaire', 'coef_difficulte')
+    @api.depends('mode_prix', 'forfait_fixe', 'heures', 'taux_horaire', 'coef_difficulte')
     def _compute_prix(self):
         for w in self:
-            w.prix = arrondi_5(w.heures * w.taux_horaire * (w.coef_difficulte or 1.0))
+            w.prix = calcul_prix(w.mode_prix, w.forfait_fixe, w.heures, w.taux_horaire, w.coef_difficulte)
 
     def action_ajouter(self):
         self.ensure_one()
@@ -44,7 +49,7 @@ class PoolPrestationWizard(models.TransientModel):
         if order.state not in ('draft', 'sent'):
             raise UserError(_("Le devis n'est plus modifiable."))
         if self.prix <= 0:
-            raise UserError(_("Le forfait est à 0 € : indiquez les heures et le taux horaire."))
+            raise UserError(_("Le prix est à 0 € : indiquez un forfait, ou les heures et le taux horaire."))
         product = self.prestation_id.product_id or self.env['product.product'].search(
             [('default_code', '=', 'MO-FORFAIT')], limit=1)
         if not product:
@@ -53,12 +58,17 @@ class PoolPrestationWizard(models.TransientModel):
         nom = self.titre.strip()
         if (self.description_client or '').strip():
             nom += "\n" + self.description_client.strip()
-        detail = "%s h × %.2f €/h" % (('%g' % self.heures), self.taux_horaire)
-        if (self.coef_difficulte or 1.0) != 1.0:
-            detail += " × coef. %g" % self.coef_difficulte
-            if self.motif_coef:
-                detail += " (%s)" % self.motif_coef
-        detail += " = %.2f € HT" % self.prix
+        if self.mode_prix == 'forfait':
+            detail = "Forfait %.2f € HT" % self.prix
+            if self.heures:
+                detail += " (temps estimé %g h)" % self.heures
+        else:
+            detail = "%s h × %.2f €/h" % (('%g' % self.heures), self.taux_horaire)
+            if (self.coef_difficulte or 1.0) != 1.0:
+                detail += " × coef. %g" % self.coef_difficulte
+                if self.motif_coef:
+                    detail += " (%s)" % self.motif_coef
+            detail += " = %.2f € HT" % self.prix
         if (self.detail_interne or '').strip():
             detail += "\n" + self.detail_interne.strip()
 

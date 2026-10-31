@@ -1,24 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Prestations de départ du tableau de main-d'œuvre. Les heures sont à compléter
-     dans Ventes > Configuration > Tableau de main-d'œuvre (noupdate : vos réglages
-     ne sont jamais écrasés par une mise à niveau). -->
+<!-- Tableau de main-d'œuvre de départ (Ventes > Configuration > Tableau de main-d'œuvre).
+     Temps estimés à ajuster. noupdate : vos réglages ne sont jamais écrasés par une
+     mise à niveau ; une prestation ajoutée ici est créée si elle n'existe pas encore. -->
 <odoo>
     <data noupdate="1">
-        <record id="prestation_pac" model="lolirine.pool.prestation">
-            <field name="categorie">chauffage</field>
+        <record id="prestation_construction" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
             <field name="sequence">10</field>
-            <field name="name">Installation et raccordement d'une pompe à chaleur</field>
-            <field name="description_client">- Pose de la pompe à chaleur sur supports ou silentblocs
-- Création du by-pass et raccordement hydraulique aller/retour
-- Raccordement électrique sur ligne dédiée
-- Mise en eau, contrôle des fuites, mise en service et explications</field>
-            <field name="detail_interne">- Préparation, arrêt de la filtration, vidange partielle du circuit (0.5 h)
-- Découpe de l'entrée de l'échangeur, pose des tés et des vannes de by-pass (2 h)
-- Cheminement des conduites jusqu'à la PAC (3 h)
-- Pose des supports, mise en place de la PAC, raccordement aller/retour (3 h)
-- Ligne électrique dédiée et raccordement (3 h)
-- Mise en eau, purge, réglage du by-pass, mise en service (1.5 h)</field>
-            <field name="heures">13</field>
+            <field name="name">Construction du bassin</field>
+            <field name="description_client">- Implantation et terrassement
+- Réalisation du radier et des parois
+- Pose des pièces à sceller et des canalisations
+- Remblaiement</field>
+            <field name="detail_interne">- Implantation et terrassement (16 h)
+- Réalisation du radier et des parois (32 h)
+- Pose des pièces à sceller et des canalisations (8 h)
+- Remblaiement (8 h)</field>
+            <field name="heures">64</field>
+        </record>
+        <record id="prestation_implantation" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
+            <field name="sequence">20</field>
+            <field name="name">Implantation et terrassement du bassin</field>
+            <field name="description_client">- Piquetage et implantation du bassin
+- Terrassement à la pelle mécanique
+- Réglage du fond de fouille et des talus</field>
+            <field name="detail_interne">- Piquetage et implantation du bassin (2 h)
+- Terrassement à la pelle mécanique (10 h)
+- Réglage du fond de fouille et des talus (4 h)</field>
+            <field name="heures">16</field>
+        </record>
+        <record id="prestation_evacuation_terres" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
+            <field name="sequence">30</field>
+            <field name="name">Évacuation des terres de terrassement</field>
+            <field name="description_client">- Chargement des terres
+- Transport et mise en décharge (hors frais de décharge)</field>
+            <field name="detail_interne">- Chargement des terres (4 h)
+- Transport et mise en décharge (hors frais de décharge) (4 h)</field>
+            <field name="heures">8</field>
+        </record>
+        <record id="prestation_radier" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
+            <field name="sequence">40</field>
+            <field name="name">Radier en béton armé</field>
+            <field name="description_client">- Pose du film et du lit de stabilisé
+- Pose des treillis d'armature
+- Coulage et talochage du béton
+- Contrôle des niveaux</field>
+            <field name="detail_interne">- Pose du film et du lit de stabilisé (3 h)
+- Pose des treillis d'armature (4 h)
+- Coulage et talochage du béton (6 h)
+- Contrôle des niveaux (1 h)</field>
+            <field name="heures">14</field>
+        </record>
+        <record id="prestation_parois" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
+            <field name="sequence">50</field>
+            <field name="name">Montage des parois du bassin</field>
+            <field name="description_client">- Montage des blocs à bancher ou des panneaux
+- Pose des fers d'armature
+- Remplissage béton et chaînages
+- Contrôle de l'équerrage et des niveaux</field>
+            <field name="detail_interne">- Montage des blocs à bancher ou des panneaux (16 h)
+- Pose des fers d'armature (6 h)
+- Remplissage béton et chaînages (8 h)
+- Contrôle de l'équerrage et des niveaux (2 h)</field>
+            <field name="heures">32</field>
+        </record>
+        <record id="prestation_pieces_sceller" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
+            <field name="sequence">60</field>
+            <field name="name">Pose des pièces à sceller</field>
+            <field name="description_client">- Pose et scellement des skimmers
+- Pose des buses de refoulement et de la prise balai
+- Pose de la bonde de fond
+- Pose des niches de projecteurs</field>
+            <field name="detail_interne">- Pose et scellement des skimmers (2 h)
+- Pose des buses de refoulement et de la prise balai (1.5 h)
+- Pose de la bonde de fond (1.5 h)
+- Pose des niches de projecteurs (1 h)</field>
+            <field name="heures">6</field>
+        </record>
+        <record id="prestation_canalisations" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
+            <field name="sequence">70</field>
+            <field name="name">Tranchées et canalisations jusqu'au local technique</field>
+            <field name="description_client">- Ouverture des tranchées
+- Pose et collage des canalisations
+- Test de pression
+- Rebouchage des tranchées</field>
+            <field name="detail_interne">- Ouverture des tranchées (3 h)
+- Pose et collage des canalisations (4 h)
+- Test de pression (1 h)
+- Rebouchage des tranchées (2 h)</field>
+            <field name="heures">10</field>
+        </record>
+        <record id="prestation_remblai" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
+            <field name="sequence">80</field>
+            <field name="name">Remblaiement et compactage autour du bassin</field>
+            <field name="description_client">- Remblaiement par couches
+- Compactage</field>
+            <field name="detail_interne">- Remblaiement par couches (5 h)
+- Compactage (3 h)</field>
+            <field name="heures">8</field>
+        </record>
+        <record id="prestation_enduit" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
+            <field name="sequence">90</field>
+            <field name="name">Enduit et ragréage des parois</field>
+            <field name="description_client">- Préparation des surfaces
+- Application de l'enduit ou du ragréage
+- Finition des angles</field>
+            <field name="detail_interne">- Préparation des surfaces (2 h)
+- Application de l'enduit ou du ragréage (6 h)
+- Finition des angles (2 h)</field>
+            <field name="heures">10</field>
+        </record>
+        <record id="prestation_margelles" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
+            <field name="sequence">100</field>
+            <field name="name">Pose de margelles</field>
+            <field name="description_client">- Préparation de l'arase et du mortier
+- Pose et alignement des margelles
+- Jointoiement</field>
+            <field name="detail_interne">- Préparation de l'arase et du mortier (2 h)
+- Pose et alignement des margelles (8 h)
+- Jointoiement (2 h)</field>
+            <field name="heures">12</field>
+        </record>
+        <record id="prestation_plage" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
+            <field name="sequence">110</field>
+            <field name="name">Réalisation de la plage autour du bassin</field>
+            <field name="description_client">- Préparation et nivellement du support
+- Pose du revêtement de plage
+- Finitions et jointoiement</field>
+            <field name="detail_interne">- Préparation et nivellement du support (4 h)
+- Pose du revêtement de plage (10 h)
+- Finitions et jointoiement (2 h)</field>
+            <field name="heures">16</field>
         </record>
         <record id="prestation_local_technique" model="lolirine.pool.prestation">
             <field name="categorie">local_technique</field>
@@ -28,6 +150,11 @@
 - Raccordement hydraulique des aspirations et des refoulements
 - Pose et câblage du coffret électrique de filtration
 - Mise en service et réglages</field>
+            <field name="detail_interne">- Pose du filtre, de la pompe et de la vanne multivoies (3 h)
+- Raccordement hydraulique des aspirations et des refoulements (3 h)
+- Pose et câblage du coffret électrique de filtration (2 h)
+- Mise en service et réglages (1 h)</field>
+            <field name="heures">9</field>
         </record>
         <record id="prestation_remplacement_pompe" model="lolirine.pool.prestation">
             <field name="categorie">local_technique</field>
@@ -36,6 +163,188 @@
             <field name="description_client">- Dépose de l'ancienne pompe
 - Pose et raccordement de la nouvelle pompe
 - Raccordement électrique, mise en service et contrôle</field>
+            <field name="detail_interne">- Dépose de l'ancienne pompe (0.5 h)
+- Pose et raccordement de la nouvelle pompe (1 h)
+- Raccordement électrique, mise en service et contrôle (0.5 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_pompe_vv" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">30</field>
+            <field name="name">Installation d'une pompe à vitesse variable</field>
+            <field name="description_client">- Dépose de l'ancienne pompe
+- Pose et raccordement hydraulique de la pompe
+- Raccordement électrique
+- Programmation des vitesses et des plages horaires</field>
+            <field name="detail_interne">- Dépose de l'ancienne pompe (0.5 h)
+- Pose et raccordement hydraulique de la pompe (1 h)
+- Raccordement électrique (0.5 h)
+- Programmation des vitesses et des plages horaires (0.5 h)</field>
+            <field name="heures">2.5</field>
+        </record>
+        <record id="prestation_filtre_sable" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">40</field>
+            <field name="name">Pose d'un filtre à sable ou à verre</field>
+            <field name="description_client">- Dépose de l'ancien filtre
+- Mise en place du filtre et chargement du média filtrant
+- Pose de la vanne multivoies et raccordement
+- Contre-lavage, rinçage et mise en service</field>
+            <field name="detail_interne">- Dépose de l'ancien filtre (0.5 h)
+- Mise en place du filtre et chargement du média filtrant (1 h)
+- Pose de la vanne multivoies et raccordement (1 h)
+- Contre-lavage, rinçage et mise en service (0.5 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_filtre_cartouche" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">50</field>
+            <field name="name">Pose d'un filtre à cartouche</field>
+            <field name="description_client">- Dépose de l'ancien filtre
+- Mise en place et raccordement du filtre
+- Mise en service et contrôle</field>
+            <field name="detail_interne">- Dépose de l'ancien filtre (0.5 h)
+- Mise en place et raccordement du filtre (1 h)
+- Mise en service et contrôle (0.5 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_media" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">60</field>
+            <field name="name">Remplacement du sable ou du verre filtrant</field>
+            <field name="description_client">- Vidange et ouverture du filtre
+- Retrait de l'ancien média et nettoyage de la cuve
+- Contrôle des crépines
+- Chargement du nouveau média, contre-lavage et rinçage</field>
+            <field name="detail_interne">- Vidange et ouverture du filtre (0.5 h)
+- Retrait de l'ancien média et nettoyage de la cuve (1 h)
+- Contrôle des crépines (0.25 h)
+- Chargement du nouveau média, contre-lavage et rinçage (0.75 h)</field>
+            <field name="heures">2.5</field>
+        </record>
+        <record id="prestation_vanne_multivoies" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">70</field>
+            <field name="name">Remplacement d'une vanne multivoies</field>
+            <field name="description_client">- Dépose de l'ancienne vanne
+- Pose et raccordement de la nouvelle vanne
+- Contrôle d'étanchéité</field>
+            <field name="detail_interne">- Dépose de l'ancienne vanne (0.5 h)
+- Pose et raccordement de la nouvelle vanne (0.75 h)
+- Contrôle d'étanchéité (0.25 h)</field>
+            <field name="heures">1.5</field>
+        </record>
+        <record id="prestation_coffret" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">80</field>
+            <field name="name">Pose ou remplacement du coffret électrique de filtration</field>
+            <field name="description_client">- Dépose de l'ancien coffret
+- Pose et câblage du coffret (pompe, éclairage, horloge)
+- Contrôle des protections et mise en service</field>
+            <field name="detail_interne">- Dépose de l'ancien coffret (0.5 h)
+- Pose et câblage du coffret (pompe, éclairage, horloge) (1.5 h)
+- Contrôle des protections et mise en service (0.5 h)</field>
+            <field name="heures">2.5</field>
+        </record>
+        <record id="prestation_vannes_bille" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">90</field>
+            <field name="name">Remplacement de vannes à bille ou d'un clapet anti-retour</field>
+            <field name="description_client">- Coupure et vidange du circuit
+- Découpe et remplacement des vannes ou du clapet
+- Contrôle d'étanchéité</field>
+            <field name="detail_interne">- Coupure et vidange du circuit (0.25 h)
+- Découpe et remplacement des vannes ou du clapet (0.75 h)
+- Contrôle d'étanchéité (0.25 h)</field>
+            <field name="heures">1.25</field>
+        </record>
+        <record id="prestation_echangeur" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">100</field>
+            <field name="name">Pose d'un échangeur de chaleur</field>
+            <field name="description_client">- Création du by-pass
+- Pose et raccordement de l'échangeur (piscine et primaire)
+- Raccordement de la régulation
+- Purge, mise en service et contrôle</field>
+            <field name="detail_interne">- Création du by-pass (1 h)
+- Pose et raccordement de l'échangeur (piscine et primaire) (1.5 h)
+- Raccordement de la régulation (0.5 h)
+- Purge, mise en service et contrôle (0.5 h)</field>
+            <field name="heures">3.5</field>
+        </record>
+        <record id="prestation_rechauffeur" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">110</field>
+            <field name="name">Pose d'un réchauffeur électrique</field>
+            <field name="description_client">- Pose et raccordement hydraulique du réchauffeur
+- Raccordement électrique
+- Mise en service et réglage</field>
+            <field name="detail_interne">- Pose et raccordement hydraulique du réchauffeur (1 h)
+- Raccordement électrique (0.75 h)
+- Mise en service et réglage (0.25 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_surpresseur" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">120</field>
+            <field name="name">Pose d'un surpresseur pour nettoyeur hydraulique</field>
+            <field name="description_client">- Pose et raccordement hydraulique du surpresseur
+- Raccordement électrique et asservissement
+- Mise en service</field>
+            <field name="detail_interne">- Pose et raccordement hydraulique du surpresseur (1 h)
+- Raccordement électrique et asservissement (0.75 h)
+- Mise en service (0.25 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_plomberie_local" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">130</field>
+            <field name="name">Réfection de la plomberie du local technique</field>
+            <field name="description_client">- Dépose des anciennes canalisations
+- Façonnage et collage du nouveau circuit
+- Repérage des vannes
+- Test d'étanchéité et remise en route</field>
+            <field name="detail_interne">- Dépose des anciennes canalisations (1.5 h)
+- Façonnage et collage du nouveau circuit (3.5 h)
+- Repérage des vannes (0.25 h)
+- Test d'étanchéité et remise en route (0.75 h)</field>
+            <field name="heures">6</field>
+        </record>
+        <record id="prestation_fuite_local" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">140</field>
+            <field name="name">Recherche et réparation de fuite dans le local technique</field>
+            <field name="description_client">- Recherche de la fuite
+- Réparation (raccord, joint ou tronçon)
+- Contrôle d'étanchéité</field>
+            <field name="detail_interne">- Recherche de la fuite (1 h)
+- Réparation (raccord, joint ou tronçon) (0.75 h)
+- Contrôle d'étanchéité (0.25 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_relevage" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">150</field>
+            <field name="name">Pose d'une pompe de relevage dans le local technique</field>
+            <field name="description_client">- Pose de la pompe et du flotteur
+- Raccordement de l'évacuation
+- Raccordement électrique et essai</field>
+            <field name="detail_interne">- Pose de la pompe et du flotteur (1 h)
+- Raccordement de l'évacuation (0.75 h)
+- Raccordement électrique et essai (0.25 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_mise_service" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">160</field>
+            <field name="name">Mise en service et réglage de l'installation</field>
+            <field name="description_client">- Contrôle des équipements et des raccordements
+- Réglage de la filtration et de l'horloge
+- Explications au client</field>
+            <field name="detail_interne">- Contrôle des équipements et des raccordements (0.5 h)
+- Réglage de la filtration et de l'horloge (0.25 h)
+- Explications au client (0.25 h)</field>
+            <field name="heures">1</field>
         </record>
         <record id="prestation_liner_soude" model="lolirine.pool.prestation">
             <field name="categorie">liner</field>
@@ -46,6 +355,12 @@
 - Pose des profilés, mise en place et soudure du liner
 - Pose des pièces à sceller (brides et joints)
 - Mise en eau et contrôle</field>
+            <field name="detail_interne">- Préparation et nettoyage du support (3 h)
+- Pose du feutre de protection (2 h)
+- Pose des profilés, mise en place et soudure du liner (12 h)
+- Pose des pièces à sceller (brides et joints) (2 h)
+- Mise en eau et contrôle (1 h)</field>
+            <field name="heures">20</field>
         </record>
         <record id="prestation_membrane_armee" model="lolirine.pool.prestation">
             <field name="categorie">liner</field>
@@ -55,15 +370,271 @@
 - Pose des profilés colaminés
 - Mise en place, soudure et étanchéité de la membrane armée
 - Pose des pièces à sceller, mise en eau et contrôle</field>
+            <field name="detail_interne">- Préparation du support et pose du feutre (4 h)
+- Pose des profilés colaminés (4 h)
+- Mise en place, soudure et étanchéité de la membrane armée (14 h)
+- Pose des pièces à sceller, mise en eau et contrôle (2 h)</field>
+            <field name="heures">24</field>
         </record>
-        <record id="prestation_construction" model="lolirine.pool.prestation">
-            <field name="categorie">construction</field>
+        <record id="prestation_liner_sur_mesure" model="lolirine.pool.prestation">
+            <field name="categorie">liner</field>
+            <field name="sequence">30</field>
+            <field name="name">Pose d'un liner sur mesure</field>
+            <field name="description_client">- Contrôle et nettoyage du support
+- Mise en place du liner et accrochage dans le rail
+- Mise en aspiration et remplissage
+- Découpe et pose des brides et joints</field>
+            <field name="detail_interne">- Contrôle et nettoyage du support (1.5 h)
+- Mise en place du liner et accrochage dans le rail (3 h)
+- Mise en aspiration et remplissage (2 h)
+- Découpe et pose des brides et joints (1.5 h)</field>
+            <field name="heures">8</field>
+        </record>
+        <record id="prestation_depose_liner" model="lolirine.pool.prestation">
+            <field name="categorie">liner</field>
+            <field name="sequence">40</field>
+            <field name="name">Dépose de l'ancien liner et évacuation</field>
+            <field name="description_client">- Vidange du bassin
+- Découpe et dépose du liner
+- Évacuation des déchets</field>
+            <field name="detail_interne">- Vidange du bassin (1 h)
+- Découpe et dépose du liner (1.5 h)
+- Évacuation des déchets (0.5 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_support_liner" model="lolirine.pool.prestation">
+            <field name="categorie">liner</field>
+            <field name="sequence">50</field>
+            <field name="name">Préparation du support avant liner</field>
+            <field name="description_client">- Rebouchage des fissures et des trous
+- Ragréage des zones abîmées
+- Ponçage et dépoussiérage</field>
+            <field name="detail_interne">- Rebouchage des fissures et des trous (2 h)
+- Ragréage des zones abîmées (3 h)
+- Ponçage et dépoussiérage (1 h)</field>
+            <field name="heures">6</field>
+        </record>
+        <record id="prestation_feutre" model="lolirine.pool.prestation">
+            <field name="categorie">liner</field>
+            <field name="sequence">60</field>
+            <field name="name">Pose du feutre de protection</field>
+            <field name="description_client">- Découpe et collage du feutre sur les parois
+- Pose du feutre de fond</field>
+            <field name="detail_interne">- Découpe et collage du feutre sur les parois (1.5 h)
+- Pose du feutre de fond (0.5 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_rail" model="lolirine.pool.prestation">
+            <field name="categorie">liner</field>
+            <field name="sequence">70</field>
+            <field name="name">Pose du rail d'accrochage du liner</field>
+            <field name="description_client">- Dépose de l'ancien rail
+- Pose et fixation du nouveau rail</field>
+            <field name="detail_interne">- Dépose de l'ancien rail (1 h)
+- Pose et fixation du nouveau rail (2 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_joints_brides" model="lolirine.pool.prestation">
+            <field name="categorie">liner</field>
+            <field name="sequence">80</field>
+            <field name="name">Remplacement des joints et brides des pièces à sceller</field>
+            <field name="description_client">- Dépose des anciennes brides
+- Pose des joints et brides neufs</field>
+            <field name="detail_interne">- Dépose des anciennes brides (0.5 h)
+- Pose des joints et brides neufs (1.5 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_reparation_liner" model="lolirine.pool.prestation">
+            <field name="categorie">liner</field>
+            <field name="sequence">90</field>
+            <field name="name">Réparation ponctuelle d'un liner</field>
+            <field name="description_client">- Repérage et nettoyage de la zone
+- Pose de la rustine ou soudure de la pièce</field>
+            <field name="detail_interne">- Repérage et nettoyage de la zone (0.25 h)
+- Pose de la rustine ou soudure de la pièce (0.75 h)</field>
+            <field name="heures">1</field>
+        </record>
+        <record id="prestation_escalier_pvc_arme" model="lolirine.pool.prestation">
+            <field name="categorie">liner</field>
+            <field name="sequence">100</field>
+            <field name="name">Habillage d'un escalier en PVC armé</field>
+            <field name="description_client">- Préparation de l'escalier
+- Découpe, pose et soudure du PVC armé</field>
+            <field name="detail_interne">- Préparation de l'escalier (1 h)
+- Découpe, pose et soudure du PVC armé (3 h)</field>
+            <field name="heures">4</field>
+        </record>
+        <record id="prestation_pac" model="lolirine.pool.prestation">
+            <field name="categorie">chauffage</field>
             <field name="sequence">10</field>
-            <field name="name">Construction du bassin</field>
-            <field name="description_client">- Implantation et terrassement
-- Réalisation du radier et des parois
-- Pose des pièces à sceller et des canalisations
-- Remblaiement</field>
+            <field name="name">Installation et raccordement d'une pompe à chaleur</field>
+            <field name="description_client">- Préparation, arrêt de la filtration, vidange partielle du circuit
+- Découpe de l'entrée de l'échangeur, pose des tés et des vannes de by-pass
+- Cheminement des conduites jusqu'à la PAC
+- Pose des supports, mise en place de la PAC, raccordement aller/retour
+- Ligne électrique dédiée et raccordement
+- Mise en eau, purge, réglage du by-pass, mise en service</field>
+            <field name="detail_interne">- Préparation, arrêt de la filtration, vidange partielle du circuit (0.5 h)
+- Découpe de l'entrée de l'échangeur, pose des tés et des vannes de by-pass (2 h)
+- Cheminement des conduites jusqu'à la PAC (3 h)
+- Pose des supports, mise en place de la PAC, raccordement aller/retour (3 h)
+- Ligne électrique dédiée et raccordement (3 h)
+- Mise en eau, purge, réglage du by-pass, mise en service (1.5 h)</field>
+            <field name="heures">13</field>
+        </record>
+        <record id="prestation_pac_simple" model="lolirine.pool.prestation">
+            <field name="categorie">chauffage</field>
+            <field name="sequence">20</field>
+            <field name="name">Raccordement d'une pompe à chaleur à proximité du local</field>
+            <field name="description_client">- Mise en place de la PAC sur plots
+- Création du by-pass et raccordement
+- Raccordement électrique sur l'alimentation existante
+- Mise en service et explications</field>
+            <field name="detail_interne">- Mise en place de la PAC sur plots (0.5 h)
+- Création du by-pass et raccordement (2 h)
+- Raccordement électrique sur l'alimentation existante (1 h)
+- Mise en service et explications (0.5 h)</field>
+            <field name="heures">4</field>
+        </record>
+        <record id="prestation_entretien_pac" model="lolirine.pool.prestation">
+            <field name="categorie">chauffage</field>
+            <field name="sequence">30</field>
+            <field name="name">Entretien annuel d'une pompe à chaleur</field>
+            <field name="description_client">- Nettoyage de l'évaporateur
+- Contrôle des raccordements et des pressions
+- Contrôle de fonctionnement</field>
+            <field name="detail_interne">- Nettoyage de l'évaporateur (0.5 h)
+- Contrôle des raccordements et des pressions (0.25 h)
+- Contrôle de fonctionnement (0.25 h)</field>
+            <field name="heures">1</field>
+        </record>
+        <record id="prestation_solaire" model="lolirine.pool.prestation">
+            <field name="categorie">chauffage</field>
+            <field name="sequence">40</field>
+            <field name="name">Pose de capteurs solaires pour piscine</field>
+            <field name="description_client">- Pose des rails et fixation des capteurs
+- Raccordement hydraulique et vanne trois voies
+- Raccordement de la régulation solaire
+- Mise en service</field>
+            <field name="detail_interne">- Pose des rails et fixation des capteurs (3 h)
+- Raccordement hydraulique et vanne trois voies (2 h)
+- Raccordement de la régulation solaire (1 h)
+- Mise en service (0.5 h)</field>
+            <field name="heures">6.5</field>
+        </record>
+        <record id="prestation_deshumidificateur" model="lolirine.pool.prestation">
+            <field name="categorie">chauffage</field>
+            <field name="sequence">50</field>
+            <field name="name">Pose d'un déshumidificateur de local piscine</field>
+            <field name="description_client">- Mise en place de l'appareil
+- Raccordement de l'évacuation des condensats
+- Raccordement électrique et réglage</field>
+            <field name="detail_interne">- Mise en place de l'appareil (1 h)
+- Raccordement de l'évacuation des condensats (1 h)
+- Raccordement électrique et réglage (1 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_electrolyseur" model="lolirine.pool.prestation">
+            <field name="categorie">traitement</field>
+            <field name="sequence">10</field>
+            <field name="name">Pose d'un électrolyseur au sel</field>
+            <field name="description_client">- Pose du boîtier de commande
+- Pose de la cellule en ligne sur le refoulement
+- Raccordement électrique et asservissement à la filtration
+- Mise en sel, réglage et explications</field>
+            <field name="detail_interne">- Pose du boîtier de commande (0.5 h)
+- Pose de la cellule en ligne sur le refoulement (1 h)
+- Raccordement électrique et asservissement à la filtration (0.75 h)
+- Mise en sel, réglage et explications (0.75 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_cellule" model="lolirine.pool.prestation">
+            <field name="categorie">traitement</field>
+            <field name="sequence">20</field>
+            <field name="name">Remplacement d'une cellule d'électrolyse</field>
+            <field name="description_client">- Dépose de l'ancienne cellule
+- Pose et raccordement de la nouvelle cellule
+- Contrôle de production</field>
+            <field name="detail_interne">- Dépose de l'ancienne cellule (0.25 h)
+- Pose et raccordement de la nouvelle cellule (0.5 h)
+- Contrôle de production (0.25 h)</field>
+            <field name="heures">1</field>
+        </record>
+        <record id="prestation_regulation" model="lolirine.pool.prestation">
+            <field name="categorie">traitement</field>
+            <field name="sequence">30</field>
+            <field name="name">Pose d'une régulation pH / Redox avec pompe doseuse</field>
+            <field name="description_client">- Pose du boîtier et de la chambre de mesure
+- Pose des points d'injection et des crépines
+- Raccordement électrique
+- Étalonnage des sondes et réglage des consignes</field>
+            <field name="detail_interne">- Pose du boîtier et de la chambre de mesure (1 h)
+- Pose des points d'injection et des crépines (0.75 h)
+- Raccordement électrique (0.5 h)
+- Étalonnage des sondes et réglage des consignes (0.75 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_uv" model="lolirine.pool.prestation">
+            <field name="categorie">traitement</field>
+            <field name="sequence">40</field>
+            <field name="name">Pose d'un stérilisateur UV-C</field>
+            <field name="description_client">- Pose et raccordement en ligne
+- Raccordement électrique et asservissement
+- Mise en service</field>
+            <field name="detail_interne">- Pose et raccordement en ligne (1 h)
+- Raccordement électrique et asservissement (0.5 h)
+- Mise en service (0.5 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_sondes" model="lolirine.pool.prestation">
+            <field name="categorie">traitement</field>
+            <field name="sequence">50</field>
+            <field name="name">Remplacement et étalonnage des sondes pH / Redox</field>
+            <field name="description_client">- Remplacement des sondes
+- Étalonnage et contrôle</field>
+            <field name="detail_interne">- Remplacement des sondes (0.25 h)
+- Étalonnage et contrôle (0.5 h)</field>
+            <field name="heures">0.75</field>
+        </record>
+        <record id="prestation_analyse" model="lolirine.pool.prestation">
+            <field name="categorie">traitement</field>
+            <field name="sequence">60</field>
+            <field name="name">Analyse et équilibrage de l'eau</field>
+            <field name="description_client">- Analyse complète de l'eau
+- Ajustement du pH, du TAC et du désinfectant
+- Conseils au client</field>
+            <field name="detail_interne">- Analyse complète de l'eau (0.25 h)
+- Ajustement du pH, du TAC et du désinfectant (0.5 h)
+- Conseils au client (0.25 h)</field>
+            <field name="heures">1</field>
+        </record>
+        <record id="prestation_eau_verte" model="lolirine.pool.prestation">
+            <field name="categorie">traitement</field>
+            <field name="sequence">70</field>
+            <field name="name">Rattrapage d'une eau verte</field>
+            <field name="description_client">- Brossage des parois et du fond
+- Traitement choc et floculation
+- Filtration continue et contre-lavages
+- Aspiration des dépôts</field>
+            <field name="detail_interne">- Brossage des parois et du fond (1 h)
+- Traitement choc et floculation (0.5 h)
+- Filtration continue et contre-lavages (1 h)
+- Aspiration des dépôts (1 h)</field>
+            <field name="heures">3.5</field>
+        </record>
+        <record id="prestation_vidange" model="lolirine.pool.prestation">
+            <field name="categorie">traitement</field>
+            <field name="sequence">80</field>
+            <field name="name">Vidange et nettoyage complet du bassin</field>
+            <field name="description_client">- Vidange du bassin
+- Nettoyage des parois et de la ligne d'eau
+- Rinçage et remise en eau
+- Remise en route et traitement</field>
+            <field name="detail_interne">- Vidange du bassin (1 h)
+- Nettoyage des parois et de la ligne d'eau (3 h)
+- Rinçage et remise en eau (1.5 h)
+- Remise en route et traitement (0.5 h)</field>
+            <field name="heures">6</field>
         </record>
         <record id="prestation_electricite" model="lolirine.pool.prestation">
             <field name="categorie">electricite</field>
@@ -72,6 +643,244 @@
             <field name="description_client">- Tirage d'une ligne dédiée depuis le tableau
 - Protection différentielle et disjoncteur
 - Raccordement de l'équipement</field>
+            <field name="detail_interne">- Tirage d'une ligne dédiée depuis le tableau (1.5 h)
+- Protection différentielle et disjoncteur (0.5 h)
+- Raccordement de l'équipement (1 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_projecteur" model="lolirine.pool.prestation">
+            <field name="categorie">electricite</field>
+            <field name="sequence">20</field>
+            <field name="name">Remplacement d'un projecteur ou d'une lampe LED</field>
+            <field name="description_client">- Coupure et dépose du projecteur
+- Remplacement de la lampe ou du projecteur
+- Essai</field>
+            <field name="detail_interne">- Coupure et dépose du projecteur (0.5 h)
+- Remplacement de la lampe ou du projecteur (0.5 h)
+- Essai (0.25 h)</field>
+            <field name="heures">1.25</field>
+        </record>
+        <record id="prestation_projecteur_complet" model="lolirine.pool.prestation">
+            <field name="categorie">electricite</field>
+            <field name="sequence">30</field>
+            <field name="name">Pose d'un projecteur complet avec niche</field>
+            <field name="description_client">- Percement et pose de la niche
+- Passage et raccordement du câble
+- Pose du projecteur et essai</field>
+            <field name="detail_interne">- Percement et pose de la niche (1.5 h)
+- Passage et raccordement du câble (1 h)
+- Pose du projecteur et essai (0.5 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_transfo" model="lolirine.pool.prestation">
+            <field name="categorie">electricite</field>
+            <field name="sequence">40</field>
+            <field name="name">Pose d'un transformateur ou coffret d'éclairage</field>
+            <field name="description_client">- Pose du transformateur
+- Câblage et raccordement des projecteurs
+- Essai</field>
+            <field name="detail_interne">- Pose du transformateur (0.5 h)
+- Câblage et raccordement des projecteurs (1 h)
+- Essai (0.25 h)</field>
+            <field name="heures">1.75</field>
+        </record>
+        <record id="prestation_equipotentielle" model="lolirine.pool.prestation">
+            <field name="categorie">electricite</field>
+            <field name="sequence">50</field>
+            <field name="name">Liaison équipotentielle et mise à la terre</field>
+            <field name="description_client">- Pose du conducteur de liaison
+- Raccordement des masses métalliques
+- Mesure de continuité</field>
+            <field name="detail_interne">- Pose du conducteur de liaison (1 h)
+- Raccordement des masses métalliques (0.75 h)
+- Mesure de continuité (0.25 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_horloge" model="lolirine.pool.prestation">
+            <field name="categorie">electricite</field>
+            <field name="sequence">60</field>
+            <field name="name">Remplacement d'une horloge de filtration</field>
+            <field name="description_client">- Dépose de l'ancienne horloge
+- Pose et câblage de la nouvelle horloge
+- Programmation</field>
+            <field name="detail_interne">- Dépose de l'ancienne horloge (0.25 h)
+- Pose et câblage de la nouvelle horloge (0.5 h)
+- Programmation (0.25 h)</field>
+            <field name="heures">1</field>
+        </record>
+        <record id="prestation_skimmer" model="lolirine.pool.prestation">
+            <field name="categorie">plomberie</field>
+            <field name="sequence">10</field>
+            <field name="name">Remplacement d'un skimmer</field>
+            <field name="description_client">- Démolition autour de l'ancien skimmer
+- Pose et raccordement du nouveau skimmer
+- Scellement et finition</field>
+            <field name="detail_interne">- Démolition autour de l'ancien skimmer (2 h)
+- Pose et raccordement du nouveau skimmer (1.5 h)
+- Scellement et finition (1 h)</field>
+            <field name="heures">4.5</field>
+        </record>
+        <record id="prestation_refoulement" model="lolirine.pool.prestation">
+            <field name="categorie">plomberie</field>
+            <field name="sequence">20</field>
+            <field name="name">Remplacement d'une buse de refoulement ou d'une prise balai</field>
+            <field name="description_client">- Dépose de la pièce
+- Pose et raccordement de la nouvelle pièce
+- Contrôle d'étanchéité</field>
+            <field name="detail_interne">- Dépose de la pièce (0.5 h)
+- Pose et raccordement de la nouvelle pièce (1 h)
+- Contrôle d'étanchéité (0.25 h)</field>
+            <field name="heures">1.75</field>
+        </record>
+        <record id="prestation_bonde" model="lolirine.pool.prestation">
+            <field name="categorie">plomberie</field>
+            <field name="sequence">30</field>
+            <field name="name">Remplacement d'une bonde de fond</field>
+            <field name="description_client">- Vidange et dépose de la bonde
+- Pose et raccordement de la nouvelle bonde
+- Contrôle d'étanchéité</field>
+            <field name="detail_interne">- Vidange et dépose de la bonde (1 h)
+- Pose et raccordement de la nouvelle bonde (1.5 h)
+- Contrôle d'étanchéité (0.5 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_test_pression" model="lolirine.pool.prestation">
+            <field name="categorie">plomberie</field>
+            <field name="sequence">40</field>
+            <field name="name">Test de pression des canalisations</field>
+            <field name="description_client">- Obturation des circuits
+- Mise en pression et lecture
+- Rapport au client</field>
+            <field name="detail_interne">- Obturation des circuits (0.5 h)
+- Mise en pression et lecture (1 h)
+- Rapport au client (0.25 h)</field>
+            <field name="heures">1.75</field>
+        </record>
+        <record id="prestation_recherche_fuite" model="lolirine.pool.prestation">
+            <field name="categorie">plomberie</field>
+            <field name="sequence">50</field>
+            <field name="name">Recherche de fuite sur les canalisations enterrées</field>
+            <field name="description_client">- Test de pression circuit par circuit
+- Localisation de la fuite
+- Rapport et proposition de réparation</field>
+            <field name="detail_interne">- Test de pression circuit par circuit (1.5 h)
+- Localisation de la fuite (1.5 h)
+- Rapport et proposition de réparation (0.5 h)</field>
+            <field name="heures">3.5</field>
+        </record>
+        <record id="prestation_canalisation_enterree" model="lolirine.pool.prestation">
+            <field name="categorie">plomberie</field>
+            <field name="sequence">60</field>
+            <field name="name">Remplacement d'une canalisation enterrée</field>
+            <field name="description_client">- Ouverture de la tranchée
+- Remplacement du tronçon
+- Test de pression
+- Rebouchage</field>
+            <field name="detail_interne">- Ouverture de la tranchée (3 h)
+- Remplacement du tronçon (2 h)
+- Test de pression (0.5 h)
+- Rebouchage (2 h)</field>
+            <field name="heures">7.5</field>
+        </record>
+        <record id="prestation_bypass" model="lolirine.pool.prestation">
+            <field name="categorie">plomberie</field>
+            <field name="sequence">70</field>
+            <field name="name">Création d'un by-pass</field>
+            <field name="description_client">- Découpe du circuit et pose des tés
+- Pose des vannes de réglage
+- Contrôle d'étanchéité</field>
+            <field name="detail_interne">- Découpe du circuit et pose des tés (0.75 h)
+- Pose des vannes de réglage (0.75 h)
+- Contrôle d'étanchéité (0.25 h)</field>
+            <field name="heures">1.75</field>
+        </record>
+        <record id="prestation_couverture_barres" model="lolirine.pool.prestation">
+            <field name="categorie">couverture</field>
+            <field name="sequence">10</field>
+            <field name="name">Pose d'une couverture à barres</field>
+            <field name="description_client">- Implantation et perçage des ancrages
+- Pose des ancrages
+- Mise en place et réglage de la couverture</field>
+            <field name="detail_interne">- Implantation et perçage des ancrages (1 h)
+- Pose des ancrages (0.5 h)
+- Mise en place et réglage de la couverture (0.5 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_enrouleur" model="lolirine.pool.prestation">
+            <field name="categorie">couverture</field>
+            <field name="sequence">20</field>
+            <field name="name">Pose d'un enrouleur de couverture à bulles</field>
+            <field name="description_client">- Montage de l'enrouleur
+- Fixation de la couverture
+- Réglage</field>
+            <field name="detail_interne">- Montage de l'enrouleur (0.5 h)
+- Fixation de la couverture (0.5 h)
+- Réglage (0.25 h)</field>
+            <field name="heures">1.25</field>
+        </record>
+        <record id="prestation_volet_horssol" model="lolirine.pool.prestation">
+            <field name="categorie">couverture</field>
+            <field name="sequence">30</field>
+            <field name="name">Pose d'un volet roulant hors-sol</field>
+            <field name="description_client">- Montage du mécanisme et des pieds
+- Assemblage du tablier de lames
+- Raccordement électrique
+- Réglage des fins de course et explications</field>
+            <field name="detail_interne">- Montage du mécanisme et des pieds (2 h)
+- Assemblage du tablier de lames (2 h)
+- Raccordement électrique (1 h)
+- Réglage des fins de course et explications (1 h)</field>
+            <field name="heures">6</field>
+        </record>
+        <record id="prestation_volet_immerge" model="lolirine.pool.prestation">
+            <field name="categorie">couverture</field>
+            <field name="sequence">40</field>
+            <field name="name">Pose d'un volet roulant immergé</field>
+            <field name="description_client">- Pose de la poutre et des supports
+- Montage du mécanisme et de l'axe
+- Assemblage du tablier de lames
+- Raccordement électrique et coffret
+- Réglage des fins de course et mise en service</field>
+            <field name="detail_interne">- Pose de la poutre et des supports (3 h)
+- Montage du mécanisme et de l'axe (3 h)
+- Assemblage du tablier de lames (3 h)
+- Raccordement électrique et coffret (2 h)
+- Réglage des fins de course et mise en service (1 h)</field>
+            <field name="heures">12</field>
+        </record>
+        <record id="prestation_lames" model="lolirine.pool.prestation">
+            <field name="categorie">couverture</field>
+            <field name="sequence">50</field>
+            <field name="name">Remplacement de lames de volet</field>
+            <field name="description_client">- Déroulement et démontage du tablier
+- Remplacement des lames
+- Remontage et réglage</field>
+            <field name="detail_interne">- Déroulement et démontage du tablier (1 h)
+- Remplacement des lames (1.5 h)
+- Remontage et réglage (0.5 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_motorisation_volet" model="lolirine.pool.prestation">
+            <field name="categorie">couverture</field>
+            <field name="sequence">60</field>
+            <field name="name">Motorisation d'un volet manuel</field>
+            <field name="description_client">- Dépose de la manivelle
+- Pose du moteur et du coffret
+- Raccordement électrique et réglage</field>
+            <field name="detail_interne">- Dépose de la manivelle (0.5 h)
+- Pose du moteur et du coffret (1.5 h)
+- Raccordement électrique et réglage (1 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_couverture_hiver" model="lolirine.pool.prestation">
+            <field name="categorie">couverture</field>
+            <field name="sequence">70</field>
+            <field name="name">Pose d'une couverture d'hiver</field>
+            <field name="description_client">- Déploiement de la couverture
+- Pose des tendeurs ou boudins</field>
+            <field name="detail_interne">- Déploiement de la couverture (0.25 h)
+- Pose des tendeurs ou boudins (0.5 h)</field>
+            <field name="heures">0.75</field>
         </record>
         <record id="prestation_mise_en_route" model="lolirine.pool.prestation">
             <field name="categorie">entretien</field>
@@ -80,6 +889,10 @@
             <field name="description_client">- Retrait de la couverture d'hiver
 - Remise en place des équipements
 - Remise en route de la filtration et équilibrage de l'eau</field>
+            <field name="detail_interne">- Retrait de la couverture d'hiver (0.5 h)
+- Remise en place des équipements (0.5 h)
+- Remise en route de la filtration et équilibrage de l'eau (1 h)</field>
+            <field name="heures">2</field>
         </record>
         <record id="prestation_hivernage" model="lolirine.pool.prestation">
             <field name="categorie">entretien</field>
@@ -88,6 +901,90 @@
             <field name="description_client">- Traitement d'hivernage et abaissement du niveau
 - Vidange et protection des équipements
 - Pose de la couverture d'hiver</field>
+            <field name="detail_interne">- Traitement d'hivernage et abaissement du niveau (0.75 h)
+- Vidange et protection des équipements (0.75 h)
+- Pose de la couverture d'hiver (0.5 h)</field>
+            <field name="heures">2</field>
+        </record>
+        <record id="prestation_entretien_courant" model="lolirine.pool.prestation">
+            <field name="categorie">entretien</field>
+            <field name="sequence">30</field>
+            <field name="name">Entretien courant de la piscine (passage)</field>
+            <field name="description_client">- Nettoyage des paniers et de la ligne d'eau
+- Aspiration du fond
+- Contre-lavage du filtre
+- Analyse et ajustement de l'eau</field>
+            <field name="detail_interne">- Nettoyage des paniers et de la ligne d'eau (0.25 h)
+- Aspiration du fond (0.5 h)
+- Contre-lavage du filtre (0.25 h)
+- Analyse et ajustement de l'eau (0.25 h)</field>
+            <field name="heures">1.25</field>
+        </record>
+        <record id="prestation_nettoyage_complet" model="lolirine.pool.prestation">
+            <field name="categorie">entretien</field>
+            <field name="sequence">40</field>
+            <field name="name">Nettoyage complet du bassin</field>
+            <field name="description_client">- Brossage des parois et nettoyage de la ligne d'eau
+- Aspiration du fond
+- Nettoyage du filtre et des paniers</field>
+            <field name="detail_interne">- Brossage des parois et nettoyage de la ligne d'eau (1.5 h)
+- Aspiration du fond (1 h)
+- Nettoyage du filtre et des paniers (0.5 h)</field>
+            <field name="heures">3</field>
+        </record>
+        <record id="prestation_controle_annuel" model="lolirine.pool.prestation">
+            <field name="categorie">entretien</field>
+            <field name="sequence">50</field>
+            <field name="name">Contrôle annuel de l'installation</field>
+            <field name="description_client">- Contrôle de la filtration et des équipements
+- Contrôle électrique et des sécurités
+- Rapport et recommandations</field>
+            <field name="detail_interne">- Contrôle de la filtration et des équipements (0.5 h)
+- Contrôle électrique et des sécurités (0.5 h)
+- Rapport et recommandations (0.5 h)</field>
+            <field name="heures">1.5</field>
+        </record>
+        <record id="prestation_depannage" model="lolirine.pool.prestation">
+            <field name="categorie">entretien</field>
+            <field name="sequence">60</field>
+            <field name="name">Intervention de dépannage</field>
+            <field name="description_client">- Diagnostic de la panne
+- Réparation ou remise en route</field>
+            <field name="detail_interne">- Diagnostic de la panne (0.5 h)
+- Réparation ou remise en route (0.5 h)</field>
+            <field name="heures">1</field>
+        </record>
+        <record id="prestation_robot" model="lolirine.pool.prestation">
+            <field name="categorie">entretien</field>
+            <field name="sequence">70</field>
+            <field name="name">Entretien d'un robot de piscine</field>
+            <field name="description_client">- Nettoyage du robot et des filtres
+- Contrôle des brosses, chenilles et câble
+- Essai</field>
+            <field name="detail_interne">- Nettoyage du robot et des filtres (0.25 h)
+- Contrôle des brosses, chenilles et câble (0.25 h)
+- Essai (0.25 h)</field>
+            <field name="heures">0.75</field>
+        </record>
+        <record id="prestation_visite" model="lolirine.pool.prestation">
+            <field name="categorie">autre</field>
+            <field name="sequence">10</field>
+            <field name="name">Visite technique et relevé sur place</field>
+            <field name="description_client">- Relevé du bassin et des équipements
+- Conseils et préparation du devis</field>
+            <field name="detail_interne">- Relevé du bassin et des équipements (0.75 h)
+- Conseils et préparation du devis (0.25 h)</field>
+            <field name="heures">1</field>
+        </record>
+        <record id="prestation_evacuation_dechets" model="lolirine.pool.prestation">
+            <field name="categorie">autre</field>
+            <field name="sequence">20</field>
+            <field name="name">Évacuation des emballages et anciens équipements</field>
+            <field name="description_client">- Chargement et tri
+- Transport vers le parc à conteneurs</field>
+            <field name="detail_interne">- Chargement et tri (0.5 h)
+- Transport vers le parc à conteneurs (0.5 h)</field>
+            <field name="heures">1</field>
         </record>
     </data>
 </odoo>
