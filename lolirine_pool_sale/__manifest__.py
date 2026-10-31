@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Pool — Devis Piscine',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Sales',
     'summary': 'Devis piscine avec séquence dédiée, onglets chantier et dropshipping',
     'description': """
@@ -16,6 +16,8 @@
         - Masquage des onglets Contrat / Indexation sur les devis piscine
         - Bouton "Ouvrir la fiche de visite" depuis le devis
         - Widget de récapitulatif chantier dans le chatter
+        - Tableau de main-d'œuvre (Ventes > Configuration) et bouton « Ajouter une
+          prestation » : le devis montre les travaux, le détail des heures reste interne
     """,
     'author': 'Lolirine SRL',
     'website': 'https://lolirinepoolstore.be',
@@ -26,6 +28,8 @@
         'data/sequence.xml',
         'data/sale_template.xml',
         'views/sale_order_views.xml',
+        'views/pool_prestation_views.xml',
+        'data/pool_prestation_data.xml',
     ],
     'installable': True,
     'auto_install': False,

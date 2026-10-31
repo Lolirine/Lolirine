@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tableau de main-d'œuvre -->
+    <record id="view_pool_prestation_list" model="ir.ui.view">
+        <field name="name">lolirine.pool.prestation.list</field>
+        <field name="model">lolirine.pool.prestation</field>
+        <field name="arch" type="xml">
+            <list string="Tableau de main-d'œuvre">
+                <field name="sequence" widget="handle"/>
+                <field name="categorie"/>
+                <field name="name"/>
+                <field name="heures" sum="Heures"/>
+                <field name="taux_horaire"/>
+                <field name="coef_difficulte"/>
+                <field name="prix_forfait"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pool_prestation_form" model="ir.ui.view">
+        <field name="name">lolirine.pool.prestation.form</field>
+        <field name="model">lolirine.pool.prestation</field>
+        <field name="arch" type="xml">
+            <form string="Prestation de main-d'œuvre">
+                <sheet>
+                    <widget name="web_ribbon" title="Archivée" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="ex. Pose d'un liner soudé"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="categorie"/>
+                            <field name="product_id"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group string="Calcul du forfait">
+                            <field name="heures"/>
+                            <field name="taux_horaire"/>
+                            <field name="coef_difficulte"/>
+                            <field name="prix_forfait"/>
+                        </group>
+                    </group>
+                    <group string="Imprimé sur le devis (sans heures)">
+                        <field name="description_client" nolabel="1" colspan="2"
+                               placeholder="- Préparation du support&#10;- Pose et soudure du liner&#10;- Mise en eau et contrôle"/>
+                    </group>
+                    <group string="Interne uniquement (étapes et heures)">
+                        <field name="detail_interne" nolabel="1" colspan="2"
+                               placeholder="- Préparation du support (2 h)&#10;- Pose et soudure (6 h)&#10;- Mise en eau, contrôle (1 h)"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pool_prestation_search" model="ir.ui.view">
+        <field name="name">lolirine.pool.prestation.search</field>
+        <field name="model">lolirine.pool.prestation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="categorie"/>
+                <filter name="archived" string="Archivées" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_categorie" string="Catégorie" context="{'group_by': 'categorie'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_pool_prestation" model="ir.actions.act_window">
+        <field name="name">Tableau de main-d'œuvre</field>
+        <field name="res_model">lolirine.pool.prestation</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_categorie': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créez vos prestations de main-d'œuvre types</p>
+            <p>Chaque prestation porte un texte pour le client (sans heures) et un détail interne
+               (étapes et heures) qui sert à calculer le forfait.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_pool_prestation"
+              name="Tableau de main-d'œuvre"
+              parent="sale.menu_sale_config"
+              action="action_pool_prestation"
+              sequence="60"/>
+
+    <!-- Assistant : ajouter une prestation au devis -->
+    <record id="view_pool_prestation_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.pool.prestation.wizard.form</field>
+        <field name="model">lolirine.pool.prestation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Ajouter une prestation de main-d'œuvre">
+                <group>
+                    <group>
+                        <field name="order_id" invisible="1"/>
+                        <field name="prestation_id" options="{'no_create': True}"/>
+                        <field name="titre"/>
+                    </group>
+                    <group string="Calcul">
+                        <field name="heures"/>
+                        <field name="taux_horaire"/>
+                        <field name="coef_difficulte"/>
+                        <field name="motif_coef" invisible="coef_difficulte == 1"/>
+                        <field name="prix"/>
+                    </group>
+                </group>
+                <group string="Imprimé sur le devis (sans heures)">
+                    <field name="description_client" nolabel="1" colspan="2"/>
+                </group>
+                <group string="Interne uniquement (étapes et heures)">
+                    <field name="detail_interne" nolabel="1" colspan="2"/>
+                </group>
+                <footer>
+                    <button name="action_ajouter" type="object" string="Ajouter au devis" class="btn-primary"/>
+                    <button string="Annuler" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Devis : bouton + détail interne sur les lignes -->
+    <record id="view_pool_sale_order_form_prestation" model="ir.ui.view">
+        <field name="name">lolirine.pool.sale.order.form.prestation</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_confirm']" position="before">
+                <button name="action_ajouter_prestation"
+                        type="object"
+                        string="🛠️ Ajouter une prestation"
+                        invisible="not is_pool_quote or state not in ['draft', 'sent']"
+                        class="btn-secondary"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/field[@name='name']" position="after">
+                <field name="pool_mo_detail" optional="hide" string="Détail interne (heures)"/>
+                <field name="pool_prestation_id" column_invisible="True"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

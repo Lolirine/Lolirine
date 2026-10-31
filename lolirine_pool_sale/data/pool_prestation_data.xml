@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Prestations de départ du tableau de main-d'œuvre. Les heures sont à compléter
+     dans Ventes > Configuration > Tableau de main-d'œuvre (noupdate : vos réglages
+     ne sont jamais écrasés par une mise à niveau). -->
+<odoo>
+    <data noupdate="1">
+        <record id="prestation_pac" model="lolirine.pool.prestation">
+            <field name="categorie">chauffage</field>
+            <field name="sequence">10</field>
+            <field name="name">Installation et raccordement d'une pompe à chaleur</field>
+            <field name="description_client">- Pose de la pompe à chaleur sur supports ou silentblocs
+- Création du by-pass et raccordement hydraulique aller/retour
+- Raccordement électrique sur ligne dédiée
+- Mise en eau, contrôle des fuites, mise en service et explications</field>
+            <field name="detail_interne">- Préparation, arrêt de la filtration, vidange partielle du circuit (0.5 h)
+- Découpe de l'entrée de l'échangeur, pose des tés et des vannes de by-pass (2 h)
+- Cheminement des conduites jusqu'à la PAC (3 h)
+- Pose des supports, mise en place de la PAC, raccordement aller/retour (3 h)
+- Ligne électrique dédiée et raccordement (3 h)
+- Mise en eau, purge, réglage du by-pass, mise en service (1.5 h)</field>
+            <field name="heures">13</field>
+        </record>
+        <record id="prestation_local_technique" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">10</field>
+            <field name="name">Équipement du local technique (filtration complète)</field>
+            <field name="description_client">- Pose du filtre, de la pompe et de la vanne multivoies
+- Raccordement hydraulique des aspirations et des refoulements
+- Pose et câblage du coffret électrique de filtration
+- Mise en service et réglages</field>
+        </record>
+        <record id="prestation_remplacement_pompe" model="lolirine.pool.prestation">
+            <field name="categorie">local_technique</field>
+            <field name="sequence">20</field>
+            <field name="name">Remplacement d'une pompe de filtration</field>
+            <field name="description_client">- Dépose de l'ancienne pompe
+- Pose et raccordement de la nouvelle pompe
+- Raccordement électrique, mise en service et contrôle</field>
+        </record>
+        <record id="prestation_liner_soude" model="lolirine.pool.prestation">
+            <field name="categorie">liner</field>
+            <field name="sequence">10</field>
+            <field name="name">Mise en place d'un liner soudé sur place</field>
+            <field name="description_client">- Préparation et nettoyage du support
+- Pose du feutre de protection
+- Pose des profilés, mise en place et soudure du liner
+- Pose des pièces à sceller (brides et joints)
+- Mise en eau et contrôle</field>
+        </record>
+        <record id="prestation_membrane_armee" model="lolirine.pool.prestation">
+            <field name="categorie">liner</field>
+            <field name="sequence">20</field>
+            <field name="name">Pose d'une membrane armée</field>
+            <field name="description_client">- Préparation du support et pose du feutre
+- Pose des profilés colaminés
+- Mise en place, soudure et étanchéité de la membrane armée
+- Pose des pièces à sceller, mise en eau et contrôle</field>
+        </record>
+        <record id="prestation_construction" model="lolirine.pool.prestation">
+            <field name="categorie">construction</field>
+            <field name="sequence">10</field>
+            <field name="name">Construction du bassin</field>
+            <field name="description_client">- Implantation et terrassement
+- Réalisation du radier et des parois
+- Pose des pièces à sceller et des canalisations
+- Remblaiement</field>
+        </record>
+        <record id="prestation_electricite" model="lolirine.pool.prestation">
+            <field name="categorie">electricite</field>
+            <field name="sequence">10</field>
+            <field name="name">Alimentation électrique dédiée</field>
+            <field name="description_client">- Tirage d'une ligne dédiée depuis le tableau
+- Protection différentielle et disjoncteur
+- Raccordement de l'équipement</field>
+        </record>
+        <record id="prestation_mise_en_route" model="lolirine.pool.prestation">
+            <field name="categorie">entretien</field>
+            <field name="sequence">10</field>
+            <field name="name">Remise en route de la piscine</field>
+            <field name="description_client">- Retrait de la couverture d'hiver
+- Remise en place des équipements
+- Remise en route de la filtration et équilibrage de l'eau</field>
+        </record>
+        <record id="prestation_hivernage" model="lolirine.pool.prestation">
+            <field name="categorie">entretien</field>
+            <field name="sequence">20</field>
+            <field name="name">Hivernage de la piscine</field>
+            <field name="description_client">- Traitement d'hivernage et abaissement du niveau
+- Vidange et protection des équipements
+- Pose de la couverture d'hiver</field>
+        </record>
+    </data>
+</odoo>

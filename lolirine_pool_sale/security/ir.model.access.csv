@@ -1,1 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pool_prestation_user,lolirine.pool.prestation user,model_lolirine_pool_prestation,sales_team.group_sale_salesman,1,0,0,0
+access_pool_prestation_manager,lolirine.pool.prestation manager,model_lolirine_pool_prestation,sales_team.group_sale_manager,1,1,1,1
+access_pool_prestation_wizard,lolirine.pool.prestation.wizard,model_lolirine_pool_prestation_wizard,sales_team.group_sale_salesman,1,1,1,1

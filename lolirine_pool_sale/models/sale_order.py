@@ -182,6 +182,18 @@ class SaleOrderPool(models.Model):
     # ══════════════════════════════════════════════════════════════
     #  Actions boutons
     # ══════════════════════════════════════════════════════════════
+    def action_ajouter_prestation(self):
+        """Ouvre l'assistant d'ajout d'une prestation du tableau de main-d'œuvre."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': "Ajouter une prestation de main-d'œuvre",
+            'res_model': 'lolirine.pool.prestation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_order_id': self.id},
+        }
+
     def action_open_checklist(self):
         """Ouvre la fiche de visite — pointe sur la fiche d'origine si pool_fiche_id."""
         base = self.env['ir.config_parameter'].sudo().get_param('web.base.url', '')
