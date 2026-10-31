@@ -13,26 +13,26 @@
             <field name="subject">Rappel de paiement - Facture {{ object.invoice_id.name }}</field>
             <field name="body_html" type="html">
 <div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
-    <p>Bonjour {{ object.partner_id.name }},</p>
+    <p>Bonjour <t t-out="object.partner_id.name"/>,</p>
     
     <p>Sauf erreur ou omission de notre part, nous n'avons pas encore recu le paiement de la facture mentionnee ci-dessous :</p>
     
     <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 400px;">
         <tr style="background-color: #f5f5f5;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numero de facture</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.name }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.invoice_id.name"/></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'echeance</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.invoice_date_due }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.invoice_id.invoice_date_due"/></td>
         </tr>
         <tr style="background-color: #f5f5f5;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant du</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>{{ '%.2f'|format(object.amount_due) }} EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong><t t-out="&#39;%.2f&#39;|format(object.amount_due)"/> EUR</strong></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Jours de retard</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.days_overdue }} jours</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.days_overdue"/> jours</td>
         </tr>
     </table>
     
@@ -40,7 +40,7 @@
     
     <p><strong>Modalites de paiement :</strong></p>
     <ul>
-        <li>Communication structuree : {{ object.invoice_id.payment_reference or 'Voir facture' }}</li>
+        <li>Communication structuree : <t t-out="object.invoice_id.payment_reference or &#39;Voir facture&#39;"/></li>
         <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
     </ul>
     
@@ -69,7 +69,7 @@
             <field name="subject">2eme Rappel - Facture {{ object.invoice_id.name }} impayee</field>
             <field name="body_html" type="html">
 <div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
-    <p>Bonjour {{ object.partner_id.name }},</p>
+    <p>Bonjour <t t-out="object.partner_id.name"/>,</p>
     
     <p><strong>Ceci est notre deuxieme rappel concernant votre facture impayee.</strong></p>
     
@@ -78,19 +78,19 @@
     <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 400px;">
         <tr style="background-color: #fff3cd;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numero de facture</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.name }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.invoice_id.name"/></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'echeance</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.invoice_date_due }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.invoice_id.invoice_date_due"/></td>
         </tr>
         <tr style="background-color: #fff3cd;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant du</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>{{ '%.2f'|format(object.amount_due) }} EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong><t t-out="&#39;%.2f&#39;|format(object.amount_due)"/> EUR</strong></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Jours de retard</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd; color: #dc3545;"><strong>{{ object.days_overdue }} jours</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd; color: #dc3545;"><strong><t t-out="object.days_overdue"/> jours</strong></td>
         </tr>
     </table>
     
@@ -98,7 +98,7 @@
     
     <p><strong>Modalites de paiement :</strong></p>
     <ul>
-        <li>Communication structuree : {{ object.invoice_id.payment_reference or 'Voir facture' }}</li>
+        <li>Communication structuree : <t t-out="object.invoice_id.payment_reference or &#39;Voir facture&#39;"/></li>
         <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
     </ul>
     
@@ -125,7 +125,7 @@
             <field name="subject">URGENT - 3eme Rappel - Facture {{ object.invoice_id.name }}</field>
             <field name="body_html" type="html">
 <div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
-    <p>Bonjour {{ object.partner_id.name }},</p>
+    <p>Bonjour <t t-out="object.partner_id.name"/>,</p>
     
     <p style="color: #dc3545;"><strong>TROISIEME ET DERNIER RAPPEL AVANT MISE EN DEMEURE</strong></p>
     
@@ -134,23 +134,23 @@
     <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 400px; border: 2px solid #dc3545;">
         <tr style="background-color: #f8d7da;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numero de facture</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.name }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.invoice_id.name"/></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'echeance</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.invoice_date_due }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.invoice_id.invoice_date_due"/></td>
         </tr>
         <tr style="background-color: #f8d7da;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant du</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545;">{{ '%.2f'|format(object.amount_due) }} EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545;"><t t-out="&#39;%.2f&#39;|format(object.amount_due)"/> EUR</strong></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Jours de retard</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545;">{{ object.days_overdue }} jours</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545;"><t t-out="object.days_overdue"/> jours</strong></td>
         </tr>
         <tr style="background-color: #f8d7da;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Penalites de retard</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ '%.2f'|format(object.penalty_amount) }} EUR</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="&#39;%.2f&#39;|format(object.penalty_amount)"/> EUR</td>
         </tr>
     </table>
     
@@ -163,7 +163,7 @@
     
     <p><strong>Modalites de paiement :</strong></p>
     <ul>
-        <li>Communication structuree : {{ object.invoice_id.payment_reference or 'Voir facture' }}</li>
+        <li>Communication structuree : <t t-out="object.invoice_id.payment_reference or &#39;Voir facture&#39;"/></li>
         <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
     </ul>
     
@@ -194,11 +194,11 @@
         <strong>MISE EN DEMEURE</strong>
     </p>
     
-    <p>{{ object.partner_id.name }}<br/>
-    {{ object.partner_id.street or '' }}<br/>
-    {{ object.partner_id.zip or '' }} {{ object.partner_id.city or '' }}</p>
+    <p><t t-out="object.partner_id.name"/><br/>
+    <t t-out="object.partner_id.street or &#39;&#39;"/><br/>
+    <t t-out="object.partner_id.zip or &#39;&#39;"/> <t t-out="object.partner_id.city or &#39;&#39;"/></p>
     
-    <p>Objet : Mise en demeure de payer - Facture {{ object.invoice_id.name }}</p>
+    <p>Objet : Mise en demeure de payer - Facture <t t-out="object.invoice_id.name"/></p>
     
     <p>Madame, Monsieur,</p>
     
@@ -207,27 +207,27 @@
     <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 500px; border: 2px solid #dc3545;">
         <tr style="background-color: #f8d7da;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numero de facture</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.name }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.invoice_id.name"/></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'echeance initiale</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_id.invoice_date_due }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.invoice_id.invoice_date_due"/></td>
         </tr>
         <tr style="background-color: #f8d7da;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Principal</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ '%.2f'|format(object.amount_due) }} EUR</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="&#39;%.2f&#39;|format(object.amount_due)"/> EUR</td>
         </tr>
         <tr>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Penalites de retard ({{ object.days_overdue }} jours)</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ '%.2f'|format(object.penalty_amount) }} EUR</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Penalites de retard (<t t-out="object.days_overdue"/> jours)</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="&#39;%.2f&#39;|format(object.penalty_amount)"/> EUR</td>
         </tr>
         <tr style="background-color: #f8d7da;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>TOTAL A PAYER</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545; font-size: 16px;">{{ '%.2f'|format(object.amount_due + object.penalty_amount) }} EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545; font-size: 16px;"><t t-out="&#39;%.2f&#39;|format(object.amount_due + object.penalty_amount)"/> EUR</strong></td>
         </tr>
     </table>
     
-    <p><strong>Par la presente, nous vous mettons en demeure de nous regler la somme totale de {{ '%.2f'|format(object.amount_due + object.penalty_amount) }} EUR dans un delai de 8 jours a compter de la reception de ce courrier.</strong></p>
+    <p><strong>Par la presente, nous vous mettons en demeure de nous regler la somme totale de <t t-out="&#39;%.2f&#39;|format(object.amount_due + object.penalty_amount)"/> EUR dans un delai de 8 jours a compter de la reception de ce courrier.</strong></p>
     
     <p>A defaut de reglement dans ce delai, nous nous reservons le droit de :</p>
     <ul>
@@ -239,7 +239,7 @@
     
     <p><strong>Modalites de paiement :</strong></p>
     <ul>
-        <li>Communication structuree : {{ object.invoice_id.payment_reference or 'Voir facture' }}</li>
+        <li>Communication structuree : <t t-out="object.invoice_id.payment_reference or &#39;Voir facture&#39;"/></li>
         <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
         <li>Titulaire : Lolirine SPRL</li>
     </ul>

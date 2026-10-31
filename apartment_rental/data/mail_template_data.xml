@@ -10,37 +10,37 @@
             <field name="email_to">{{ object.tenant_id.email }}</field>
             <field name="body_html"><![CDATA[
 <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
-    <p>Bonjour {{ object.tenant_id.name }},</p>
+    <p>Bonjour <t t-out="object.tenant_id.name"/>,</p>
     
     <p>Nous vous rappelons que le loyer suivant est en attente de paiement :</p>
     
     <table style="border-collapse: collapse; margin: 20px 0;">
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Bien</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ object.property_id.name }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="object.property_id.name"/></td>
         </tr>
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Période</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ object.period_name }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="object.period_name"/></td>
         </tr>
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Montant total</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ "%.2f"|format(object.total_amount) }} €</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="&#34;%.2f&#34;|format(object.total_amount)"/> €</td>
         </tr>
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Reste dû</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd; color: #c00;">{{ "%.2f"|format(object.amount_due) }} €</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd; color: #c00;"><t t-out="&#34;%.2f&#34;|format(object.amount_due)"/> €</td>
         </tr>
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Échéance</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ object.date_due }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="object.date_due"/></td>
         </tr>
     </table>
     
     <p>Nous vous prions de bien vouloir procéder au règlement dans les plus brefs délais.</p>
     
     <p>Cordialement,<br/>
-    {{ user.name }}</p>
+    <t t-out="user.name"/></p>
 </div>
             ]]></field>
             <field name="lang">{{ object.tenant_id.lang }}</field>
@@ -56,33 +56,33 @@
             <field name="email_to">{{ object.tenant_id.email }}</field>
             <field name="body_html"><![CDATA[
 <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
-    <p>Bonjour {{ object.tenant_id.name }},</p>
+    <p>Bonjour <t t-out="object.tenant_id.name"/>,</p>
     
     <p>Nous vous informons qu'une visite de contrôle est prévue à votre logement :</p>
     
     <table style="border-collapse: collapse; margin: 20px 0;">
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Bien</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ object.property_id.name }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="object.property_id.name"/></td>
         </tr>
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Adresse</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ object.property_id.street }}, {{ object.property_id.zip_code }} {{ object.property_id.city }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="object.property_id.street"/>, <t t-out="object.property_id.zip_code"/> <t t-out="object.property_id.city"/></td>
         </tr>
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Date</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ object.date }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="object.date"/></td>
         </tr>
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Type de visite</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ dict(object._fields['visit_type'].selection).get(object.visit_type) }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="dict(object._fields[&#39;visit_type&#39;].selection).get(object.visit_type)"/></td>
         </tr>
     </table>
     
     <p>Votre présence est souhaitée lors de cette visite. Si la date proposée ne vous convient pas, merci de nous contacter pour convenir d'un autre rendez-vous.</p>
     
     <p>Cordialement,<br/>
-    {{ user.name }}</p>
+    <t t-out="user.name"/></p>
 </div>
             ]]></field>
             <field name="lang">{{ object.tenant_id.lang }}</field>
@@ -98,31 +98,31 @@
             <field name="email_to">{{ object.lease_id.tenant_id.email }}</field>
             <field name="body_html"><![CDATA[
 <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
-    <p>Bonjour {{ object.lease_id.tenant_id.name }},</p>
+    <p>Bonjour <t t-out="object.lease_id.tenant_id.name"/>,</p>
     
     <p>Nous vous informons qu'une intervention est prévue à votre logement :</p>
     
     <table style="border-collapse: collapse; margin: 20px 0;">
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Bien</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ object.property_id.name }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="object.property_id.name"/></td>
         </tr>
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Type</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ dict(object._fields['intervention_type'].selection).get(object.intervention_type) }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="dict(object._fields[&#39;intervention_type&#39;].selection).get(object.intervention_type)"/></td>
         </tr>
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Description</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ object.title }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="object.title"/></td>
         </tr>
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Date prévue</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ object.date_planned }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="object.date_planned"/></td>
         </tr>
         {% if object.contractor_id %}
         <tr>
             <td style="padding: 5px 15px; border: 1px solid #ddd;"><strong>Intervenant</strong></td>
-            <td style="padding: 5px 15px; border: 1px solid #ddd;">{{ object.contractor_id.name }}</td>
+            <td style="padding: 5px 15px; border: 1px solid #ddd;"><t t-out="object.contractor_id.name"/></td>
         </tr>
         {% endif %}
     </table>
@@ -130,7 +130,7 @@
     <p>Merci de bien vouloir faciliter l'accès au logement pour cette intervention.</p>
     
     <p>Cordialement,<br/>
-    {{ user.name }}</p>
+    <t t-out="user.name"/></p>
 </div>
             ]]></field>
             <field name="lang">{{ object.lease_id.tenant_id.lang }}</field>
@@ -146,18 +146,18 @@
             <field name="email_to">{{ object.tenant_id.email }}</field>
             <field name="body_html"><![CDATA[
 <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
-    <p>Bonjour {{ object.tenant_id.name }},</p>
+    <p>Bonjour <t t-out="object.tenant_id.name"/>,</p>
     
     <p>Conformément aux dispositions de votre contrat de bail et à la législation en vigueur, nous procédons à l'indexation annuelle de votre loyer.</p>
     
-    <p><strong>Nouveau loyer mensuel : {{ "%.2f"|format(object.rent_amount) }} €</strong></p>
+    <p><strong>Nouveau loyer mensuel : <t t-out="&#34;%.2f&#34;|format(object.rent_amount)"/> €</strong></p>
     
-    <p>Cette indexation prend effet à compter du {{ object.last_indexation_date }}.</p>
+    <p>Cette indexation prend effet à compter du <t t-out="object.last_indexation_date"/>.</p>
     
     <p>Pour tout renseignement complémentaire, n'hésitez pas à nous contacter.</p>
     
     <p>Cordialement,<br/>
-    {{ user.name }}</p>
+    <t t-out="user.name"/></p>
 </div>
             ]]></field>
             <field name="lang">{{ object.tenant_id.lang }}</field>

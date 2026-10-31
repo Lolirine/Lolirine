@@ -10,7 +10,7 @@
             <field name="subject">Envoi de votre facture mensuelle - Garde-meubles Lolirine</field>
             <field name="body_html" type="html">
 <div style="font-family: Arial, sans-serif; font-size: 13px; color: #333;">
-    <p>Bonjour {{ object.partner_id.name }},</p>
+    <p>Bonjour <t t-out="object.partner_id.name"/>,</p>
     
     <p>Veuillez trouver en pièce jointe votre facture mensuelle relative à la location de votre box au sein de notre site Lolirine.</p>
     
@@ -21,25 +21,25 @@
     <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 400px;">
         <tr style="background-color: #f5f5f5;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Numéro de facture</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.name }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.name"/></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date de facturation</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_date }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.invoice_date"/></td>
         </tr>
         <tr style="background-color: #f5f5f5;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Date d'échéance</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.invoice_date_due }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.invoice_date_due"/></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant total</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong>{{ '%.2f'|format(object.amount_total) }} EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong><t t-out="&#39;%.2f&#39;|format(object.amount_total)"/> EUR</strong></td>
         </tr>
     </table>
     
     <p><strong>Modalités de paiement :</strong></p>
     <ul>
-        <li>Communication structurée : {{ object.payment_reference or 'Voir facture' }}</li>
+        <li>Communication structurée : <t t-out="object.payment_reference or &#39;Voir facture&#39;"/></li>
         <li>Compte bancaire : BE07 7320 5208 0866 - CBC</li>
     </ul>
     

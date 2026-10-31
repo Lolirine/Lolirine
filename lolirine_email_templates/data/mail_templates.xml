@@ -13,7 +13,7 @@
             <field name="subject">Envoi de votre facture mensuelle - Garde-meubles Lolirine - {{ object.name }}</field>
             <field name="body_html" type="html">
 <div style="font-family: Arial, sans-serif; font-size: 14px; color: #333; line-height: 1.6;">
-    <p>Bonjour {{ object.partner_id.name }},</p>
+    <p>Bonjour <t t-out="object.partner_id.name"/>,</p>
     
     <p>Veuillez trouver en pièce jointe votre facture mensuelle relative à la location de votre box au sein de notre site Lolirine.</p>
     
@@ -24,25 +24,25 @@
     <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 450px;">
         <tr style="background-color: #f8f9fa;">
             <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; width: 40%;">Numéro de facture</td>
-            <td style="padding: 12px 15px; border: 1px solid #dee2e6;">{{ object.name }}</td>
+            <td style="padding: 12px 15px; border: 1px solid #dee2e6;"><t t-out="object.name"/></td>
         </tr>
         <tr>
             <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold;">Date de facturation</td>
-            <td style="padding: 12px 15px; border: 1px solid #dee2e6;">{{ object.invoice_date }}</td>
+            <td style="padding: 12px 15px; border: 1px solid #dee2e6;"><t t-out="object.invoice_date"/></td>
         </tr>
         <tr style="background-color: #f8f9fa;">
             <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold;">Date d'échéance</td>
-            <td style="padding: 12px 15px; border: 1px solid #dee2e6;">{{ object.invoice_date_due }}</td>
+            <td style="padding: 12px 15px; border: 1px solid #dee2e6;"><t t-out="object.invoice_date_due"/></td>
         </tr>
         <tr>
             <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold;">Montant total</td>
-            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #28a745;">{{ '%.2f'|format(object.amount_total) }} EUR</td>
+            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #28a745;"><t t-out="&#39;%.2f&#39;|format(object.amount_total)"/> EUR</td>
         </tr>
     </table>
     
     <p><strong>Modalités de paiement :</strong></p>
     <ul style="margin: 10px 0; padding-left: 20px;">
-        <li style="margin-bottom: 8px;">Communication structurée : <strong>{{ object.payment_reference or object.name }}</strong></li>
+        <li style="margin-bottom: 8px;">Communication structurée : <strong><t t-out="object.payment_reference or object.name"/></strong></li>
         <li style="margin-bottom: 8px;">Compte bancaire : <strong>BE07 7320 5208 0866 - CBC</strong></li>
     </ul>
     
@@ -82,22 +82,22 @@
             <field name="subject">Rappel : Facture {{ object.name }} en attente de paiement - Garde-meubles Lolirine</field>
             <field name="body_html" type="html">
 <div style="font-family: Arial, sans-serif; font-size: 14px; color: #333; line-height: 1.6;">
-    <p>Bonjour {{ object.partner_id.name }},</p>
+    <p>Bonjour <t t-out="object.partner_id.name"/>,</p>
     
     <p>Nous nous permettons de vous contacter concernant la facture mentionnée ci-dessous, qui reste à ce jour impayée :</p>
     
     <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 450px;">
         <tr style="background-color: #fff3cd;">
             <td style="padding: 12px 15px; border: 1px solid #ffc107; font-weight: bold; width: 40%;">Numéro de facture</td>
-            <td style="padding: 12px 15px; border: 1px solid #ffc107;">{{ object.name }}</td>
+            <td style="padding: 12px 15px; border: 1px solid #ffc107;"><t t-out="object.name"/></td>
         </tr>
         <tr>
             <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold;">Date d'échéance</td>
-            <td style="padding: 12px 15px; border: 1px solid #dee2e6; color: #dc3545; font-weight: bold;">{{ object.invoice_date_due }}</td>
+            <td style="padding: 12px 15px; border: 1px solid #dee2e6; color: #dc3545; font-weight: bold;"><t t-out="object.invoice_date_due"/></td>
         </tr>
         <tr style="background-color: #f8f9fa;">
             <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold;">Montant dû</td>
-            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #dc3545;">{{ '%.2f'|format(object.amount_residual) }} EUR</td>
+            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #dc3545;"><t t-out="&#39;%.2f&#39;|format(object.amount_residual)"/> EUR</td>
         </tr>
     </table>
     
@@ -106,7 +106,7 @@
     <p>Dans le cas contraire, nous vous serions reconnaissants de bien vouloir régulariser cette situation dans les meilleurs délais :</p>
     
     <ul style="margin: 10px 0; padding-left: 20px;">
-        <li style="margin-bottom: 8px;">Communication structurée : <strong>{{ object.payment_reference or object.name }}</strong></li>
+        <li style="margin-bottom: 8px;">Communication structurée : <strong><t t-out="object.payment_reference or object.name"/></strong></li>
         <li style="margin-bottom: 8px;">Compte bancaire : <strong>BE07 7320 5208 0866 - CBC</strong></li>
     </ul>
     
@@ -139,18 +139,18 @@
             <field name="subject">Confirmation de paiement - Facture {{ object.name }} - Garde-meubles Lolirine</field>
             <field name="body_html" type="html">
 <div style="font-family: Arial, sans-serif; font-size: 14px; color: #333; line-height: 1.6;">
-    <p>Bonjour {{ object.partner_id.name }},</p>
+    <p>Bonjour <t t-out="object.partner_id.name"/>,</p>
     
     <p>Nous avons le plaisir de vous confirmer la bonne réception de votre paiement concernant :</p>
     
     <table style="margin: 20px 0; border-collapse: collapse; width: 100%; max-width: 450px;">
         <tr style="background-color: #d4edda;">
             <td style="padding: 12px 15px; border: 1px solid #28a745; font-weight: bold; width: 40%;">Numéro de facture</td>
-            <td style="padding: 12px 15px; border: 1px solid #28a745;">{{ object.name }}</td>
+            <td style="padding: 12px 15px; border: 1px solid #28a745;"><t t-out="object.name"/></td>
         </tr>
         <tr>
             <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold;">Montant reçu</td>
-            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #28a745;">{{ '%.2f'|format(object.amount_total) }} EUR</td>
+            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #28a745;"><t t-out="&#39;%.2f&#39;|format(object.amount_total)"/> EUR</td>
         </tr>
     </table>
     
