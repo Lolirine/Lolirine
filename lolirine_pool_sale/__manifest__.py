@@ -16,13 +16,12 @@
         - Masquage des onglets Contrat / Indexation sur les devis piscine
         - Bouton "Ouvrir la fiche de visite" depuis le devis
         - Widget de récapitulatif chantier dans le chatter
-        - Tableau de main-d'œuvre (Ventes > Configuration) et bouton « Ajouter une
-          prestation » : le devis montre les travaux, le détail des heures reste interne
+        - Tableau de main-d'œuvre et bouton « Ajouter une prestation » (heures internes)
     """,
     'author': 'Lolirine SRL',
     'website': 'https://lolirinepoolstore.be',
     'license': 'LGPL-3',
-    'depends': ['sale_management', 'sale', 'purchase', 'lolirine_pool_dropship'],
+    'depends': ['sale_management', 'sale', 'purchase'],
     'data': [
         'security/ir.model.access.csv',
         'data/sequence.xml',

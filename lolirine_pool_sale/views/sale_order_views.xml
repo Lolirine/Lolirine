@@ -228,7 +228,7 @@
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
                 <filter string="🏊 Devis piscine"    name="pool_quotes"
-                        domain="['|', ('is_pool_quote','=',True), ('is_dropship_order','=',True)]"/>
+                        domain="[('is_pool_quote','=',True)]"/>
                 <filter string="📦 BC à préparer"    name="pool_bc_draft"
                         domain="[('is_pool_quote','=',True),('pool_bc_statut','=','draft'),('state','in',['sale','done'])]"/>
                 <filter string="✅ Visite terminée"  name="pool_visit_done"
