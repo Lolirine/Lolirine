@@ -47,10 +47,63 @@ class PoolPrestation(models.Model):
         'product.product', string="Article de main-d'œuvre",
         default=lambda self: self.env['product.product'].search([('default_code', '=', 'MO-FORFAIT')], limit=1))
 
+    # ── Ouvrage : fournitures ajoutées avec la prestation ─────────────
+    fourniture_ids = fields.One2many('lolirine.pool.prestation.fourniture', 'prestation_id',
+                                     string="Fournitures de l'ouvrage", copy=True)
+    section_fournitures = fields.Char(
+        "Titre de la section fournitures",
+        help="Section du devis où les fournitures sont ajoutées (par défaut : le titre de la prestation).")
+    total_fournitures = fields.Float("Fournitures HT (€)", digits=(10, 2), compute='_compute_totaux')
+    cout_fournitures = fields.Float("Coût fournitures (€)", digits=(10, 2), compute='_compute_totaux')
+    total_ouvrage = fields.Float("Ouvrage complet HT (€)", digits=(10, 2), compute='_compute_totaux',
+                                 help="Main-d'œuvre + fournitures (hors options).")
+    nb_fournitures = fields.Integer("Fournitures", compute='_compute_totaux')
+
+    @api.depends('fourniture_ids.quantite', 'fourniture_ids.prix_unitaire', 'fourniture_ids.cout_unitaire',
+                 'fourniture_ids.optionnel', 'prix_forfait')
+    def _compute_totaux(self):
+        for p in self:
+            fixes = p.fourniture_ids.filtered(lambda f: not f.optionnel)
+            p.total_fournitures = sum(f.quantite * f.prix_unitaire for f in fixes)
+            p.cout_fournitures = sum(f.quantite * f.cout_unitaire for f in fixes)
+            p.total_ouvrage = p.total_fournitures + p.prix_forfait
+            p.nb_fournitures = len(p.fourniture_ids)
+
     @api.depends('mode_prix', 'forfait_fixe', 'heures', 'taux_horaire', 'coef_difficulte')
     def _compute_prix_forfait(self):
         for p in self:
             p.prix_forfait = calcul_prix(p.mode_prix, p.forfait_fixe, p.heures, p.taux_horaire, p.coef_difficulte)
+
+
+class PoolPrestationFourniture(models.Model):
+    """Fourniture type d'un ouvrage (tés, vannes, colliers, câble…), ajoutée au devis avec la prestation."""
+    _name = 'lolirine.pool.prestation.fourniture'
+    _description = "Fourniture d'un ouvrage (devis piscine)"
+    _order = 'prestation_id, sequence, id'
+
+    prestation_id = fields.Many2one('lolirine.pool.prestation', required=True, ondelete='cascade')
+    sequence = fields.Integer(default=10)
+    product_id = fields.Many2one('product.product', string="Article", required=True,
+                                 domain=[('sale_ok', '=', True)])
+    name = fields.Text("Libellé sur le devis",
+                       help="Vide : le libellé de l'article. Indispensable pour un article générique "
+                            "(« Fourniture diverse », « Fourniture électrique »).")
+    quantite = fields.Float("Quantité", digits=(10, 2), default=1.0)
+    prix_unitaire = fields.Float("Prix unitaire HT (€)", digits=(10, 2))
+    cout_unitaire = fields.Float("Coût unitaire (€)", digits=(10, 2))
+    optionnel = fields.Boolean("Option", help="Proposée en option : le client peut l'ajouter lui-même sur le devis en ligne.")
+    sous_total = fields.Float("Sous-total HT (€)", digits=(10, 2), compute='_compute_sous_total')
+
+    @api.depends('quantite', 'prix_unitaire')
+    def _compute_sous_total(self):
+        for f in self:
+            f.sous_total = f.quantite * f.prix_unitaire
+
+    @api.onchange('product_id')
+    def _onchange_product_id(self):
+        if self.product_id:
+            self.prix_unitaire = self.product_id.lst_price
+            self.cout_unitaire = self.product_id.standard_price
 
 
 def calcul_prix(mode, forfait, heures, taux, coef):

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Devis piscine (PDF) : libellés réels, options, conditions de paiement calculées,
+         autoliquidation, signature électronique -->
+    <template id="report_pool_devis_document_outils" inherit_id="lolirine_pool_dropship.report_pool_devis_document">
+
+        <!-- Libellé : celui de la ligne (sans la référence) ; description des travaux sous la main-d'œuvre -->
+        <xpath expr="//t[@t-if='not line.display_type']/tr/td[1]" position="replace">
+            <td style="padding: 8px 12px;">
+                <t t-set="pool_txt" t-value="(line.name or line.product_id.name or '').split('\n')"/>
+                <t t-set="pool_titre" t-value="pool_txt[0].strip()"/>
+                <strong t-out="pool_titre.split('] ', 1)[1] if pool_titre.startswith('[') and '] ' in pool_titre else pool_titre"/>
+                <div t-if="line.pool_est_mo and len(pool_txt) &gt; 1"
+                     style="font-size: 11px; color: #555; white-space: pre-line; margin-top: 3px;"
+                     t-out="'\n'.join(pool_txt[1:]).strip()"/>
+            </td>
+        </xpath>
+        <xpath expr="//t[@t-if='not line.display_type']/tr/td[2]" position="replace">
+            <td class="text-center" style="padding: 8px;">
+                <t t-if="line._is_line_optional() and not line.product_uom_qty">Option</t>
+                <t t-else="" t-out="'%g' % line.product_uom_qty"/>
+            </td>
+        </xpath>
+        <xpath expr="//t[@t-if='not line.display_type']/tr/td[5]" position="replace">
+            <td class="text-end" style="padding: 8px;">
+                <t t-if="line._is_line_optional() and not line.product_uom_qty">
+                    <span style="color: #666; font-size: 11px;">en option</span>
+                </t>
+                <strong t-else=""><t t-out="'%.2f' % line.price_subtotal"/> €</strong>
+            </td>
+        </xpath>
+
+        <!-- Sections optionnelles et sous-sections -->
+        <xpath expr="//t[@t-elif=&quot;line.display_type == 'line_section'&quot;]/tr/td" position="inside">
+            <span t-if="line.is_optional" style="font-weight: normal; font-size: 11px; color: #555;">
+                — au choix : à ajouter vous-même sur le devis en ligne
+            </span>
+        </xpath>
+        <xpath expr="//t[@t-elif=&quot;line.display_type == 'line_section'&quot;]" position="after">
+            <t t-elif="line.display_type == 'line_subsection'">
+                <tr>
+                    <td colspan="5" style="padding: 6px 12px 6px 24px; background: #f3f5f7; font-weight: bold; font-size: 12px;">
+                        <t t-out="line.name"/>
+                    </td>
+                </tr>
+            </t>
+        </xpath>
+
+        <!-- Conditions de paiement calculées + autoliquidation, avant les notes -->
+        <xpath expr="//t[@t-if='doc.note']" position="before">
+            <t t-if="doc.pool_conditions_actives">
+                <div style="margin-top: 15px; border: 2px solid #d1102f; padding: 8px 10px;">
+                    <p style="margin: 0 0 4px 0;"><strong>CONDITIONS DE PAIEMENT</strong></p>
+                    <t t-foreach="doc._pool_conditions_lignes()" t-as="cond">
+                        <p style="margin: 0 0 4px 0;">
+                            <strong t-out="cond[0]"/>
+                            <t t-if="cond[1]"><br/><t t-out="cond[1]"/></t>
+                        </p>
+                    </t>
+                </div>
+            </t>
+            <t t-if="doc.pool_autoliquidation and doc.fiscal_position_id.note">
+                <div style="margin-top: 10px; padding: 8px 10px; border: 1px solid #999; font-size: 11px;">
+                    <strong>TVA due par le cocontractant (art. 20 AR n° 1).</strong>
+                    <t t-out="doc.fiscal_position_id.note"/>
+                </div>
+            </t>
+        </xpath>
+
+        <!-- Confirmation : signature et acompte en ligne -->
+        <xpath expr="//div[strong[contains(., 'Pour confirmer ce devis')]]/p" position="replace">
+            <p style="margin: 8px 0 0 0;">
+                Signez ce devis en ligne via le lien reçu par e-mail (signature électronique<t t-if="doc.require_payment and doc.prepayment_percent">
+                et paiement sécurisé de <t t-if="doc.pool_conditions_actives">l'acompte matériel</t><t t-else="">l'acompte</t>
+                de <strong t-out="'%.2f' % doc._get_prepayment_required_amount()"/> €</t>),
+                ou renvoyez-le signé à <strong>info@lolirinepoolstore.be</strong>
+                — questions : <strong>+32 (0)497 44 41 46</strong>.<br/>
+                Nous lançons la commande auprès de nos fournisseurs dès réception de l'accord<t t-if="doc.require_payment"> et du paiement</t>.
+            </p>
+        </xpath>
+
+        <!-- Signature électronique du client, si le devis a été signé en ligne -->
+        <xpath expr="//p[contains(., 'Date et signature du client')]" position="before">
+            <t t-if="doc.signature">
+                <img t-att-src="image_data_uri(doc.signature)" style="max-height: 70px; max-width: 220px;"/>
+                <p style="font-size: 11px; margin: 0;">
+                    Signé par <t t-out="doc.signed_by"/>
+                    <t t-if="doc.signed_on"> le <t t-out="doc.signed_on.strftime('%d/%m/%Y')"/></t>
+                </p>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Facture piscine : mention légale de la position fiscale (autoliquidation…) -->
+    <template id="report_pool_invoice_document_outils" inherit_id="lolirine_pool_dropship.report_pool_invoice_document">
+        <xpath expr="//div[strong[contains(., 'Informations de paiement')]]" position="before">
+            <t t-if="doc.fiscal_position_id.note">
+                <div style="margin-top: 15px; padding: 8px 10px; border: 1px solid #999; font-size: 11px;">
+                    <strong t-out="doc.fiscal_position_id.name"/> :
+                    <t t-out="doc.fiscal_position_id.note"/>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

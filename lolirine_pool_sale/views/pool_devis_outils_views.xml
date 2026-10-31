@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Devis piscine : conditions de paiement, marge, autoliquidation, avancement, visite technique -->
+    <record id="view_pool_sale_order_form_outils" model="ir.ui.view">
+        <field name="name">lolirine.pool.sale.order.form.outils</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+
+            <!-- Bouton : enregistrer des lignes comme ouvrage -->
+            <xpath expr="//button[@name='action_confirm']" position="before">
+                <button name="action_pool_enregistrer_ouvrage"
+                        type="object"
+                        string="💾 Enregistrer comme ouvrage"
+                        invisible="not is_pool_quote"
+                        class="btn-secondary"/>
+            </xpath>
+
+            <!-- Alertes en tête du devis -->
+            <xpath expr="//sheet/div[hasclass('oe_title')]" position="before">
+                <field name="pool_marge_alerte" invisible="1"/>
+                <field name="pool_autoliq_suggeree" invisible="1"/>
+                <field name="pool_conditions_actives" invisible="1"/>
+                <div class="alert alert-warning mb-2" role="alert"
+                     invisible="not pool_marge_alerte or state not in ['draft', 'sent']">
+                    <strong>Marge matériel : <field name="pool_marge_mat_pct" class="oe_inline" digits="[16, 1]"/> %</strong>
+                    (<field name="pool_marge_mat" class="oe_inline"/>) — sous le seuil de 15 % ou coût inconnu.
+                    <span invisible="not pool_lignes_sans_cout">
+                        Lignes sans coût : <field name="pool_lignes_sans_cout" class="oe_inline"/>
+                        (colonne « Coût » des lignes).
+                    </span>
+                </div>
+                <div class="alert alert-info mb-2" role="alert"
+                     invisible="not pool_autoliq_suggeree or state not in ['draft', 'sent']">
+                    Client assujetti belge et travaux de pose : si ce sont des travaux immobiliers et que le
+                    client dépose des déclarations TVA périodiques, cochez <strong>Autoliquidation</strong>
+                    (onglet « Autres informations »).
+                </div>
+            </xpath>
+
+            <!-- Autoliquidation à côté de la position fiscale -->
+            <xpath expr="//field[@name='fiscal_position_id']" position="before">
+                <field name="pool_autoliquidation" invisible="not is_pool_quote"
+                       readonly="state not in ['draft', 'sent']"/>
+            </xpath>
+
+            <!-- Conditions de paiement et marge sous les totaux -->
+            <xpath expr="//group[@name='sale_total']" position="inside">
+                <div colspan="2" class="border rounded p-2 mt-2 small" invisible="not pool_conditions_actives">
+                    <div class="fw-bold text-danger mb-1">Conditions de paiement (calculées)</div>
+                    <div>Matériel à la commande : <field name="pool_mat_ttc" class="oe_inline fw-bold"/> TVAC
+                        (<field name="pool_mat_ht" class="oe_inline"/> HT)</div>
+                    <div>Main-d'œuvre à l'avancement : <field name="pool_mo_ttc" class="oe_inline fw-bold"/> TVAC
+                        (<field name="pool_mo_ht" class="oe_inline"/> HT)</div>
+                    <div class="text-muted" invisible="not require_payment">
+                        Acompte en ligne demandé : <field name="prepayment_percent" widget="percentage" class="oe_inline"/>
+                        du total
+                    </div>
+                </div>
+                <div colspan="2" class="small text-muted mt-1" invisible="not is_pool_quote">
+                    Marge matériel : <field name="pool_marge_mat" class="oe_inline"/>
+                    (<field name="pool_marge_mat_pct" class="oe_inline" digits="[16, 1]"/> %)
+                </div>
+            </xpath>
+
+            <!-- Lignes : coût visible et avancement de la main-d'œuvre -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="after">
+                <field name="pool_est_mo" column_invisible="True"/>
+                <field name="pool_avancement" string="Avancement %"
+                       column_invisible="not parent.is_pool_quote or parent.state != 'sale'"
+                       invisible="not pool_est_mo or qty_delivered_method != 'manual'"
+                       optional="show"/>
+            </xpath>
+
+            <!-- Fiche de visite technique -->
+            <xpath expr="//page[@name='pool_fiche_visite']/group[@name='pool_vt_obs']" position="before">
+                <group string="Visite technique">
+                    <group string="Hydraulique">
+                        <field name="pool_vt_local"/>
+                        <field name="pool_vt_dist_local"/>
+                        <field name="pool_vt_dist_pac"/>
+                        <field name="pool_vt_diametre"/>
+                        <field name="pool_vt_evacuation"/>
+                    </group>
+                    <group string="Électricité et accès">
+                        <field name="pool_vt_alimentation"/>
+                        <field name="pool_vt_tableau" placeholder="ex. 40 A, différentiel 30 mA"/>
+                        <field name="pool_vt_place_tableau"/>
+                        <field name="pool_vt_dist_tableau"/>
+                        <field name="pool_vt_acces"/>
+                        <field name="pool_vt_acces_note"/>
+                    </group>
+                </group>
+                <group string="Équipements existants">
+                    <field name="pool_vt_equipements" nolabel="1" colspan="2"
+                           placeholder="Pompe, filtre, électrolyseur, PAC… (marque, modèle, état)"/>
+                </group>
+                <group string="Photos de la visite">
+                    <field name="pool_vt_photo_ids" widget="many2many_binary" nolabel="1" colspan="2"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

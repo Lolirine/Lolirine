@@ -14,7 +14,10 @@
                 <field name="heures" sum="Heures"/>
                 <field name="taux_horaire" optional="hide"/>
                 <field name="coef_difficulte" optional="hide"/>
-                <field name="prix_forfait"/>
+                <field name="prix_forfait" string="Main-d'œuvre HT"/>
+                <field name="nb_fournitures" optional="show"/>
+                <field name="total_fournitures" optional="show"/>
+                <field name="total_ouvrage" optional="show"/>
                 <field name="active" column_invisible="True"/>
             </list>
         </field>
@@ -54,6 +57,37 @@
                         <field name="detail_interne" nolabel="1" colspan="2"
                                placeholder="- Préparation du support (2 h)&#10;- Pose et soudure (6 h)&#10;- Mise en eau, contrôle (1 h)"/>
                     </group>
+                    <notebook>
+                        <page string="Fournitures de l'ouvrage" name="fournitures">
+                            <group>
+                                <group>
+                                    <field name="section_fournitures" placeholder="Titre de la prestation par défaut"/>
+                                </group>
+                                <group>
+                                    <field name="total_fournitures"/>
+                                    <field name="cout_fournitures"/>
+                                    <field name="total_ouvrage"/>
+                                </group>
+                            </group>
+                            <field name="fourniture_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"/>
+                                    <field name="name" placeholder="Libellé de l'article"/>
+                                    <field name="quantite"/>
+                                    <field name="prix_unitaire"/>
+                                    <field name="cout_unitaire"/>
+                                    <field name="sous_total" sum="Total"/>
+                                    <field name="optionnel"/>
+                                </list>
+                            </field>
+                            <p class="text-muted small">
+                                Les fournitures sont ajoutées au devis avec la prestation, dans leur propre section.
+                                Les lignes « Option » vont dans la section « Options proposées » : le client peut les
+                                ajouter lui-même sur le devis en ligne.
+                            </p>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
@@ -75,7 +109,7 @@
     </record>
 
     <record id="action_pool_prestation" model="ir.actions.act_window">
-        <field name="name">Tableau de main-d'œuvre</field>
+        <field name="name">Tableau de main-d'œuvre et ouvrages</field>
         <field name="res_model">lolirine.pool.prestation</field>
         <field name="view_mode">list,form</field>
         <field name="context">{'search_default_group_categorie': 1}</field>
@@ -87,7 +121,7 @@
     </record>
 
     <menuitem id="menu_pool_prestation"
-              name="Tableau de main-d'œuvre"
+              name="Tableau de main-d'œuvre et ouvrages"
               parent="sale.menu_sale_config"
               action="action_pool_prestation"
               sequence="60"/>
@@ -120,8 +154,50 @@
                 <group string="Interne uniquement (étapes et heures)">
                     <field name="detail_interne" nolabel="1" colspan="2"/>
                 </group>
+                <group string="Ouvrage" invisible="nb_fournitures == 0">
+                    <group>
+                        <field name="nb_fournitures" readonly="1"/>
+                        <field name="total_fournitures" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="avec_fournitures"/>
+                        <field name="avec_options"/>
+                        <field name="multiplicateur" invisible="not avec_fournitures"/>
+                    </group>
+                </group>
                 <footer>
                     <button name="action_ajouter" type="object" string="Ajouter au devis" class="btn-primary"/>
+                    <button string="Annuler" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Assistant : enregistrer un ouvrage depuis un devis -->
+    <record id="view_pool_ouvrage_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.pool.ouvrage.wizard.form</field>
+        <field name="model">lolirine.pool.ouvrage.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Enregistrer comme ouvrage">
+                <p class="text-muted">
+                    Les lignes des sections choisies deviennent les fournitures de l'ouvrage (quantités, prix et
+                    coûts du devis). La ligne de main-d'œuvre donne le titre, la description et le forfait.
+                </p>
+                <group>
+                    <group>
+                        <field name="order_id" invisible="1"/>
+                        <field name="section_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        <field name="mo_line_id" options="{'no_create': True}"/>
+                        <field name="section_fournitures"/>
+                    </group>
+                    <group>
+                        <field name="prestation_id" options="{'no_create': True}"/>
+                        <field name="nom" required="not prestation_id"/>
+                        <field name="categorie_nouvelle" invisible="prestation_id"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_enregistrer" type="object" string="Enregistrer l'ouvrage" class="btn-primary"/>
                     <button string="Annuler" special="cancel" class="btn-secondary"/>
                 </footer>
             </form>
@@ -137,7 +213,7 @@
             <xpath expr="//button[@name='action_confirm']" position="before">
                 <button name="action_ajouter_prestation"
                         type="object"
-                        string="🛠️ Ajouter une prestation"
+                        string="🛠️ Ajouter une prestation / un ouvrage"
                         invisible="not is_pool_quote or state not in ['draft', 'sent']"
                         class="btn-secondary"/>
             </xpath>

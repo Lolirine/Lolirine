@@ -184,7 +184,7 @@
                             <field name="pool_fiche_id" string="ID fiche"/>
                         </group>
                     </group>
-                    <group string="Observations">
+                    <group string="Observations" name="pool_vt_obs">
                         <field name="pool_visit_observations" nolabel="1"
                                placeholder="Observations de la visite chantier…"/>
                     </group>

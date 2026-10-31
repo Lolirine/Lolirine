@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Devis en ligne : conditions de paiement calculées sous les totaux (devis piscine) -->
+    <template id="sale_order_portal_pool_conditions" name="Devis piscine : conditions de paiement"
+              inherit_id="sale.sale_order_portal_content" priority="45">
+        <xpath expr="//div[@id='total']" position="after">
+            <t t-if="sale_order.pool_conditions_actives">
+                <div id="pool_conditions" class="mt-3 p-3" style="border: 2px solid #d1102f; border-radius: 6px;">
+                    <h5 class="mb-2" style="color: #d1102f;">Conditions de paiement</h5>
+                    <t t-foreach="sale_order._pool_conditions_lignes()" t-as="cond">
+                        <p class="mb-1">
+                            <strong t-out="cond[0]"/>
+                            <t t-if="cond[1]"><br/><small t-out="cond[1]"/></t>
+                        </p>
+                    </t>
+                </div>
+            </t>
+            <t t-if="sale_order.pool_autoliquidation and sale_order.fiscal_position_id.note">
+                <div class="mt-2 p-2 small border rounded">
+                    <strong>TVA due par le cocontractant.</strong>
+                    <t t-out="sale_order.fiscal_position_id.note"/>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Étapes des tâches de chantier -->
+    <record id="stage_chantier_a_planifier" model="project.task.type">
+        <field name="name">À planifier</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="stage_chantier_planifie" model="project.task.type">
+        <field name="name">Planifié</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="stage_chantier_en_cours" model="project.task.type">
+        <field name="name">En cours</field>
+        <field name="sequence">3</field>
+    </record>
+    <record id="stage_chantier_termine" model="project.task.type">
+        <field name="name">Terminé</field>
+        <field name="sequence">4</field>
+        <field name="fold">True</field>
+    </record>
+
+    <!-- Modèle de chantier : copié à la confirmation d'un devis piscine avec main-d'œuvre -->
+    <record id="project_modele_chantier_piscine" model="project.project">
+        <field name="name">Chantier piscine</field>
+        <field name="is_template">True</field>
+        <field name="allow_timesheets">True</field>
+        <field name="allow_billable">True</field>
+        <field name="type_ids" eval="[(6, 0, [ref('stage_chantier_a_planifier'), ref('stage_chantier_planifie'), ref('stage_chantier_en_cours'), ref('stage_chantier_termine')])]"/>
+        <field name="description">Chantier créé à la confirmation du devis piscine : visite, commande, pose, mise en service, facturation à l'avancement.</field>
+    </record>
+
+    <record id="tache_chantier_visite" model="project.task">
+        <field name="name">1. Visite technique et métré (photos, électricité, accès)</field>
+        <field name="project_id" ref="project_modele_chantier_piscine"/>
+        <field name="stage_id" ref="stage_chantier_a_planifier"/>
+        <field name="sequence">10</field>
+        <field name="description">&lt;p&gt;Compléter la fiche de visite technique du devis (onglet « Fiche de visite ») et y joindre les photos.&lt;/p&gt;</field>
+    </record>
+    <record id="tache_chantier_commande" model="project.task">
+        <field name="name">2. Commande du matériel (bons fournisseurs)</field>
+        <field name="project_id" ref="project_modele_chantier_piscine"/>
+        <field name="stage_id" ref="stage_chantier_a_planifier"/>
+        <field name="sequence">20</field>
+        <field name="description">&lt;p&gt;Après paiement du matériel : vérifier et envoyer les bons de commande fournisseurs.&lt;/p&gt;</field>
+    </record>
+    <record id="tache_chantier_livraison" model="project.task">
+        <field name="name">3. Réception du matériel sur chantier</field>
+        <field name="project_id" ref="project_modele_chantier_piscine"/>
+        <field name="stage_id" ref="stage_chantier_a_planifier"/>
+        <field name="sequence">30</field>
+    </record>
+    <record id="tache_chantier_pose" model="project.task">
+        <field name="name">4. Pose et raccordement</field>
+        <field name="project_id" ref="project_modele_chantier_piscine"/>
+        <field name="stage_id" ref="stage_chantier_a_planifier"/>
+        <field name="sequence">40</field>
+        <field name="description">&lt;p&gt;Planifier la date et le technicien. Pointer les heures passées sur cette tâche.&lt;/p&gt;</field>
+    </record>
+    <record id="tache_chantier_mise_en_service" model="project.task">
+        <field name="name">5. Mise en eau, mise en service et explications au client</field>
+        <field name="project_id" ref="project_modele_chantier_piscine"/>
+        <field name="stage_id" ref="stage_chantier_a_planifier"/>
+        <field name="sequence">50</field>
+    </record>
+    <record id="tache_chantier_facturation" model="project.task">
+        <field name="name">6. Facturation à l'avancement et solde</field>
+        <field name="project_id" ref="project_modele_chantier_piscine"/>
+        <field name="stage_id" ref="stage_chantier_a_planifier"/>
+        <field name="sequence">60</field>
+        <field name="description">&lt;p&gt;Sur le devis : saisir l'avancement (%) de la main-d'œuvre, puis « Créer une facture » (facture normale) : l'acompte matériel est déduit automatiquement.&lt;/p&gt;</field>
+    </record>
+
+</odoo>
