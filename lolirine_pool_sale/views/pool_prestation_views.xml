@@ -141,6 +141,10 @@
                         invisible="not is_pool_quote or state not in ['draft', 'sent']"
                         class="btn-secondary"/>
             </xpath>
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_id']" position="before">
+                <field name="pool_image" widget="image" options="{'size': [48, 48], 'zoom': true, 'zoom_delay': 300}"
+                       optional="show" readonly="1" nolabel="1" column_invisible="not parent.is_pool_quote"/>
+            </xpath>
             <xpath expr="//field[@name='order_line']/list/field[@name='name']" position="after">
                 <field name="pool_mo_detail" optional="hide" string="Détail interne (heures)"/>
                 <field name="pool_prestation_id" column_invisible="True"/>

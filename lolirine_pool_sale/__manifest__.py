@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Pool — Devis Piscine',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Sales',
     'summary': 'Devis piscine avec séquence dédiée, onglets chantier et dropshipping',
     'description': """

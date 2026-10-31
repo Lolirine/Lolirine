@@ -72,3 +72,6 @@ class SaleOrderLinePool(models.Model):
         "Détail interne main-d'œuvre",
         help="Heures, taux et étapes de la prestation. Jamais imprimé sur le devis.")
     pool_prestation_id = fields.Many2one('lolirine.pool.prestation', string="Prestation", ondelete='set null')
+    pool_image = fields.Image(
+        "Photo", related='product_id.image_128',
+        help="Photo du produit telle qu'elle apparaît sur le site, pour contrôler l'article choisi.")
