@@ -76,14 +76,4 @@
         </xpath>
     </template>
 
-    <!--
-      Méga-menus : l'URL du menu (ex. /shop/category/110) est exposée sur le
-      titre dans data-lp-href ; mega_menu_link.interaction.js l'ouvre au clic
-      (le survol continue d'ouvrir le panneau). Sans URL ou avec « # », rien ne change.
-    -->
-    <template id="mega_menu_link" inherit_id="website.submenu" name="Motion: clic sur le titre d'un méga-menu">
-        <xpath expr="//a[@data-bs-toggle='dropdown']" position="attributes">
-            <attribute name="t-att-data-lp-href">submenu.is_mega_menu and submenu.url and submenu.url != '#' and submenu._clean_url() or None</attribute>
-        </xpath>
-    </template>
 </odoo>
