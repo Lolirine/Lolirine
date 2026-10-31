@@ -22,7 +22,7 @@
     'author': 'Lolirine SRL',
     'website': 'https://lolirinepoolstore.be',
     'license': 'LGPL-3',
-    'depends': ['sale_management', 'sale'],
+    'depends': ['sale_management', 'sale', 'purchase', 'lolirine_pool_dropship'],
     'data': [
         'security/ir.model.access.csv',
         'data/sequence.xml',
