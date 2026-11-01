@@ -84,6 +84,16 @@ class SaleOrderBatiment(models.Model):
         if self.chantier_domaine == 'batiment' and 'plan_id' in self._fields and self.plan_id:
             self.plan_id = False
 
+    # ── Pas de liste de prix : prix de vente de la fiche ─────────────
+    @api.depends('partner_id', 'company_id', 'chantier_domaine')
+    def _compute_pricelist_id(self):
+        """Devis bâtiment : pas de liste de prix, comme les devis piscine. La liste
+        « Default » sert au garde-meuble et sa règle globale met tout à 0 €."""
+        super()._compute_pricelist_id()
+        for o in self:
+            if o.chantier_domaine == 'batiment' and o.state in ('draft', 'sent'):
+                o.pricelist_id = False
+
     # ── Numérotation BAT/AAAA/NNNN ───────────────────────────────────
     @api.model_create_multi
     def create(self, vals_list):
@@ -92,6 +102,7 @@ class SaleOrderBatiment(models.Model):
                 if not vals.get('name') or vals.get('name') in ('/', _('New'), 'New'):
                     vals['name'] = self.env['ir.sequence'].next_by_code('lolirine.batiment.devis') or '/'
                 vals.setdefault('require_signature', True)
+                vals['pricelist_id'] = False
                 self._bat_vals_sans_abonnement(vals)
         orders = super().create(vals_list)
         for o in orders.filtered(lambda o: o.chantier_domaine == 'batiment'):
