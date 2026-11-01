@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Devis / commande (rapport standard, mise en page Lolirine SRL) :
+         chantier, conditions de paiement, TVA 6 % avec attestation, autoliquidation -->
+    <template id="report_saleorder_document_batiment" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//div[@id='informations']" position="after">
+            <t t-if="doc.chantier_domaine == 'batiment' and (doc.pool_adresse_chantier or doc.bat_description)">
+                <div class="mb-3" style="font-size: 13px;">
+                    <strong t-if="doc.pool_adresse_chantier">Adresse du chantier : </strong>
+                    <span t-out="doc.pool_adresse_chantier"/>
+                    <div t-if="doc.bat_description" style="white-space: pre-line; margin-top: 4px;" t-out="doc.bat_description"/>
+                </div>
+            </t>
+        </xpath>
+
+        <xpath expr="//div[@name='so_total_summary']" position="after">
+            <t t-if="doc.chantier_domaine == 'batiment'">
+                <div t-if="doc.pool_conditions_actives" class="mt-3"
+                     style="border: 2px solid #b02a37; padding: 8px 10px; font-size: 13px; page-break-inside: avoid;">
+                    <p class="mb-1"><strong>CONDITIONS DE PAIEMENT</strong></p>
+                    <t t-foreach="doc._pool_conditions_lignes()" t-as="cond">
+                        <p class="mb-1">
+                            <strong t-out="cond[0]"/>
+                            <t t-if="cond[1]"><br/><t t-out="cond[1]"/></t>
+                        </p>
+                    </t>
+                </div>
+
+                <div t-if="doc.bat_tva_regime == '6'" class="mt-3"
+                     style="border: 1px solid #555; padding: 8px 10px; font-size: 11px; page-break-inside: avoid;">
+                    <p class="mb-1"><strong>ATTESTATION — TAUX RÉDUIT DE TVA DE 6 %</strong></p>
+                    <p class="mb-1">
+                        Le client soussigné, <strong t-out="doc.partner_id.name"/>, atteste que les travaux décrits
+                        dans le présent devis concernent le bâtiment situé
+                        <strong t-out="doc.pool_adresse_chantier or doc.partner_shipping_id.contact_address"/>, et que :
+                    </p>
+                    <ul class="mb-1">
+                        <li>ce bâtiment est un logement dont la première occupation remonte à au moins dix ans
+                            avant la première facturation des travaux ;</li>
+                        <li>après l'exécution des travaux, il sera utilisé exclusivement ou à titre principal
+                            comme logement privé ;</li>
+                        <li>les travaux sont fournis et facturés à un consommateur final.</li>
+                    </ul>
+                    <p class="mb-0">
+                        (A.R. n° 20, tableau A, rubrique XXXI.) Si ces conditions ne sont pas remplies, le client
+                        est redevable de la TVA due au taux normal, ainsi que des intérêts et amendes.
+                        La signature du devis vaut signature de la présente attestation.
+                    </p>
+                </div>
+
+                <div t-if="doc.bat_tva_regime == 'autoliq' and doc.fiscal_position_id.note" class="mt-3"
+                     style="border: 1px solid #555; padding: 8px 10px; font-size: 11px;">
+                    <strong>TVA due par le cocontractant (art. 20 AR n° 1).</strong>
+                    <t t-out="doc.fiscal_position_id.note"/>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

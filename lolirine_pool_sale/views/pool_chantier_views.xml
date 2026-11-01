@@ -10,10 +10,10 @@
         <field name="arch" type="xml">
             <xpath expr="//button[@name='action_confirm']" position="before">
                 <button name="action_pool_creer_avenant" type="object" string="➕ Avenant"
-                        invisible="not is_pool_quote or state != 'sale'" class="btn-secondary"
+                        invisible="not is_chantier or state != 'sale'" class="btn-secondary"
                         help="Travaux supplémentaires : petit devis lié au chantier, signé et payé en ligne"/>
                 <button name="action_pool_pv" type="object" string="📝 Procès-verbal"
-                        invisible="not is_pool_quote or state != 'sale' or pool_pv_signe" class="btn-secondary"
+                        invisible="not is_chantier or state != 'sale' or pool_pv_signe" class="btn-secondary"
                         help="Procès-verbal de réception à faire signer au client en fin de chantier"/>
             </xpath>
             <xpath expr="//div[@name='button_box']" position="inside">
@@ -29,9 +29,9 @@
                 <field name="pool_pv_signe" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='pool_autoliquidation']" position="after">
-                <field name="pool_sans_relance" invisible="not is_pool_quote"/>
-                <field name="pool_envoye_le" invisible="not is_pool_quote or not pool_envoye_le" readonly="1"/>
-                <field name="pool_relance_nb" invisible="not is_pool_quote or not pool_relance_nb" readonly="1"/>
+                <field name="pool_sans_relance" invisible="not is_chantier"/>
+                <field name="pool_envoye_le" invisible="not is_chantier or not pool_envoye_le" readonly="1"/>
+                <field name="pool_relance_nb" invisible="not is_chantier or not pool_relance_nb" readonly="1"/>
             </xpath>
         </field>
     </record>

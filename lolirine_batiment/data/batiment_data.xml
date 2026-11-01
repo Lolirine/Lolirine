@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Numérotation des devis bâtiment : BAT/2026/0001 -->
+        <record id="seq_devis_batiment" model="ir.sequence">
+            <field name="name">Devis bâtiment</field>
+            <field name="code">lolirine.batiment.devis</field>
+            <field name="prefix">BAT/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Catégorie des articles bâtiment (internes, jamais publiés) -->
+        <record id="categ_batiment" model="product.category">
+            <field name="name">Bâtiment</field>
+        </record>
+
+        <!-- Étapes et modèle de projet « Chantier bâtiment » -->
+        <record id="project_modele_chantier_batiment" model="project.project">
+            <field name="name">Chantier bâtiment</field>
+            <field name="is_template">True</field>
+            <field name="allow_timesheets">True</field>
+            <field name="allow_billable">True</field>
+            <field name="type_ids" eval="[(6, 0, [ref('lolirine_pool_sale.stage_chantier_a_planifier'), ref('lolirine_pool_sale.stage_chantier_planifie'), ref('lolirine_pool_sale.stage_chantier_en_cours'), ref('lolirine_pool_sale.stage_chantier_termine')])]"/>
+            <field name="description">Chantier créé à la confirmation du devis bâtiment.</field>
+        </record>
+        <record id="tache_bat_visite" model="project.task">
+            <field name="name">1. Visite technique et métré</field>
+            <field name="project_id" ref="project_modele_chantier_batiment"/>
+            <field name="stage_id" ref="lolirine_pool_sale.stage_chantier_a_planifier"/>
+            <field name="sequence">10</field>
+        </record>
+        <record id="tache_bat_commande" model="project.task">
+            <field name="name">2. Commande et livraison des matériaux</field>
+            <field name="project_id" ref="project_modele_chantier_batiment"/>
+            <field name="stage_id" ref="lolirine_pool_sale.stage_chantier_a_planifier"/>
+            <field name="sequence">20</field>
+        </record>
+        <record id="tache_bat_travaux" model="project.task">
+            <field name="name">3. Exécution des travaux</field>
+            <field name="project_id" ref="project_modele_chantier_batiment"/>
+            <field name="stage_id" ref="lolirine_pool_sale.stage_chantier_a_planifier"/>
+            <field name="sequence">30</field>
+            <field name="description">&lt;p&gt;Pointer les heures passées sur cette tâche.&lt;/p&gt;</field>
+        </record>
+        <record id="tache_bat_reception" model="project.task">
+            <field name="name">4. Nettoyage, réception et procès-verbal</field>
+            <field name="project_id" ref="project_modele_chantier_batiment"/>
+            <field name="stage_id" ref="lolirine_pool_sale.stage_chantier_a_planifier"/>
+            <field name="sequence">40</field>
+        </record>
+        <record id="tache_bat_facturation" model="project.task">
+            <field name="name">5. Facturation à l'avancement et solde</field>
+            <field name="project_id" ref="project_modele_chantier_batiment"/>
+            <field name="stage_id" ref="lolirine_pool_sale.stage_chantier_a_planifier"/>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Articles de base -->
+        <record id="product_mo_batiment" model="product.product">
+            <field name="name">Main-d'œuvre bâtiment</field>
+            <field name="default_code">MO-BAT</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="categ_batiment"/>
+            <field name="list_price">55.0</field>
+            <field name="sale_ok" eval="True"/>
+            <field name="purchase_ok" eval="False"/>
+            <field name="invoice_policy">delivery</field>
+            <field name="service_type">manual</field>
+            <field name="service_tracking">project_only</field>
+            <field name="project_template_id" ref="project_modele_chantier_batiment"/>
+        </record>
+        <record id="product_fourniture_batiment" model="product.product">
+            <field name="name">Fourniture bâtiment (divers)</field>
+            <field name="default_code">BAT-DIVERS</field>
+            <field name="type">consu</field>
+            <field name="categ_id" ref="categ_batiment"/>
+            <field name="list_price">0.0</field>
+            <field name="sale_ok" eval="True"/>
+            <field name="purchase_ok" eval="True"/>
+        </record>
+
+        <!-- Position fiscale « Rénovation 6 % » (correspondance des taxes posée par script) -->
+        <record id="fp_renovation_6" model="account.fiscal.position">
+            <field name="name">Rénovation logement de plus de 10 ans (TVA 6 %)</field>
+            <field name="note">Taux réduit de TVA de 6 % (A.R. n° 20, tableau A, rubrique XXXI) : travaux immobiliers relatifs à un logement dont la première occupation remonte à au moins dix ans, utilisé exclusivement ou principalement comme habitation privée, fournis et facturés à un consommateur final. Le client l'a attesté en signant le devis.</field>
+        </record>
+
+        <!-- E-mail d'envoi du devis bâtiment -->
+        <record id="mail_template_devis_batiment" model="mail.template">
+            <field name="name">Devis bâtiment : envoi</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">Votre devis {{ object.name }} — Lolirine</field>
+            <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.partner_id.id }}</field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="report_template_ids" eval="[(4, ref('sale.action_report_saleorder'))]"/>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px;">
+    <p>Bonjour <t t-out="object.partner_id.name or ''"/>,</p>
+    <p>Suite à notre visite, vous trouverez ci-joint notre devis <strong t-out="object.name"/>
+        pour vos travaux<t t-if="object.pool_adresse_chantier"> à <t t-out="object.pool_adresse_chantier"/></t>,
+        d'un montant de <strong t-out="format_amount(object.amount_total, object.currency_id)"/> TVAC.</p>
+    <p>Vous pouvez le consulter et l'accepter en ligne (signature électronique) :</p>
+    <p style="margin: 20px 0;">
+        <a t-att-href="object.get_base_url() + object.get_portal_url()"
+           style="background: #2f5d50; color: #fff; padding: 10px 18px; border-radius: 4px; text-decoration: none;">
+            Consulter et signer le devis
+        </a>
+    </p>
+    <p t-if="object.validity_date">Ce devis est valable jusqu'au <t t-out="format_date(object.validity_date)"/>.</p>
+    <p>Une question ? Appelez-nous au 0497 44 41 46 ou répondez simplement à cet e-mail.</p>
+    <p>Cordialement,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>

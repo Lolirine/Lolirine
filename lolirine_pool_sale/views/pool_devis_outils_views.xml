@@ -14,7 +14,7 @@
                 <button name="action_pool_enregistrer_ouvrage"
                         type="object"
                         string="💾 Enregistrer comme ouvrage"
-                        invisible="not is_pool_quote"
+                        invisible="not is_chantier"
                         class="btn-secondary"/>
             </xpath>
 
@@ -42,7 +42,8 @@
 
             <!-- Autoliquidation à côté de la position fiscale -->
             <xpath expr="//field[@name='fiscal_position_id']" position="before">
-                <field name="pool_autoliquidation" invisible="not is_pool_quote"
+                <field name="is_chantier" invisible="1"/>
+                <field name="pool_autoliquidation" invisible="not is_chantier"
                        readonly="state not in ['draft', 'sent']"/>
             </xpath>
 
@@ -59,7 +60,7 @@
                         du total
                     </div>
                 </div>
-                <div colspan="2" class="small text-muted mt-1" invisible="not is_pool_quote">
+                <div colspan="2" class="small text-muted mt-1" invisible="not is_chantier">
                     Marge matériel : <field name="pool_marge_mat" class="oe_inline"/>
                     (<field name="pool_marge_mat_pct" class="oe_inline" digits="[16, 1]"/> %)
                 </div>
@@ -69,7 +70,7 @@
             <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="after">
                 <field name="pool_est_mo" column_invisible="True"/>
                 <field name="pool_avancement" string="Avancement %"
-                       column_invisible="not parent.is_pool_quote or parent.state != 'sale'"
+                       column_invisible="not parent.is_chantier or parent.state != 'sale'"
                        invisible="not pool_est_mo or qty_delivered_method != 'manual'"
                        optional="show"/>
             </xpath>

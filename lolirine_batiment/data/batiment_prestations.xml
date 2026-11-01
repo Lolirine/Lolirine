@@ -1,0 +1,903 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="bat_prestation_demontage_couverture" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_demolition</field>
+            <field name="sequence">10</field>
+            <field name="name">Dépose de la couverture existante</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Dépose des tuiles, tôles ou plaques existantes
+- Tri et mise en tas des matériaux pour évacuation</field>
+            <field name="detail_interne">Dépose et descente des éléments : 0,2 h/m² ; tri : 0,05 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.25</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_demolition_cloison" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_demolition</field>
+            <field name="sequence">20</field>
+            <field name="name">Démolition d'une cloison non portante</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Protection des sols et des abords
+- Démolition de la cloison et de son ossature
+- Mise en sacs des gravats</field>
+            <field name="detail_interne">Protection 0,05 h/m² ; démolition 0,35 h/m² ; gravats 0,1 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.5</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_depose_sol" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_demolition</field>
+            <field name="sequence">30</field>
+            <field name="name">Dépose d'un revêtement de sol</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Dépose du revêtement (carrelage, parquet, moquette)
+- Grattage des restes de colle
+- Mise en sacs des déchets</field>
+            <field name="detail_interne">Dépose 0,2 h/m² ; grattage 0,1 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.3</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_evacuation" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_demolition</field>
+            <field name="sequence">40</field>
+            <field name="name">Évacuation des déchets de chantier</field>
+            <field name="unite">forfait</field>
+            <field name="description_client">- Chargement des déchets triés
+- Transport vers le parc à conteneurs ou le conteneur de chantier</field>
+            <field name="detail_interne">Chargement 1 h ; transport et déchargement 1 h (location de conteneur en sus)</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">2.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_protection_chantier" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_demolition</field>
+            <field name="sequence">50</field>
+            <field name="name">Préparation et protection du chantier</field>
+            <field name="unite">forfait</field>
+            <field name="description_client">- Protection des sols, meubles et accès
+- Mise en place de la zone de travail
+- Nettoyage en fin de chantier</field>
+            <field name="detail_interne">Protection 0,75 h ; nettoyage final 0,75 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.5</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_maconnerie_blocs" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_gros_oeuvre</field>
+            <field name="sequence">60</field>
+            <field name="name">Maçonnerie en blocs de béton</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Implantation et mise de niveau
+- Montage des blocs au mortier
+- Jointoyage ou préparation pour enduit</field>
+            <field name="detail_interne">Implantation 0,1 h/m² ; montage 0,9 h/m² ; finition 0,2 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.2</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_dalle_beton" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_gros_oeuvre</field>
+            <field name="sequence">70</field>
+            <field name="name">Dalle en béton armé</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Préparation du fond (empierrement, film)
+- Coffrage et pose du treillis d'armature
+- Coulage, réglage et lissage du béton</field>
+            <field name="detail_interne">Fond 0,3 h/m² ; coffrage-armature 0,3 h/m² ; coulage-lissage 0,4 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_fondation" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_gros_oeuvre</field>
+            <field name="sequence">80</field>
+            <field name="name">Fondation en semelle filante</field>
+            <field name="unite">ml</field>
+            <field name="description_client">- Ouverture de la tranchée
+- Pose des armatures
+- Coulage du béton de fondation</field>
+            <field name="detail_interne">Tranchée 0,8 h/ml ; armature 0,3 h/ml ; coulage 0,4 h/ml</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.5</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_ouverture_mur" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_gros_oeuvre</field>
+            <field name="sequence">90</field>
+            <field name="name">Ouverture dans un mur porteur</field>
+            <field name="unite">forfait</field>
+            <field name="description_client">- Étançonnement provisoire
+- Pose du linteau ou de la poutre
+- Démolition de la maçonnerie et finition des tableaux</field>
+            <field name="detail_interne">Étançons 2 h ; saignée et linteau 4 h ; démolition 4 h ; finitions 2 h (étude de stabilité non comprise)</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">12.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_rejointoyage" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_gros_oeuvre</field>
+            <field name="sequence">100</field>
+            <field name="name">Rejointoyage de maçonnerie</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Dégarnissage des joints
+- Nettoyage de la maçonnerie
+- Rejointoyage au mortier</field>
+            <field name="detail_interne">Dégarnissage 0,4 h/m² ; rejointoyage 0,4 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.8</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_chevrons" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_charpente</field>
+            <field name="sequence">110</field>
+            <field name="name">Pose de chevrons ou de solives</field>
+            <field name="unite">ml</field>
+            <field name="description_client">- Traçage et découpe
+- Pose et fixation des pièces de bois
+- Mise à niveau</field>
+            <field name="detail_interne">Découpe 0,1 h/ml ; pose 0,15 h/ml</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.25</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_ossature_mur" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_charpente</field>
+            <field name="sequence">120</field>
+            <field name="name">Ossature bois de mur</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Lisse basse et lisse haute
+- Montants et entretoises
+- Contreventement et fixations</field>
+            <field name="detail_interne">Lisses 0,15 h/m² ; montants 0,45 h/m² ; contreventement 0,2 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.8</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_renfort_charpente" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_charpente</field>
+            <field name="sequence">130</field>
+            <field name="name">Renforcement de charpente (doublage de chevrons)</field>
+            <field name="unite">ml</field>
+            <field name="description_client">- Contrôle de l'existant
+- Doublage des pièces de bois
+- Fixation par vis ou boulons</field>
+            <field name="detail_interne">Contrôle 0,1 h/ml ; doublage et fixation 0,3 h/ml</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.4</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_osb_toiture" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_charpente</field>
+            <field name="sequence">140</field>
+            <field name="name">Fermeture de toiture en panneaux OSB</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Contrôle de la planéité des chevrons
+- Découpe et pose des panneaux OSB à joints décalés
+- Fixation par vis sur chaque appui, joint de dilatation en périphérie</field>
+            <field name="detail_interne">Contrôle 0,05 h/m² ; découpe et pose 0,2 h/m² ; vissage 0,1 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.35</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_osb_plancher" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_charpente</field>
+            <field name="sequence">150</field>
+            <field name="name">Plancher en panneaux OSB</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Contrôle des solives
+- Pose des panneaux rainurés-languetés collés
+- Vissage sur les solives</field>
+            <field name="detail_interne">Pose 0,2 h/m² ; collage et vissage 0,1 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.3</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_osb_paroi" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_charpente</field>
+            <field name="sequence">160</field>
+            <field name="name">Habillage de paroi en panneaux OSB</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Découpe des panneaux
+- Pose sur ossature
+- Vissage et finition des joints</field>
+            <field name="detail_interne">Découpe 0,1 h/m² ; pose et vissage 0,2 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.3</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_pare_pluie" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_toiture</field>
+            <field name="sequence">170</field>
+            <field name="name">Pose d'un pare-pluie / sous-toiture</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Déroulage de la membrane avec recouvrements
+- Fixation et collage des raccords
+- Traitement des pénétrations</field>
+            <field name="detail_interne">Pose 0,1 h/m² ; raccords 0,02 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.12</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_lattage" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_toiture</field>
+            <field name="sequence">180</field>
+            <field name="name">Contre-lattage et lattage</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Pose des contre-lattes sur les chevrons
+- Pose des lattes au pureau de la couverture</field>
+            <field name="detail_interne">Contre-lattes 0,1 h/m² ; lattes 0,15 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.25</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_tuiles" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_toiture</field>
+            <field name="sequence">190</field>
+            <field name="name">Couverture en tuiles</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Mise en place et calage des tuiles
+- Pose des faîtières et des rives
+- Contrôle d'étanchéité</field>
+            <field name="detail_interne">Tuiles 0,45 h/m² ; faîtage et rives 0,15 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.6</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_toles" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_toiture</field>
+            <field name="sequence">200</field>
+            <field name="name">Couverture en tôles (bac acier, ondulées)</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Pose des tôles avec recouvrements
+- Fixation par vis à rondelle d'étanchéité
+- Pose des faîtières et closoirs</field>
+            <field name="detail_interne">Pose 0,25 h/m² ; faîtage 0,1 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.35</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_epdm" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_toiture</field>
+            <field name="sequence">210</field>
+            <field name="name">Étanchéité de toit plat en EPDM</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Préparation et nettoyage du support
+- Pose et collage de la membrane EPDM
+- Relevés, angles et finitions de rives</field>
+            <field name="detail_interne">Support 0,1 h/m² ; collage 0,25 h/m² ; relevés 0,15 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.5</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_gouttiere" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_toiture</field>
+            <field name="sequence">220</field>
+            <field name="name">Pose de gouttière</field>
+            <field name="unite">ml</field>
+            <field name="description_client">- Pose des crochets avec la pente d'écoulement
+- Pose et assemblage de la gouttière
+- Raccord aux descentes</field>
+            <field name="detail_interne">Crochets 0,2 h/ml ; gouttière 0,3 h/ml</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.5</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_descente" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_toiture</field>
+            <field name="sequence">230</field>
+            <field name="name">Pose de descente d'eau pluviale</field>
+            <field name="unite">ml</field>
+            <field name="description_client">- Fixation des colliers
+- Pose des tuyaux et coudes
+- Raccord à l'égout ou au réservoir</field>
+            <field name="detail_interne">Colliers 0,15 h/ml ; tuyaux 0,25 h/ml</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.4</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_rives_solins" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_toiture</field>
+            <field name="sequence">240</field>
+            <field name="name">Pose de rives et de solins</field>
+            <field name="unite">ml</field>
+            <field name="description_client">- Découpe et pliage
+- Fixation
+- Étanchéité des raccords</field>
+            <field name="detail_interne">Découpe 0,15 h/ml ; pose 0,25 h/ml</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.4</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_fenetre_toit" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_toiture</field>
+            <field name="sequence">250</field>
+            <field name="name">Pose d'une fenêtre de toit</field>
+            <field name="unite">piece</field>
+            <field name="description_client">- Ouverture de la couverture et chevêtre
+- Pose de la fenêtre et du raccord d'étanchéité
+- Finition intérieure de base</field>
+            <field name="detail_interne">Ouverture et chevêtre 2 h ; pose et raccord 2 h ; finition 1 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">5.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_isolation_toiture" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_isolation</field>
+            <field name="sequence">260</field>
+            <field name="name">Isolation de toiture entre chevrons</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Découpe et pose de l'isolant (laine minérale)
+- Ajustement sans pont thermique</field>
+            <field name="detail_interne">Découpe 0,1 h/m² ; pose 0,25 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.35</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_isolation_murs" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_isolation</field>
+            <field name="sequence">270</field>
+            <field name="name">Isolation de murs par l'intérieur</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Pose de l'ossature ou des panneaux isolants
+- Pose de l'isolant
+- Préparation pour le parement</field>
+            <field name="detail_interne">Ossature 0,15 h/m² ; isolant 0,25 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.4</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_isolation_sol" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_isolation</field>
+            <field name="sequence">280</field>
+            <field name="name">Isolation de sol</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Pose des panneaux isolants (PUR, EPS)
+- Pose du film de protection</field>
+            <field name="detail_interne">Pose 0,2 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.2</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_pare_vapeur" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_isolation</field>
+            <field name="sequence">290</field>
+            <field name="name">Pose d'un pare-vapeur</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Pose de la membrane avec recouvrements
+- Collage des raccords et des pénétrations</field>
+            <field name="detail_interne">Pose 0,08 h/m² ; collage 0,04 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.12</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_porte_interieure" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_menuiserie</field>
+            <field name="sequence">300</field>
+            <field name="name">Pose d'une porte intérieure</field>
+            <field name="unite">piece</field>
+            <field name="description_client">- Mise en place et calage du bloc-porte
+- Fixation et réglage
+- Pose des chambranles</field>
+            <field name="detail_interne">Pose 2 h ; chambranles 1 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">3.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_chassis" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_menuiserie</field>
+            <field name="sequence">310</field>
+            <field name="name">Pose d'un châssis (rénovation)</field>
+            <field name="unite">piece</field>
+            <field name="description_client">- Dépose de l'ancien châssis
+- Pose, calage et fixation du nouveau
+- Étanchéité et finitions</field>
+            <field name="detail_interne">Dépose 1 h ; pose 2 h ; finitions 1 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">4.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_porte_entree" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_menuiserie</field>
+            <field name="sequence">320</field>
+            <field name="name">Pose d'une porte d'entrée</field>
+            <field name="unite">piece</field>
+            <field name="description_client">- Dépose de l'ancienne porte
+- Pose, calage et fixation
+- Réglage, étanchéité et finitions</field>
+            <field name="detail_interne">Dépose 1,5 h ; pose 3 h ; finitions 1,5 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">6.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_plinthes" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_menuiserie</field>
+            <field name="sequence">330</field>
+            <field name="name">Pose de plinthes</field>
+            <field name="unite">ml</field>
+            <field name="description_client">- Découpe des angles
+- Pose collée ou clouée</field>
+            <field name="detail_interne">Pose 0,15 h/ml</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.15</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_tablettes" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_menuiserie</field>
+            <field name="sequence">340</field>
+            <field name="name">Pose de tablette de fenêtre</field>
+            <field name="unite">piece</field>
+            <field name="description_client">- Découpe à dimension
+- Pose et collage</field>
+            <field name="detail_interne">Pose 0,75 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.75</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_cloison_platre" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_cloisons</field>
+            <field name="sequence">350</field>
+            <field name="name">Cloison en plaques de plâtre sur ossature métallique</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Pose des rails et montants
+- Pose de l'isolant acoustique
+- Vissage des plaques sur les deux faces</field>
+            <field name="detail_interne">Ossature 0,25 h/m² ; isolant 0,1 h/m² ; plaques 0,35 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.7</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_faux_plafond" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_cloisons</field>
+            <field name="sequence">360</field>
+            <field name="name">Faux plafond en plaques de plâtre</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Pose de l'ossature suspendue
+- Vissage des plaques</field>
+            <field name="detail_interne">Ossature 0,4 h/m² ; plaques 0,4 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.8</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_plafonnage" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_cloisons</field>
+            <field name="sequence">370</field>
+            <field name="name">Plafonnage de murs</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Préparation et accroche
+- Application de l'enduit
+- Lissage</field>
+            <field name="detail_interne">Préparation 0,1 h/m² ; enduit et lissage 0,4 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.5</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_enduisage" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_cloisons</field>
+            <field name="sequence">380</field>
+            <field name="name">Jointoyage et enduisage de plaques de plâtre</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Bandes et enduit sur les joints
+- Ponçage</field>
+            <field name="detail_interne">Bandes 0,2 h/m² ; ponçage 0,1 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.3</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_chape" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_sols</field>
+            <field name="sequence">390</field>
+            <field name="name">Chape de ciment</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Pose des repères de niveau
+- Coulage et réglage de la chape
+- Lissage</field>
+            <field name="detail_interne">Repères 0,05 h/m² ; coulage et lissage 0,35 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.4</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_carrelage_sol" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_sols</field>
+            <field name="sequence">400</field>
+            <field name="name">Pose de carrelage de sol</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Calepinage
+- Pose collée
+- Joints et nettoyage</field>
+            <field name="detail_interne">Calepinage 0,1 h/m² ; pose 0,7 h/m² ; joints 0,2 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_faience" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_sols</field>
+            <field name="sequence">410</field>
+            <field name="name">Pose de faïence murale</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Calepinage
+- Pose collée
+- Joints et silicone</field>
+            <field name="detail_interne">Calepinage 0,1 h/m² ; pose 0,85 h/m² ; joints 0,25 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.2</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_parquet" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_sols</field>
+            <field name="sequence">420</field>
+            <field name="name">Pose de parquet flottant / stratifié</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Pose de la sous-couche
+- Pose des lames
+- Finitions et barres de seuil</field>
+            <field name="detail_interne">Sous-couche 0,05 h/m² ; lames 0,25 h/m² ; finitions 0,05 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.35</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_ragreage" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_sols</field>
+            <field name="sequence">430</field>
+            <field name="name">Ragréage autolissant</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Primaire d'accrochage
+- Coulage du ragréage</field>
+            <field name="detail_interne">Primaire 0,05 h/m² ; coulage 0,1 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.15</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_peinture" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_peinture</field>
+            <field name="sequence">440</field>
+            <field name="name">Peinture de murs et plafonds</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Protection et préparation des supports
+- Couche d'impression
+- Deux couches de finition</field>
+            <field name="detail_interne">Préparation 0,08 h/m² ; impression 0,05 h/m² ; finition 0,12 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.25</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_peinture_boiseries" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_peinture</field>
+            <field name="sequence">450</field>
+            <field name="name">Peinture de boiseries et châssis</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Ponçage et dégraissage
+- Couche de fond
+- Deux couches de finition</field>
+            <field name="detail_interne">Préparation 0,2 h/m² ; peinture 0,4 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.6</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_traitement_bois" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_peinture</field>
+            <field name="sequence">460</field>
+            <field name="name">Traitement et lasure du bois</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Nettoyage
+- Application du traitement (fongicide, insecticide)
+- Deux couches de lasure</field>
+            <field name="detail_interne">Nettoyage 0,05 h/m² ; traitement et lasure 0,15 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.2</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_point_electrique" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_electricite</field>
+            <field name="sequence">470</field>
+            <field name="name">Point lumineux ou prise (encastré)</field>
+            <field name="unite">piece</field>
+            <field name="description_client">- Saignée et boîte d'encastrement
+- Tirage du câble
+- Raccordement de l'appareillage</field>
+            <field name="detail_interne">Saignée 0,5 h ; câble 0,5 h ; raccordement 0,5 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.5</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_tableau" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_electricite</field>
+            <field name="sequence">480</field>
+            <field name="name">Remplacement de tableau électrique</field>
+            <field name="unite">forfait</field>
+            <field name="description_client">- Dépose de l'ancien tableau
+- Pose et câblage du nouveau tableau
+- Repérage des circuits et essais</field>
+            <field name="detail_interne">Dépose 1,5 h ; câblage 5 h ; essais 1,5 h (contrôle par un organisme agréé en sus)</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">8.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_conformite_rgie" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_electricite</field>
+            <field name="sequence">490</field>
+            <field name="name">Préparation au contrôle de l'installation électrique (RGIE)</field>
+            <field name="unite">forfait</field>
+            <field name="description_client">- Vérification des protections et des liaisons
+- Corrections mineures
+- Préparation du schéma unifilaire</field>
+            <field name="detail_interne">Vérifications 1,5 h ; corrections 1,5 h ; schéma 1 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">4.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_sanitaire" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_plomberie</field>
+            <field name="sequence">500</field>
+            <field name="name">Raccordement d'un sanitaire (WC, lavabo, évier)</field>
+            <field name="unite">piece</field>
+            <field name="description_client">- Pose de l'appareil
+- Raccordement à l'alimentation et à l'évacuation
+- Essais d'étanchéité</field>
+            <field name="detail_interne">Pose 1 h ; raccordements 1 h ; essais 0,5 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">2.5</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_douche" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_plomberie</field>
+            <field name="sequence">510</field>
+            <field name="name">Pose d'une douche</field>
+            <field name="unite">piece</field>
+            <field name="description_client">- Pose du receveur ou de la douche à l'italienne
+- Raccordements
+- Pose de la paroi et étanchéité</field>
+            <field name="detail_interne">Receveur 2 h ; raccordements 2 h ; paroi et joints 2 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">6.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_boiler" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_plomberie</field>
+            <field name="sequence">520</field>
+            <field name="name">Remplacement de chauffe-eau / boiler</field>
+            <field name="unite">forfait</field>
+            <field name="description_client">- Vidange et dépose de l'ancien appareil
+- Pose et raccordement du nouveau
+- Mise en service</field>
+            <field name="detail_interne">Dépose 1,5 h ; pose 2 h ; mise en service 0,5 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">4.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_radiateur" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_plomberie</field>
+            <field name="sequence">530</field>
+            <field name="name">Pose d'un radiateur</field>
+            <field name="unite">piece</field>
+            <field name="description_client">- Fixation des consoles
+- Raccordement
+- Purge et essais</field>
+            <field name="detail_interne">Fixation 0,75 h ; raccordement 1,25 h ; purge 0,5 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">2.5</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_terrassement" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_exterieur</field>
+            <field name="sequence">540</field>
+            <field name="name">Terrassement</field>
+            <field name="unite">m3</field>
+            <field name="description_client">- Décapage et excavation
+- Mise en tas ou chargement des terres</field>
+            <field name="detail_interne">Excavation 1,2 h/m³ ; chargement 0,3 h/m³ (évacuation des terres en sus)</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.5</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_paves" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_exterieur</field>
+            <field name="sequence">550</field>
+            <field name="name">Pose de pavés ou de dallage extérieur</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Coffre et fondation en empierrement
+- Lit de pose
+- Pose, compactage et jointoyage</field>
+            <field name="detail_interne">Coffre 0,4 h/m² ; lit 0,2 h/m² ; pose 0,6 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.2</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_cloture" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_exterieur</field>
+            <field name="sequence">560</field>
+            <field name="name">Pose de clôture</field>
+            <field name="unite">ml</field>
+            <field name="description_client">- Implantation et scellement des piquets
+- Pose des panneaux ou du grillage</field>
+            <field name="detail_interne">Piquets 0,35 h/ml ; panneaux 0,25 h/ml</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.6</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_terrasse_bois" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_exterieur</field>
+            <field name="sequence">570</field>
+            <field name="name">Terrasse en bois ou composite</field>
+            <field name="unite">m2</field>
+            <field name="description_client">- Plots ou lambourdes
+- Pose des lames
+- Finitions et bandeaux</field>
+            <field name="detail_interne">Structure 0,4 h/m² ; lames 0,5 h/m² ; finitions 0,1 h/m²</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_abri_jardin" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_exterieur</field>
+            <field name="sequence">580</field>
+            <field name="name">Montage d'un abri de jardin (kit)</field>
+            <field name="unite">forfait</field>
+            <field name="description_client">- Préparation de l'assise
+- Montage de l'abri
+- Pose de la couverture</field>
+            <field name="detail_interne">Assise 3 h ; montage 7 h ; couverture 2 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">12.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_bordures" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">bat_exterieur</field>
+            <field name="sequence">590</field>
+            <field name="name">Pose de bordures</field>
+            <field name="unite">ml</field>
+            <field name="description_client">- Tranchée et fondation béton
+- Pose et alignement des bordures</field>
+            <field name="detail_interne">Tranchée 0,2 h/ml ; pose 0,2 h/ml</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">0.4</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_visite_batiment" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">autre</field>
+            <field name="sequence">600</field>
+            <field name="name">Visite technique et métré</field>
+            <field name="unite">forfait</field>
+            <field name="description_client">- Visite des lieux et relevé des mesures
+- Photos et conseil</field>
+            <field name="detail_interne">Visite 1 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+        <record id="bat_prestation_depannage_batiment" model="lolirine.pool.prestation">
+            <field name="domaine">batiment</field>
+            <field name="categorie">autre</field>
+            <field name="sequence">610</field>
+            <field name="name">Petits travaux et dépannage</field>
+            <field name="unite">h</field>
+            <field name="description_client">- Intervention au temps passé</field>
+            <field name="detail_interne">1 h</field>
+            <field name="mode_prix">heures</field>
+            <field name="heures">1.0</field>
+            <field name="taux_horaire">55.0</field>
+            <field name="product_id" ref="product_mo_batiment"/>
+        </record>
+    </data>
+</odoo>

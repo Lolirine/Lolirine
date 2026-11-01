@@ -62,7 +62,7 @@ class PoolPv(models.Model):
                 'name': titre,
                 'quantite': l.product_uom_qty,
                 'categorie': deviner_categorie(titre),
-                'a_enregistrer': l.price_unit >= 100,
+                'a_enregistrer': l.price_unit >= 100 and order.chantier_domaine != 'batiment',
             }))
         return lignes
 

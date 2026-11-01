@@ -70,6 +70,18 @@ class SaleOrderLineOutils(models.Model):
 class SaleOrderOutils(models.Model):
     _inherit = 'sale.order'
 
+    # ── Devis de chantier (piscine ou bâtiment) ─────────────────────
+    chantier_domaine = fields.Selection(
+        [('piscine', 'Piscine'), ('batiment', 'Bâtiment')], string="Domaine du chantier", index=True, copy=True)
+    is_chantier = fields.Boolean(
+        "Devis de chantier", compute='_compute_is_chantier', store=True, index=True, precompute=True,
+        help="Devis piscine ou bâtiment : ouvrages, conditions de paiement, marge, avenants, procès-verbal…")
+
+    @api.depends('is_pool_quote', 'chantier_domaine')
+    def _compute_is_chantier(self):
+        for order in self:
+            order.is_chantier = bool(order.is_pool_quote or order.chantier_domaine == 'batiment')
+
     # ── Conditions de paiement ───────────────────────────────────────
     pool_mat_ht = fields.Monetary("Matériel HT", compute='_compute_pool_paiement')
     pool_mat_ttc = fields.Monetary("Matériel TVAC", compute='_compute_pool_paiement')
@@ -110,7 +122,7 @@ class SaleOrderOutils(models.Model):
     # ─────────────────────────────────────────────────────────────────
     #  Conditions de paiement
     # ─────────────────────────────────────────────────────────────────
-    @api.depends('is_pool_quote', 'order_line.price_subtotal', 'order_line.price_total',
+    @api.depends('is_chantier', 'order_line.price_subtotal', 'order_line.price_total',
                  'order_line.product_id', 'order_line.display_type', 'amount_untaxed', 'amount_total')
     def _compute_pool_paiement(self):
         for order in self:
@@ -121,7 +133,7 @@ class SaleOrderOutils(models.Model):
             order.pool_mat_ht = arrondi(order.amount_untaxed - order.pool_mo_ht)
             order.pool_mat_ttc = arrondi(order.amount_total - order.pool_mo_ttc)
             order.pool_conditions_actives = bool(
-                order.is_pool_quote and order.pool_mo_ht > 0 and order.pool_mat_ht > 0)
+                order.is_chantier and order.pool_mo_ht > 0 and order.pool_mat_ht > 0)
 
     def _pool_conditions_lignes(self):
         """Textes de l'encadré « Conditions de paiement » (PDF et portail)."""
@@ -135,12 +147,12 @@ class SaleOrderOutils(models.Model):
              % (montant_fr(self.pool_mo_ttc), montant_fr(self.pool_mo_ht)), ""),
         ]
 
-    @api.depends('company_id', 'is_pool_quote', 'order_line.price_total', 'order_line.product_id')
+    @api.depends('company_id', 'is_chantier', 'order_line.price_total', 'order_line.product_id')
     def _compute_prepayment_percent(self):
         """Devis piscine avec main-d'œuvre : l'acompte en ligne = la part matériel TVAC."""
         super()._compute_prepayment_percent()
         for order in self:
-            if not order.is_pool_quote or order.state not in ('draft', 'sent'):
+            if not order.is_chantier or order.state not in ('draft', 'sent'):
                 continue
             mo_ttc = sum(order.order_line.filtered(lambda l: l._pool_ligne_mo()).mapped('price_total'))
             total = sum(order.order_line.filtered(lambda l: not l.display_type).mapped('price_total'))
@@ -151,7 +163,7 @@ class SaleOrderOutils(models.Model):
     #  Marge du matériel
     # ─────────────────────────────────────────────────────────────────
     @api.depends('order_line.price_subtotal', 'order_line.purchase_price', 'order_line.product_uom_qty',
-                 'order_line.product_id', 'is_pool_quote')
+                 'order_line.product_id', 'is_chantier')
     def _compute_pool_marge_mat(self):
         for order in self:
             mat = order.order_line.filtered(
@@ -164,7 +176,7 @@ class SaleOrderOutils(models.Model):
             order.pool_lignes_sans_cout = ", ".join(
                 (l.name or '').split('\n')[0][:40] for l in sans_cout) if sans_cout else False
             order.pool_marge_alerte = bool(
-                order.is_pool_quote and vente and (order.pool_marge_mat_pct < SEUIL_MARGE * 100 or sans_cout))
+                order.is_chantier and vente and (order.pool_marge_mat_pct < SEUIL_MARGE * 100 or sans_cout))
 
     # ─────────────────────────────────────────────────────────────────
     #  Autoliquidation
@@ -181,12 +193,12 @@ class SaleOrderOutils(models.Model):
             raise UserError(_("Position fiscale « Cocontractant » introuvable (plan comptable belge)."))
         return fp
 
-    @api.depends('is_pool_quote', 'partner_id', 'pool_autoliquidation', 'order_line.product_id')
+    @api.depends('is_chantier', 'partner_id', 'pool_autoliquidation', 'order_line.product_id')
     def _compute_pool_autoliq_suggeree(self):
         for order in self:
             client = order.partner_id.commercial_partner_id
             order.pool_autoliq_suggeree = bool(
-                order.is_pool_quote and not order.pool_autoliquidation
+                order.is_chantier and not order.pool_autoliquidation
                 and client.is_company and (client.vat or '').upper().startswith('BE')
                 and any(l._pool_ligne_mo() for l in order.order_line))
 
@@ -213,7 +225,7 @@ class SaleOrderOutils(models.Model):
     def create(self, vals_list):
         orders = super().create(vals_list)
         # devis créé avec ses lignes : l'acompte précalculé ignorait encore les lignes
-        orders.filtered(lambda o: o.is_pool_quote and o.order_line)._compute_prepayment_percent()
+        orders.filtered(lambda o: o.is_chantier and o.order_line)._compute_prepayment_percent()
         orders.filtered('pool_autoliquidation')._pool_appliquer_autoliquidation()
         return orders
 

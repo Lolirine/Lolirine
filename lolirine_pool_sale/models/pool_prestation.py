@@ -11,8 +11,26 @@ CATEGORIES = [
     ('plomberie', 'Plomberie / raccordement'),
     ('couverture', 'Couverture et volet'),
     ('entretien', 'Entretien, hivernage, remise en route'),
+    # Bâtiment
+    ('bat_demolition', 'Bâtiment — Démolition, évacuation'),
+    ('bat_gros_oeuvre', 'Bâtiment — Gros œuvre, maçonnerie'),
+    ('bat_charpente', 'Bâtiment — Charpente, ossature bois'),
+    ('bat_toiture', 'Bâtiment — Toiture, couverture, zinguerie'),
+    ('bat_isolation', 'Bâtiment — Isolation'),
+    ('bat_menuiserie', 'Bâtiment — Menuiseries, portes, fenêtres'),
+    ('bat_cloisons', 'Bâtiment — Cloisons, plafonds, plafonnage'),
+    ('bat_sols', 'Bâtiment — Sols, carrelage, chapes'),
+    ('bat_peinture', 'Bâtiment — Peinture, finitions'),
+    ('bat_electricite', 'Bâtiment — Électricité'),
+    ('bat_plomberie', 'Bâtiment — Plomberie, sanitaire, chauffage'),
+    ('bat_exterieur', 'Bâtiment — Terrassement, aménagements extérieurs'),
     ('autre', 'Autre'),
 ]
+
+DOMAINES = [('piscine', 'Piscine'), ('batiment', 'Bâtiment')]
+UNITES = [('forfait', 'Forfait'), ('m2', 'm²'), ('ml', 'm (mètre linéaire)'), ('m3', 'm³'),
+          ('piece', 'pièce'), ('h', 'heure')]
+UNITES_COURTES = {'forfait': 'forfait', 'm2': 'm²', 'ml': 'm', 'm3': 'm³', 'piece': 'pc', 'h': 'h'}
 
 
 class PoolPrestation(models.Model):
@@ -29,6 +47,11 @@ class PoolPrestation(models.Model):
     sequence = fields.Integer(default=10)
     active = fields.Boolean(default=True)
     categorie = fields.Selection(CATEGORIES, string='Catégorie', required=True, default='autre')
+    domaine = fields.Selection(DOMAINES, string="Domaine", required=True, default='piscine', index=True)
+    unite = fields.Selection(
+        UNITES, string="Unité", required=True, default='forfait',
+        help="Unité de l'ouvrage : le prix de la main-d'œuvre et les quantités de fournitures sont donnés "
+             "pour 1 unité (1 m², 1 m…) et multipliés par le métré saisi dans le devis.")
     description_client = fields.Text(
         "Travaux décrits au client",
         help="Texte imprimé sous le titre sur le devis : les travaux, SANS heures ni taux.")
@@ -69,10 +92,10 @@ class PoolPrestation(models.Model):
             p.total_ouvrage = p.total_fournitures + p.prix_forfait
             p.nb_fournitures = len(p.fourniture_ids)
 
-    @api.depends('mode_prix', 'forfait_fixe', 'heures', 'taux_horaire', 'coef_difficulte')
+    @api.depends('mode_prix', 'forfait_fixe', 'heures', 'taux_horaire', 'coef_difficulte', 'unite')
     def _compute_prix_forfait(self):
         for p in self:
-            p.prix_forfait = calcul_prix(p.mode_prix, p.forfait_fixe, p.heures, p.taux_horaire, p.coef_difficulte)
+            p.prix_forfait = calcul_prix(p.mode_prix, p.forfait_fixe, p.heures, p.taux_horaire, p.coef_difficulte, p.unite)
 
 
 class PoolPrestationFourniture(models.Model):
@@ -92,6 +115,10 @@ class PoolPrestationFourniture(models.Model):
     prix_unitaire = fields.Float("Prix unitaire HT (€)", digits=(10, 2))
     cout_unitaire = fields.Float("Coût unitaire (€)", digits=(10, 2))
     optionnel = fields.Boolean("Option", help="Proposée en option : le client peut l'ajouter lui-même sur le devis en ligne.")
+    perte_pct = fields.Float("Perte (%)", digits=(5, 1),
+                             help="Chutes et recouvrements ajoutés à la quantité (ex. 10 % pour des panneaux).")
+    arrondir = fields.Boolean("Arrondir", default=True,
+                              help="Quantité arrondie à l'unité supérieure (panneaux, rouleaux, boîtes…).")
     sous_total = fields.Float("Sous-total HT (€)", digits=(10, 2), compute='_compute_sous_total')
 
     @api.depends('quantite', 'prix_unitaire')
@@ -106,11 +133,13 @@ class PoolPrestationFourniture(models.Model):
             self.cout_unitaire = self.product_id.standard_price
 
 
-def calcul_prix(mode, forfait, heures, taux, coef):
-    """Prix HT de la prestation : forfait saisi, ou heures × taux × coefficient arrondi à 5 €."""
+def calcul_prix(mode, forfait, heures, taux, coef, unite='forfait'):
+    """Prix HT de la prestation (pour 1 unité) : forfait saisi, ou heures × taux × coefficient,
+    arrondi à 5 € pour un forfait, au centime pour un prix au m², au mètre, à la pièce…"""
     if mode == 'forfait':
         return forfait or 0.0
-    return arrondi_5((heures or 0.0) * (taux or 0.0) * (coef or 1.0))
+    brut = (heures or 0.0) * (taux or 0.0) * (coef or 1.0)
+    return arrondi_5(brut) if (unite or 'forfait') == 'forfait' else round(brut, 2)
 
 
 def arrondi_5(montant):

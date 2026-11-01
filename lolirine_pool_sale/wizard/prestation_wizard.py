@@ -2,7 +2,9 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-from ..models.pool_prestation import CATEGORIES, calcul_prix
+import math
+
+from ..models.pool_prestation import CATEGORIES, UNITES, UNITES_COURTES, calcul_prix
 
 SECTION_MO = "Main-d'œuvre et déplacements"
 SECTION_OPTIONS = "Options proposées"
@@ -27,7 +29,14 @@ class PoolPrestationWizard(models.TransientModel):
     _description = "Ajouter une prestation (ou un ouvrage complet) au devis"
 
     order_id = fields.Many2one('sale.order', required=True, ondelete='cascade')
-    prestation_id = fields.Many2one('lolirine.pool.prestation', string='Prestation', required=True)
+    domaine = fields.Selection(related='order_id.chantier_domaine')
+    prestation_id = fields.Many2one('lolirine.pool.prestation', string='Prestation', required=True,
+                                    domain="[('domaine', '=', domaine or 'piscine')]")
+    unite = fields.Selection(related='prestation_id.unite')
+    quantite_ouvrage = fields.Float(
+        "Métré", digits=(10, 2), default=1.0,
+        help="Quantité de l'ouvrage dans l'unité de la prestation (m², m, pièces…). Le prix de la main-d'œuvre "
+             "et les fournitures sont multipliés par ce métré.")
     titre = fields.Char("Titre sur le devis", required=True)
     description_client = fields.Text("Travaux décrits au client")
     detail_interne = fields.Text("Détail interne (étapes et heures)")
@@ -62,10 +71,10 @@ class PoolPrestationWizard(models.TransientModel):
             self.taux_horaire = p.taux_horaire
             self.coef_difficulte = p.coef_difficulte or 1.0
 
-    @api.depends('mode_prix', 'forfait_fixe', 'heures', 'taux_horaire', 'coef_difficulte')
+    @api.depends('mode_prix', 'forfait_fixe', 'heures', 'taux_horaire', 'coef_difficulte', 'unite')
     def _compute_prix(self):
         for w in self:
-            w.prix = calcul_prix(w.mode_prix, w.forfait_fixe, w.heures, w.taux_horaire, w.coef_difficulte)
+            w.prix = calcul_prix(w.mode_prix, w.forfait_fixe, w.heures, w.taux_horaire, w.coef_difficulte, w.unite)
 
     def _detail_interne_ligne(self):
         if self.mode_prix == 'forfait':
@@ -83,11 +92,17 @@ class PoolPrestationWizard(models.TransientModel):
             detail += "\n" + self.detail_interne.strip()
         return detail
 
+    def _quantite_fourniture(self, f):
+        q = f.quantite * (self.multiplicateur or 1.0) * (self.quantite_ouvrage or 1.0) * (1 + (f.perte_pct or 0.0) / 100.0)
+        if f.arrondir:
+            q = math.ceil(round(q, 4))
+        return q
+
     def _vals_fourniture(self, order, f, optionnel=False):
         vals = {
             'order_id': order.id,
             'product_id': f.product_id.id,
-            'product_uom_qty': 0.0 if optionnel else f.quantite * (self.multiplicateur or 1.0),
+            'product_uom_qty': 0.0 if optionnel else self._quantite_fourniture(f),
             'price_unit': f.prix_unitaire,
         }
         if (f.name or '').strip():
@@ -134,15 +149,21 @@ class PoolPrestationWizard(models.TransientModel):
                 section_mo = Line.create({'order_id': order.id, 'display_type': 'line_section', 'name': SECTION_MO})
                 ordre.append(section_mo)
             nom = self.titre.strip()
+            par_unite = self.unite and self.unite != 'forfait'
+            if par_unite:
+                nom += " — %s %s" % (('%g' % self.quantite_ouvrage).replace('.', ','), UNITES_COURTES.get(self.unite, ''))
             if (self.description_client or '').strip():
                 nom += "\n" + self.description_client.strip()
+            detail = self._detail_interne_ligne()
+            if par_unite:
+                detail = "Prix par %s ; métré %g\n%s" % (UNITES_COURTES.get(self.unite, ''), self.quantite_ouvrage, detail)
             mo = Line.create({
                 'order_id': order.id,
                 'product_id': product.id,
                 'name': nom,
-                'product_uom_qty': 1.0,
+                'product_uom_qty': self.quantite_ouvrage if par_unite else 1.0,
                 'price_unit': self.prix,
-                'pool_mo_detail': self._detail_interne_ligne(),
+                'pool_mo_detail': detail,
                 'pool_prestation_id': p.id,
             })
             ordre.insert(_fin_de_bloc(ordre, section_mo), mo)
@@ -186,6 +207,10 @@ class PoolOuvrageWizard(models.TransientModel):
     nom = fields.Char("Nom de l'ouvrage")
     categorie_nouvelle = fields.Selection(CATEGORIES, string="Catégorie", default='autre')
     section_fournitures = fields.Char("Titre de la section fournitures")
+    unite = fields.Selection(UNITES, string="Unité de l'ouvrage", default='forfait')
+    quantite_reference = fields.Float(
+        "Métré de ce devis", digits=(10, 2), default=1.0,
+        help="Ex. 45 (m²) : quantités de fournitures et prix de la main-d'œuvre ramenés à 1 unité.")
 
     @api.onchange('mo_line_id')
     def _onchange_mo_line(self):
@@ -217,18 +242,21 @@ class PoolOuvrageWizard(models.TransientModel):
         nom = (self.nom or '').strip() or (self.prestation_id.name if self.prestation_id else '')
         if not nom:
             raise UserError(_("Donnez un nom à l'ouvrage."))
+        ref = self.quantite_reference if (self.unite or 'forfait') != 'forfait' and self.quantite_reference > 0 else 1.0
         vals = {
             'name': nom,
+            'domaine': self.order_id.chantier_domaine or 'piscine',
             'section_fournitures': (self.section_fournitures or '').strip() or False,
             'fourniture_ids': [(5, 0, 0)] + [(0, 0, {
                 'sequence': n * 10,
                 'product_id': l.product_id.id,
                 'name': l.name,
-                'quantite': l.product_uom_qty or 1.0,
+                'quantite': (l.product_uom_qty or 1.0) / ref,
                 'prix_unitaire': l.price_unit,
                 'cout_unitaire': l.purchase_price,
                 'optionnel': bool(l.parent_id.is_optional),
             }) for n, l in enumerate(lignes, start=1)],
+            'unite': self.unite or 'forfait',
         }
         mo = self.mo_line_id
         if mo:
@@ -236,7 +264,7 @@ class PoolOuvrageWizard(models.TransientModel):
             vals.update({
                 'description_client': "\n".join(texte[1:]).strip() or False,
                 'mode_prix': 'forfait',
-                'forfait_fixe': mo.price_unit * (mo.product_uom_qty or 1.0),
+                'forfait_fixe': mo.price_subtotal / ref,
                 'detail_interne': mo.pool_mo_detail or False,
                 'product_id': mo.product_id.id,
             })

@@ -20,7 +20,7 @@ class SaleOrderLineChantier(models.Model):
 
     def _timesheet_service_generation(self):
         """Pas de projet « chantier » pour un entretien : une tâche est créée dans « Entretiens piscine »."""
-        entretien = self.filtered(lambda l: l.order_id.is_pool_quote
+        entretien = self.filtered(lambda l: l.order_id.is_chantier
                                   and l.order_id.pool_intervention_type in TYPES_ENTRETIEN)
         return super(SaleOrderLineChantier, self - entretien)._timesheet_service_generation()
 
@@ -96,7 +96,8 @@ class SaleOrderChantier(models.Model):
             'partner_id': parent.partner_id.id,
             'partner_invoice_id': parent.partner_invoice_id.id,
             'partner_shipping_id': parent.partner_shipping_id.id,
-            'is_pool_quote': True,
+            'is_pool_quote': parent.is_pool_quote,
+            'chantier_domaine': parent.chantier_domaine,
             'pool_avenant_parent_id': parent.id,
             'pool_intervention_type': parent.pool_intervention_type,
             'pool_adresse_chantier': parent.pool_adresse_chantier,
@@ -147,7 +148,7 @@ class SaleOrderChantier(models.Model):
                                                and x.product_id.service_tracking in ('project_only', 'task_in_project')):
                     l.project_id = projet
         res = super()._action_confirm()
-        for o in self.filtered(lambda x: x.is_pool_quote):
+        for o in self.filtered(lambda x: x.is_chantier):
             try:
                 if o.pool_intervention_type in TYPES_ENTRETIEN:
                     o._pool_creer_tache_entretien()
@@ -219,7 +220,7 @@ class SaleOrderChantier(models.Model):
     # ─────────────────────────────────────────────────────────────────
     def write(self, vals):
         if vals.get('state') == 'sent':
-            for o in self.filtered(lambda x: x.is_pool_quote and not x.pool_envoye_le):
+            for o in self.filtered(lambda x: x.is_chantier and not x.pool_envoye_le):
                 o.pool_envoye_le = fields.Date.context_today(o)
         return super().write(vals)
 
@@ -229,7 +230,7 @@ class SaleOrderChantier(models.Model):
         if not modele:
             return
         today = fields.Date.context_today(self)
-        devis = self.search([('is_pool_quote', '=', True), ('state', '=', 'sent'), ('pool_sans_relance', '=', False),
+        devis = self.search([('is_chantier', '=', True), ('state', '=', 'sent'), ('pool_sans_relance', '=', False),
                              ('pool_envoye_le', '!=', False), ('pool_relance_nb', '<', 2)])
         for o in devis:
             if o.signature:

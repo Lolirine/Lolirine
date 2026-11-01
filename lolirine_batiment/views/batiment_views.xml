@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Devis bâtiment : onglet chantier, TVA, alertes -->
+    <record id="view_order_form_batiment" model="ir.ui.view">
+        <field name="name">sale.order.form.batiment</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/div[hasclass('oe_title')]" position="before">
+                <field name="chantier_domaine" invisible="1"/>
+                <field name="bat_alerte_tva" invisible="1"/>
+                <div class="alert alert-warning mb-2" role="alert" invisible="not bat_alerte_tva">
+                    <field name="bat_alerte_tva" readonly="1"/>
+                </div>
+            </xpath>
+            <xpath expr="//sheet/div[hasclass('oe_title')]" position="after">
+                <div class="mb-2" invisible="chantier_domaine != 'batiment'">
+                    <span class="badge rounded-pill text-bg-secondary">🏗️ Devis bâtiment</span>
+                </div>
+            </xpath>
+            <xpath expr="//page[@name='order_lines']" position="after">
+                <page string="🏗️ Chantier" name="bat_chantier" invisible="chantier_domaine != 'batiment'">
+                    <group>
+                        <group string="Chantier">
+                            <field name="bat_type_travaux"/>
+                            <field name="pool_adresse_chantier" string="Adresse du chantier"/>
+                            <field name="pool_technicien" string="Responsable"/>
+                            <field name="commitment_date" string="Date d'intervention souhaitée"/>
+                        </group>
+                        <group string="TVA">
+                            <field name="bat_tva_regime" widget="radio" readonly="state not in ['draft', 'sent']"/>
+                            <field name="bat_logement_10ans" invisible="bat_tva_regime != '6'"/>
+                            <field name="bat_habitation_privee" invisible="bat_tva_regime != '6'"/>
+                        </group>
+                    </group>
+                    <group string="Description du chantier">
+                        <field name="bat_description" nolabel="1" colspan="2"
+                               placeholder="Situation, existant, contraintes, accès, hauteur…"/>
+                    </group>
+                    <group string="Visite technique">
+                        <field name="pool_visit_observations" string="Constatations" nolabel="1" colspan="2"
+                               placeholder="Mesures relevées, état de la structure, points d'attention…"/>
+                    </group>
+                    <group string="Photos de la visite">
+                        <field name="pool_vt_photo_ids" widget="many2many_binary" nolabel="1" colspan="2"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Devis bâtiment : liste et actions -->
+    <record id="action_devis_batiment" model="ir.actions.act_window">
+        <field name="name">Devis bâtiment</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('chantier_domaine', '=', 'batiment')]</field>
+        <field name="context">{'default_chantier_domaine': 'batiment'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créer un devis bâtiment</p>
+            <p>Numérotation BAT/AAAA/NNNN · ouvrages au m², au mètre ou au forfait · TVA 6 % ou 21 %.</p>
+        </field>
+    </record>
+
+    <record id="action_tableau_batiment" model="ir.actions.act_window">
+        <field name="name">Tableau de bord des chantiers bâtiment</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,pivot,graph,form</field>
+        <field name="domain">[('chantier_domaine', '=', 'batiment')]</field>
+        <field name="search_view_id" ref="lolirine_pool_sale.view_pool_tableau_search"/>
+        <field name="context">{'search_default_en_cours': 1, 'create': False}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('lolirine_pool_sale.view_pool_tableau_list')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('lolirine_pool_sale.view_pool_tableau_pivot')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('lolirine_pool_sale.view_pool_tableau_graph')})]"/>
+    </record>
+
+    <record id="action_pv_batiment" model="ir.actions.act_window">
+        <field name="name">Procès-verbaux de réception (bâtiment)</field>
+        <field name="res_model">lolirine.pool.pv</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('order_id.chantier_domaine', '=', 'batiment')]</field>
+        <field name="context">{'create': False}</field>
+    </record>
+
+    <record id="action_ouvrages_batiment" model="ir.actions.act_window">
+        <field name="name">Ouvrages et main-d'œuvre bâtiment</field>
+        <field name="res_model">lolirine.pool.prestation</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('domaine', '=', 'batiment')]</field>
+        <field name="context" eval="{'default_domaine': 'batiment', 'default_product_id': ref('product_mo_batiment'), 'search_default_group_categorie': 1}"/>
+    </record>
+
+    <record id="action_articles_batiment" model="ir.actions.act_window">
+        <field name="name">Matériaux bâtiment</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('categ_id', 'child_of', ref('categ_batiment'))]</field>
+        <field name="context" eval="{'default_categ_id': ref('categ_batiment'), 'default_is_published': False, 'default_type': 'consu'}"/>
+    </record>
+
+    <!-- Menu Ventes > 🏗️ Bâtiment -->
+    <menuitem id="menu_batiment_root" name="🏗️ Bâtiment" parent="sale.sale_menu_root" sequence="4"/>
+    <menuitem id="menu_devis_batiment" name="Devis et chantiers" parent="menu_batiment_root"
+              action="action_devis_batiment" sequence="1"/>
+    <menuitem id="menu_tableau_batiment" name="📊 Tableau de bord des chantiers" parent="menu_batiment_root"
+              action="action_tableau_batiment" sequence="20"/>
+    <menuitem id="menu_pv_batiment" name="📝 Procès-verbaux de réception" parent="menu_batiment_root"
+              action="action_pv_batiment" sequence="21"/>
+    <menuitem id="menu_ouvrages_batiment" name="🛠️ Ouvrages et main-d'œuvre" parent="menu_batiment_root"
+              action="action_ouvrages_batiment" sequence="30"/>
+    <menuitem id="menu_articles_batiment" name="🧱 Matériaux bâtiment" parent="menu_batiment_root"
+              action="action_articles_batiment" sequence="31"/>
+
+</odoo>
