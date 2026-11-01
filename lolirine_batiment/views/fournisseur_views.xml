@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Fournisseur : remise, site, lecture des prix -->
+    <record id="view_partner_form_fournisseur_bat" model="ir.ui.view">
+        <field name="name">res.partner.form.fournisseur.batiment</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases']" position="inside">
+                <group string="🧱 Matériaux bâtiment" name="bat_fournisseur">
+                    <group>
+                        <field name="bat_fournisseur_materiaux"/>
+                        <field name="bat_remise_materiaux" invisible="not bat_fournisseur_materiaux"/>
+                        <field name="bat_lecteur_prix" invisible="not bat_fournisseur_materiaux"/>
+                    </group>
+                    <group invisible="not bat_fournisseur_materiaux">
+                        <field name="bat_site_url" widget="url"/>
+                        <field name="bat_url_recherche" placeholder="https://pro.carlier.be/recherche?term={}"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Article : prix fournisseur -->
+    <record id="view_product_template_form_fournisseur_bat" model="ir.ui.view">
+        <field name="name">product.template.form.fournisseur.batiment</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="🧱 Prix fournisseur" name="bat_prix_fournisseur" invisible="not bat_est_materiau">
+                    <field name="bat_est_materiau" invisible="1"/>
+                    <div class="mb-2">
+                        <button name="action_bat_voir_fournisseur" type="object" string="🔎 Voir chez le fournisseur"
+                                class="btn-secondary me-2" invisible="not bat_fournisseur_id"/>
+                        <button name="action_bat_lire_prix" type="object" string="🔄 Lire le prix public"
+                                class="btn-secondary me-2" invisible="not bat_fournisseur_id"/>
+                        <button name="action_bat_appliquer_prix" type="object" string="✔ Appliquer le prix"
+                                class="btn-primary" invisible="bat_prix_a_jour not in ('change', 'applique')"
+                                help="Coût = prix public HT − remise ; prix de vente = prix public HT ; ligne fournisseur mise à jour."/>
+                    </div>
+                    <group>
+                        <group string="Fournisseur">
+                            <field name="bat_fournisseur_id"/>
+                            <field name="bat_ref_fournisseur"/>
+                            <field name="bat_url_fournisseur" widget="url"/>
+                            <field name="bat_unite_fournisseur"/>
+                        </group>
+                        <group string="Prix">
+                            <field name="bat_prix_public_ttc"/>
+                            <field name="bat_prix_public_ht"/>
+                            <field name="bat_remise" string="Remise (%)"/>
+                            <field name="bat_cout_remise"/>
+                            <field name="bat_prix_releve_le"/>
+                            <field name="bat_prix_lu_ttc" invisible="not bat_prix_lu_ttc"/>
+                            <field name="bat_prix_lu_le" invisible="not bat_prix_lu_le"/>
+                            <field name="bat_prix_a_jour" widget="badge"
+                                   decoration-success="bat_prix_a_jour == 'ok'"
+                                   decoration-warning="bat_prix_a_jour == 'change'"
+                                   decoration-info="bat_prix_a_jour == 'applique'"/>
+                        </group>
+                    </group>
+                    <div class="text-muted small">Prix de vente = prix public HT ; coût = prix public HT − remise du fournisseur.
+                        La marge complémentaire par défaut (+5 / +10 / +15 %) s'ajoute sur les devis.</div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Liste des matériaux bâtiment -->
+    <record id="view_product_template_list_bat" model="ir.ui.view">
+        <field name="name">product.template.list.batiment</field>
+        <field name="model">product.template</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <list string="Matériaux bâtiment" multi_edit="1">
+                <header>
+                    <button name="action_bat_lire_prix" type="object" string="🔄 Lire les prix publics"/>
+                    <button name="action_bat_appliquer_prix" type="object" string="✔ Appliquer les prix"/>
+                </header>
+                <field name="default_code" optional="show"/>
+                <field name="name"/>
+                <field name="bat_fournisseur_id" optional="show"/>
+                <field name="bat_ref_fournisseur" optional="show"/>
+                <field name="uom_id" string="Unité" optional="show"/>
+                <field name="bat_prix_public_ttc" optional="show"/>
+                <field name="bat_prix_lu_ttc" optional="hide"/>
+                <field name="standard_price" string="Coût" optional="show"/>
+                <field name="list_price" string="Prix de vente" optional="show"/>
+                <field name="pool_majoration_defaut" string="Marge +" optional="show"/>
+                <field name="bat_prix_releve_le" optional="hide"/>
+                <field name="bat_prix_a_jour" widget="badge" optional="show"
+                       decoration-success="bat_prix_a_jour == 'ok'"
+                       decoration-warning="bat_prix_a_jour == 'change'"
+                       decoration-info="bat_prix_a_jour == 'applique'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_product_template_search_bat" model="ir.ui.view">
+        <field name="name">product.template.search.batiment</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <filter name="bat_prix_change" string="Prix fournisseur changé" domain="[('bat_prix_a_jour', '=', 'change')]"/>
+                <filter name="bat_prix_appliquer" string="Prix à appliquer" domain="[('bat_prix_a_jour', '=', 'applique')]"/>
+                <filter name="bat_group_fournisseur" string="Fournisseur (matériaux)" context="{'group_by': 'bat_fournisseur_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Boutons « Fournisseurs » sur le devis bâtiment et sur l'ouvrage -->
+    <record id="view_order_form_bat_fournisseurs" model="ir.ui.view">
+        <field name="name">sale.order.form.batiment.fournisseurs</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">46</field>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_confirm']" position="before">
+                <button name="action_bat_fournisseurs" type="object" string="🧱 Fournisseurs"
+                        class="btn-secondary"
+                        invisible="chantier_domaine != 'batiment' or state not in ['draft', 'sent']"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_prestation_form_bat_fournisseurs" model="ir.ui.view">
+        <field name="name">lolirine.pool.prestation.form.batiment.fournisseurs</field>
+        <field name="model">lolirine.pool.prestation</field>
+        <field name="inherit_id" ref="lolirine_pool_sale.view_pool_prestation_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button name="action_bat_fournisseurs" type="object" string="🧱 Choisir les matériaux chez les fournisseurs"
+                            class="btn-secondary" invisible="domaine != 'batiment' or not id"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Menu : sites des fournisseurs -->
+    <record id="action_bat_visionneuse" model="ir.actions.server">
+        <field name="name">Sites des fournisseurs</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="state">code</field>
+        <field name="code">action = model._bat_action_visionneuse()</field>
+    </record>
+
+    <!-- Contrôle mensuel des prix publics -->
+    <record id="cron_bat_controle_prix" model="ir.cron">
+        <field name="name">Bâtiment : contrôle des prix fournisseurs</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_bat_controle_prix()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="active" eval="True"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lolirine_batiment.BatFournisseurs">
+        <div class="o_bat_fournisseurs">
+            <t t-if="state.chargement">
+                <div class="p-4 text-muted"><i class="fa fa-spinner fa-spin"/> Chargement…</div>
+            </t>
+            <t t-else="">
+                <aside class="o_bf_cote">
+                    <div class="o_bf_entete" t-if="state.data.cible">
+                        <a href="#" class="me-2" t-on-click.prevent="retour" title="Retour"><i class="fa fa-arrow-left"/></a>
+                        <a href="#" t-on-click.prevent="retour" t-esc="state.data.cible.nom"/>
+                    </div>
+
+                    <t t-if="!state.data.fournisseurs.length">
+                        <div class="alert alert-warning small">Aucun fournisseur de matériaux : coche « Fournisseur de matériaux
+                            bâtiment » sur la fiche de Carlier et de Gobert.</div>
+                    </t>
+                    <div class="btn-group w-100 mb-2" role="group">
+                        <t t-foreach="state.data.fournisseurs" t-as="f" t-key="f.id">
+                            <button type="button" class="btn btn-sm"
+                                    t-att-class="state.fournisseur and state.fournisseur.id === f.id ? 'btn-primary' : 'btn-outline-primary'"
+                                    t-on-click="() => this.choisirFournisseur(f)">
+                                <t t-esc="f.nom"/><t t-if="f.remise"> (−<t t-esc="f.remise"/> %)</t>
+                            </button>
+                        </t>
+                    </div>
+                    <div class="input-group input-group-sm mb-3">
+                        <input class="form-control" placeholder="Chercher sur le site (OSB 12, latte, vis…)"
+                               t-model="state.recherche" t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.chercher()"/>
+                        <button class="btn btn-outline-secondary" t-on-click="() => this.chercher()"><i class="fa fa-search"/></button>
+                    </div>
+
+                    <div class="o_bf_titre">Importer un article dans Odoo</div>
+                    <div class="small text-muted mb-1">Colle la référence (Réf : 200577) ou l'adresse de la page du produit
+                        (clic droit sur le produit &gt; Copier l'adresse du lien).</div>
+                    <div class="input-group input-group-sm mb-2">
+                        <input class="form-control" t-model="state.importTexte" placeholder="200577 ou https://…"
+                               t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.importer()"/>
+                        <button class="btn btn-primary" t-on-click="importer" t-att-disabled="state.importEnCours">
+                            <i t-attf-class="fa {{state.importEnCours ? 'fa-spinner fa-spin' : 'fa-download'}}"/> Importer
+                        </button>
+                    </div>
+                    <t t-if="state.importe">
+                        <t t-call="lolirine_batiment.BatFournisseursMateriau"><t t-set="m" t-value="state.importe"/></t>
+                    </t>
+
+                    <t t-if="state.data.cible">
+                        <div class="o_bf_titre mt-3" t-esc="titreCible"/>
+                        <div t-if="!state.data.cible.lignes.length" class="small text-muted">Aucun pour l'instant.</div>
+                        <t t-foreach="state.data.cible.lignes" t-as="l" t-key="l_index">
+                            <div class="o_bf_ligne small">
+                                <span class="o_bf_nom" t-esc="l.nom"/>
+                                <span class="text-nowrap"><t t-esc="l.qte"/> <t t-esc="l.unite"/> × <t t-esc="fmt(l.prix)"/></span>
+                            </div>
+                        </t>
+                    </t>
+
+                    <div class="o_bf_titre mt-3">Matériaux dans Odoo</div>
+                    <input class="form-control form-control-sm mb-2" placeholder="Filtrer…" t-model="state.filtre"/>
+                    <t t-foreach="materiaux" t-as="m" t-key="m.id">
+                        <t t-call="lolirine_batiment.BatFournisseursMateriau"/>
+                    </t>
+                </aside>
+                <main class="o_bf_site">
+                    <div class="o_bf_barre small">
+                        <span class="text-truncate" t-esc="state.url"/>
+                        <a t-if="state.url" t-att-href="state.url" target="_blank" rel="noopener" class="ms-2 text-nowrap">
+                            <i class="fa fa-external-link"/> Nouvel onglet
+                        </a>
+                    </div>
+                    <iframe t-if="state.url" t-att-src="state.url" class="o_bf_iframe"
+                            referrerpolicy="no-referrer"/>
+                    <div t-else="" class="p-4 text-muted">Choisis un fournisseur ou lance une recherche.</div>
+                </main>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="lolirine_batiment.BatFournisseursMateriau">
+        <div class="o_bf_mat" t-on-click="() => this.montrer(m)">
+            <div class="o_bf_nom">
+                <t t-esc="m.nom"/>
+                <span t-if="m.etat === 'change'" class="badge text-bg-warning ms-1">prix changé</span>
+                <span t-if="m.etat === 'applique'" class="badge text-bg-info ms-1">à appliquer</span>
+                <span t-if="libelleMaj(m.majoration)" class="badge text-bg-success ms-1" t-esc="libelleMaj(m.majoration)"/>
+            </div>
+            <div class="o_bf_chiffres">
+                <span t-if="m.fournisseur"><t t-esc="m.fournisseur"/><t t-if="m.ref"> · <t t-esc="m.ref"/></t></span>
+                <span t-if="m.public_ttc">Public <t t-esc="fmt(m.public_ttc)"/> TTC</span>
+                <span>Coût <strong t-esc="fmt(m.cout)"/></span>
+                <span>Vente <strong t-esc="fmt(m.vente)"/> / <t t-esc="m.unite"/></span>
+            </div>
+            <div class="d-flex gap-1 mt-1" t-on-click.stop="() => {}">
+                <t t-if="state.data.cible">
+                    <input type="number" min="0" step="0.01" class="form-control form-control-sm o_bf_qte"
+                           t-att-value="state.qte[m.id] || 1" t-on-change="(ev) => state.qte[m.id] = ev.target.value"/>
+                    <button class="btn btn-sm btn-primary" t-on-click="() => this.ajouter(m)">
+                        <i class="fa fa-plus"/> Ajouter <t t-esc="cibleLibelle"/>
+                    </button>
+                </t>
+                <button t-if="m.etat === 'change' or m.etat === 'applique'" class="btn btn-sm btn-outline-warning"
+                        t-on-click="() => this.appliquer(m)" title="Coût = public HT − remise, vente = public HT">Appliquer le prix</button>
+                <button class="btn btn-sm btn-link" t-on-click="() => this.ouvrirFiche(m)">Fiche</button>
+            </div>
+        </div>
+    </t>
+
+</templates>
