@@ -111,7 +111,8 @@ class PoolPrestationFourniture(models.Model):
     name = fields.Text("Libellé sur le devis",
                        help="Vide : le libellé de l'article. Indispensable pour un article générique "
                             "(« Fourniture diverse », « Fourniture électrique »).")
-    quantite = fields.Float("Quantité", digits=(10, 2), default=1.0)
+    quantite = fields.Float("Quantité", digits=(10, 4), default=1.0,
+                            help="Pour un ouvrage au m² ou au mètre : quantité pour 1 unité (ex. 0,6944 panneau par m²).")
     prix_unitaire = fields.Float("Prix unitaire HT (€)", digits=(10, 2))
     cout_unitaire = fields.Float("Coût unitaire (€)", digits=(10, 2))
     optionnel = fields.Boolean("Option", help="Proposée en option : le client peut l'ajouter lui-même sur le devis en ligne.")
