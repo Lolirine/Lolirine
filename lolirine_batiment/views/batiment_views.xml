@@ -121,7 +121,7 @@
         <field name="name">Matériaux bâtiment</field>
         <field name="res_model">product.template</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('categ_id', 'child_of', ref('categ_batiment'))]</field>
+        <field name="domain" eval="[('categ_id', 'child_of', ref('categ_batiment'))]"/>
         <field name="context" eval="{'default_categ_id': ref('categ_batiment'), 'default_is_published': False, 'default_type': 'consu'}"/>
         <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'list', 'view_id': ref('view_product_template_list_bat')}),
