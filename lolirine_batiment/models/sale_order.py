@@ -17,6 +17,13 @@ TYPES_TRAVAUX = [
 ]
 
 
+class SaleOrderTemplateBatiment(models.Model):
+    _inherit = 'sale.order.template'
+
+    bat_template = fields.Boolean(
+        "Modèle bâtiment", help="Proposé (et choisi par défaut) sur les devis bâtiment, et seulement sur ceux-ci.")
+
+
 class SaleOrderBatiment(models.Model):
     _inherit = 'sale.order'
 
@@ -45,6 +52,38 @@ class SaleOrderBatiment(models.Model):
                     alerte = _("TVA 6 %% : conditions à vérifier — %s.") % ", ".join(manque)
             o.bat_alerte_tva = alerte
 
+    # ── Modèle de devis bâtiment, jamais d'abonnement ─────────────────
+    @api.model
+    def _bat_modele(self):
+        modele = self.env.ref('lolirine_batiment.sale_template_batiment', raise_if_not_found=False)
+        return modele if modele and modele.active else self.env['sale.order.template'].search(
+            [('bat_template', '=', True)], limit=1)
+
+    def _bat_vals_sans_abonnement(self, vals):
+        """Devis bâtiment : modèle bâtiment et pas de plan récurrent (abonnement garde-meuble)."""
+        modele_id = vals.get('sale_order_template_id')
+        modele = self.env['sale.order.template'].browse(modele_id) if modele_id else self.env['sale.order.template']
+        if not modele or not modele.bat_template:
+            vals['sale_order_template_id'] = self._bat_modele().id or False
+        if 'plan_id' in self._fields:
+            vals['plan_id'] = False
+        return vals
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        if self.env.context.get('default_chantier_domaine') == 'batiment':
+            if 'sale_order_template_id' in fields_list or 'sale_order_template_id' in res:
+                res['sale_order_template_id'] = self._bat_modele().id or False
+            if 'plan_id' in self._fields:
+                res['plan_id'] = False
+        return res
+
+    @api.onchange('sale_order_template_id')
+    def _onchange_bat_modele_sans_plan(self):
+        if self.chantier_domaine == 'batiment' and 'plan_id' in self._fields and self.plan_id:
+            self.plan_id = False
+
     # ── Numérotation BAT/AAAA/NNNN ───────────────────────────────────
     @api.model_create_multi
     def create(self, vals_list):
@@ -53,11 +92,20 @@ class SaleOrderBatiment(models.Model):
                 if not vals.get('name') or vals.get('name') in ('/', _('New'), 'New'):
                     vals['name'] = self.env['ir.sequence'].next_by_code('lolirine.batiment.devis') or '/'
                 vals.setdefault('require_signature', True)
+                self._bat_vals_sans_abonnement(vals)
         orders = super().create(vals_list)
+        for o in orders.filtered(lambda o: o.chantier_domaine == 'batiment'):
+            if 'plan_id' in o._fields and o.plan_id:
+                o.plan_id = False
+            modele = o.sale_order_template_id
+            if modele and modele.bat_template and modele.note and not o.note:
+                o.note = modele.note
         orders.filtered(lambda o: o.chantier_domaine == 'batiment' and o.bat_tva_regime != '21')._bat_appliquer_tva()
         return orders
 
     def write(self, vals):
+        if 'plan_id' in vals and vals['plan_id'] and any(o.chantier_domaine == 'batiment' for o in self):
+            vals = dict(vals, plan_id=False)
         res = super().write(vals)
         if 'bat_tva_regime' in vals and not self.env.context.get('bat_tva_en_cours'):
             self._bat_appliquer_tva()

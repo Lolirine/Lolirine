@@ -116,5 +116,26 @@
 </div>
             </field>
         </record>
+
+        <!-- Modèle de devis bâtiment (sans plan récurrent) -->
+        <record id="sale_template_batiment" model="sale.order.template">
+            <field name="name">Devis Bâtiment</field>
+            <field name="bat_template" eval="True"/>
+            <field name="number_of_days">30</field>
+            <field name="require_signature" eval="True"/>
+            <field name="require_payment" eval="True"/>
+            <field name="prepayment_percent">1.0</field>
+            <field name="mail_template_id" ref="mail_template_devis_batiment"/>
+            <field name="note" type="html">
+<p><b>Conditions de l'offre</b></p>
+<p>Validité du devis : 30 jours à compter de sa date d'émission. Les prix sont exprimés en euros hors TVA ; la TVA est appliquée selon le régime indiqué (21 %, 6 % rénovation sur attestation du client, ou autoliquidation).</p>
+<p>Paiement : le matériel est payable à la commande ; la main-d'œuvre et les déplacements sont facturés au fur et à mesure de l'avancement du chantier.</p>
+<p>Travaux supplémentaires : tout travail non prévu au présent devis fait l'objet d'un avenant accepté par le client avant son exécution.</p>
+<p>Quantités : établies sur la base du métré relevé lors de la visite ; une variation significative des surfaces réelles peut entraîner une adaptation du montant.</p>
+<p>Délai d'exécution : à convenir à la commande. Le chantier se termine par un procès-verbal de réception signé par le client.</p>
+<p>Les matériaux restent la propriété de Lolirine SRL jusqu'au paiement complet.</p>
+            </field>
+        </record>
+
     </data>
 </odoo>

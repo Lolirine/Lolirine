@@ -51,6 +51,30 @@
         </field>
     </record>
 
+    <!-- Modèle de devis : réservé aux devis bâtiment / aux autres devis -->
+    <record id="view_order_form_batiment_modele" model="ir.ui.view">
+        <field name="name">sale.order.form.batiment.modele</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_management.sale_order_form_quote"/>
+        <field name="priority">45</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sale_order_template_id']" position="attributes">
+                <attribute name="domain">[('bat_template', '=', chantier_domaine == 'batiment')]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_sale_order_template_form_batiment" model="ir.ui.view">
+        <field name="name">sale.order.template.form.batiment</field>
+        <field name="model">sale.order.template</field>
+        <field name="inherit_id" ref="sale_management.sale_order_template_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//label[@for='number_of_days']" position="before">
+                <field name="bat_template"/>
+            </xpath>
+        </field>
+    </record>
+
     <!-- Devis bâtiment : liste et actions -->
     <record id="action_devis_batiment" model="ir.actions.act_window">
         <field name="name">Devis bâtiment</field>
