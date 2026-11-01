@@ -14,7 +14,7 @@ import base64
 import html
 import logging
 import re
-from urllib.parse import quote_plus, urljoin
+from urllib.parse import quote_plus, unquote_plus, urljoin
 
 import requests
 
@@ -113,6 +113,8 @@ class ResPartnerFournisseurBat(models.Model):
             return {}
         infos = lire_page_carlier(self._bat_telecharger(url))
         infos.setdefault('url', url)
+        if '/produit/' not in (infos.get('url') or '') or not infos.get('nom'):
+            return {}      # page de recherche, de rubrique… : pas une fiche produit
         return infos
 
     def _bat_trouver_par_ref(self, ref):
@@ -122,6 +124,11 @@ class ResPartnerFournisseurBat(models.Model):
             return {}
         page = self._bat_telecharger(self._bat_url_recherche(ref))
         liens = []
+        m = re.search(r'R[ée]f\s*:\s*%s\s*<' % re.escape(ref), page)
+        if m:
+            avant = re.findall(r'href="([^"]*/produit/[^"]+)"', page[:m.start()])
+            if avant:
+                liens.append(urljoin(self.bat_site_url or 'https://pro.carlier.be/', html.unescape(avant[-1])))
         for lien in re.findall(r'href="([^"]*/produit/[^"]+)"', page):
             lien = urljoin(self.bat_site_url or 'https://pro.carlier.be/', html.unescape(lien))
             if lien not in liens:
@@ -347,6 +354,12 @@ class ProductTemplateFournisseurBat(models.Model):
         if f.bat_lecteur_prix != 'carlier':
             raise UserError(_("Pas de lecture automatique pour %s : crée l'article à la main "
                               "(référence, page et prix public sur la fiche).") % f.name)
+        if texte.startswith('http') and '/produit/' not in texte:
+            terme = re.search(r'[?&]term=([^&#]+)', texte)
+            if not terme:
+                raise UserError(_("Ce lien n'est pas celui d'un produit. Sur le site, fais un clic droit sur le produit "
+                                  "(sa photo ou son nom) > Copier l'adresse du lien, ou colle sa référence (Réf : …)."))
+            texte = unquote_plus(terme.group(1)).strip()
         infos = f._bat_lire_produit(texte) if texte.startswith('http') else f._bat_trouver_par_ref(texte)
         if not infos.get('prix_ttc') or not infos.get('ref'):
             raise UserError(_("Produit introuvable chez %s pour « %s ». Colle l'adresse de la page du produit "
@@ -398,7 +411,8 @@ class ProductTemplateFournisseurBat(models.Model):
             if so.state not in ('draft', 'sent'):
                 raise UserError(_("Le devis %s n'est plus modifiable.") % so.name)
             self.env['sale.order.line'].create({
-                'order_id': so.id, 'product_id': t.product_variant_id.id, 'product_uom_qty': qte})
+                'order_id': so.id, 'product_id': t.product_variant_id.id, 'product_uom_qty': qte,
+                'price_unit': t.list_price})
             rec = so
         elif res_model == 'lolirine.pool.prestation':
             rec = self.env['lolirine.pool.prestation'].browse(res_id)
