@@ -64,9 +64,23 @@
                     Marge matériel : <field name="pool_marge_mat" class="oe_inline"/>
                     (<field name="pool_marge_mat_pct" class="oe_inline" digits="[16, 1]"/> %)
                 </div>
+                <div colspan="2" class="small text-muted" invisible="not is_chantier or not pool_majoration_montant">
+                    dont marge complémentaire (+5 / +10 / +15 %) : <field name="pool_majoration_montant" class="oe_inline"/> HT
+                </div>
             </xpath>
 
             <!-- Lignes : coût visible et avancement de la main-d'œuvre -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="before">
+                <field name="pool_prix_base" string="Prix de base"
+                       column_invisible="not parent.is_chantier"
+                       invisible="pool_majoration in (False, '0')"
+                       readonly="1" optional="hide"/>
+                <field name="pool_majoration" string="Marge +"
+                       column_invisible="not parent.is_chantier"
+                       invisible="display_type"
+                       readonly="qty_invoiced &gt; 0"
+                       optional="show"/>
+            </xpath>
             <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="after">
                 <field name="pool_est_mo" column_invisible="True"/>
                 <field name="pool_avancement" string="Avancement %"
@@ -101,6 +115,18 @@
                 <group string="Photos de la visite">
                     <field name="pool_vt_photo_ids" widget="many2many_binary" nolabel="1" colspan="2"/>
                 </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Article : marge complémentaire par défaut sur les devis piscine et bâtiment -->
+    <record id="view_product_template_form_majoration" model="ir.ui.view">
+        <field name="name">product.template.form.pool.majoration</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='list_price_uom']" position="after">
+                <field name="pool_majoration_defaut" invisible="not sale_ok"/>
             </xpath>
         </field>
     </record>

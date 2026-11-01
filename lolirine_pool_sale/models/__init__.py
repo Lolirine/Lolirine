@@ -5,3 +5,4 @@ from . import pool_devis_outils
 from . import pool_parc
 from . import pool_pv
 from . import pool_chantier
+from . import pool_majoration
