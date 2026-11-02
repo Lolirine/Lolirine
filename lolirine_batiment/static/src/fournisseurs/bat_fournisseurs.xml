@@ -33,10 +33,11 @@
                     </div>
 
                     <div class="o_bf_titre">Importer un article dans Odoo</div>
-                    <div class="small text-muted mb-1">Colle la référence (Réf : 200577) ou l'adresse de la page du produit
-                        (clic droit sur le produit &gt; Copier l'adresse du lien).</div>
+                    <div class="small text-muted mb-1">Sur la page du produit, copie son <b>nom</b> (le grand titre) ou sa
+                        <b>référence</b> (Réf : 200577) et colle-le ici. Dans une liste, le clic droit sur le nom
+                        &gt; « Copier l'adresse du lien » fonctionne aussi.</div>
                     <div class="input-group input-group-sm mb-2">
-                        <input class="form-control" t-model="state.importTexte" placeholder="200577 ou https://…"
+                        <input class="form-control" t-model="state.importTexte" placeholder="Nom du produit, référence ou lien"
                                t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.importer()"/>
                         <button class="btn btn-primary" t-on-click="importer" t-att-disabled="state.importEnCours">
                             <i t-attf-class="fa {{state.importEnCours ? 'fa-spinner fa-spin' : 'fa-download'}}"/> Importer
@@ -65,8 +66,8 @@
                 </aside>
                 <main class="o_bf_site">
                     <div class="o_bf_barre small">
-                        <span class="text-truncate"><i class="fa fa-info-circle me-1"/>Pour importer un produit : clic droit sur sa photo
-                            ou son nom &gt; « Copier l'adresse du lien », ou recopie sa référence (Réf : …).</span>
+                        <span class="text-truncate"><i class="fa fa-info-circle me-1"/>Pour importer le produit affiché : copie son nom (grand titre)
+                            ou sa référence (Réf : …) et colle-le à gauche dans « Importer ».</span>
                         <a t-if="state.url" t-att-href="state.url" target="_blank" rel="noopener" class="ms-2 text-nowrap">
                             <i class="fa fa-external-link"/> Nouvel onglet
                         </a>

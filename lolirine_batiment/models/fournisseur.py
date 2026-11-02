@@ -11,9 +11,12 @@
   référence ou l'adresse de sa page, ajout direct au devis ou à l'ouvrage.
 """
 import base64
+import gzip
 import html
 import logging
 import re
+import time
+from html.entities import codepoint2name
 from urllib.parse import quote_plus, unquote_plus, urljoin
 
 import requests
@@ -49,12 +52,24 @@ def nombre_fr(texte):
     return float(re.sub(r'[^\d,]', '', texte).replace(',', '.'))
 
 
+def slug_carlier(texte):
+    """Nom de produit -> fin d'adresse Carlier :
+    « Latte Sapin (2,5 x 4) 22 x 38 mm de 1,8 à 5,1 m » -> « latte-sapin-25-x-4-22-x-38-mm-de-18-agrave-51-m »
+    (accents et symboles écrits en entités : à -> agrave, & -> amp, ® -> reg)."""
+    t = ''.join(codepoint2name.get(ord(c), c) if ord(c) > 127 or c == '&' else c for c in (texte or ''))
+    t = re.sub(r'[^a-z0-9\s\-]', '', t.lower())
+    return re.sub(r'[\s\-]+', '-', t).strip('-')
+
+
+_SITEMAP = {}      # cache par processus : {url du site: (horodatage, [adresses produit])}
+
+
 def lire_page_carlier(page):
     """Extrait d'une page produit pro.carlier.be : nom, référence, prix TTC, unité, image."""
     res = {}
     m = re.search(r'<meta property="og:title" content="([^"]+)"', page)
     if m:
-        res['nom'] = html.unescape(m.group(1)).strip()
+        res['nom'] = html.unescape(html.unescape(m.group(1))).strip()      # « Alsafix&amp;reg; » -> « Alsafix® »
     m = re.search(r'R[ée]f\s*:\s*([\w\-./]+)\s*<', page) or re.search(r'R&eacute;f\s*:\s*([\w\-./]+)', page)
     if m:
         res['ref'] = m.group(1).strip()
@@ -116,6 +131,56 @@ class ResPartnerFournisseurBat(models.Model):
         if '/produit/' not in (infos.get('url') or '') or not infos.get('nom'):
             return {}      # page de recherche, de rubrique… : pas une fiche produit
         return infos
+
+    def _bat_adresses_produits(self):
+        """Toutes les adresses de fiches produit du site (plan du site), gardées 24 h."""
+        self.ensure_one()
+        site = (self.bat_site_url or 'https://pro.carlier.be/').rstrip('/') + '/'
+        cache = _SITEMAP.get(site)
+        if cache and time.time() - cache[0] < 86400:
+            return cache[1]
+        index = self._bat_telecharger(site + 'sitemap.xml')
+        parties = re.findall(r'<loc>([^<]+)</loc>', index)
+        adresses = [a for a in parties if '/produit/' in a]
+        for partie in [a for a in parties if 'sitemap' in a and '/produit/' not in a][:20]:
+            try:
+                rep = requests.get(partie, headers=ENTETES, timeout=60)
+                rep.raise_for_status()
+                contenu = rep.content
+                if partie.endswith('.gz') or contenu[:2] == b'\x1f\x8b':
+                    contenu = gzip.decompress(contenu)
+                adresses += [a for a in re.findall(r'<loc>([^<]+)</loc>', contenu.decode('utf-8', 'ignore'))
+                             if '/produit/' in a]
+            except (requests.RequestException, OSError) as e:
+                _logger.warning("Plan du site %s : %s", partie, e)
+        if adresses:
+            _SITEMAP[site] = (time.time(), adresses)
+        return adresses
+
+    def _bat_trouver_par_nom(self, nom):
+        """Nom du produit (titre de sa page) -> page du produit, via le plan du site."""
+        self.ensure_one()
+        cle = slug_carlier(nom)
+        if not cle:
+            return {}
+        adresses = self._bat_adresses_produits()
+        exactes = [a for a in adresses if re.search(r'/produit/\d+-%s/?$' % re.escape(cle), a)]
+        if not exactes:
+            mots = set(cle.split('-'))
+            notes = []
+            for a in adresses:
+                fin = re.sub(r'^.*/produit/\d+-', '', a).strip('/')
+                m2 = set(fin.split('-'))
+                commun = len(mots & m2)
+                if commun:
+                    notes.append((commun / len(mots | m2), a))
+            notes.sort(reverse=True)
+            exactes = [a for n, a in notes[:3] if n >= 0.75]
+        for a in exactes[:3]:
+            infos = self._bat_lire_produit(a)
+            if infos.get('prix_ttc'):
+                return infos
+        return {}
 
     def _bat_trouver_par_ref(self, ref):
         """Carlier : recherche de la référence, puis lecture des pages trouvées jusqu'à la bonne."""
@@ -355,15 +420,25 @@ class ProductTemplateFournisseurBat(models.Model):
             raise UserError(_("Pas de lecture automatique pour %s : crée l'article à la main "
                               "(référence, page et prix public sur la fiche).") % f.name)
         if texte.startswith('http') and '/produit/' not in texte:
+            if re.search(r'/data/|\.(jpe?g|png|webp|gif)(\?|$)', texte, re.I):
+                raise UserError(_("C'est l'adresse de l'image du produit. Sur la page du produit, copie plutôt "
+                                  "son nom (le grand titre) ou sa référence (Réf : …) et colle-le ici."))
             terme = re.search(r'[?&]term=([^&#]+)', texte)
             if not terme:
-                raise UserError(_("Ce lien n'est pas celui d'un produit. Sur le site, fais un clic droit sur le produit "
-                                  "(sa photo ou son nom) > Copier l'adresse du lien, ou colle sa référence (Réf : …)."))
+                raise UserError(_("Ce lien n'est pas celui d'un produit. Colle le nom du produit (le grand titre "
+                                  "de sa page), sa référence (Réf : …) ou l'adresse de sa page."))
             texte = unquote_plus(terme.group(1)).strip()
-        infos = f._bat_lire_produit(texte) if texte.startswith('http') else f._bat_trouver_par_ref(texte)
+        ref = re.match(r'^(?:r[ée]f\.?\s*:?\s*)?([A-Za-z0-9][A-Za-z0-9\-./]{2,})$', texte, re.I)
+        if texte.startswith('http'):
+            infos = f._bat_lire_produit(texte)
+        elif ref and re.search(r'\d', ref.group(1)) and not re.search(r'\s', texte.split(':')[-1].strip()):
+            texte = ref.group(1)
+            infos = f._bat_trouver_par_ref(texte)
+        else:
+            infos = f._bat_trouver_par_nom(texte)
         if not infos.get('prix_ttc') or not infos.get('ref'):
-            raise UserError(_("Produit introuvable chez %s pour « %s ». Colle l'adresse de la page du produit "
-                              "(clic droit sur le produit > Copier l'adresse du lien).") % (f.name, texte))
+            raise UserError(_("Produit introuvable chez %s pour « %s ». Colle le nom exact du produit (le grand "
+                              "titre de sa page) ou sa référence (Réf : …).") % (f.name, texte))
         t = self.search([('bat_fournisseur_id', '=', f.id), ('bat_ref_fournisseur', '=', infos['ref'])], limit=1)
         nouveau = not t
         if nouveau:
