@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- E-mail de demande de prix (devis bâtiment), modifiable avant l'envoi -->
+        <record id="mail_template_demande_prix_batiment" model="mail.template">
+            <field name="name">Bâtiment : demande de prix au fournisseur</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="subject">Demande de prix {{ object.name }} — Lolirine SRL</field>
+            <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to" eval="False"/>
+            <field name="use_default_to" eval="True"/>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="report_template_ids" eval="[(4, ref('purchase.report_purchase_quotation'))]"/>
+            <field name="auto_delete" eval="False"/>
+            <field name="description">Demande de prix avec remise pour les matériaux d'un chantier bâtiment</field>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 13px; max-width: 680px;">
+    <p>Bonjour,</p>
+    <p>Pour un chantier de rénovation<t t-if="object.bat_devis_id.partner_id.city"> à <t t-out="object.bat_devis_id.partner_id.city"/></t>,
+        nous souhaitons recevoir votre <strong>meilleure offre de prix</strong> pour les matériaux ci-dessous
+        (référence <strong t-out="object.name"/>, détail également en pièce jointe).</p>
+    <p>Merci de nous indiquer vos <strong>prix nets, remise déduite</strong>, ainsi que vos délais et la disponibilité des articles.</p>
+    <table style="border-collapse: collapse; width: 100%; margin: 12px 0;">
+        <thead>
+            <tr style="background: #2f5d50; color: #fff;">
+                <th style="padding: 6px; text-align: left;">Référence</th>
+                <th style="padding: 6px; text-align: left;">Désignation</th>
+                <th style="padding: 6px; text-align: right;">Quantité</th>
+            </tr>
+        </thead>
+        <tbody>
+            <t t-foreach="object.order_line.filtered(lambda l: not l.display_type)" t-as="l">
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 5px; white-space: nowrap;"
+                        t-out="l.product_id.seller_ids.filtered(lambda s: s.partner_id == object.partner_id.commercial_partner_id)[:1].product_code or ''"/>
+                    <td style="padding: 5px;" t-out="l.product_id.name"/>
+                    <td style="padding: 5px; text-align: right; white-space: nowrap;">
+                        <t t-out="('%g' % l.product_qty).replace('.', ',')"/> <t t-out="l.product_uom_id.name"/>
+                    </td>
+                </tr>
+            </t>
+        </tbody>
+    </table>
+    <p t-if="object.bat_livraison == 'chantier'">Livraison souhaitée sur chantier<t t-if="object.bat_devis_id.pool_adresse_chantier"> : <t t-out="object.bat_devis_id.pool_adresse_chantier"/></t><t t-if="object.bat_date_souhaitee">, pour le <t t-out="format_date(object.bat_date_souhaitee)"/></t>.</p>
+    <p t-elif="object.bat_livraison == 'depot'">Livraison souhaitée à notre dépôt : <t t-out="object.company_id.partner_id.contact_address_inline or ''"/><t t-if="object.bat_date_souhaitee">, pour le <t t-out="format_date(object.bat_date_souhaitee)"/></t>.</p>
+    <p t-elif="object.bat_livraison == 'enlevement'">Les articles seront enlevés dans votre magasin<t t-if="object.bat_date_souhaitee"> vers le <t t-out="format_date(object.bat_date_souhaitee)"/></t>.</p>
+    <p t-if="object.bat_message" t-out="object.bat_message"/>
+    <p>D'avance merci pour votre retour.</p>
+    <p>Cordialement,<br/><t t-out="object.user_id.name or user.name"/><br/><t t-out="object.company_id.name"/><br/>0497 44 41 46</p>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>
