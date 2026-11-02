@@ -96,7 +96,8 @@ def lire_page_carlier(page, ref=None):
     lignes = re.findall(r'<tr class="ligne_declinaison"(.*?)</tr>', page, re.S)
     if lignes:
         entetes = [_texte(x) for x in re.findall(r'<th[^>]*>(.*?)</th>', page, re.S)]
-        critere = entetes[1] if len(entetes) > 1 and entetes[0].lower().startswith('code') else ''
+        if not (entetes and entetes[0].lower().startswith('code')):
+            entetes = []
         variantes = []
         for l in lignes:
             r = re.search(r'R[ée]f\s*:\s*([\w\-./]+)', l)
@@ -104,11 +105,22 @@ def lire_page_carlier(page, ref=None):
             if not r or not p:
                 continue
             cellules = [_texte(c) for c in re.findall(r'<td[^>]*>(.*?)</td>', l, re.S)]
-            valeur = cellules[1] if len(cellules) > 1 else ''
+            parties = []       # caractéristiques de la déclinaison : « 12 mm · 244 x 59 cm · Hydro »
+            for entete, valeur in zip(entetes[1:], cellules[1:]):
+                if re.match(r'(stock|prix|quantit)', entete, re.I):
+                    break
+                if not valeur or valeur.lower() == 'non':
+                    continue
+                if valeur.lower() == 'oui':
+                    parties.append(entete)
+                elif re.fullmatch(r'[\d.,]+', valeur):
+                    parties.append("%s %s" % (entete, valeur))
+                else:
+                    parties.append(valeur)
             variantes.append({
                 'ref': r.group(1), 'prix_ttc': nombre_fr(p.group(1)),
                 'unite': (p.group(2) or '').upper().replace('²', '2'),
-                'libelle': ("%s %s" % (critere, valeur)).strip() if valeur else '',
+                'libelle': " · ".join(parties),
             })
         choix = [v for v in variantes if ref and v['ref'].upper() == ref.upper()]
         if not choix and len(variantes) == 1:
