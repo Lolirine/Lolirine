@@ -49,11 +49,33 @@
 
                     <t t-if="state.data.cible">
                         <div class="o_bf_titre mt-3" t-esc="titreCible"/>
+                        <t t-if="state.data.cible.model === 'sale.order'">
+                            <div class="o_bf_section_choix mb-2">
+                                <label class="small fw-bold mb-1">Ajouter dans la section :</label>
+                                <select class="form-select form-select-sm" t-on-change="choixSection">
+                                    <option value="" t-att-selected="!state.section">— Sans section —</option>
+                                    <t t-foreach="sections" t-as="s" t-key="s.id">
+                                        <option t-att-value="s.id" t-att-selected="state.section === s.id" t-esc="s.nom"/>
+                                    </t>
+                                    <option value="__new__" t-att-selected="state.section === '__new__'">➕ Nouvelle section…</option>
+                                </select>
+                                <input t-if="state.section === '__new__'" class="form-control form-control-sm mt-1"
+                                       placeholder="ex. Escalier et finitions — fournitures" t-model="state.nouvelleSection"/>
+                            </div>
+                        </t>
                         <div t-if="!state.data.cible.lignes.length" class="small text-muted">Aucun pour l'instant.</div>
                         <t t-foreach="state.data.cible.lignes" t-as="l" t-key="l_index">
-                            <div class="o_bf_ligne small">
+                            <div t-if="l.section" class="o_bf_sec small" t-att-class="{'text-muted': l.mo}" t-esc="l.nom"/>
+                            <div t-else="" class="o_bf_ligne small">
                                 <span class="o_bf_nom" t-esc="l.nom"/>
                                 <span class="text-nowrap"><t t-esc="l.qte"/> <t t-esc="l.unite"/> × <t t-esc="fmt(l.prix)"/></span>
+                                <select t-if="l.id and state.data.cible.model === 'sale.order'" class="o_bf_deplacer"
+                                        title="Déplacer dans une autre section" t-on-change="(ev) => this.deplacer(l, ev)">
+                                    <option value="">↪</option>
+                                    <t t-foreach="sections" t-as="s" t-key="s.id">
+                                        <option t-att-value="s.id" t-esc="s.nom"/>
+                                    </t>
+                                </select>
                             </div>
                         </t>
                     </t>

@@ -459,11 +459,43 @@ class ProductTemplateFournisseurBat(models.Model):
     @api.model
     def _bat_lignes_cible(self, rec):
         if rec._name == 'sale.order':
-            return [{'nom': l.name.split('\n')[0], 'qte': l.product_uom_qty, 'prix': l.price_unit,
-                     'unite': l.product_uom_id.name or ''}
-                    for l in rec.order_line if not l.display_type and l.product_id.type != 'service']
+            res = []
+            for l in rec.order_line.sorted(lambda x: (x.sequence, x.id)):
+                if l.display_type == 'line_section':
+                    res.append({'section': True, 'id': l.id, 'nom': l.name,
+                                'mo': l.name.startswith("Main-d") or bool(getattr(l, 'is_optional', False))})
+                elif not l.display_type and l.product_id.type != 'service':
+                    res.append({'id': l.id, 'nom': l.name.split('\n')[0], 'qte': l.product_uom_qty,
+                                'prix': l.price_unit, 'unite': l.product_uom_id.name or ''})
+            return res
         return [{'nom': f.product_id.display_name or f.name, 'qte': f.quantite, 'prix': f.prix_unitaire,
                  'unite': f.product_id.uom_id.name or ''} for f in rec.fourniture_ids]
+
+    @api.model
+    def _bat_placer_dans_section(self, ligne, section):
+        """Range la ligne à la fin de la section choisie (id d'une section du devis, ou nom d'une
+        nouvelle section créée juste avant la main-d'œuvre), puis renumérote les lignes du devis."""
+        so = ligne.order_id
+        Line = self.env['sale.order.line']
+        if isinstance(section, str) and section.strip():
+            nouvelle = Line.create({'order_id': so.id, 'display_type': 'line_section', 'name': section.strip()})
+            ordre = so.order_line.sorted(lambda x: (x.sequence, x.id)) - nouvelle - ligne
+            mo = ordre.filtered(lambda x: x.display_type == 'line_section' and x.name.startswith("Main-d"))[:1]
+            liste = list(ordre)
+            i = liste.index(mo) if mo else len(liste)
+            liste[i:i] = [nouvelle, ligne]
+        else:
+            cible = Line.browse(int(section)).exists() if section else Line
+            if not cible or cible.order_id != so:
+                return
+            liste = list(so.order_line.sorted(lambda x: (x.sequence, x.id)) - ligne)
+            i = liste.index(cible) + 1
+            while i < len(liste) and liste[i].display_type != 'line_section':
+                i += 1
+            liste.insert(i, ligne)
+        for n, l in enumerate(liste, 1):
+            if l.sequence != n * 10:
+                l.sequence = n * 10
 
     @api.model
     def bat_importer_article(self, fournisseur_id, texte):
@@ -541,17 +573,28 @@ class ProductTemplateFournisseurBat(models.Model):
         return res
 
     @api.model
-    def bat_ajouter(self, res_model, res_id, produit_id, qte):
-        """Ajoute le matériau au devis (ligne) ou à l'ouvrage (fourniture)."""
+    def bat_deplacer(self, ligne_id, section):
+        """Déplace une ligne de matériau du devis dans une autre section."""
+        ligne = self.env['sale.order.line'].browse(int(ligne_id)).exists()
+        if not ligne or ligne.order_id.state not in ('draft', 'sent'):
+            raise UserError(_("Ligne introuvable ou devis plus modifiable."))
+        self._bat_placer_dans_section(ligne, section)
+        return self._bat_lignes_cible(ligne.order_id)
+
+    @api.model
+    def bat_ajouter(self, res_model, res_id, produit_id, qte, section=False):
+        """Ajoute le matériau au devis (ligne, rangée dans la section choisie) ou à l'ouvrage (fourniture)."""
         t = self.browse(produit_id)
         qte = float(qte or 1.0)
         if res_model == 'sale.order':
             so = self.env['sale.order'].browse(res_id)
             if so.state not in ('draft', 'sent'):
                 raise UserError(_("Le devis %s n'est plus modifiable.") % so.name)
-            self.env['sale.order.line'].create({
+            ligne = self.env['sale.order.line'].create({
                 'order_id': so.id, 'product_id': t.product_variant_id.id, 'product_uom_qty': qte,
                 'price_unit': t.list_price})
+            if section:
+                self._bat_placer_dans_section(ligne, section)
             rec = so
         elif res_model == 'lolirine.pool.prestation':
             rec = self.env['lolirine.pool.prestation'].browse(res_id)

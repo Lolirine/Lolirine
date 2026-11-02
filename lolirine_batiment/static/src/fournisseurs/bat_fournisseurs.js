@@ -31,11 +31,14 @@ export class BatFournisseurs extends Component {
             importEnCours: false,
             filtre: "",
             qte: {},
+            section: false,
+            nouvelleSection: "",
         });
         onWillStart(async () => {
             const d = await this.orm.call(MODELE, "bat_visionneuse_donnees",
                 [p.produit_id || false, p.res_model || false, p.res_id || false]);
             this.state.data = d;
+            this.sectionParDefaut();
             const prod = d.produit;
             const f = (prod && d.fournisseurs.find((x) => x.id === prod.fournisseur_id)) || d.fournisseurs[0] || null;
             this.state.fournisseur = f;
@@ -64,6 +67,42 @@ export class BatFournisseurs extends Component {
     get titreCible() {
         const c = this.state.data && this.state.data.cible;
         return c && c.model === "sale.order" ? "Matériaux du devis" : "Fournitures de l'ouvrage";
+    }
+    get sections() {
+        const c = this.state.data && this.state.data.cible;
+        if (!c || c.model !== "sale.order") return [];
+        return c.lignes.filter((l) => l.section && !l.mo);
+    }
+    sectionParDefaut() {
+        const s = this.sections;
+        if (!s.length) {
+            this.state.section = false;
+        } else if (!s.find((x) => x.id === this.state.section) && this.state.section !== "__new__") {
+            this.state.section = s[s.length - 1].id;
+        }
+    }
+    choixSection(ev) {
+        const v = ev.target.value;
+        this.state.section = v === "__new__" ? "__new__" : (v ? parseInt(v) : false);
+    }
+    sectionDemandee() {
+        if (this.state.section === "__new__") {
+            const nom = (this.state.nouvelleSection || "").trim();
+            if (!nom) {
+                this.notification.add("Donne un nom à la nouvelle section.", { type: "warning" });
+                return null;
+            }
+            return nom;
+        }
+        return this.state.section || false;
+    }
+    async deplacer(ligne, ev) {
+        const v = ev.target.value;
+        if (!v) return;
+        const section = parseInt(v);
+        const c = this.state.data.cible;
+        c.lignes = await this.orm.call(MODELE, "bat_deplacer", [ligne.id, section]);
+        this.sectionParDefaut();
     }
     get materiaux() {
         const t = (this.state.filtre || "").toLowerCase();
@@ -126,7 +165,17 @@ export class BatFournisseurs extends Component {
         const c = this.state.data.cible;
         if (!c) return;
         const q = parseFloat(this.state.qte[m.id] || 1) || 1;
-        c.lignes = await this.orm.call(MODELE, "bat_ajouter", [c.model, c.id, m.id, q]);
+        let section = false;
+        if (c.model === "sale.order") {
+            section = this.sectionDemandee();
+            if (section === null) return;
+        }
+        c.lignes = await this.orm.call(MODELE, "bat_ajouter", [c.model, c.id, m.id, q, section]);
+        if (this.state.section === "__new__") {
+            const s = this.sections.find((x) => x.nom === section);
+            this.state.section = s ? s.id : false;
+            this.state.nouvelleSection = "";
+        }
         this.notification.add(m.nom + " ajouté " + this.cibleLibelle + " (" + q + ")", { type: "success" });
     }
     ouvrirFiche(m) {
