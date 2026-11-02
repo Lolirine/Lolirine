@@ -64,29 +64,73 @@ def slug_carlier(texte):
 _SITEMAP = {}      # cache par processus : {url du site: (horodatage, [adresses produit])}
 
 
-def lire_page_carlier(page):
-    """Extrait d'une page produit pro.carlier.be : nom, référence, prix TTC, unité, image."""
+def _texte(fragment):
+    """HTML -> texte (balises retirées, entités décodées deux fois : « &amp;eacute; » -> « é »)."""
+    t = re.sub(r'<[^>]+>', ' ', fragment or '')
+    return re.sub(r'\s+', ' ', html.unescape(html.unescape(t))).strip()
+
+
+_PRIX = r'([\d .\u00a0]+,\d{2})\s*(?:€|&euro;)\s*TTC\s*(?:</span>\s*)?(?:/\s*([A-Za-z0-9²]+))?'
+
+
+def lire_page_carlier(page, ref=None):
+    """Extrait d'une page produit pro.carlier.be : nom, référence, prix TTC, unité, image.
+
+    Page à déclinaisons (longueurs, épaisseurs… en tableau) : la ligne de la référence `ref`
+    est retenue ; sans référence, 'variantes' liste les références proposées."""
     res = {}
-    m = re.search(r'<meta property="og:title" content="([^"]+)"', page)
-    if m:
-        res['nom'] = html.unescape(html.unescape(m.group(1))).strip()      # « Alsafix&amp;reg; » -> « Alsafix® »
-    m = re.search(r'R[ée]f\s*:\s*([\w\-./]+)\s*<', page) or re.search(r'R&eacute;f\s*:\s*([\w\-./]+)', page)
-    if m:
-        res['ref'] = m.group(1).strip()
-    m = re.search(r'priceByUVte[^>]*>\s*<span>\s*([\d . ]+,\d{2})\s*(?:€|&euro;)\s*TTC\s*/\s*([A-Za-z0-9²]+)', page)
-    if m:
-        res['prix_ttc'] = nombre_fr(m.group(1))
-        res['unite'] = m.group(2).upper().replace('²', '2')
-    else:
-        m = re.search(r'class="price"[^>]*>\s*<span>\s*([\d . ]+,\d{2})\s*(?:€|&euro;)\s*TTC', page)
-        if m:
-            res['prix_ttc'] = nombre_fr(m.group(1))
+    m = re.search(r'<h1[^>]*>(.*?)</h1>', page, re.S)
+    nom = _texte(m.group(1)) if m else ''
+    if not nom:
+        m = re.search(r'<meta property="og:title" content="([^"]+)"', page)
+        nom = _texte(m.group(1)) if m else ''
+    if nom:
+        res['nom'] = nom
     m = re.search(r'<meta property="og:image" content="([^"]+)"', page)
     if m and 'logo' not in m.group(1):
         res['image_url'] = m.group(1)
     m = re.search(r'<meta property="og:url" content="([^"]+)"', page)
     if m:
-        res['url'] = m.group(1)
+        res['url'] = re.sub(r'(/produit/[^/]+)/\d+/?$', r'\1', m.group(1))
+
+    lignes = re.findall(r'<tr class="ligne_declinaison"(.*?)</tr>', page, re.S)
+    if lignes:
+        entetes = [_texte(x) for x in re.findall(r'<th[^>]*>(.*?)</th>', page, re.S)]
+        critere = entetes[1] if len(entetes) > 1 and entetes[0].lower().startswith('code') else ''
+        variantes = []
+        for l in lignes:
+            r = re.search(r'R[ée]f\s*:\s*([\w\-./]+)', l)
+            p = re.search(r'class="price"[^>]*>\s*<span>\s*' + _PRIX, l)
+            if not r or not p:
+                continue
+            cellules = [_texte(c) for c in re.findall(r'<td[^>]*>(.*?)</td>', l, re.S)]
+            valeur = cellules[1] if len(cellules) > 1 else ''
+            variantes.append({
+                'ref': r.group(1), 'prix_ttc': nombre_fr(p.group(1)),
+                'unite': (p.group(2) or '').upper().replace('²', '2'),
+                'libelle': ("%s %s" % (critere, valeur)).strip() if valeur else '',
+            })
+        choix = [v for v in variantes if ref and v['ref'].upper() == ref.upper()]
+        if not choix and len(variantes) == 1:
+            choix = variantes
+        if choix:
+            v = choix[0]
+            res.update(ref=v['ref'], prix_ttc=v['prix_ttc'], unite=v['unite'])
+            if v['libelle'] and nom:
+                res['nom'] = "%s — %s" % (nom, v['libelle'])
+        else:
+            res['variantes'] = variantes
+        return res
+
+    m = re.search(r'R[ée]f\s*:\s*([\w\-./]+)\s*<', page) or re.search(r'R&eacute;f\s*:\s*([\w\-./]+)', page)
+    if m:
+        res['ref'] = m.group(1).strip()
+    m = re.search(r'priceByUVte[^>]*>\s*<span>\s*' + _PRIX, page) or \
+        re.search(r'class="price"[^>]*>\s*<span>\s*' + _PRIX, page)
+    if m:
+        res['prix_ttc'] = nombre_fr(m.group(1))
+        if m.group(2):
+            res['unite'] = m.group(2).upper().replace('²', '2')
     return res
 
 
@@ -121,12 +165,12 @@ class ResPartnerFournisseurBat(models.Model):
             raise UserError(_("Le site du fournisseur ne répond pas (%s) : %s") % (url, e))
         return rep.text
 
-    def _bat_lire_produit(self, url):
+    def _bat_lire_produit(self, url, ref=None):
         """Infos d'une page produit du fournisseur (dict vide si pas de lecteur)."""
         self.ensure_one()
         if self.bat_lecteur_prix != 'carlier' or not url:
             return {}
-        infos = lire_page_carlier(self._bat_telecharger(url))
+        infos = lire_page_carlier(self._bat_telecharger(url), ref=ref)
         infos.setdefault('url', url)
         if '/produit/' not in (infos.get('url') or '') or not infos.get('nom'):
             return {}      # page de recherche, de rubrique… : pas une fiche produit
@@ -178,7 +222,7 @@ class ResPartnerFournisseurBat(models.Model):
             exactes = [a for n, a in notes[:3] if n >= 0.75]
         for a in exactes[:3]:
             infos = self._bat_lire_produit(a)
-            if infos.get('prix_ttc'):
+            if infos.get('prix_ttc') or infos.get('variantes'):
                 return infos
         return {}
 
@@ -199,7 +243,7 @@ class ResPartnerFournisseurBat(models.Model):
             if lien not in liens:
                 liens.append(lien)
         for lien in liens[:12]:
-            infos = self._bat_lire_produit(lien)
+            infos = self._bat_lire_produit(lien, ref=ref)
             if (infos.get('ref') or '').upper() == ref.upper():
                 return infos
         return {}
@@ -269,7 +313,7 @@ class ProductTemplateFournisseurBat(models.Model):
             if not f or f.bat_lecteur_prix == 'aucun':
                 continue
             try:
-                infos = f._bat_lire_produit(t.bat_url_fournisseur) if t.bat_url_fournisseur \
+                infos = f._bat_lire_produit(t.bat_url_fournisseur, ref=t.bat_ref_fournisseur) if t.bat_url_fournisseur \
                     else f._bat_trouver_par_ref(t.bat_ref_fournisseur or '')
             except UserError as e:
                 erreurs.append("%s : %s" % (t.display_name, e.args[0]))
@@ -436,6 +480,14 @@ class ProductTemplateFournisseurBat(models.Model):
             infos = f._bat_trouver_par_ref(texte)
         else:
             infos = f._bat_trouver_par_nom(texte)
+        if infos.get('variantes'):
+            raise UserError(_("« %s » existe en plusieurs versions chez %s. Colle la référence de celle que tu veux "
+                              "(colonne « Code produit » du tableau de la page) :\n%s") % (
+                infos.get('nom') or texte, f.name, "\n".join(
+                    "• %s%s — %s € TTC%s" % (v['ref'], (" (%s)" % v['libelle']) if v['libelle'] else '',
+                                            ('%.2f' % v['prix_ttc']).replace('.', ','),
+                                            (" / %s" % v['unite']) if v['unite'] else '')
+                    for v in infos['variantes'][:20])))
         if not infos.get('prix_ttc') or not infos.get('ref'):
             raise UserError(_("Produit introuvable chez %s pour « %s ». Colle le nom exact du produit (le grand "
                               "titre de sa page) ou sa référence (Réf : …).") % (f.name, texte))
@@ -456,13 +508,13 @@ class ProductTemplateFournisseurBat(models.Model):
                 if 'uom_po_id' in self._fields:
                     vals['uom_po_id'] = uom.id
             t = self.create(vals)
-            if infos.get('image_url'):
-                try:
-                    img = requests.get(infos['image_url'], headers=ENTETES, timeout=20)
-                    if img.ok and img.headers.get('content-type', '').startswith('image'):
-                        t.image_1920 = base64.b64encode(img.content)
-                except requests.RequestException:
-                    pass
+        if infos.get('image_url') and not t.image_1920:
+            try:
+                img = requests.get(infos['image_url'], headers=ENTETES, timeout=20)
+                if img.ok and img.headers.get('content-type', '').startswith('image'):
+                    t.image_1920 = base64.b64encode(img.content)
+            except requests.RequestException:
+                pass
         t.write({
             'bat_url_fournisseur': infos.get('url') or t.bat_url_fournisseur,
             'bat_unite_fournisseur': infos.get('unite') or t.bat_unite_fournisseur,
