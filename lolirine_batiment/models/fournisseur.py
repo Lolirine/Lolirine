@@ -155,7 +155,13 @@ class ResPartnerFournisseurBat(models.Model):
     bat_remise_materiaux = fields.Float(
         "Remise sur les matériaux (%)", digits=(5, 2),
         help="Remise obtenue sur le prix public : coût = prix public HT − remise.")
-    bat_site_url = fields.Char("Site du fournisseur", help="Page d'accueil du catalogue en ligne.")
+    bat_site_url = fields.Char("Site du fournisseur", help="Adresse du site (racine), ex. https://pro.carlier.be/")
+    bat_espace_url = fields.Char(
+        "Espace client pro", help="Page de ton compte pro chez le fournisseur (prix remisés, commandes). "
+                                  "Page d'accueil de la visionneuse et bouton « Espace pro ».")
+    bat_email_demande_prix = fields.Char(
+        "E-mail des demandes de prix", help="Adresse à laquelle envoyer les demandes de prix bâtiment "
+                                           "(sinon l'e-mail de la fiche).")
     bat_url_recherche = fields.Char(
         "Adresse de recherche",
         help="Adresse de recherche du site, {} étant remplacé par le texte cherché "
@@ -422,7 +428,8 @@ class ProductTemplateFournisseurBat(models.Model):
         res = {
             'fournisseurs': [{
                 'id': f.id, 'nom': f.name, 'remise': f.bat_remise_materiaux,
-                'site': f.bat_site_url or '', 'recherche': f.bat_url_recherche or '',
+                'site': f.bat_espace_url or f.bat_site_url or '', 'espace': f.bat_espace_url or '',
+                'recherche': f.bat_url_recherche or '',
                 'lecteur': f.bat_lecteur_prix,
             } for f in fournisseurs],
             'cible': False, 'produit': False, 'materiaux': self._bat_materiaux_liste(),

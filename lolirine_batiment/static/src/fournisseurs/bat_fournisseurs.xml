@@ -90,6 +90,11 @@
                     <div class="o_bf_barre small">
                         <span class="text-truncate"><i class="fa fa-info-circle me-1"/>Pour importer le produit affiché : copie son nom (grand titre)
                             ou sa référence (Réf : …) et colle-le à gauche dans « Importer ».</span>
+                        <a t-if="state.fournisseur and state.fournisseur.espace" t-att-href="state.fournisseur.espace"
+                           target="_blank" rel="noopener" class="ms-2 text-nowrap fw-bold"
+                           title="Ton compte pro (prix remisés) dans un nouvel onglet, où tu restes connecté">
+                            <i class="fa fa-key"/> Espace pro
+                        </a>
                         <a t-if="state.url" t-att-href="state.url" target="_blank" rel="noopener" class="ms-2 text-nowrap">
                             <i class="fa fa-external-link"/> Nouvel onglet
                         </a>
