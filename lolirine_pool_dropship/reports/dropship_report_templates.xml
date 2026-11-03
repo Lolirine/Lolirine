@@ -834,6 +834,17 @@
                             <strong>numéro de suivi</strong> dès l'expédition à info@lolirinepoolstore.be
                         </div>
 
+                        <!-- SIGNATURE (onglet « ✍ Signature » du bon) -->
+                        <div t-if="'pool_signature' in doc._fields and doc.pool_signature"
+                             style="page-break-inside: avoid; margin-top: 18px; text-align: right; font-size: 12px;">
+                            <div style="display: inline-block; text-align: center; min-width: 7cm;">
+                                <div>Pour <t t-out="doc.company_id.name"/>, bon pour commande</div>
+                                <img t-att-src="image_data_uri(doc.pool_signature)" style="max-height: 3.5cm; max-width: 7cm;"/>
+                                <div><strong t-out="doc.pool_signe_par or ''"/></div>
+                                <div t-if="doc.pool_signe_le" style="color: #6c757d;">Signé le <t t-out="doc.pool_signe_le" t-options="{'widget': 'date'}"/></div>
+                            </div>
+                        </div>
+
                     </t>
                 </div>
             </t>
