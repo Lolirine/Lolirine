@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Facturation : factures séparées garde-meuble / Pool Store (par journal) -->
+    <record id="action_srv_factures_clients_gm" model="ir.actions.server">
+        <field name="name">Factures clients garde-meuble</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">action = model._lolirine_action_factures('ventes_gm')</field>
+    </record>
+    <record id="action_srv_factures_clients_pool" model="ir.actions.server">
+        <field name="name">Factures clients Pool Store</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">action = model._lolirine_action_factures('ventes_pool')</field>
+    </record>
+    <record id="action_srv_factures_fournisseurs_gm" model="ir.actions.server">
+        <field name="name">Factures fournisseurs garde-meuble</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">action = model._lolirine_action_factures('achats_gm')</field>
+    </record>
+    <record id="action_srv_factures_fournisseurs_pool" model="ir.actions.server">
+        <field name="name">Factures fournisseurs Pool Store</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">action = model._lolirine_action_factures('achats_pool')</field>
+    </record>
+
+    <menuitem id="menu_factures_clients_gm" name="Factures garde-meuble" parent="account.menu_finance_receivables"
+              action="action_srv_factures_clients_gm" sequence="3"/>
+    <menuitem id="menu_factures_clients_pool" name="Factures Pool Store" parent="account.menu_finance_receivables"
+              action="action_srv_factures_clients_pool" sequence="4"/>
+    <menuitem id="menu_factures_fournisseurs_gm" name="Factures garde-meuble" parent="account.menu_finance_payables"
+              action="action_srv_factures_fournisseurs_gm" sequence="3"/>
+    <menuitem id="menu_factures_fournisseurs_pool" name="Factures Pool Store" parent="account.menu_finance_payables"
+              action="action_srv_factures_fournisseurs_pool" sequence="4"/>
+
+    <!-- Filtres « Garde-meuble » / « Pool Store » dans toutes les listes de factures -->
+    <record id="view_account_invoice_filter_activites" model="ir.ui.view">
+        <field name="name">account.move.invoice.filter.activites</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter name="activite_gm" string="Garde-meuble" domain="[('journal_id.code', 'in', ['INV', 'MEUBL'])]"/>
+                <filter name="activite_pool" string="Pool Store" domain="[('journal_id.code', 'in', ['POOL', 'PISC'])]"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_account_bill_filter_activites" model="ir.ui.view">
+        <field name="name">account.move.bill.filter.activites</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_bill_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter name="activite_gm" string="Garde-meuble" domain="[('journal_id.code', 'in', ['INV', 'MEUBL'])]"/>
+                <filter name="activite_pool" string="Pool Store" domain="[('journal_id.code', 'in', ['POOL', 'PISC'])]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
