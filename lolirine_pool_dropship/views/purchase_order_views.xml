@@ -91,12 +91,11 @@
             <xpath expr="//header" position="inside">
                 <button name="action_send_dropship_email" type="object"
                         string="📧 Envoyer au fournisseur" class="btn-warning"
-                        invisible="not is_dropship_order or email_sent or state == 'draft'"
-                        confirm="Voulez-vous envoyer cette commande au fournisseur par email ?"/>
+                        invisible="not is_dropship_order or email_sent or state == 'draft'"/>
                 <button name="action_pool_envoyer_quand_meme" type="object"
                         string="Envoyer quand même" class="btn-outline-danger"
                         invisible="not is_dropship_order or email_sent or not dropship_sale_id or pool_client_paye"
-                        confirm="Le client n'a pas payé. Envoyer quand même le bon au fournisseur ?"/>
+                        confirm="Le client n'a pas payé. Préparer quand même l'envoi du bon au fournisseur ?"/>
                 <button name="action_mark_shipped" type="object"
                         string="Marquer expédié" class="btn-primary"
                         invisible="not is_dropship_order or dropship_status not in ('sent', 'confirmed')"/>

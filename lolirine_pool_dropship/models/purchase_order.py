@@ -70,7 +70,7 @@ class PurchaseOrder(models.Model):
                 
                 # Envoyer l'email si la case est cochée
                 if order.send_email_on_confirm and not order.email_sent:
-                    order.action_send_dropship_email()
+                    order._pool_envoyer_direct()
                 
                 # Mettre à jour la commande client liée
                 if order.dropship_sale_id:
@@ -82,20 +82,62 @@ class PurchaseOrder(models.Model):
         return result
 
     def action_send_dropship_email(self):
-        """Action pour envoyer l'email au fournisseur"""
+        """Ouvre l'e-mail de commande au fournisseur (modèle « Dropshipping: Commande fournisseur »,
+        bon de commande en PDF joint) pour relecture et modification avant l'envoi. La commande est
+        marquée envoyée quand l'e-mail part."""
         self.ensure_one()
-        
         if not self.is_dropship_order:
-            return
-        
-        self._send_dropship_order()
-        self.email_sent = True
-        self.dropship_status = 'sent'
-        
-        if self.dropship_sale_id:
-            self.dropship_sale_id.dropship_status = 'po_sent'
-        
+            return False
+        modele = self.env.ref('lolirine_pool_dropship.email_template_dropship_po', raise_if_not_found=False)
+        if not modele:
+            self._pool_envoyer_direct()
+            return True
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Envoyer la commande au fournisseur"),
+            'res_model': 'mail.compose.message',
+            'view_mode': 'form',
+            'views': [(False, 'form')],
+            'target': 'new',
+            'context': {
+                'default_model': 'purchase.order',
+                'default_res_ids': self.ids,
+                'default_template_id': modele.id,
+                'default_composition_mode': 'comment',
+                'default_email_layout_xmlid': 'mail.mail_notification_light',
+                'force_email': True,
+                'hide_mail_template_management_options': True,
+                'pool_dropship_marquer_envoye': True,
+            },
+        }
+
+    def action_rfq_send(self):
+        """« Envoyer un bon de commande » d'une commande dropship confirmée : même e-mail complet que
+        « Envoyer au fournisseur » (coordonnées de la société, lignes, livraison au client final)."""
+        if (len(self) == 1 and self.is_dropship_order and self.state in ('purchase', 'done')
+                and not self.env.context.get('send_rfq')):
+            return self.action_send_dropship_email()
+        return super().action_rfq_send()
+
+    def _pool_envoyer_direct(self):
+        """Envoi sans relecture (case « Envoyer email au fournisseur » à la confirmation)."""
+        for po in self.filtered('is_dropship_order'):
+            po._send_dropship_order()
+            po._pool_marquer_envoye()
         return True
+
+    def _pool_marquer_envoye(self):
+        for po in self:
+            po.email_sent = True
+            po.dropship_status = 'sent'
+            if po.dropship_sale_id:
+                po.dropship_sale_id.dropship_status = 'po_sent'
+
+    def message_post(self, **kwargs):
+        message = super().message_post(**kwargs)
+        if self.env.context.get('pool_dropship_marquer_envoye') and kwargs.get('message_type', 'notification') == 'comment':
+            self.filtered('is_dropship_order')._pool_marquer_envoye()
+        return message
 
     def _send_dropship_order(self):
         """Envoie la commande au fournisseur"""

@@ -121,33 +121,92 @@
         <record id="email_template_dropship_po" model="mail.template">
             <field name="name">Dropshipping: Commande fournisseur</field>
             <field name="model_id" ref="purchase.model_purchase_order"/>
-            <field name="subject">Commande Dropshipping {{ object.name }}</field>
-            <field name="email_from">{{ (object.company_id.email or user.email) }}</field>
+            <field name="subject">Bon de commande {{ object.name }} — {{ object.company_id.name }} (Lolirine Pool Store)</field>
+            <field name="email_from">{{ (user.email_formatted or object.company_id.email_formatted) }}</field>
             <field name="email_to">{{ object.partner_id.dropship_order_email or object.partner_id.email }}</field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="report_template_ids" eval="[(4, ref('purchase.action_report_purchase_order'))]"/>
             <field name="body_html"><![CDATA[
-<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    <div style="background: #343a40; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-        <h1 style="color: white; margin: 0; font-size: 22px;">Commande Dropshipping</h1>
+<div style="font-family: Arial, sans-serif; font-size: 13px; color: #222; max-width: 680px;">
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 14px;">
+        <tr>
+            <td style="vertical-align: top;">
+                <div style="font-size: 18px; font-weight: bold; color: #0b5d7a;">Lolirine Pool Store</div>
+                <div><t t-out="object.company_id.name"/></div>
+                <div t-if="object.company_id.street"><t t-out="object.company_id.street"/></div>
+                <div><t t-out="object.company_id.zip or ''"/> <t t-out="object.company_id.city or ''"/>
+                    <t t-if="object.company_id.country_id"> — <t t-out="object.company_id.country_id.name"/></t></div>
+                <div t-if="object.company_id.vat">TVA <t t-out="object.company_id.vat"/></div>
+                <div>+32 497 44 41 46 — info@lolirinepoolstore.be</div>
+            </td>
+            <td style="vertical-align: top; text-align: right;">
+                <div style="font-size: 16px; font-weight: bold;">Bon de commande <t t-out="object.name"/></div>
+                <div>Date : <t t-out="format_date(object.date_approve or object.date_order)"/></div>
+                <div t-if="object.partner_ref">Votre référence : <t t-out="object.partner_ref"/></div>
+                <div t-if="object.dropship_sale_id">Notre référence client : <t t-out="object.dropship_sale_id.name"/></div>
+            </td>
+        </tr>
+    </table>
+
+    <p>Bonjour,</p>
+    <p>Veuillez trouver ci-dessous notre commande <strong t-out="object.name"/>, à livrer
+        <strong>directement chez notre client</strong>. Le bon de commande complet est joint en PDF.</p>
+
+    <table style="width: 100%; border-collapse: collapse; margin: 12px 0;">
+        <thead>
+            <tr style="background: #0b5d7a; color: #fff;">
+                <th style="padding: 6px; text-align: left;">Votre réf.</th>
+                <th style="padding: 6px; text-align: left;">Désignation</th>
+                <th style="padding: 6px; text-align: right;">Qté</th>
+                <th style="padding: 6px; text-align: right;">Prix unit. HT</th>
+                <th style="padding: 6px; text-align: right;">Remise</th>
+                <th style="padding: 6px; text-align: right;">Total HT</th>
+            </tr>
+        </thead>
+        <tbody>
+            <t t-foreach="object.order_line.filtered(lambda l: not l.display_type)" t-as="l">
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 5px; white-space: nowrap;"
+                        t-out="l.product_id.seller_ids.filtered(lambda s: s.partner_id == object.partner_id.commercial_partner_id)[:1].product_code or ''"/>
+                    <td style="padding: 5px;" t-out="(l.name or '').split('\n')[-1]"/>
+                    <td style="padding: 5px; text-align: right; white-space: nowrap;">
+                        <t t-out="('%g' % l.product_qty).replace('.', ',')"/> <t t-out="l.product_uom_id.name"/></td>
+                    <td style="padding: 5px; text-align: right; white-space: nowrap;" t-out="format_amount(l.price_unit, object.currency_id)"/>
+                    <td style="padding: 5px; text-align: right; white-space: nowrap;"><t t-if="l.discount"><t t-out="('%g' % l.discount).replace('.', ',')"/> %</t></td>
+                    <td style="padding: 5px; text-align: right; white-space: nowrap;" t-out="format_amount(l.price_subtotal, object.currency_id)"/>
+                </tr>
+            </t>
+        </tbody>
+        <tfoot>
+            <tr><td colspan="5" style="padding: 5px; text-align: right;">Total HT</td>
+                <td style="padding: 5px; text-align: right; font-weight: bold; white-space: nowrap;" t-out="format_amount(object.amount_untaxed, object.currency_id)"/></tr>
+            <tr><td colspan="5" style="padding: 5px; text-align: right;">TVA</td>
+                <td style="padding: 5px; text-align: right; white-space: nowrap;" t-out="format_amount(object.amount_tax, object.currency_id)"/></tr>
+            <tr><td colspan="5" style="padding: 5px; text-align: right;">Total TVAC</td>
+                <td style="padding: 5px; text-align: right; font-weight: bold; white-space: nowrap;" t-out="format_amount(object.amount_total, object.currency_id)"/></tr>
+        </tfoot>
+    </table>
+
+    <div t-if="object.dest_address_id" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 14px 0;">
+        <strong>LIVRAISON DIRECTE AU CLIENT FINAL :</strong><br/>
+        <t t-out="object.dest_address_id.name"/><br/>
+        <t t-out="object.dest_address_id.street or ''"/><t t-if="object.dest_address_id.street2"> <t t-out="object.dest_address_id.street2"/></t><br/>
+        <t t-out="object.dest_address_id.zip or ''"/> <t t-out="object.dest_address_id.city or ''"/> — <t t-out="object.dest_address_id.country_id.name or ''"/><br/>
+        <t t-if="object.dest_address_id.phone">Tél. : <t t-out="object.dest_address_id.phone"/></t>
     </div>
-    <div style="padding: 25px; border: 1px solid #e0e0e0; border-top: none;">
-        <p>Bonjour,</p>
-        <p>Veuillez trouver ci-dessous notre commande <strong><t t-out="object.name"/></strong>.</p>
-        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0;">
-            <p style="margin: 0;"><strong>LIVRAISON DIRECTE AU CLIENT FINAL :</strong></p>
-            <p style="margin: 5px 0 0 0;">
-                <strong><t t-out="object.dest_address_id.name"/></strong><br/>
-                <t t-out="object.dest_address_id.street or &#39;&#39;"/><br/>
-                <t t-out="object.dest_address_id.zip or &#39;&#39;"/> <t t-out="object.dest_address_id.city or &#39;&#39;"/><br/>
-                <t t-out="object.dest_address_id.country_id.name or &#39;&#39;"/>
-            </p>
-        </div>
-        <div style="background: #f8d7da; padding: 12px; border-radius: 4px; margin: 15px 0;">
-            <strong>EMBALLAGE NEUTRE REQUIS</strong><br/>
-            NE PAS INCLURE DE FACTURE DANS LE COLIS
-        </div>
-        <p>Merci de confirmer la reception et le delai de livraison estime.</p>
-        <p>Cordialement,<br/><t t-out="object.company_id.name"/></p>
+    <div style="background: #f8d7da; padding: 10px 12px; margin: 14px 0;">
+        <strong>EMBALLAGE NEUTRE</strong>, sans mention de votre société ni de prix, et
+        <strong>sans facture ni bon de livraison chiffré dans le colis</strong>.
     </div>
+
+    <p>Merci de nous <strong>confirmer la commande</strong> avec le délai de livraison, puis de nous
+        communiquer le <strong>numéro de suivi</strong> à l'expédition.</p>
+    <p>Facturation : <t t-out="object.company_id.name"/><t t-if="object.company_id.vat"> (TVA <t t-out="object.company_id.vat"/>)</t>,
+        <t t-out="object.company_id.street or ''"/>, <t t-out="object.company_id.zip or ''"/> <t t-out="object.company_id.city or ''"/>.</p>
+    <p>Cordialement,<br/>
+        <t t-out="user.name"/><br/>
+        Lolirine Pool Store — <t t-out="object.company_id.name"/><br/>
+        +32 497 44 41 46 — info@lolirinepoolstore.be</p>
 </div>
 ]]></field>
             <field name="auto_delete" eval="False"/>
