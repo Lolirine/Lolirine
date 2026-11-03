@@ -197,3 +197,17 @@ class ProductTemplate(models.Model):
                 'sticky': False,
             },
         }
+
+
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+
+    # Les boutons de l'onglet « Tarification SCP » apparaissent aussi dans le
+    # formulaire des déclinaisons (vue primaire héritée du formulaire modèle) :
+    # les actions doivent donc exister sur product.product, sinon la validation
+    # des vues qui héritent du formulaire déclinaison échoue.
+    def action_appliquer_tarif_scp(self):
+        return self.product_tmpl_id.action_appliquer_tarif_scp()
+
+    def action_deduire_prix_catalogue(self):
+        return self.product_tmpl_id.action_deduire_prix_catalogue()

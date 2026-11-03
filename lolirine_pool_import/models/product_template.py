@@ -498,3 +498,24 @@ class ProductTemplate(models.Model):
                     # Note: list_price est géré au niveau template + extra_price
                 })
                 break
+
+
+class ProductProductPoolImportDelegation(models.Model):
+    _inherit = 'product.product'
+
+    # Boutons du formulaire modèle repris dans le formulaire des déclinaisons :
+    # les actions doivent aussi exister sur product.product.
+    def action_view_extractions(self):
+        return self.product_tmpl_id.action_view_extractions()
+
+    def action_view_extraction_form(self):
+        return self.product_tmpl_id.action_view_extraction_form()
+
+    def action_auto_assign_variant_images(self):
+        return self.product_tmpl_id.action_auto_assign_variant_images()
+
+    def action_distribute_images_round_robin(self):
+        return self.product_tmpl_id.action_distribute_images_round_robin()
+
+    def action_reset_variant_images(self):
+        return self.product_tmpl_id.action_reset_variant_images()

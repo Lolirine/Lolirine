@@ -240,3 +240,12 @@ class ProductProduct(models.Model):
     def get_best_supplier(self, quantity=1, destination_country_id=None, urgent=False):
         """Délègue au template"""
         return self.product_tmpl_id.get_best_supplier(quantity, destination_country_id, urgent)
+
+
+class ProductProductDropship(models.Model):
+    _inherit = 'product.product'
+
+    # Le bouton « Fournisseurs » du formulaire modèle apparaît aussi dans le
+    # formulaire des déclinaisons : l'action doit exister sur product.product.
+    def action_view_dropship_suppliers(self):
+        return self.product_tmpl_id.action_view_dropship_suppliers()

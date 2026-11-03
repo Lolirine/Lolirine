@@ -365,6 +365,13 @@ class ProductTemplate(models.Model):
 class ProductProduct(models.Model):
     _inherit = 'product.product'
 
+    # Boutons du formulaire modèle repris dans le formulaire des déclinaisons.
+    def action_view_subscription(self):
+        return self.product_tmpl_id.action_view_subscription()
+
+    def action_view_tenant(self):
+        return self.product_tmpl_id.action_view_tenant()
+
     def action_view_appointments(self):
         """Délègue au template parent"""
         self.ensure_one()

@@ -103,3 +103,15 @@ class ProductTemplate(models.Model):
             'view_mode': 'form',
             'target': 'new',
         }
+
+
+class ProductProductPoolVariantImagesDelegation(models.Model):
+    _inherit = 'product.product'
+
+    # Boutons du formulaire modèle repris dans le formulaire des déclinaisons :
+    # les actions doivent aussi exister sur product.product.
+    def action_manage_visuals(self):
+        return self.product_tmpl_id.action_manage_visuals()
+
+    def action_manage_variant_images(self):
+        return self.product_tmpl_id.action_manage_variant_images()

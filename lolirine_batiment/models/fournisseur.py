@@ -628,3 +628,18 @@ class PoolPrestationFournisseurBat(models.Model):
         self.ensure_one()
         return self.env['product.template']._bat_action_visionneuse(
             res_model='lolirine.pool.prestation', res_id=self.id)
+
+
+class ProductProductBatiment(models.Model):
+    _inherit = 'product.product'
+
+    # Boutons de l'onglet bâtiment du formulaire modèle, repris dans le
+    # formulaire des déclinaisons : les actions doivent exister sur product.product.
+    def action_bat_voir_fournisseur(self):
+        return self.product_tmpl_id.action_bat_voir_fournisseur()
+
+    def action_bat_lire_prix(self):
+        return self.product_tmpl_id.action_bat_lire_prix()
+
+    def action_bat_appliquer_prix(self):
+        return self.product_tmpl_id.action_bat_appliquer_prix()
