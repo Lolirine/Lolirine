@@ -422,3 +422,8 @@ msgstr "🔁 Opnieuw kopen"
 #: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lp_portal_suggestions_bloc
 msgid "🧮 Calculateur piscine"
 msgstr "🧮 Zwembadcalculator"
+
+#. module: lolirine_pool_buypanel
+#: model_terms:ir.ui.view,arch_db:lolirine_pool_buypanel.lolirine_trust_bar
+msgid "<strong>Fin de série</strong> · jusqu'à épuisement du stock"
+msgstr "<strong>Einde reeks</strong> · zolang de voorraad strekt"

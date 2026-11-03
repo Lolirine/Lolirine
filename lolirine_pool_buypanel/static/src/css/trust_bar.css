@@ -76,3 +76,63 @@ html[data-website-id="6"] .lp-tile-delivery strong { font-weight: 700; }
 
 /* Pied de page : pas de mention « Généré par Odoo » sur le Pool Store */
 html[data-website-id="6"] footer .o_brand_promotion { display: none !important; }
+
+/* ═══════════════════════════════════════════════════════
+   « Fin de série » : bouton qui interpelle
+   - dans le bandeau de réassurance (lp-trustbar-hot)
+   - dans le menu latéral (lien vers /shop/category/fin-de-serie-<id>)
+   ═══════════════════════════════════════════════════════ */
+@keyframes lp-fds-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(232, 89, 12, 0.55); }
+    70%  { box-shadow: 0 0 0 10px rgba(232, 89, 12, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(232, 89, 12, 0); }
+}
+@keyframes lp-fds-flame {
+    0%, 100% { transform: rotate(-8deg) scale(1); }
+    50%      { transform: rotate(8deg) scale(1.12); }
+}
+html[data-website-id="6"] .lp-trustbar-item.lp-trustbar-hot {
+    padding: .2rem .75rem .2rem .3rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ff8a00, #e8590c);
+    box-shadow: 0 2px 8px rgba(232, 89, 12, 0.35);
+    animation: lp-fds-pulse 2.2s ease-out infinite;
+}
+html[data-website-id="6"] .lp-trustbar-item.lp-trustbar-hot .fa {
+    background: rgba(255, 255, 255, 0.25);
+    animation: lp-fds-flame 1.4s ease-in-out infinite;
+}
+html[data-website-id="6"] .lp-trustbar-item.lp-trustbar-hot:hover span { text-decoration: none; }
+html[data-website-id="6"] .lp-trustbar-item.lp-trustbar-hot:hover {
+    background: linear-gradient(135deg, #ff9a1f, #d9480f);
+}
+
+/* Entrée de menu « Fin de série » */
+html[data-website-id="6"] .top_menu a.nav-link[href*="/shop/category/fin-de-serie-"] {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: .35rem .5rem;
+    padding: .55rem .9rem !important;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ff8a00, #e8590c);
+    color: #fff !important;
+    font-weight: 700;
+    animation: lp-fds-pulse 2.2s ease-out infinite;
+}
+html[data-website-id="6"] .top_menu a.nav-link[href*="/shop/category/fin-de-serie-"]::before {
+    content: "\f06d";               /* fa-fire */
+    font-family: FontAwesome;
+    font-weight: normal;
+    display: inline-block;
+    animation: lp-fds-flame 1.4s ease-in-out infinite;
+}
+html[data-website-id="6"] .top_menu a.nav-link[href*="/shop/category/fin-de-serie-"]:hover {
+    background: linear-gradient(135deg, #ff9a1f, #d9480f);
+}
+@media (prefers-reduced-motion: reduce) {
+    html[data-website-id="6"] .lp-trustbar-item.lp-trustbar-hot,
+    html[data-website-id="6"] .lp-trustbar-item.lp-trustbar-hot .fa,
+    html[data-website-id="6"] .top_menu a.nav-link[href*="/shop/category/fin-de-serie-"],
+    html[data-website-id="6"] .top_menu a.nav-link[href*="/shop/category/fin-de-serie-"]::before { animation: none; }
+}

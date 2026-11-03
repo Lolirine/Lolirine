@@ -10,9 +10,18 @@
         <xpath expr="//main/t[@t-out='0']" position="before">
             <t t-if="website.id == 6">
                 <t t-set="lp_franco_txt" t-value="request.env['lolirine.livraison'].sudo().franco_texte(website)"/>
+                <!-- Rubrique « Fin de série » (déstockage SCP Last Chance) : bouton mis en avant
+                     tant qu'elle contient au moins un article publié. -->
+                <t t-set="lp_fds_id" t-value="int(request.env['ir.config_parameter'].sudo().get_param('lolirine_pool.fin_de_serie_categ_id', '0') or 0)"/>
+                <t t-set="lp_fds_nb" t-value="lp_fds_id and request.env['product.template'].sudo().search_count([('public_categ_ids', 'child_of', lp_fds_id), ('is_published', '=', True), ('sale_ok', '=', True)]) or 0"/>
                 <div class="lp-trustbar o_not_editable" contenteditable="false" role="note"
                      aria-label="Nos engagements">
                     <div class="lp-trustbar-track">
+                        <a t-if="lp_fds_nb" t-attf-href="/shop/category/fin-de-serie-#{lp_fds_id}"
+                           class="lp-trustbar-item lp-trustbar-hot">
+                            <i class="fa fa-fire" aria-hidden="true"/>
+                            <span><strong>Fin de série</strong> · jusqu'à épuisement du stock</span>
+                        </a>
                         <a href="/conditions-generales-de-vente" class="lp-trustbar-item">
                             <i class="fa fa-truck" aria-hidden="true"/>
                             <span>Livraison offerte dès <strong t-out="lp_franco_txt"/></span>
