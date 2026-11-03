@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Ventes > Commandes : listes séparées garde-meuble / Pool Store -->
+    <record id="action_commandes_pool_store" model="ir.actions.act_window">
+        <field name="name">Commandes Pool Store</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="search_view_id" ref="sale.sale_order_view_search_inherit_sale"/>
+        <field name="domain">['|', '|', ('website_id', '=', 6), ('is_pool_quote', '=', True), ('chantier_domaine', '=', 'piscine')]</field>
+        <field name="context">{'search_default_sales': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune commande Pool Store</p>
+            <p>Commandes du site lolirinepoolstore.be et devis piscine confirmés.</p>
+        </field>
+    </record>
+
+    <record id="action_commandes_garde_meuble" model="ir.actions.act_window">
+        <field name="name">Commandes garde-meuble</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="search_view_id" ref="sale.sale_order_view_search_inherit_sale"/>
+        <field name="domain">[('website_id', '!=', 6), ('is_pool_quote', '=', False), ('chantier_domaine', '=', False)]</field>
+        <field name="context">{'search_default_sales': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune commande garde-meuble</p>
+            <p>Réservations et abonnements du garde-meuble (hors Pool Store et chantiers).</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_commandes_garde_meuble" name="Commandes garde-meuble" parent="sale.sale_order_menu"
+              action="action_commandes_garde_meuble" groups="sales_team.group_sale_salesman" sequence="21"/>
+    <menuitem id="menu_commandes_pool_store" name="Commandes Pool Store" parent="sale.sale_order_menu"
+              action="action_commandes_pool_store" groups="sales_team.group_sale_salesman" sequence="22"/>
+
+</odoo>

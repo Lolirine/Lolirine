@@ -89,6 +89,8 @@
             
             <!-- Actions dropship -->
             <xpath expr="//header" position="inside">
+                <button name="action_pool_apercu" type="object" string="👁 Aperçu du bon"
+                        class="btn-secondary" help="Voir le PDF du bon (demande de prix ou bon de commande) dans un nouvel onglet"/>
                 <button name="action_send_dropship_email" type="object"
                         string="📧 Envoyer au fournisseur" class="btn-warning"
                         invisible="not is_dropship_order or email_sent or state == 'draft'"/>

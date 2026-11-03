@@ -119,6 +119,15 @@ class PurchaseOrder(models.Model):
             return self.action_send_dropship_email()
         return super().action_rfq_send()
 
+    def action_pool_apercu(self):
+        """Aperçu du bon (PDF) dans un nouvel onglet : demande de prix tant qu'il est en brouillon,
+        bon de commande une fois confirmé."""
+        self.ensure_one()
+        rapport = 'purchase.report_purchasequotation' if self.state in ('draft', 'sent', 'to approve') \
+            else 'purchase.report_purchaseorder'
+        return {'type': 'ir.actions.act_url', 'target': 'new',
+                'url': '/report/pdf/%s/%s' % (rapport, self.id)}
+
     def _pool_envoyer_direct(self):
         """Envoi sans relecture (case « Envoyer email au fournisseur » à la confirmation)."""
         for po in self.filtered('is_dropship_order'):
