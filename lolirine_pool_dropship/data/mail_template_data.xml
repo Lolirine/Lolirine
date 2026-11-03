@@ -154,13 +154,13 @@
 
     <table style="width: 100%; border-collapse: collapse; margin: 12px 0;">
         <thead>
-            <tr style="background: #0b5d7a; color: #fff;">
-                <th style="padding: 6px; text-align: left;">Votre réf.</th>
-                <th style="padding: 6px; text-align: left;">Désignation</th>
-                <th style="padding: 6px; text-align: right;">Qté</th>
-                <th style="padding: 6px; text-align: right;">Prix unit. HT</th>
-                <th style="padding: 6px; text-align: right;">Remise</th>
-                <th style="padding: 6px; text-align: right;">Total HT</th>
+            <tr>
+                <th style="padding: 6px; text-align: left; color: #0b5d7a; font-weight: bold; border-bottom: 2px solid #0b5d7a; white-space: nowrap;">Votre réf.</th>
+                <th style="padding: 6px; text-align: left; color: #0b5d7a; font-weight: bold; border-bottom: 2px solid #0b5d7a; white-space: nowrap;">Désignation</th>
+                <th style="padding: 6px; text-align: right; color: #0b5d7a; font-weight: bold; border-bottom: 2px solid #0b5d7a; white-space: nowrap;">Qté</th>
+                <th style="padding: 6px; text-align: right; color: #0b5d7a; font-weight: bold; border-bottom: 2px solid #0b5d7a; white-space: nowrap;">Prix unit. HT</th>
+                <th style="padding: 6px; text-align: right; color: #0b5d7a; font-weight: bold; border-bottom: 2px solid #0b5d7a; white-space: nowrap;">Remise</th>
+                <th style="padding: 6px; text-align: right; color: #0b5d7a; font-weight: bold; border-bottom: 2px solid #0b5d7a; white-space: nowrap;">Total HT</th>
             </tr>
         </thead>
         <tbody>
@@ -178,11 +178,11 @@
             </t>
         </tbody>
         <tfoot>
-            <tr><td colspan="5" style="padding: 5px; text-align: right;">Total HT</td>
+            <tr><td colspan="5" style="padding: 5px; text-align: right; white-space: nowrap;">Total HT</td>
                 <td style="padding: 5px; text-align: right; font-weight: bold; white-space: nowrap;" t-out="format_amount(object.amount_untaxed, object.currency_id)"/></tr>
-            <tr><td colspan="5" style="padding: 5px; text-align: right;">TVA</td>
+            <tr><td colspan="5" style="padding: 5px; text-align: right; white-space: nowrap;">TVA</td>
                 <td style="padding: 5px; text-align: right; white-space: nowrap;" t-out="format_amount(object.amount_tax, object.currency_id)"/></tr>
-            <tr><td colspan="5" style="padding: 5px; text-align: right;">Total TVAC</td>
+            <tr><td colspan="5" style="padding: 5px; text-align: right; white-space: nowrap;">Total TVAC</td>
                 <td style="padding: 5px; text-align: right; font-weight: bold; white-space: nowrap;" t-out="format_amount(object.amount_total, object.currency_id)"/></tr>
         </tfoot>
     </table>
