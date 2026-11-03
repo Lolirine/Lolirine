@@ -5,3 +5,4 @@ from . import tracking_wizard
 from . import issue_wizard
 from . import assign_supplier_wizard
 from . import resolve_issue_wizard
+from . import signer_document

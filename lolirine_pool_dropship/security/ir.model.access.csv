@@ -19,3 +19,4 @@ access_assign_dropship_supplier_wizard,assign.dropship.supplier.wizard,model_ass
 access_create_dropship_po_wizard,create.dropship.po.wizard,model_create_dropship_po_wizard,group_dropship_user,1,1,1,1
 access_create_dropship_po_wizard_line,create.dropship.po.wizard.line,model_create_dropship_po_wizard_line,group_dropship_user,1,1,1,1
 access_resolve_issue_wizard,resolve.issue.wizard,model_resolve_issue_wizard,group_dropship_user,1,1,1,1
+access_pool_signer_document,lolirine.pool.signer.document,model_lolirine_pool_signer_document,base.group_user,1,1,1,1

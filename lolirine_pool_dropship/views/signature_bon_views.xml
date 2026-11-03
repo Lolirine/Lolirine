@@ -11,6 +11,11 @@
                 <page string="✍ Signature" name="pool_signature">
                     <div class="text-muted small mb-2">Signe le bon ici (souris, doigt ou stylet) : la signature est imprimée
                         en bas du bon de commande PDF envoyé au fournisseur. Pour la refaire, efface-la puis signe à nouveau.</div>
+                    <div class="mb-3">
+                        <button name="action_pool_signer_document" type="object" class="btn-secondary"
+                                string="📄 Signer un document du fournisseur (confirmation PDF)"
+                                help="Appose ta signature sur un PDF reçu du fournisseur (joint au bon) et le lui renvoie"/>
+                    </div>
                     <group>
                         <group>
                             <field name="pool_signe_par" placeholder="Nom du signataire"/>
@@ -39,5 +44,43 @@
             </div>
         </xpath>
     </template>
+
+    <!-- Assistant : signer un document du fournisseur -->
+    <record id="view_pool_signer_document_form" model="ir.ui.view">
+        <field name="name">lolirine.pool.signer.document.form</field>
+        <field name="model">lolirine.pool.signer.document</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="po_id" invisible="1"/>
+                <field name="signe_id" invisible="1"/>
+                <div class="text-muted small mb-2" invisible="signe_id">
+                    Choisis le PDF du fournisseur joint au bon (sa confirmation de commande…) : ta signature de l'onglet
+                    « ✍ Signature » y est apposée, avec la mention, ton nom, la date et la référence du bon.
+                    Pour joindre un PDF au bon : trombone en haut à droite du bon.
+                </div>
+                <group invisible="signe_id">
+                    <field name="attachment_id" options="{'no_create': True}"/>
+                    <field name="mention"/>
+                    <field name="page" widget="radio" options="{'horizontal': true}"/>
+                    <field name="position" widget="radio"/>
+                </group>
+                <div invisible="not signe_id" class="alert alert-success" role="status">
+                    Document signé : <field name="signe_id" readonly="1" class="oe_inline"/> — il est joint au bon.
+                    Vérifie-le avec « Aperçu », puis renvoie-le au fournisseur.
+                </div>
+                <footer>
+                    <button name="action_signer" type="object" string="✍ Signer le document" class="btn-primary"
+                            invisible="signe_id"/>
+                    <button name="action_apercu" type="object" string="👁 Aperçu" class="btn-secondary"
+                            invisible="not signe_id"/>
+                    <button name="action_envoyer" type="object" string="📧 Renvoyer au fournisseur" class="btn-primary"
+                            invisible="not signe_id"/>
+                    <button name="action_signer" type="object" string="Signer à nouveau" class="btn-link"
+                            invisible="not signe_id"/>
+                    <button string="Fermer" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 
 </odoo>
