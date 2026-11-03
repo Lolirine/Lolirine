@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Pool - Dropshipping & Gestion Fournisseurs',
-    'version': '19.0.4.6.2',
+    'version': '19.0.4.7.0',
     'category': 'Sales/Sales',
     'summary': 'Gestion automatisée des commandes dropshipping avec réductions négociées et optimisation des marges',
     'description': """
@@ -59,6 +59,7 @@ Fonctionnalités principales :
         'views/supplier_info_views.xml',
         'views/product_views.xml',
         'views/sale_order_views.xml',
+        'views/supplement_transport_views.xml',
         'views/purchase_order_views.xml',
         'views/dropship_decision_log_views.xml',
         'views/dropship_dashboard_views.xml',
