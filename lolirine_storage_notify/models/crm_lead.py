@@ -20,7 +20,7 @@ class CrmLead(models.Model):
                 self.env.context.get('website_id') or
                 self.env.context.get('from_website') or
                 (lead.source_id and 'website' in (lead.source_id.name or '').lower()) or
-                lead.website_id
+                ('website_id' in lead._fields and lead.website_id)
             )
 
             if not is_from_website and not self.env.context.get('lolirine_notify_lead'):
@@ -52,7 +52,7 @@ class CrmLead(models.Model):
                         subject=lead.name or _("Sans objet"),
                         name=name,
                         email=email or '',
-                        phone=lead.phone or lead.mobile or _("non renseigné"),
+                        phone=lead.phone or ('mobile' in lead._fields and lead.mobile) or _("non renseigné"),
                         description=lead.description or '',
                     ),
                     activity_deadline_days=1,
