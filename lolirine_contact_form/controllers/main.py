@@ -107,15 +107,23 @@ class LolirineContactForm(http.Controller):
                 if belgium:
                     lead_vals['contact_country_id'] = belgium.id
             
-            # Trouver l'équipe commerciale par défaut
-            sales_team = request.env['crm.team'].sudo().search([
+            # Odoo 19 : plus de champ « mobile » sur la piste → ajouté au téléphone
+            Lead = request.env['crm.lead'].sudo()
+            mobile = lead_vals.pop('mobile', '')
+            if mobile and 'mobile' in Lead._fields:
+                lead_vals['mobile'] = mobile
+            elif mobile and mobile != lead_vals.get('phone'):
+                lead_vals['phone'] = " / ".join(x for x in (lead_vals.get('phone'), mobile) if x)
+
+            # Équipe du site (Garde-meuble), sinon première équipe à opportunités
+            sales_team = request.website.crm_default_team_id or request.env['crm.team'].sudo().search([
                 ('use_opportunities', '=', True)
             ], limit=1)
             if sales_team:
                 lead_vals['team_id'] = sales_team.id
-            
+
             # Créer le lead
-            lead = request.env['crm.lead'].sudo().create(lead_vals)
+            lead = Lead.with_context(lolirine_notify_lead=True).create(lead_vals)
             
             _logger.info(f"Lead créé: {lead.id} - {lead.name}")
             

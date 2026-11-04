@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine - Formulaire Contact Optimisé',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Website',
     'summary': 'Formulaire de contact optimisé pour la création d\'abonnements garde-meubles',
     'description': '''

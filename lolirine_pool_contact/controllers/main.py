@@ -122,8 +122,10 @@ class PoolContactController(http.Controller):
 ═══════════════════════════════════════════
             """.strip()
             
-            # Chercher équipe commerciale
-            team = request.env['crm.team'].sudo().search([], limit=1)
+            # Équipe du site Pool Store (formulaires du site 6), sinon l'équipe « Pool Store »
+            team = request.website.crm_default_team_id or request.env['crm.team'].sudo().search(
+                [('name', '=', 'Pool Store')], limit=1)
+            tag = request.env['crm.tag'].sudo().search([('name', '=', 'Pool Store')], limit=1)
             
             # Créer l'opportunité
             lead_vals = {
@@ -141,8 +143,10 @@ class PoolContactController(http.Controller):
             
             if team:
                 lead_vals['team_id'] = team.id
-            
-            lead = request.env['crm.lead'].sudo().create(lead_vals)
+            if tag:
+                lead_vals['tag_ids'] = [(4, tag.id)]
+
+            lead = request.env['crm.lead'].sudo().with_context(lolirine_notify_lead=True).create(lead_vals)
             _logger.info(f"Pool Store Contact: Opportunité créée - {lead.name} (ID: {lead.id})")
             
             return request.render('lolirine_pool_contact.page_pool_contact_success', {

@@ -109,7 +109,6 @@ class CrmLead(models.Model):
             'name': self.partner_name or self.contact_name,
             'email': self.email_from,
             'phone': self.phone,
-            'mobile': self.mobile,
             'street': f"{self.contact_street or ''} {self.contact_street_number or ''}".strip(),
             'street2': self.contact_street2,
             'zip': self.contact_zip,
@@ -119,6 +118,10 @@ class CrmLead(models.Model):
             'vat': self.vat_number,
         }
         
+        # Odoo 19 : « mobile » n'existe plus sur la piste ni sur le contact
+        if 'mobile' in self._fields and 'mobile' in self.env['res.partner']._fields:
+            partner_vals['mobile'] = self.mobile
+
         if self.is_company_contact and self.company_name_contact:
             partner_vals['name'] = self.company_name_contact
             # Créer aussi le contact

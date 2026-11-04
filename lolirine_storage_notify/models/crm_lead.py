@@ -8,6 +8,21 @@ class CrmLead(models.Model):
     _name = 'crm.lead'
     _inherit = ['crm.lead', 'lolirine.notify.mixin']
 
+    @api.model
+    def message_new(self, msg_dict, custom_values=None):
+        """Piste créée par un e-mail reçu (info@ Pool Store, alias garde-meuble) : notifier."""
+        return super(CrmLead, self.with_context(lolirine_notify_lead=True)).message_new(
+            msg_dict, custom_values=custom_values)
+
+    def _lolirine_prefixe_activite(self):
+        """« 🏊 Pool Store » / « 📦 Garde-meuble » selon l'équipe de la piste."""
+        nom = self.team_id.name or ''
+        if 'pool' in nom.lower():
+            return "🏊 Pool Store"
+        if nom:
+            return "📦 %s" % nom
+        return ""
+
     @api.model_create_multi
     def create(self, vals_list):
         """Notifie pour les leads/contacts créés depuis le site web."""
@@ -31,20 +46,21 @@ class CrmLead(models.Model):
                 name = partner.name if partner else (lead.contact_name or lead.partner_name or _("Inconnu"))
                 email = lead.email_from or (partner.email if partner else '')
 
+                prefixe = lead._lolirine_prefixe_activite()
                 self._lolirine_notify(
                     event_type='contact',
-                    title=_("Nouveau message / formulaire de contact"),
+                    title=("%s — " % prefixe if prefixe else "") + _("Nouvelle demande"),
                     message=_(
                         "%(name)s (%(email)s) : « %(subject)s »",
                         name=name,
                         email=email or _("email non renseigné"),
                         subject=lead.name or _("Sans objet"),
                     ),
-                    partner=partner,
+                    partner=lead,  # activité posée sur la piste elle-même (pastille + lien direct)
                     url=f'/odoo/crm/{lead.id}',
-                    activity_summary=_("Répondre au contact"),
+                    activity_summary=("%s : " % prefixe if prefixe else "") + _("Répondre au contact"),
                     activity_note=_(
-                        "<p>Message reçu via le site :<br/>"
+                        "<p>Nouvelle demande reçue :<br/>"
                         "<strong>%(subject)s</strong><br/>"
                         "De : %(name)s (%(email)s)<br/>"
                         "Téléphone : %(phone)s</p>"
