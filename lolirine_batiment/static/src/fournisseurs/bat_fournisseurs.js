@@ -118,12 +118,18 @@ export class BatFournisseurs extends Component {
             this.state.url = f.site || "";
         }
     }
-    chercher(texte) {
+    get dansOdoo() {
+        const f = this.state.fournisseur;
+        return !f || f.dans_odoo !== false;
+    }
+    chercher(texte, ouvrir) {
         const f = this.state.fournisseur;
         if (texte !== undefined) this.state.recherche = texte;
         if (!f) return;
         const t = encodeURIComponent(this.state.recherche || "");
         this.state.url = f.recherche ? f.recherche.replace("{}", t) : f.site;
+        // Site qui refuse d'être affiché dans Odoo (Gobert) : ouvert dans un onglet sur clic de l'utilisateur
+        if (ouvrir && !this.dansOdoo && this.state.url) window.open(this.state.url, "_blank", "noopener");
     }
     montrer(m) {
         const f = this.state.data.fournisseurs.find((x) => x.id === m.fournisseur_id);

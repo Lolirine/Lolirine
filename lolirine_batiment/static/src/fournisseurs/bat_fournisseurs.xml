@@ -28,8 +28,8 @@
                     </div>
                     <div class="input-group input-group-sm mb-3">
                         <input class="form-control" placeholder="Chercher sur le site (OSB 12, latte, vis…)"
-                               t-model="state.recherche" t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.chercher()"/>
-                        <button class="btn btn-outline-secondary" t-on-click="() => this.chercher()"><i class="fa fa-search"/></button>
+                               t-model="state.recherche" t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.chercher(undefined, true)"/>
+                        <button class="btn btn-outline-secondary" t-on-click="() => this.chercher(undefined, true)"><i class="fa fa-search"/></button>
                     </div>
 
                     <div class="o_bf_titre">Importer un article dans Odoo</div>
@@ -99,8 +99,19 @@
                             <i class="fa fa-external-link"/> Nouvel onglet
                         </a>
                     </div>
-                    <iframe t-if="state.url" t-att-src="state.url" class="o_bf_iframe"
+                    <iframe t-if="state.url and dansOdoo" t-att-src="state.url" class="o_bf_iframe"
                             referrerpolicy="no-referrer"/>
+                    <div t-elif="state.url" class="p-4">
+                        <div class="alert alert-info">
+                            <p class="mb-2">Le site <b t-esc="state.fournisseur.nom"/> refuse d'être affiché dans Odoo :
+                                il s'ouvre dans un nouvel onglet.</p>
+                            <p class="mb-2 small">Sur la page du produit, copie sa <b>référence</b> (Référence : kna02400)
+                                ou son nom, puis colle-le à gauche dans « Importer ».</p>
+                            <a t-att-href="state.url" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+                                <i class="fa fa-external-link"/> Ouvrir chez <t t-esc="state.fournisseur.nom"/>
+                            </a>
+                        </div>
+                    </div>
                     <div t-else="" class="p-4 text-muted">Choisis un fournisseur ou lance une recherche.</div>
                 </main>
             </t>

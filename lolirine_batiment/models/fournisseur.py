@@ -7,10 +7,16 @@
   Coût = prix public HT − remise ; prix de vente = prix public HT.
 - Lecture du prix public sur la page du produit (Carlier : pro.carlier.be),
   contrôle mensuel des écarts : rien n'est appliqué sans action de l'utilisateur.
+- Gobert (gobert.groupegobert.com) : fiche produit lue par sa référence ou son
+  nom (nom, référence, réf. fabricant, EAN, image). Gobert ne publie ni prix ni
+  remise : le prix vient de sa réponse à la demande de prix et se saisit sur la
+  fiche (s'il apparaît un jour sur une page lue, il est repris).
+  Le site refuse d'être affiché dans Odoo : la visionneuse l'ouvre dans un onglet.
 - Visionneuse : le site du fournisseur dans Odoo, import d'un article par sa
   référence ou l'adresse de sa page, ajout direct au devis ou à l'ouvrage.
 """
 import base64
+import binascii
 import gzip
 import html
 import logging
@@ -27,7 +33,10 @@ from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 TVA = 1.21
-LECTEURS = [('carlier', 'Carlier (pro.carlier.be)'), ('aucun', 'Aucun : prix saisi à la main')]
+LECTEURS = [('carlier', 'Carlier (pro.carlier.be)'),
+            ('gobert', 'Gobert (gobert.groupegobert.com) : fiche lue, prix saisi à la main'),
+            ('aucun', 'Aucun : prix saisi à la main')]
+GOBERT = 'https://gobert.groupegobert.com/'
 ENTETES = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
                   'Chrome/126.0 Safari/537.36 Odoo-Lolirine',
@@ -146,6 +155,82 @@ def lire_page_carlier(page, ref=None):
     return res
 
 
+def url_gobert(ref, site=GOBERT):
+    """Référence Gobert -> page du produit : /produit/<texte libre>-<référence en base64>."""
+    return '%sproduit/x-%s' % (site, base64.b64encode((ref or '').strip().lower().encode()).decode())
+
+
+def ref_url_gobert(url):
+    """Page produit Gobert -> sa référence (dernier segment de l'adresse, en base64)."""
+    m = re.search(r'/produit/[^?#]*-([A-Za-z0-9+/]+=*)/?(?:[?#]|$)', url or '')
+    if not m:
+        return None
+    try:
+        ref = base64.b64decode(m.group(1)).decode()
+    except (binascii.Error, UnicodeDecodeError):
+        return None
+    return ref if re.fullmatch(r'[\w\-./]+', ref) else None
+
+
+def _prix_gobert(bloc):
+    """Prix d'une page Gobert, si le site l'affiche (client connecté) : TTC/TVAC, ou HT/HTVA converti."""
+    m = re.search(r'([\d .\u00a0]+,\d{2})\s*(?:€|&euro;)\s*(TTC|TVAC|TVA\s*c|HTVA|HT)?\s*(?:</[^>]+>\s*)*'
+                  r'(?:/\s*([A-Za-z0-9²]+))?', bloc)
+    if not m:
+        return None, None
+    prix = nombre_fr(m.group(1))
+    if m.group(2) and m.group(2).upper().startswith('HT'):
+        prix = round(prix * TVA, 2)
+    return prix, (m.group(3) or '').upper().replace('²', '2') or None
+
+
+def lire_page_gobert(page, site=GOBERT):
+    """Extrait d'une page produit Gobert : nom, référence, réf. fabricant, EAN, image (+ prix si affiché)."""
+    res = {}
+    d1 = re.search(r'class="ligneArticle_desi1"[^>]*>(.*?)</span>', page, re.S)
+    d2 = re.search(r'class="ligneArticle_desi2"[^>]*>(.*?)</span>', page, re.S)
+    nom = " — ".join(x for x in (_texte(d1.group(1)) if d1 else '', _texte(d2.group(1)) if d2 else '') if x)
+    if not nom:
+        m = re.search(r'<title>(.*?)</title>', page, re.S)
+        nom = re.sub(r'\s*\|\s*Gobert Mat.*$', '', _texte(m.group(1))) if m else ''
+    if nom:
+        res['nom'] = nom
+    for cle, libelle in (('ref', r'R[ée]f[ée]rence'), ('ref_fabricant', r'R[ée]f\.? fournisseur'), ('ean', r'Gencod')):
+        m = re.search(libelle + r'\s*:\s*(?:</span>\s*<span[^>]*>)?\s*([\w\-./]+)', page, re.I)
+        if m:
+            res[cle] = m.group(1).strip()
+    m = re.search(r'data-image="(/ressources/images/articles/Zoom/[^"]+)"', page) or \
+        re.search(r'"image"\s*:\s*\[[^\]]*?"(/images/articles/Zoom/[^"]+)"', page)
+    if m:
+        chemin = m.group(1) if m.group(1).startswith('/ressources') else '/ressources' + m.group(1)
+        res['image_url'] = urljoin(site, chemin)
+    m = re.search(r'<link rel="canonical" href="([^"]+)"', page)
+    if m:
+        res['url'] = m.group(1)
+    zone = re.search(r'class="[^"]*(?:prix|price|tarif)[^"]*"[^>]*>(.{0,400})', page, re.S | re.I)
+    if zone:
+        prix, unite = _prix_gobert(zone.group(1))
+        if prix:
+            res['prix_ttc'] = prix
+            if unite:
+                res['unite'] = unite
+    return res
+
+
+def resultats_gobert(page, site=GOBERT):
+    """Liste de résultats d'une recherche Gobert : [{ref, nom, url}]."""
+    res = []
+    for bloc in re.split(r'<article class="catalogArticle', page)[1:]:
+        lien = re.search(r'data-link="([^"]+/produit/[^"]+)"', bloc)
+        infos = lire_page_gobert(bloc, site)
+        ref = infos.get('ref') or (ref_url_gobert(lien.group(1)) if lien else None)
+        if lien and ref:
+            res.append({'ref': ref, 'nom': infos.get('nom') or ref, 'url': html.unescape(lien.group(1)),
+                        'prix_ttc': infos.get('prix_ttc'), 'unite': infos.get('unite') or '',
+                        'libelle': infos.get('nom') or ''})
+    return res
+
+
 class ResPartnerFournisseurBat(models.Model):
     _inherit = 'res.partner'
 
@@ -167,6 +252,10 @@ class ResPartnerFournisseurBat(models.Model):
         help="Adresse de recherche du site, {} étant remplacé par le texte cherché "
              "(ex. https://pro.carlier.be/recherche?term={}).")
     bat_lecteur_prix = fields.Selection(LECTEURS, string="Lecture des prix", default='aucun')
+    bat_site_dans_odoo = fields.Boolean(
+        "Site affiché dans Odoo", default=True,
+        help="Décoché quand le site du fournisseur refuse d'être affiché dans une autre application "
+             "(Gobert) : la visionneuse l'ouvre alors dans un nouvel onglet.")
 
     def _bat_url_recherche(self, texte):
         self.ensure_one()
@@ -183,11 +272,22 @@ class ResPartnerFournisseurBat(models.Model):
             raise UserError(_("Le site du fournisseur ne répond pas (%s) : %s") % (url, e))
         return rep.text
 
+    def _bat_site(self):
+        self.ensure_one()
+        defaut = GOBERT if self.bat_lecteur_prix == 'gobert' else 'https://pro.carlier.be/'
+        return (self.bat_site_url or defaut).rstrip('/') + '/'
+
     def _bat_lire_produit(self, url, ref=None):
         """Infos d'une page produit du fournisseur (dict vide si pas de lecteur)."""
         self.ensure_one()
-        if self.bat_lecteur_prix != 'carlier' or not url:
+        if self.bat_lecteur_prix not in ('carlier', 'gobert') or not url:
             return {}
+        if self.bat_lecteur_prix == 'gobert':
+            infos = lire_page_gobert(self._bat_telecharger(url), self._bat_site())
+            infos.setdefault('url', url)
+            if not infos.get('ref') or not infos.get('nom'):
+                return {}
+            return infos
         infos = lire_page_carlier(self._bat_telecharger(url), ref=ref)
         infos.setdefault('url', url)
         if '/produit/' not in (infos.get('url') or '') or not infos.get('nom'):
@@ -222,6 +322,8 @@ class ResPartnerFournisseurBat(models.Model):
     def _bat_trouver_par_nom(self, nom):
         """Nom du produit (titre de sa page) -> page du produit, via le plan du site."""
         self.ensure_one()
+        if self.bat_lecteur_prix == 'gobert':
+            return self._bat_gobert_par_nom(nom)
         cle = slug_carlier(nom)
         if not cle:
             return {}
@@ -244,9 +346,25 @@ class ResPartnerFournisseurBat(models.Model):
                 return infos
         return {}
 
+    def _bat_gobert_par_nom(self, nom):
+        """Gobert : recherche du nom ; un résultat (ou un nom identique) -> sa page, sinon la liste."""
+        url = (self.bat_url_recherche or self._bat_site() + 'recherche?query={}').replace('{}', quote_plus(nom or ''))
+        resultats = resultats_gobert(self._bat_telecharger(url), self._bat_site())
+        cle = re.sub(r'\W+', ' ', (nom or '').lower()).strip()
+        exacts = [r for r in resultats if re.sub(r'\W+', ' ', r['nom'].lower()).strip() == cle
+                  or re.sub(r'\W+', ' ', r['nom'].split(' — ')[0].lower()).strip() == cle]
+        choix = exacts[:1] or (resultats if len(resultats) == 1 else [])
+        if choix:
+            return self._bat_lire_produit(url_gobert(choix[0]['ref'], self._bat_site()))
+        return {'nom': nom, 'variantes': resultats[:20]} if resultats else {}
+
     def _bat_trouver_par_ref(self, ref):
-        """Carlier : recherche de la référence, puis lecture des pages trouvées jusqu'à la bonne."""
+        """Carlier : recherche de la référence, puis lecture des pages trouvées jusqu'à la bonne.
+        Gobert : la page du produit se déduit de la référence."""
         self.ensure_one()
+        if self.bat_lecteur_prix == 'gobert':
+            infos = self._bat_lire_produit(url_gobert(ref, self._bat_site()))
+            return infos if (infos.get('ref') or '').upper() == (ref or '').upper() else {}
         if self.bat_lecteur_prix != 'carlier':
             return {}
         page = self._bat_telecharger(self._bat_url_recherche(ref))
@@ -337,7 +455,9 @@ class ProductTemplateFournisseurBat(models.Model):
                 erreurs.append("%s : %s" % (t.display_name, e.args[0]))
                 continue
             if not infos.get('prix_ttc'):
-                erreurs.append(_("%s : prix introuvable sur la page.") % t.display_name)
+                erreurs.append(_("%s : %s ne publie pas ses prix : saisis sur la fiche le prix de sa réponse à "
+                                 "la demande de prix.") % (t.display_name, f.name) if f.bat_lecteur_prix == 'gobert'
+                               else _("%s : prix introuvable sur la page.") % t.display_name)
                 continue
             vals = {'bat_prix_lu_ttc': infos['prix_ttc'], 'bat_prix_lu_le': fields.Date.today()}
             if not t.bat_url_fournisseur and infos.get('url'):
@@ -430,7 +550,7 @@ class ProductTemplateFournisseurBat(models.Model):
                 'id': f.id, 'nom': f.name, 'remise': f.bat_remise_materiaux,
                 'site': f.bat_espace_url or f.bat_site_url or '', 'espace': f.bat_espace_url or '',
                 'recherche': f.bat_url_recherche or '',
-                'lecteur': f.bat_lecteur_prix,
+                'lecteur': f.bat_lecteur_prix, 'dans_odoo': f.bat_site_dans_odoo,
             } for f in fournisseurs],
             'cible': False, 'produit': False, 'materiaux': self._bat_materiaux_liste(),
         }
@@ -511,14 +631,15 @@ class ProductTemplateFournisseurBat(models.Model):
         texte = (texte or '').strip()
         if not f or not texte:
             raise UserError(_("Choisis le fournisseur et colle la référence ou l'adresse de la page du produit."))
-        if f.bat_lecteur_prix != 'carlier':
+        if f.bat_lecteur_prix not in ('carlier', 'gobert'):
             raise UserError(_("Pas de lecture automatique pour %s : crée l'article à la main "
                               "(référence, page et prix public sur la fiche).") % f.name)
+        gobert = f.bat_lecteur_prix == 'gobert'
         if texte.startswith('http') and '/produit/' not in texte:
             if re.search(r'/data/|\.(jpe?g|png|webp|gif)(\?|$)', texte, re.I):
                 raise UserError(_("C'est l'adresse de l'image du produit. Sur la page du produit, copie plutôt "
                                   "son nom (le grand titre) ou sa référence (Réf : …) et colle-le ici."))
-            terme = re.search(r'[?&]term=([^&#]+)', texte)
+            terme = re.search(r'[?&](?:term|query)=([^&#]+)', texte)
             if not terme:
                 raise UserError(_("Ce lien n'est pas celui d'un produit. Colle le nom du produit (le grand titre "
                                   "de sa page), sa référence (Réf : …) ou l'adresse de sa page."))
@@ -535,11 +656,11 @@ class ProductTemplateFournisseurBat(models.Model):
             raise UserError(_("« %s » existe en plusieurs versions chez %s. Colle la référence de celle que tu veux "
                               "(colonne « Code produit » du tableau de la page) :\n%s") % (
                 infos.get('nom') or texte, f.name, "\n".join(
-                    "• %s%s — %s € TTC%s" % (v['ref'], (" (%s)" % v['libelle']) if v['libelle'] else '',
-                                            ('%.2f' % v['prix_ttc']).replace('.', ','),
-                                            (" / %s" % v['unite']) if v['unite'] else '')
+                    "• %s%s%s%s" % (v['ref'], (" (%s)" % v['libelle']) if v['libelle'] else '',
+                                    (" — %s € TTC" % ('%.2f' % v['prix_ttc']).replace('.', ',')) if v.get('prix_ttc') else '',
+                                    (" / %s" % v['unite']) if v.get('unite') else '')
                     for v in infos['variantes'][:20])))
-        if not infos.get('prix_ttc') or not infos.get('ref'):
+        if not infos.get('ref') or (not infos.get('prix_ttc') and not gobert):
             raise UserError(_("Produit introuvable chez %s pour « %s ». Colle le nom exact du produit (le grand "
                               "titre de sa page) ou sa référence (Réf : …).") % (f.name, texte))
         t = self.search([('bat_fournisseur_id', '=', f.id), ('bat_ref_fournisseur', '=', infos['ref'])], limit=1)
@@ -552,6 +673,8 @@ class ProductTemplateFournisseurBat(models.Model):
                 'default_code': 'BAT-%s-%s' % ((f.name or 'F')[:3].upper(), infos['ref']),
                 'bat_fournisseur_id': f.id, 'bat_ref_fournisseur': infos['ref'],
             }
+            if infos.get('ean') and not self.env['product.product'].search_count([('barcode', '=', infos['ean'])]):
+                vals['barcode'] = infos['ean']
             uom = self.env.ref(UNITES.get(infos.get('unite') or '', ''), raise_if_not_found=False) \
                 if infos.get('unite') in UNITES else None
             if uom:
@@ -566,17 +689,25 @@ class ProductTemplateFournisseurBat(models.Model):
                     t.image_1920 = base64.b64encode(img.content)
             except requests.RequestException:
                 pass
-        t.write({
+        vals = {
             'bat_url_fournisseur': infos.get('url') or t.bat_url_fournisseur,
             'bat_unite_fournisseur': infos.get('unite') or t.bat_unite_fournisseur,
-            'bat_prix_lu_ttc': infos['prix_ttc'], 'bat_prix_lu_le': fields.Date.today(),
-        })
-        if nouveau:
+        }
+        if infos.get('prix_ttc'):
+            vals.update(bat_prix_lu_ttc=infos['prix_ttc'], bat_prix_lu_le=fields.Date.today())
+        t.write(vals)
+        if nouveau and infos.get('prix_ttc'):
             t.action_bat_appliquer_prix()
         res = t._bat_infos()
         res['nouveau'] = nouveau
-        res['avertissement'] = '' if nouveau or not infos.get('unite') or not t.bat_unite_fournisseur \
-            or infos['unite'] == t.bat_unite_fournisseur else _("Unité différente chez le fournisseur : %s") % infos['unite']
+        if not infos.get('prix_ttc'):
+            res['avertissement'] = _("%s ne publie pas ses prix : demande-lui un prix (Demande de prix depuis le "
+                                     "devis), puis saisis-le sur la fiche (onglet Prix fournisseur, prix TTC) "
+                                     "et « Appliquer le prix ».") % f.name
+        else:
+            res['avertissement'] = '' if nouveau or not infos.get('unite') or not t.bat_unite_fournisseur \
+                or infos['unite'] == t.bat_unite_fournisseur else \
+                _("Unité différente chez le fournisseur : %s") % infos['unite']
         return res
 
     @api.model

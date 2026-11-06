@@ -18,6 +18,7 @@
                         <field name="bat_site_url" widget="url"/>
                         <field name="bat_url_recherche" placeholder="https://pro.carlier.be/recherche?term={}"/>
                         <field name="bat_espace_url" widget="url" placeholder="https://pro.carlier.be/espace-client"/>
+                        <field name="bat_site_dans_odoo"/>
                         <field name="bat_email_demande_prix" widget="email"/>
                     </group>
                 </group>

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine — Devis Bâtiment',
-    'version': '19.0.1.3.1',
+    'version': '19.0.1.4.0',
     'category': 'Sales',
     'summary': 'Devis et chantiers bâtiment : ouvrages au métré, TVA 6 % / 21 %, avancement, procès-verbal',
     'description': """
@@ -14,6 +14,7 @@
         - Conditions de paiement, marge, avenants, relances, procès-verbal, chantier et pointage
         - Demandes de prix aux fournisseurs depuis le devis (liste des matériaux, e-mail modifiable)
         - Matériaux aux prix des fournisseurs (Carlier, Gobert) : prix public, remise, site dans Odoo, contrôle mensuel
+        - Gobert : import des articles par référence ou nom (nom, réf., EAN, image) ; prix saisi d'après sa réponse aux demandes de prix
     """,
     'author': 'Lolirine SRL',
     'license': 'LGPL-3',
