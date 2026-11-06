@@ -44,7 +44,7 @@
         </tbody>
     </table>
     <p t-if="object.bat_livraison == 'chantier'">Livraison souhaitée sur chantier<t t-if="object.bat_devis_id.pool_adresse_chantier"> : <t t-out="object.bat_devis_id.pool_adresse_chantier"/></t><t t-if="object.bat_date_souhaitee">, pour le <t t-out="format_date(object.bat_date_souhaitee)"/></t>.</p>
-    <p t-elif="object.bat_livraison == 'depot'">Livraison souhaitée à notre dépôt : <t t-out="object.company_id.partner_id.contact_address_inline or ''"/><t t-if="object.bat_date_souhaitee">, pour le <t t-out="format_date(object.bat_date_souhaitee)"/></t>.</p>
+    <p t-elif="object.bat_livraison == 'depot'">Livraison souhaitée à notre dépôt : <t t-out="object.company_id.name"/>, Rue de la Drève Boninas 2, 5021 Boninne<t t-if="object.bat_date_souhaitee">, pour le <t t-out="format_date(object.bat_date_souhaitee)"/></t>.</p>
     <p t-elif="object.bat_livraison == 'enlevement'">Les articles seront enlevés dans votre magasin<t t-if="object.bat_date_souhaitee"> vers le <t t-out="format_date(object.bat_date_souhaitee)"/></t>.</p>
     <p t-if="object.bat_message" t-out="object.bat_message"/>
     <p>D'avance merci pour votre retour.</p>

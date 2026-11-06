@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine — Devis Bâtiment',
-    'version': '19.0.1.4.1',
+    'version': '19.0.1.4.2',
     'category': 'Sales',
     'summary': 'Devis et chantiers bâtiment : ouvrages au métré, TVA 6 % / 21 %, avancement, procès-verbal',
     'description': """
