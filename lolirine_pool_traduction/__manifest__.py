@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool – Traduction automatique des fiches',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Website',
     'summary': "Traduit les fiches produits du Pool Store en néerlandais et en anglais "
                "et rédige leurs titres et descriptions Google (API Claude, traitement par lots)",

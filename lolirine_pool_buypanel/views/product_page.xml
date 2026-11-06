@@ -172,6 +172,24 @@
                 <h4 class="mb-3">Caractéristiques techniques</h4>
                 <div t-field="product.x_specs_techniques" class="o_lp_specs_content"/>
             </section>
+            <section t-if="product.x_contenu_colis or editable"
+                     class="o_lp_extra_specs o_lp_extra_colis container mt-3"
+                     data-name="Contenu du colis et compatibilités">
+                <h4 class="mb-3">Contenu du colis et compatibilités</h4>
+                <div t-field="product.x_contenu_colis" class="o_lp_specs_content"/>
+            </section>
+            <section t-if="product.x_conseils or editable"
+                     class="o_lp_extra_specs o_lp_extra_conseils container mt-3"
+                     data-name="Conseils d'installation et d'entretien">
+                <h4 class="mb-3">Conseils d'installation et d'entretien</h4>
+                <div t-field="product.x_conseils" class="o_lp_specs_content"/>
+            </section>
+            <section t-if="product.x_faq or editable"
+                     class="o_lp_extra_specs o_lp_extra_faq container mt-3"
+                     data-name="Questions fréquentes">
+                <h4 class="mb-3">Questions fréquentes</h4>
+                <div t-field="product.x_faq" class="o_lp_specs_content o_lp_faq"/>
+            </section>
         </xpath>
 
     </template>

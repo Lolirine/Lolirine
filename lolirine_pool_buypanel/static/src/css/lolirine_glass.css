@@ -408,3 +408,45 @@ html[data-website-id="6"] .o_mega_menu .card-img-top[src*="product.public.catego
         color: #0b3a53;
     }
 }
+
+/* --- Contenu du colis, conseils, questions fréquentes (fiche produit) --- */
+html[data-website-id="6"] .o_lp_specs_content ul {
+    padding-left: 1.2rem;
+    margin-bottom: 0.75rem;
+}
+html[data-website-id="6"] .o_lp_specs_content li {
+    margin-bottom: 0.25rem;
+}
+html[data-website-id="6"] .o_lp_faq details {
+    border-bottom: 1px solid rgba(15, 76, 129, 0.15);
+    padding: 0.6rem 0;
+}
+html[data-website-id="6"] .o_lp_faq details:last-child {
+    border-bottom: 0;
+}
+html[data-website-id="6"] .o_lp_faq summary {
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none;
+    position: relative;
+    padding-right: 1.5rem;
+}
+html[data-website-id="6"] .o_lp_faq summary::-webkit-details-marker {
+    display: none;
+}
+html[data-website-id="6"] .o_lp_faq summary::after {
+    content: "+";
+    position: absolute;
+    right: 0.25rem;
+    font-weight: 700;
+}
+html[data-website-id="6"] .o_lp_faq details[open] summary::after {
+    content: "−";
+}
+html[data-website-id="6"] .o_lp_faq details p {
+    margin: 0.5rem 0 0;
+}
+body.editor_enable .o_lp_faq details {
+    display: block;
+}
+

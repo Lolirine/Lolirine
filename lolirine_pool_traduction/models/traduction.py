@@ -42,7 +42,8 @@ _logger = logging.getLogger(__name__)
 P = 'lolirine_pool_traduction.'
 SITE = 6
 URL_LOTS = 'https://api.anthropic.com/v1/messages/batches'
-CHAMPS_HTML = ['description_ecommerce', 'website_description', 'x_specs_techniques']
+CHAMPS_HTML = ['description_ecommerce', 'website_description', 'x_specs_techniques',
+               'x_contenu_colis', 'x_conseils', 'x_faq']
 LANGUES = {'nl': 'nl_NL', 'en': 'en_GB'}
 META_AUTO = re.compile(r'Lolirine Pool Store\.\s*$')
 

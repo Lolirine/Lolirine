@@ -8,6 +8,12 @@
             <xpath expr="//field[@name='website_description']" position="after">
                 <field name="x_specs_techniques"
                        placeholder="Caractéristiques techniques affichées sous la description sur le site..."/>
+                <field name="x_contenu_colis"
+                       placeholder="Contenu du colis et compatibilités (affiché sur le site)..."/>
+                <field name="x_conseils"
+                       placeholder="Conseils d'installation et d'entretien (affichés sur le site)..."/>
+                <field name="x_faq"
+                       placeholder="Questions fréquentes (affichées sur le site)..."/>
             </xpath>
         </field>
     </record>
