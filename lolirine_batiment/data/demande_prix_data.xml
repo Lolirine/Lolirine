@@ -21,19 +21,20 @@
         nous souhaitons recevoir votre <strong>meilleure offre de prix</strong> pour les matériaux ci-dessous
         (référence <strong t-out="object.name"/>, détail également en pièce jointe).</p>
     <p>Merci de nous indiquer vos <strong>prix nets, remise déduite</strong>, ainsi que vos délais et la disponibilité des articles.</p>
+    <t t-set="lignes" t-value="object.order_line.filtered(lambda l: not l.display_type)"/>
+    <t t-set="refs" t-value="[l.product_id.seller_ids.filtered(lambda s: s.partner_id == object.partner_id.commercial_partner_id)[:1].product_code or '' for l in lignes]"/>
     <table style="border-collapse: collapse; width: 100%; margin: 12px 0;">
         <thead>
-            <tr style="background: #2f5d50; color: #fff;">
-                <th style="padding: 6px; text-align: left;">Référence</th>
-                <th style="padding: 6px; text-align: left;">Désignation</th>
-                <th style="padding: 6px; text-align: right;">Quantité</th>
+            <tr>
+                <th t-if="any(refs)" style="padding: 7px 6px; text-align: left; background-color: #e3ece7; color: #1f3d35; font-weight: bold; border-bottom: 2px solid #2f5d50;">Votre réf.</th>
+                <th style="padding: 7px 6px; text-align: left; background-color: #e3ece7; color: #1f3d35; font-weight: bold; border-bottom: 2px solid #2f5d50;">Désignation</th>
+                <th style="padding: 7px 6px; text-align: right; background-color: #e3ece7; color: #1f3d35; font-weight: bold; border-bottom: 2px solid #2f5d50;">Quantité</th>
             </tr>
         </thead>
         <tbody>
-            <t t-foreach="object.order_line.filtered(lambda l: not l.display_type)" t-as="l">
+            <t t-foreach="lignes" t-as="l">
                 <tr style="border-bottom: 1px solid #ddd;">
-                    <td style="padding: 5px; white-space: nowrap;"
-                        t-out="l.product_id.seller_ids.filtered(lambda s: s.partner_id == object.partner_id.commercial_partner_id)[:1].product_code or ''"/>
+                    <td t-if="any(refs)" style="padding: 5px; white-space: nowrap;" t-out="refs[l_index]"/>
                     <td style="padding: 5px;" t-out="l.product_id.name"/>
                     <td style="padding: 5px; text-align: right; white-space: nowrap;">
                         <t t-out="('%g' % l.product_qty).replace('.', ',')"/> <t t-out="l.product_uom_id.name"/>
