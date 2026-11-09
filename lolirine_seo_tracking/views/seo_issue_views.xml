@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_seo_issue_list" model="ir.ui.view">
+        <field name="name">lolirine.seo.issue.list</field>
+        <field name="model">lolirine.seo.issue</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" decoration-muted="state == 'ignored'">
+                <field name="severity" widget="badge" decoration-danger="severity == 'high'"
+                       decoration-warning="severity == 'medium'"/>
+                <field name="issue_type"/>
+                <field name="name"/>
+                <field name="detail"/>
+                <field name="impressions_28d" optional="show"/>
+                <field name="url" optional="hide"/>
+                <field name="state" column_invisible="1"/>
+                <button name="action_open_record" type="object" string="Corriger" icon="fa-pencil"/>
+                <button name="action_open_url" type="object" string="Voir" icon="fa-external-link"
+                        invisible="not url"/>
+                <button name="action_ignore" type="object" string="Ignorer" icon="fa-eye-slash"
+                        invisible="state != 'open'"/>
+                <button name="action_reopen" type="object" string="Rouvrir" icon="fa-undo"
+                        invisible="state == 'open'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_seo_issue_search" model="ir.ui.view">
+        <field name="name">lolirine.seo.issue.search</field>
+        <field name="model">lolirine.seo.issue</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="issue_type"/>
+                <filter name="open" string="À corriger" domain="[('state', '=', 'open')]"/>
+                <filter name="ignored" string="Ignorés" domain="[('state', '=', 'ignored')]"/>
+                <separator/>
+                <filter name="high" string="Gravité élevée" domain="[('severity', '=', 'high')]"/>
+                <filter name="with_impr" string="Vus dans Google" domain="[('impressions_28d', '>', 0)]"/>
+                <separator/>
+                <filter name="products" string="Produits" domain="[('res_model', '=', 'product.template')]"/>
+                <filter name="categories" string="Catégories" domain="[('res_model', '=', 'product.public.category')]"/>
+                <filter name="pages" string="Pages" domain="[('res_model', '=', 'website.page')]"/>
+                <group>
+                    <filter name="g_type" string="Problème" context="{'group_by': 'issue_type'}"/>
+                    <filter name="g_sev" string="Gravité" context="{'group_by': 'severity'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_seo_issue" model="ir.actions.act_window">
+        <field name="name">Audit SEO</field>
+        <field name="res_model">lolirine.seo.issue</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'search_default_open': 1, 'search_default_g_type': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Pas encore d'audit</p>
+            <p>L'audit tourne chaque lundi ; vous pouvez le lancer depuis SEO &amp; Trafic &gt; Réglages.</p>
+        </field>
+    </record>
+</odoo>

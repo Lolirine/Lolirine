@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_seo_dashboard_form" model="ir.ui.view">
+        <field name="name">lolirine.seo.dashboard.form</field>
+        <field name="model">lolirine.seo.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Tableau de bord SEO" create="0" delete="0">
+                <header>
+                    <field name="period" widget="radio" options="{'horizontal': true}"/>
+                </header>
+                <sheet>
+                    <field name="report_html" readonly="1" nolabel="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_seo_dashboard" model="ir.actions.act_window">
+        <field name="name">Tableau de bord SEO</field>
+        <field name="res_model">lolirine.seo.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

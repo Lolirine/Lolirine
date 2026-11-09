@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_seo_gsc_list" model="ir.ui.view">
+        <field name="name">lolirine.seo.gsc.line.list</field>
+        <field name="model">lolirine.seo.gsc.line</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0">
+                <field name="date"/>
+                <field name="query"/>
+                <field name="page"/>
+                <field name="clicks" sum="Clics"/>
+                <field name="impressions" sum="Impressions"/>
+                <field name="ctr"/>
+                <field name="position"/>
+                <field name="country" optional="show"/>
+                <field name="device" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_seo_gsc_search" model="ir.ui.view">
+        <field name="name">lolirine.seo.gsc.line.search</field>
+        <field name="model">lolirine.seo.gsc.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="query"/>
+                <field name="page"/>
+                <filter name="date" string="Date" date="date"/>
+                <filter name="be" string="Belgique" domain="[('country', '=', 'BEL')]"/>
+                <filter name="mobile" string="Mobile" domain="[('device', '=', 'MOBILE')]"/>
+                <group>
+                    <filter name="g_query" string="Requête" context="{'group_by': 'query'}"/>
+                    <filter name="g_page" string="Page" context="{'group_by': 'page'}"/>
+                    <filter name="g_country" string="Pays" context="{'group_by': 'country'}"/>
+                    <filter name="g_device" string="Appareil" context="{'group_by': 'device'}"/>
+                    <filter name="g_week" string="Semaine" context="{'group_by': 'date:week'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_seo_gsc_pivot" model="ir.ui.view">
+        <field name="name">lolirine.seo.gsc.line.pivot</field>
+        <field name="model">lolirine.seo.gsc.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Mots-clés Google">
+                <field name="query" type="row"/>
+                <field name="clicks" type="measure"/>
+                <field name="impressions" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_seo_gsc_graph" model="ir.ui.view">
+        <field name="name">lolirine.seo.gsc.line.graph</field>
+        <field name="model">lolirine.seo.gsc.line</field>
+        <field name="arch" type="xml">
+            <graph string="Clics Google" type="line">
+                <field name="date" interval="day"/>
+                <field name="clicks" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_seo_gsc" model="ir.actions.act_window">
+        <field name="name">Mots-clés Google (Search Console)</field>
+        <field name="res_model">lolirine.seo.gsc.line</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Search Console n'est pas encore reliée</p>
+            <p>Renseignez la clé du compte de service dans Site Web &gt; SEO &amp; Trafic &gt; Réglages.</p>
+        </field>
+    </record>
+
+    <record id="view_seo_opportunity_list" model="ir.ui.view">
+        <field name="name">lolirine.seo.opportunity.list</field>
+        <field name="model">lolirine.seo.opportunity</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" default_order="score desc">
+                <field name="query"/>
+                <field name="page"/>
+                <field name="impressions" sum="Impressions"/>
+                <field name="clicks" sum="Clics"/>
+                <field name="ctr"/>
+                <field name="position"/>
+                <field name="kind" widget="badge" decoration-success="kind == 'top3'"
+                       decoration-warning="kind in ('low_ctr', 'striking')" decoration-info="kind == 'page2'"/>
+                <field name="score"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_seo_opportunity_search" model="ir.ui.view">
+        <field name="name">lolirine.seo.opportunity.search</field>
+        <field name="model">lolirine.seo.opportunity</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="query"/>
+                <field name="page"/>
+                <filter name="todo" string="À travailler" domain="[('kind', 'in', ('low_ctr', 'striking', 'page2'))]"/>
+                <filter name="low_ctr" string="CTR faible" domain="[('kind', '=', 'low_ctr')]"/>
+                <filter name="striking" string="Position 4-10" domain="[('kind', '=', 'striking')]"/>
+                <filter name="page2" string="Page 2" domain="[('kind', '=', 'page2')]"/>
+                <group>
+                    <filter name="g_kind" string="Opportunité" context="{'group_by': 'kind'}"/>
+                    <filter name="g_page" string="Page" context="{'group_by': 'page'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_seo_opportunity" model="ir.actions.act_window">
+        <field name="name">Opportunités SEO</field>
+        <field name="res_model">lolirine.seo.opportunity</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'search_default_todo': 1}</field>
+    </record>
+</odoo>

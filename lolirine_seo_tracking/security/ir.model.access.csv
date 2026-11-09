@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_seo_hit_designer,seo.hit designer,model_lolirine_seo_hit,website.group_website_designer,1,0,0,1
+access_seo_hit_system,seo.hit system,model_lolirine_seo_hit,base.group_system,1,1,1,1
+access_seo_gsc_designer,seo.gsc designer,model_lolirine_seo_gsc_line,website.group_website_designer,1,0,0,0
+access_seo_gsc_system,seo.gsc system,model_lolirine_seo_gsc_line,base.group_system,1,1,1,1
+access_seo_opp_designer,seo.opportunity designer,model_lolirine_seo_opportunity,website.group_website_designer,1,0,0,0
+access_seo_404_designer,seo.404 designer,model_lolirine_seo_notfound,website.group_website_designer,1,1,0,1
+access_seo_issue_designer,seo.issue designer,model_lolirine_seo_issue,website.group_website_designer,1,1,0,0
+access_seo_issue_system,seo.issue system,model_lolirine_seo_issue,base.group_system,1,1,1,1
+access_seo_dashboard_designer,seo.dashboard designer,model_lolirine_seo_dashboard,website.group_website_designer,1,1,1,1
+access_seo_config_system,seo.config system,model_lolirine_seo_config,base.group_system,1,1,1,1

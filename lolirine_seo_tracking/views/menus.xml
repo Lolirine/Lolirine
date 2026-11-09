@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_seo_root" name="SEO &amp; Trafic" parent="website.menu_website_configuration"
+              sequence="25" groups="website.group_website_designer,base.group_system"/>
+    <menuitem id="menu_seo_dashboard" name="Tableau de bord" parent="menu_seo_root"
+              action="action_seo_dashboard" sequence="1"/>
+    <menuitem id="menu_seo_visits" name="Visites par source" parent="menu_seo_root"
+              action="action_seo_visits" sequence="10"/>
+    <menuitem id="menu_seo_pages" name="Pages vues" parent="menu_seo_root"
+              action="action_seo_pages" sequence="15"/>
+    <menuitem id="menu_seo_orders" name="Commandes par source" parent="menu_seo_root"
+              action="action_seo_orders" sequence="20"/>
+    <menuitem id="menu_seo_gsc" name="Mots-clés Google" parent="menu_seo_root"
+              action="action_seo_gsc" sequence="30"/>
+    <menuitem id="menu_seo_opportunity" name="Opportunités SEO" parent="menu_seo_root"
+              action="action_seo_opportunity" sequence="35"/>
+    <menuitem id="menu_seo_issue" name="Audit SEO" parent="menu_seo_root"
+              action="action_seo_issue" sequence="40"/>
+    <menuitem id="menu_seo_notfound" name="Pages 404" parent="menu_seo_root"
+              action="action_seo_notfound" sequence="45"/>
+    <menuitem id="menu_seo_config" name="Réglages" parent="menu_seo_root"
+              action="action_seo_config" sequence="90" groups="base.group_system"/>
+</odoo>

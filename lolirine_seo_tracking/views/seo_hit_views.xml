@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_seo_hit_list" model="ir.ui.view">
+        <field name="name">lolirine.seo.hit.list</field>
+        <field name="model">lolirine.seo.hit</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0">
+                <field name="date"/>
+                <field name="path"/>
+                <field name="page_type"/>
+                <field name="is_landing" widget="boolean"/>
+                <field name="source_type"/>
+                <field name="source_name"/>
+                <field name="search_query" optional="hide"/>
+                <field name="landing_path" optional="hide"/>
+                <field name="utm_campaign" optional="hide"/>
+                <field name="lang" optional="show"/>
+                <field name="device" optional="show"/>
+                <field name="country_code" optional="show"/>
+                <field name="order_id" optional="hide"/>
+                <field name="amount" optional="hide" sum="CA"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_seo_hit_search" model="ir.ui.view">
+        <field name="name">lolirine.seo.hit.search</field>
+        <field name="model">lolirine.seo.hit</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="path"/>
+                <field name="source_name"/>
+                <field name="landing_path"/>
+                <field name="product_tmpl_id"/>
+                <field name="utm_campaign"/>
+                <filter name="landing" string="Visites (entrées)" domain="[('is_landing', '=', True)]"/>
+                <filter name="orders" string="Commandes" domain="[('page_type', '=', 'confirmation')]"/>
+                <separator/>
+                <filter name="organic" string="Moteurs de recherche" domain="[('source_type', '=', 'organic')]"/>
+                <filter name="ai" string="Assistants IA" domain="[('source_type', '=', 'ai')]"/>
+                <filter name="social" string="Réseaux sociaux" domain="[('source_type', '=', 'social')]"/>
+                <filter name="referral" string="Sites référents" domain="[('source_type', '=', 'referral')]"/>
+                <separator/>
+                <filter name="date" string="Date" date="day"/>
+                <group>
+                    <filter name="g_type" string="Type de source" context="{'group_by': 'source_type'}"/>
+                    <filter name="g_source" string="Source" context="{'group_by': 'source_name'}"/>
+                    <filter name="g_landing" string="Page d'entrée" context="{'group_by': 'landing_path'}"/>
+                    <filter name="g_page" string="Page" context="{'group_by': 'path'}"/>
+                    <filter name="g_ptype" string="Type de page" context="{'group_by': 'page_type'}"/>
+                    <filter name="g_product" string="Produit" context="{'group_by': 'product_tmpl_id'}"/>
+                    <filter name="g_lang" string="Langue" context="{'group_by': 'lang'}"/>
+                    <filter name="g_device" string="Appareil" context="{'group_by': 'device'}"/>
+                    <filter name="g_country" string="Pays" context="{'group_by': 'country_code'}"/>
+                    <filter name="g_day" string="Jour" context="{'group_by': 'day:day'}"/>
+                    <filter name="g_week" string="Semaine" context="{'group_by': 'day:week'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_seo_hit_graph" model="ir.ui.view">
+        <field name="name">lolirine.seo.hit.graph</field>
+        <field name="model">lolirine.seo.hit</field>
+        <field name="arch" type="xml">
+            <graph string="Visites" type="line" stacked="1">
+                <field name="day" interval="day"/>
+                <field name="source_type"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_seo_hit_pivot" model="ir.ui.view">
+        <field name="name">lolirine.seo.hit.pivot</field>
+        <field name="model">lolirine.seo.hit</field>
+        <field name="arch" type="xml">
+            <pivot string="Visites">
+                <field name="source_type" type="row"/>
+                <field name="source_name" type="row"/>
+                <field name="day" interval="month" type="col"/>
+                <field name="amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_seo_visits" model="ir.actions.act_window">
+        <field name="name">Visites par source</field>
+        <field name="res_model">lolirine.seo.hit</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="context">{'search_default_landing': 1, 'search_default_g_type': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune visite mesurée pour l'instant</p>
+            <p>La mesure démarre dès l'installation du module : chaque entrée sur le site
+               est enregistrée avec sa source (Google, Bing, ChatGPT, Facebook...).</p>
+        </field>
+    </record>
+
+    <record id="action_seo_pages" model="ir.actions.act_window">
+        <field name="name">Pages vues</field>
+        <field name="res_model">lolirine.seo.hit</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="context">{'search_default_g_page': 1}</field>
+    </record>
+
+    <record id="action_seo_orders" model="ir.actions.act_window">
+        <field name="name">Commandes par source</field>
+        <field name="res_model">lolirine.seo.hit</field>
+        <field name="view_mode">pivot,list</field>
+        <field name="context">{'search_default_orders': 1, 'search_default_g_type': 1}</field>
+    </record>
+</odoo>

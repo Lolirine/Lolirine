@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_seo_notfound_list" model="ir.ui.view">
+        <field name="name">lolirine.seo.notfound.list</field>
+        <field name="model">lolirine.seo.notfound</field>
+        <field name="arch" type="xml">
+            <list create="0" editable="bottom" default_order="hits_human desc, hits_bot desc"
+                  decoration-muted="state != 'open'">
+                <field name="url" readonly="1"/>
+                <field name="hits_human" readonly="1" sum="Visiteurs"/>
+                <field name="hits_bot" readonly="1" sum="Robots"/>
+                <field name="last_bot" readonly="1" optional="show"/>
+                <field name="last_referrer" readonly="1" optional="show"/>
+                <field name="last_seen" readonly="1"/>
+                <field name="redirect_to" readonly="state != 'open'" placeholder="/nouvelle-url"/>
+                <field name="state" readonly="1" widget="badge"/>
+                <button name="action_create_redirect" type="object" string="Créer la 301"
+                        icon="fa-share" invisible="state != 'open' or not redirect_to"/>
+                <button name="action_ignore" type="object" string="Ignorer" icon="fa-eye-slash"
+                        invisible="state != 'open'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_seo_notfound_search" model="ir.ui.view">
+        <field name="name">lolirine.seo.notfound.search</field>
+        <field name="model">lolirine.seo.notfound</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="url"/>
+                <filter name="open" string="À traiter" domain="[('state', '=', 'open')]"/>
+                <filter name="human" string="Vues par des visiteurs" domain="[('hits_human', '>', 0)]"/>
+                <filter name="google" string="Vues par Google" domain="[('last_bot', 'ilike', 'Google')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_seo_notfound" model="ir.actions.act_window">
+        <field name="name">Pages 404</field>
+        <field name="res_model">lolirine.seo.notfound</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'search_default_open': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune page introuvable détectée</p>
+            <p>Chaque URL qui renvoie une erreur 404 (lien cassé, ancienne fiche supprimée...)
+               apparaîtra ici, avec un bouton pour créer une redirection 301.</p>
+        </field>
+    </record>
+</odoo>

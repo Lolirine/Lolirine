@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cron_seo_gsc_import" model="ir.cron">
+        <field name="name">SEO : import quotidien Google Search Console</field>
+        <field name="model_id" ref="model_lolirine_seo_gsc_line"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_import()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 05:17:00')"/>
+    </record>
+    <record id="cron_seo_indexnow" model="ir.cron">
+        <field name="name">SEO : envoi IndexNow des pages modifiées</field>
+        <field name="model_id" ref="model_lolirine_seo_indexnow"/>
+        <field name="state">code</field>
+        <field name="code">model._submit_recent(hours=26)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 04:43:00')"/>
+    </record>
+    <record id="cron_seo_weekly" model="ir.cron">
+        <field name="name">SEO : audit + rapport hebdomadaire (lundi)</field>
+        <field name="model_id" ref="model_lolirine_seo_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_weekly()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">weeks</field>
+        <field name="nextcall" eval="(DateTime.now() + timedelta(days=(7 - DateTime.now().weekday()) % 7 or 7)).strftime('%Y-%m-%d 06:23:00')"/>
+    </record>
+</odoo>

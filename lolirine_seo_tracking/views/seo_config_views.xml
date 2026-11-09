@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_seo_config_form" model="ir.ui.view">
+        <field name="name">lolirine.seo.config.form</field>
+        <field name="model">lolirine.seo.config</field>
+        <field name="arch" type="xml">
+            <form string="Réglages SEO &amp; Trafic" create="0" delete="0">
+                <header>
+                    <button name="action_save" type="object" string="Enregistrer" class="btn-primary"/>
+                    <button name="action_test_gsc" type="object" string="Tester Search Console"/>
+                    <button name="action_import_gsc" type="object" string="Importer Search Console"/>
+                    <button name="action_run_audit" type="object" string="Lancer l'audit SEO"/>
+                    <button name="action_indexnow" type="object" string="Envoyer IndexNow (30 j)"/>
+                    <button name="action_send_digest" type="object" string="Envoyer le rapport test"/>
+                </header>
+                <sheet>
+                    <group string="Sites suivis">
+                        <field name="website_ids_param"/>
+                        <field name="digest_email"/>
+                    </group>
+                    <group string="Google Search Console (mots-clés, positions)">
+                        <field name="gsc_site" placeholder="sc-domain:lolirinepoolstore.be"/>
+                        <field name="gsc_credentials" placeholder='{"type": "service_account", ...}'/>
+                        <field name="gsc_client_email" invisible="not gsc_credentials"/>
+                        <field name="gsc_backfill_days"/>
+                        <field name="gsc_last_import"/>
+                    </group>
+                    <div class="text-muted small mb-3">
+                        1. console.cloud.google.com : créer un projet, activer « Google Search Console API ».<br/>
+                        2. IAM &gt; Comptes de service : créer un compte, onglet Clés &gt; Ajouter une clé JSON.<br/>
+                        3. Search Console &gt; Paramètres &gt; Utilisateurs : ajouter l'adresse du compte de service (autorisation « Restreint »).<br/>
+                        4. Coller le contenu du fichier JSON ci-dessus, Enregistrer, puis « Tester Search Console ».
+                    </div>
+                    <group string="IndexNow (Bing, Yandex, Seznam, Naver)">
+                        <field name="indexnow_enabled"/>
+                        <field name="indexnow_key"/>
+                        <field name="indexnow_last"/>
+                    </group>
+                    <group string="Audit">
+                        <field name="audit_last"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_seo_config" model="ir.actions.act_window">
+        <field name="name">Réglages SEO &amp; Trafic</field>
+        <field name="res_model">lolirine.seo.config</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>
