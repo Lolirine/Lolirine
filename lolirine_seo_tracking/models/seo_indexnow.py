@@ -38,6 +38,12 @@ class LolirineSeoIndexNow(models.AbstractModel):
         for p in products:
             paths.add(p.website_url)
         # Les variantes NL/EN sont découvertes par les balises hreflang.
+        categs = self.env['product.public.category'].sudo().with_context(
+            website_id=website.id, lang=website.default_lang_id.code).search([
+                ('website_id', 'in', [False, website.id]), ('write_date', '>=', since)])
+        slug = self.env['ir.http']._slug
+        for c in categs:
+            paths.add('/shop/category/%s' % slug(c))
         pages = self.env['website.page'].sudo().search([
             ('website_id', '=', website.id), ('is_published', '=', True),
             ('write_date', '>=', since)])
