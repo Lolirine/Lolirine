@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sur les sites suivis : fiche OnlineStore + WebSite à la place du bloc
+         Organization générique de website_sale (nom/logo de la société). -->
+    <template id="website_sale_layout_org_jsonld" inherit_id="website_sale.website_sale_layout"
+              name="Lolirine SEO : données structurées boutique">
+        <xpath expr="//script[@t-if='res_company and website']" position="after">
+            <script t-if="website and website._lolirine_seo_tracked()" type="application/ld+json"
+                    t-out="website._lolirine_seo_org_jsonld()"/>
+        </xpath>
+        <xpath expr="//script[@t-if='res_company and website']" position="attributes">
+            <attribute name="t-if">res_company and website and not website._lolirine_seo_tracked()</attribute>
+        </xpath>
+    </template>
+</odoo>

@@ -28,3 +28,11 @@ Menu : **Site Web > SEO & Trafic**
 ## Installation
 Apps > mettre à jour la liste > installer « Lolirine — SEO & Trafic ».
 Le hook remplit le robots.txt du site **seulement s'il est vide**.
+
+## Données structurées (19.0.1.1.0)
+Sur les sites suivis, le bloc `Organization` générique de website_sale (nom et logo de la
+société) est remplacé par un graphe `OnlineStore` + `WebSite` : nom et logo du site, réseaux
+sociaux du site, téléphone, adresse de contact, horaires, société exploitante (Lolirine SRL).
+Valeurs réglables par paramètres système `lolirine_seo.org_street`, `org_zip`, `org_city`,
+`org_country`, `org_phone`, `org_legal_name`, `org_vat`, `org_hours_week`,
+`org_hours_saturday` (vide = non publié).

@@ -8,3 +8,4 @@ from . import seo_issue
 from . import seo_indexnow
 from . import seo_dashboard
 from . import ir_http
+from . import website

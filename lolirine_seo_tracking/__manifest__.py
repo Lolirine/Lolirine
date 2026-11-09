@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Lolirine — SEO & Trafic (Pool Store)",
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Website/Website',
     'summary': "Suivi des visites, moteurs de recherche, IA et réseaux, "
                "mots-clés Search Console, audit SEO, 404, IndexNow et rapport hebdo",
@@ -36,6 +36,7 @@ Suivi du trafic et du référencement du site Lolirine Pool Store
         'views/seo_dashboard_views.xml',
         'views/seo_config_views.xml',
         'views/menus.xml',
+        'views/website_templates.xml',
     ],
     'assets': {
         'web.assets_frontend': [
