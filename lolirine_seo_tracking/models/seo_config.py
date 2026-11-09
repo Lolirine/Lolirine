@@ -110,7 +110,7 @@ class LolirineSeoConfig(models.TransientModel):
     def _reopen(self, message=None, kind='success'):
         action = {
             'type': 'ir.actions.act_window', 'res_model': self._name,
-            'view_mode': 'form', 'target': 'current',
+            'view_mode': 'form', 'views': [(False, 'form')], 'target': 'current',
             'name': _('Réglages SEO & Trafic'),
         }
         if not message:

@@ -64,7 +64,8 @@ class LolirineSeoIssue(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window', 'res_model': self.res_model,
-            'res_id': self.res_id, 'view_mode': 'form', 'target': 'current',
+            'res_id': self.res_id, 'view_mode': 'form', 'views': [(False, 'form')],
+            'target': 'current',
         }
 
     def action_open_url(self):

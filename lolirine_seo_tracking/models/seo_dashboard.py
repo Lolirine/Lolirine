@@ -64,7 +64,7 @@ class LolirineSeoDashboard(models.TransientModel):
 
     def action_refresh(self):
         return {'type': 'ir.actions.act_window', 'res_model': self._name,
-                'view_mode': 'form', 'target': 'current',
+                'view_mode': 'form', 'views': [(False, 'form')], 'target': 'current',
                 'context': {'default_period': self.period}}
 
     # ---------------------------------------------------------------- données
