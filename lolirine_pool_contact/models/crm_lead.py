@@ -34,11 +34,15 @@ class CrmLead(models.Model):
 
     def _prepare_opportunity_quotation_context(self):
         """Devis créé depuis une opportunité Pool Store : rattaché au site Pool Store
-        (modèles d'e-mails, tarifs et équipe du site)."""
+        (modèles d'e-mails, tarifs et équipe du site) et marqué « devis piscine »
+        (modèle « Devis Piscine », jamais le modèle d'abonnement du garde-meuble)."""
         ctx = super()._prepare_opportunity_quotation_context()
         if self._lolirine_est_pool() and 'website_id' in self.env['sale.order']._fields:
             site = self.env['website'].sudo().search(
                 ['|', ('crm_default_team_id', '=', self.team_id.id), ('salesteam_id', '=', self.team_id.id)], limit=1)
             if site:
                 ctx['default_website_id'] = site.id
+            # Devis piscine (lolirine_pool_sale) : modèle « Devis Piscine », sans abonnement
+            if 'is_pool_quote' in self.env['sale.order']._fields:
+                ctx['default_is_pool_quote'] = True
         return ctx

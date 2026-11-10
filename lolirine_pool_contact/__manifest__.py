@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Pool Store - Contact',
-    'version': '19.0.1.3.0',
+    'version': '19.0.1.4.0',
     'category': 'Website/Website',
     'summary': 'Page Contactez-nous pour Pool Store avec formulaire CRM',
     'description': """

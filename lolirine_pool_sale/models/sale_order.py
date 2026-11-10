@@ -141,23 +141,69 @@ class SaleOrderPool(models.Model):
     # ══════════════════════════════════════════════════════════════
     #  Séquence dédiée PSC
     # ══════════════════════════════════════════════════════════════
+    # ── Modèle de devis piscine, jamais d'abonnement ──────────────────
+    @api.model
+    def _pool_modele(self):
+        """Modèle « Devis Piscine » du module (le plus complet). Repli : un modèle
+        actif nommé « Devis Piscine » sans plan récurrent."""
+        modele = self.env.ref('lolirine_pool_sale.sale_template_pool', raise_if_not_found=False)
+        if modele and modele.active:
+            return modele
+        return self.env['sale.order.template'].sudo().search(
+            [('name', '=ilike', 'Devis Piscine'), ('plan_id', '=', False)], limit=1)
+
     def _get_pool_template_id(self):
-        tmpl = self.env['sale.order.template'].sudo().search(
-            ['|', ('name', 'ilike', 'piscine'), ('name', 'ilike', 'pool')], limit=1)
-        return tmpl.id if tmpl else False
+        return self._pool_modele().id or False
+
+    def _pool_vals_sans_abonnement(self, vals):
+        """Devis piscine : jamais un modèle d'abonnement (garde-meuble). Si le modèle
+        reçu est vide ou porte un plan récurrent (modèle par défaut de la société,
+        « Réservation du box »), on met le modèle piscine ; pas de plan récurrent."""
+        modele_id = vals.get('sale_order_template_id')
+        modele = self.env['sale.order.template'].browse(modele_id) if modele_id else self.env['sale.order.template']
+        if not modele or ('plan_id' in modele._fields and modele.plan_id):
+            vals['sale_order_template_id'] = self._get_pool_template_id()
+        if 'plan_id' in self._fields:
+            vals['plan_id'] = False
+        return vals
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        if self.env.context.get('default_is_pool_quote'):
+            if 'sale_order_template_id' in fields_list or 'sale_order_template_id' in res:
+                res['sale_order_template_id'] = self._get_pool_template_id()
+            if 'plan_id' in self._fields:
+                res['plan_id'] = False
+        return res
+
+    @api.onchange('is_pool_quote')
+    def _onchange_pool_modele(self):
+        for o in self:
+            if not o.is_pool_quote:
+                continue
+            modele = o.sale_order_template_id
+            if not modele or ('plan_id' in modele._fields and modele.plan_id):
+                o.sale_order_template_id = o._pool_modele()
+            if 'plan_id' in o._fields and o.plan_id:
+                o.plan_id = False
 
     @api.model_create_multi
     def create(self, vals_list):
-        pool_template_id = None
         for vals in vals_list:
             if vals.get('is_pool_quote'):
-                vals['name'] = self.env['ir.sequence'].next_by_code(
-                    'lolirine.pool.sale.order') or '/'
-                if pool_template_id is None:
-                    pool_template_id = self._get_pool_template_id()
-                if pool_template_id and not vals.get('sale_order_template_id'):
-                    vals['sale_order_template_id'] = pool_template_id
-        return super().create(vals_list)
+                if not vals.get('name') or vals.get('name') in ('/', _('New'), 'New'):
+                    vals['name'] = self.env['ir.sequence'].next_by_code(
+                        'lolirine.pool.sale.order') or '/'
+                self._pool_vals_sans_abonnement(vals)
+        orders = super().create(vals_list)
+        for o in orders.filtered('is_pool_quote'):
+            if 'plan_id' in o._fields and o.plan_id:
+                o.plan_id = False
+            modele = o.sale_order_template_id
+            if modele and modele.note and not o.note:
+                o.note = modele.note
+        return orders
 
     def action_confirm(self):
         for rec in self:
@@ -173,10 +219,13 @@ class SaleOrderPool(models.Model):
                     vals['name'] = self.env['ir.sequence'].next_by_code(
                         'lolirine.pool.sale.order') or '/'
                     break
-            if not vals.get('sale_order_template_id'):
-                tmpl_id = self._get_pool_template_id()
-                if tmpl_id:
-                    vals['sale_order_template_id'] = tmpl_id
+            courant = self[:1].sale_order_template_id
+            if 'sale_order_template_id' not in vals and courant and not (
+                    'plan_id' in courant._fields and courant.plan_id):
+                vals['sale_order_template_id'] = courant.id
+            vals = self._pool_vals_sans_abonnement(dict(vals))
+        elif vals.get('plan_id') and any(o.is_pool_quote for o in self):
+            vals = dict(vals, plan_id=False)
         return super().write(vals)
 
     # ══════════════════════════════════════════════════════════════
