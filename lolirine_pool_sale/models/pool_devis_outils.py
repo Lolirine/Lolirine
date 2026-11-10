@@ -60,10 +60,17 @@ class SaleOrderLineOutils(models.Model):
 
     def _inverse_pool_avancement(self):
         for line in self:
+            if line.display_type:
+                continue
+            pct = min(max(line.pool_avancement or 0.0, 0.0), 100.0)
+            actuel = (line.qty_delivered / line.product_uom_qty * 100.0) if line.product_uom_qty else 0.0
+            # Le formulaire renvoie la valeur (souvent 0) sur toutes les lignes à l'enregistrement,
+            # y compris les devis garde-meuble : on n'agit que si l'avancement a réellement changé.
+            if abs(pct - actuel) < 0.05:
+                continue
             if line.qty_delivered_method != 'manual':
                 raise UserError(_("L'avancement ne se saisit que sur une ligne à livraison manuelle "
                                   "(main-d'œuvre facturée à l'avancement) : %s") % line.name)
-            pct = min(max(line.pool_avancement, 0.0), 100.0)
             line.qty_delivered = line.product_uom_qty * pct / 100.0
 
 
