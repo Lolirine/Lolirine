@@ -219,11 +219,17 @@ class SaleOrderPool(models.Model):
                     vals['name'] = self.env['ir.sequence'].next_by_code(
                         'lolirine.pool.sale.order') or '/'
                     break
-            courant = self[:1].sale_order_template_id
-            if 'sale_order_template_id' not in vals and courant and not (
-                    'plan_id' in courant._fields and courant.plan_id):
-                vals['sale_order_template_id'] = courant.id
-            vals = self._pool_vals_sans_abonnement(dict(vals))
+            vals = dict(vals)
+            if 'sale_order_template_id' in vals:
+                self._pool_vals_sans_abonnement(vals)
+            else:
+                # Ne pas réécrire un modèle déjà correct : changer le modèle recalcule
+                # la note, la validité et les prix des lignes.
+                courant = self[:1].sale_order_template_id
+                if not courant or ('plan_id' in courant._fields and courant.plan_id):
+                    vals['sale_order_template_id'] = self._get_pool_template_id()
+                if 'plan_id' in self._fields:
+                    vals['plan_id'] = False
         elif vals.get('plan_id') and any(o.is_pool_quote for o in self):
             vals = dict(vals, plan_id=False)
         return super().write(vals)
