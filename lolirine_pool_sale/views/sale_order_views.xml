@@ -52,6 +52,9 @@
                        invisible="not is_pool_quote"
                        string="Modèle devis"
                        options="{'no_create': True}"/>
+                <field name="pool_afficher_images"
+                       invisible="not is_pool_quote"
+                       widget="boolean_toggle"/>
                 <field name="pool_fiche_id" invisible="1"/>
             </xpath>
 

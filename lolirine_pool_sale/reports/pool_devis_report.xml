@@ -10,10 +10,24 @@
             <td style="padding: 8px 12px;">
                 <t t-set="pool_txt" t-value="(line.name or line.product_id.name or '').split('\n')"/>
                 <t t-set="pool_titre" t-value="pool_txt[0].strip()"/>
-                <strong t-out="pool_titre.split('] ', 1)[1] if pool_titre.startswith('[') and '] ' in pool_titre else pool_titre"/>
-                <div t-if="line.pool_est_mo and len(pool_txt) &gt; 1"
-                     style="font-size: 11px; color: #555; white-space: pre-line; margin-top: 3px;"
-                     t-out="'\n'.join(pool_txt[1:]).strip()"/>
+                <t t-set="pool_img" t-value="doc.pool_afficher_images and not line.pool_est_mo and line.product_id.type != 'service' and line.product_id.image_128"/>
+                <table t-if="pool_img" style="width: 100%; border: none; border-collapse: collapse;">
+                    <tr>
+                        <td style="width: 46px; border: none; padding: 0 8px 0 0; vertical-align: top;">
+                            <img t-att-src="image_data_uri(line.product_id.image_128)"
+                                 style="max-width: 40px; max-height: 40px;"/>
+                        </td>
+                        <td style="border: none; padding: 0; vertical-align: middle;">
+                            <strong t-out="pool_titre.split('] ', 1)[1] if pool_titre.startswith('[') and '] ' in pool_titre else pool_titre"/>
+                        </td>
+                    </tr>
+                </table>
+                <t t-else="">
+                    <strong t-out="pool_titre.split('] ', 1)[1] if pool_titre.startswith('[') and '] ' in pool_titre else pool_titre"/>
+                    <div t-if="line.pool_est_mo and len(pool_txt) &gt; 1"
+                         style="font-size: 11px; color: #555; white-space: pre-line; margin-top: 3px;"
+                         t-out="'\n'.join(pool_txt[1:]).strip()"/>
+                </t>
             </td>
         </xpath>
         <xpath expr="//t[@t-if='not line.display_type']/tr/td[2]" position="replace">

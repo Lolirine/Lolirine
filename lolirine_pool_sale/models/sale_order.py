@@ -66,6 +66,12 @@ class SaleOrderPool(models.Model):
         default=False,
     )
 
+    pool_afficher_images = fields.Boolean(
+        string='Images dans le PDF',
+        default=True,
+        help="Affiche une vignette de l'article à côté de chaque ligne de fourniture dans le devis PDF.",
+    )
+
     # ── Lien fiche de visite ───────────────────────────────────────
     pool_fiche_id = fields.Char(
         string='ID fiche de visite',
