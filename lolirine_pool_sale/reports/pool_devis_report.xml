@@ -5,6 +5,25 @@
          autoliquidation, signature électronique -->
     <template id="report_pool_devis_document_outils" inherit_id="lolirine_pool_dropship.report_pool_devis_document">
 
+        <!-- Mise en page compacte du tableau des lignes (moins de pages) -->
+        <xpath expr="//table[thead/tr/th[contains(., 'Description')]]" position="before">
+            <style>
+                .pool-compact { font-size: 10px !important; }
+                .pool-compact th { padding: 5px 6px !important; font-size: 10px !important; }
+                .pool-compact td { padding: 3px 6px !important; line-height: 1.25; }
+                .pool-compact table td { padding: 0 6px 0 0 !important; border: none !important; }
+                .pool-compact img { max-width: 28px !important; max-height: 28px !important; }
+                .pool-compact div { font-size: 9px !important; margin-top: 1px !important; }
+                .pool-compact-note { font-size: 10px !important; padding: 8px !important; }
+            </style>
+        </xpath>
+        <xpath expr="//table[thead/tr/th[contains(., 'Description')]]" position="attributes">
+            <attribute name="class">table table-sm pool-compact</attribute>
+        </xpath>
+        <xpath expr="//t[@t-if='doc.note']/div" position="attributes">
+            <attribute name="class">pool-compact-note</attribute>
+        </xpath>
+
         <!-- Libellé : celui de la ligne (sans la référence) ; description des travaux sous la main-d'œuvre -->
         <xpath expr="//t[@t-if='not line.display_type']/tr/td[1]" position="replace">
             <td style="padding: 8px 12px;">
@@ -13,9 +32,9 @@
                 <t t-set="pool_img" t-value="doc.pool_afficher_images and not line.pool_est_mo and line.product_id.type != 'service' and line.product_id.image_128"/>
                 <table t-if="pool_img" style="width: 100%; border: none; border-collapse: collapse;">
                     <tr>
-                        <td style="width: 46px; border: none; padding: 0 8px 0 0; vertical-align: top;">
+                        <td style="width: 32px; border: none; padding: 0 6px 0 0; vertical-align: top;">
                             <img t-att-src="image_data_uri(line.product_id.image_128)"
-                                 style="max-width: 40px; max-height: 40px;"/>
+                                 style="max-width: 28px; max-height: 28px;"/>
                         </td>
                         <td style="border: none; padding: 0; vertical-align: middle;">
                             <strong t-out="pool_titre.split('] ', 1)[1] if pool_titre.startswith('[') and '] ' in pool_titre else pool_titre"/>
