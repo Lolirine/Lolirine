@@ -15,6 +15,12 @@
                 .pool-compact img { max-width: 28px !important; max-height: 28px !important; }
                 .pool-compact div { font-size: 9px !important; margin-top: 1px !important; }
                 .pool-compact-note { font-size: 10px !important; padding: 8px !important; }
+                .pool-compact { width: 100% !important; table-layout: fixed; }
+                .pool-compact > thead > tr > th:nth-child(1) { width: 64% !important; }
+                .pool-compact > thead > tr > th:nth-child(2) { width: 6% !important; }
+                .pool-compact > thead > tr > th:nth-child(3) { width: 11% !important; }
+                .pool-compact > thead > tr > th:nth-child(4) { width: 6% !important; }
+                .pool-compact > thead > tr > th:nth-child(5) { width: 13% !important; }
             </style>
         </xpath>
         <xpath expr="//table[thead/tr/th[contains(., 'Description')]]" position="attributes">
