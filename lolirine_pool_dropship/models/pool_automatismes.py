@@ -103,6 +103,20 @@ class SupplierDropshipInfo(models.Model):
                 _logger.warning("Prix Sibo : lot %d en erreur : %s", k, e)
         return prix
 
+    def _pool_variante_ref(self):
+        """Variante à laquelle s'applique le prix de cette fiche fournisseur : la variante
+        unique, sinon celle dont le code vaut la référence fournisseur (avec ou sans
+        « POOL- »). Rien si aucune variante ne correspond."""
+        self.ensure_one()
+        variantes = self.product_tmpl_id.product_variant_ids
+        if len(variantes) <= 1:
+            return variantes
+        ref = (self.supplier_product_ref or '').strip().upper()
+        if not ref:
+            return variantes.browse()
+        return variantes.filtered(
+            lambda p: (p.default_code or '').strip().upper() in (ref, 'POOL-' + ref))[:1]
+
     @api.model
     def _cron_pool_sync_prix_fluidra(self, appliquer=True, utilisateur_id=2):
         """Relit les prix catalogue Fluidra ; renvoie le résumé (texte) pour contrôle."""
@@ -127,18 +141,24 @@ class SupplierDropshipInfo(models.Model):
             (hausses if c > i.price else baisses).append((i, i.price, c, ancien_net, nouveau_net))
             if appliquer:
                 i.price = c
-                t = i.product_tmpl_id
-                if abs((t.standard_price or 0) - ancien_net) < 0.02:  # coût aligné sur l'ancien net
-                    t.standard_price = round(nouveau_net, 2)
+                v = i._pool_variante_ref()
+                if v and abs((v.standard_price or 0) - ancien_net) < 0.02:  # coût aligné sur l'ancien net
+                    v.standard_price = round(nouveau_net, 2)
         # fiches vendues sous le coût (ou sous la marge minimale)
         alertes = []
         for i in infos:
             t = i.product_tmpl_id
             if not t.sale_ok or not t.is_published or not t.list_price:
                 continue
+            # fiche à variantes : le prix fournisseur est celui de la variante dont le code
+            # porte la référence fournisseur ; on le compare au prix de CETTE variante,
+            # jamais au prix de base du modèle (fausses alertes sur les grands diamètres)
+            v = i._pool_variante_ref()
+            if not v:
+                continue
             net = i.price * (1 - (i.discount_percent or 0) / 100.0)
-            if net and t.list_price < net * (1 + MARGE_MINI):
-                alertes.append((t, t.list_price, net))
+            if net and v.lst_price < net * (1 + MARGE_MINI):
+                alertes.append((t, v.lst_price, net))
         resume = _("%(n)d prix catalogue relus : %(h)d hausse(s), %(b)d baisse(s) ; %(a)d fiche(s) sous %(m)d %% de marge",
                    n=len(catalogue), h=len(hausses), b=len(baisses), a=len(alertes), m=int(MARGE_MINI * 100))
         if appliquer and (hausses or baisses or alertes):
