@@ -862,5 +862,16 @@
         <field name="binding_type">report</field>
     </record>
 
+
+    <!-- Demande de prix / bon de commande standard : la mise en page de la société (DIN5008, marge haute
+         de 27 mm) est trop courte pour l'en-tête standard (logo + adresse sur 6 lignes), qui débordait
+         sur le bloc « Adresse d'expédition ». Format A4 à marge haute de 52 mm. -->
+    <record id="purchase.action_report_purchase_order" model="ir.actions.report">
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+    <record id="purchase.report_purchase_quotation" model="ir.actions.report">
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
     </data>
 </odoo>
