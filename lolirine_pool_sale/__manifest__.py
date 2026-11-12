@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Pool — Devis Piscine',
-    'version': '19.0.4.6.2',
+    'version': '19.0.4.6.3',
     'category': 'Sales',
     'summary': 'Devis piscine : ouvrages, conditions de paiement, marge, autoliquidation, chantier',
     'description': """

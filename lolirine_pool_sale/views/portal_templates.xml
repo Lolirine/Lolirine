@@ -35,7 +35,7 @@
             <attribute name="class" add="text-break" separator=" "/>
         </xpath>
         <xpath expr="//t[@t-out='sale_order.prepayment_percent * 100']" position="replace">
-            <t t-out="('%.2f' % (sale_order.prepayment_percent * 100)).rstrip('0').rstrip('.').replace('.', ',')"/>&#160;</xpath>
+            <t t-out="('%.2f' % (sale_order.prepayment_percent * 100)).rstrip('0').rstrip('.').replace('.', ',')"/>&#160;%)</xpath>
     </template>
 
 </odoo>
