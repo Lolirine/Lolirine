@@ -25,4 +25,17 @@
         </xpath>
     </template>
 
+
+    <!-- Devis en ligne, colonne de gauche : l'acompte des devis de chantier (= part matériel) n'est pas un
+         pourcentage rond ; le modèle standard l'affichait brut (35.978562112115284%), ce qui débordait de la
+         colonne et repoussait le bouton « Signer &amp; Payer » sous la carte du devis. -->
+    <template id="sale_order_portal_acompte_arrondi" name="Devis en ligne : pourcentage d'acompte arrondi"
+              inherit_id="sale.sale_order_portal_template" priority="45">
+        <xpath expr="//h2[t[@t-out='sale_order.prepayment_percent * 100']]" position="attributes">
+            <attribute name="class" add="text-break" separator=" "/>
+        </xpath>
+        <xpath expr="//t[@t-out='sale_order.prepayment_percent * 100']" position="replace">
+            <t t-out="('%.2f' % (sale_order.prepayment_percent * 100)).rstrip('0').rstrip('.').replace('.', ',')"/>&#160;</xpath>
+    </template>
+
 </odoo>
