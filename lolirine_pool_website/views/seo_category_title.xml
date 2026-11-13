@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- SEO (13/11/2026) : sur le Pool Store, le grand titre (H1) d'une catégorie reprend son titre
+         optimisé (website_meta_title, sans le suffixe « | Lolirine Pool Store ») au lieu du nom court
+         du menu : « Pompes à vitesse variable Pentair » au lieu de « Pentair ». Sans titre optimisé,
+         ou sur un autre site, le nom de la catégorie reste affiché comme avant. -->
+    <template id="seo_category_h1" inherit_id="website_sale.products" name="Lolirine — H1 de catégorie = titre SEO">
+        <xpath expr="//h1[hasclass('o_wsale_category_title')]/t[@t-elif='category']" position="replace">
+            <t t-elif="category">
+                <t t-set="lp_h1" t-value="website.id == 6 and (category.website_meta_title or '').split(' | ')[0].strip()"/>
+                <span t-if="lp_h1" t-out="lp_h1"/>
+                <span t-else="" t-field="category.name"/>
+            </t>
+        </xpath>
+    </template>
+</odoo>
