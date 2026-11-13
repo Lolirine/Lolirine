@@ -35,11 +35,21 @@ class BrandsController(http.Controller):
 
 class WebsiteSaleBrands(WebsiteSale):
 
-    @http.route('/shop/marque/<int:brand_id>', type='http', auth='public', website=True)
-    def shop_by_brand(self, brand_id, page=0, **kwargs):
+    @http.route([
+        '/shop/marque/<int:brand_id>',
+        '/shop/marque/<int:brand_id>/page/<int:page>',
+    ], type='http', auth='public', website=True)
+    def shop_by_brand(self, brand_id, page=1, **kwargs):
         brand = request.env['pool.brand'].sudo().browse(brand_id)
         if not brand.exists():
-            return request.redirect('/marques')
+            return request.redirect('/marques', code=301)
+
+        # Le pager Odoo numerote les pages a partir de 1 ; un ?page= recu en
+        # texte faisait planter la page (erreur 500), d'ou la conversion.
+        try:
+            page = max(int(page), 1)
+        except (TypeError, ValueError):
+            page = 1
 
         domain = [
             ('pool_brand_id', '=', brand_id),
@@ -48,7 +58,6 @@ class WebsiteSaleBrands(WebsiteSale):
         ]
 
         Product = request.env['product.template'].sudo()
-        products = Product.search(domain, limit=20, offset=page * 20)
         product_count = Product.search_count(domain)
 
         pager = request.website.pager(
@@ -57,6 +66,7 @@ class WebsiteSaleBrands(WebsiteSale):
             page=page,
             step=20,
         )
+        products = Product.search(domain, limit=20, offset=pager['offset'])
 
         return request.render('lolirine_pool_website.shop_brand_page', {
             'brand': brand,
