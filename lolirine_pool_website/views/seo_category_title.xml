@@ -5,7 +5,7 @@
          du menu : « Pompes à vitesse variable Pentair » au lieu de « Pentair ». Sans titre optimisé,
          ou sur un autre site, le nom de la catégorie reste affiché comme avant. -->
     <template id="seo_category_h1" inherit_id="website_sale.products" name="Lolirine — H1 de catégorie = titre SEO">
-        <xpath expr="//h1[hasclass('o_wsale_category_title')]/t[@t-elif='category']" position="replace">
+        <xpath expr="//h1[contains(@t-attf-class, 'o_wsale_category_title')]/t[@t-elif='category']" position="replace">
             <t t-elif="category">
                 <t t-set="lp_h1" t-value="website.id == 6 and (category.website_meta_title or '').split(' | ')[0].strip()"/>
                 <span t-if="lp_h1" t-out="lp_h1"/>
