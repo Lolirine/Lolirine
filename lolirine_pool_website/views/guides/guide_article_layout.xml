@@ -6,6 +6,17 @@
             <h5 class="guide-sidebar-title mb-3">À lire également</h5>
             <div class="guide-sidebar-list">
 
+                <a href="/guides/spa-sauna-hiver" class="guide-sidebar-card">
+                    <img src="/web/image/product.public.category/94/image_256"
+                         alt="Spa et sauna en hiver" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Spa et sauna : profiter de l’hiver</span>
+                </a>
+                <a href="/guides/construire-piscine-hiver" class="guide-sidebar-card">
+                    <img src="/lolirine_pool_website/static/img/realisations/construction-blocs-03.jpg"
+                         alt="Construire sa piscine" class="guide-sidebar-thumb" loading="lazy"/>
+                    <span>Faire construire sa piscine : s’y prendre dès l’hiver</span>
+                </a>
+
                 <a href="/guides/hiverner-piscine-hiver" class="guide-sidebar-card">
                     <img src="/lolirine_pool_website/static/src/img/guides/guide_01_hivernage.jpg"
                          alt="Hiverner sa piscine" class="guide-sidebar-thumb" loading="lazy"/>
