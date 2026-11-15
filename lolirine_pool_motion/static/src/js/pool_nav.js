@@ -14,6 +14,7 @@
  *  8. Espace client : raccourcis et dernieres commandes sur la page d'accueil.
  *  9. Accueil : entrees par besoin et reprise du panier.
  * 10. Pages rayon : presentation du rayon en tete et guide de choix.
+ * 11. Guides : produits du rayon lie au guide, achetables sur place.
  *
  * Script classique (pas de module) : tout est rendu ici a partir des routes
  * JSON /lolirine_nav/*. Chaque bloc est independant et reste masque si sa
@@ -1298,6 +1299,104 @@
     }
 
     /* ================================================================
+     * 11. Guides : les produits du guide, achetables sur place
+     * ================================================================ */
+    var GUIDE_RAYONS = {
+        "choisir-robot-piscine": /robots? auto/i,
+        "equilibrer-eau-ph-piscine": /quilibre de l.eau/i,
+        "entretien-eau-piscine": /quilibre de l.eau/i,
+        "choisir-electrolyseur-piscine": /lectrolyseur/i,
+        "choisir-volet-piscine": /volets? roulant/i,
+        "choisir-bache-barres-piscine": /couvertures? . barres/i,
+        "choisir-bache-bulles": /couvertures? d.+t./i,
+        "couverture-hivernage-piscine": /couvertures? d.hivernage/i,
+        "nettoyer-bache-hiver-piscine": /couvertures? d.hivernage/i,
+        "hiverner-piscine-hiver": /^hivernage/i,
+        "contre-lavage-filtre-piscine": /filtres? . sable/i,
+        "chauffage-solaire-piscine": /chauffage/i,
+        "choisir-piscine-hors-sol": /hors-sol/i,
+        "montage-piscine-kit": /hors-sol/i,
+        "piscine-beton": /^blocs/i,
+        "spa-sauna-hiver": /^spas/i,
+    };
+
+    function buildGuideProducts() {
+        var wrap = document.querySelector("#wrap.guide-article-page");
+        var slug = window.location.pathname.match(/\/guides\/([^\/?#]+)/);
+        if (!wrap || !slug || !GUIDE_RAYONS[slug[1]] || document.querySelector(".lp-guide")) {
+            return;
+        }
+        var cat = findCategory(0, GUIDE_RAYONS[slug[1]]);
+        if (!cat) {
+            return;
+        }
+        getJSON(L("/lolirine_nav/guide") + "?category=" + cat.id)
+            .then(function (data) {
+                if (!data || !data.products || !data.products.length || inEditor()) {
+                    return;
+                }
+                var section = guard(el("section", "lp-guide"));
+                var inner = el("div", "container");
+                inner.appendChild(el("h2", "lp-block-title",
+                    t("Les produits de ce guide", "De producten uit deze gids", "Products from this guide")));
+                var row = el("div", "lp-fbt-row");
+                data.products.forEach(function (item) {
+                    var box = card(item, false, false);
+                    var add = el("button", "btn btn-primary btn-sm lp-guide-add");
+                    add.type = "button";
+                    if (item.simple) {
+                        add.textContent = t("Ajouter au panier", "In winkelwagen", "Add to cart");
+                        add.addEventListener("click", function () {
+                            add.disabled = true;
+                            rpc("/lolirine_motion/cart/add", { product_id: item.product_id, quantity: 1 })
+                                .then(function (res) {
+                                    if (!res || res.error) {
+                                        throw new Error("cart");
+                                    }
+                                    setCartBadge(res.count);
+                                    add.textContent = t("Ajouté ✓", "Toegevoegd ✓", "Added ✓");
+                                })
+                                .catch(function () {
+                                    add.textContent = t("Réessayer", "Opnieuw", "Retry");
+                                })
+                                .then(function () {
+                                    add.disabled = false;
+                                });
+                        });
+                    } else {
+                        add.textContent = t("Choisir le modèle", "Model kiezen", "Choose a model");
+                        add.addEventListener("click", function () {
+                            window.location.href = L(item.url);
+                        });
+                    }
+                    box.appendChild(add);
+                    row.appendChild(box);
+                });
+                inner.appendChild(row);
+                if (data.category) {
+                    var all = el("a", "lp-guide-all",
+                        t("Voir tout le rayon ", "Bekijk de hele afdeling ", "See the whole department ")
+                        + data.category.name + " →");
+                    all.href = L(data.category.url);
+                    inner.appendChild(all);
+                }
+                section.appendChild(inner);
+                var before = wrap.querySelector(":scope > .guide-wave-wrapper")
+                    || wrap.querySelector(":scope > .guide-devis-section");
+                if (before) {
+                    wrap.insertBefore(section, before);
+                } else {
+                    wrap.appendChild(section);
+                }
+                paintPrices(section);
+                document.addEventListener("lp-price-mode", function () {
+                    paintPrices(section);
+                });
+            })
+            .catch(function () {});
+    }
+
+    /* ================================================================
      * Demarrage
      * ================================================================ */
     function removeInjected() {
@@ -1355,6 +1454,7 @@
                 safe(fillDrawer)();
                 safe(buildHomeNeeds)();
                 safe(buildRayonIntro)();
+                safe(buildGuideProducts)();
             })
             .catch(function () {});
 

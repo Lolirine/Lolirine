@@ -540,3 +540,18 @@ html[data-website-id="6"] .lp-rayon-guide {
     text-decoration: none;
 }
 html[data-website-id="6"] .lp-rayon-guide:hover { background: var(--pool-dark, #0c4a6e); color: #fff; }
+
+/* ---------- Guides : produits du guide ---------- */
+html[data-website-id="6"] .lp-guide { padding: 0 0 2rem; }
+html[data-website-id="6"] .lp-guide > .container {
+    padding: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 6px 22px rgba(3, 105, 161, 0.10);
+}
+html[data-website-id="6"] .lp-guide div.lp-fbt-item { width: 180px; cursor: default; }
+html[data-website-id="6"] .lp-guide-add { margin-top: .35rem; }
+html[data-website-id="6"] .lp-guide-all { display: inline-block; margin-top: 1rem; color: var(--pool-primary-dark, #0284c7); font-weight: 600; }

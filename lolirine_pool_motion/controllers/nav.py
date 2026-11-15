@@ -404,6 +404,43 @@ class LolirineNav(http.Controller):
         return _json(payload)
 
     # ------------------------------------------------------------------
+    # Guides : produits du rayon lie au guide
+    # ------------------------------------------------------------------
+    @http.route("/lolirine_nav/guide", type="http", auth="public",
+                website=True, methods=["GET"], sitemap=False)
+    def nav_guide(self, category=None, **kw):
+        payload = {"category": None, "products": []}
+        if not self._pool_store() or not str(category or "").isdigit():
+            return _json(payload)
+        try:
+            categ = request.env["product.public.category"].sudo().browse(int(category)).exists()
+            if not categ:
+                return _json(payload)
+            payload["category"] = {
+                "name": categ.name or "",
+                "url": "/shop/category/%s" % self._slug(categ),
+            }
+            templates = request.env["product.template"].sudo().search([
+                ("public_categ_ids", "child_of", categ.id),
+                ("is_published", "=", True),
+                ("sale_ok", "=", True),
+                ("website_id", "in", (False, SITE_POOL_STORE)),
+            ], order="website_sequence, id", limit=12)
+            for tmpl in templates:
+                if len(payload["products"]) >= 4:
+                    break
+                product = tmpl.product_variant_id
+                if not product:
+                    continue
+                card = self._card(product)
+                if card["ttc"] > 0:
+                    payload["products"].append(card)
+        except Exception as e:  # noqa: BLE001
+            _logger.exception("lolirine_nav: echec produits du guide")
+            payload["error"] = str(e)
+        return _json(payload)
+
+    # ------------------------------------------------------------------
     # Panier : demande de devis
     # ------------------------------------------------------------------
     @http.route("/lolirine_nav/quote", type="jsonrpc", auth="public",
