@@ -466,3 +466,7 @@ html[data-website-id="6"] .lp-account-order-head span { color: #475569; font-siz
 html[data-website-id="6"] .lp-account-thumbs { display: flex; gap: .5rem; margin-bottom: .7rem; }
 html[data-website-id="6"] .lp-account-thumbs img { width: 56px; height: 56px; border-radius: 8px; background: #fff; object-fit: contain; }
 html[data-website-id="6"] .lp-account-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* Carte d'identite : piece du dossier garde-meuble, jamais affichee sur le Pool Store.
+   (Filet de securite : la vue lolirine_contract.portal_my_home_id_card porte la vraie condition.) */
+html[data-website-id="6"] .o_portal_my_home .row:has(a[href="/my/id_card"]) { display: none !important; }
