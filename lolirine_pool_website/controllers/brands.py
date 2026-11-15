@@ -68,9 +68,21 @@ class WebsiteSaleBrands(WebsiteSale):
         )
         products = Product.search(domain, limit=20, offset=pager['offset'])
 
+        # Prix affiches comme dans la boutique (taxes selon le reglage du site,
+        # liste de prix du visiteur), et non le prix catalogue hors TVA.
+        prices = {}
+        for product in products:
+            try:
+                info = product.with_context(
+                    website_id=request.website.id)._get_combination_info()
+                prices[product.id] = info.get('price', product.list_price)
+            except Exception:  # noqa: BLE001
+                prices[product.id] = product.list_price
+
         return request.render('lolirine_pool_website.shop_brand_page', {
             'brand': brand,
             'products': products,
             'product_count': product_count,
             'pager': pager,
+            'prices': prices,
         })

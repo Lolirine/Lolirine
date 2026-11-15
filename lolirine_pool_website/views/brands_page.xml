@@ -104,6 +104,8 @@
     <!-- PAGE SHOP PAR MARQUE -->
     <template id="shop_brand_page" name="Pool Store - Shop par Marque">
         <t t-call="website.layout">
+            <t t-set="title" t-value="'Matériel de piscine %s | Lolirine Pool Store' % brand.name"/>
+            <t t-set="website_meta_description" t-value="'Tous les produits %s pour piscine et spa : %s références livrées en Belgique par Lolirine Pool Store.' % (brand.name, product_count)"/>
             <div id="wrap">
 
                 <!-- HEADER MARQUE - ÉDITABLE -->
@@ -163,7 +165,9 @@
                                                     style="font-size: 0.9rem; line-height: 1.3;"
                                                     t-esc="product.name"/>
                                                 <p class="text-primary fw-bold mb-0">
-                                                    <t t-esc="product.list_price"/> €
+                                                    <t t-set="lp_prix" t-value="(prices or {}).get(product.id, product.list_price)"/>
+                                                    <span t-if="lp_prix" t-out="lp_prix" t-options='{"widget": "monetary", "display_currency": website.currency_id}'/>
+                                                    <span t-else="">Sur devis</span>
                                                 </p>
                                             </div>
                                         </div>
