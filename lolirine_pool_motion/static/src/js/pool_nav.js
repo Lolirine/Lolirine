@@ -411,7 +411,13 @@
             box.appendChild(minus);
             box.appendChild(value);
             box.appendChild(plus);
-            row.parentNode.insertBefore(box, row);
+            // Sur sa propre ligne, au-dessus du prix et des boutons de la tuile.
+            var sub = form.querySelector(".o_wsale_product_sub");
+            if (sub) {
+                sub.parentNode.insertBefore(box, sub);
+            } else {
+                row.parentNode.insertBefore(box, row);
+            }
 
             // Quantite 1 : ajout d'origine d'Odoo. Au-dela : ajout direct de la quantite.
             button.addEventListener(
@@ -467,13 +473,15 @@
      * 4. Fiche produit
      * ================================================================ */
     function productIds() {
-        var form = document.querySelector("#product_details form, #product_detail form");
-        if (!form) {
+        // Le premier formulaire de la fiche est la barre de recherche : on part
+        // du champ cache du formulaire d'achat.
+        var tmpl = document.querySelector('#product_detail input[name="product_template_id"]');
+        if (!tmpl) {
             return null;
         }
-        var tmpl = form.querySelector('input[name="product_template_id"]');
+        var form = tmpl.closest("form") || document.querySelector("#product_detail");
         var prod = form.querySelector('input[name="product_id"]');
-        return tmpl ? { tmpl: tmpl.value, product: prod ? prod.value : "", form: form } : null;
+        return { tmpl: tmpl.value, product: prod ? prod.value : "", form: form };
     }
 
     function card(item, withCheck, checked) {

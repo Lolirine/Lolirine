@@ -245,9 +245,10 @@ class LolirineNav(http.Controller):
                     line_vals = {}
                     for line in t.attribute_line_ids:
                         names = line.value_ids.mapped("name")
-                        if names:
-                            line_vals[line.attribute_id.name] = ", ".join(names[:4]) + (
-                                "…" if len(names) > 4 else "")
+                        # Caracteristiques seulement : un attribut a nombreuses
+                        # valeurs est un choix de variante, pas une donnee a comparer.
+                        if names and len(names) <= 3:
+                            line_vals[line.attribute_id.name] = ", ".join(names)
                     specs.append(line_vals)
                 labels = []
                 for vals in specs:
