@@ -9,6 +9,8 @@
  *  4. Fiche produit : prix degressifs, "Frequemment achetes ensemble",
  *     tableau comparatif avec les produits alternatifs.
  *  5. Panier : demande de devis.
+ *  6. Tunnel de commande : date de livraison rappelee, garanties, pays.
+ *  7. Confirmation : la suite de la commande, le suivi, les complements.
  *
  * Script classique (pas de module) : tout est rendu ici a partir des routes
  * JSON /lolirine_nav/*. Chaque bloc est independant et reste masque si sa
@@ -858,13 +860,188 @@
     }
 
     /* ================================================================
+     * 6. Tunnel de commande : date de livraison, garanties, pays
+     * ================================================================ */
+    function isCheckoutStep() {
+        return /\/shop\/(address|checkout|payment|extra_info)(\/|$)/.test(window.location.pathname);
+    }
+
+    function reassurance() {
+        var list = el("ul", "lp-checkout-trust");
+        [
+            ["fa-lock", t("Paiement sécurisé (Bancontact, carte)", "Veilig betalen (Bancontact, kaart)",
+                "Secure payment (Bancontact, card)")],
+            ["fa-undo", t("Retour possible sous 14 jours", "Retourneren binnen 14 dagen",
+                "Returns within 14 days")],
+            ["fa-life-ring", t("SAV en Belgique", "Dienst na verkoop in België",
+                "After-sales service in Belgium")],
+        ].forEach(function (item) {
+            var li = el("li");
+            li.appendChild(el("i", "fa " + item[0]));
+            li.appendChild(el("span", null, item[1]));
+            list.appendChild(li);
+        });
+        var help = el("li");
+        help.appendChild(el("i", "fa fa-whatsapp"));
+        var a = el("a", null, t("Une question ? Écrivez-nous sur WhatsApp",
+            "Een vraag? Schrijf ons via WhatsApp", "A question? Message us on WhatsApp"));
+        a.href = "https://wa.me/32497444146";
+        a.target = "_blank";
+        a.rel = "noopener";
+        help.appendChild(a);
+        list.appendChild(help);
+        return list;
+    }
+
+    function promiseLine(delivery) {
+        var line = el("div", "lp-checkout-promise");
+        line.appendChild(el("i", "fa fa-truck"));
+        var text = el("span");
+        text.appendChild(document.createTextNode(
+            t("Livraison estimée ", "Geschatte levering ", "Estimated delivery ")));
+        text.appendChild(el("strong", null, delivery.text));
+        line.appendChild(text);
+        return line;
+    }
+
+    function buildCheckout() {
+        if (!isCheckoutStep()) {
+            return;
+        }
+        html.classList.add("lp-checkout-step");
+
+        // Pays : Belgique proposee d'office si rien n'est encore choisi.
+        var country = document.querySelector('select[name="country_id"]');
+        if (country && !country.value) {
+            var be = Array.prototype.filter.call(country.options, function (opt) {
+                return /^Belgi/i.test(opt.textContent.trim());
+            })[0];
+            if (be) {
+                country.value = be.value;
+                country.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+        }
+
+        var card = document.querySelector(".o_total_card .card-body");
+        var cta = card && card.querySelector(".o_cta_navigation_container");
+        var column = document.querySelector(".o_website_sale_checkout_container .oe_cart");
+        var box = null;
+        if (card && !card.querySelector(".lp-checkout-box")) {
+            box = guard(el("div", "lp-checkout-box"));
+            box.appendChild(reassurance());
+            if (cta) {
+                card.insertBefore(box, cta);
+            } else {
+                card.appendChild(box);
+            }
+        }
+        getJSON(L("/lolirine_nav/checkout"))
+            .then(function (data) {
+                var delivery = data && data.delivery;
+                if (!delivery || !delivery.text || inEditor()) {
+                    return;
+                }
+                if (box) {
+                    box.insertBefore(promiseLine(delivery), box.firstChild);
+                }
+                // Sur mobile le recapitulatif est replie : la date est rappelee en tete d'etape.
+                if (column && !column.querySelector(".lp-checkout-promise")) {
+                    var mobile = guard(promiseLine(delivery));
+                    mobile.classList.add("lp-checkout-promise-mobile");
+                    column.insertBefore(mobile, column.firstChild);
+                }
+            })
+            .catch(function () {});
+    }
+
+    /* ================================================================
+     * 7. Confirmation de commande : la suite, le suivi, les complements
+     * ================================================================ */
+    function buildConfirmation() {
+        var anchor = document.querySelector("#order_name");
+        if (!/\/shop\/confirmation(\/|$)/.test(window.location.pathname) || !anchor
+                || document.querySelector(".lp-confirm")) {
+            return;
+        }
+        getJSON(L("/lolirine_nav/confirmation"))
+            .then(function (data) {
+                if (!data || !data.order || inEditor()) {
+                    return;
+                }
+                var section = guard(el("section", "lp-confirm"));
+                section.appendChild(el("h4", "lp-block-title",
+                    t("Et maintenant ?", "En nu?", "What happens next?")));
+                var steps = el("ol", "lp-confirm-steps");
+                var delivery = data.delivery && data.delivery.text;
+                [
+                    [t("Confirmation par e-mail", "Bevestiging per e-mail", "Confirmation by e-mail"),
+                        data.order.email
+                            ? t("Envoyée à ", "Verzonden naar ", "Sent to ") + data.order.email
+                            : t("Vous la recevez dans quelques minutes.", "U ontvangt ze binnen enkele minuten.",
+                                "You will receive it within minutes.")],
+                    [t("Préparation de la commande", "Voorbereiding van de bestelling", "Order preparation"),
+                        t("Nous la transmettons à notre entrepôt partenaire.",
+                            "Wij geven ze door aan ons partnermagazijn.",
+                            "We pass it on to our partner warehouse.")],
+                    [t("Expédition", "Verzending", "Shipping"),
+                        t("Vous recevez un e-mail avec le suivi du colis.",
+                            "U ontvangt een e-mail met de track-and-trace.",
+                            "You receive an e-mail with the parcel tracking.")],
+                    [t("Livraison", "Levering", "Delivery"),
+                        delivery
+                            ? t("Estimée ", "Geschat ", "Estimated ") + delivery
+                            : t("À l'adresse indiquée.", "Op het opgegeven adres.", "To the address given.")],
+                ].forEach(function (step, index) {
+                    var li = el("li", "lp-confirm-step" + (index === 0 ? " is-done" : ""));
+                    li.appendChild(el("span", "lp-confirm-dot", index === 0 ? "✓" : String(index + 1)));
+                    var body = el("div");
+                    body.appendChild(el("strong", null, step[0]));
+                    body.appendChild(el("span", null, step[1]));
+                    li.appendChild(body);
+                    steps.appendChild(li);
+                });
+                section.appendChild(steps);
+
+                var actions = el("div", "lp-confirm-actions");
+                if (data.order.portal_url) {
+                    var follow = el("a", "btn btn-primary",
+                        t("Suivre ma commande", "Mijn bestelling volgen", "Track my order"));
+                    follow.href = data.order.portal_url;
+                    actions.appendChild(follow);
+                }
+                var shop = el("a", "btn btn-outline-primary",
+                    t("Continuer mes achats", "Verder winkelen", "Continue shopping"));
+                shop.href = L("/shop");
+                actions.appendChild(shop);
+                section.appendChild(actions);
+
+                if (data.complements && data.complements.length) {
+                    section.appendChild(el("h5", "lp-block-title lp-confirm-more",
+                        t("Pour compléter votre commande", "Om uw bestelling aan te vullen",
+                            "To complete your order")));
+                    var row = el("div", "lp-fbt-row");
+                    data.complements.forEach(function (item) {
+                        row.appendChild(card(item, false, false));
+                    });
+                    section.appendChild(row);
+                }
+                anchor.parentNode.insertBefore(section, anchor.nextSibling);
+                paintPrices(section);
+                document.addEventListener("lp-price-mode", function () {
+                    paintPrices(section);
+                });
+            })
+            .catch(function () {});
+    }
+
+    /* ================================================================
      * Demarrage
      * ================================================================ */
     function removeInjected() {
         document.querySelectorAll(".lp-nav-injected").forEach(function (node) {
             node.remove();
         });
-        html.classList.remove("lp-has-fbt");
+        html.classList.remove("lp-has-fbt", "lp-checkout-step");
     }
 
     // Chaque bloc est isole : une erreur dans l'un n'arrete ni les autres ni le site.
@@ -890,6 +1067,8 @@
         safe(buildResultCount)();
         safe(buildProduct)();
         safe(buildQuote)();
+        safe(buildCheckout)();
+        safe(buildConfirmation)();
         loadTilePrices()
             .then(function () {
                 if (inEditor()) {

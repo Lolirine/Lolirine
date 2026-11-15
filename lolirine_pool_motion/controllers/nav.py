@@ -282,6 +282,83 @@ class LolirineNav(http.Controller):
         return _json(payload)
 
     # ------------------------------------------------------------------
+    # Tunnel de commande et confirmation
+    # ------------------------------------------------------------------
+    def _order_lines(self, order):
+        return order.order_line.filtered(
+            lambda l: not l.display_type and l.product_id
+            and not getattr(l, "is_delivery", False)
+        )
+
+    def _order_promise(self, order):
+        """Promesse de livraison d'une commande : le delai du produit le plus lent."""
+        if "lolirine.livraison" not in request.env:
+            return {}
+        Liv = request.env["lolirine.livraison"].sudo()
+        delais = [
+            Liv.delai_fournisseur(line.product_id.product_tmpl_id)
+            for line in self._order_lines(order)
+        ]
+        if not delais:
+            return {}
+        promesse = Liv.promesse(max(delais))
+        return {"text": promesse["texte"], "countdown": promesse["compte_a_rebours"]}
+
+    @http.route("/lolirine_nav/checkout", type="http", auth="public",
+                website=True, methods=["GET"], sitemap=False)
+    def nav_checkout(self, **kw):
+        payload = {"delivery": {}}
+        if not self._pool_store():
+            return _json(payload)
+        try:
+            order = getattr(request, "cart", None)
+            if order and order.order_line:
+                payload["delivery"] = self._order_promise(order.sudo())
+        except Exception as e:  # noqa: BLE001
+            _logger.exception("lolirine_nav: echec donnees tunnel de commande")
+            payload["error"] = str(e)
+        return _json(payload)
+
+    @http.route("/lolirine_nav/confirmation", type="http", auth="public",
+                website=True, methods=["GET"], sitemap=False)
+    def nav_confirmation(self, **kw):
+        """Donnees de la page de confirmation : uniquement la derniere commande
+        de la session du visiteur (ou son panier en cours)."""
+        payload = {"order": None, "delivery": {}, "complements": []}
+        if not self._pool_store():
+            return _json(payload)
+        try:
+            order = request.env["sale.order"]
+            last_id = request.session.get("sale_last_order_id")
+            if last_id:
+                order = order.sudo().browse(int(last_id)).exists()
+            if not order:
+                cart = getattr(request, "cart", None)
+                order = cart.sudo() if cart else order
+            if not order:
+                return _json(payload)
+            payload["order"] = {
+                "ref": order.name or "",
+                "email": order.partner_id.email or "",
+                "portal_url": order.get_portal_url(),
+            }
+            payload["delivery"] = self._order_promise(order)
+            bought = self._order_lines(order).mapped("product_id.product_tmpl_id")
+            for acc in bought.mapped("accessory_product_ids"):
+                if len(payload["complements"]) >= 4:
+                    break
+                tmpl = acc.product_tmpl_id
+                if tmpl in bought or not self._visible(tmpl):
+                    continue
+                card = self._card(acc)
+                if card["ttc"] > 0:
+                    payload["complements"].append(card)
+        except Exception as e:  # noqa: BLE001
+            _logger.exception("lolirine_nav: echec donnees confirmation")
+            payload["error"] = str(e)
+        return _json(payload)
+
+    # ------------------------------------------------------------------
     # Panier : demande de devis
     # ------------------------------------------------------------------
     @http.route("/lolirine_nav/quote", type="jsonrpc", auth="public",

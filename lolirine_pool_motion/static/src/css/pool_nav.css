@@ -340,3 +340,84 @@ html[data-website-id="6"] .lp-quote-status { min-height: 1.3em; margin-bottom: .
 html[data-website-id="6"] .lp-quote-status.is-ok { color: #15803d; }
 html[data-website-id="6"] .lp-quote-status.is-error { color: #b91c1c; }
 html[data-website-id="6"] .lp-quote-actions { display: flex; justify-content: flex-end; gap: .5rem; }
+
+/* ---------- Tunnel de commande ---------- */
+/* Etapes adresse / paiement : formulaire sur panneau glass (lisible sur la photo de fond). */
+html[data-website-id="6"].lp-checkout-step .o_website_sale_checkout_container .oe_cart {
+    padding: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 6px 22px rgba(3, 105, 161, 0.10);
+}
+/* Moins de distractions pendant la commande : le bandeau ne garde que les rayons et les prix. */
+html[data-website-id="6"].lp-checkout-step .lp-navstrip-track { visibility: hidden; }
+html[data-website-id="6"] .lp-checkout-box {
+    margin: .75rem 0;
+    padding-top: .75rem;
+    border-top: 1px solid rgba(12, 74, 110, 0.10);
+}
+html[data-website-id="6"] .lp-checkout-promise {
+    display: flex;
+    align-items: baseline;
+    gap: .5rem;
+    margin-bottom: .6rem;
+    color: var(--pool-dark, #0c4a6e);
+    font-size: .92rem;
+}
+html[data-website-id="6"] .lp-checkout-promise .fa { color: #15803d; }
+html[data-website-id="6"] .lp-checkout-promise-mobile {
+    padding: .6rem .8rem;
+    border-radius: 12px;
+    background: rgba(21, 128, 61, 0.10);
+}
+@media (min-width: 992px) {
+    html[data-website-id="6"] .lp-checkout-promise-mobile { display: none; }
+}
+html[data-website-id="6"] .lp-checkout-trust { margin: 0; padding: 0; list-style: none; font-size: .85rem; color: #475569; }
+html[data-website-id="6"] .lp-checkout-trust li { display: flex; align-items: baseline; gap: .5rem; padding: .15rem 0; }
+html[data-website-id="6"] .lp-checkout-trust .fa { width: 1rem; color: var(--pool-primary-dark, #0284c7); text-align: center; }
+html[data-website-id="6"] .lp-checkout-trust a { color: var(--pool-primary-dark, #0284c7); }
+
+/* ---------- Confirmation de commande ---------- */
+html[data-website-id="6"] .lp-confirm {
+    margin: 1rem 0 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 6px 22px rgba(3, 105, 161, 0.10);
+}
+html[data-website-id="6"] .lp-confirm-steps { margin: 0 0 1rem; padding: 0; list-style: none; }
+html[data-website-id="6"] .lp-confirm-step { position: relative; display: flex; gap: .75rem; padding-bottom: .9rem; }
+html[data-website-id="6"] .lp-confirm-step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    top: 28px;
+    bottom: 0;
+    left: 13px;
+    width: 2px;
+    background: rgba(2, 132, 199, 0.25);
+}
+html[data-website-id="6"] .lp-confirm-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(2, 132, 199, 0.14);
+    color: var(--pool-primary-dark, #0284c7);
+    font-size: .85rem;
+    font-weight: 700;
+}
+html[data-website-id="6"] .lp-confirm-step.is-done .lp-confirm-dot { background: #15803d; color: #fff; }
+html[data-website-id="6"] .lp-confirm-step strong { display: block; color: var(--pool-dark, #0c4a6e); }
+html[data-website-id="6"] .lp-confirm-step div span { color: #475569; font-size: .9rem; }
+html[data-website-id="6"] .lp-confirm-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+html[data-website-id="6"] .lp-confirm-more { margin-top: 1.25rem; }
+html[data-website-id="6"] .lp-confirm div.lp-fbt-item { cursor: default; }
