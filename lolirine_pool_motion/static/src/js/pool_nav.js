@@ -15,6 +15,9 @@
  *  9. Accueil : entrees par besoin et reprise du panier.
  * 10. Pages rayon : presentation du rayon en tete et guide de choix.
  * 11. Guides : produits du rayon lie au guide, achetables sur place.
+ * 12. Marques : recherche et tri de la liste, rayons d'une marque.
+ * 13. Contact : reponses immediates avant le formulaire.
+ * 14. Promotions : echeance des offres en cours et bonnes affaires.
  *
  * Script classique (pas de module) : tout est rendu ici a partir des routes
  * JSON /lolirine_nav/*. Chaque bloc est independant et reste masque si sa
@@ -1397,6 +1400,246 @@
     }
 
     /* ================================================================
+     * 12. Marques : recherche et tri de la liste, rayons d'une marque
+     * ================================================================ */
+    function buildBrandIndex() {
+        if (!/\/marques\/?$/.test(window.location.pathname) || document.querySelector(".lp-brands")) {
+            return;
+        }
+        var first = document.querySelector('#wrap a.brand-card-link[href*="/shop/marque/"]');
+        var grid = first && first.closest(".row");
+        if (!grid) {
+            return;
+        }
+        var cards = Array.prototype.map.call(grid.children, function (col, index) {
+            var name = col.querySelector(".brand-name");
+            var count = col.querySelector("small");
+            return {
+                node: col,
+                index: index,
+                name: name ? name.textContent.trim() : "",
+                count: count ? parseInt(count.textContent, 10) || 0 : 0,
+            };
+        });
+        var bar = guard(el("div", "lp-brands"));
+        var input = el("input", "form-control lp-brands-search");
+        input.type = "search";
+        input.placeholder = t("Rechercher une marque…", "Zoek een merk…", "Search a brand…");
+        input.setAttribute("aria-label", input.placeholder);
+        bar.appendChild(input);
+        var sorts = el("div", "lp-pricemode lp-brands-sort");
+        var mode = "az";
+        [["az", "A – Z"], ["count", t("Les plus fournies", "Meeste producten", "Most products")]].forEach(
+            function (opt) {
+                var b = el("button", "lp-pricemode-btn" + (opt[0] === mode ? " is-active" : ""), opt[1]);
+                b.type = "button";
+                b.addEventListener("click", function () {
+                    mode = opt[0];
+                    Array.prototype.forEach.call(sorts.children, function (other) {
+                        other.classList.toggle("is-active", other === b);
+                    });
+                    apply();
+                });
+                sorts.appendChild(b);
+            }
+        );
+        bar.appendChild(sorts);
+        var info = el("span", "lp-brands-info");
+        bar.appendChild(info);
+
+        function apply() {
+            var query = input.value.trim().toLowerCase();
+            var shown = 0;
+            cards.slice().sort(function (a, b) {
+                return mode === "count" ? (b.count - a.count) || (a.index - b.index) : a.index - b.index;
+            }).forEach(function (item) {
+                var visible = !query || item.name.toLowerCase().indexOf(query) !== -1;
+                item.node.style.display = visible ? "" : "none";
+                shown += visible ? 1 : 0;
+                grid.appendChild(item.node);
+            });
+            info.textContent = shown + " " + (shown > 1 ? t("marques", "merken", "brands")
+                : t("marque", "merk", "brand"));
+        }
+        input.addEventListener("input", apply);
+        grid.parentNode.insertBefore(bar, grid);
+        apply();
+    }
+
+    function buildBrandPage() {
+        var match = window.location.pathname.match(/\/shop\/marque\/(\d+)/);
+        var cover = document.querySelector("#wrap > section");
+        if (!match || !cover || document.querySelector(".lp-brandnav")) {
+            return;
+        }
+        getJSON(L("/lolirine_nav/brand/" + match[1]))
+            .then(function (data) {
+                if (!data || !data.filter || inEditor()) {
+                    return;
+                }
+                var box = guard(el("section", "lp-brandnav"));
+                var inner = el("div", "container");
+                if (data.rayons && data.rayons.length) {
+                    inner.appendChild(el("span", "lp-brandnav-label",
+                        t("Les rayons ", "De afdelingen van ", "Departments of ") + data.name + " :"));
+                    data.rayons.forEach(function (rayon) {
+                        var chip = el("a", "lp-brandnav-chip");
+                        chip.href = L(rayon.url);
+                        chip.appendChild(el("span", null, rayon.name));
+                        chip.appendChild(el("em", null, String(rayon.count)));
+                        inner.appendChild(chip);
+                    });
+                }
+                var all = el("a", "lp-brandnav-all");
+                all.href = L("/shop") + "?attribute_values=" + data.filter;
+                all.appendChild(el("i", "fa fa-sliders"));
+                all.appendChild(el("span", null,
+                    t("Filtrer et trier les produits ", "Filter en sorteer de producten van ",
+                        "Filter and sort the products of ") + data.name));
+                inner.appendChild(all);
+                box.appendChild(inner);
+                cover.parentNode.insertBefore(box, cover.nextSibling);
+            })
+            .catch(function () {});
+    }
+
+    /* ================================================================
+     * 13. Contact : reponses immediates avant le formulaire
+     * ================================================================ */
+    function buildContactAnswers() {
+        var form = document.querySelector("#wrap.pool-contact-wrap form.pool-contact-form");
+        if (!form || document.querySelector(".lp-answers")) {
+            return;
+        }
+        var franco = "";
+        document.querySelectorAll(".lp-trustbar *").forEach(function (node) {
+            if (!franco && !node.children.length && /\d+\s*€/.test(node.textContent)) {
+                franco = node.parentNode.textContent.replace(/\s+/g, " ").trim();
+            }
+        });
+        var items = [
+            [t("Où en est ma commande ?", "Waar is mijn bestelling?", "Where is my order?"),
+                t("Le suivi, la date de livraison estimée et le lien du colis sont dans votre espace client.",
+                    "De opvolging, de geschatte leverdatum en de pakketlink staan in uw klantenzone.",
+                    "Tracking, estimated delivery date and parcel link are in your customer area."),
+                "/my/orders", t("Voir mes commandes", "Mijn bestellingen bekijken", "See my orders")],
+            [t("Retourner un article ou signaler un problème", "Een artikel retourneren of een probleem melden",
+                "Return an item or report a problem"),
+                t("Ouvrez la commande concernée dans votre espace client, puis « Retourner ou signaler un problème ». Vous disposez de 14 jours pour un retour.",
+                    "Open de bestelling in uw klantenzone en kies « Retourneren of probleem melden ». U hebt 14 dagen om te retourneren.",
+                    "Open the order in your customer area, then “Return or report a problem”. You have 14 days to return."),
+                "/my/orders", t("Ouvrir mes commandes", "Mijn bestellingen openen", "Open my orders")],
+            [t("Délais et frais de livraison", "Levertermijn en verzendkosten", "Delivery times and costs"),
+                t("La date de livraison estimée est indiquée sur chaque fiche produit et dans le panier.",
+                    "De geschatte leverdatum staat op elke productpagina en in de winkelwagen.",
+                    "The estimated delivery date is shown on each product page and in the cart.")
+                + (franco ? " " + franco + "." : ""),
+                "/shop", t("Voir la boutique", "Naar de winkel", "Go to the shop")],
+            [t("Recevoir ma facture", "Mijn factuur ontvangen", "Get my invoice"),
+                t("Vos factures sont téléchargeables dans votre espace client.",
+                    "Uw facturen kunt u downloaden in uw klantenzone.",
+                    "Your invoices can be downloaded in your customer area."),
+                "/my/invoices", t("Voir mes factures", "Mijn facturen bekijken", "See my invoices")],
+            [t("Obtenir un devis", "Een offerte krijgen", "Get a quote"),
+                t("Mettez les produits dans votre panier, puis « Demander un devis pour ce panier » : nous répondons port compris.",
+                    "Leg de producten in uw winkelwagen en kies « Offerte aanvragen »: wij antwoorden inclusief verzending.",
+                    "Put the products in your cart, then “Request a quote for this cart”: we answer with shipping included."),
+                "/shop/cart", t("Ouvrir mon panier", "Mijn winkelwagen openen", "Open my cart")],
+        ];
+        var box = guard(el("section", "lp-answers"));
+        box.appendChild(el("h4", "lp-block-title",
+            t("Une réponse tout de suite ?", "Meteen een antwoord?", "An answer right away?")));
+        items.forEach(function (item) {
+            var details = el("details", "lp-answers-item");
+            details.appendChild(el("summary", null, item[0]));
+            var body = el("div", "lp-answers-body");
+            body.appendChild(el("p", null, item[1]));
+            var link = el("a", "btn btn-sm btn-outline-primary", item[3]);
+            link.href = L(item[2]);
+            body.appendChild(link);
+            details.appendChild(body);
+            box.appendChild(details);
+        });
+        box.appendChild(el("p", "lp-answers-else",
+            t("Votre question n'est pas dans la liste ? Le formulaire ci-dessous est fait pour cela.",
+                "Staat uw vraag er niet bij? Gebruik dan het formulier hieronder.",
+                "Your question is not listed? Use the form below.")));
+        form.parentNode.insertBefore(box, form);
+    }
+
+    /* ================================================================
+     * 14. Promotions : echeance des offres et bonnes affaires permanentes
+     * ================================================================ */
+    function buildDeals() {
+        var wrap = document.querySelector("#wrap");
+        if (!/\/shop\/promotions\/?$/.test(window.location.pathname) || !wrap
+                || document.querySelector(".lp-deals")) {
+            return;
+        }
+        getJSON(L("/lolirine_nav/deals"))
+            .then(function (data) {
+                if (!data || inEditor()) {
+                    return;
+                }
+                // Promotions en cours : rappel de l'echeance a cote du titre.
+                (data.promotions || []).forEach(function (promo) {
+                    Array.prototype.some.call(wrap.querySelectorAll("h2"), function (title) {
+                        if (title.textContent.trim() !== promo.name || title.querySelector(".lp-deals-left")) {
+                            return false;
+                        }
+                        var left = promo.days_left;
+                        var badge = guard(el("span", "lp-deals-left",
+                            left <= 0 ? t("Dernier jour", "Laatste dag", "Last day")
+                                : left === 1 ? t("Plus qu'un jour", "Nog 1 dag", "1 day left")
+                                    : t("Plus que " + left + " jours", "Nog " + left + " dagen",
+                                        left + " days left")));
+                        title.appendChild(badge);
+                        return true;
+                    });
+                });
+                if (!data.products || !data.products.length) {
+                    return;
+                }
+                var section = guard(el("section", "lp-deals"));
+                var inner = el("div", "container");
+                inner.appendChild(el("h2", "lp-block-title",
+                    t("Bonnes affaires : fin de série", "Koopjes: einde reeks", "Bargains: end of line")));
+                inner.appendChild(el("p", "lp-deals-intro",
+                    t("Des produits proposés jusqu'à épuisement du stock.",
+                        "Producten zolang de voorraad strekt.", "Products available while stocks last.")));
+                var row = el("div", "lp-fbt-row");
+                data.products.forEach(function (item) {
+                    var box = card(item, false, false);
+                    var go = el("a", "btn btn-primary btn-sm lp-guide-add",
+                        t("Voir le produit", "Product bekijken", "See the product"));
+                    go.href = L(item.url);
+                    box.appendChild(go);
+                    row.appendChild(box);
+                });
+                inner.appendChild(row);
+                if (data.category) {
+                    var all = el("a", "lp-guide-all",
+                        t("Voir toutes les fins de série →", "Bekijk alle koopjes →", "See all bargains →"));
+                    all.href = L(data.category.url);
+                    inner.appendChild(all);
+                }
+                section.appendChild(inner);
+                var sections = wrap.querySelectorAll(":scope > section");
+                var last = sections[sections.length - 1];
+                if (last && sections.length > 1) {
+                    wrap.insertBefore(section, last);
+                } else {
+                    wrap.appendChild(section);
+                }
+                paintPrices(section);
+                document.addEventListener("lp-price-mode", function () {
+                    paintPrices(section);
+                });
+            })
+            .catch(function () {});
+    }
+
+    /* ================================================================
      * Demarrage
      * ================================================================ */
     function removeInjected() {
@@ -1433,6 +1676,10 @@
         safe(buildConfirmation)();
         safe(buildAccount)();
         safe(buildHomeCart)();
+        safe(buildBrandIndex)();
+        safe(buildBrandPage)();
+        safe(buildContactAnswers)();
+        safe(buildDeals)();
         loadTilePrices()
             .then(function () {
                 if (inEditor()) {

@@ -555,3 +555,116 @@ html[data-website-id="6"] .lp-guide > .container {
 html[data-website-id="6"] .lp-guide div.lp-fbt-item { width: 180px; cursor: default; }
 html[data-website-id="6"] .lp-guide-add { margin-top: .35rem; }
 html[data-website-id="6"] .lp-guide-all { display: inline-block; margin-top: 1rem; color: var(--pool-primary-dark, #0284c7); font-weight: 600; }
+
+/* ---------- Marques ---------- */
+html[data-website-id="6"] .lp-brands {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1.25rem;
+    padding: .8rem 1rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+}
+html[data-website-id="6"] .lp-brands-search { flex: 1 1 220px; max-width: 360px; border-radius: 999px; }
+html[data-website-id="6"] .lp-brands-sort .lp-pricemode-btn.is-active {
+    background: #fff;
+    color: var(--pool-primary-dark, #0284c7);
+    box-shadow: 0 1px 4px rgba(3, 105, 161, 0.25);
+}
+html[data-website-id="6"] .lp-brands-info { margin-left: auto; color: #475569; font-size: .88rem; }
+html[data-website-id="6"] .lp-brandnav { padding: .75rem 0; }
+html[data-website-id="6"] .lp-brandnav > .container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    padding: .8rem 1rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+}
+html[data-website-id="6"] .lp-brandnav-label { color: var(--pool-dark, #0c4a6e); font-weight: 700; }
+html[data-website-id="6"] .lp-brandnav-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .35rem .75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--pool-dark, #0c4a6e);
+    font-size: .88rem;
+    text-decoration: none;
+}
+html[data-website-id="6"] .lp-brandnav-chip:hover { background: rgba(14, 165, 233, 0.18); }
+html[data-website-id="6"] .lp-brandnav-chip em { color: #64748b; font-size: .78rem; font-style: normal; }
+html[data-website-id="6"] .lp-brandnav-all {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    margin-left: auto;
+    padding: .4rem .9rem;
+    border-radius: 999px;
+    background: var(--pool-primary-dark, #0284c7);
+    color: #fff;
+    font-size: .88rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+html[data-website-id="6"] .lp-brandnav-all:hover { background: var(--pool-dark, #0c4a6e); color: #fff; }
+
+/* ---------- Contact : reponses immediates ---------- */
+html[data-website-id="6"] .lp-answers {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 6px 22px rgba(3, 105, 161, 0.10);
+}
+html[data-website-id="6"] .lp-answers-item { border-bottom: 1px solid rgba(12, 74, 110, 0.10); }
+html[data-website-id="6"] .lp-answers-item > summary {
+    position: relative;
+    padding: .7rem 1.5rem .7rem 0;
+    color: var(--pool-dark, #0c4a6e);
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+}
+html[data-website-id="6"] .lp-answers-item > summary::-webkit-details-marker { display: none; }
+html[data-website-id="6"] .lp-answers-item > summary::after { content: "+"; position: absolute; right: .25rem; font-weight: 400; }
+html[data-website-id="6"] .lp-answers-item[open] > summary::after { content: "−"; }
+html[data-website-id="6"] .lp-answers-body { padding: 0 0 .9rem; color: #334155; font-size: .92rem; }
+html[data-website-id="6"] .lp-answers-body p { margin-bottom: .6rem; }
+html[data-website-id="6"] .lp-answers-else { margin: .9rem 0 0; color: #475569; font-size: .88rem; }
+
+/* ---------- Promotions ---------- */
+html[data-website-id="6"] .lp-deals { padding: 0 0 2rem; }
+html[data-website-id="6"] .lp-deals > .container {
+    padding: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 6px 22px rgba(3, 105, 161, 0.10);
+}
+html[data-website-id="6"] .lp-deals-intro { color: #475569; }
+html[data-website-id="6"] .lp-deals div.lp-fbt-item { width: 170px; cursor: default; }
+html[data-website-id="6"] .lp-deals-left {
+    display: inline-block;
+    margin-left: .75rem;
+    padding: .2rem .7rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #b91c1c;
+    font-size: .8rem;
+    font-weight: 700;
+    vertical-align: middle;
+}

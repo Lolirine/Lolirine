@@ -441,6 +441,117 @@ class LolirineNav(http.Controller):
         return _json(payload)
 
     # ------------------------------------------------------------------
+    # Pages marque : rayons de la marque, avec lien vers la boutique filtree
+    # ------------------------------------------------------------------
+    @http.route("/lolirine_nav/brand/<int:brand_id>", type="http", auth="public",
+                website=True, methods=["GET"], sitemap=False)
+    def nav_brand(self, brand_id, **kw):
+        payload = {"name": "", "filter": "", "rayons": []}
+        if not self._pool_store() or "pool.brand" not in request.env:
+            return _json(payload)
+        try:
+            brand = request.env["pool.brand"].sudo().browse(brand_id).exists()
+            if not brand:
+                return _json(payload)
+            payload["name"] = brand.name or ""
+            Tmpl = request.env["product.template"].sudo()
+            domain = [
+                ("pool_brand_id", "=", brand.id),
+                ("is_published", "=", True),
+                ("sale_ok", "=", True),
+                ("website_id", "in", (False, SITE_POOL_STORE)),
+            ]
+            # Filtre « Marque » de la boutique (attribut synchronise sur la marque).
+            attr = request.env["product.attribute"].sudo().search([
+                ("name", "=", "Marque"), ("create_variant", "=", "no_variant"),
+            ], limit=1)
+            key = (brand.name or "").strip().lower()
+            value = attr.value_ids.filtered(
+                lambda v: (v.name or "").strip().lower() == key)[:1]
+            if value:
+                payload["filter"] = "%s-%s" % (attr.id, value.id)
+                domain_filter = domain + [
+                    ("attribute_line_ids.value_ids", "in", value.ids)]
+            else:
+                domain_filter = None
+            if domain_filter:
+                counts = {}
+                for tmpl in Tmpl.search(domain_filter):
+                    tops = set()
+                    for categ in tmpl.public_categ_ids:
+                        top = categ
+                        while top.parent_id:
+                            top = top.parent_id
+                        tops.add(top)
+                    for top in tops:
+                        counts[top] = counts.get(top, 0) + 1
+                ranked = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0].name or ""))
+                for categ, count in ranked[:8]:
+                    payload["rayons"].append({
+                        "name": categ.name or "",
+                        "count": count,
+                        "url": "/shop/category/%s?attribute_values=%s" % (
+                            self._slug(categ), payload["filter"]),
+                    })
+        except Exception as e:  # noqa: BLE001
+            _logger.exception("lolirine_nav: echec donnees marque")
+            payload["error"] = str(e)
+        return _json(payload)
+
+    # ------------------------------------------------------------------
+    # Promotions : echeances des promotions en cours et bonnes affaires
+    # ------------------------------------------------------------------
+    @http.route("/lolirine_nav/deals", type="http", auth="public",
+                website=True, methods=["GET"], sitemap=False)
+    def nav_deals(self, **kw):
+        payload = {"promotions": [], "category": None, "products": []}
+        if not self._pool_store():
+            return _json(payload)
+        try:
+            from datetime import date
+            today = date.today()
+            if "pool.promotion" in request.env:
+                promos = request.env["pool.promotion"].sudo().search([
+                    ("active", "=", True),
+                    ("date_start", "<=", today),
+                    ("date_end", ">=", today),
+                    ("website_id", "in", (False, SITE_POOL_STORE)),
+                ])
+                payload["promotions"] = [{
+                    "name": promo.name or "",
+                    "days_left": (promo.date_end - today).days,
+                } for promo in promos]
+            # Bonnes affaires permanentes : le rayon « Fin de serie ».
+            categ = request.env["product.public.category"].sudo().search([
+                ("name", "ilike", "Fin de s"),
+                ("website_id", "in", (False, SITE_POOL_STORE)),
+            ], limit=1)
+            if categ:
+                payload["category"] = {
+                    "name": categ.name or "",
+                    "url": "/shop/category/%s" % self._slug(categ),
+                }
+                templates = request.env["product.template"].sudo().search([
+                    ("public_categ_ids", "child_of", categ.id),
+                    ("is_published", "=", True),
+                    ("sale_ok", "=", True),
+                    ("website_id", "in", (False, SITE_POOL_STORE)),
+                ], order="website_sequence, id", limit=24)
+                for tmpl in templates:
+                    if len(payload["products"]) >= 8:
+                        break
+                    product = tmpl.product_variant_id
+                    if not product:
+                        continue
+                    card = self._card(product)
+                    if card["ttc"] > 0:
+                        payload["products"].append(card)
+        except Exception as e:  # noqa: BLE001
+            _logger.exception("lolirine_nav: echec donnees promotions")
+            payload["error"] = str(e)
+        return _json(payload)
+
+    # ------------------------------------------------------------------
     # Panier : demande de devis
     # ------------------------------------------------------------------
     @http.route("/lolirine_nav/quote", type="jsonrpc", auth="public",
