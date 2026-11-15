@@ -12,6 +12,8 @@
  *  6. Tunnel de commande : date de livraison rappelee, garanties, pays.
  *  7. Confirmation : la suite de la commande, le suivi, les complements.
  *  8. Espace client : raccourcis et dernieres commandes sur la page d'accueil.
+ *  9. Accueil : entrees par besoin et reprise du panier.
+ * 10. Pages rayon : presentation du rayon en tete et guide de choix.
  *
  * Script classique (pas de module) : tout est rendu ici a partir des routes
  * JSON /lolirine_nav/*. Chaque bloc est independant et reste masque si sa
@@ -1118,6 +1120,180 @@
     }
 
     /* ================================================================
+     * 9. Accueil : entrees par besoin et reprise du panier
+     * ================================================================ */
+    function isHome() {
+        return window.location.pathname.replace(/\/$/, "") === PREFIX;
+    }
+
+    function findCategory(id, pattern) {
+        var found = null;
+        (context && context.categories || []).some(function (cat) {
+            if (id && cat.id === id) {
+                found = cat;
+                return true;
+            }
+            return (cat.children || []).some(function (child) {
+                if ((id && child.id === id) || (pattern && pattern.test(child.name))) {
+                    found = child;
+                    return true;
+                }
+                return false;
+            });
+        });
+        return found;
+    }
+
+    function homeHost() {
+        var main = document.querySelector("#wrapwrap > main");
+        var wrap = main && main.querySelector(":scope > #wrap");
+        if (!main || !wrap) {
+            return null;
+        }
+        var host = main.querySelector(":scope > .lp-home");
+        if (!host) {
+            host = guard(el("div", "lp-home"));
+            main.insertBefore(host, wrap);
+        }
+        return host;
+    }
+
+    function buildHomeNeeds() {
+        if (!isHome() || document.querySelector(".lp-needs")) {
+            return;
+        }
+        var host = homeHost();
+        if (!host) {
+            return;
+        }
+        var needs = [
+            [156, null, "fa-cubes", t("Construire ou rénover", "Bouwen of renoveren", "Build or renovate")],
+            [110, null, "fa-filter", t("Filtrer l'eau", "Water filteren", "Filter the water")],
+            [183, null, "fa-flask", t("Traiter l'eau", "Water behandelen", "Treat the water")],
+            [87, null, "fa-magic", t("Nettoyer le bassin", "Het bad reinigen", "Clean the pool")],
+            [0, /chauff/i, "fa-thermometer-half", t("Chauffer la piscine", "Het zwembad verwarmen", "Heat the pool")],
+            [295, null, "fa-shield", t("Couvrir et hiverner", "Afdekken en overwinteren", "Cover and winterise")],
+            [93, null, "fa-heart", t("Se détendre", "Ontspannen", "Relax")],
+        ].map(function (need) {
+            var cat = findCategory(need[0], need[1]);
+            return cat ? { url: cat.url, icon: need[2], label: need[3] } : null;
+        }).filter(Boolean);
+        if (needs.length < 3) {
+            return;
+        }
+        var box = el("section", "lp-needs");
+        box.appendChild(el("h2", "lp-needs-title",
+            t("Que voulez-vous faire ?", "Wat wilt u doen?", "What do you want to do?")));
+        var row = el("div", "lp-needs-row");
+        needs.forEach(function (need) {
+            var a = el("a", "lp-needs-item");
+            a.href = L(need.url);
+            a.appendChild(el("i", "fa " + need.icon));
+            a.appendChild(el("span", null, need.label));
+            row.appendChild(a);
+        });
+        box.appendChild(row);
+        host.appendChild(box);
+    }
+
+    function buildHomeCart() {
+        if (!isHome() || document.querySelector(".lp-resume")) {
+            return;
+        }
+        getJSON(L("/lolirine_motion/cart"))
+            .then(function (data) {
+                var host = homeHost();
+                if (!host || !data || !data.count || !data.lines || !data.lines.length || inEditor()) {
+                    return;
+                }
+                var box = el("section", "lp-resume");
+                var thumbs = el("div", "lp-resume-thumbs");
+                data.lines.slice(0, 3).forEach(function (line) {
+                    var img = el("img");
+                    img.src = line.image_url;
+                    img.alt = "";
+                    thumbs.appendChild(img);
+                });
+                box.appendChild(thumbs);
+                var text = el("div", "lp-resume-text");
+                text.appendChild(el("strong", null,
+                    t("Votre panier vous attend", "Uw winkelwagen wacht op u", "Your cart is waiting")));
+                text.appendChild(el("span", null,
+                    data.count + " " + (data.count > 1 ? t("articles", "artikelen", "items")
+                        : t("article", "artikel", "item")) + " · " + money(data.amount_total)));
+                box.appendChild(text);
+                var go = el("a", "btn btn-primary btn-sm",
+                    t("Reprendre mon panier", "Verder met mijn winkelwagen", "Back to my cart"));
+                go.href = L("/shop/cart");
+                box.appendChild(go);
+                host.insertBefore(box, host.firstChild);
+            })
+            .catch(function () {});
+    }
+
+    /* ================================================================
+     * 10. Pages rayon : presentation du rayon en tete et guide de choix
+     * ================================================================ */
+    var GUIDES = {
+        87: ["/guides/choisir-robot-piscine",
+            t("Guide : bien choisir son robot", "Gids: de juiste robot kiezen", "Guide: choosing a pool robot")],
+        183: ["/guides/equilibrer-eau-ph-piscine",
+            t("Guide : équilibrer l'eau et le pH", "Gids: water en pH in balans", "Guide: balancing water and pH")],
+        177: ["/guides/choisir-electrolyseur-piscine",
+            t("Guide : choisir son électrolyseur", "Gids: een zoutelektrolyse kiezen", "Guide: choosing a salt chlorinator")],
+        295: ["/guides/choisir-volet-piscine",
+            t("Guide : choisir son volet", "Gids: een rolluik kiezen", "Guide: choosing a pool cover")],
+        110: ["/guides/contre-lavage-filtre-piscine",
+            t("Guide : le contre-lavage du filtre", "Gids: de filter terugspoelen", "Guide: backwashing the filter")],
+        235: ["/guides/choisir-piscine-hors-sol",
+            t("Guide : choisir sa piscine hors-sol", "Gids: een opbouwzwembad kiezen", "Guide: choosing an above-ground pool")],
+        156: ["/guides/piscine-beton",
+            t("Guide : la piscine en béton", "Gids: het betonnen zwembad", "Guide: the concrete pool")],
+    };
+
+    function buildRayonIntro() {
+        var header = document.querySelector("#products_grid #o_wsale_products_header");
+        var match = window.location.pathname.match(/\/shop\/category\/(?:[^\/?#]*-)?(\d+)/);
+        if (!header || !match || document.querySelector(".lp-rayon")) {
+            return;
+        }
+        var id = parseInt(match[1], 10);
+        var top = id;
+        (context && context.categories || []).forEach(function (cat) {
+            (cat.children || []).forEach(function (child) {
+                if (child.id === id) {
+                    top = cat.id;
+                }
+            });
+        });
+        var footer = document.querySelector("#category_footer");
+        var full = footer ? footer.textContent.replace(/\s+/g, " ").trim() : "";
+        var guide = GUIDES[top];
+        if (full.length < 60 && !guide) {
+            return;
+        }
+        var box = guard(el("div", "lp-rayon"));
+        if (full.length >= 60) {
+            var cut = full.slice(0, 230);
+            var stop = cut.lastIndexOf(". ");
+            var teaser = el("p", "lp-rayon-text",
+                (stop > 90 ? cut.slice(0, stop + 1) : cut.replace(/\s+\S*$/, "") + "…") + " ");
+            var more = el("a", "lp-rayon-more", t("Lire la suite", "Lees meer", "Read more"));
+            more.href = "#category_footer";
+            teaser.appendChild(more);
+            box.appendChild(teaser);
+        }
+        if (guide) {
+            var link = el("a", "lp-rayon-guide");
+            link.href = L(guide[0]);
+            link.appendChild(el("i", "fa fa-book"));
+            link.appendChild(el("span", null, guide[1]));
+            box.appendChild(link);
+        }
+        header.parentNode.insertBefore(box, header.nextSibling);
+    }
+
+    /* ================================================================
      * Demarrage
      * ================================================================ */
     function removeInjected() {
@@ -1153,6 +1329,7 @@
         safe(buildCheckout)();
         safe(buildConfirmation)();
         safe(buildAccount)();
+        safe(buildHomeCart)();
         loadTilePrices()
             .then(function () {
                 if (inEditor()) {
@@ -1172,6 +1349,8 @@
                 safe(refreshHello)();
                 safe(buildSearchScope)();
                 safe(fillDrawer)();
+                safe(buildHomeNeeds)();
+                safe(buildRayonIntro)();
             })
             .catch(function () {});
 

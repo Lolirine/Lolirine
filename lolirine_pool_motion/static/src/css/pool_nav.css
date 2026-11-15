@@ -470,3 +470,73 @@ html[data-website-id="6"] .lp-account-actions { display: flex; flex-wrap: wrap; 
 /* Carte d'identite : piece du dossier garde-meuble, jamais affichee sur le Pool Store.
    (Filet de securite : la vue lolirine_contract.portal_my_home_id_card porte la vraie condition.) */
 html[data-website-id="6"] .o_portal_my_home .row:has(a[href="/my/id_card"]) { display: none !important; }
+
+/* ---------- Accueil : besoins et reprise du panier ---------- */
+html[data-website-id="6"] .lp-home { position: relative; z-index: 1; padding: .75rem .75rem 0; }
+html[data-website-id="6"] .lp-home:empty { display: none; }
+html[data-website-id="6"] .lp-needs,
+html[data-website-id="6"] .lp-resume {
+    margin-bottom: .75rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 6px 22px rgba(3, 105, 161, 0.10);
+}
+html[data-website-id="6"] .lp-needs-title { margin-bottom: .75rem; color: var(--pool-dark, #0c4a6e); font-size: 1.15rem; font-weight: 700; }
+html[data-website-id="6"] .lp-needs-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .6rem; }
+html[data-website-id="6"] .lp-needs-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .45rem;
+    padding: .9rem .5rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.75);
+    color: var(--pool-dark, #0c4a6e);
+    font-size: .88rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: transform .2s ease, background .2s ease;
+}
+html[data-website-id="6"] .lp-needs-item:hover { background: rgba(14, 165, 233, 0.18); transform: translateY(-2px); }
+html[data-website-id="6"] .lp-needs-item .fa { color: var(--pool-primary-dark, #0284c7); font-size: 1.5rem; }
+html[data-website-id="6"] .lp-resume { display: flex; flex-wrap: wrap; align-items: center; gap: .9rem; }
+html[data-website-id="6"] .lp-resume-thumbs { display: flex; gap: .35rem; }
+html[data-website-id="6"] .lp-resume-thumbs img { width: 46px; height: 46px; border-radius: 8px; background: #fff; object-fit: contain; }
+html[data-website-id="6"] .lp-resume-text { display: flex; flex-direction: column; margin-right: auto; }
+html[data-website-id="6"] .lp-resume-text strong { color: var(--pool-dark, #0c4a6e); }
+html[data-website-id="6"] .lp-resume-text span { color: #475569; font-size: .88rem; }
+
+/* ---------- Pages rayon ---------- */
+html[data-website-id="6"] .lp-rayon {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .6rem 1rem;
+    margin: .5rem 0 .75rem;
+    padding: .8rem 1rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+}
+html[data-website-id="6"] .lp-rayon-text { flex: 1 1 320px; margin: 0; color: #334155; font-size: .9rem; line-height: 1.45; }
+html[data-website-id="6"] .lp-rayon-more { color: var(--pool-primary-dark, #0284c7); font-weight: 600; white-space: nowrap; }
+html[data-website-id="6"] .lp-rayon-guide {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    flex: 0 0 auto;
+    padding: .45rem .9rem;
+    border-radius: 999px;
+    background: var(--pool-primary-dark, #0284c7);
+    color: #fff;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+html[data-website-id="6"] .lp-rayon-guide:hover { background: var(--pool-dark, #0c4a6e); color: #fff; }
