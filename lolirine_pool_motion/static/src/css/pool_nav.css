@@ -1,0 +1,340 @@
+/*
+ * pool_nav.css : navigation enrichie du Pool Store.
+ * CSS simple (pas de SCSS), entierement limite au site 6.
+ * Style glass du site : fond blanc 0.62, flou 16px.
+ */
+
+/* ---------- Bandeau de navigation ---------- */
+html[data-website-id="6"] .lp-navstrip {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .35rem .75rem;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 0 4px 14px rgba(3, 105, 161, 0.10);
+    font-size: .85rem;
+}
+html[data-website-id="6"] .lp-navstrip-all {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    flex: 0 0 auto;
+    padding: .35rem .8rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--pool-primary-dark, #0284c7);
+    color: #fff;
+    font-weight: 600;
+    white-space: nowrap;
+}
+html[data-website-id="6"] .lp-navstrip-all:hover { background: var(--pool-dark, #0c4a6e); }
+html[data-website-id="6"] .lp-navstrip-track {
+    display: flex;
+    align-items: center;
+    gap: .15rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+html[data-website-id="6"] .lp-navstrip-track::-webkit-scrollbar { display: none; }
+html[data-website-id="6"] .lp-navstrip-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    flex: 0 0 auto;
+    padding: .35rem .65rem;
+    border-radius: 999px;
+    color: var(--pool-dark, #0c4a6e);
+    text-decoration: none;
+    white-space: nowrap;
+}
+html[data-website-id="6"] .lp-navstrip-link:hover {
+    background: rgba(14, 165, 233, 0.16);
+    color: var(--pool-primary-dark, #0284c7);
+}
+html[data-website-id="6"] .lp-navstrip-side {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex: 0 0 auto;
+}
+html[data-website-id="6"] .lp-navstrip-hello {
+    color: var(--pool-dark, #0c4a6e);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+html[data-website-id="6"] .lp-pricemode {
+    display: inline-flex;
+    padding: 2px;
+    border-radius: 999px;
+    background: rgba(12, 74, 110, 0.10);
+}
+html[data-website-id="6"] .lp-pricemode-btn {
+    padding: .2rem .65rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--pool-dark, #0c4a6e);
+    font-size: .78rem;
+    font-weight: 600;
+}
+html[data-website-id="6"][data-lp-price="ttc"] .lp-pricemode-btn[data-mode="ttc"],
+html[data-website-id="6"][data-lp-price="ht"] .lp-pricemode-btn[data-mode="ht"] {
+    background: #fff;
+    color: var(--pool-primary-dark, #0284c7);
+    box-shadow: 0 1px 4px rgba(3, 105, 161, 0.25);
+}
+@media (max-width: 767.98px) {
+    html[data-website-id="6"] .lp-navstrip { padding: .3rem .5rem; font-size: .8rem; }
+    html[data-website-id="6"] .lp-navstrip-hello { display: none; }
+    html[data-website-id="6"] .lp-navstrip-all span { display: none; }
+}
+
+/* ---------- Tiroir des rayons ---------- */
+html[data-website-id="6"] .lp-catdrawer {
+    position: fixed;
+    inset: 0;
+    z-index: 1060;
+    visibility: hidden;
+    pointer-events: none;
+}
+html[data-website-id="6"] .lp-catdrawer.is-open { visibility: visible; pointer-events: auto; }
+html[data-website-id="6"] .lp-catdrawer-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(12, 74, 110, 0.35);
+    opacity: 0;
+    transition: opacity .25s ease;
+}
+html[data-website-id="6"] .lp-catdrawer.is-open .lp-catdrawer-overlay { opacity: 1; }
+html[data-website-id="6"] .lp-catdrawer-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    width: 340px;
+    max-width: 88vw;
+    background: rgba(255, 255, 255, 0.86);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 8px 0 30px rgba(3, 105, 161, 0.25);
+    transform: translateX(-100%);
+    transition: transform .28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+html[data-website-id="6"] .lp-catdrawer.is-open .lp-catdrawer-panel { transform: none; }
+html[data-website-id="6"] .lp-catdrawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .9rem 1rem;
+    background: linear-gradient(135deg, rgba(0, 168, 216, 0.92), rgba(3, 105, 161, 0.92));
+    color: #fff;
+    font-weight: 700;
+}
+html[data-website-id="6"] .lp-catdrawer-close {
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 1.1rem;
+}
+html[data-website-id="6"] .lp-catdrawer-body { flex: 1 1 auto; overflow-y: auto; padding: .5rem 0 1rem; }
+html[data-website-id="6"] .lp-catdrawer-top,
+html[data-website-id="6"] .lp-catdrawer-group > summary {
+    display: block;
+    padding: .65rem 1rem;
+    color: var(--pool-dark, #0c4a6e);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+html[data-website-id="6"] .lp-catdrawer-group > summary { list-style: none; position: relative; }
+html[data-website-id="6"] .lp-catdrawer-group > summary::-webkit-details-marker { display: none; }
+html[data-website-id="6"] .lp-catdrawer-group > summary::after {
+    content: "›";
+    position: absolute;
+    right: 1rem;
+    transition: transform .2s ease;
+}
+html[data-website-id="6"] .lp-catdrawer-group[open] > summary::after { transform: rotate(90deg); }
+html[data-website-id="6"] .lp-catdrawer-top:hover,
+html[data-website-id="6"] .lp-catdrawer-group > summary:hover,
+html[data-website-id="6"] .lp-catdrawer-item:hover { background: rgba(14, 165, 233, 0.14); }
+html[data-website-id="6"] .lp-catdrawer-item {
+    display: block;
+    padding: .45rem 1rem .45rem 1.75rem;
+    color: #334155;
+    text-decoration: none;
+    font-size: .92rem;
+}
+html[data-website-id="6"] .lp-catdrawer-every { color: var(--pool-primary-dark, #0284c7); font-weight: 600; }
+
+/* ---------- Recherche par rayon ---------- */
+html[data-website-id="6"] .lp-searchscope {
+    margin-bottom: .35rem;
+    border: 0;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.75);
+    color: var(--pool-dark, #0c4a6e);
+    font-size: .8rem;
+}
+
+/* ---------- Listes de produits ---------- */
+html[data-website-id="6"] .lp-resultcount {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-bottom: .5rem;
+    color: #475569;
+    font-size: .88rem;
+}
+html[data-website-id="6"] .lp-resultcount strong { color: var(--pool-dark, #0c4a6e); }
+html[data-website-id="6"] .lp-tileqty {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: .35rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: inset 0 0 0 1px rgba(2, 132, 199, 0.25);
+}
+html[data-website-id="6"] .lp-tileqty.is-busy { opacity: .5; pointer-events: none; }
+html[data-website-id="6"] .lp-tileqty-btn {
+    width: 26px;
+    height: 26px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--pool-primary-dark, #0284c7);
+    font-weight: 700;
+    line-height: 1;
+}
+html[data-website-id="6"] .lp-tileqty-btn:hover { background: rgba(14, 165, 233, 0.18); }
+html[data-website-id="6"] .lp-tileqty-val { min-width: 22px; text-align: center; font-size: .85rem; font-weight: 600; }
+html[data-website-id="6"] .lp-tileprice-ht { display: none; }
+html[data-website-id="6"] .lp-tileprice-ht small { color: #64748b; font-weight: 400; }
+html[data-website-id="6"][data-lp-price="ht"] .product_price.lp-show-ht > :not(.lp-tileprice-ht) { display: none !important; }
+html[data-website-id="6"][data-lp-price="ht"] .product_price.lp-show-ht > .lp-tileprice-ht { display: inline; }
+
+/* Fiche produit en mode HTVA : le prix hors TVA passe au premier plan. */
+html[data-website-id="6"][data-lp-price="ht"] #product_details .product_price { display: flex !important; flex-direction: column; }
+html[data-website-id="6"][data-lp-price="ht"] #product_details .lp-price-ttc { order: -1; margin-top: 0 !important; }
+html[data-website-id="6"][data-lp-price="ht"] #product_details .lp-price-ttc-value { font-size: 1.6rem; font-weight: 700; }
+html[data-website-id="6"][data-lp-price="ht"] #product_details [name="product_price_container"] { font-size: 1rem; opacity: .8; }
+
+/* ---------- Blocs de la fiche produit ---------- */
+html[data-website-id="6"] .lp-block-title { margin-bottom: .75rem; color: var(--pool-dark, #0c4a6e); font-weight: 700; }
+html[data-website-id="6"] .lp-tiers,
+html[data-website-id="6"] .lp-fbt,
+html[data-website-id="6"] .lp-compare {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 6px 22px rgba(3, 105, 161, 0.10);
+}
+html[data-website-id="6"] .lp-tiers { padding: .75rem; }
+html[data-website-id="6"] .lp-tiers .lp-block-title { margin-bottom: .4rem; font-size: .9rem; }
+html[data-website-id="6"] .lp-tiers-table { width: 100%; font-size: .88rem; }
+html[data-website-id="6"] .lp-tiers-table th { padding: .25rem .5rem; color: #64748b; font-weight: 600; }
+html[data-website-id="6"] .lp-tiers-table td { padding: .3rem .5rem; }
+html[data-website-id="6"] .lp-tiers-row { cursor: pointer; }
+html[data-website-id="6"] .lp-tiers-row:hover { background: rgba(14, 165, 233, 0.12); }
+
+html[data-website-id="6"] .lp-fbt-row { display: flex; flex-wrap: wrap; align-items: stretch; gap: .75rem; }
+html[data-website-id="6"] .lp-fbt-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    width: 150px;
+    padding: .6rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+}
+html[data-website-id="6"] .lp-fbt-check { position: absolute; top: .5rem; left: .5rem; width: 18px; height: 18px; }
+html[data-website-id="6"] .lp-fbt-item img { width: 100%; height: 110px; object-fit: contain; }
+html[data-website-id="6"] .lp-fbt-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: #1e293b;
+    font-size: .82rem;
+    line-height: 1.25;
+    text-decoration: none;
+}
+html[data-website-id="6"] .lp-fbt-price { margin-top: auto; color: var(--pool-primary-dark, #0284c7); font-weight: 700; font-size: .9rem; }
+html[data-website-id="6"] .lp-fbt-plus { align-self: center; color: #64748b; font-size: 1.5rem; font-weight: 300; }
+html[data-website-id="6"] .lp-fbt-total {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: .35rem;
+    min-width: 200px;
+    margin-left: auto;
+    padding: .6rem 1rem;
+}
+html[data-website-id="6"] .lp-fbt-total-label { color: #64748b; font-size: .85rem; }
+html[data-website-id="6"] .lp-fbt-total-amount { color: var(--pool-dark, #0c4a6e); font-size: 1.4rem; font-weight: 700; }
+html[data-website-id="6"] .lp-fbt-done { min-height: 1.2em; color: #15803d; font-size: .85rem; }
+html[data-website-id="6"].lp-has-fbt .o_lp_accessories { display: none; }
+
+html[data-website-id="6"] .lp-compare-scroll { overflow-x: auto; }
+html[data-website-id="6"] .lp-compare-table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; font-size: .88rem; }
+html[data-website-id="6"] .lp-compare-table th,
+html[data-website-id="6"] .lp-compare-table td { padding: .5rem .65rem; vertical-align: top; border-bottom: 1px solid rgba(12, 74, 110, 0.08); }
+html[data-website-id="6"] .lp-compare-table th { width: 22%; font-weight: 400; text-align: center; }
+html[data-website-id="6"] .lp-compare-table th:first-child { width: 12%; }
+html[data-website-id="6"] .lp-compare-table .is-current { background: rgba(14, 165, 233, 0.10); }
+html[data-website-id="6"] .lp-compare-card { display: block; color: #1e293b; text-decoration: none; font-size: .82rem; line-height: 1.25; }
+html[data-website-id="6"] .lp-compare-card img { display: block; width: 100%; height: 110px; margin-bottom: .35rem; object-fit: contain; }
+html[data-website-id="6"] .lp-compare-tag { display: inline-block; margin-top: .3rem; color: var(--pool-primary-dark, #0284c7); font-size: .75rem; font-style: normal; font-weight: 700; }
+html[data-website-id="6"] .lp-compare-label { color: #64748b; font-weight: 600; }
+html[data-website-id="6"] .lp-compare-price { color: var(--pool-primary-dark, #0284c7); font-weight: 700; text-align: center; }
+html[data-website-id="6"] .lp-compare-table td:not(.lp-compare-label) { text-align: center; }
+
+/* ---------- Demande de devis ---------- */
+html[data-website-id="6"] .lp-quote {
+    position: fixed;
+    inset: 0;
+    z-index: 1070;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+html[data-website-id="6"] .lp-quote.is-open { display: flex; }
+html[data-website-id="6"] .lp-quote-overlay { position: absolute; inset: 0; background: rgba(12, 74, 110, 0.45); }
+html[data-website-id="6"] .lp-quote-dialog {
+    position: relative;
+    width: 460px;
+    max-width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 1.25rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.94);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 20px 60px rgba(3, 105, 161, 0.35);
+}
+html[data-website-id="6"] .lp-quote-intro { color: #475569; font-size: .9rem; }
+html[data-website-id="6"] .lp-quote-field { display: block; margin-bottom: .6rem; }
+html[data-website-id="6"] .lp-quote-field > span { display: block; margin-bottom: .2rem; color: #334155; font-size: .82rem; font-weight: 600; }
+html[data-website-id="6"] .lp-quote-status { min-height: 1.3em; margin-bottom: .5rem; font-size: .88rem; }
+html[data-website-id="6"] .lp-quote-status.is-ok { color: #15803d; }
+html[data-website-id="6"] .lp-quote-status.is-error { color: #b91c1c; }
+html[data-website-id="6"] .lp-quote-actions { display: flex; justify-content: flex-end; gap: .5rem; }

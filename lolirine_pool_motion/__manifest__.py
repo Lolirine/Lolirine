@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Lolirine Pool Store — Motion",
-    "version": "19.0.2.3.0",
+    "version": "19.0.2.4.0",
     "category": "Website",
     "summary": "Animations frontend (Motion One) pilotées par la classe Interaction d'Odoo 19",
     "description": """
@@ -60,6 +60,9 @@ Moteur : Motion (motion.dev) v12, build UMD local (window.Motion).
             "lolirine_pool_motion/static/src/js/search_dropdown_sharp.interaction.js",
             "lolirine_pool_motion/static/src/js/suggested_marquee.interaction.js",
             "lolirine_pool_motion/static/src/js/mega_menu_link.interaction.js",
+            # --- Navigation enrichie (bandeau, rayons, listes, fiche, panier, pro) ---
+            "lolirine_pool_motion/static/src/css/pool_nav.css",
+            "lolirine_pool_motion/static/src/js/pool_nav.js",
         ],
     },
     "installable": True,
