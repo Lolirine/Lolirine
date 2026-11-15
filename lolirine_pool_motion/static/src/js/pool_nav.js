@@ -11,6 +11,7 @@
  *  5. Panier : demande de devis.
  *  6. Tunnel de commande : date de livraison rappelee, garanties, pays.
  *  7. Confirmation : la suite de la commande, le suivi, les complements.
+ *  8. Espace client : raccourcis et dernieres commandes sur la page d'accueil.
  *
  * Script classique (pas de module) : tout est rendu ici a partir des routes
  * JSON /lolirine_nav/*. Chaque bloc est independant et reste masque si sa
@@ -1035,6 +1036,88 @@
     }
 
     /* ================================================================
+     * 8. Espace client : raccourcis et dernieres commandes sur une page
+     * ================================================================ */
+    function buildAccount() {
+        var home = document.querySelector(".o_portal_my_home");
+        if (!/\/my(\/home)?\/?$/.test(window.location.pathname) || !home
+                || document.querySelector(".lp-account")) {
+            return;
+        }
+        getJSON(L("/lolirine_nav/account"))
+            .then(function (data) {
+                if (!data || !data.logged || inEditor()) {
+                    return;
+                }
+                var section = guard(el("section", "lp-account"));
+                section.appendChild(el("h3", "lp-account-hello",
+                    t("Bonjour ", "Dag ", "Hello ") + (data.name || "")));
+
+                var shortcuts = el("div", "lp-account-shortcuts");
+                [
+                    [t("Mes commandes", "Mijn bestellingen", "My orders"), "/my/orders", "fa-cube"],
+                    [t("Mes factures", "Mijn facturen", "My invoices"), "/my/invoices", "fa-file-text-o"],
+                    [t("Mes retours", "Mijn retouren", "My returns"), "/my/returns", "fa-undo"],
+                    [t("Acheter à nouveau", "Opnieuw kopen", "Buy again"), "/shop/acheter-a-nouveau", "fa-repeat"],
+                    [t("Mes listes", "Mijn lijsten", "My lists"), "/shop/wishlist", "fa-heart-o"],
+                    [t("Mes adresses", "Mijn adressen", "My addresses"), "/my/addresses", "fa-map-marker"],
+                ].forEach(function (item) {
+                    var a = el("a", "lp-account-shortcut");
+                    a.href = L(item[1]);
+                    a.appendChild(el("i", "fa " + item[2]));
+                    a.appendChild(el("span", null, item[0]));
+                    shortcuts.appendChild(a);
+                });
+                section.appendChild(shortcuts);
+
+                if (data.orders && data.orders.length) {
+                    section.appendChild(el("h5", "lp-block-title",
+                        data.orders.length > 1
+                            ? t("Vos dernières commandes", "Uw laatste bestellingen", "Your latest orders")
+                            : t("Votre dernière commande", "Uw laatste bestelling", "Your latest order")));
+                    data.orders.forEach(function (order) {
+                        var box = el("div", "lp-account-order");
+                        var head = el("div", "lp-account-order-head");
+                        head.appendChild(el("strong", null, order.ref));
+                        head.appendChild(el("span", null,
+                            order.date + " · " + order.count + " "
+                            + (order.count > 1 ? t("articles", "artikelen", "items")
+                                : t("article", "artikel", "item"))
+                            + " · " + money(order.total)));
+                        box.appendChild(head);
+                        var thumbs = el("div", "lp-account-thumbs");
+                        (order.images || []).forEach(function (src) {
+                            var img = el("img");
+                            img.src = src;
+                            img.alt = "";
+                            img.loading = "lazy";
+                            thumbs.appendChild(img);
+                        });
+                        box.appendChild(thumbs);
+                        var actions = el("div", "lp-account-actions");
+                        [
+                            [t("Suivre la commande", "Bestelling volgen", "Track order"), order.url, "btn-primary"],
+                            [t("Facture", "Factuur", "Invoice"), order.invoice_url, "btn-outline-primary"],
+                            [t("Retourner ou signaler un problème", "Retourneren of probleem melden",
+                                "Return or report a problem"), order.return_url, "btn-outline-secondary"],
+                        ].forEach(function (action) {
+                            if (!action[1]) {
+                                return;
+                            }
+                            var a = el("a", "btn btn-sm " + action[2], action[0]);
+                            a.href = action[1];
+                            actions.appendChild(a);
+                        });
+                        box.appendChild(actions);
+                        section.appendChild(box);
+                    });
+                }
+                home.insertBefore(section, home.firstChild);
+            })
+            .catch(function () {});
+    }
+
+    /* ================================================================
      * Demarrage
      * ================================================================ */
     function removeInjected() {
@@ -1069,6 +1152,7 @@
         safe(buildQuote)();
         safe(buildCheckout)();
         safe(buildConfirmation)();
+        safe(buildAccount)();
         loadTilePrices()
             .then(function () {
                 if (inEditor()) {

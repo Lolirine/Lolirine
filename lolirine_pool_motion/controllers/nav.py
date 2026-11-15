@@ -359,6 +359,51 @@ class LolirineNav(http.Controller):
         return _json(payload)
 
     # ------------------------------------------------------------------
+    # Espace client : tableau de bord (dernieres commandes du client connecte)
+    # ------------------------------------------------------------------
+    @http.route("/lolirine_nav/account", type="http", auth="public",
+                website=True, methods=["GET"], sitemap=False)
+    def nav_account(self, **kw):
+        payload = {"logged": False, "name": "", "orders": []}
+        if not self._pool_store():
+            return _json(payload)
+        try:
+            user = request.env.user
+            if user._is_public():
+                return _json(payload)
+            partner = user.partner_id
+            payload.update({"logged": True, "name": (partner.name or "").split(" ")[0]})
+            # Memes commandes que la liste « Mes commandes » du portail, site 6 seulement.
+            orders = request.env["sale.order"].sudo().search([
+                ("partner_id", "child_of", [partner.commercial_partner_id.id]),
+                ("state", "=", "sale"),
+                ("website_id", "=", SITE_POOL_STORE),
+            ], order="date_order desc, id desc", limit=2)
+            for order in orders:
+                lines = self._order_lines(order)
+                invoice = order.invoice_ids.filtered(
+                    lambda m: m.state == "posted" and m.move_type == "out_invoice"
+                )[:1]
+                payload["orders"].append({
+                    "id": order.id,
+                    "ref": order.name or "",
+                    "date": order.date_order.strftime("%d/%m/%Y") if order.date_order else "",
+                    "total": order.amount_total,
+                    "count": int(sum(lines.mapped("product_uom_qty"))),
+                    "url": order.get_portal_url(),
+                    "invoice_url": invoice.get_portal_url() if invoice else "",
+                    "return_url": "/my/orders/%s/retour" % order.id,
+                    "images": [
+                        "/web/image/product.product/%s/image_128" % line.product_id.id
+                        for line in lines[:4]
+                    ],
+                })
+        except Exception as e:  # noqa: BLE001
+            _logger.exception("lolirine_nav: echec tableau de bord client")
+            payload["error"] = str(e)
+        return _json(payload)
+
+    # ------------------------------------------------------------------
     # Panier : demande de devis
     # ------------------------------------------------------------------
     @http.route("/lolirine_nav/quote", type="jsonrpc", auth="public",

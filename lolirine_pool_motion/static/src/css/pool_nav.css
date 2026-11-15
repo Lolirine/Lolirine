@@ -421,3 +421,48 @@ html[data-website-id="6"] .lp-confirm-step div span { color: #475569; font-size:
 html[data-website-id="6"] .lp-confirm-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 html[data-website-id="6"] .lp-confirm-more { margin-top: 1.25rem; }
 html[data-website-id="6"] .lp-confirm div.lp-fbt-item { cursor: default; }
+
+/* ---------- Espace client ---------- */
+html[data-website-id="6"] .lp-account {
+    margin-bottom: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 6px 22px rgba(3, 105, 161, 0.10);
+}
+html[data-website-id="6"] .lp-account-hello { margin-bottom: .9rem; color: var(--pool-dark, #0c4a6e); font-weight: 700; }
+html[data-website-id="6"] .lp-account-shortcuts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: .6rem;
+    margin-bottom: 1.25rem;
+}
+html[data-website-id="6"] .lp-account-shortcut {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .7rem .8rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.75);
+    color: var(--pool-dark, #0c4a6e);
+    font-size: .9rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+html[data-website-id="6"] .lp-account-shortcut:hover { background: rgba(14, 165, 233, 0.16); color: var(--pool-primary-dark, #0284c7); }
+html[data-website-id="6"] .lp-account-shortcut .fa { color: var(--pool-primary-dark, #0284c7); }
+html[data-website-id="6"] .lp-account-order {
+    margin-bottom: .75rem;
+    padding: .9rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.75);
+}
+html[data-website-id="6"] .lp-account-order-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .75rem; margin-bottom: .6rem; }
+html[data-website-id="6"] .lp-account-order-head strong { color: var(--pool-dark, #0c4a6e); }
+html[data-website-id="6"] .lp-account-order-head span { color: #475569; font-size: .88rem; }
+html[data-website-id="6"] .lp-account-thumbs { display: flex; gap: .5rem; margin-bottom: .7rem; }
+html[data-website-id="6"] .lp-account-thumbs img { width: 56px; height: 56px; border-radius: 8px; background: #fff; object-fit: contain; }
+html[data-website-id="6"] .lp-account-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
