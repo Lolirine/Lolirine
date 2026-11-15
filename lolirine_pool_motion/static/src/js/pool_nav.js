@@ -1267,7 +1267,11 @@
             });
         });
         var footer = document.querySelector("#category_footer");
-        var full = footer ? footer.textContent.replace(/\s+/g, " ").trim() : "";
+        // Premier paragraphe du texte de bas de page (sans son titre).
+        var para = footer && Array.prototype.filter.call(footer.querySelectorAll("p"), function (p) {
+            return p.textContent.trim().length >= 60;
+        })[0];
+        var full = (para || footer || { textContent: "" }).textContent.replace(/\s+/g, " ").trim();
         var guide = GUIDES[top];
         if (full.length < 60 && !guide) {
             return;
