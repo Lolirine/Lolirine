@@ -185,6 +185,8 @@ class LolirineMotionCart(http.Controller):
             else:
                 return {"error": "API panier (_cart_update) introuvable"}
 
+            # Compteur du panier en session : l'en-tete des pages suivantes est a jour.
+            request.session["website_sale_cart_quantity"] = int(order.cart_quantity or 0)
             return {
                 "count": int(order.cart_quantity or 0),
                 "amount_total": order.amount_total,
@@ -214,9 +216,15 @@ class LolirineMotionCart(http.Controller):
             }
             if hasattr(order, "_cart_update"):
                 order._cart_update(**kwargs)
+            elif hasattr(order, "_cart_update_line_quantity"):
+                # Odoo 19
+                order._cart_update_line_quantity(
+                    line_id=int(line_id), quantity=int(set_qty)
+                )
             else:
                 return {"error": "API panier (_cart_update) introuvable"}
 
+            request.session["website_sale_cart_quantity"] = int(order.cart_quantity or 0)
             return {
                 "count": int(order.cart_quantity or 0),
                 "amount_total": order.amount_total,
@@ -227,6 +235,15 @@ class LolirineMotionCart(http.Controller):
     def _get_cart_force(self):
         """Récupère (ou crée) le panier courant, tolérant aux API d'Odoo 17/18/19."""
         website = request.website
+        # Odoo 19 : panier porte par la requete, cree a la demande par le site.
+        cart = getattr(request, "cart", None)
+        if cart:
+            return cart
+        if hasattr(website, "_create_cart"):
+            try:
+                return website._create_cart()
+            except Exception:  # noqa: BLE001
+                _logger.exception("website._create_cart indispo")
         # Odoo <= 18
         if hasattr(website, "sale_get_order"):
             try:
