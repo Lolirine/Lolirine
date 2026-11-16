@@ -856,7 +856,7 @@ class SaleSubscription(models.Model):
     # ==================== SYNCHRONISATION storage.box ====================
 
     # Champs pour lesquels une modification doit déclencher la resync du plan d'étage
-    _BOX_SYNC_TRIGGER_FIELDS = ('subscription_state', 'state', 'is_subscription', 'partner_id', 'order_line')
+    _BOX_SYNC_TRIGGER_FIELDS = ('subscription_state', 'state', 'is_subscription', 'partner_id', 'order_line', 'end_date')
 
     def write(self, vals):
         """Détecte les changements pertinents et resynchronise les box du plan."""
@@ -924,7 +924,8 @@ class SaleSubscription(models.Model):
             return
 
         try:
-            boxes._compute_current_customer()
+            # Client + statut + date de disponibilite + ruban boutique
+            boxes._lolirine_sync_availability()
             _logger.debug(
                 "Storage box sync : %s box(es) recalculé(s) depuis SO write/create",
                 len(boxes),

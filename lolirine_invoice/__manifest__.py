@@ -1,6 +1,6 @@
 {
     "name": "Lolirine Gestion Factures",
-    "version": "19.0.2.5.2",
+    "version": "19.0.2.6.0",
     "category": "Accounting/Invoicing",
     "summary": "Gestion avancee des factures avec relances, tags, dashboard et export comptable",
     "description": """
@@ -73,6 +73,7 @@
         "data/mail_template.xml",
         "data/reminder_templates.xml",
         "data/reminder_cron.xml",
+        "data/box_sync_cron.xml",
         "data/default_tags.xml",
         # Wizards (doit etre charge AVANT les menus)
         "wizard/invoice_send_wizard_views.xml",

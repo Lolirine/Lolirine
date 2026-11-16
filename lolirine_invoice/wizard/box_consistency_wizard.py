@@ -172,15 +172,17 @@ class LolirineBoxConsistencyWizard(models.TransientModel):
                     # Box utilisé personnellement par le gérant — pas une incohérence
                     vals['status'] = 'personal_use'
                     vals['details'] = "Usage personnel (non commercialisé)"
-                elif not box.date_available:
+                elif box.status == 'occupe':
                     vals['status'] = 'occupied_no_so'
-                    vals['details'] = ("Plan dit occupé (date_available vide) "
-                                       "mais aucun SO actif")
+                    vals['details'] = "Plan dit occupé mais aucun SO actif"
                 else:
                     vals['status'] = 'vacant'
-                    vals['details'] = "Disponible depuis le %s" % (
-                        box.date_available.strftime('%d/%m/%Y'),
-                    )
+                    label = dict(box._fields['status'].selection).get(box.status, box.status)
+                    vals['details'] = "Sans contrat - statut du plan : %s" % label
+                    if box.date_available:
+                        vals['details'] += " (disponible le %s)" % (
+                            box.date_available.strftime('%d/%m/%Y'),
+                        )
 
             line_vals_list.append((0, 0, vals))
 
