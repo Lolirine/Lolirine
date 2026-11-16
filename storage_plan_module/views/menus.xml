@@ -6,6 +6,19 @@
               web_icon="storage_plan_module,static/description/icon.png" 
               sequence="10"/>
 
+    <!-- Accès direct au plan du hangar (site web), sans passer par un box -->
+    <record id="action_storage_plan_website" model="ir.actions.act_url">
+        <field name="name">Plan du hangar</field>
+        <field name="url">/storage/plan</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_storage_plan_website"
+              name="Plan du hangar"
+              parent="menu_storage_plan_root"
+              action="action_storage_plan_website"
+              sequence="5"/>
+
     <!-- Menu Boxes -->
     <menuitem id="menu_storage_boxes" 
               name="Boxes" 

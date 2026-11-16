@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Plan Interactif Garde-Meubles',
-    'version': '19.0.1.0.68',
+    'version': '19.0.1.0.69',
     'category': 'Services',
     'summary': 'Gestion interactive des boxes de stockage',
     'description': """
