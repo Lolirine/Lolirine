@@ -85,7 +85,7 @@
         // ÉVÉNEMENTS DE CLIC SUR LES BOXES
         // ============================================
         // Permettre le clic sur TOUS les boxes pour voir les informations
-        $(document).on('click', '.storage-box', function(e) {
+        $(document).on('click', '.storage-box, .plan-box', function(e) {
             e.preventDefault();
             e.stopPropagation();
             
@@ -95,7 +95,7 @@
                 return false;
             }
             
-            var boxId = parseInt($(this).data('box-id'));
+            var boxId = parseInt(this.getAttribute('data-box-id'), 10);
             console.log('Box clicked:', boxId);
             
             if (boxId) {

@@ -5,7 +5,15 @@ import json
 import io
 import base64
 
+from .plan_layout import (PLAN_LAYOUT, PLAN_VIEWBOX, STATUS_TO_PLAN, PLAN_DEFAULT,
+                          PLAN_COLORS, PLAN_LABELS, PLAN_LEGEND_ORDER)
+
 SITE_POOL_STORE = 6
+
+
+def _rgba(hex_color, alpha):
+    h = hex_color.lstrip('#')
+    return 'rgba(%d, %d, %d, %s)' % (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), alpha)
 
 
 def sitemap_storage_plan(env, rule, qs):
@@ -53,9 +61,62 @@ class StoragePlanController(http.Controller):
         # Trier les boxes disponibles par volume
         boxes_list.sort(key=lambda x: x['volume'])
         
-        # Légende des statuts depuis la configuration
-        StatusColor = request.env['storage.status.color'].sudo()
-        status_legend = StatusColor.get_legend_items()
+        # ---- Plan du hangar : même vue que www.lolirine.be (SVG par niveau) ----
+        by_code = {b.name: b for b in all_boxes}
+
+        def plan_status(box):
+            # un box en usage personnel n'est pas à louer : affiché comme occupé
+            if getattr(box, 'is_personal_use', False):
+                return 'occupe'
+            return STATUS_TO_PLAN.get(box.status, PLAN_DEFAULT)
+
+        plan_floors = []
+        for floor_title, shapes in PLAN_LAYOUT:
+            floor_shapes = []
+            for code, x, y, w, h, tech in shapes:
+                shape = {
+                    'code': code, 'x': x, 'y': y, 'w': w, 'h': h, 'tech': tech,
+                    'tx': x + w - 2, 'ty': y + 10, 'vx': x + 1, 'vy': y + h - 1,
+                }
+                if not tech:
+                    box = by_code.get(code)
+                    if not box:
+                        continue
+                    st = plan_status(box)
+                    tip = '%s — %s' % (code, PLAN_LABELS[st])
+                    if st == 'bientot_libre' and box.date_available:
+                        tip += ' (le %s)' % box.date_available.strftime('%d/%m/%Y')
+                    tip += ' — %s m³ — %d €/mois' % (('%.1f' % box.volume).replace('.', ','), round(box.price_monthly))
+                    shape.update({
+                        'id': box.id, 'status': st, 'fill': PLAN_COLORS[st],
+                        'vol': '%.1f' % box.volume, 'tip': tip,
+                    })
+                floor_shapes.append(shape)
+            plan_floors.append({'title': floor_title, 'shapes': floor_shapes})
+
+        # Liste « disponible maintenant ou prochainement »
+        floor_of = {sh[0]: title for title, shapes in PLAN_LAYOUT for sh in shapes}
+        plan_available = []
+        for box in all_boxes.sorted(lambda b: (b.status != 'disponible', b.volume, b.name)):
+            st = plan_status(box)
+            if st not in ('libre', 'bientot_libre'):
+                continue
+            plan_available.append({
+                'id': box.id,
+                'code': box.name,
+                'floor': floor_of.get(box.name) or (box.floor_id.name if box.floor_id else ''),
+                'dims': '%s × %s × %s m' % tuple(('%.2f' % (v / 100.0)).replace('.', ',') for v in (box.depth, box.width, box.height)),
+                'vol': ('%.1f' % box.volume).replace('.', ','),
+                'price': ('%.2f' % box.price_monthly).replace('.', ','),
+                'status': st,
+                'dispo': ('Libre immédiatement' if st == 'libre'
+                          else ('Libre le %s' % box.date_available.strftime('%d/%m/%Y') if box.date_available
+                                else 'Libre prochainement')),
+            })
+
+        # Légende : mêmes couleurs que le plan
+        status_legend = [{'label': PLAN_LABELS[k], 'color': _rgba(PLAN_COLORS[k], 0.4)} for k in PLAN_LEGEND_ORDER]
+        status_legend.append({'label': 'Local technique', 'color': '#ffffff'})
         
         # Récupérer les catégories et meubles pour le calculateur
         FurnitureCategory = request.env['storage.furniture.category'].sudo()
@@ -86,6 +147,9 @@ class StoragePlanController(http.Controller):
             'boxes': boxes_dict,
             'boxes_list': boxes_list,
             'status_legend': status_legend,
+            'plan_floors': plan_floors,
+            'plan_available': plan_available,
+            'plan_viewbox': '0 0 %d %d' % PLAN_VIEWBOX,
             'furniture_categories': furniture_data,
         })
     

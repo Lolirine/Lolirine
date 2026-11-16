@@ -11,243 +11,46 @@
                 <div class="storage-plan-container">
                     <div class="main-layout">
                         <div class="plans-section">
+                            <!-- Disponibilités : même présentation que www.lolirine.be -->
+                            <div class="plan-dispo-card" data-oe-protected="true">
+                                <t t-if="plan_available">
+                                    <div class="plan-dispo-title">Disponible maintenant ou prochainement</div>
+                                    <div class="plan-dispo-scroll">
+                                    <table class="plan-dispo-table">
+                                        <thead><tr><th>Box</th><th>Niveau</th><th class="num">Dimensions (L×l×h)</th><th class="num">Volume</th><th class="num">Prix / mois TVAC</th><th>Disponibilité</th></tr></thead>
+                                        <tbody>
+                                            <tr t-foreach="plan_available" t-as="pa" class="plan-box" t-att-data-box-id="pa['id']">
+                                                <td><strong t-esc="pa['code']"/></td>
+                                                <td t-esc="pa['floor']"/>
+                                                <td class="num" t-esc="pa['dims']"/>
+                                                <td class="num"><t t-esc="pa['vol']"/> m³</td>
+                                                <td class="num"><strong><t t-esc="pa['price']"/> €</strong></td>
+                                                <td><span t-attf-class="plan-badge plan-badge-#{pa['status']}" t-esc="pa['dispo']"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <p class="plan-dispo-complet"><span class="plan-badge plan-badge-occupe">Actuellement complet</span> — tous nos box sont loués.
+                                    <a href="/contactus">Laissez-nous vos coordonnées</a> : nous vous prévenons dès qu'un box se libère.</p>
+                                </t>
+                            </div>
+                            <p class="plan-hint" data-oe-protected="true">Cliquez sur un box pour voir les informations complètes.</p>
                             <div class="floors-row">
                                 
                                 <!-- ==================== REZ-DE-CHAUSSÉE ==================== -->
                                 <div class="floor-container">
                                     <div class="floor-title o_default_snippet_text">Rez-de-chaussée</div>
-                                    <table class="floor-table">
-                                        <colgroup>
-                                            <col style="width: 22%;"/>
-                                            <col style="width: 22%;"/>
-                                            <col style="width: 12%;"/>
-                                            <col style="width: 22%;"/>
-                                            <col style="width: 22%;"/>
-                                        </colgroup>
-                                        <tbody>
-                                            <!-- Ligne 1: CNC1 (2 cols, 4 rows) + couloir + 1D23 avec SDS (2 cols) -->
-                                            <tr>
-                                                <td rowspan="4" colspan="2" class="zone-cnc">CNC1</td>
-                                                <td rowspan="4" class="corridor-cell"></td>
-                                                <td colspan="2" class="box-cell box-1d23-container">
-                                                    <div class="box-1d23-wrapper">
-                                                        <t t-set="b" t-value="boxes.get('1D23', {})"/>
-                                                        <div t-if="b" class="storage-box large-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};">
-                                                            <div class="box-name">1D23</div>
-                                                            <div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div>
-                                                            <t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t>
-                                                        </div>
-                                                        <div class="sds-overlay">SDS</div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <!-- Ligne 2 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D22', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D22</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D24', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D24</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 3 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D21', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D21</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D25', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D25</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 4 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D20', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D20</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D26', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D26</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 5 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G08', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G08</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G09', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G09</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D19', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D19</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D27', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D27</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 6 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G07', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G07</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G10', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G10</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D18', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D18</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D28', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D28</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 7 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G06', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G06</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G11', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G11</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D17', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D17</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D29', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D29</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 8 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G05', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G05</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G12', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G12</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D16', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D16</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D30', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D30</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 9 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G04', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G04</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G13', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G13</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D15', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D15</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D31', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D31</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 10 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G03', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G03</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G14', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G14</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D35', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D35</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D32', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D32</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 11 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G02', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G02</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="empty-cell"></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="empty-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D33', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D33</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 12 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1G01', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1G01</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="empty-cell"></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="empty-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('1D34', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">1D34</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 13: BUR + WC -->
-                                            <tr>
-                                                <td rowspan="2" colspan="2" class="zone-special zone-bur">BUR</td>
-                                                <td rowspan="2" class="corridor-cell"></td>
-                                                <td class="empty-cell"></td>
-                                                <td class="zone-special">WC</td>
-                                            </tr>
-                                            <!-- Ligne 14 -->
-                                            <tr>
-                                                <td class="empty-cell"></td>
-                                                <td class="zone-special zone-tech">TECH</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <t t-set="plan_floor" t-value="plan_floors[0]"/>
+                                    <t t-call="storage_plan_module.storage_plan_svg"/>
                                 </div>
 
                                 <!-- ==================== PREMIER ÉTAGE ==================== -->
                                 <div class="floor-container">
-                                    <div class="floor-title o_default_snippet_text">Premier étage</div>
-                                    <table class="floor-table">
-                                        <colgroup>
-                                            <col style="width: 22%;"/>
-                                            <col style="width: 22%;"/>
-                                            <col style="width: 12%;"/>
-                                            <col style="width: 22%;"/>
-                                            <col style="width: 22%;"/>
-                                        </colgroup>
-                                        <tbody>
-                                            <!-- Ligne 1: CNC2 (2 cols, 4 rows) + couloir + 2D61 + 2D62 -->
-                                            <tr>
-                                                <td rowspan="4" colspan="2" class="zone-cnc">CNC2</td>
-                                                <td rowspan="4" class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D61', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D61</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D62', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D62</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 2 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D60', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D60</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D63', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D63</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 3 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D59', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D59</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D64', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D64</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 4 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D58', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D58</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D65', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D65</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 5 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G43', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G43</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G44', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G44</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D57', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D57</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D66', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D66</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 6 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G42', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G42</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G45', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G45</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D56', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D56</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D67', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D67</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 7 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G41', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G41</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G46', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G46</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D55', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D55</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D68', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D68</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 8 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G40', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G40</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G47', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G47</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D54', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D54</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D69', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D69</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 9 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G39', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G39</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G48', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G48</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D53', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D53</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D70', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D70</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 10 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G38', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G38</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G49', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G49</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D52', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D52</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D71', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D71</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 11 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G37', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G37</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G50', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G50</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D51', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D51</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D72', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D72</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 12 -->
-                                            <tr>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2G36', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G36</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td class="empty-cell"></td>
-                                                <td class="corridor-cell"></td>
-                                                <td class="empty-cell"></td>
-                                                <td class="box-cell"><t t-set="b" t-value="boxes.get('2D73', {})"/><div t-if="b" class="storage-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D73</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 13: 2G35 + 2G75 -->
-                                            <tr>
-                                                <td rowspan="2" class="box-cell bur-aligned-cell"><t t-set="b" t-value="boxes.get('2G35', {})"/><div t-if="b" class="storage-box large-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G35</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td rowspan="2" class="box-cell bur-aligned-cell"><t t-set="b" t-value="boxes.get('2G75', {})"/><div t-if="b" class="storage-box large-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2G75</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                                <td rowspan="2" class="corridor-cell"></td>
-                                                <td class="empty-cell"></td>
-                                                <td rowspan="2" class="box-cell bur-aligned-cell"><t t-set="b" t-value="boxes.get('2D74', {})"/><div t-if="b" class="storage-box large-box" t-att-data-box-id="b.get('id')" t-att-data-status="b.get('status')" t-attf-style="background-color: #{b.get('status_color', '#ccc')};"><div class="box-name">2D74</div><div class="box-dimensions"><span class="box-vol"><t t-esc="b.get('volume', '')"/> m³</span> · <t t-esc="b.get('surface', '')"/> m²</div><t t-if="b.get('date_available')"><div class="box-date-available">DISPONIBLE LE <t t-esc="b.get('date_available')"/></div></t></div></td>
-                                            </tr>
-                                            <!-- Ligne 14 -->
-                                            <tr>
-                                                <td class="empty-cell"></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <div class="floor-title o_default_snippet_text">1er étage</div>
+                                    <t t-set="plan_floor" t-value="plan_floors[1]"/>
+                                    <t t-call="storage_plan_module.storage_plan_svg"/>
                                 </div>
                             </div>
                         </div>
@@ -258,8 +61,8 @@
                                 <div class="example-box-card s_card s_allow_columns" data-name="Exemple Box">
                                     <div class="example-title s_text_block">Exemple de box</div>
                                     <div class="example-box-demo">
-                                        <div class="demo-id s_text_block">ID du Box</div>
-                                        <div class="demo-volume s_text_block">Volume (m³) · Surface (m²)</div>
+                                        <div class="demo-id s_text_block">Numéro du box</div>
+                                        <div class="demo-volume s_text_block">Volume (m³)</div>
                                     </div>
                                 </div>
                                 
@@ -545,4 +348,24 @@
             </div>
         </t>
     </template>
+    <!-- Plan d'un niveau en SVG : géométrie et couleurs identiques à www.lolirine.be -->
+    <template id="storage_plan_svg" name="Plan du hangar (SVG d'un niveau)">
+        <svg class="plan-svg" t-att-viewBox="plan_viewbox" role="img" t-att-aria-label="'Plan ' + plan_floor['title']" data-oe-protected="true">
+            <rect x="0" y="0" width="310" height="460" fill="#FFFFFF"/>
+            <t t-foreach="plan_floor['shapes']" t-as="sh">
+                <t t-if="sh['tech']">
+                    <rect t-att-x="sh['x']" t-att-y="sh['y']" t-att-width="sh['w']" t-att-height="sh['h']" fill="white" fill-opacity="0.4" stroke="#555555" stroke-opacity="0.8"/>
+                    <text t-att-x="sh['tx']" t-att-y="sh['ty']" font-size="8" font-family="Verdana, sans-serif" font-weight="bold" text-anchor="end" fill="#000000"><t t-esc="sh['code']"/></text>
+                </t>
+                <t t-else="">
+                    <g class="plan-box" t-att-data-box-id="sh['id']" t-att-data-status="sh['status']">
+                        <rect class="plan-box-rect" t-att-x="sh['x']" t-att-y="sh['y']" t-att-width="sh['w']" t-att-height="sh['h']" t-att-fill="sh['fill']" fill-opacity="0.4" stroke="blue" stroke-opacity="0.8"><title><t t-esc="sh['tip']"/></title></rect>
+                        <text t-att-x="sh['tx']" t-att-y="sh['ty']" font-size="8" font-family="Verdana, sans-serif" font-weight="bold" text-anchor="end" fill="#000000"><t t-esc="sh['code']"/></text>
+                        <text t-att-x="sh['vx']" t-att-y="sh['vy']" font-size="10" font-family="Verdana, sans-serif" font-weight="bold" text-anchor="start" fill="#C70039" fill-opacity="0.6"><t t-esc="sh['vol']"/></text>
+                    </g>
+                </t>
+            </t>
+        </svg>
+    </template>
+
 </odoo>
