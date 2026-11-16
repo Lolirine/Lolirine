@@ -286,6 +286,20 @@
         // ============================================
         var box3dState = { data: null, view: 'ext' };
 
+        // Box qui ne s'ouvrent PAS sur toute leur largeur : porte de 1 m.
+        // Valeur = position de la porte sur la façade vue du couloir.
+        var PORTE_1M = {
+            '1G08': 'centre', '1G09': 'centre', '1D23': 'centre',
+            '2G35': 'centre', '2G75': 'centre', '2G43': 'centre', '2G44': 'centre',
+            '2D61': 'centre', '2D62': 'centre',
+            '2D74': 'gauche'   // porte du côté du box 2D73
+        };
+        function ouvertureTexte(boxData) {
+            return PORTE_1M[String(boxData.name || '').toUpperCase()]
+                ? 'Ouverture : porte de 1 m'
+                : 'Ouverture sur toute la largeur (' + (Math.round(Number(boxData.width) * 10) / 10).toString().replace('.', ',') + ' cm)';
+        }
+
         $(document).on('click', '#box-3d-canvas', function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -445,32 +459,51 @@
                 osb(facade, [205, 165, 106], 37);
                 joints(D, function(m) { return P(W, 0, D - m); }, function(m) { return P(W, H, D - m); });
 
-                // Porte en façade
-                var lp = Math.min(100, W - 30), hp = Math.min(205, H - 12);
-                var xp = (W - lp) / 2;
+                // Ouverture en façade (côté couloir)
+                //  - cas général : le box s'ouvre sur toute sa largeur (deux vantaux)
+                //  - box à porte de 1 m : voir PORTE_1M (position de la porte sur la façade)
+                var hp = Math.min(210, H - 10);
+                var porte1m = PORTE_1M[String(boxData.name || '').toUpperCase()];
+                var lp, xp;
+                if (porte1m) {
+                    lp = Math.min(100, W - 20);
+                    xp = porte1m === 'gauche' ? 10 : (porte1m === 'droite' ? W - lp - 10 : (W - lp) / 2);
+                } else {
+                    lp = W - 8;
+                    xp = 4;
+                }
                 var porte = [P(xp, 0, D), P(xp + lp, 0, D), P(xp + lp, hp, D), P(xp, hp, D)];
                 osb(porte, [214, 176, 118], 53);
                 poly(porte);
                 ctx.strokeStyle = '#3e2c17';
                 ctx.lineWidth = 2.2;
                 ctx.stroke();
-                // charnières (à gauche)
-                [0.18, 0.82].forEach(function(r) {
-                    poly([P(xp - 3, hp * r - 7, D), P(xp + 9, hp * r - 7, D), P(xp + 9, hp * r + 7, D), P(xp - 3, hp * r + 7, D)]);
+                function charniere(x, r) {
+                    poly([P(x - 6, hp * r - 7, D), P(x + 6, hp * r - 7, D), P(x + 6, hp * r + 7, D), P(x - 6, hp * r + 7, D)]);
                     ctx.fillStyle = '#4a4f55';
                     ctx.fill();
-                });
-                // verrou et cadenas (à droite)
-                poly([P(xp + lp - 20, hp * 0.5 - 4, D), P(xp + lp + 6, hp * 0.5 - 4, D), P(xp + lp + 6, hp * 0.5 + 4, D), P(xp + lp - 20, hp * 0.5 + 4, D)]);
+                }
+                var xv;   // position du verrou
+                if (porte1m) {
+                    [0.18, 0.82].forEach(function(r) { charniere(xp, r); });
+                    xv = xp + lp - 8;
+                } else {
+                    // deux vantaux : jonction au milieu, charnières des deux côtés
+                    trait(P(xp + lp / 2, 0, D), P(xp + lp / 2, hp, D), '#3e2c17', 2);
+                    [0.18, 0.82].forEach(function(r) { charniere(xp, r); charniere(xp + lp, r); });
+                    xv = xp + lp / 2;
+                }
+                // verrou et cadenas
+                poly([P(xv - 13, hp * 0.5 - 4, D), P(xv + 13, hp * 0.5 - 4, D), P(xv + 13, hp * 0.5 + 4, D), P(xv - 13, hp * 0.5 + 4, D)]);
                 ctx.fillStyle = '#5c6268';
                 ctx.fill();
-                var cad = P(xp + lp - 8, hp * 0.5 - 8, D);
+                var cad = P(xv, hp * 0.5 - 8, D);
                 ctx.beginPath();
                 ctx.arc(cad.x, cad.y, 4 * scale + 1, Math.PI, 0);
                 ctx.strokeStyle = '#8a6d1a';
                 ctx.lineWidth = 2;
                 ctx.stroke();
-                poly([P(xp + lp - 13, hp * 0.5 - 20, D), P(xp + lp - 3, hp * 0.5 - 20, D), P(xp + lp - 3, hp * 0.5 - 8, D), P(xp + lp - 13, hp * 0.5 - 8, D)]);
+                poly([P(xv - 5, hp * 0.5 - 20, D), P(xv + 5, hp * 0.5 - 20, D), P(xv + 5, hp * 0.5 - 8, D), P(xv - 5, hp * 0.5 - 8, D)]);
                 ctx.fillStyle = '#d4a017';
                 ctx.fill();
                 // plaque du numéro, posée dans le plan de la façade
@@ -546,6 +579,9 @@
             ctx.textBaseline = 'middle';
             ctx.fillStyle = '#1f2d3d';
             ctx.fillText(titre, SIZE / 2, 18);
+            ctx.font = '12px Arial, sans-serif';
+            ctx.fillStyle = '#5a6672';
+            ctx.fillText(ouvertureTexte(boxData), SIZE / 2, 36);
             var invite = interior ? '↺  Cliquez pour revenir à la vue extérieure'
                                   : "🔍  Cliquez sur le box pour voir l'intérieur";
             ctx.font = '13px Arial, sans-serif';
