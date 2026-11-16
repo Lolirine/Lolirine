@@ -36,7 +36,7 @@
         </tr>
         <tr>
             <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold;">Montant total</td>
-            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #28a745;"><t t-out="&#39;%.2f&#39;|format(object.amount_total)"/> EUR</td>
+            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #28a745;"><t t-out="&#39;%.2f&#39; % object.amount_total"/> EUR</td>
         </tr>
     </table>
     
@@ -97,7 +97,7 @@
         </tr>
         <tr style="background-color: #f8f9fa;">
             <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold;">Montant dû</td>
-            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #dc3545;"><t t-out="&#39;%.2f&#39;|format(object.amount_residual)"/> EUR</td>
+            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #dc3545;"><t t-out="&#39;%.2f&#39; % object.amount_residual"/> EUR</td>
         </tr>
     </table>
     
@@ -150,7 +150,7 @@
         </tr>
         <tr>
             <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold;">Montant reçu</td>
-            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #28a745;"><t t-out="&#39;%.2f&#39;|format(object.amount_total)"/> EUR</td>
+            <td style="padding: 12px 15px; border: 1px solid #dee2e6; font-weight: bold; color: #28a745;"><t t-out="&#39;%.2f&#39; % object.amount_total"/> EUR</td>
         </tr>
     </table>
     

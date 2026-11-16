@@ -28,7 +28,7 @@
         </tr>
         <tr style="background-color: #f5f5f5;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant du</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong><t t-out="&#39;%.2f&#39;|format(object.amount_due)"/> EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong><t t-out="&#39;%.2f&#39; % object.amount_due"/> EUR</strong></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Jours de retard</strong></td>
@@ -86,7 +86,7 @@
         </tr>
         <tr style="background-color: #fff3cd;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant du</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong><t t-out="&#39;%.2f&#39;|format(object.amount_due)"/> EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong><t t-out="&#39;%.2f&#39; % object.amount_due"/> EUR</strong></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Jours de retard</strong></td>
@@ -142,7 +142,7 @@
         </tr>
         <tr style="background-color: #f8d7da;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant du</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545;"><t t-out="&#39;%.2f&#39;|format(object.amount_due)"/> EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545;"><t t-out="&#39;%.2f&#39; % object.amount_due"/> EUR</strong></td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Jours de retard</strong></td>
@@ -150,7 +150,7 @@
         </tr>
         <tr style="background-color: #f8d7da;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Penalites de retard</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="&#39;%.2f&#39;|format(object.penalty_amount)"/> EUR</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="&#39;%.2f&#39; % object.penalty_amount"/> EUR</td>
         </tr>
     </table>
     
@@ -215,19 +215,19 @@
         </tr>
         <tr style="background-color: #f8d7da;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Principal</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="&#39;%.2f&#39;|format(object.amount_due)"/> EUR</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="&#39;%.2f&#39; % object.amount_due"/> EUR</td>
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Penalites de retard (<t t-out="object.days_overdue"/> jours)</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="&#39;%.2f&#39;|format(object.penalty_amount)"/> EUR</td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="&#39;%.2f&#39; % object.penalty_amount"/> EUR</td>
         </tr>
         <tr style="background-color: #f8d7da;">
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>TOTAL A PAYER</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545; font-size: 16px;"><t t-out="&#39;%.2f&#39;|format(object.amount_due + object.penalty_amount)"/> EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong style="color: #dc3545; font-size: 16px;"><t t-out="&#39;%.2f&#39; % (object.amount_due + object.penalty_amount)"/> EUR</strong></td>
         </tr>
     </table>
     
-    <p><strong>Par la presente, nous vous mettons en demeure de nous regler la somme totale de <t t-out="&#39;%.2f&#39;|format(object.amount_due + object.penalty_amount)"/> EUR dans un delai de 8 jours a compter de la reception de ce courrier.</strong></p>
+    <p><strong>Par la presente, nous vous mettons en demeure de nous regler la somme totale de <t t-out="&#39;%.2f&#39; % (object.amount_due + object.penalty_amount)"/> EUR dans un delai de 8 jours a compter de la reception de ce courrier.</strong></p>
     
     <p>A defaut de reglement dans ce delai, nous nous reservons le droit de :</p>
     <ul>

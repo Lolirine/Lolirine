@@ -33,7 +33,7 @@
         </tr>
         <tr>
             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Montant total</strong></td>
-            <td style="padding: 10px; border: 1px solid #ddd;"><strong><t t-out="&#39;%.2f&#39;|format(object.amount_total)"/> EUR</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong><t t-out="&#39;%.2f&#39; % object.amount_total"/> EUR</strong></td>
         </tr>
     </table>
     
