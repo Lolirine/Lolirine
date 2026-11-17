@@ -1,6 +1,6 @@
 {
     "name": "Lolirine Gestion Factures",
-    "version": "19.0.2.6.0",
+    "version": "19.0.2.7.0",
     "category": "Accounting/Invoicing",
     "summary": "Gestion avancee des factures avec relances, tags, dashboard et export comptable",
     "description": """
@@ -90,6 +90,7 @@
         "views/indexation_send_wizard_views.xml",
         "views/contract_close_wizard_views.xml",
         "views/box_transfer_wizard_views.xml",
+        "views/contract_takeover_wizard_views.xml",
         "views/storage_box_views.xml",
         "views/payment_marker_views.xml",
         "views/res_partner_reminder_views.xml",

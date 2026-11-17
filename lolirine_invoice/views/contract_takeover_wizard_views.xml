@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_lolirine_contract_takeover_wizard_form" model="ir.ui.view">
+        <field name="name">lolirine.contract.takeover.wizard.form</field>
+        <field name="model">lolirine.contract.takeover.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reprise du contrat par un autre locataire">
+                <field name="company_id" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+                <div class="oe_title">
+                    <h1>Reprise du contrat</h1>
+                    <p class="text-muted">
+                        Le box et le contrat restent les mêmes, seul le locataire change.
+                        Les factures déjà émises restent au nom de l'ancien locataire.
+                        Si la banque a rattaché le versement du nouveau locataire au mauvais client,
+                        corrige d'abord la transaction bancaire.
+                    </p>
+                </div>
+                <group>
+                    <group string="Contrat">
+                        <field name="subscription_id" options="{'no_create': True}"/>
+                        <field name="box_names"/>
+                        <field name="old_partner_id"/>
+                        <field name="new_partner_id" options="{'no_create': True}"/>
+                        <field name="takeover_date"/>
+                    </group>
+                    <group string="Caution de l'ancien locataire">
+                        <field name="old_deposit_balance" widget="monetary"/>
+                        <field name="old_open_amount" widget="monetary"/>
+                        <field name="apply_old_deposit"/>
+                        <field name="old_deposit_to_apply" widget="monetary"
+                               invisible="not apply_old_deposit"/>
+                    </group>
+                </group>
+                <group>
+                    <group string="Caution du nouveau locataire">
+                        <field name="deposit_amount" widget="monetary"/>
+                        <field name="new_partner_credit" widget="monetary"/>
+                        <field name="take_deposit_from_credit"/>
+                    </group>
+                    <group string="Note">
+                        <field name="note" nolabel="1" colspan="2"
+                               placeholder="Ajoutée au contrat (bandeau) et aux deux fiches contact"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_apply" type="object" string="Transférer le contrat"
+                            class="btn-primary"
+                            confirm="Transférer le contrat au nouveau locataire et passer les écritures de caution ?"/>
+                    <button string="Annuler" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_lolirine_contract_takeover_wizard" model="ir.actions.act_window">
+        <field name="name">Reprise par un autre locataire</field>
+        <field name="res_model">lolirine.contract.takeover.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <record id="view_sale_order_form_inherit_lolirine_takeover" model="ir.ui.view">
+        <field name="name">sale.order.form.lolirine.contract.takeover</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="%(action_lolirine_contract_takeover_wizard)d"
+                        type="action"
+                        string="Reprise par un autre locataire"
+                        invisible="not is_subscription or state != 'sale'"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
