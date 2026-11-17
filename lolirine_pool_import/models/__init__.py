@@ -11,3 +11,4 @@ from . import pool_catalog_pdf
 from . import pool_catalog_pdf_image
 from . import pool_catalog_pdf_import_images
 from . import pool_catalog_pdf_product_images
+from . import afp_media

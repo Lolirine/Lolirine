@@ -1,6 +1,6 @@
 {
     'name': 'Lolirine Pool Import - Fluidra',
-    'version': '19.0.6.3.1',
+    'version': '19.0.6.4.0',
     'category': 'Sales/Sales',
     'summary': 'Import produits piscine - OCR IA + remises fournisseur + sélection images + re-extraction produits',
     'description': """
