@@ -6,7 +6,9 @@
               web_icon="storage_plan_module,static/description/icon.png" 
               sequence="10"/>
 
-    <!-- Accès direct au plan du hangar (site web), sans passer par un box -->
+    <!-- Accès direct au plan du hangar (site web), sans passer par un box.
+         Séquence 15 : après « Boxes » (10), sinon le clic sur l'application ouvre le plan
+         au lieu de la liste des boxes. -->
     <record id="action_storage_plan_website" model="ir.actions.act_url">
         <field name="name">Plan du hangar</field>
         <field name="url">/storage/plan</field>
@@ -17,7 +19,7 @@
               name="Plan du hangar"
               parent="menu_storage_plan_root"
               action="action_storage_plan_website"
-              sequence="5"/>
+              sequence="15"/>
 
     <!-- Menu Boxes -->
     <menuitem id="menu_storage_boxes" 
