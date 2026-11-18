@@ -9,6 +9,7 @@
                 <field name="currency_id" invisible="1"/>
                 <field name="pool_supplement_transport" widget="monetary"/>
                 <field name="pool_marge_min_active"/>
+                <field name="pool_marge_plafond" widget="monetary" invisible="not pool_marge_min_active"/>
             </xpath>
         </field>
     </record>

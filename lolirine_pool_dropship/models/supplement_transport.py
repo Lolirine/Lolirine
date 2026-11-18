@@ -59,6 +59,10 @@ class DeliveryCarrierSupplementTransport(models.Model):
         "Garantir la marge minimale (frais fournisseur)", default=True,
         help="Ajoute aux frais de livraison le complément nécessaire pour que chaque fournisseur du panier "
              "garde sa marge minimale une fois ses frais de port d'envoi direct payés.")
+    pool_marge_plafond = fields.Monetary(
+        "Plafond du complément (HT)", currency_field='currency_id', default=9.90,
+        help="Montant maximum ajouté aux frais de livraison pour garantir la marge (0 = sans plafond). "
+             "Le reste est intégré dans le prix des fiches ou accepté.")
     currency_id = fields.Many2one(related='company_id.currency_id', readonly=True)
 
     # ------------------------------------------------------------------
@@ -143,12 +147,13 @@ class DeliveryCarrierSupplementTransport(models.Model):
                 for l in order.order_line if l.product_id and not l.is_delivery
             }
             fournisseurs_bareme = {p for p in fournisseurs_bareme if p and p.pool_bareme_port}
+            if self.pool_marge_plafond and complement > self.pool_marge_plafond:
+                complement = self.pool_marge_plafond
             if complement > 0:
+                # Intégré discrètement aux frais de livraison, sans mention de frais fournisseur
                 res['price'] = prix + complement
                 if 'carrier_price' in res:
                     res['carrier_price'] = (res.get('carrier_price') or 0.0) + complement
-                notes.append(_("Comprend %s HT de frais d'expédition fournisseur (petite commande).") % (
-                    ('%.2f €' % complement).replace('.', ',')))
         # Ancienne règle colis lourd, seulement pour les articles sans barème fournisseur
         if self.pool_supplement_transport:
             lourds = order.order_line.filtered(
