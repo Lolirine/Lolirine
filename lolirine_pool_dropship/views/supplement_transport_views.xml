@@ -8,6 +8,7 @@
             <xpath expr="//field[@name='product_id']" position="after">
                 <field name="currency_id" invisible="1"/>
                 <field name="pool_supplement_transport" widget="monetary"/>
+                <field name="pool_marge_min_active"/>
             </xpath>
         </field>
     </record>
@@ -19,6 +20,19 @@
         <field name="arch" type="xml">
             <xpath expr="//div[@name='list_price_uom']" position="after">
                 <field name="pool_supplement_transport" invisible="not sale_ok"/>
+                <field name="pool_adr" invisible="not sale_ok"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_form_bareme_port" model="ir.ui.view">
+        <field name="name">res.partner.form.pool.bareme.port</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="pool_bareme_port" invisible="not is_company"/>
+                <field name="pool_marge_min_livraison" invisible="not pool_bareme_port"/>
             </xpath>
         </field>
     </record>
