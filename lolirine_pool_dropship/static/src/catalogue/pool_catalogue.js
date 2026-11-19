@@ -131,7 +131,14 @@ export class PoolCatalogue extends Component {
             res.cat_lettre = trouve ? trouve[1] : "";
             res.cat_prix = trouve && trouve[2] !== null && trouve[2] !== undefined ? trouve[2] : null;
             res.cat_page_aff = trouve ? this.pageAffichee(l.fournisseur, trouve[0]) : null;
-            if (!l.fournisseur) {
+            res.refVide = "— sans référence —";
+            if (l.nature === "service") {
+                [res.badge, res.badgeClasse, res.refVide] = ["Main-d'œuvre", "text-bg-light", "—"];
+            } else if (l.nature === "divers") {
+                [res.badge, res.badgeClasse, res.refVide] = ["Hors catalogue", "text-bg-light", "—"];
+            } else if (l.nature === "site") {
+                [res.badge, res.badgeClasse] = ["Sans catalogue", "text-bg-info"];
+            } else if (!l.fournisseur) {
                 [res.badge, res.badgeClasse] = ["Fournisseur ?", "text-bg-secondary"];
             } else if (!l.ref) {
                 [res.badge, res.badgeClasse] = ["Sans réf.", "text-bg-danger"];
@@ -311,7 +318,16 @@ export class PoolCatalogue extends Component {
             return;
         }
         if (!l.fournisseur) {
-            this.state.message = "Fournisseur inconnu pour « " + l.nom + " » : parcourez les rubriques.";
+            if (l.nature === "service") {
+                this.state.message = "Ligne de main-d'œuvre ou de service : rien à vérifier au catalogue.";
+            } else if (l.nature === "divers") {
+                this.state.message = "Fourniture hors catalogue : désignation et prix saisis à la main sur le devis.";
+            } else if (l.nature === "site") {
+                this.state.message = "« " + l.nom + " » vient de " + l.fournisseur_nom
+                    + ", qui n'a pas de catalogue consultable ici : la référence et le prix d'achat net affichés sont ceux de sa fiche fournisseur.";
+            } else {
+                this.state.message = "Fournisseur inconnu pour « " + l.nom + " » : parcourez les rubriques.";
+            }
             return;
         }
         const trouve = this.chercherIndex(l.fournisseur, l.ref);

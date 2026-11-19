@@ -27,7 +27,7 @@ CATALOGUES = {
         'label': 'SCP Benelux 2026',
         'type': 'pdf',
         'param': 'lolirine_pool.catalogue_scp_url',
-        'url': 'https://it2resources.interactiv-doc.fr/downloads/scp_benelux_1196_enrich.pdf',
+        'url': 'https://it2resources.interactiv-doc.fr/catalogues/scp_benelux_1196/pdf/scp_benelux_1196.pdf',
     },
     'fluidra': {
         'label': 'Fluidra Benelux 2026',
@@ -71,6 +71,20 @@ class PoolCatalogueMixin(models.AbstractModel):
         if 'FLUIDRA' in nom or 'SIBO' in nom:
             return 'fluidra'
         return False
+
+    @api.model
+    def _pool_catalogue_nature(self, produit, fournisseur, cle):
+        """Pourquoi une ligne n'a pas de page de catalogue : 'service'
+        (main-d'œuvre, déplacement, forfait de pose), 'divers' (fourniture
+        saisie à la main), 'site' (fournisseur connu mais sans catalogue
+        consultable ici, ex. Allforpools). '' pour une ligne à vérifier."""
+        if cle:
+            return ''
+        if produit.type == 'service':
+            return 'service'
+        if (produit.default_code or '') in ('FOURN-DIVERS', 'ELEC-DIVERS'):
+            return 'divers'
+        return 'site' if fournisseur else ''
 
     @api.model
     def _pool_catalogue_piece(self, key):
@@ -223,6 +237,7 @@ class PoolCatalogueMixin(models.AbstractModel):
                 lignes.append({
                     'id': l.id, 'nom': l.product_id.display_name, 'qte': l.product_qty,
                     'ref': ref, 'fournisseur': cle, 'fournisseur_nom': doc.partner_id.name,
+                    'nature': self._pool_catalogue_nature(l.product_id, doc.partner_id, cle),
                     'prix_catalogue': l.price_unit, 'remise': l.discount,
                     'prix_net': l.price_unit * (1 - (l.discount or 0) / 100.0),
                     'prix_vente': False,
@@ -232,10 +247,22 @@ class PoolCatalogueMixin(models.AbstractModel):
                 tmpl = l.product_id.product_tmpl_id
                 info = Info.search([('product_tmpl_id', '=', tmpl.id), ('is_active', '=', True)], limit=1)
                 ref, prix, remise = info._pool_ligne_bc(l.product_id) if info else ('', 0.0, 0.0)
+                fournisseur = info.supplier_id if info else self.env['res.partner']
+                if not info:
+                    # fournisseur sans fiche dropship (Allforpools…) : ligne
+                    # fournisseur standard de l'article, prix d'achat net
+                    vendeurs = tmpl.sudo().seller_ids.filtered(
+                        lambda s: not s.product_id or s.product_id == l.product_id)
+                    vendeur = vendeurs.sorted(lambda s: (not s.product_id, s.sequence, s.id))[:1]
+                    if vendeur:
+                        fournisseur = vendeur.partner_id
+                        ref, prix, remise = vendeur.product_code or '', vendeur.price, vendeur.discount or 0.0
+                cle = self._pool_catalogue_cle_fournisseur(fournisseur) if fournisseur else False
                 lignes.append({
                     'id': l.id, 'nom': l.product_id.display_name, 'qte': l.product_uom_qty,
-                    'ref': ref, 'fournisseur': self._pool_catalogue_cle_fournisseur(info.supplier_id) if info else False,
-                    'fournisseur_nom': info.supplier_id.name if info else '',
+                    'ref': ref, 'fournisseur': cle,
+                    'fournisseur_nom': fournisseur.name if fournisseur else '',
+                    'nature': self._pool_catalogue_nature(l.product_id, fournisseur, cle),
                     'prix_catalogue': prix, 'remise': remise,
                     'prix_net': prix * (1 - (remise or 0) / 100.0),
                     'prix_vente': l.price_unit,
