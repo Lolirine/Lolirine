@@ -20,8 +20,12 @@ BAREMES = [
     ('afp', 'Allforpools (bpost 24h)'),
 ]
 
-# SCP Benelux 2026 (BE) : forfait par tranche de marchandises HT, franco dès 1200 €
-SCP_TRANCHES = [(200, 7.50), (400, 12.0), (600, 15.0), (800, 20.0), (1000, 25.0), (1200, 35.0)]
+# SCP Benelux 2026 (BE), page 434 du catalogue en ligne relue le 23/11/2026 :
+# forfait par tranche de marchandises HT, franco dès 1200 €
+SCP_TRANCHES = [(200, 8.40), (400, 13.50), (600, 16.80), (800, 22.40), (1000, 28.0), (1200, 39.20)]
+SCP_ADRESSE_PRIVEE = 19.10      # livraison adresse privée (envoi direct au client)
+SCP_ENERGIE = 4.50              # surcharge énergétique par livraison sortante (depuis le 01/08/2026)
+SCP_GESTION_ADR = 22.50         # frais de gestion et logistique, uniquement s'il y a de l'ADR
 
 
 class ProductTemplateSupplementTransport(models.Model):
@@ -33,7 +37,7 @@ class ProductTemplateSupplementTransport(models.Model):
     pool_adr = fields.Boolean(
         "Marchandise dangereuse (ADR)",
         help="Article marqué « LQ ADR » au catalogue fournisseur : supplément matières dangereuses "
-             "facturé par le fournisseur (Fluidra : 35 € HT par envoi).")
+             "facturé par le fournisseur (Fluidra : 35 € HT par envoi ; SCP : 22,50 € HT par commande).")
 
 
 class ResPartnerBaremePort(models.Model):
@@ -91,7 +95,10 @@ class DeliveryCarrierSupplementTransport(models.Model):
                 if net < seuil:
                     frais = montant
                     break
-            return frais + 17.0 + 20.0                      # adresse privée + gestion
+            frais += SCP_ADRESSE_PRIVEE + SCP_ENERGIE
+            if any(tmpls.mapped('pool_adr')):
+                frais += SCP_GESTION_ADR
+            return frais
         if bareme == 'afp':
             return 18.0                                     # bpost Domestic 24h Pro
         return 0.0
