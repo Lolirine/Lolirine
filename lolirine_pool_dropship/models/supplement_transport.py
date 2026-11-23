@@ -56,6 +56,26 @@ class ResPartnerBaremePort(models.Model):
         help="Marge minimale visée sur la part de la commande servie par ce fournisseur, frais de port inclus.")
 
 
+class SaleOrderAppoint(models.Model):
+    _inherit = 'sale.order'
+
+    def _pool_appoint_manque(self, minimum):
+        """Montant HT qui manque pour atteindre le minimum d'achats quand le panier contient
+        un article d'appoint (0 si le minimum est atteint ou s'il n'y a pas d'article d'appoint)."""
+        self.ensure_one()
+        if not minimum:
+            return 0.0
+        articles = self.order_line.filtered(
+            lambda l: not l.is_delivery and not l.display_type and l.product_id
+            and l.product_uom_qty > 0)
+        if not any(articles.mapped('product_id.product_tmpl_id.pool_appoint')):
+            return 0.0
+        total = sum(articles.mapped('price_subtotal'))
+        if self.currency_id.compare_amounts(total, minimum) >= 0:
+            return 0.0
+        return self.currency_id.round(minimum - total)
+
+
 class DeliveryCarrierSupplementTransport(models.Model):
     _inherit = 'delivery.carrier'
 
@@ -151,22 +171,17 @@ class DeliveryCarrierSupplementTransport(models.Model):
         res = super().rate_shipment(order)
         if not res.get('success') or not order:
             return res
-        # Articles d'appoint : livraison proposée seulement à partir d'un minimum d'achats
+        # Articles d'appoint : mode proposé seulement à partir d'un minimum d'achats
         if self.pool_appoint_minimum:
-            articles = order.order_line.filtered(
-                lambda l: not l.is_delivery and not l.display_type and l.product_id
-                and l.product_uom_qty > 0)
-            if any(articles.mapped('product_id.product_tmpl_id.pool_appoint')):
-                total = sum(articles.mapped('price_subtotal'))
-                if order.currency_id.compare_amounts(total, self.pool_appoint_minimum) < 0:
-                    manque = self.pool_appoint_minimum - total
-                    return dict(
-                        res, success=False, price=0.0, warning_message=False,
-                        error_message=_(
-                            "Votre panier contient un article d'appoint : la livraison est possible à partir "
-                            "de %(minimum)s HTVA d'achats. Il vous manque %(manque)s HTVA.",
-                            minimum=('%.2f €' % self.pool_appoint_minimum).replace('.', ','),
-                            manque=('%.2f €' % manque).replace('.', ',')))
+            manque = order._pool_appoint_manque(self.pool_appoint_minimum)
+            if manque > 0:
+                return dict(
+                    res, success=False, price=0.0, warning_message=False,
+                    error_message=_(
+                        "Votre panier contient un article d'appoint : la commande est possible à partir "
+                        "de %(minimum)s HTVA d'achats. Il vous manque %(manque)s HTVA.",
+                        minimum=('%.2f €' % self.pool_appoint_minimum).replace('.', ','),
+                        manque=('%.2f €' % manque).replace('.', ',')))
         notes = []
         # Règle de marge minimale par fournisseur
         fournisseurs_bareme = set()

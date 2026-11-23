@@ -49,12 +49,32 @@
                    t-value="request.env['delivery.carrier'].sudo().search([('pool_appoint_minimum', '>', 0)], limit=1)"/>
                 <div t-if="pool_appoint_carrier" class="alert alert-info mt-3 mb-0 py-2 px-3 small" role="note">
                     <strong>Article d'appoint.</strong>
-                    Livraison à domicile à partir de
-                    <t t-out="('%.0f' % pool_appoint_carrier.pool_appoint_minimum)"/> € HTVA d'achats :
+                    Commande possible à partir de
+                    <t t-out="('%.0f' % pool_appoint_carrier.pool_appoint_minimum)"/> € HTVA d'achats
+                    (<t t-out="('%.2f' % (pool_appoint_carrier.pool_appoint_minimum * 1.21)).replace('.', ',')"/> € TVAC) :
                     ajoutez-le à une commande plus complète.
-                    Le retrait gratuit à Boninne reste possible sans minimum.
                 </div>
             </t>
+        </xpath>
+    </template>
+
+    <!-- Étape de livraison : message quand le minimum d'achats des articles d'appoint n'est pas atteint -->
+    <template id="delivery_form_appoint_notice" name="Pool Store : minimum d'achats (articles d'appoint)"
+              inherit_id="website_sale.delivery_form" priority="70">
+        <xpath expr="//form[@id='o_delivery_form']/h4" position="after">
+            <t t-set="pool_appoint_min"
+               t-value="request.env['delivery.carrier'].sudo().search([('pool_appoint_minimum', '>', 0)], limit=1).pool_appoint_minimum"/>
+            <t t-set="pool_appoint_manque"
+               t-value="order and pool_appoint_min and order.sudo()._pool_appoint_manque(pool_appoint_min) or 0"/>
+            <div t-if="pool_appoint_manque" class="alert alert-warning mb-3" role="alert">
+                <strong>Minimum d'achats non atteint.</strong>
+                Votre panier contient un article d'appoint, commandable à partir de
+                <t t-out="('%.0f' % pool_appoint_min)"/> € HTVA d'achats.
+                Il vous manque
+                <strong><t t-out="('%.2f' % pool_appoint_manque).replace('.', ',')"/> € HTVA</strong>
+                (<t t-out="('%.2f' % (pool_appoint_manque * 1.21)).replace('.', ',')"/> € TVAC).
+                <a href="/shop">Compléter mon panier</a>
+            </div>
         </xpath>
     </template>
 </odoo>
