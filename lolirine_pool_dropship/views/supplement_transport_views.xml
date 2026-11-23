@@ -76,5 +76,9 @@
                 <a href="/shop">Compléter mon panier</a>
             </div>
         </xpath>
+        <!-- Sous le minimum, aucun mode n'est commandable : la liste est masquée, l'encadré suffit -->
+        <xpath expr="//li[@name='o_delivery_method']" position="attributes">
+            <attribute name="t-if">not pool_appoint_manque</attribute>
+        </xpath>
     </template>
 </odoo>
