@@ -38,6 +38,10 @@ class ProductTemplateSupplementTransport(models.Model):
         "Marchandise dangereuse (ADR)",
         help="Article marqué « LQ ADR » au catalogue fournisseur : supplément matières dangereuses "
              "facturé par le fournisseur (Fluidra : 35 € HT par envoi ; SCP : 22,50 € HT par commande).")
+    pool_appoint = fields.Boolean(
+        "Article d'appoint",
+        help="Petit article dont le port fournisseur dépasse la marge quand il est commandé seul : "
+             "la livraison à domicile n'est proposée qu'à partir du minimum d'achats du mode de livraison.")
 
 
 class ResPartnerBaremePort(models.Model):
@@ -67,6 +71,10 @@ class DeliveryCarrierSupplementTransport(models.Model):
         "Plafond du complément (HT)", currency_field='currency_id', default=9.90,
         help="Montant maximum ajouté aux frais de livraison pour garantir la marge (0 = sans plafond). "
              "Le reste est intégré dans le prix des fiches ou accepté.")
+    pool_appoint_minimum = fields.Monetary(
+        "Minimum d'achats avec article d'appoint (HT)", currency_field='currency_id', default=0.0,
+        help="Montant HT d'articles à atteindre pour que ce mode de livraison soit proposé quand le panier "
+             "contient un article d'appoint (0 = pas de minimum).")
     currency_id = fields.Many2one(related='company_id.currency_id', readonly=True)
 
     # ------------------------------------------------------------------
@@ -143,6 +151,22 @@ class DeliveryCarrierSupplementTransport(models.Model):
         res = super().rate_shipment(order)
         if not res.get('success') or not order:
             return res
+        # Articles d'appoint : livraison proposée seulement à partir d'un minimum d'achats
+        if self.pool_appoint_minimum:
+            articles = order.order_line.filtered(
+                lambda l: not l.is_delivery and not l.display_type and l.product_id
+                and l.product_uom_qty > 0)
+            if any(articles.mapped('product_id.product_tmpl_id.pool_appoint')):
+                total = sum(articles.mapped('price_subtotal'))
+                if order.currency_id.compare_amounts(total, self.pool_appoint_minimum) < 0:
+                    manque = self.pool_appoint_minimum - total
+                    return dict(
+                        res, success=False, price=0.0, warning_message=False,
+                        error_message=_(
+                            "Votre panier contient un article d'appoint : la livraison est possible à partir "
+                            "de %(minimum)s HTVA d'achats. Il vous manque %(manque)s HTVA.",
+                            minimum=('%.2f €' % self.pool_appoint_minimum).replace('.', ','),
+                            manque=('%.2f €' % manque).replace('.', ',')))
         notes = []
         # Règle de marge minimale par fournisseur
         fournisseurs_bareme = set()

@@ -10,6 +10,7 @@
                 <field name="pool_supplement_transport" widget="monetary"/>
                 <field name="pool_marge_min_active"/>
                 <field name="pool_marge_plafond" widget="monetary" invisible="not pool_marge_min_active"/>
+                <field name="pool_appoint_minimum" widget="monetary"/>
             </xpath>
         </field>
     </record>
@@ -22,6 +23,7 @@
             <xpath expr="//div[@name='list_price_uom']" position="after">
                 <field name="pool_supplement_transport" invisible="not sale_ok"/>
                 <field name="pool_adr" invisible="not sale_ok"/>
+                <field name="pool_appoint" invisible="not sale_ok"/>
             </xpath>
         </field>
     </record>
@@ -37,4 +39,22 @@
             </xpath>
         </field>
     </record>
+
+    <!-- Fiche produit du site : mention « article d'appoint » sous le bouton d'ajout au panier -->
+    <template id="product_appoint_notice" name="Pool Store : mention article d'appoint"
+              inherit_id="website_sale.product" priority="70">
+        <xpath expr="//form[@t-if='is_add_to_cart_possible']" position="after">
+            <t t-if="product.pool_appoint">
+                <t t-set="pool_appoint_carrier"
+                   t-value="request.env['delivery.carrier'].sudo().search([('pool_appoint_minimum', '>', 0)], limit=1)"/>
+                <div t-if="pool_appoint_carrier" class="alert alert-info mt-3 mb-0 py-2 px-3 small" role="note">
+                    <strong>Article d'appoint.</strong>
+                    Livraison à domicile à partir de
+                    <t t-out="('%.0f' % pool_appoint_carrier.pool_appoint_minimum)"/> € HTVA d'achats :
+                    ajoutez-le à une commande plus complète.
+                    Le retrait gratuit à Boninne reste possible sans minimum.
+                </div>
+            </t>
+        </xpath>
+    </template>
 </odoo>
