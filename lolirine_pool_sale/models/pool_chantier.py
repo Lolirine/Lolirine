@@ -10,6 +10,20 @@ from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
+# Conditions imprimées au bas des devis d'entretien (hivernage, remise en route).
+# Modifiables sans toucher au code : paramètre système « lolirine_pool_sale.note_devis_entretien ».
+NOTE_DEVIS_ENTRETIEN = (
+    "<p>Merci pour votre confiance en Lolirine Pool Store.</p>"
+    "<p>Ce devis est valable 30 jours. Pour confirmer l'intervention, renvoyez-nous ce devis signé par e-mail "
+    "à info@lolirinepoolstore.be ou contactez-nous au +32 (0)497 44 41 46.</p>"
+    "<p>Les prix sont indiqués hors TVA (21 %). Le forfait couvre les prestations décrites ci-dessus. "
+    "Les produits de traitement, accessoires et pièces qui ne figurent pas au devis, ainsi que toute réparation "
+    "jugée nécessaire sur place, ne sont réalisés et facturés qu'avec votre accord préalable.</p>"
+    "<p>Merci de prévoir l'accès au bassin et au local technique, un point d'eau et une alimentation électrique. "
+    "L'intervention peut être reportée si la météo ne permet pas de travailler dans de bonnes conditions.</p>"
+    "<p>Paiement par virement à la réception de la facture, sur le compte mentionné au bas de ce document.</p>"
+)
+
 TYPES_ENTRETIEN = ('hivernage', 'remise_en_route', 'entretien')
 RELANCE_APRES_JOURS = 7
 RELANCE_AVANT_EXPIRATION = 3
@@ -274,6 +288,8 @@ class SaleOrderChantier(models.Model):
             'pool_intervention_type': type_intervention,
             'pool_adresse_chantier': adresse or partner.pool_adresse_piscine or partner.contact_address,
             'require_signature': True,
+            'note': self.env['ir.config_parameter'].sudo().get_param(
+                'lolirine_pool_sale.note_devis_entretien') or NOTE_DEVIS_ENTRETIEN,
         }
         if date_souhaitee:
             vals['commitment_date'] = date_souhaitee

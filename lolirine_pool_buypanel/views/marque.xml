@@ -51,9 +51,11 @@
         </xpath>
         <xpath expr="//div[hasclass('o_footer_content')]/div[@t-field='company.report_footer']" position="after">
             <div t-if="lp_marque" class="flex-grow-1 text-start me-2">
+                <!-- Compte du Pool Store : celui du journal « Ventes Piscines » (code POOL) -->
+                <t t-set="lp_banque" t-value="company.env['account.journal'].sudo().search([('code', '=', 'POOL'), ('type', '=', 'sale'), ('company_id', '=', company.id)], limit=1).bank_account_id"/>
                 <strong>Lolirine Pool Store</strong> — un service de Srl Lolirine ·
                 info@lolirinepoolstore.be · +32 497 44 41 46 · www.lolirinepoolstore.be<br/>
-                TVA : BE0650891279 · IBAN : BE07 7320 5208 0866
+                TVA : BE0650891279 · IBAN : <t t-out="lp_banque.acc_number or 'BE22 7320 8995 7447'"/>
             </div>
         </xpath>
     </template>
