@@ -288,6 +288,8 @@ class SaleOrderChantier(models.Model):
             'pool_intervention_type': type_intervention,
             'pool_adresse_chantier': adresse or partner.pool_adresse_piscine or partner.contact_address,
             'require_signature': True,
+            # entretien : la signature suffit à confirmer, paiement à la réception de la facture
+            'require_payment': False,
             'note': self.env['ir.config_parameter'].sudo().get_param(
                 'lolirine_pool_sale.note_devis_entretien') or NOTE_DEVIS_ENTRETIEN,
         }
