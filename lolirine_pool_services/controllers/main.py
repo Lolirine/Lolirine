@@ -138,8 +138,9 @@ class PoolServicesController(http.Controller):
                 'general': 'autre',
             }
             
-            # Chercher équipe commerciale
-            team = request.env['crm.team'].sudo().search([], limit=1)
+            # Équipe commerciale Pool Store (et non la première équipe venue, qui est le garde-meuble)
+            Team = request.env['crm.team'].sudo()
+            team = Team.search([('name', '=', 'Pool Store')], limit=1) or Team.search([], limit=1)
             
             # Créer l'opportunité
             lead_vals = {
@@ -149,6 +150,7 @@ class PoolServicesController(http.Controller):
                 'phone': phone,
                 'description': description,
                 'type': 'opportunity',
+                'user_id': False,
                 'is_pool_request': True,
                 'pool_service_type': service_type_mapping.get(request_type, 'autre'),
                 'pool_type': pool_type or False,
@@ -239,8 +241,9 @@ class PoolServicesController(http.Controller):
 ═══════════════════════════════════════════
             """.strip()
             
-            # Chercher une équipe commerciale
-            team = request.env['crm.team'].sudo().search([], limit=1)
+            # Équipe commerciale Pool Store (et non la première équipe venue, qui est le garde-meuble)
+            Team = request.env['crm.team'].sudo()
+            team = Team.search([('name', '=', 'Pool Store')], limit=1) or Team.search([], limit=1)
             
             # Créer l'opportunité
             lead_vals = {
@@ -250,6 +253,7 @@ class PoolServicesController(http.Controller):
                 'phone': phone,
                 'description': description,
                 'type': 'opportunity',
+                'user_id': False,
                 'is_pool_request': True,
                 'pool_service_type': service_type or False,
                 'pool_type': pool_type or False,
