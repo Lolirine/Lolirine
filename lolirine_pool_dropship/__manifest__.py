@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Pool - Dropshipping & Gestion Fournisseurs',
-    'version': '19.0.4.10.10',
+    'version': '19.0.4.10.11',
     'category': 'Sales/Sales',
     'summary': 'Gestion automatisée des commandes dropshipping avec réductions négociées et optimisation des marges',
     'description': """

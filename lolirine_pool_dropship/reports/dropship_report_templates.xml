@@ -478,11 +478,11 @@
 
                     <div class="pool-document" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #333;">
                         <!-- EN-TÊTE FACTURE -->
-                        <div style="border-bottom: 3px solid #0078D4; padding-bottom: 15px; margin-bottom: 25px;">
+                        <div style="border-bottom: 3px solid #0078D4; padding-bottom: 8px; margin-bottom: 12px;">
                             <div class="row">
                                 <div class="col-4">
                                     <img src="/lolirine_pool_dropship/static/img/pool_store_logo.png"
-                                         style="max-height: 90px; max-width: 220px;" alt="Lolirine Pool Store"/>
+                                         style="max-height: 70px; max-width: 200px;" alt="Lolirine Pool Store"/>
                                 </div>
                                 <div class="col-4 text-center" style="padding-top: 20px;">
                                     <span style="color: #0078D4; font-style: italic; font-size: 12px;">
@@ -647,11 +647,12 @@
                         </div>
 
                         <t t-if="not is_html_empty(doc.narration)">
-                            <div style="margin-top: 10px; font-size: 12px; color: #333;"><t t-out="doc.narration"/></div>
+                            <style>.lp-remarques p { margin: 0 0 3px 0; }</style>
+                            <div class="lp-remarques" style="margin-top: 4px; font-size: 11px; color: #333; line-height: 1.25;"><t t-out="doc.narration"/></div>
                         </t>
 
                         <!-- PAIEMENT -->
-                        <div style="margin-top: 20px; padding: 18px; background: #e8f4fd; border-radius: 8px; border: 1px solid #b8daff;">
+                        <div style="margin-top: 10px; padding: 10px 14px; background: #e8f4fd; border-radius: 8px; border: 1px solid #b8daff; page-break-inside: avoid;">
                             <strong style="color: #0078D4; font-size: 14px;">Informations de paiement :</strong><br/>
                             <table style="margin-top: 8px; font-size: 13px;">
                                 <t t-set="pool_bank" t-value="doc.partner_bank_id or doc.company_id._lolirine_pool_bank()"/>
@@ -677,7 +678,7 @@
                         </div>
 
                         <!-- PIED DE PAGE -->
-                        <div style="border-top: 2px solid #0078D4; margin-top: 30px; padding-top: 10px; font-size: 10px; color: #888;">
+                        <div style="border-top: 2px solid #0078D4; margin-top: 12px; padding-top: 6px; font-size: 10px; color: #888; page-break-inside: avoid;">
                             <div class="row">
                                 <div class="col-4">
                                     <strong>Lolirine SRL</strong><br/>
