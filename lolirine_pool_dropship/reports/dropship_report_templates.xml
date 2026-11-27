@@ -576,11 +576,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-foreach="doc.invoice_line_ids" t-as="line">
-                                    <t t-if="not line.display_type">
+                                <t t-foreach="doc.invoice_line_ids.sorted(lambda l: (l.sequence, l.id))" t-as="line">
+                                    <!-- Odoo 19 : une ligne d'article porte display_type = 'product' -->
+                                    <t t-if="line.display_type in (False, 'product')">
+                                        <t t-set="lp_nom" t-value="(line.name or line.product_id.display_name or '').split('\n')"/>
                                         <tr style="border-bottom: 1px solid #dee2e6;">
                                             <td style="padding: 8px 12px;">
-                                                <strong><t t-esc="line.name"/></strong>
+                                                <strong><t t-esc="lp_nom[0]"/></strong>
+                                                <t t-foreach="lp_nom[1:]" t-as="lp_detail">
+                                                    <br/><span style="font-size: 11px; color: #555;"><t t-esc="lp_detail"/></span>
+                                                </t>
                                             </td>
                                             <td class="text-center" style="padding: 8px;">
                                                 <t t-esc="line.quantity"/>
@@ -594,6 +599,16 @@
                                             <td class="text-end" style="padding: 8px;">
                                                 <strong><t t-esc="'%.2f' % line.price_subtotal"/> €</strong>
                                             </td>
+                                        </tr>
+                                    </t>
+                                    <t t-elif="line.display_type == 'line_section'">
+                                        <tr style="background: #f1f5f9;">
+                                            <td colspan="5" style="padding: 6px 12px;"><strong><t t-esc="line.name"/></strong></td>
+                                        </tr>
+                                    </t>
+                                    <t t-elif="line.display_type == 'line_note'">
+                                        <tr>
+                                            <td colspan="5" style="padding: 6px 12px; font-style: italic; font-size: 11px;"><t t-esc="line.name"/></td>
                                         </tr>
                                     </t>
                                 </t>
@@ -630,6 +645,10 @@
                                 </table>
                             </div>
                         </div>
+
+                        <t t-if="not is_html_empty(doc.narration)">
+                            <div style="margin-top: 10px; font-size: 12px; color: #333;"><t t-out="doc.narration"/></div>
+                        </t>
 
                         <!-- PAIEMENT -->
                         <div style="margin-top: 20px; padding: 18px; background: #e8f4fd; border-radius: 8px; border: 1px solid #b8daff;">

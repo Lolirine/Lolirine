@@ -48,6 +48,19 @@ class SaleOrderLineOutils(models.Model):
         code = (self.product_id.default_code or '').upper()
         return code.startswith('MO-') or code.startswith('DEPL')
 
+    def _prepare_invoice_line(self, **optional_values):
+        """Main-d'œuvre et déplacements d'un devis piscine : compte « Prestations de services (Piscine) »
+        (705001) et non le compte de produits par défaut de l'article générique (garde-meuble)."""
+        vals = super()._prepare_invoice_line(**optional_values)
+        order = self.order_id
+        piscine = order.is_pool_quote or (order.website_id and order.website_id.id == 6)
+        if not self.display_type and piscine and self._pool_ligne_mo():
+            compte = self.env['account.account'].sudo().with_company(order.company_id).search(
+                [('code', '=', '705001')], limit=1)
+            if compte:
+                vals['account_id'] = compte.id
+        return vals
+
     @api.depends('product_id', 'display_type', 'pool_prestation_id')
     def _compute_pool_est_mo(self):
         for line in self:
