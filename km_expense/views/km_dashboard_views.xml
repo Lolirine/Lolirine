@@ -24,10 +24,14 @@
                 <filter name="auto" string="Créés automatiquement" domain="[('auto_source', '!=', False)]"/>
                 <filter name="non_comptabilise" string="Non comptabilisés" domain="[('comptabilise', '=', False)]"/>
                 <filter name="sans_distance" string="Distance manquante" domain="[('distance', '&lt;=', 0)]"/>
+                <separator/>
+                <filter name="activite_garde_meuble" string="Garde-meuble" domain="[('activite', '!=', 'piscine')]"/>
+                <filter name="activite_piscine" string="Piscine" domain="[('activite', '=', 'piscine')]"/>
                 <group>
                     <filter name="group_mois" string="Mois" context="{'group_by': 'date:month'}"/>
                     <filter name="group_trimestre" string="Trimestre" context="{'group_by': 'date:quarter'}"/>
                     <filter name="group_categorie" string="Catégorie" context="{'group_by': 'categorie_id'}"/>
+                    <filter name="group_activite" string="Activité" context="{'group_by': 'activite'}"/>
                     <filter name="group_partner" string="Client / Fournisseur" context="{'group_by': 'partner_id'}"/>
                     <filter name="group_state" string="Statut" context="{'group_by': 'state'}"/>
                     <filter name="group_auto" string="Création automatique" context="{'group_by': 'auto_source'}"/>

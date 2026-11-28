@@ -72,6 +72,7 @@
                             <field name="date"/>
                             <field name="employee_id"/>
                             <field name="categorie_id" options="{'no_quick_create': False, 'no_create_edit': False}"/>
+                            <field name="activite" widget="radio" options="{'horizontal': true}"/>
                             <field name="partner_id"/>
                         </group>
                         <group string="Véhicule">
@@ -186,6 +187,7 @@
                 <field name="lieu_arrivee"/>
                 <field name="distance" sum="Total KM"/>
                 <field name="categorie_id"/>
+                <field name="activite" optional="show" widget="badge" decoration-info="activite == 'piscine'"/>
                 <field name="origine_trajet" optional="hide" widget="badge"/>
                 <field name="comptabilise" optional="hide" widget="boolean_toggle"/>
                 <field name="montant_indemnite" sum="Total €" widget="monetary"/>

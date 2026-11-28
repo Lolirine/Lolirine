@@ -120,6 +120,15 @@ class KmTrajet(models.Model):
         required=True,
         tracking=True,
     )
+
+    # Activité concernée : sépare les indemnités du garde-meuble de celles du Pool Store
+    activite = fields.Selection(
+        [('garde_meuble', 'Garde-meuble'), ('piscine', 'Piscine')],
+        string='Activité',
+        compute='_compute_activite', store=True, readonly=False, tracking=True,
+        help="Piscine quand la facture liée est dans un journal piscine (Achats Piscines / "
+             "Ventes Piscines) ; modifiable à la main pour les trajets sans facture.",
+    )
     
     # Client/Fournisseur associé
     partner_id = fields.Many2one(
@@ -337,6 +346,16 @@ class KmTrajet(models.Model):
             if vals.get('name', 'Nouveau') == 'Nouveau':
                 vals['name'] = self.env['ir.sequence'].next_by_code('km.trajet') or 'Nouveau'
         return super().create(vals_list)
+
+    @api.depends('invoice_id', 'invoice_id.journal_id')
+    def _compute_activite(self):
+        """Journal de la facture liée : PISC / POOL → piscine. Sans facture, le choix manuel est conservé."""
+        for trajet in self:
+            code = (trajet.invoice_id.journal_id.code or '').upper()
+            if code in ('PISC', 'POOL'):
+                trajet.activite = 'piscine'
+            elif trajet.invoice_id or not trajet.activite:
+                trajet.activite = 'garde_meuble'
 
     @api.depends('lieu_depart_predef_id', 'destination_predef_id', 'use_predefined')
     def _compute_lieux(self):
