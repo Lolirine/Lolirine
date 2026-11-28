@@ -85,6 +85,9 @@
                             <field name="pool_visit_checklist_pct" widget="progressbar"/>
                             <field name="pool_km"/>
                             <field name="pool_frais_deplacement"/>
+                            <button name="action_pool_calculer_deplacement" type="object"
+                                    string="Calculer le déplacement depuis Boninne" class="btn-link" icon="fa-road"
+                                    invisible="state not in ('draft', 'sent')" colspan="2"/>
                             <field name="pool_moeuvre"/>
                             <field name="pool_evacuation"/>
                         </group>

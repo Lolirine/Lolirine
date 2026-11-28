@@ -272,6 +272,63 @@ class SaleOrderChantier(models.Model):
                  'remise_en_route': 'lolirine_pool_sale.prestation_mise_en_route'}.get(type_intervention)
         return self.env.ref(xmlid, raise_if_not_found=False) if xmlid else self.env['lolirine.pool.prestation']
 
+    # ─────────────────────────────────────────────────────────────────
+    #  Frais de déplacement : distance depuis Boninne (module « Trajets kilomètres »)
+    # ─────────────────────────────────────────────────────────────────
+    def _pool_distance_depuis_boninne(self):
+        """Distance aller (km) entre le lieu de départ par défaut des trajets kilomètres
+        (siège, Boninne) et l'adresse du chantier. 0.0 si le calcul est impossible."""
+        self.ensure_one()
+        if 'km.distance.calculator' not in self.env or 'km.lieu.depart' not in self.env:
+            return 0.0
+        Depart = self.env['km.lieu.depart'].sudo()
+        depart = Depart.search([('is_default', '=', True)], limit=1) or Depart.search([], limit=1)
+        livraison = self.partner_shipping_id or self.partner_id
+        destination = self.pool_adresse_chantier or self.partner_id.pool_adresse_piscine or ", ".join(
+            x for x in (livraison.street, " ".join(filter(None, [livraison.zip, livraison.city]))) if x)
+        if not depart or not destination:
+            return 0.0
+        if 'belg' not in destination.lower():
+            destination = "%s, Belgique" % destination
+        return self.env['km.distance.calculator'].sudo().calculate_distance(depart.adresse_complete, destination) or 0.0
+
+    def action_pool_calculer_deplacement(self):
+        """Calcule la distance depuis Boninne et ajoute (ou met à jour) la ligne de frais de déplacement.
+        Tarif : paramètre « lolirine_pool_sale.deplacement_taux_km » (€ HTVA par km aller, défaut 1,00)."""
+        params = self.env['ir.config_parameter'].sudo()
+        taux = float(params.get_param('lolirine_pool_sale.deplacement_taux_km', '1.0') or 0.0)
+        Product = self.env['product.product']
+        article = Product.browse(int(params.get_param('lolirine_pool_sale.deplacement_product_id', '0') or 0)).exists() \
+            or Product.search([('default_code', '=', 'DEPL')], order='id desc', limit=1)
+        for order in self:
+            if order.state not in ('draft', 'sent'):
+                raise UserError(_("Les frais de déplacement ne se recalculent que sur un devis."))
+            km = order._pool_distance_depuis_boninne()
+            if not km:
+                raise UserError(_("Distance non calculée : vérifiez l'adresse du chantier et la clé de calcul "
+                                  "des trajets kilomètres."))
+            if not article:
+                raise UserError(_("Article de frais de déplacement (référence DEPL) introuvable."))
+            km_arrondi = int(round(km))
+            montant = order.currency_id.round(km_arrondi * taux)
+            livraison = order.partner_shipping_id or order.partner_id
+            ville = livraison.city or order.partner_id.city or ''
+            libelle = _("Frais de déplacement Boninne – %(ville)s (± %(km)s km), par déplacement") % {
+                'ville': ville or _("chantier"), 'km': km_arrondi}
+            lignes = order.order_line.filtered(
+                lambda l: not l.display_type and (l.product_id.default_code or '').upper().startswith('DEPL'))
+            if lignes:
+                lignes[0].write({'name': libelle, 'price_unit': montant})
+            else:
+                mo = order.order_line.filtered(lambda l: l._pool_ligne_mo())
+                sequence = (max(mo.mapped('sequence')) + 1) if mo else 15
+                ligne = self.env['sale.order.line'].create({
+                    'order_id': order.id, 'product_id': article.id, 'name': libelle,
+                    'product_uom_qty': 1, 'sequence': sequence})
+                ligne.write({'name': libelle, 'price_unit': montant})
+            order.write({'pool_km': km_arrondi, 'pool_frais_deplacement': montant})
+        return True
+
     @api.model
     def _pool_creer_devis_entretien(self, partner, type_intervention, prestation=False, adresse=False,
                                     date_souhaitee=False, avec_options=True, note_interne=False):
@@ -304,6 +361,11 @@ class SaleOrderChantier(models.Model):
             'avec_fournitures': True, 'avec_options': avec_options,
         })
         assistant.action_ajouter()
+        # frais de déplacement depuis Boninne (sans bloquer la création du devis si le calcul échoue)
+        try:
+            order.action_pool_calculer_deplacement()
+        except Exception as e:
+            _logger.info("Devis %s : frais de déplacement non calculés (%s)", order.name, e)
         parc = partner.pool_equipement_ids
         if parc:
             order.pool_vt_equipements = "\n".join(
