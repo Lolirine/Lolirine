@@ -6,7 +6,7 @@
         <field name="name">Demandes Web</field>
         <field name="res_model">crm.lead</field>
         <field name="view_mode">kanban,list,form</field>
-        <field name="domain">['|', ('name', 'ilike', 'Demande web'), ('name', 'ilike', '[Pool Store]')]</field>
+        <field name="domain">['&amp;', ('tag_ids', 'not any', [('name', '=', 'Questions et sollicitations')]), '|', ('name', 'ilike', 'Demande web'), ('name', 'ilike', '[Pool Store]')]</field>
         <field name="context">{
             'default_type': 'lead',
         }</field>
@@ -20,6 +20,24 @@
         </field>
     </record>
     
+    <!-- Questions générales, publicités et sollicitations : à trier, hors pipeline et hors « Demandes Web » -->
+    <record id="action_crm_lead_sollicitations" model="ir.actions.act_window">
+        <field name="name">Questions et sollicitations</field>
+        <field name="res_model">crm.lead</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('tag_ids.name', '=', 'Questions et sollicitations')]</field>
+        <field name="context">{'default_type': 'lead'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune question ni sollicitation à trier
+            </p>
+            <p>
+                Les questions générales du formulaire de contact du Pool Store, les publicités et les
+                sollicitations arrivent ici, à part des demandes de devis.
+            </p>
+        </field>
+    </record>
+
     <!-- Menu sous CRM -->
     <menuitem id="menu_crm_web_requests"
               name="Demandes Web"
@@ -27,4 +45,16 @@
               action="action_crm_lead_web_requests"
               sequence="5"/>
     
+    <menuitem id="menu_crm_sollicitations"
+              name="Sollicitations"
+              parent="crm.crm_menu_root"
+              action="action_crm_lead_sollicitations"
+              sequence="6"/>
+
+    <data noupdate="1">
+        <record id="crm_tag_sollicitation" model="crm.tag">
+            <field name="name">Questions et sollicitations</field>
+        </record>
+    </data>
+
 </odoo>

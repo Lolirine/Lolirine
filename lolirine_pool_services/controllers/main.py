@@ -168,6 +168,16 @@ class PoolServicesController(http.Controller):
             
             if team:
                 lead_vals['team_id'] = team.id
+
+            # Questions générales et questions produit : beaucoup de publicités et de sollicitations.
+            # Elles arrivent comme pistes étiquetées « Questions et sollicitations », à part des
+            # demandes expresses (service, devis) qui restent des opportunités du pipeline.
+            if request_type not in ('service', 'quote'):
+                etiquette = request.env['crm.tag'].sudo().search(
+                    [('name', '=', 'Questions et sollicitations')], limit=1)
+                lead_vals['type'] = 'lead'
+                if etiquette:
+                    lead_vals['tag_ids'] = [(6, 0, etiquette.ids)]
             
             lead = request.env['crm.lead'].sudo().create(lead_vals)
             _logger.info(f"Pool Store Contact: Opportunité créée - {lead.name} (ID: {lead.id})")
