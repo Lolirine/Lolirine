@@ -7,3 +7,4 @@ from . import pool_pv
 from . import pool_chantier
 from . import pool_majoration
 from . import factures_activites
+from . import pool_trajets_km

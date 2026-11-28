@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Lolirine Pool — Devis Piscine',
-    'version': '19.0.4.6.7',
+    'version': '19.0.4.6.8',
     'category': 'Sales',
     'summary': 'Devis piscine : ouvrages, conditions de paiement, marge, autoliquidation, chantier',
     'description': """
@@ -32,7 +32,7 @@
     'website': 'https://lolirinepoolstore.be',
     'license': 'LGPL-3',
     'depends': ['sale_management', 'sale', 'purchase', 'sale_margin', 'sale_project', 'hr_timesheet',
-                'lolirine_pool_dropship'],
+                'lolirine_pool_dropship', 'km_expense'],
     'data': [
         'security/ir.model.access.csv',
         'data/sequence.xml',
