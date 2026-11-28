@@ -51,6 +51,75 @@
               action="action_crm_lead_sollicitations"
               sequence="6"/>
 
+    <!-- Abonnés à la newsletter du site (liste de diffusion) -->
+    <record id="view_mailing_contact_abonnes_list" model="ir.ui.view">
+        <field name="name">mailing.contact.abonnes.list</field>
+        <field name="model">mailing.contact</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <list string="Abonnés newsletter" default_order="create_date desc">
+                <field name="create_date" string="Inscrit le"/>
+                <field name="email"/>
+                <field name="name"/>
+                <field name="list_ids" widget="many2many_tags" string="Listes"/>
+                <field name="is_blacklisted" string="Désinscrit (liste noire)" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_abonnes_newsletter" model="ir.actions.act_window">
+        <field name="name">Abonnés newsletter</field>
+        <field name="res_model">mailing.contact</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_mailing_contact_abonnes_list"/>
+        <field name="domain">[('list_ids', '!=', False)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun abonné pour l'instant</p>
+            <p>Les adresses inscrites via le formulaire « newsletter » du site apparaissent ici.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_crm_abonnes_newsletter"
+              name="Abonnés newsletter"
+              parent="crm.crm_menu_root"
+              action="action_abonnes_newsletter"
+              sequence="7"/>
+
+    <!-- Comptes clients (portail) créés sur les sites -->
+    <record id="view_users_comptes_portail_list" model="ir.ui.view">
+        <field name="name">res.users.comptes.portail.list</field>
+        <field name="model">res.users</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <list string="Comptes portail" default_order="create_date desc" create="0">
+                <field name="create_date" string="Créé le"/>
+                <field name="name"/>
+                <field name="login" string="E-mail de connexion"/>
+                <field name="login_date" string="Dernière connexion"/>
+                <field name="website_id" string="Site" optional="show"/>
+                <field name="partner_id" string="Contact" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_comptes_portail" model="ir.actions.act_window">
+        <field name="name">Comptes portail</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_users_comptes_portail_list"/>
+        <field name="domain">[('share', '=', True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun compte client pour l'instant</p>
+            <p>Les clients qui créent un compte sur un des sites apparaissent ici.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_crm_comptes_portail"
+              name="Comptes portail"
+              parent="crm.crm_menu_root"
+              action="action_comptes_portail"
+              sequence="8"/>
+
     <data noupdate="1">
         <record id="crm_tag_sollicitation" model="crm.tag">
             <field name="name">Questions et sollicitations</field>

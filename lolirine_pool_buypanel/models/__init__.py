@@ -5,3 +5,4 @@ from . import website
 from . import marque
 from . import suggestions
 from . import pac
+from . import newsletter_alerte
