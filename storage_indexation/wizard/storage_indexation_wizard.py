@@ -257,7 +257,7 @@ class StorageIndexationWizard(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': _('Abonnements à indexer'),
             'res_model': 'sale.order',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': domain,
             'target': 'new',
         }

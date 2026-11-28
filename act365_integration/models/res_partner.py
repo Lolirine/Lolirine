@@ -41,7 +41,7 @@ class ResPartner(models.Model):
             'type': 'ir.actions.act_window',
             'name': _('Abonnements Garde-Meubles'),
             'res_model': 'sale.order',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [
                 ('partner_id', '=', self.id),
                 ('is_subscription', '=', True),

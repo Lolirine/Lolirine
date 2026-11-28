@@ -124,7 +124,7 @@ class ResConfigSettings(models.TransientModel):
             'type': 'ir.actions.act_window',
             'name': _('Groupes ACT365'),
             'res_model': 'act365.cardholder.group',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'target': 'current',
         }
 

@@ -59,7 +59,7 @@ class SaleOrder(models.Model):
             'type': 'ir.actions.act_window',
             'name': _('Historique des indexations'),
             'res_model': 'storage.indexation.line',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('id', 'in', lines.ids)],
             'context': {'default_subscription_id': self.id},
         }

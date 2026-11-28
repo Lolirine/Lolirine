@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Indemnités Kilométriques',
-    'version': '19.0.1.5.0',
+    'version': '19.0.1.5.1',
     'category': 'Human Resources/Expenses',
     'summary': 'Gestion des trajets professionnels et calcul des indemnités kilométriques',
     'description': """

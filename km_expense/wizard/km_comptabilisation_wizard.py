@@ -204,7 +204,7 @@ class KmComptabilisationWizard(models.TransientModel):
             'name': 'Trajets à comptabiliser',
             'type': 'ir.actions.act_window',
             'res_model': 'km.trajet',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('id', 'in', self.trajet_ids.ids)],
             'context': {'create': False},
         }
@@ -254,7 +254,7 @@ class KmComptabilisationWizard(models.TransientModel):
                 'name': 'Écritures comptables',
                 'type': 'ir.actions.act_window',
                 'res_model': 'account.move',
-                'view_mode': 'tree,form',
+                'view_mode': 'list,form',
                 'domain': [('id', 'in', moves_created.ids)],
             }
 

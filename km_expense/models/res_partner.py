@@ -45,7 +45,7 @@ class ResPartner(models.Model):
             'name': f'Trajets - {self.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'km.trajet',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('partner_id', '=', self.id)],
             'context': {'default_partner_id': self.id},
         }

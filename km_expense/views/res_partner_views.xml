@@ -72,7 +72,7 @@
     <record id="action_partners_km_trajet_auto" model="ir.actions.act_window">
         <field name="name">Partenaires avec trajet auto</field>
         <field name="res_model">res.partner</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[('km_trajet_auto', '=', True)]</field>
         <field name="context">{'default_km_trajet_auto': True}</field>
         <field name="help" type="html">
