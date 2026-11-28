@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     
-    <!-- Action pour voir les demandes web -->
+    <!-- Demandes web des deux sites : garde-meuble (« Demande web - … ») et Pool Store (« [Pool Store] … ») -->
     <record id="action_crm_lead_web_requests" model="ir.actions.act_window">
-        <field name="name">Demandes Web Garde-Meubles</field>
+        <field name="name">Demandes Web</field>
         <field name="res_model">crm.lead</field>
         <field name="view_mode">kanban,list,form</field>
-        <field name="domain">[('name', 'ilike', 'Demande web')]</field>
+        <field name="domain">['|', ('name', 'ilike', 'Demande web'), ('name', 'ilike', '[Pool Store]')]</field>
         <field name="context">{
             'default_type': 'lead',
         }</field>
@@ -15,7 +15,7 @@
                 Aucune demande web pour le moment
             </p>
             <p>
-                Les demandes reçues via le formulaire de contact apparaîtront ici.
+                Les demandes reçues via les formulaires du garde-meuble et du Pool Store apparaîtront ici.
             </p>
         </field>
     </record>
